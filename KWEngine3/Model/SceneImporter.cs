@@ -332,7 +332,7 @@ namespace KWEngine3.Model
 
         internal static string StripFileNameFromPath(string path)
         {
-            int index = path.LastIndexOf('\\');
+            int index = path.LastIndexOf(KWEngine._folderDivider);
             if (index < 0)
             {
                 return path;
@@ -367,7 +367,7 @@ namespace KWEngine3.Model
 
         internal static string StripPathFromFile(string fileWithPath)
         {
-            int index = fileWithPath.LastIndexOf('\\');
+            int index = fileWithPath.LastIndexOf(KWEngine._folderDivider);
             if (index < 0)
             {
                 return fileWithPath;
@@ -565,7 +565,7 @@ namespace KWEngine3.Model
                                 if (model.AssemblyMode == AssemblyMode.File)
                                 {
                                     tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                            FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), out int mipMaps
+                                            FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
                                         );
                                 }
                                 else
@@ -685,7 +685,7 @@ namespace KWEngine3.Model
                             if (model.AssemblyMode == AssemblyMode.File)
                             {
                                 tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), out int mipMaps
+                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
                                     );
                             }
                             else
@@ -750,7 +750,7 @@ namespace KWEngine3.Model
                             if (model.AssemblyMode == AssemblyMode.File)
                             {
                                 tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), out int mipMaps
+                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
                                     );
                             }
                             else
@@ -803,7 +803,7 @@ namespace KWEngine3.Model
                             if (model.AssemblyMode == AssemblyMode.File)
                             {
                                 tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), out int mipMaps
+                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
                                     );
                             }
                             else
@@ -864,7 +864,7 @@ namespace KWEngine3.Model
                             if (model.AssemblyMode == AssemblyMode.File)
                             {
                                 tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute), out int mipMaps
+                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
                                     );
                             }
                             else

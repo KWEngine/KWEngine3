@@ -101,7 +101,7 @@ namespace KWEngine3
         internal BackgroundType BackgroundTextureType { get { return _background.Type; } }
 
         internal int _preparedLightsCount = 0;
-        internal float[] _preparedLightsArray = new float[KWEngine.MAX_LIGHTS * 17];
+        internal float[] _preparedLightsArray = new float[KWEngine.MAX_LIGHTS * KWEngine.LIGHTINDEXDIVIDER];
         internal List<int> _preparedTex2DIndices = new List<int>();
         internal List<int> _preparedCubeMapIndices = new List<int>();
         internal List<LightObject> _currentShadowLights = new List<LightObject>();
@@ -263,13 +263,13 @@ namespace KWEngine3
                 else if (l.Type == LightType.Point)
                 {
                     _currentShadowLights.Add(l);
-                    _preparedCubeMapIndices.Add(offset / 15);
+                    _preparedCubeMapIndices.Add(offset / KWEngine.LIGHTINDEXDIVIDER);
                     _preparedLightsArray[offset + 03] = cubemapIndex--;
                 }
                 else
                 {
                     _currentShadowLights.Add(l);
-                    _preparedTex2DIndices.Add(offset / 15);
+                    _preparedTex2DIndices.Add(offset / KWEngine.LIGHTINDEXDIVIDER);
                     _preparedLightsArray[offset + 03] = tex2dIndex++;
                 }
                 // 04-06 = lookatvector (vec3)
@@ -290,7 +290,7 @@ namespace KWEngine3
                 _preparedLightsArray[offset + 15] = l._shadowBias;
                 _preparedLightsArray[offset + 16] = l._shadowOffset;
 
-                offset += 17;
+                offset += KWEngine.LIGHTINDEXDIVIDER;
                 _preparedLightsCount++;
             }
         }

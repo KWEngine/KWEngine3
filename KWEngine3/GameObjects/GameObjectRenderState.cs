@@ -39,7 +39,7 @@ namespace KWEngine3.GameObjects
         {
             if(gameObject == null)
             {
-                throw new ArgumentNullException("..."); //TODO
+                throw new ArgumentNullException("invalid game object for creating render state"); //TODO
             }
             _rotation = Quaternion.Identity;
             _scale = Vector3.One;

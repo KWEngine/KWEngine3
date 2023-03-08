@@ -28,8 +28,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("ubot", @".\Models\JumpAndRunPhysics\ubot.fbx");
-            SetBackground2D(@".\textures\spacebackground.dds");
+            KWEngine.LoadModel("ubot", @"./Models/JumpAndRunPhysics/ubot.fbx");
+            SetBackground2D(@"./textures/spacebackground.dds");
             SetBackground2DRepeat(2, 2);
             SetColorAmbient(0.5f, 0.5f, 0.5f);
 
@@ -45,9 +45,9 @@ namespace KWEngine3TestProject.Worlds
             f01.SetPosition(0, -4.5f, 0);
             f01.SetScale(10, 1, 1);
             f01.IsCollisionObject = true;
-            f01.SetTexture(@".\textures\pavement_06_albedo.dds", TextureType.Albedo);
-            f01.SetTexture(@".\textures\pavement_06_normal.dds", TextureType.Normal);
-            f01.SetTexture(@".\textures\pavement_06_roughness.dds", TextureType.Roughness);
+            f01.SetTexture(@"./textures/pavement_06_albedo.dds", TextureType.Albedo);
+            f01.SetTexture(@"./textures/pavement_06_normal.dds", TextureType.Normal);
+            f01.SetTexture(@"./textures/pavement_06_roughness.dds", TextureType.Roughness);
             f01.SetTextureRepeat(5, 0.5f);
             f01.IsShadowCaster = true;
             AddGameObject(f01);
@@ -57,9 +57,9 @@ namespace KWEngine3TestProject.Worlds
             f02.SetPosition(0, -1.5f, 0);
             f02.SetScale(3, 1, 1);
             f02.IsCollisionObject = true;
-            f02.SetTexture(@".\textures\pavement_06_albedo.dds", TextureType.Albedo);
-            f02.SetTexture(@".\textures\pavement_06_normal.dds", TextureType.Normal);
-            f02.SetTexture(@".\textures\pavement_06_roughness.dds", TextureType.Roughness);
+            f02.SetTexture(@"./textures/pavement_06_albedo.dds", TextureType.Albedo);
+            f02.SetTexture(@"./textures/pavement_06_normal.dds", TextureType.Normal);
+            f02.SetTexture(@"./textures/pavement_06_roughness.dds", TextureType.Roughness);
             f02.SetTextureRepeat(1.5f, 0.5f);
             f02.IsShadowCaster = true;
             AddGameObject(f02);
@@ -69,11 +69,11 @@ namespace KWEngine3TestProject.Worlds
             w01.SetPosition(-5.5f, 0.0f, 0);
             w01.SetScale(1, 10, 1);
             w01.IsCollisionObject = true;
-            w01.SetTexture(@".\textures\scifi_tile_03_albedo.dds", TextureType.Albedo);
-            w01.SetTexture(@".\textures\scifi_tile_03_normal.dds", TextureType.Normal);
-            w01.SetTexture(@".\textures\scifi_tile_03_metallic.dds", TextureType.Metallic);
-            w01.SetTexture(@".\textures\scifi_tile_03_roughness.dds", TextureType.Roughness);
-            w01.SetTexture(@".\textures\scifi_tile_03_emissive.dds", TextureType.Emissive);
+            w01.SetTexture(@"./textures/scifi_tile_03_albedo.dds", TextureType.Albedo);
+            w01.SetTexture(@"./textures/scifi_tile_03_normal.dds", TextureType.Normal);
+            w01.SetTexture(@"./textures/scifi_tile_03_metallic.dds", TextureType.Metallic);
+            w01.SetTexture(@"./textures/scifi_tile_03_roughness.dds", TextureType.Roughness);
+            w01.SetTexture(@"./textures/scifi_tile_03_emissive.dds", TextureType.Emissive);
             w01.SetTextureRepeat(1, 10);
             w01.IsShadowCaster = true;
             AddGameObject(w01);
@@ -83,11 +83,11 @@ namespace KWEngine3TestProject.Worlds
             w02.SetPosition(5.5f, 0.0f, 0);
             w02.SetScale(1, 10, 1);
             w02.IsCollisionObject = true;
-            w02.SetTexture(@".\textures\scifi_tile_03_albedo.dds", TextureType.Albedo);
-            w02.SetTexture(@".\textures\scifi_tile_03_normal.dds", TextureType.Normal);
-            w02.SetTexture(@".\textures\scifi_tile_03_metallic.dds", TextureType.Metallic);
-            w02.SetTexture(@".\textures\scifi_tile_03_roughness.dds", TextureType.Roughness);
-            w02.SetTexture(@".\textures\scifi_tile_03_emissive.dds", TextureType.Emissive);
+            w02.SetTexture(@"./textures/scifi_tile_03_albedo.dds", TextureType.Albedo);
+            w02.SetTexture(@"./textures/scifi_tile_03_normal.dds", TextureType.Normal);
+            w02.SetTexture(@"./textures/scifi_tile_03_metallic.dds", TextureType.Metallic);
+            w02.SetTexture(@"./textures/scifi_tile_03_roughness.dds", TextureType.Roughness);
+            w02.SetTexture(@"./textures/scifi_tile_03_emissive.dds", TextureType.Emissive);
             w02.SetTextureRepeat(1, 10);
             w02.IsShadowCaster = true;
             AddGameObject(w02);
@@ -97,16 +97,16 @@ namespace KWEngine3TestProject.Worlds
             w03.SetPosition(0, 0, -1);
             w03.SetScale(10, 10, 1);
             w03.IsCollisionObject = true;
-            w03.SetTexture(@".\textures\scifi_tile_02_albedo.dds", TextureType.Albedo);
-            w03.SetTexture(@".\textures\scifi_tile_02_normal.dds", TextureType.Normal);
-            w03.SetTexture(@".\textures\scifi_tile_02_metallic.dds", TextureType.Metallic);
-            w03.SetTexture(@".\textures\scifi_tile_02_roughness.dds", TextureType.Roughness);
+            w03.SetTexture(@"./textures/scifi_tile_02_albedo.dds", TextureType.Albedo);
+            w03.SetTexture(@"./textures/scifi_tile_02_normal.dds", TextureType.Normal);
+            w03.SetTexture(@"./textures/scifi_tile_02_metallic.dds", TextureType.Metallic);
+            w03.SetTexture(@"./textures/scifi_tile_02_roughness.dds", TextureType.Roughness);
             w03.SetTextureRepeat(5, 5);
             w03.IsShadowCaster = true;
             AddGameObject(w03);
 
-            Audio.PreloadSound(@".\sfx\jumpUp.ogg");
-            Audio.PreloadSound(@".\sfx\jumpLand.ogg");
+            Audio.PreloadSound(@"./sfx/jumpUp.ogg");
+            Audio.PreloadSound(@"./sfx/jumpLand.ogg");
 
             _light = new LightObject(LightType.Directional, ShadowQuality.High);
             _light.SetColor(0.25f, 1f, 0.25f, 4);

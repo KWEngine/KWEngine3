@@ -38,7 +38,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             // Load custom model from model folder as "Nightshade":
-            KWEngine.LoadModel("Nightshade", @".\Models\WorldLightAndShadow\Nightshade.fbx");
+            KWEngine.LoadModel("Nightshade", @"./Models/WorldLightAndShadow/Nightshade.fbx");
             SetFOV(45);
 
             // Initialize _sun attribute with a new LightObject instance of type "sun":
@@ -62,32 +62,32 @@ namespace KWEngine3TestProject.Worlds
             _mouseLightSphere.SetColorEmissive(1, 0.25f, 0.25f, 1.5f);
             _mouseLightSphere.SetColor(1, 0.25f, 0.25f);
             _mouseLightSphere.SetScale(0.25f);
-            AddGameObject(_mouseLightSphere);
+            //AddGameObject(_mouseLightSphere);
 
             SetColorAmbient(0.05f, 0.10f, 0.15f);        // determine the ambient light color (for pixels that are not seen by the sun)
             SetCameraPosition(0, 25, 25);
 
             Immovable f01 = new Immovable();
             f01.SetModel("KWCube");
-            f01.SetTexture(@".\textures\tiles_albedo.jpg", TextureType.Albedo);       // regular texture file
-            f01.SetTexture(@".\textures\tiles_normal.jpg", TextureType.Normal);       // (optional) normal map for custom light reflections
-            f01.SetTexture(@".\textures\tiles_roughness.png", TextureType.Roughness); // (optional) roughness map for specular highlights
+            f01.SetTexture(@"./textures/tiles_albedo.jpg", TextureType.Albedo);       // regular texture file
+            f01.SetTexture(@"./textures/tiles_normal.jpg", TextureType.Normal);       // (optional) normal map for custom light reflections
+            f01.SetTexture(@"./textures/tiles_roughness.png", TextureType.Roughness); // (optional) roughness map for specular highlights
             f01.SetTextureRepeat(3, 3);                                               // how many times the texture is tiled across the object?
             f01.SetScale(15, 0.2f, 15);
             f01.SetPosition(0, -0.1f, 0);
             f01.IsShadowCaster = true;                                                // does the object cast and receive shadows? (default: false)
-            AddGameObject(f01);
+            //AddGameObject(f01);
 
             SphereRotating i01 = new SphereRotating();
             i01.SetModel("KWSphere");
-            i01.SetTexture(@".\textures\iron_panel_albedo.dds", TextureType.Albedo);
-            i01.SetTexture(@".\textures\iron_panel_normal.dds", TextureType.Normal);
-            i01.SetTexture(@".\textures\iron_panel_roughness.dds", TextureType.Roughness);
-            i01.SetTexture(@".\textures\iron_panel_metal.dds", TextureType.Metallic);
+            i01.SetTexture(@"./textures/iron_panel_albedo.dds", TextureType.Albedo);
+            i01.SetTexture(@"./textures/iron_panel_normal.dds", TextureType.Normal);
+            i01.SetTexture(@"./textures/iron_panel_roughness.dds", TextureType.Roughness);
+            i01.SetTexture(@"./textures/iron_panel_metal.dds", TextureType.Metallic);
             i01.SetPosition(5, 2.5f, 5);
             i01.SetScale(5);
             i01.IsShadowCaster = true;                                                // does the object cast and receive shadows? (default: false)
-            AddGameObject(i01);
+            //AddGameObject(i01);
 
             PlayerNightshade i02 = new PlayerNightshade();
             i02.SetModel("Nightshade");

@@ -21,6 +21,9 @@ namespace KWEngine3
         internal const float SIMULATIONNIBBLESIZE = 1f / 120f;
         internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
         internal const int MAXGAMEOBJECTID = 16777216;
+        internal const int LIGHTINDEXDIVIDER = 17;
+        internal static char _folderDivider = '\\';
+        internal static string _folderDividerString = @"\\";
 
         /// <summary>
         /// Aktuelles Fenster
@@ -135,6 +138,8 @@ namespace KWEngine3
         public const int MAX_SHADOWMAPS = 3;
         internal static Matrix4 Identity = Matrix4.Identity;
         private static Vector3 _worldUp = new Vector3(0, 1, 0);
+
+        internal static int _uniformOffsetMultiplier = 1;
 
         /// <summary>
         /// Verhältnis zwischen innerem und äußerem Glühen (von 0 bis 1, Standard: 0.5)

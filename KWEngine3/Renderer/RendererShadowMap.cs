@@ -104,7 +104,7 @@ namespace KWEngine3.Renderer
                     for (int j = 0; j < g._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
                     {
                         Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
-                        GL.UniformMatrix4(UBoneTransforms + j, false, ref tmp);
+                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
                     }
                 }
                 else

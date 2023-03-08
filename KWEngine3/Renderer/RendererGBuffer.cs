@@ -22,7 +22,6 @@ namespace KWEngine3.Renderer
         public static int UUseTexturesAlbedoNormalEmissive { get; private set; } = -1;
         public static int UUseTexturesMetallicRoughness { get; private set; } = -1;
         public static int UTextureMetallicRoughnessCombined { get; private set; } = -1;
-        public static int UTextureAlbedoMipMapLevels { get; private set; } = -1;
         public static int UTextureNormal { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
         public static int UTextureMetallic { get; private set; } = -1;
@@ -80,7 +79,6 @@ namespace KWEngine3.Renderer
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
                 UTextureMetallicRoughnessCombined = GL.GetUniformLocation(ProgramID, "uTextureIsMetallicRoughnessCombined");
-                UTextureAlbedoMipMapLevels = GL.GetUniformLocation(ProgramID, "uTextureAlbedoMipMapLevels");
                 UUseAnimations = GL.GetUniformLocation(ProgramID, "uUseAnimations");
                 UBoneTransforms = GL.GetUniformLocation(ProgramID, "uBoneTransforms");
             }
@@ -103,7 +101,7 @@ namespace KWEngine3.Renderer
             if (KWEngine.CurrentWorld != null)
             {
                 SetGlobals();
-                foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjects())
+                foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
                 {
                     if (g.SkipRender || !g.IsInsideScreenSpace)
                         continue;
@@ -142,11 +140,17 @@ namespace KWEngine3.Renderer
                 if (g.IsAnimated)
                 {
                     GL.Uniform1(UUseAnimations, 1);
-                    for (int j = 0; j < g._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
+                    int boneMatrixCount = g._stateRender._boneTranslationMatrices[mesh.Name].Length;
+                    
+                    for (int j = 0; j < boneMatrixCount; j++)
                     {
                         Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
-                        GL.UniformMatrix4(UBoneTransforms + j, false, ref tmp);
+                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
                     }
+                    
+                    //float[] matrices = HelperMatrix.Matrix4ToArray(g._stateRender._boneTranslationMatrices[mesh.Name]);
+                    //GL.Uniform4(UBoneTransforms, matrices.Length / 4, matrices);
+                    
                 }
                 else
                 {

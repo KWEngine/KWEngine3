@@ -35,7 +35,7 @@ namespace KWEngine3TestProject.Classes.WorldJumpAndRunPhysics
             {                                                               // and apply velocity:
                 if (_currentState == JumpState.Stand && _upKeyReleased == true)
                 {
-                    Audio.PlaySound(@".\sfx\jumpUp.ogg");
+                    Audio.PlaySound(@"./sfx/jumpUp.ogg");
                     _currentState = JumpState.Jump;
                     _velocity = VELOCITYJUMP;
                     _upKeyReleased = false;
@@ -117,7 +117,7 @@ namespace KWEngine3TestProject.Classes.WorldJumpAndRunPhysics
                 // Switch state to "stand" then:
                 if (yUpCorrection && _currentState == JumpState.Fall)
                 {
-                    Audio.PlaySound(@".\sfx\jumpLand.ogg");
+                    Audio.PlaySound(@"./sfx/jumpLand.ogg");
                     stateJustSwitched = true;
                     _currentState = JumpState.Stand;                    
                     _velocity = Vector3.Zero;                               // reset velocity to 0 as well!

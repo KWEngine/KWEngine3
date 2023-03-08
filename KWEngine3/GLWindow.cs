@@ -1,4 +1,5 @@
-﻿using KWEngine2.Renderer;
+﻿using System.Runtime.InteropServices;
+using KWEngine2.Renderer;
 using KWEngine3.Audio;
 using KWEngine3.Editor;
 using KWEngine3.EngineCamera;
@@ -71,6 +72,13 @@ namespace KWEngine3
         protected override void OnLoad()
         {
             base.OnLoad();
+
+            int maxComponents = GL.GetInteger(GetPName.MaxVertexUniformVectors);
+
+            KWEngine._uniformOffsetMultiplier = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 4 : 1;
+            KWEngine._folderDivider = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
+            KWEngine._folderDividerString = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\\" : "/";
+
             Title = "KWEngine3 | OpenGL Version: " + GL.GetString(StringName.Version);
             KWEngine.InitializeFontsAndDefaultTextures();
             RenderManager.InitializeFramebuffers();
@@ -184,7 +192,7 @@ namespace KWEngine3
             RendererLightingPass.Bind();
             RendererLightingPass.SetGlobals();
             RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
-            
+
             if(KWEngine.CurrentWorld._background.Type != BackgroundType.None)
             {
                 if(KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
@@ -232,7 +240,6 @@ namespace KWEngine3
             RenderManager.BindScreen();
             RendererCopy.Bind();
             RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0]);
-            HelperGeneral.CheckGLErrors();
 
             //if (KWEngine.Mode == EngineMode.Edit && HelperOctree._rootNode != null)
             if (KWEngine.OctreeVisible && HelperOctree._rootNode != null)

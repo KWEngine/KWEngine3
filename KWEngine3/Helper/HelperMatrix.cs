@@ -131,5 +131,34 @@ namespace KWEngine3.Helper
                         oc * axis.Z * axis.X - axis.Y * s, oc * axis.Y * axis.Z + axis.X * s, oc * axis.Z * axis.Z + c, 0f,
                         0f, 0f, 0f, 1f);
         }
+
+        internal static float[] Matrix4ToArray(Matrix4[] matrices)
+        {
+            float[] data = new float[16 * matrices.Length];
+            for(int h = 0, i = 0; i < matrices.Length; i++, h += 16)
+            {
+                data[h + 00] = matrices[i].Row0.X;
+                data[h + 01] = matrices[i].Row0.Y;
+                data[h + 02] = matrices[i].Row0.Z;
+                data[h + 03] = matrices[i].Row0.W;
+
+                data[h + 04] = matrices[i].Row1.X;
+                data[h + 05] = matrices[i].Row1.Y;
+                data[h + 06] = matrices[i].Row1.Z;
+                data[h + 07] = matrices[i].Row1.W;
+
+                data[h + 08] = matrices[i].Row2.X;
+                data[h + 09] = matrices[i].Row2.Y;
+                data[h + 10] = matrices[i].Row2.Z;
+                data[h + 11] = matrices[i].Row2.W;
+
+                data[h + 12] = matrices[i].Row3.X;
+                data[h + 13] = matrices[i].Row3.Y;
+                data[h + 14] = matrices[i].Row3.Z;
+                data[h + 15] = matrices[i].Row3.W;
+            }
+            
+            return data;
+        }
     }
 }

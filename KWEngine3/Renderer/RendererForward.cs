@@ -138,14 +138,14 @@ namespace KWEngine3.Renderer
                 GL.ActiveTexture(currentTextureUnit);
                 GL.BindTexture(TextureTarget.Texture2D, l._fbShadowMap._blurBuffer2.Attachments[0].ID);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
-                GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i, false, ref l._stateRender._viewProjectionMatrix[0]);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[0]);
             }
             for (; i < KWEngine.MAX_SHADOWMAPS; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 GL.ActiveTexture(currentTextureUnit);
                 GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
-                GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i, false, ref KWEngine.Identity);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
             }
 
             // upload cube maps, so reset counter to 0:
@@ -214,7 +214,7 @@ namespace KWEngine3.Renderer
                     for (int j = 0; j < g._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
                     {
                         Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
-                        GL.UniformMatrix4(UBoneTransforms + j, false, ref tmp);
+                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
                     }
                 }
                 else

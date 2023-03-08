@@ -25,7 +25,6 @@ namespace KWEngine3.Renderer
         public static int UShadowMap { get; private set; } = -1;
         public static int UShadowMapCube { get; private set; } = -1;
         public static int UViewProjectionMatrixShadowMap { get; private set; } = -1;
-        //public static int UViewProjectionMatrix { get; private set; } = -1;
         public static int UTextureSkybox { get; private set; } = -1;
         public static int UTextureBackground { get; private set; } = -1;
         public static int UUseTextureReflection { get; private set; } = -1;
@@ -68,7 +67,6 @@ namespace KWEngine3.Renderer
                 UShadowMap = GL.GetUniformLocation(ProgramID, "uShadowMap");
                 UShadowMapCube = GL.GetUniformLocation(ProgramID, "uShadowMapCube");
                 UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
-                //UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
 
                 UTextureSkybox = GL.GetUniformLocation(ProgramID, "uTextureSkybox");
                 UTextureBackground = GL.GetUniformLocation(ProgramID, "uTextureBackground");
@@ -95,16 +93,16 @@ namespace KWEngine3.Renderer
                 GL.ActiveTexture(currentTextureUnit);
                 GL.BindTexture(TextureTarget.Texture2D, l._fbShadowMap._blurBuffer2.Attachments[0].ID);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
-                GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i, false, ref l._stateRender._viewProjectionMatrix[0]);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[0]);
             }
             for (; i < KWEngine.MAX_SHADOWMAPS; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 GL.ActiveTexture(currentTextureUnit);
                 GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
-                GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i, false, ref KWEngine.Identity);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
             }
-
+            HelperGeneral.CheckGLErrors();
             // upload cube maps, so reset counter to 0:
             for (i = 0; i < KWEngine.CurrentWorld._preparedCubeMapIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
             {

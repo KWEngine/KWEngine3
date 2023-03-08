@@ -72,7 +72,7 @@ namespace KWEngine3.Renderer
             for(int i = 0; i < 6; i++)
             {
                 Matrix4 vp = l._stateRender._viewProjectionMatrix[i];
-                GL.UniformMatrix4(UViewProjectionMatrix + i, false, ref vp);
+                GL.UniformMatrix4(UViewProjectionMatrix + i * KWEngine._uniformOffsetMultiplier, false, ref vp);
             }
             GL.Uniform3(ULightPosition, l._stateRender._position);
             GL.Uniform2(UNearFar, new Vector2(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y));
@@ -106,7 +106,7 @@ namespace KWEngine3.Renderer
                     for (int j = 0; j < g._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
                     {
                         Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
-                        GL.UniformMatrix4(UBoneTransforms + j, false, ref tmp);
+                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
                     }
                 }
                 else
