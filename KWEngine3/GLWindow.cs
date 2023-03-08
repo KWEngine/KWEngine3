@@ -28,7 +28,7 @@ namespace KWEngine3
 
         public GLWindow(bool vSync = true)
             :this(
-                 new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 60 }, 
+                 new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 120 }, 
                  new NativeWindowSettings()
                     {
                         API = ContextAPI.OpenGL,
@@ -43,7 +43,7 @@ namespace KWEngine3
 
         public GLWindow(int width, int height, bool vSync = true) 
             : this(
-                 new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 60 },
+                 new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 120 },
                  new NativeWindowSettings()
                  {
                      API = ContextAPI.OpenGL,
