@@ -71,7 +71,7 @@ namespace KWEngine3
         protected override void OnLoad()
         {
             base.OnLoad();
-            Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
+            Title = "KWEngine3 | OpenGL Version: " + GL.GetString(StringName.Version);
             KWEngine.InitializeFontsAndDefaultTextures();
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
