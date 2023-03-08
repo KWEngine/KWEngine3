@@ -1,0 +1,412 @@
+﻿namespace KWEngine3
+{
+
+    /// <summary>
+    /// Art der Animationsbewegung
+    /// </summary>
+    public enum ExplosionAnimation
+    {
+        /// <summary>
+        /// Standard-Animationsalgorithmus
+        /// </summary>
+        Spread = 0,
+        /// <summary>
+        /// Partikel wandern entlang der positiven y-Achse nach oben
+        /// </summary>
+        WindUp = 1,
+        /// <summary>
+        /// Partikel wirbeln entlang der positiven y-Achse nach oben
+        /// </summary>
+        WhirlwindUp = 2
+
+    }
+
+    /// <summary>
+    /// Art der Partikel
+    /// </summary>
+    public enum ParticleType
+    {
+        /// <summary>
+        /// Feuer 1
+        /// </summary>
+        BurstFire1,
+        /// <summary>
+        /// Feuer 2
+        /// </summary>
+        BurstFire2,
+        /// <summary>
+        /// Feuer 3
+        /// </summary>
+        BurstFire3,
+        /// <summary>
+        /// Elektroschock
+        /// </summary>
+        BurstElectricity,
+        /// <summary>
+        /// Bälle
+        /// </summary>
+        BurstBubblesColored,
+        /// <summary>
+        /// Bälle (farblos)
+        /// </summary>
+        BurstBubblesMonochrome,
+        /// <summary>
+        /// Feuerwerk 1
+        /// </summary>
+        BurstFirework1,
+        /// <summary>
+        /// Feuerwerk 2
+        /// </summary>
+        BurstFirework2,
+        /// <summary>
+        /// Herzen
+        /// </summary>
+        BurstHearts,
+        /// <summary>
+        /// Pluszeichen
+        /// </summary>
+        BurstOneUps,
+        /// <summary>
+        /// Schild
+        /// </summary>
+        BurstShield,
+        /// <summary>
+        /// Teleport 1
+        /// </summary>
+        BurstTeleport1,
+        /// <summary>
+        /// Teleport 2
+        /// </summary>
+        BurstTeleport2,
+        /// <summary>
+        /// Teleport 3
+        /// </summary>
+        BurstTeleport3,
+        /// <summary>
+        /// Rauch 1 (Loop)
+        /// </summary>
+        LoopSmoke1,
+        /// <summary>
+        /// Rauch 2 (Loop)
+        /// </summary>
+        LoopSmoke2,
+        /// <summary>
+        /// Rauch 3 (Loop)
+        /// </summary>
+        LoopSmoke3
+    }
+
+    /// <summary>
+    /// Art der Explosion
+    /// </summary>
+    public enum ExplosionType
+    {
+        /// <summary>
+        /// Würfelpartikel in alle Richtungen
+        /// </summary>
+        Cube = 0,
+        /// <summary>
+        /// Würfelpartikel um die Y-Achse
+        /// </summary>
+        CubeRingY = 100,
+        /// <summary>
+        /// Würfelpartikel um die Z-Achse
+        /// </summary>
+        CubeRingZ = 1000,
+        /// <summary>
+        /// Kugelpartikel in alle Richtungen
+        /// </summary>
+        Sphere = 1,
+        /// <summary>
+        /// Kugelpartikel um die Y-Achse
+        /// </summary>
+        SphereRingY = 101,
+        /// <summary>
+        /// Kugelpartikel um die Z-Achse
+        /// </summary>
+        SphereRingZ = 1001,
+        /// <summary>
+        /// Sternenpartikel in alle Richtungen
+        /// </summary>
+        Star = 2,
+        /// <summary>
+        /// Sternenpartikel um die Y-Achse
+        /// </summary>
+        StarRingY = 102,
+        /// <summary>
+        /// Sternenpartikel um die Z-Achse
+        /// </summary>
+        StarRingZ = 1002,
+        /// <summary>
+        /// Herzpartikel in alle Richtungen
+        /// </summary>
+        Heart = 3,
+        /// <summary>
+        /// Herzpartikel um die Y-Achse
+        /// </summary>
+        HeartRingY = 103,
+        /// <summary>
+        /// Herzpartikel um die Z-Achse
+        /// </summary>
+        HeartRingZ = 1003,
+        /// <summary>
+        /// Schädelpartikel in alle Richtungen
+        /// </summary>
+        Skull = 4,
+        /// <summary>
+        /// Schädelpartikel um die Y-Achse
+        /// </summary>
+        SkullRingY = 104,
+        /// <summary>
+        /// Schädelpartikel um die Z-Achse
+        /// </summary>
+        SkullRingZ = 1004,
+        /// <summary>
+        /// Dollarpartikel in alle Richtungen
+        /// </summary>
+        Dollar = 5,
+        /// <summary>
+        /// Dollarpartikel um die Y-Achse
+        /// </summary>
+        DollarRingY = 105,
+        /// <summary>
+        /// Dollarpartikel um die Z-Achse
+        /// </summary>
+        DollarRingZ = 1005
+    }
+    internal enum BackgroundType
+    {
+        Skybox,
+        Standard,
+        None
+    }
+
+    public enum MetallicType
+    {
+        Default = 0,
+        PlasticOrGlassLow = 1,
+        PlasticOrGlassHigh = 2,
+        Diamond = 3,
+        Iron = 4,
+        Copper = 5,
+        Gold = 6,
+        Aluminium = 7,
+        Silver = 8
+    }
+
+    /// <summary>
+    /// Modus der Engine
+    /// </summary>
+    public enum EngineMode
+    {
+        Edit,
+        Play
+    }
+
+    public enum LightType
+    {
+        Point = 0,
+        Directional = 1,
+        Sun = 2
+    }
+    internal enum EditorAddObjectType
+    {
+        None,
+        GameObject,
+        LightObject
+    }
+
+    public enum ShadowQuality
+    {
+        NoShadow = 0,
+        Low = 512,
+        Medium = 1024,
+        High = 2048
+    }
+
+    /// <summary>
+    /// Steuert die 3D-Darstellung der Kamera
+    /// </summary>
+    public enum ProjectionType
+    {
+        /// <summary>
+        /// Nahe Objekte werden größer gezeichnet als ferne Objekte (Standard)
+        /// </summary>
+        Perspective,
+        /// <summary>
+        /// Alle Objekte werden ungeachtet der Kameradistanz gleich groß gezeichnet (ideal für 2D)
+        /// </summary>
+        Orthographic
+    }
+
+    internal enum ClearColorMode
+    {
+        OneZeroZeroZero,
+        ZeroZeroZeroOne,
+        AllZero,
+        AllOne,
+        OneOneOneZero
+    }
+
+    /// <summary>
+    /// Einheit zur Anzeige eines 10 Einheiten großen Gitternetzes
+    /// </summary>
+    public enum GridType
+    {
+        /// <summary>
+        /// Kein Gitternetz
+        /// </summary>
+        None,
+        /// <summary>
+        /// Ein Gitternetz auf der durch die XZ-Achsen aufgespannten Ebene
+        /// </summary>
+        GridXZ,
+        /// <summary>
+        /// Ein Gitternetz auf der durch die XY-Achsen aufgespannten Ebene
+        /// </summary>
+        GridXY
+    }
+
+    /// <summary>
+    /// Schriftart der HUD-Objekte
+    /// </summary>
+    public enum FontFace
+    {
+        /// <summary>
+        /// "Anonymous" (Standardschriftart)
+        /// </summary>
+        Anonymous = 0,
+        /// <summary>
+        /// "Major Mono Display"
+        /// </summary>
+        MajorMonoDisplay = 1,
+        /// <summary>
+        /// "Nova Mono"
+        /// </summary>
+        NovaMono = 2,
+        /// <summary>
+        /// "Xanh Mono"
+        /// </summary>
+        XanhMono = 3
+    }
+
+    /// <summary>
+    /// Aktivierung von Post-Processing-Effekten (Standard: hohe Qualität)
+    /// </summary>
+    public enum PostProcessingState
+    {
+        /// <summary>
+        /// Standard
+        /// </summary>
+        HighQuality,
+        /// <summary>
+        /// Niedrige Qualität (Artefaktbildung möglich)
+        /// </summary>
+        LowQuality,
+        /// <summary>
+        /// Ausgeschaltet
+        /// </summary>
+        Disabled
+    };
+
+    /// <summary>
+    /// Seite des KWCube
+    /// </summary>
+    public enum CubeSide
+    {
+        /// <summary>
+        /// Alle Würfelseiten
+        /// </summary>
+        All = 10,
+        /// <summary>
+        /// Frontseite (+Z)
+        /// </summary>
+        Front = 1,
+        /// <summary>
+        /// Rückseite (-Z)
+        /// </summary>
+        Back = 5,
+        /// <summary>
+        /// Links (-X)
+        /// </summary>
+        Left = 2,
+        /// <summary>
+        /// Rechts (+X)
+        /// </summary>
+        Right = 4,
+        /// <summary>
+        /// Oben (+Y)
+        /// </summary>
+        Top = 0,
+        /// <summary>
+        /// Unten (-Y)
+        /// </summary>
+        Bottom = 3
+    }
+    /// <summary>
+    /// Art der Textur (Standard: Diffuse)
+    /// </summary>
+    public enum TextureType
+    {
+        /// <summary>
+        /// Standardtextur
+        /// </summary>
+        Albedo,
+        /// <summary>
+        /// Normal Map
+        /// </summary>
+        Normal,
+        /// <summary>
+        /// Metallic Map (PBR Workflow)
+        /// </summary>
+        Metallic,
+        /// <summary>
+        /// Roughness Map (PBR Workflow)
+        /// </summary>
+        Roughness,
+        /// <summary>
+        /// Emissive Map
+        /// </summary>
+        Emissive
+    };
+
+    /// <summary>
+    /// Bezeichnet die beiden Achsen, die die gewünschte Ebene aufspannen.
+    /// </summary>
+    public enum Plane
+    {
+        /// <summary>
+        /// X
+        /// </summary>
+        YZ,
+        /// <summary>
+        /// Y
+        /// </summary>
+        XZ,
+        /// <summary>
+        /// Z
+        /// </summary>
+        XY,
+        /// <summary>
+        /// Kamerablickebene
+        /// </summary>
+        Camera
+    }
+
+    internal enum FramebufferMode
+    {
+        Framebuffer,
+        FramebufferRead,
+        FramebufferDraw
+    }
+
+    internal enum FramebufferTextureMode
+    {
+        RGB8,
+        RGBA8,
+        RGBA16UI,
+        RGBA16F,
+        RGBA32F,
+        DEPTH32F
+    }
+}

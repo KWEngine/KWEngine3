@@ -1,0 +1,406 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="KWEngine3.GLWindow">
+    <Position X="3.5" Y="0.5" Width="2.75" />
+    <Members>
+      <Field Name="_f12timestamp" Hidden="true" />
+      <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
+      <Property Name="AnisotropicFiltering" Hidden="true" />
+      <Property Name="FrameTotalCount" Hidden="true" />
+      <Method Name="OnLoad" Hidden="true" />
+      <Method Name="OnMouseDown" Hidden="true" />
+      <Method Name="OnMouseMove" Hidden="true" />
+      <Method Name="OnMouseUp" Hidden="true" />
+      <Method Name="OnMouseWheel" Hidden="true" />
+      <Method Name="OnRenderFrame" Hidden="true" />
+      <Method Name="OnResize" Hidden="true" />
+      <Method Name="OnTextInput" Hidden="true" />
+      <Property Name="Overlay" Hidden="true" />
+      <Method Name="RenderOverlay" Hidden="true" />
+      <Method Name="UpdateCurrentWorldAndObjects" Hidden="true" />
+      <Method Name="UpdateDeltaTime" Hidden="true" />
+      <Method Name="UpdateScene" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AACAAAAABQABAQCAUAAAAEACAhAAACYAKAAAEAECAgA=</HashCode>
+      <FileName>GLWindow.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.KWEngine">
+    <Position X="0.5" Y="0.5" Width="2.75" />
+    <Members>
+      <Field Name="_glowRadius" Hidden="true" />
+      <Field Name="_octreeSafetyZone" Hidden="true" />
+      <Field Name="_octreeVisible" Hidden="true" />
+      <Field Name="_stateCameraGameBeforeToggle" Hidden="true" />
+      <Field Name="_worldUp" Hidden="true" />
+      <Field Name="BLOOMHEIGHT" Hidden="true" />
+      <Field Name="BLOOMWIDTH" Hidden="true" />
+      <Method Name="BuildDefaultTerrainModel" Hidden="true" />
+      <Property Name="CustomTextures" Hidden="true" />
+      <Field Name="DefaultCameraPosition" Hidden="true" />
+      <Method Name="DeleteCustomModelsAndTextures" Hidden="true" />
+      <Property Name="DeltaTimeAccumulator" Hidden="true" />
+      <Property Name="DeltaTimeCurrentNibbleSize" Hidden="true" />
+      <Property Name="DeltaTimeFactorForOverlay" Hidden="true" />
+      <Method Name="DeselectAll" Hidden="true" />
+      <Property Name="FontTextureArray" Hidden="true" />
+      <Method Name="GetModel" Hidden="true" />
+      <Field Name="Identity" Hidden="true" />
+      <Method Name="InitializeFont" Hidden="true" />
+      <Method Name="InitializeFontsAndDefaultTextures" Hidden="true" />
+      <Method Name="InitializeModels" Hidden="true" />
+      <Method Name="InitializeParticles" Hidden="true" />
+      <Field Name="KWDollar" Hidden="true" />
+      <Field Name="KWHeart" Hidden="true" />
+      <Field Name="KWLightBulb" Hidden="true" />
+      <Field Name="KWSkull" Hidden="true" />
+      <Field Name="KWStar" Hidden="true" />
+      <Field Name="KWTerrainDefault" Hidden="true" />
+      <Property Name="LastFrameTime" Hidden="true" />
+      <Property Name="LastSimulationUpdateCycleCount" Hidden="true" />
+      <Property Name="LastUpdateTime" Hidden="true" />
+      <Field Name="Matrix4Dummy" Hidden="true" />
+      <Field Name="MAXGAMEOBJECTID" Hidden="true" />
+      <Property Name="Mode" Hidden="true" />
+      <Property Name="Models" Hidden="true" />
+      <Field Name="ParticleDictionary" Hidden="true" />
+      <Property Name="RayIntersectionErrorMarginFactor" Hidden="true" />
+      <Field Name="SIMULATIONMAXACCUMULATOR" Hidden="true" />
+      <Field Name="SIMULATIONNIBBLESIZE" Hidden="true" />
+      <Field Name="TextureAlpha" Hidden="true" />
+      <Field Name="TextureBlack" Hidden="true" />
+      <Field Name="TextureCubemapEmpty" Hidden="true" />
+      <Field Name="TextureDefault" Hidden="true" />
+      <Field Name="TextureDepthCubeMapEmpty" Hidden="true" />
+      <Field Name="TextureDepthEmpty" Hidden="true" />
+      <Field Name="TextureNormalEmpty" Hidden="true" />
+      <Field Name="TextureWhite" Hidden="true" />
+      <Field Name="TimeElapsed" Hidden="true" />
+      <Method Name="ToggleEditMode" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>BYgAZDgBAISAAKAFpkhqARAAQCAAAgIQDEnWSlVCUIE=</HashCode>
+      <FileName>KWEngine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.World">
+    <Position X="3.5" Y="3" Width="2.75" />
+    <Members>
+      <Field Name="_availableGameObjectIDs" Hidden="true" />
+      <Field Name="_availableLightObjectIDs" Hidden="true" />
+      <Field Name="_background" Hidden="true" />
+      <Field Name="_cameraEditor" Hidden="true" />
+      <Field Name="_cameraGame" Hidden="true" />
+      <Field Name="_colorAmbient" Hidden="true" />
+      <Field Name="_currentShadowLights" Hidden="true" />
+      <Field Name="_customTextures" Hidden="true" />
+      <Field Name="_gameObjects" Hidden="true" />
+      <Field Name="_gameObjectsToBeAdded" Hidden="true" />
+      <Field Name="_gameObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_hudObjects" Hidden="true" />
+      <Field Name="_hudObjectsToBeAdded" Hidden="true" />
+      <Field Name="_hudObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_lightObjects" Hidden="true" />
+      <Field Name="_lightObjectsToBeAdded" Hidden="true" />
+      <Field Name="_lightObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_mouseGrabDelta" Hidden="true" />
+      <Field Name="_particleAndExplosionObjects" Hidden="true" />
+      <Field Name="_preparedCubeMapIndices" Hidden="true" />
+      <Field Name="_preparedLightsArray" Hidden="true" />
+      <Field Name="_preparedLightsCount" Hidden="true" />
+      <Field Name="_preparedTex2DIndices" Hidden="true" />
+      <Field Name="_terrainObjects" Hidden="true" />
+      <Field Name="_terrainObjectsToBeAdded" Hidden="true" />
+      <Field Name="_terrainObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_viewSpaceGameObject" Hidden="true" />
+      <Field Name="_worldCenter" Hidden="true" />
+      <Field Name="_xMinMax" Hidden="true" />
+      <Field Name="_yMinMax" Hidden="true" />
+      <Field Name="_zMinMax" Hidden="true" />
+      <Method Name="AddRemoveGameObjects" Hidden="true" />
+      <Method Name="AddRemoveHUDObjects" Hidden="true" />
+      <Method Name="AddRemoveLightObjects" Hidden="true" />
+      <Method Name="AddRemoveTerrainObjects" Hidden="true" />
+      <Property Name="BackgroundTextureType" Hidden="true" />
+      <Method Name="BuildAndAddDefaultGameObject" Hidden="true" />
+      <Method Name="BuildAndAddDefaultLightObject" Hidden="true" />
+      <Method Name="Dispose" Hidden="true" />
+      <Method Name="Export" Hidden="true" />
+      <Method Name="GetGameObjects" Hidden="true" />
+      <Method Name="GetLightObjects" Hidden="true" />
+      <Method Name="GetTerrainObjects" Hidden="true" />
+      <Method Name="GetTransparentGameObjects" Hidden="true" />
+      <Method Name="Init" Hidden="true" />
+      <Method Name="PrepareLightObjectsForRenderPass" Hidden="true" />
+      <Method Name="ResetWorldDimensions" Hidden="true" />
+      <Method Name="UpdateWorldDimensions" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>SAhkOK6ABDACZAEYwoGIhQgCTKJZCKIUUQHCH/AMAnA=</HashCode>
+      <FileName>World.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Audio.Audio">
+    <Position X="0.5" Y="6" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
+      <FileName>Audio\Audio.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.GameObject">
+    <Position X="6.5" Y="0.5" Width="2.75" />
+    <Members>
+      <Field Name="_attachBoneNodes" Hidden="true" />
+      <Field Name="_attachBoneNodesOffsets" Hidden="true" />
+      <Field Name="_attachedTo" Hidden="true" />
+      <Field Name="_attachmentMatrix" Hidden="true" />
+      <Field Name="_attachmentMatrixUpdatedByBone" Hidden="true" />
+      <Field Name="_currentOctreeNode" Hidden="true" />
+      <Field Name="_gameObjectsAttached" Hidden="true" />
+      <Field Name="_gModel" Hidden="true" />
+      <Field Name="_hitboxes" Hidden="true" />
+      <Field Name="_isCollisionObject" Hidden="true" />
+      <Field Name="_isShadowCaster" Hidden="true" />
+      <Field Name="_modelNameInDB" Hidden="true" />
+      <Field Name="_name" Hidden="true" />
+      <Field Name="_positionOffsetForAttachment" Hidden="true" />
+      <Field Name="_rotationOffsetForAttachment" Hidden="true" />
+      <Field Name="_scaleOffsetForAttachment" Hidden="true" />
+      <Field Name="_stateCurrent" Hidden="true" />
+      <Field Name="_statePrevious" Hidden="true" />
+      <Field Name="_stateRender" Hidden="true" />
+      <Method Name="AddRotationXFromEditor" Hidden="true" />
+      <Method Name="AddRotationYFromEditor" Hidden="true" />
+      <Method Name="AddRotationZFromEditor" Hidden="true" />
+      <Method Name="CollectPotentialCollidersFromChildren" Hidden="true" />
+      <Method Name="CollectPotentialCollidersFromParent" Hidden="true" />
+      <Method Name="CollectPotentialIntersections" Hidden="true" />
+      <Property Name="HasArmatureAndAnimations" Hidden="true" />
+      <Property Name="HasEmissiveTexture" Hidden="true" />
+      <Method Name="InitHitboxes" Hidden="true" />
+      <Method Name="InitRenderStateMatrices" Hidden="true" />
+      <Method Name="InitStates" Hidden="true" />
+      <Property Name="IsAttachedToGameObject" Hidden="true" />
+      <Property Name="IsQuad" Hidden="true" />
+      <Method Name="ResetBoneAttachments" Hidden="true" />
+      <Method Name="SetScaleRotationAndTranslation" Hidden="true" />
+      <Method Name="TurnTowardsViewForFPObject" Hidden="true" />
+      <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>zikCOxgGGJyo8qTswAqMIwZVASRzi1lJIIkAHkhYVNU=</HashCode>
+      <FileName>GameObjects\GameObject.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KWEngine3.GameObjects.HUDObject">
+    <Position X="0.5" Y="8.25" Width="2.75" />
+    <Members>
+      <Field Name="_absolute" Hidden="true" />
+      <Field Name="_count" Hidden="true" />
+      <Field Name="_glow" Hidden="true" />
+      <Field Name="_modelMatrices" Hidden="true" />
+      <Field Name="_offsets" Hidden="true" />
+      <Field Name="_positions" Hidden="true" />
+      <Field Name="_rotation" Hidden="true" />
+      <Field Name="_rotationMatrix" Hidden="true" />
+      <Field Name="_scale" Hidden="true" />
+      <Field Name="_scaleMatrix" Hidden="true" />
+      <Field Name="_spread" Hidden="true" />
+      <Field Name="_text" Hidden="true" />
+      <Field Name="_textureId" Hidden="true" />
+      <Field Name="_textureName" Hidden="true" />
+      <Field Name="_tint" Hidden="true" />
+      <Field Name="_type" Hidden="true" />
+      <Method Name="UpdatePositions" Hidden="true" />
+      <Method Name="UpdateTextures" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>QAAIAAAQAAAAUiRwAIAAQQSAAGAAQghIAGiAAgACICE=</HashCode>
+      <FileName>GameObjects\HUDObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.Intersection">
+    <Position X="9.5" Y="0.5" Width="2.75" />
+    <Members>
+      <Field Name="_colliderSurfaceNormal" Hidden="true" />
+      <Field Name="_hitboxCaller" Hidden="true" />
+      <Field Name="_hitboxCollider" Hidden="true" />
+      <Field Name="_MTV" Hidden="true" />
+      <Field Name="_MTVUp" Hidden="true" />
+      <Field Name="_MTVUpToTop" Hidden="true" />
+      <Method Name="Intersection" Hidden="true" />
+      <Field Name="UNIT" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>CAAAAAABAAAEEECoAAAAAAAAgAAAAAAAAAAAABAAMEA=</HashCode>
+      <FileName>GameObjects\Intersection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.IntersectionTerrain">
+    <Position X="9.5" Y="3.25" Width="2.75" />
+    <Members>
+      <Field Name="_colliderSurfaceNormal" Hidden="true" />
+      <Field Name="_hitboxCaller" Hidden="true" />
+      <Field Name="_hitboxCollider" Hidden="true" />
+      <Field Name="_MTV" Hidden="true" />
+      <Field Name="_MTVUp" Hidden="true" />
+      <Field Name="_MTVUpToTop" Hidden="true" />
+      <Method Name="IntersectionTerrain" Hidden="true" />
+      <Field Name="UNIT" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>CAAAAAABAAAEEACoAAAAAAAAgAAAAAAAAAAAABAAMEA=</HashCode>
+      <FileName>GameObjects\IntersectionTerrain.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.LightObject">
+    <Position X="3.5" Y="13.5" Width="2.75" />
+    <Members>
+      <Field Name="_fbShadowMap" Hidden="true" />
+      <Field Name="_shadowBias" Hidden="true" />
+      <Field Name="_shadowMapSize" Hidden="true" />
+      <Field Name="_shadowOffset" Hidden="true" />
+      <Field Name="_stateCurrent" Hidden="true" />
+      <Field Name="_statePrevious" Hidden="true" />
+      <Field Name="_stateRender" Hidden="true" />
+      <Method Name="AttachShadowMap" Hidden="true" />
+      <Method Name="CheckForIllegalAngles" Hidden="true" />
+      <Method Name="DeleteShadowMap" Hidden="true" />
+      <Method Name="GetVolume" Hidden="true" />
+      <Method Name="UpdateLookAtVector" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAIAQAAAAQAoAAKAICAFAwAAAAQCgAAAQgAgIAEAAY=</HashCode>
+      <FileName>GameObjects\LightObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.ParticleObject">
+    <Position X="9.5" Y="13.5" Width="2.75" />
+    <Members>
+      <Field Name="_aliveInMS" Hidden="true" />
+      <Field Name="_durationInMS" Hidden="true" />
+      <Field Name="_frame" Hidden="true" />
+      <Field Name="_info" Hidden="true" />
+      <Field Name="_lastUpdate" Hidden="true" />
+      <Field Name="_model" Hidden="true" />
+      <Field Name="_modelMatrix" Hidden="true" />
+      <Field Name="_position" Hidden="true" />
+      <Field Name="_rotation" Hidden="true" />
+      <Field Name="_scale" Hidden="true" />
+      <Field Name="_scaleCurrent" Hidden="true" />
+      <Field Name="_scaleFactor" Hidden="true" />
+      <Field Name="_starttime" Hidden="true" />
+      <Field Name="_tint" Hidden="true" />
+      <Field Name="_type" Hidden="true" />
+      <Method Name="Act" Hidden="true" />
+      <Method Name="GetViewMatrixTowardsCamera" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>IAAgAAAAAAAAAAQwAgAABAAoAAKAAgAAACgggAEAAWA=</HashCode>
+      <FileName>GameObjects\ParticleObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.TerrainObject">
+    <Position X="9.5" Y="8.75" Width="2.75" />
+    <Members>
+      <Field Name="_gModel" Hidden="true" />
+      <Field Name="_hitboxes" Hidden="true" />
+      <Field Name="_isCollisionObject" Hidden="true" />
+      <Field Name="_isShadowCaster" Hidden="true" />
+      <Field Name="_name" Hidden="true" />
+      <Field Name="_stateCurrent" Hidden="true" />
+      <Field Name="_statePrevious" Hidden="true" />
+      <Field Name="_stateRender" Hidden="true" />
+      <Method Name="InitHitboxes" Hidden="true" />
+      <Method Name="InitRenderStateMatrices" Hidden="true" />
+      <Method Name="InitStates" Hidden="true" />
+      <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>QCAAIQACCAQgkAAIAACAIAQEACBAAxABAAgAEABAQIQ=</HashCode>
+      <FileName>GameObjects\TerrainObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Helper.HelperIntersection">
+    <Position X="12.5" Y="0.5" Width="2.75" />
+    <Members>
+      <Field Name="bounds" Hidden="true" />
+      <Method Name="CalculateOverlap" Hidden="true" />
+      <Method Name="ClipFaces" Hidden="true" />
+      <Method Name="ClipLineToPlane" Hidden="true" />
+      <Method Name="IsBetweenOrdered" Hidden="true" />
+      <Method Name="IsInFrontOfPlane" Hidden="true" />
+      <Method Name="IsPointInsideHitbox" Hidden="true" />
+      <Method Name="IsPointOnTrianglePlane" Hidden="true" />
+      <Method Name="LinePlaneIntersection" Hidden="true" />
+      <Method Name="Overlaps" Hidden="true" />
+      <Method Name="RayBoxIntersection" Hidden="true" />
+      <Method Name="RayTerrainIntersection" Hidden="true" />
+      <Method Name="RayTriangleIntersection" Hidden="true" />
+      <Method Name="SatTest" Hidden="true" />
+      <Method Name="TestIntersection" Hidden="true" />
+      <Method Name="TestIntersectionForTerrain" Hidden="true" />
+      <Method Name="TestIntersectionTerrain" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>BAIQAhAAgBACAAAAIIAAAACEBAAgBIAGAAEKABAJAAg=</HashCode>
+      <FileName>Helper\HelperIntersection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Helper.HelperRandom">
+    <Position X="12.5" Y="3.5" Width="2.75" />
+    <Members>
+      <Field Name="generator" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Helper\HelperRandom.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Helper.HelperRotation">
+    <Position X="12.5" Y="4.75" Width="2.75" />
+    <Members>
+      <Method Name="CalculateDegreesFromRadians" Hidden="true" />
+      <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
+      <Field Name="finalTranslationPoint" Hidden="true" />
+      <Method Name="GetRotationTowardsCamera" Hidden="true" />
+      <Field Name="rotationMatrix" Hidden="true" />
+      <Field Name="spinMatrix" Hidden="true" />
+      <Field Name="tempMatrix" Hidden="true" />
+      <Field Name="translationMatrix" Hidden="true" />
+      <Field Name="translationPointMatrix" Hidden="true" />
+      <Field Name="zeroVector" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AEEAAQgAIAAgAAAAEAAAAQBAAIDAAA0AAAAAQAACgAA=</HashCode>
+      <FileName>Helper\HelperRotation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Helper.HelperVector">
+    <Position X="12.5" Y="7.5" Width="2.75" />
+    <Members>
+      <Method Name="LookRotation" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAAAAEAAAAAAAABCCAAgAAAAAAAAAAEA=</HashCode>
+      <FileName>Helper\HelperVector.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
+    <Position X="9.5" Y="5.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAEAAAAABAiAgAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>GameObjects\IntersectionVolume.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="KWEngine3.GameObjects.HUDObjectType">
+    <Position X="0.5" Y="12.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAACAAAAAA=</HashCode>
+      <FileName>GameObjects\HUDObject.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
