@@ -548,33 +548,18 @@ namespace KWEngine3.Model
                         }
                         else
                         {
-                            EmbeddedTexture embTex = scene.GetEmbeddedTexture(slot.FilePath);
-                            if (embTex != null)
+                            if (model.AssemblyMode == AssemblyMode.File)
                             {
-                                if (embTex.CompressedFormatHint.ToLower().EndsWith("dds"))
-                                {
-                                    HelperDDS2.TryLoadDDS(embTex.CompressedData, false, out tex.OpenGLID, out int width, out int height);
-                                }
-                                else
-                                {
-                                    tex.OpenGLID = HelperTexture.LoadTextureFromByteArray(embTex.CompressedData);
-                                }
+                                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
+                                    );
                             }
                             else
                             {
-
-                                if (model.AssemblyMode == AssemblyMode.File)
-                                {
-                                    tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                            FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                        );
-                                }
-                                else
-                                {
-                                    string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                                    tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                                }
+                                string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                                tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
                             }
+                            
                             if (tex.OpenGLID > 0)
                             {
                                 tex.Type = TextureType.Roughness;
@@ -592,23 +577,7 @@ namespace KWEngine3.Model
                         }
                     }
                 }
-                EmbeddedTexture metalnessTexture = null;
-                if(scene.TextureCount > textureFilePaths.Count)
-                {
-                    foreach(EmbeddedTexture et in scene.Textures)
-                    {
-                        if(!textureFilePaths.Contains(et.Filename))
-                        {
-                            // workaround: check if it is metalness texture
-                            if(et.Filename.ToLower().Contains("metal.") || et.Filename.ToLower().Contains("metalness."))
-                            {
-                                //might be metal:
-                                metalnessTexture = et;
-                                break;
-                            }
-                        }
-                    }
-                }
+                /*
                 if(metalnessTexture != null)
                 {
                     GeoTexture tex = new GeoTexture();
@@ -649,7 +618,7 @@ namespace KWEngine3.Model
                         }
                     }
                 }
-                
+                */
                 // Diffuse texture
                 if (material.HasTextureDiffuse)
                 {
@@ -669,33 +638,19 @@ namespace KWEngine3.Model
                     }
                     else
                     {
-                        EmbeddedTexture embTex = scene.GetEmbeddedTexture(material.TextureDiffuse.FilePath);
-                        if (embTex != null)
+                        if (model.AssemblyMode == AssemblyMode.File)
                         {
-                            if (embTex.CompressedFormatHint.ToLower().EndsWith("dds"))
-                            {
-                                HelperDDS2.TryLoadDDS(embTex.CompressedData, false, out tex.OpenGLID, out int width, out int height);
-                            }
-                            else
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureFromByteArray(embTex.CompressedData);
-                            }
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
+                                );
                         }
                         else
                         {
-                            if (model.AssemblyMode == AssemblyMode.File)
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                    );
-                            }
-                            else
-                            {
 
-                                string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                            }
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
                         }
+                        
                         if (tex.OpenGLID > 0)
                         {
                             if (HelperTexture.GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
@@ -734,31 +689,16 @@ namespace KWEngine3.Model
                     }
                     else
                     {
-                        EmbeddedTexture embTex = scene.GetEmbeddedTexture(material.TextureNormal.FilePath);
-                        if (embTex != null)
+                        if (model.AssemblyMode == AssemblyMode.File)
                         {
-                            if (embTex.CompressedFormatHint.ToLower().EndsWith("dds"))
-                            {
-                                HelperDDS2.TryLoadDDS(embTex.CompressedData, false, out tex.OpenGLID, out int width, out int height);
-                            }
-                            else
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureFromByteArray(embTex.CompressedData);
-                            }
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
+                                );
                         }
                         else
                         {
-                            if (model.AssemblyMode == AssemblyMode.File)
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                    );
-                            }
-                            else
-                            {
-                                string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                            }
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
                         }
                         if (tex.OpenGLID > 0)
                         {
@@ -787,32 +727,18 @@ namespace KWEngine3.Model
                     }
                     else
                     {
-                        EmbeddedTexture embTex = scene.GetEmbeddedTexture(texturesOfMaterial[roughnessTextureIndex].FilePath);
-                        if (embTex != null)
+                        if (model.AssemblyMode == AssemblyMode.File)
                         {
-                            if (embTex.CompressedFormatHint.ToLower().EndsWith("dds"))
-                            {
-                                HelperDDS2.TryLoadDDS(embTex.CompressedData, false, out tex.OpenGLID, out int width, out int height);
-                            }
-                            else
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureFromByteArray(embTex.CompressedData);
-                            }
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
+                                );
                         }
                         else
                         {
-                            if (model.AssemblyMode == AssemblyMode.File)
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                    );
-                            }
-                            else
-                            {
-                                string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                            }
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
                         }
+                        
                         if (tex.OpenGLID > 0)
                         {
                             geoMaterial.TextureRoughness = tex;
@@ -848,32 +774,18 @@ namespace KWEngine3.Model
                     }
                     else
                     {
-                        EmbeddedTexture embTex = scene.GetEmbeddedTexture(material.TextureEmissive.FilePath);
-                        if (embTex != null)
+                        if (model.AssemblyMode == AssemblyMode.File)
                         {
-                            if (embTex.CompressedFormatHint.ToLower().EndsWith("dds"))
-                            {
-                                HelperDDS2.TryLoadDDS(embTex.CompressedData, false, out tex.OpenGLID, out int width, out int height);
-                            }
-                            else
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureFromByteArray(embTex.CompressedData);
-                            }
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
+                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
+                                );
                         }
                         else
                         {
-                            if (model.AssemblyMode == AssemblyMode.File)
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                    );
-                            }
-                            else
-                            {
-                                string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                            }
+                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
+                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
                         }
+                        
                         if (tex.OpenGLID > 0)
                         {
                             geoMaterial.TextureEmissive = tex;
@@ -886,60 +798,6 @@ namespace KWEngine3.Model
                         }
                     }
                 }
-                /*
-                // Light map texture
-                if (material.HasTextureLightMap)
-                {
-                    GeoTexture tex = new GeoTexture();
-                    tex.UVTransform = new OpenTK.Mathematics.Vector2(1, 1);
-                    tex.Filename = material.TextureLightMap.FilePath;
-                    tex.UVMapIndex = material.TextureLightMap.UVIndex;
-                    tex.Type = TextureType.Light;
-                    if (model.Textures.ContainsKey(tex.Filename))
-                    {
-                        tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
-                        geoMaterial.TextureLight = tex;
-                    }
-                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
-                    {
-                        geoMaterial.TextureLight = sharedTexture;
-                    }
-                    else
-                    {
-                        EmbeddedTexture embTex = scene.GetEmbeddedTexture(material.TextureLightMap.FilePath);
-                        if (embTex != null)
-                        {
-                            if (embTex.CompressedFormatHint.ToLower().EndsWith("dds"))
-                            {
-                                HelperDDS2.TryLoadDDS(embTex.CompressedData, false, out tex.OpenGLID, out int width, out int height);
-                            }
-                            else
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureFromByteArray(embTex.CompressedData);
-                            }
-                        }
-                        else
-                        {
-                            if (model.AssemblyMode == AssemblyMode.File)
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.PathAbsolute)
-                                    );
-                            }
-                            else
-                            {
-                                string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, true);
-                            }
-                        }
-                        if (tex.OpenGLID > 0)
-                        {
-                            model.Textures.Add(tex.Filename, tex);
-                            geoMaterial.TextureLight = tex;
-                        }
-                    }                    
-                }
-                */
             }
             geoMesh.Material = geoMaterial;
         }

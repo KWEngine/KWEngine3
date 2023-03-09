@@ -2,7 +2,7 @@
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec2 aTexture;
-layout(location = 5) in	vec3 aBoneIds;
+layout(location = 5) in	uvec3 aBoneIds;
 layout(location = 6) in	vec3 aBoneWeights;
 
 out		float vZ;
@@ -21,9 +21,9 @@ void main()
 	mat4 BoneTransform = mat4(0.0);
 	if(uUseAnimations > 0)
 	{	
-		BoneTransform += uBoneTransforms[int(aBoneIds[0])] * aBoneWeights[0];
-		BoneTransform += uBoneTransforms[int(aBoneIds[1])] * aBoneWeights[1];
-		BoneTransform += uBoneTransforms[int(aBoneIds[2])] * aBoneWeights[2];
+		BoneTransform += uBoneTransforms[aBoneIds[0]] * aBoneWeights[0];
+		BoneTransform += uBoneTransforms[aBoneIds[1]] * aBoneWeights[1];
+		BoneTransform += uBoneTransforms[aBoneIds[2]] * aBoneWeights[2];
 	}
 	else
 	{
