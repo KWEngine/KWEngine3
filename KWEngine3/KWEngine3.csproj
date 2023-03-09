@@ -253,7 +253,7 @@
 
   <ItemGroup>
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Model\GeoModel.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>
 </Project>
