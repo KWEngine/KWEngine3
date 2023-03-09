@@ -205,7 +205,7 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.01f)
+        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f)
         /// </summary>
         public static float MouseSensitivity { get; set; } = 0.05f;
 

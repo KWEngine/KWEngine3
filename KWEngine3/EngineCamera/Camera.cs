@@ -82,7 +82,7 @@ namespace KWEngine3.EngineCamera
             YawAndPitch(new Vector2(yaw, pitch));
         }
 
-        public void YawAndPitch(Vector2 yawPitch) // yaw = deltaX, pitch = deltaY
+        public void YawAndPitch(Vector2 yawPitch, float distance = 1f) // yaw = deltaX, pitch = deltaY
         {
             degX = (degX + yawPitch.X) % 360f;
             degY += yawPitch.Y;
@@ -90,16 +90,16 @@ namespace KWEngine3.EngineCamera
                 degY = 89.9f;
             else if (degY < -89.9f)
                 degY = -89.9f;
-
             Vector3 newCamTarget = HelperRotation.CalculateRotationForArcBallCamera(
                 _stateCurrent._position,
-                1f,
+                distance,
                 degX,
                 degY,
                 false,
                 false
                 );
             SetTarget(newCamTarget);
+
         }
 
         public void AdjustToGameObject(GameObject g, float offsetY = 0f)
@@ -145,6 +145,33 @@ namespace KWEngine3.EngineCamera
                 _stateCurrent._position + camUp * units,
                 _stateCurrent._target + camUp * units
                 );
+        }
+
+        internal void ArcBallAroundSelf(Vector2 deltaXY)
+        {
+            Console.WriteLine(degX + " | " + degY);
+
+            degX = (degX + deltaXY.X * 0.25f) % 360f;
+            degY += deltaXY.Y * 0.25f;
+            if (degY > 89.9f)
+                degY = 89.9f;
+            else if (degY < -89.9f)
+                degY = -89.9f;
+
+            Vector3 newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
+                _stateCurrent._position,
+                1f,
+                degX,
+                degY,
+                true,
+                true
+                );
+            SetTarget(newCamPos);
+
+            Console.WriteLine(degX + " | " + degY);
+            Console.WriteLine(_stateCurrent._position);
+            Console.WriteLine(newCamPos);
+            Console.WriteLine("-----------");
         }
 
         internal void ArcBall(Vector2 deltaXY)

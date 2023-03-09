@@ -139,7 +139,7 @@ namespace KWEngine3.Editor
                 string modelName = SelectedGameObject._gModel.ModelOriginal.Name;
 
                 ImGui.Begin("GameObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 600), ImGuiCond.Once);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 720 - 32), ImGuiCond.Once);
                 ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
                 ImGui.Text("ID: " + SelectedGameObject.ID.ToString().PadLeft(8, '0'));
                 ImGui.SameLine();
@@ -831,8 +831,8 @@ namespace KWEngine3.Editor
                 ImGui.End();
             }
 
-            ImGui.Begin("Debug window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize);
-            ImGui.SetWindowSize(new System.Numerics.Vector2(316, 364));
+            ImGui.Begin("Information", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize);
+            ImGui.SetWindowSize(new System.Numerics.Vector2(316, KWEngine.Window.ClientSize.Y - 32));
             ImGui.SetWindowPos(new System.Numerics.Vector2(0, 20), ImGuiCond.Once);
             ImGui.BeginChild("LOG", new System.Numerics.Vector2(300, 200), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.HorizontalScrollbar);
             ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Log messages:");
@@ -853,6 +853,57 @@ namespace KWEngine3.Editor
             ImGui.LabelText(_fpsValue + " fps", "Average fps:");
             ImGui.LabelText(KWEngine.LastSimulationUpdateCycleCount.ToString(), "Last update cycle count:");
             ImGui.EndChild();
+
+            // Object list:
+            int y = KWEngine.Window.ClientSize.Y - 128 - 200 - 96;
+            ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(300, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
+            ImGui.SetNextItemOpen(true);
+            if (ImGui.TreeNode("GameObject instances"))
+            {
+                foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjectsSortedByType())
+                {
+                    if(g == SelectedGameObject)
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.25f, 0.5f, 1f, 0.5f));
+                    }
+                    else
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0, 0, 0, 0));
+                    }
+                    
+                    if (ImGui.SmallButton("[" + g.GetType().Name + "] " + g.ID + ": " + g.Name))
+                    {
+                        DeselectAll();
+                        SelectedGameObject = g;
+                    }
+                    ImGui.PopStyleColor();
+                }
+            }
+            ImGui.TreePop();
+            ImGui.SetNextItemOpen(true);
+            if (ImGui.TreeNode("LightObject instances"))
+            {
+                foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
+                {
+                    if (l == SelectedLightObject)
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.25f, 0.5f, 1f, 0.5f));
+                    }
+                    else
+                    {
+                        ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0, 0, 0, 0));
+                    }
+                    if (ImGui.SmallButton("[" + l.Type.ToString() + "] " + Math.Abs(l.ID) + ": " + l.Name))
+                    {
+                        DeselectAll();
+                        SelectedLightObject = l;
+                    }
+                    ImGui.PopStyleColor();
+                }
+            }
+
+            ImGui.EndChild();
+
             ImGui.End();
 
             DrawObjectDetails();
@@ -929,10 +980,15 @@ namespace KWEngine3.Editor
             else
             {
                 // deselect
-                SelectedGameObject = null;
-                SelectedLightObject = null;
-                SelectedTerrainObject = null;
+                DeselectAll();
             }
+        }
+
+        internal static void DeselectAll()
+        {
+            SelectedGameObject = null;
+            SelectedLightObject = null;
+            SelectedTerrainObject = null;
         }
 
         public static void HandleMouseButtonStatus(MouseButton btn, bool press)

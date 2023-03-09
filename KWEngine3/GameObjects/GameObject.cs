@@ -951,7 +951,7 @@ namespace KWEngine3.GameObjects
         internal GameObjectState _stateCurrent;
         internal GameObjectRenderState _stateRender;
         internal List<GameObjectHitbox> _hitboxes = new List<GameObjectHitbox>();
-        internal string _name = "undefined game object name";
+        internal string _name = "(no name)";
         internal GameObjectModel _gModel;
         internal List<GeoNode> _attachBoneNodes = new List<GeoNode>();
         internal List<Matrix4> _attachBoneNodesOffsets = new List<Matrix4>();

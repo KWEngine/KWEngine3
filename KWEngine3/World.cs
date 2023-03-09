@@ -5,8 +5,10 @@ using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 
 namespace KWEngine3
 {
@@ -50,6 +52,13 @@ namespace KWEngine3
         internal Vector3 _colorAmbient = new Vector3(0.75f, 0.75f, 0.75f);
         internal WorldBackground _background = new WorldBackground();
 
+        internal IReadOnlyCollection<GameObject> GetGameObjectsSortedByType()
+        {
+            IReadOnlyCollection<GameObject> myTempList = _gameObjects
+                .OrderBy(item => item.GetType().Name)
+                .ToList().AsReadOnly();
+            return myTempList;
+        }
 
         internal void ResetWorldDimensions()
         {

@@ -15,7 +15,7 @@ namespace KWEngine3.GameObjects
 
         public bool IsInsideScreenSpace { get; internal set; } = true;
         public int ID { get; internal set; } = 0;
-        public string Name { get; set; } = "undefined light object name";
+        public string Name { get; set; } = "(no name)";
 
         public ShadowQuality ShadowCasterType { get; internal set; } = ShadowQuality.NoShadow;
 
