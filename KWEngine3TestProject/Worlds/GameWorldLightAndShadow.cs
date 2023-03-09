@@ -62,7 +62,7 @@ namespace KWEngine3TestProject.Worlds
             _mouseLightSphere.SetColorEmissive(1, 0.25f, 0.25f, 1.5f);
             _mouseLightSphere.SetColor(1, 0.25f, 0.25f);
             _mouseLightSphere.SetScale(0.25f);
-            //AddGameObject(_mouseLightSphere);
+            AddGameObject(_mouseLightSphere);
 
             SetColorAmbient(0.05f, 0.10f, 0.15f);        // determine the ambient light color (for pixels that are not seen by the sun)
             SetCameraPosition(0, 25, 25);
@@ -76,7 +76,7 @@ namespace KWEngine3TestProject.Worlds
             f01.SetScale(15, 0.2f, 15);
             f01.SetPosition(0, -0.1f, 0);
             f01.IsShadowCaster = true;                                                // does the object cast and receive shadows? (default: false)
-            //AddGameObject(f01);
+            AddGameObject(f01);
 
             SphereRotating i01 = new SphereRotating();
             i01.SetModel("KWSphere");
@@ -87,7 +87,7 @@ namespace KWEngine3TestProject.Worlds
             i01.SetPosition(5, 2.5f, 5);
             i01.SetScale(5);
             i01.IsShadowCaster = true;                                                // does the object cast and receive shadows? (default: false)
-            //AddGameObject(i01);
+            AddGameObject(i01);
 
             PlayerNightshade i02 = new PlayerNightshade();
             i02.SetModel("Nightshade");

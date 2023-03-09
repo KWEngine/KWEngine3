@@ -333,7 +333,8 @@ namespace KWEngine3.Model
         internal static string StripFileNameFromPath(string path)
         {
             int index = path.LastIndexOf(KWEngine._folderDivider);
-            if (index < 0)
+            int indexPoint = path.LastIndexOf('.');
+            if (index < 0 || indexPoint < index)
             {
                 return path;
             }
