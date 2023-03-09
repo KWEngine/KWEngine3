@@ -783,11 +783,11 @@ namespace KWEngine3.Editor
             {
                 if (_addMenuActive == EditorAddObjectType.GameObject)
                 {
-                    ImGui.Begin("Add GameObject instance", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+                    ImGui.Begin("Add GameObject instance", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
                 }
                 else
                 {
-                    ImGui.Begin("Add LightObject instance", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+                    ImGui.Begin("Add LightObject instance", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
                 }
                 ImGui.SetWindowSize(new System.Numerics.Vector2(512, 256));
                 ImGui.SetWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y - 256), ImGuiCond.Once);
@@ -827,6 +827,12 @@ namespace KWEngine3.Editor
                             _newLightShadowCasterQualityIndex = 0;
                         }
                     }
+                }
+                ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine();
+                ImGui.Indent(512 - 64);
+                if(ImGui.Button("Close"))
+                {
+                    _addMenuActive = EditorAddObjectType.None;
                 }
                 ImGui.End();
             }
