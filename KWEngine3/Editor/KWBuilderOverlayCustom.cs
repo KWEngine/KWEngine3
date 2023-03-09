@@ -856,19 +856,22 @@ namespace KWEngine3.Editor
 
             // Object list:
             int y = KWEngine.Window.ClientSize.Y - 128 - 200 - 96;
-            ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(300, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
-            ImGui.SetNextItemOpen(true);
-            if (ImGui.TreeNode("GameObject instances"))
+            ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(300, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);            
+            if (ImGui.TreeNodeEx("GameObject instances", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.CollapsingHeader | ImGuiTreeNodeFlags.DefaultOpen))
             {
                 foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjectsSortedByType())
                 {
                     if(g == SelectedGameObject)
                     {
                         ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.25f, 0.5f, 1f, 0.5f));
+                        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new System.Numerics.Vector4(0.25f, 0.5f, 1f, 0.5f));
+                        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.5f, 0.75f, 1f, 0.5f));
                     }
                     else
                     {
                         ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0, 0, 0, 0));
+                        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new System.Numerics.Vector4(0, 0, 0, 0));
+                        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.25f, 0.5f, 1.0f, 0.25f));
                     }
                     
                     if (ImGui.SmallButton("[" + g.GetType().Name + "] " + g.ID + ": " + g.Name))
@@ -877,11 +880,12 @@ namespace KWEngine3.Editor
                         SelectedGameObject = g;
                     }
                     ImGui.PopStyleColor();
+                    ImGui.PopStyleColor();
+                    ImGui.PopStyleColor();
                 }
             }
-            ImGui.TreePop();
-            ImGui.SetNextItemOpen(true);
-            if (ImGui.TreeNode("LightObject instances"))
+            ImGui.NewLine();
+            if (ImGui.TreeNodeEx("LightObject instances", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.CollapsingHeader | ImGuiTreeNodeFlags.DefaultOpen))
             {
                 foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                 {
@@ -901,6 +905,7 @@ namespace KWEngine3.Editor
                     ImGui.PopStyleColor();
                 }
             }
+            ImGui.PopStyleColor();
 
             ImGui.EndChild();
 
