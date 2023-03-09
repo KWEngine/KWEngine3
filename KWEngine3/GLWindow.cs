@@ -304,7 +304,7 @@ namespace KWEngine3
                 bool result2 = KWBuilderOverlay.IsCursorPressedOnAnyControl(MouseButton.Left);
                 if (!result1 && !result2)
                 {
-                    KWEngine.CurrentWorld._cameraEditor.ArcBallAroundSelf(e.Delta);
+                    KWEngine.CurrentWorld._cameraEditor.ArcBall(e.Delta);
                 }
                     
             }

@@ -149,8 +149,6 @@ namespace KWEngine3.EngineCamera
 
         internal void ArcBallAroundSelf(Vector2 deltaXY)
         {
-            Console.WriteLine(degX + " | " + degY);
-
             degX = (degX + deltaXY.X * 0.25f) % 360f;
             degY += deltaXY.Y * 0.25f;
             if (degY > 89.9f)
@@ -161,7 +159,7 @@ namespace KWEngine3.EngineCamera
             Vector3 newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
                 _stateCurrent._position,
                 1f,
-                degX,
+                180 + degX,
                 degY,
                 true,
                 true
