@@ -5,7 +5,7 @@ layout(location = 1) in vec2 aTexture;
 layout(location = 2) in vec3 aNormal;
 layout(location = 3) in	vec3 aTangent;
 layout(location = 4) in	vec3 aBiTangent;
-layout(location = 5) in	ivec3 aBoneIds;
+layout(location = 5) in	vec3 aBoneIds;
 layout(location = 6) in	vec3 aBoneWeights;
 
 uniform mat4 uViewProjectionMatrix;
@@ -35,10 +35,10 @@ void main()
 	{	
 		for(int i = 0; i < 3; i++)
 		{
-			totalLocalPos += aBoneWeights[i] * uBoneTransforms[aBoneIds[i]] * vec4(aPosition, 1.0);
-			totalNormal  += aBoneWeights[i] * uBoneTransforms[aBoneIds[i]] * vec4(aNormal, 0.0);
-			totalTangent += aBoneWeights[i] * uBoneTransforms[aBoneIds[i]] * vec4(aTangent, 0.0);
-			totalBiTangent  += aBoneWeights[i] * uBoneTransforms[aBoneIds[i]] * vec4(aBiTangent, 0.0);
+			totalLocalPos += aBoneWeights[i] * uBoneTransforms[int(aBoneIds[i])] * vec4(aPosition, 1.0);
+			totalNormal  += aBoneWeights[i] * uBoneTransforms[int(aBoneIds[i])] * vec4(aNormal, 0.0);
+			totalTangent += aBoneWeights[i] * uBoneTransforms[int(aBoneIds[i])] * vec4(aTangent, 0.0);
+			totalBiTangent  += aBoneWeights[i] * uBoneTransforms[int(aBoneIds[i])] * vec4(aBiTangent, 0.0);
 		}
 	}
 	else

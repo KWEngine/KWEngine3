@@ -60,7 +60,7 @@ namespace KWEngine3.Model
         internal void VBOGenerateVerticesAndBones(bool hasBones)
         {
             float[] verticesF = new float[Vertices.Length * 3];
-            uint[] boneIds = new uint[Vertices.Length * 3];
+            float[] boneIds = new float[Vertices.Length * 3];
             float[] boneWeights = new float[Vertices.Length * 3];
 
             for (int i = 0, arrayIndex = 0; i < Vertices.Length; i++, arrayIndex += 3)
@@ -94,7 +94,7 @@ namespace KWEngine3.Model
                 VBOBoneIDs = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBOBoneIDs);
                 GL.BufferData(BufferTarget.ArrayBuffer, boneIds.Length * 4, boneIds, BufferUsageHint.StaticDraw);
-                GL.VertexAttribIPointer(5, 3, VertexAttribIntegerType.UnsignedInt, 0, IntPtr.Zero);
+                GL.VertexAttribPointer(5, 3, VertexAttribPointerType.Float, false, 0, 0);
                 GL.EnableVertexAttribArray(5);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
