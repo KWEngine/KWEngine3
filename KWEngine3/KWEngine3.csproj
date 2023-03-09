@@ -236,6 +236,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="libassimp.dylib.x64">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="OpenAL32.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

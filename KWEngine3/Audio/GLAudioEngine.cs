@@ -37,7 +37,7 @@ namespace KWEngine3.Audio
                     {
                         throw new Exception("No Audio devices found.");
                     }
-                    KWEngine.LogWriteLine("[Audio] Initialized successfully");
+                    //KWEngine.LogWriteLine("[Audio] Initialized successfully");
                     mAudioOn = true;
                     
                 }
@@ -65,7 +65,7 @@ namespace KWEngine3.Audio
             }
             else
             {
-                KWEngine.LogWriteLine("[Audio] Driver unavailable");
+                KWEngine.LogWriteLine("[Audio] No driver available :-(");
             }
         }
 
