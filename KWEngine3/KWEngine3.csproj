@@ -231,8 +231,8 @@
   <ItemGroup>
     <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
     <PackageReference Include="glTF2Loader" Version="1.0.0" />
-    <PackageReference Include="ImGui.NET" Version="1.89.2" />
-    <PackageReference Include="OpenTK" Version="4.7.5" />
+    <PackageReference Include="ImGui.NET" Version="1.89.4" />
+    <PackageReference Include="OpenTK" Version="4.7.7" />
     <PackageReference Include="SkiaSharp" Version="2.88.3" />
   </ItemGroup>
 
