@@ -29,10 +29,13 @@
   <Class Name="KWEngine3.KWEngine">
     <Position X="0.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_folderDivider" Hidden="true" />
+      <Field Name="_folderDividerString" Hidden="true" />
       <Field Name="_glowRadius" Hidden="true" />
       <Field Name="_octreeSafetyZone" Hidden="true" />
       <Field Name="_octreeVisible" Hidden="true" />
       <Field Name="_stateCameraGameBeforeToggle" Hidden="true" />
+      <Field Name="_uniformOffsetMultiplier" Hidden="true" />
       <Field Name="_worldUp" Hidden="true" />
       <Field Name="BLOOMHEIGHT" Hidden="true" />
       <Field Name="BLOOMWIDTH" Hidden="true" />
@@ -60,6 +63,7 @@
       <Property Name="LastFrameTime" Hidden="true" />
       <Property Name="LastSimulationUpdateCycleCount" Hidden="true" />
       <Property Name="LastUpdateTime" Hidden="true" />
+      <Field Name="LIGHTINDEXDIVIDER" Hidden="true" />
       <Field Name="Matrix4Dummy" Hidden="true" />
       <Field Name="MAXGAMEOBJECTID" Hidden="true" />
       <Property Name="Mode" Hidden="true" />
@@ -80,7 +84,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgAZDgBAISAAKAFpkhqARAAQCAAAgIQDEnWSlVCUIE=</HashCode>
+      <HashCode>BYgAZLgBAISAAKAFpkhuARAAQCAAggIQDGnWSlVCUIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -128,6 +132,7 @@
       <Method Name="Dispose" Hidden="true" />
       <Method Name="Export" Hidden="true" />
       <Method Name="GetGameObjects" Hidden="true" />
+      <Method Name="GetGameObjectsSortedByType" Hidden="true" />
       <Method Name="GetLightObjects" Hidden="true" />
       <Method Name="GetTerrainObjects" Hidden="true" />
       <Method Name="GetTransparentGameObjects" Hidden="true" />
@@ -137,7 +142,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAhkOK6ABDACZAEYwoGIhQgCTKJZCKIUUQHCH/AMAnA=</HashCode>
+      <HashCode>SAlkOK6ABDQCZAEQwoGAhQgCTKJZCKIUUQHCH/AMAnA=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -332,7 +337,6 @@
       <Method Name="ClipLineToPlane" Hidden="true" />
       <Method Name="IsBetweenOrdered" Hidden="true" />
       <Method Name="IsInFrontOfPlane" Hidden="true" />
-      <Method Name="IsPointInsideHitbox" Hidden="true" />
       <Method Name="IsPointOnTrianglePlane" Hidden="true" />
       <Method Name="LinePlaneIntersection" Hidden="true" />
       <Method Name="Overlaps" Hidden="true" />
@@ -345,12 +349,12 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BAIQAhAAgBACAAAAIIAAAACEBAAgBIAGAAEKABAJAAg=</HashCode>
+      <HashCode>BAIQAhAAABACAAAAMIAAAACAAQAgBIAGAAEKABILAAg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="3.5" Width="2.75" />
+    <Position X="12.5" Y="4" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -360,7 +364,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="12.5" Y="4.75" Width="2.75" />
+    <Position X="12.5" Y="5.5" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -379,7 +383,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="12.5" Y="7.5" Width="2.75" />
+    <Position X="12.5" Y="8.25" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
     </Members>

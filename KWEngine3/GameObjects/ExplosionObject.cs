@@ -92,6 +92,10 @@ namespace KWEngine3.GameObjects
             Position = new Vector3(x, y, z);
         }
 
+        /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="position">Position</param>
         public void SetPosition(Vector3 position)
         {
             Position = position;
@@ -142,8 +146,6 @@ namespace KWEngine3.GameObjects
         /// <param name="explosionRadius">Radius der Explosion</param>
         /// <param name="durationInSeconds">Dauer der Explosion in Sekunden</param>
         /// <param name="type">Art der Explosion</param>
-        /// <param name="glow">Glühfarbe der Explosion</param>
-        /// <param name="texture">Textur der Explosion (optional)</param>
         public ExplosionObject(int particleCount, float particleSize, float explosionRadius, float durationInSeconds, ExplosionType type)
         {
             if (type == ExplosionType.Cube || type == ExplosionType.CubeRingY || type == ExplosionType.CubeRingZ)

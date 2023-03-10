@@ -29,6 +29,9 @@ namespace KWEngine3
         /// Aktuelles Fenster
         /// </summary>
         public static GLWindow Window { get; internal set; } = null;
+        /// <summary>
+        /// Aktuelle Welt
+        /// </summary>
         public static World CurrentWorld { get; internal set; } = null;
         internal static Dictionary<World, Dictionary<string, int>> CustomTextures { get; set; } = new Dictionary<World, Dictionary<string, int>>();
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
@@ -59,12 +62,21 @@ namespace KWEngine3
         }
 
         internal static EngineMode Mode { get; set; } = EngineMode.Play;
+        /// <summary>
+        /// Gibt an, ob der Edit-Modus aktiv ist
+        /// </summary>
         public static bool EditModeActive { get { return Mode == EngineMode.Edit; } }
 
         internal static bool _octreeVisible = false;
+        /// <summary>
+        /// Gibt an, ob der Octree sichtbar ist
+        /// </summary>
         public static bool OctreeVisible { get { return _octreeVisible; } set { _octreeVisible = value; } }
 
         internal static float _octreeSafetyZone = 1f;
+        /// <summary>
+        /// Zusätzliches Padding für den Octree (Standard: 1)
+        /// </summary>
         public static float OctreeSafetyZone { get { return _octreeSafetyZone; } set { _octreeSafetyZone = MathHelper.Max(0f, value); } }
 
         internal static void DeselectAll()
@@ -97,16 +109,29 @@ namespace KWEngine3
         //public static float DeltaTimeFactor { get; internal set; } = 1f;
         internal static float DeltaTimeCurrentNibbleSize { get; set; } = SIMULATIONNIBBLESIZE;
         
+        /// <summary>
+        /// Gibt an, wie lange die aktuelle Welt bereits aktiv ist
+        /// </summary>
         public static float WorldTime { get; internal set; } = 0.0f;
+        /// <summary>
+        /// Gibt an, wie lange die Anwendung bereits aktiv ist
+        /// </summary>
         public static float ApplicationTime { get; internal set; } = 0.0f;
         internal static float LastUpdateTime { get; set; } = 0.0f;
         internal static float LastFrameTime { get; set; } = 0.0f;
         internal static int LastSimulationUpdateCycleCount { get; set; } = 0;
+        /// <summary>
+        /// Schreibt eine Log-Zeile in das Ausgabefenster des Edit-Modus
+        /// </summary>
+        /// <param name="message"></param>
         public static void LogWriteLine(object message)
         {
             EngineLog.AddMessage(message.ToString());
         }
 
+        /// <summary>
+        /// Löscht alle Log-Nachrichten des Edit-Modus
+        /// </summary>
         public static void LogClear()
         {
             EngineLog.Clear();
@@ -316,8 +341,6 @@ namespace KWEngine3
         /// <param name="width">Breite</param>
         /// <param name="height">Höhe</param>
         /// <param name="depth">Tiefe</param>
-        /// <param name="texRepeatX">Texturwiederholung Breite</param>
-        /// <param name="texRepeatZ">Texturwiederholung Tiefe</param>
         public static void BuildTerrainModel(string name, string heightmap, string texture, float width, float height, float depth)
         {
             if (Models.ContainsKey(name))

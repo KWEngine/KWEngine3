@@ -9,6 +9,30 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperIntersection
     {
+        /// <summary>
+        /// Berechnet die Richtung von der Kameraposition zum Mauszeiger in 3D
+        /// </summary>
+        /// <returns>Blickrichtung der Kamera in Richtung des Mauszeigers</returns>
+        public static Vector3 GetMouseRay()
+        {
+            Vector2 mc;
+            if (KWEngine.Window.CursorState == OpenTK.Windowing.Common.CursorState.Grabbed)
+            {
+                mc = KWEngine.Window.ClientRectangle.HalfSize;
+            }
+            else
+            {
+                mc = KWEngine.Window.MousePosition;
+            }
+
+            return HelperGeneral.Get3DMouseCoords(mc);
+        }
+
+        /// <summary>
+        /// Berechnet den ungefähren Schnittpunkt des Mauszeigers mit einem Terrain-Objekt.
+        /// </summary>
+        /// <param name="intersectionPoint">Ausgabe des Schnittpunkts (wenn der Mauszeiger über einem Terrain-Objekt liegt - sonst (0|0|0))</param>
+        /// <returns>true, wenn der Mauszeiger über einem Terrain-Objekt liegt</returns>
         public static bool GetMouseIntersectionPointOnAnyTerrain(out Vector3 intersectionPoint)
         {
             foreach(TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
@@ -77,11 +101,12 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Erfragt den Kollisionspunkt des Mauszeigers mit der 3D-Welt (auf Höhe des Aufrufers)
+        /// Erfragt den Kollisionspunkt des Mauszeigers mit der 3D-Welt auf Höhe der angegebenen Position
         /// </summary>
+        /// <param name="position">Position</param>
         /// <param name="plane">Kollisionsebene (Standard: Camera)</param>
         /// <returns></returns>
-        public static Vector3 GetMouseIntersectionPoint(Vector3 position, Plane plane = Plane.Camera)
+        public static Vector3 GetMouseIntersectionPointOnPlane(Vector3 position, Plane plane = Plane.Camera)
         {
             Vector2 mc;
             if (KWEngine.Window.CursorState == OpenTK.Windowing.Common.CursorState.Grabbed)
@@ -129,10 +154,9 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Gibt die am nächsten liegende (vom Mauszeiger überlagerte) GameObject-Instanz inkl. der genauen Mausposition auf dem Objekt zurück
+        /// Gibt die am nächsten liegende (vom Mauszeiger überlagerte) GameObject-Instanz zurück
         /// </summary>
         /// <typeparam name="T">Beliebige Unterklasse von GameObject</typeparam>
-        /// <param name="intersectionPoint">Punkt, an dem der Mauszeiger auf das Objekt trifft</param>
         /// <returns>true, wenn der Mauscursor auf einem Objekt der angegebenen Art ist</returns>
         public static bool IsMouseCursorOnAny<T>(out T gameObject) where T : GameObject
         {
@@ -147,7 +171,7 @@ namespace KWEngine3.Helper
             int minIndex = -1;
             for (int i = 0; i < list.Length; i++)
             {
-                bool rayHitGameObject = IsMouseCursorInsideVolume(list[i]);
+                bool rayHitGameObject = IsMouseCursorInsideHitboxVolume(list[i]);
                 if (rayHitGameObject)
                 {
                     float currentDistance = (origin - list[i].Center).LengthSquared;
@@ -166,7 +190,6 @@ namespace KWEngine3.Helper
             return false;
         }
 
-       
         /// <summary>
         /// Prüft, welche Objekte (bzw. deren Hitboxen) in der angegebenen Blickrichtung liegen und gibt diese als Liste zurück
         /// </summary>
@@ -191,7 +214,7 @@ namespace KWEngine3.Helper
                     continue;
                 }
 
-                bool result = GetClosestIntersectionPointOnObjectForRay(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
+                bool result = GetIntersectionPointOnObjectForRay(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
                 if (result)
                 {
                     float currentDistance = (intersectionPoint - origin).LengthFast;
@@ -225,43 +248,19 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Strahl das Objekt trifft</returns>
         public static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint)
         {
-            return GetClosestIntersectionPointOnObjectForRay(g, origin, worldRay, out intersectionPoint, out Vector3 normal);
+            return GetIntersectionPointOnObjectForRay(g, origin, worldRay, out intersectionPoint, out Vector3 normal);
         }
         
-
-        internal static bool RayTriangleIntersection(Vector3 rayStart, Vector3 rayDirection, Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, out Vector3 contactPoint)
-        {
-            const float EPSILON = 0.0000001f;
-            contactPoint = Vector3.Zero;
-            Vector3 edge1, edge2, h, s, q;
-            float a, f, u, v;
-            edge1 = vertex1 - vertex0;
-            edge2 = vertex2 - vertex0;
-            h = Vector3.Cross(rayDirection, edge2);
-            a = Vector3.Dot(edge1, h);
-            if (a > -EPSILON && a < EPSILON)
-                return false;    // ray is parallel to triangle
-            f = 1.0f / a;
-            s = rayStart - vertex0;
-            u = f * Vector3.Dot(s, h);
-            if (u < 0.0 || u > 1.0)
-                return false;
-
-            q = Vector3.Cross(s, edge1);
-            v = f * Vector3.Dot(rayDirection, q);
-            if (v < 0.0 || u + v > 1.0)
-                return false;
-            float t = f * Vector3.Dot(edge2, q);
-            if (t > EPSILON) // ray intersection
-            {
-                contactPoint = rayStart + rayDirection * t;
-                return true;
-            }
-            else
-                return false;
-        }
-        
-        public static bool GetClosestIntersectionPointOnObjectForRay(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal)
+        /// <summary>
+        /// Berechnet den Schnittpunkt eines Strahls mit dem angegebenen GameObject
+        /// </summary>
+        /// <param name="g">zu prüfendes GameObject</param>
+        /// <param name="rayOrigin">Ursprungsposition des Strahls</param>
+        /// <param name="rayDirection">Richtung des Strahls</param>
+        /// <param name="intersectionPoint">Schnittpunkt (Ausgabe)</param>
+        /// <param name="faceNormal">Ebene des Schnittpunkts (Ausgabe)</param>
+        /// <returns>true, wenn der Strahl das GameObject getroffen hat</returns>
+        public static bool GetIntersectionPointOnObjectForRay(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal)
         {
             faceNormal = KWEngine.WorldUp;
             intersectionPoint = new Vector3();
@@ -331,27 +330,6 @@ namespace KWEngine3.Helper
             return resultSum > 0;
         }
 
-        internal static bool IsPointOnTrianglePlane(Vector3 p, Vector3 a, Vector3 b, Vector3 c)
-        {
-              a -= p;
-              b -= p;
-              c -=p;
-
-              Vector3 u = Vector3.Cross(b, c);
-              Vector3 v = Vector3.Cross(c, a);
-              Vector3 w = Vector3.Cross(a, b);
-
-              if (Vector3.Dot(u, v) < 0f) {
-                  return false;
-              }
-              if (Vector3.Dot(u, w) < 0f) {
-                  return false;
-              }
-
-              return true;
-        }
-
-        
         /// <summary>
         /// Prüft, ob ein Punkt innerhalb einer Box liegt.
         /// </summary>
@@ -372,60 +350,18 @@ namespace KWEngine3.Helper
                 pos.Z <= center.Z + depth / 2;
         }
 
-        
-        internal static bool IsPointInsideBox(ref Vector3 pos, GameObjectHitbox h)
-        {
-            Matrix4 matInv = Matrix4.Invert(h.Owner._stateCurrent._modelMatrix);
-            Vector3 posTransformed = Vector4.TransformRow(new Vector4(pos, 1.0f), matInv).Xyz;
-            float left = h._mesh.Center.X - h._mesh.width / 2;
-            float right = h._mesh.Center.X + h._mesh.width / 2;
-            float top = h._mesh.Center.Y + h._mesh.height / 2;
-            float bottom = h._mesh.Center.Y - h._mesh.height / 2;
-            float front = h._mesh.Center.Z + h._mesh.depth / 2;
-            float back = h._mesh.Center.Z - h._mesh.depth / 2;
-
-            bool result = IsPointInsideBox(ref posTransformed, left, right, top, bottom, front, back);
-            return result;
-        }
-        
         /// <summary>
         /// Prüft, ob sich ein Punkt innerhalb einer Kugel befindet
         /// </summary>
-        /// <param name="pos">zu prüfender Punkt</param>
-        /// <param name="center">Zentrum der Kugel</param>
+        /// <param name="point">zu prüfender Punkt</param>
+        /// <param name="sphereCenter">Zentrum der Kugel</param>
         /// <param name="diameter">Durchmesser der Kugel</param>
-        /// <param name="hitboxScale">Skalierung des Durchmessers</param>
         /// <returns></returns>
-        public static bool IsPointInsideSphere(Vector3 pos, Vector3 center, float diameter, float hitboxScale = 1f)
+        public static bool IsPointInsideSphere(Vector3 point, Vector3 sphereCenter, float diameter)
         {
-            return (pos - center).LengthFast <= diameter / 2f * hitboxScale;
+            return (point - sphereCenter).LengthFast <= diameter / 2f;
         }
 
-
-        internal static bool IsPointInsideSphere(ref Vector3 pos, Vector3 center, float diameter)
-        {
-            return (pos - center).LengthFast <= diameter / 2f;
-        }
-
-        internal static bool IsPointInsideHitbox(Vector3 point, GameObjectHitbox h, float errorMarginFactor = 1f)
-        {
-            bool isInsideCurrentHitbox = true;
-            for (int boxFaceIndex = 0; boxFaceIndex < h._mesh.Faces.Length; boxFaceIndex++)
-            {
-                GeoMeshFace boxFace = h._mesh.Faces[boxFaceIndex];
-                Vector3 boxNormal = (boxFace.Flip ? h._normals[boxFace.Normal] : -h._normals[boxFace.Normal]); // really flip this way?
-                Vector3 vertexOnFace = h._vertices[boxFace.Vertices[0]] - errorMarginFactor * boxNormal;
-                bool tmpResult = IsInFrontOfPlane(ref point, ref boxNormal, ref vertexOnFace);
-                if (tmpResult == false)
-                {
-                    isInsideCurrentHitbox = false;
-                    break;
-                }
-            }
-            return isInsideCurrentHitbox;
-        }
-        
-        
         /// <summary>
         /// Prüft, ob sich ein Punkt innerhalb der Hitbox einer GameObject-Instanz befindet
         /// </summary>
@@ -458,33 +394,12 @@ namespace KWEngine3.Helper
             return false;
         }
 
-        internal static bool IsInFrontOfPlane(ref Vector3 vertex, ref Vector3 planeNormal, ref Vector3 vertexOnPlane)
-        {
-            float distancePointToPlane = Vector3.Dot(planeNormal, vertex - vertexOnPlane);
-            return distancePointToPlane >= 0;
-        }
-
-        internal static bool IsPointInsideBox(ref Vector3 pos, float left, float right, float top, float bottom, float front, float back)
-        {
-            return (
-               pos.X >= left &&
-               pos.X <= right &&
-               pos.Y >= bottom &&
-               pos.Y <= top &&
-               pos.Z >= back &&
-               pos.Z <= front
-               );
-        }
-
-        
-       
-        
         /// <summary>
-        /// Erfragt, ob der Mauszeiger (näherungsweise) auf dem Objekt liegt 
+        /// Erfragt, ob der Mauszeiger (näherungsweise) auf dem Objekt liegt (schneller als die präziseren Methoden)
         /// </summary>
         /// <param name="g">Zu untersuchendes GameObject</param>
-        /// <returns>true, wenn der Mauszeiger auf dem Objekt liegt</returns>
-        public static bool IsMouseCursorInsideVolume(GameObject g)
+        /// <returns>true, wenn der Mauszeiger (näherungsweise) auf dem Objekt liegt</returns>
+        public static bool IsMouseCursorInsideHitboxVolume(GameObject g)
         {
             Vector2 mc;
             if (KWEngine.Window.CursorState == OpenTK.Windowing.Common.CursorState.Grabbed)
@@ -506,6 +421,8 @@ namespace KWEngine3.Helper
             }
             return false;
         }
+
+        #region Internals
 
         internal static Vector3[] bounds = new Vector3[2];
         internal static bool RayBoxIntersection(ref Vector3 rayOrigin, ref Vector3 rayDirection, GameObjectHitbox hitbox)
@@ -908,5 +825,76 @@ namespace KWEngine3.Helper
             contact = rayOrigin + ray * x;
             return true;
         }
+        internal static bool IsInFrontOfPlane(ref Vector3 vertex, ref Vector3 planeNormal, ref Vector3 vertexOnPlane)
+        {
+            float distancePointToPlane = Vector3.Dot(planeNormal, vertex - vertexOnPlane);
+            return distancePointToPlane >= 0;
+        }
+
+        internal static bool IsPointInsideBox(ref Vector3 pos, float left, float right, float top, float bottom, float front, float back)
+        {
+            return (
+               pos.X >= left &&
+               pos.X <= right &&
+               pos.Y >= bottom &&
+               pos.Y <= top &&
+               pos.Z >= back &&
+               pos.Z <= front
+               );
+        }
+        internal static bool IsPointOnTrianglePlane(Vector3 p, Vector3 a, Vector3 b, Vector3 c)
+        {
+            a -= p;
+            b -= p;
+            c -= p;
+
+            Vector3 u = Vector3.Cross(b, c);
+            Vector3 v = Vector3.Cross(c, a);
+            Vector3 w = Vector3.Cross(a, b);
+
+            if (Vector3.Dot(u, v) < 0f)
+            {
+                return false;
+            }
+            if (Vector3.Dot(u, w) < 0f)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        internal static bool RayTriangleIntersection(Vector3 rayStart, Vector3 rayDirection, Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, out Vector3 contactPoint)
+        {
+            const float EPSILON = 0.0000001f;
+            contactPoint = Vector3.Zero;
+            Vector3 edge1, edge2, h, s, q;
+            float a, f, u, v;
+            edge1 = vertex1 - vertex0;
+            edge2 = vertex2 - vertex0;
+            h = Vector3.Cross(rayDirection, edge2);
+            a = Vector3.Dot(edge1, h);
+            if (a > -EPSILON && a < EPSILON)
+                return false;    // ray is parallel to triangle
+            f = 1.0f / a;
+            s = rayStart - vertex0;
+            u = f * Vector3.Dot(s, h);
+            if (u < 0.0 || u > 1.0)
+                return false;
+
+            q = Vector3.Cross(s, edge1);
+            v = f * Vector3.Dot(rayDirection, q);
+            if (v < 0.0 || u + v > 1.0)
+                return false;
+            float t = f * Vector3.Dot(edge2, q);
+            if (t > EPSILON) // ray intersection
+            {
+                contactPoint = rayStart + rayDirection * t;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        #endregion
     }
 }

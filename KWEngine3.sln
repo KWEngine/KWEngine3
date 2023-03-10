@@ -5,9 +5,14 @@ VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KWEngine3", "KWEngine3\KWEngine3.csproj", "{410416E5-1366-4E85-A52C-28F9403C4C09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KWEngine3TestProject", "KWEngine3TestProject\KWEngine3TestProject.csproj", "{32C50921-0265-4DED-B2B4-3DCD3C642445}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KWEngine3TestProject", "KWEngine3TestProject\KWEngine3TestProject.csproj", "{32C50921-0265-4DED-B2B4-3DCD3C642445}"
 	ProjectSection(ProjectDependencies) = postProject
 		{410416E5-1366-4E85-A52C-28F9403C4C09} = {410416E5-1366-4E85-A52C-28F9403C4C09}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B4DF354-F75D-4B5C-8555-225CC6D01E7A}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Global

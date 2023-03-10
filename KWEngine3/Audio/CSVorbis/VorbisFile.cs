@@ -22,12 +22,15 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-
-using System;
-using System.IO;
 using KWEngine3.Audio.CSOgg;
 
 #pragma warning disable CS0414
+#pragma warning disable CS0649
+#pragma warning disable CS0169
+#pragma warning disable CS0414
+#pragma warning disable IDE0044 // Modifizierer "readonly" hinzufügen
+#pragma warning disable IDE0051 // Nicht verwendete private Member entfernen
+#pragma warning disable IDE0052 // Ungelesene private Member entfernen
 
 namespace KWEngine3.Audio.CSVorbis 
 {

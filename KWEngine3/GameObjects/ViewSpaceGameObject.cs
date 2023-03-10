@@ -3,6 +3,9 @@ using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
 {
+    /// <summary>
+    /// Basisklasse für Objekte, die im First-Person-Modus zu sehen sind (Waffen, etc.)
+    /// </summary>
     public abstract class ViewSpaceGameObject
     {
         internal GameObject _gameObject;
@@ -14,11 +17,18 @@ namespace KWEngine3.GameObjects
 
         internal bool IsValid { get { return _gameObject != null; } }
 
+        /// <summary>
+        /// Standardkonstruktormethode (erzeugt einen Würfel)
+        /// </summary>
         public ViewSpaceGameObject()
             :this("KWCube")
         {
         }
 
+        /// <summary>
+        /// Konstruktormethode, die ein ViewSpaceGameObject des angegebenen Modells erstellt
+        /// </summary>
+        /// <param name="modelName">Name des Modells</param>
         public ViewSpaceGameObject(string modelName)
         {
             if (modelName != null && KWEngine.Models.ContainsKey(modelName.Trim()))
@@ -31,8 +41,15 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Aktivitätsmethode des Objekts
+        /// </summary>
         public abstract void Act();
 
+        /// <summary>
+        /// Setzt das 3D-Modell
+        /// </summary>
+        /// <param name="modelName">Name des 3D-Modells</param>
         public void SetModel(string modelName)
         {
             if(IsValid)
@@ -48,6 +65,9 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Aktualisiert die Position des Objekts anhand der aktuellen Position und Rotation des Elternobjekts
+        /// </summary>
         public void UpdatePosition()
         {
             if (IsValid)
@@ -64,11 +84,21 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Legt die lokale Rotation fest (Reihenfolge x->y->z), die zusätzlich zur Rotation des Elternobjekts angewendet wird
+        /// </summary>
+        /// <param name="x">Rotation in Grad um die lokale x-Achse</param>
+        /// <param name="y">Rotation in Grad um die lokale y-Achse</param>
+        /// <param name="z">Rotation in Grad um die lokale z-Achse</param>
         public void SetRotation(float x, float y, float z)
         {
             _rotation = Quaternion.FromEulerAngles(MathHelper.DegreesToRadians(x), MathHelper.DegreesToRadians(y), MathHelper.DegreesToRadians(z));
         }
 
+        /// <summary>
+        /// Lässt das Objekt auf Kollisionen mit anderen GameObject-Instanzen prüfen
+        /// </summary>
+        /// <returns>Liste mit Kollisionen (kann leer sein)</returns>
         public List<Intersection> GetIntersections()
         {
             List<Intersection> intersections = new List<Intersection>();
@@ -79,8 +109,14 @@ namespace KWEngine3.GameObjects
             return intersections;
         }
 
+        /// <summary>
+        /// Verweis auf die aktuelle Welt
+        /// </summary>
         public World CurrentWorld { get { return KWEngine.CurrentWorld; } }
 
+        /// <summary>
+        /// Setzt fest, ob das Objekt ein Kollisionsobjekt ist
+        /// </summary>
         public bool IsCollisionObject { 
             get 
             { 
@@ -95,6 +131,9 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt fest, ob das Objekt Schatten werfen und empfangen kann
+        /// </summary>
         public bool IsShadowCaster
         {
             get
@@ -110,16 +149,30 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt den Abstand des Objekts zur Kamera bzw. zum Elternobjekt
+        /// </summary>
+        /// <param name="horizontal">Abstand auf der lokalen x-Achse</param>
+        /// <param name="vertical">Abstand auf der lokalen y-Achse</param>
+        /// <param name="nearFar">Abstand auf der lokalen z-Achse</param>
         public void SetOffset(float horizontal, float vertical, float nearFar)
         {
             SetOffset(new Vector3(horizontal, -vertical, nearFar));
         }
 
+        /// <summary>
+        /// Setzt den Abstand des Objekts zur Kamera bzw. zum Elternobjekt
+        /// </summary>
+        /// <param name="offset">Abstand</param>
         public void SetOffset(Vector3 offset)
         {
             _offset = offset;
         }
 
+        /// <summary>
+        /// Setzt die Größe des Objekts (muss > 0 sein)
+        /// </summary>
+        /// <param name="s">Skalierung (1 = Standardgröße)</param>
         public void SetScale(float s)
         {
             if (IsValid)
@@ -129,6 +182,10 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Animation des Objekts (falls das Modell über Animationen verfügt)
+        /// </summary>
+        /// <param name="id">Animations-ID (>= 0)</param>
         public void SetAnimationID(int id)
         {
             if (IsValid && _gameObject._gModel.ModelOriginal.Animations != null)
@@ -140,17 +197,24 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt den Animationsfortschritt (zwischen 0 und 1)
+        /// </summary>
+        /// <param name="p">Fortschritt (0 = 0%, 1 = 100%)</param>
         public void SetAnimationPercentage(float p)
         {
             if (IsValid)
                 _gameObject.SetAnimationPercentage(p);// _stateCurrent._animationPercentage = MathHelper.Clamp(p, 0f, 1f);
         }
 
+        /// <summary>
+        /// Setzt den relativen Animationsfortschritt
+        /// </summary>
+        /// <param name="p">relativer Animationsfortschritt</param>
         public void SetAnimationPercentageAdvance(float p)
         {
             if (IsValid)
                 _gameObject.SetAnimationPercentageAdvance(p);
-                //_gameObject._stateCurrent._animationPercentage = (_gameObject._stateCurrent._animationPercentage + p * KWEngine.DeltaTimeCurrentNibbleSize) % 1f;
         }
     }
 }

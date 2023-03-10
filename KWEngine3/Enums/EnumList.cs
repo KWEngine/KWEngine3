@@ -181,16 +181,46 @@
         None
     }
 
+    /// <summary>
+    /// Metalltyp
+    /// </summary>
     public enum MetallicType
     {
+        /// <summary>
+        /// Standard
+        /// </summary>
         Default = 0,
+        /// <summary>
+        /// Plastik/Glass
+        /// </summary>
         PlasticOrGlassLow = 1,
+        /// <summary>
+        /// Plastik/Glass
+        /// </summary>
         PlasticOrGlassHigh = 2,
+        /// <summary>
+        /// Diamant
+        /// </summary>
         Diamond = 3,
+        /// <summary>
+        /// Eisen
+        /// </summary>
         Iron = 4,
+        /// <summary>
+        /// Kupfer
+        /// </summary>
         Copper = 5,
+        /// <summary>
+        /// Gold
+        /// </summary>
         Gold = 6,
+        /// <summary>
+        /// Aluminium
+        /// </summary>
         Aluminium = 7,
+        /// <summary>
+        /// Silber
+        /// </summary>
         Silver = 8
     }
 
@@ -199,16 +229,35 @@
     /// </summary>
     public enum EngineMode
     {
+        /// <summary>
+        /// Editor
+        /// </summary>
         Edit,
+        /// <summary>
+        /// Game
+        /// </summary>
         Play
     }
 
+    /// <summary>
+    /// Lichttyp
+    /// </summary>
     public enum LightType
     {
+        /// <summary>
+        /// Punktlicht (in alle Richtungen scheinend)
+        /// </summary>
         Point = 0,
+        /// <summary>
+        /// Gerichtetes Licht (in eine Richtung scheinend)
+        /// </summary>
         Directional = 1,
+        /// <summary>
+        /// Sonnenlicht (in eine Richtung scheinend aber ohne Entfernungsbegrenzung)
+        /// </summary>
         Sun = 2
     }
+
     internal enum EditorAddObjectType
     {
         None,
@@ -216,11 +265,26 @@
         LightObject
     }
 
+    /// <summary>
+    /// Qualität der Lichtschatten
+    /// </summary>
     public enum ShadowQuality
     {
+        /// <summary>
+        /// Kein Schattenwurf
+        /// </summary>
         NoShadow = 0,
+        /// <summary>
+        /// Niedrige Qualität
+        /// </summary>
         Low = 512,
+        /// <summary>
+        /// Mittlere Qualität
+        /// </summary>
         Medium = 1024,
+        /// <summary>
+        /// Hohe Qualität
+        /// </summary>
         High = 2048
     }
 

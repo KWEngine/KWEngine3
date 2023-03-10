@@ -75,7 +75,7 @@ namespace KWEngine3.Helper
         {
             w.SetCameraPosition(sw.CamPosition[0], sw.CamPosition[1], sw.CamPosition[2]);
             w.SetCameraTarget(sw.CamTarget[0], sw.CamTarget[1], sw.CamTarget[2]);
-            w.SetFOV((int)sw.CamFOV);
+            w.SetCameraFOV((int)sw.CamFOV);
 
             w.SetColorAmbient(sw.ColorAmbient[0], sw.ColorAmbient[1], sw.ColorAmbient[2]);
             w.SetBackgroundBrightnessMultiplier(sw.ColorBackgroundBoost);

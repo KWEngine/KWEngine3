@@ -3,6 +3,9 @@ using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
 {
+    /// <summary>
+    /// Klasse für Sonnen-/Punktlichter und gerichtete Lichter (spot lights)
+    /// </summary>
     public sealed class LightObject
     {
         internal LightObjectState _stateCurrent;
@@ -13,41 +16,65 @@ namespace KWEngine3.GameObjects
         internal float _shadowBias = 0.00006f;
         internal float _shadowOffset = 0f;
 
+        /// <summary>
+        /// Befinden sich das Lichtobjekt und seine Lichtstrahlen aktuell auf dem Bildschirm?
+        /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
+        /// <summary>
+        /// Engine-interne ID
+        /// </summary>
         public int ID { get; internal set; } = 0;
+        /// <summary>
+        /// Name des Objekts
+        /// </summary>
         public string Name { get; set; } = "(no name)";
 
+        /// <summary>
+        /// Schattenqualität des Lichts (maximal 3 Schattenlichter pro Welt möglich)
+        /// </summary>
         public ShadowQuality ShadowCasterType { get; internal set; } = ShadowQuality.NoShadow;
 
-        public LightObject(LightType type, ShadowQuality casterType = ShadowQuality.NoShadow)
+        /// <summary>
+        /// Standardkonstruktormethode für Lichtobjekte
+        /// </summary>
+        /// <param name="lightType">Art des Lichts (Sonne, Punktlicht oder gerichtetes Licht?)</param>
+        /// <param name="shadowType">Schattenqualität des Lichts</param>
+        public LightObject(LightType lightType, ShadowQuality shadowType = ShadowQuality.NoShadow)
         {
-            if(casterType != ShadowQuality.NoShadow && Framebuffer.ShadowMapCount >= KWEngine.MAX_SHADOWMAPS)
+            if(shadowType != ShadowQuality.NoShadow && Framebuffer.ShadowMapCount >= KWEngine.MAX_SHADOWMAPS)
             {
                 KWEngine.LogWriteLine("New LightObject instance cannot cast shadows!");
                 KWEngine.LogWriteLine("Reason: > 3 shadow casters in world already.");
-                casterType = ShadowQuality.NoShadow;
+                shadowType = ShadowQuality.NoShadow;
             }
 
-            ShadowCasterType = casterType;
+            ShadowCasterType = shadowType;
             _shadowMapSize = ShadowCasterType == ShadowQuality.Low ? 512
                 : ShadowCasterType == ShadowQuality.Medium ? 1024
                 : ShadowCasterType == ShadowQuality.High ? 2048
                 : -1;
 
-            if (type == LightType.Point)
+            if (lightType == LightType.Point)
                 _shadowBias = 0.0006f;
 
-            _stateCurrent = new LightObjectState(this, type);
+            _stateCurrent = new LightObjectState(this, lightType);
             _statePrevious = _stateCurrent;
-            _stateRender = new LightObjectState(this, type);
+            _stateRender = new LightObjectState(this, lightType);
             UpdateLookAtVector();
         }
 
+        /// <summary>
+        /// Feintuning für den Schatteneffekt des Lichts (im Bereich [-0.1f;+0.1f])
+        /// </summary>
+        /// <param name="bias">Bias-Wert (Standardwert: 0.00006f)</param>
         public void SetShadowBias(float bias)
         {
             _shadowBias = MathHelper.Clamp(bias, -0.1f, 0.1f);
         }
 
+        /// <summary>
+        /// Art des Lichts
+        /// </summary>
         public LightType Type
         {
             get
@@ -56,22 +83,42 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Position des Lichtobjekts
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetPosition(float x, float y, float z)
         {
             SetPosition(new Vector3(x, y, z));
         }
 
+        /// <summary>
+        /// Setzt die Position des Lichtobjekts
+        /// </summary>
+        /// <param name="position">3D-Koordinate</param>
         public void SetPosition(Vector3 position)
         {
             _stateCurrent._position = position;
             UpdateLookAtVector();
         }
 
+        /// <summary>
+        /// Setzt das Ziel des Lichts (bzw. dadurch dessen Richtung)
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetTarget(float x, float y, float z)
         {
             SetTarget(new Vector3(x, y, z));
         }
 
+        /// <summary>
+        /// Setzt das Ziel des Lichts (bzw. dadurch dessen Richtung)
+        /// </summary>
+        /// <param name="target">3D-Koordinate</param>
         public void SetTarget(Vector3 target)
         {
             _stateCurrent._target = target;
@@ -79,11 +126,22 @@ namespace KWEngine3.GameObjects
             
         }
 
+        /// <summary>
+        /// Setzt Lichtfarbe- und intensität
+        /// </summary>
+        /// <param name="r">Rotintensität (0 bis 1)</param>
+        /// <param name="g">Grünintensität (0 bis 1)</param>
+        /// <param name="b">Blauintensität (0 bis 1)</param>
+        /// <param name="intensity">Helligkeit (0 bis 4096)</param>
         public void SetColor(float r, float g, float b, float intensity)
         {
             SetColor(new Vector4(r,g,b,intensity));
         }
 
+        /// <summary>
+        /// Setzt Lichtfarbe- und intensität
+        /// </summary>
+        /// <param name="c">Rot-/Grün-/Blau-Intensität (0 bis 1) plus Helligkeit (0 bis 4096)</param>
         public void SetColor(Vector4 c)
         {
             _stateCurrent._color.X = MathHelper.Clamp(c.X, 0f, 1f);
@@ -93,6 +151,9 @@ namespace KWEngine3.GameObjects
 
         }
 
+        /// <summary>
+        /// Gibt die aktuelle Lichtfarbe zurück
+        /// </summary>
         public Vector4 Color
         {
             get
@@ -101,6 +162,10 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt den Blickwinkel des Lichts (gilt nur für Sonnenlicht und gerichtetes Licht)
+        /// </summary>
+        /// <param name="fov">Blickwinkel in Grad</param>
         public void SetFOV(float fov)
         {
             //LightType.Point ? 0 : l._type == LightType.Sun ? -1 : 1
@@ -120,6 +185,11 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Nah- und Ferngrenze (Reichweite) des Lichts
+        /// </summary>
+        /// <param name="near">Nahgrenze (mind. 0.1f)</param>
+        /// <param name="far">Ferngrenze (muss größer als die Nahgrenze sein)</param>
         public void SetNearFar(float near, float far)
         {
             near = Math.Max(Math.Abs(near), 0.1f);

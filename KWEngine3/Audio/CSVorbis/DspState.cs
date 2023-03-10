@@ -23,11 +23,12 @@
  */
 
 
-using System;
-using KWEngine3.Audio.CSOgg;
-
 #pragma warning disable CS0649
+#pragma warning disable CS0169
 #pragma warning disable CS0414
+#pragma warning disable IDE0044 // Modifizierer "readonly" hinzufügen
+#pragma warning disable IDE0051 // Nicht verwendete private Member entfernen
+#pragma warning disable IDE0052 // Ungelesene private Member entfernen
 
 namespace KWEngine3.Audio.CSVorbis 
 {
@@ -51,7 +52,9 @@ namespace KWEngine3.Audio.CSVorbis
 		int      envelope_storage;
 		int      envelope_current;
 
+
 		int eofflag;
+
 
 		int lW;
 		int W;
@@ -76,15 +79,17 @@ namespace KWEngine3.Audio.CSVorbis
 		// backend lookups are tied to the mode, not the backend or naked mapping
 		internal Object[] mode;
 
-		// local storage, only used on the encoding side.  This way the
-		// application does not need to worry about freeing some packets'
-		// memory and not others'; packet storage is always tracked.
-		// Cleared next call to a _dsp_ function
-		byte[] header;
+        // local storage, only used on the encoding side.  This way the
+        // application does not need to worry about freeing some packets'
+        // memory and not others'; packet storage is always tracked.
+        // Cleared next call to a _dsp_ function
+
+        byte[] header;
 		byte[] header1;
 		byte[] header2;
 
-		public DspState()
+
+        public DspState()
 		{
 			transform=new Object[2][];
 			wnd=new float[2][][][][];

@@ -15,8 +15,14 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3
 {
+    /// <summary>
+    /// Basisklasse für das Programmfenster
+    /// </summary>
     public abstract class GLWindow : GameWindow
     {
+        /// <summary>
+        /// Prüft, ob der Mauszeiger aktuell innerhalb des Fensters ist
+        /// </summary>
         public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
 
         internal ulong FrameTotalCount { get; set; } = 0;
@@ -27,21 +33,31 @@ namespace KWEngine3
 
         internal int AnisotropicFiltering { get; set; } = 4;
 
+        /// <summary>
+        /// Standardkonstruktor für den Fullscreen-Modus
+        /// </summary>
+        /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         public GLWindow(bool vSync = true)
-            :this(
-                 new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 120 }, 
+            : this(
+                 new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 120 },
                  new NativeWindowSettings()
-                    {
-                        API = ContextAPI.OpenGL,
-                        APIVersion = Version.Parse("4.0"),
-                        Flags = ContextFlags.ForwardCompatible,
-                        WindowState = WindowState.Fullscreen
+                 {
+                     API = ContextAPI.OpenGL,
+                     APIVersion = Version.Parse("4.0"),
+                     Flags = ContextFlags.ForwardCompatible,
+                     WindowState = WindowState.Fullscreen,
+                     Vsync = vSync ? VSyncMode.On : VSyncMode.Off
                  }
                  )
         {
-            VSync = vSync ? VSyncMode.On : VSyncMode.Off;
         }
 
+        /// <summary>
+        /// Standardkonstruktor für den Fenstermodus
+        /// </summary>
+        /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
+        /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
+        /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         public GLWindow(int width, int height, bool vSync = true) 
             : this(
                  new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 120 },
@@ -52,11 +68,11 @@ namespace KWEngine3
                      Flags = ContextFlags.ForwardCompatible,
                      WindowState = WindowState.Normal,
                      Size = new Vector2i(width, height),
-                     WindowBorder = WindowBorder.Fixed
+                     WindowBorder = WindowBorder.Fixed,
+                     Vsync = vSync ? VSyncMode.On : VSyncMode.Off
                  }
         )
         {
-            VSync = vSync ? VSyncMode.On : VSyncMode.Off;
         }
 
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
@@ -69,11 +85,12 @@ namespace KWEngine3
             GLAudioEngine.InitAudioEngine();
         }
 
+        /// <summary>
+        /// Standard-Initialisierungen
+        /// </summary>
         protected override void OnLoad()
         {
             base.OnLoad();
-
-            int maxComponents = GL.GetInteger(GetPName.MaxVertexUniformVectors);
 
             KWEngine._uniformOffsetMultiplier = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 4 : 1;
             KWEngine._folderDivider = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
@@ -95,6 +112,10 @@ namespace KWEngine3
             KWBuilderOverlay.InitFrameTimeQueue();
          }
 
+        /// <summary>
+        /// Wird ausgeführt, wenn sich das Fenster vergrößert/verkleinert
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
@@ -104,6 +125,10 @@ namespace KWEngine3
             _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0.1f, 100f);
         }
 
+        /// <summary>
+        /// Wird ausgeführt, wenn ein neues Bild gezeichnet werden soll
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             UpdateDeltaTime(e.Time);
@@ -262,15 +287,20 @@ namespace KWEngine3
             FrameTotalCount++;
         }
 
+        /// <summary>
+        /// Wird aufgerufen, wenn Text eingegeben wird
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnTextInput(TextInputEventArgs e)
         {
             base.OnTextInput(e);
-
- 
             Overlay.PressChar((char)e.Unicode);
- 
         }
  
+        /// <summary>
+        /// Wird aufgerufen, wenn eine Maustaste gedrückt wird
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
             base.OnMouseDown(e);
@@ -285,6 +315,10 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Wird aufgerufen, wenn sich die Maus bewegt
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
             base.OnMouseMove(e);
@@ -310,12 +344,20 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Wird aufgerufen, wenn eine Maustaste losgelassen wird
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             base.OnMouseUp(e);
             KWBuilderOverlay.HandleMouseButtonStatus(e.Button, false);
         }
 
+        /// <summary>
+        /// Wird aufgerufen, wenn das Mausrad betätigt wird
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
             base.OnMouseWheel(e);
@@ -327,6 +369,10 @@ namespace KWEngine3
         }
  
 
+        /// <summary>
+        /// Setzt eine Welt für das Fenster zur Anzeige und initialisiert diese
+        /// </summary>
+        /// <param name="w">zu setzende Welt</param>
         public void SetWorld(World w)
         {
             if(KWEngine.CurrentWorld != null)
@@ -387,7 +433,13 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Fensterbreite (Inhalt)
+        /// </summary>
         public int Width { get { return ClientSize.X; } }
+        /// <summary>
+        /// Fensterhöhe (Inhalt)
+        /// </summary>
         public int Height { get { return ClientSize.Y; } }
 
         internal int UpdateCurrentWorldAndObjects()
@@ -419,7 +471,6 @@ namespace KWEngine3
             }
 
             KWEngine.CurrentWorld.ResetWorldDimensions();
-            //KWEngine.DeltaTimeFactor = KWEngine.DeltaTimeAccumulator / KWEngine.DeltaTimeCurrentNibbleSize;
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
                 n++;

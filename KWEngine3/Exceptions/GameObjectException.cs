@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KWEngine3.Exceptions
+﻿namespace KWEngine3.Exceptions
 {
+    /// <summary>
+    /// Ausnahmefehlerklasse für GameObject-Instanzen
+    /// </summary>
     public class GameObjectException : Exception
     {
+        /// <summary>
+        /// Standardkonstruktor
+        /// </summary>
+        /// <param name="message">Fehlernachricht</param>
         public GameObjectException(string message)
             : base(message)
         {

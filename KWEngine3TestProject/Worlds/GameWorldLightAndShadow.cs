@@ -39,7 +39,7 @@ namespace KWEngine3TestProject.Worlds
         {
             // Load custom model from model folder as "Nightshade":
             KWEngine.LoadModel("Nightshade", @"./Models/WorldLightAndShadow/Nightshade.fbx");
-            SetFOV(45);
+            SetCameraFOV(45);
 
             // Initialize _sun attribute with a new LightObject instance of type "sun":
             _sun = new LightObject(LightType.Sun, ShadowQuality.High);

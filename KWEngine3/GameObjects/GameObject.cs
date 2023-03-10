@@ -6,21 +6,52 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3.GameObjects
 {
+    /// <summary>
+    /// GameObject-Klasse
+    /// </summary>
     public abstract class GameObject : IComparable<GameObject>
     {
+        /// <summary>
+        /// Abstrakte Methode die von jeder erbenden Klasse implementiert werden muss
+        /// </summary>
         public abstract void Act();
+        /// <summary>
+        /// Gibt an, ob das Objekt ein Kollisionen erzeugen und überprüfen kann
+        /// </summary>
         public bool IsCollisionObject { get { return _isCollisionObject; } set { _isCollisionObject = value; } }
+        /// <summary>
+        /// Gibt an, ob das Objekt Schatten werfen und empfangen kann
+        /// </summary>
         public bool IsShadowCaster { get { return _isShadowCaster; } set { _isShadowCaster = value; } }
+        /// <summary>
+        /// Gibt an, ob sich das Objekt gerade auf dem Bildschirm befindet
+        /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
+        /// <summary>
+        /// Interne ID des Objekts
+        /// </summary>
         public int ID { get; internal set; } = -1;
+        /// <summary>
+        /// Gibt an, ob das Objekt in der Liste aller Objekte zuletzt aktualisiert werden soll (z.B. für Spielerfiguren)
+        /// </summary>
         public bool UpdateLast { get; set; } = false;
+        /// <summary>
+        /// Names des Objekts
+        /// </summary>
         public string Name { get { return _name; } set { if (value != null && value.Length > 0) _name = value; } }
 
+        /// <summary>
+        /// Standardkonstruktor (erzeugt mit einem Würfel als 3D-Modell)
+        /// </summary>
         public GameObject()
             : this("KWCube")
         {
 
         }
+        /// <summary>
+        /// Konstruktormethode, der der 3D-Modellname mitgegeben werden kann
+        /// </summary>
+        /// <param name="modelname">Name des zu verwendenden 3D-Modells</param>
         public GameObject(string modelname)
         {
             bool modelSetSuccessfully = SetModel(modelname);
@@ -32,6 +63,11 @@ namespace KWEngine3.GameObjects
             InitStates();
         }
 
+        /// <summary>
+        /// Setzt das 3D-Modell des Objekts
+        /// </summary>
+        /// <param name="modelname">Name des 3D-Modells</param>
+        /// <returns>true, wenn das Modell gesetzt werden konnte</returns>
         public bool SetModel(string modelname)
         {
             if (modelname == null || modelname.Trim().Length == 0)
@@ -54,6 +90,9 @@ namespace KWEngine3.GameObjects
             return modelFound;
         }
 
+        /// <summary>
+        /// Gibt an, ob das Objekt über Animationen verfügt
+        /// </summary>
         public bool IsAnimated
         {
             get
@@ -62,6 +101,10 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Prüft auf eine Kollision mit einem Terrain-Objekt
+        /// </summary>
+        /// <returns>Kollisionsobjekt mit weiteren Details</returns>
         public IntersectionTerrain GetIntersectionWithTerrain()
         {
             foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
@@ -80,6 +123,10 @@ namespace KWEngine3.GameObjects
             return null;
         }
 
+        /// <summary>
+        /// Prüft, ob das Objekt gerade mit anderen Objekten kollidiert und gibt die erstbeste Kollision zurück
+        /// </summary>
+        /// <returns>zuerst gefundene Kollision</returns>
         public Intersection GetIntersection()
         {
             if (!IsCollisionObject)
@@ -114,6 +161,11 @@ namespace KWEngine3.GameObjects
             return null;
         }
 
+        /// <summary>
+        /// Prüft, ob das Objekt gerade mit anderen Objekten eines bestimmten Typs kollidiert und gibt die erstbeste Kollision zurück
+        /// </summary>
+        /// <typeparam name="T">Objekttyp</typeparam>
+        /// <returns>zuerst gefundene Kollision</returns>
         public Intersection GetIntersection<T>() where T : GameObject
         {
             if (!IsCollisionObject)
@@ -148,6 +200,10 @@ namespace KWEngine3.GameObjects
             return null;
         }
 
+        /// <summary>
+        /// Prüft ob Kollisionen mit umgebenden GameObject-Instanzen
+        /// </summary>
+        /// <returns>Liste mit allen gefundenen Kollisionen</returns>
         public List<Intersection> GetIntersections()
         {
             List<Intersection> intersections = new List<Intersection>();
@@ -183,6 +239,11 @@ namespace KWEngine3.GameObjects
             return intersections;
         }
 
+        /// <summary>
+        /// Prüft ob Kollisionen mit umgebenden GameObject-Instanzen eines bestimmten Typs
+        /// </summary>
+        /// <typeparam name="T">Klasse der zu prüfenden Instanzen</typeparam>
+        /// <returns>Liste mit gefundenen Kollisionen</returns>
         public List<Intersection> GetIntersections<T>() where T : GameObject
         {
             List<Intersection> intersections = new List<Intersection>();
@@ -363,30 +424,53 @@ namespace KWEngine3.GameObjects
                 return (Center - g.Center).LengthFast;
         }
 
-        public float GameTime { get { return KWEngine.ApplicationTime; } }
+        /// <summary>
+        /// Anzahl der Sekunden, die die Anwendung bereits läuft
+        /// </summary>
+        public float ApplicationTime { get { return KWEngine.ApplicationTime; } }
+        /// <summary>
+        /// Anzahl der Sekunden, die die aktuelle Welt bereits läuft
+        /// </summary>
         public float WorldTime { get { return KWEngine.WorldTime; } }
+        /// <summary>
+        /// Verweis auf die Keyboard-Aktivitäten
+        /// </summary>
         public KeyboardState Keyboard { get { return KWEngine.Window.KeyboardState; } }
+        /// <summary>
+        /// Verweis auf die Mausaktivitäten
+        /// </summary>
         public MouseState Mouse { get { return KWEngine.Window.MouseState; } }
+        /// <summary>
+        /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
+        /// </summary>
         public Vector2 MouseMovement
         {
             get
             {
-                if (Window.CursorState == OpenTK.Windowing.Common.CursorState.Grabbed)
-                {
-                    return Mouse.Delta;
-                }
-                else
-                {
-                    return Vector2.Zero;
-                }
+                return Mouse.Delta;
             }
         }
+        /// <summary>
+        /// Verweis auf die aktuelle Welt
+        /// </summary>
         public World CurrentWorld { get { return KWEngine.CurrentWorld; } }
+        /// <summary>
+        /// Verweis auf das Anwendungsfenster
+        /// </summary>
         public GLWindow Window { get { return KWEngine.Window; } }
+        /// <summary>
+        /// Gibt an, ob das Objekt nicht gerendert werden soll
+        /// </summary>
         public bool SkipRender { get; set; } = false;
 
+        /// <summary>
+        /// Setzt manuell fest, ob das Objekt Texturen aufweist, die einen Alpha-Kanal besitzen
+        /// </summary>
         public bool HasTransparencyTexture { get; set; } = false;
 
+        /// <summary>
+        /// Gibt an, ob das Objekt Transparenzanteile besitzt
+        /// </summary>
         public bool IsTransparent { 
             get
             {
@@ -405,9 +489,18 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Mittelpunkt des Objekts
+        /// </summary>
         public Vector3 Center { get { return _stateCurrent._center; } }
+        /// <summary>
+        /// Maße des Objekts (jeweils maximal)
+        /// </summary>
         public Vector3 Dimensions { get { return _stateCurrent._dimensions; } }
 
+        /// <summary>
+        /// Position des Objekts
+        /// </summary>
         public Vector3 Position { 
             get
             {
@@ -415,6 +508,9 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Rotation/Orientierung des Objekts
+        /// </summary>
         public Quaternion Rotation
         {
             get
@@ -423,6 +519,9 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Größe des Objekts
+        /// </summary>
         public Vector3 Scale
         {
             get
@@ -431,10 +530,20 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="x">Position auf x-Achse</param>
+        /// <param name="y">Position auf y-Achse</param>
+        /// <param name="z">Position auf z-Achse</param>
         public void SetPosition(float x, float y, float z)
         {
             SetPosition(new Vector3(x, y, z));
         }
+        /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="position">Position in 3D</param>
         public void SetPosition(Vector3 position)
         {
             _stateCurrent._position = position;
@@ -467,14 +576,24 @@ namespace KWEngine3.GameObjects
             SetPosition(new Vector3(Position.X, Position.Y, z));
         }
 
+        /// <summary>
+        /// Setzt die Orientierung/Rotation des Objekts
+        /// </summary>
+        /// <param name="x">Rotation um lokale x-Achse in Grad</param>
+        /// <param name="y">Rotation um lokale y-Achse in Grad</param>
+        /// <param name="z">Rotation um lokale z-Achse in Grad</param>
         public void SetRotation(float x, float y, float z)
         {
             SetRotation(Quaternion.FromEulerAngles(MathHelper.DegreesToRadians(x), MathHelper.DegreesToRadians(y), MathHelper.DegreesToRadians(z)));
         }
 
+        /// <summary>
+        /// Erhöht die Rotation um die x-Achse
+        /// </summary>
+        /// <param name="r">Grad</param>
+        /// <param name="worldSpace">true, wenn um die Weltachse statt um die lokale Achse rotiert werden soll</param>
         public void AddRotationX(float r, bool worldSpace = false)
         {
-            //Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitX, HelperRotation.CalculateRadiansFromDegrees(r * KWEngine.DeltaTimeCurrentNibbleSize));
             Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitX, HelperRotation.CalculateRadiansFromDegrees(r));
             if (worldSpace)
             {
@@ -487,9 +606,13 @@ namespace KWEngine3.GameObjects
             UpdateModelMatrixAndHitboxes();
         }
 
+        /// <summary>
+        /// Erhöht die Rotation um die y-Achse
+        /// </summary>
+        /// <param name="r">Grad</param>
+        /// <param name="worldSpace">true, wenn um die Weltachse statt um die lokale Achse rotiert werden soll</param>
         public void AddRotationY(float r, bool worldSpace = false)
         {
-            //Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitY, HelperRotation.CalculateRadiansFromDegrees(r * KWEngine.DeltaTimeCurrentNibbleSize));
             Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitY, HelperRotation.CalculateRadiansFromDegrees(r));
             if (worldSpace)
             {
@@ -502,9 +625,13 @@ namespace KWEngine3.GameObjects
             UpdateModelMatrixAndHitboxes();
         }
 
+        /// <summary>
+        /// Erhöht die Rotation um die z-Achse
+        /// </summary>
+        /// <param name="r">Grad</param>
+        /// <param name="worldSpace">true, wenn um die Weltachse statt um die lokale Achse rotiert werden soll</param>
         public void AddRotationZ(float r, bool worldSpace = false)
         {
-            //Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitZ, HelperRotation.CalculateRadiansFromDegrees(r * KWEngine.DeltaTimeCurrentNibbleSize));
             Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitZ, HelperRotation.CalculateRadiansFromDegrees(r));
             if (worldSpace)
             {
@@ -517,11 +644,21 @@ namespace KWEngine3.GameObjects
             UpdateModelMatrixAndHitboxes();
         }
 
+        /// <summary>
+        /// Setzt die Rotation mit Hilfe eines Quaternion-Objekts
+        /// </summary>
+        /// <param name="rotation">Rotation</param>
         public void SetRotation(Quaternion rotation)
         {
             _stateCurrent._rotation = rotation;
             UpdateModelMatrixAndHitboxes();
         }
+        /// <summary>
+        /// Setzt die Größenskalierung des Objekts entlang seiner lokalen drei Achsen
+        /// </summary>
+        /// <param name="x">Skalierung in x-Richtung</param>
+        /// <param name="y">Skalierung in y-Richtung</param>
+        /// <param name="z">Skalierung in z-Richtung</param>
         public void SetScale(float x, float y, float z)
         {
             if (x > float.Epsilon && y > float.Epsilon && z > float.Epsilon)
@@ -536,11 +673,21 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
+        /// </summary>
+        /// <param name="s">Skalierung</param>
         public void SetHitboxScale(float s)
         {
             SetHitboxScale(s, s, s);
         }
 
+        /// <summary>
+        /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
+        /// </summary>
+        /// <param name="x">Skalierung in lokale x-Richtung</param>
+        /// <param name="y">Skalierung in lokale x-Richtung</param>
+        /// <param name="z">Skalierung in lokale x-Richtung</param>
         public void SetHitboxScale(float x, float y, float z)
         {
             if (x > float.Epsilon && y > float.Epsilon && z > float.Epsilon)
@@ -549,20 +696,32 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                throw new GameObjectException("Invalid scale values.");
+                _stateCurrent._scaleHitbox = Vector3.One;
             }
         }
 
+        /// <summary>
+        /// Setzt die Größenskalierung des Objekts (muss > 0 sein)
+        /// </summary>
+        /// <param name="s">Skalierung</param>
         public void SetScale(float s)
         {
             SetScale(s, s, s);
         }
 
+        /// <summary>
+        /// Bewegt das Objekt in seiner Blickrichtung
+        /// </summary>
+        /// <param name="units">Bewegungseinheiten</param>
         public void Move(float units)
         {
             MoveOffset(LookAtVector * units);
         }
 
+        /// <summary>
+        /// Bewegt das Objekt in seiner Blickrichtung (ohne Höhenunterschied)
+        /// </summary>
+        /// <param name="units">Bewegungseinheiten</param>
         public void MoveXZ(float units)
         {
             Vector3 lavXZ = LookAtVector;
@@ -571,6 +730,10 @@ namespace KWEngine3.GameObjects
             MoveOffset(lavXZ * units);
         }
 
+        /// <summary>
+        /// Bewegt das Objekt entlang seines lokalen "Oben"-Vektors
+        /// </summary>
+        /// <param name="units">Bewegungseinheiten</param>
         public void MoveUp(float units)
         {
             MoveAlongVector(LookAtVectorLocalUp, units);
@@ -585,22 +748,32 @@ namespace KWEngine3.GameObjects
         {
             MoveOffset(v * units);
         }
-        /*
-        public void MoveOffset(float mtvX, float mtvY, float mtvZ)
-        {
-            MoveOffset(new Vector3(mtvX, mtvY, mtvZ));
-        }
 
-        public void MoveOffset(Vector3 mtv)
-        {
-            SetPosition(Position + mtv);
-        }
-        */
+        /// <summary>
+        /// Bewegt das Objekt entlang der drei Weltachsen
+        /// </summary>
+        /// <param name="x">Bewegungseinheiten in x-Richtung</param>
+        /// <param name="y">Bewegungseinheiten in y-Richtung</param>
+        /// <param name="z">Bewegungseinheiten in z-Richtung</param>
         public void MoveOffset(float x, float y, float z)
         {
             MoveOffset(new Vector3(x, y, z));
         }
+        /// <summary>
+        /// Bewegt das Objekt entlang der drei Weltachsen
+        /// </summary>
+        /// <param name="offset">Bewegungseinheiten in 3D</param>
+        public void MoveOffset(Vector3 offset)
+        {
+            SetPosition(Position + offset);
+        }
 
+        /// <summary>
+        /// Bewegt das Objekt entlang der Blickrichtung der Kamera
+        /// </summary>
+        /// <param name="move">1 = Vorwärts, -1 = Rückwärts</param>
+        /// <param name="strafe">1 = Rechts, -1 = Links</param>
+        /// <param name="units">Bewegungseinheiten</param>
         public void MoveAndStrafeAlongCamera(int move, int strafe, float units)
         {
             move = move > 0 ? 1 : move < 0 ? -1 : 0;
@@ -613,6 +786,12 @@ namespace KWEngine3.GameObjects
             MoveOffset(movement * units);
         }
 
+        /// <summary>
+        /// Bewegt das Objekt entlang der Blickrichtung der Kamera (ohne Höhenunterschied)
+        /// </summary>
+        /// <param name="move">1 = Vorwärts, -1 = Rückwärts</param>
+        /// <param name="strafe">1 = Rechts, -1 = Links</param>
+        /// <param name="units">Bewegungseinheiten</param>
         public void MoveAndStrafeAlongCameraXZ(int move, int strafe, float units)
         {
             if (move == 0 && strafe == 0)
@@ -629,17 +808,20 @@ namespace KWEngine3.GameObjects
             MoveOffset(movement * units);
         }
 
-        public void MoveOffset(Vector3 offset)
-        {
-            //SetPosition(Position + offset * KWEngine.DeltaTimeCurrentNibbleSize);
-            SetPosition(Position + offset);
-        }
-
+        
+        /// <summary>
+        /// Gibt die ID und den Namen des Objekts zurück
+        /// </summary>
+        /// <returns>Informationen zum Objekt</returns>
         public override string ToString()
         {
             return ID.ToString().PadLeft(8, ' ') + ": " + Name;
         }
 
+        /// <summary>
+        /// Setzt die Animationsnummer des Objekts (muss >= 0 sein)
+        /// </summary>
+        /// <param name="id">ID</param>
         public void SetAnimationID(int id)
         {
             if (_gModel.ModelOriginal.Animations != null)
@@ -648,6 +830,10 @@ namespace KWEngine3.GameObjects
                 _stateCurrent._animationID = -1;
         }
 
+        /// <summary>
+        /// Setzt den Stand der Animation zwischen 0% und 100% (0 bis 1)
+        /// </summary>
+        /// <param name="p">Stand (Werte zwischen 0 und 1)</param>
         public void SetAnimationPercentage(float p)
         {
             if (Math.Abs(p - _stateCurrent._animationPercentage) > 0.25f)
@@ -661,9 +847,12 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Führt die Animation um einen gegebenen Teil fort
+        /// </summary>
+        /// <param name="p">relativer Fortschritt der Animation</param>
         public void SetAnimationPercentageAdvance(float p)
         {
-            //_stateCurrent._animationPercentage = _stateCurrent._animationPercentage + p * KWEngine.DeltaTimeCurrentNibbleSize;
             _stateCurrent._animationPercentage = _stateCurrent._animationPercentage + p;
             if (_stateCurrent._animationPercentage > 1f)
             {
@@ -672,11 +861,21 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Sichtbarkeit des Objekts (Standard: 1)
+        /// </summary>
+        /// <param name="o">Sichtbarkeit (0 bis 1)</param>
         public void SetOpacity(float o)
         {
             _stateCurrent._opacity = MathHelper.Clamp(o, 0f, 1f);
         }
 
+        /// <summary>
+        /// Setzt die Farbtönung des Objekts
+        /// </summary>
+        /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
+        /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
+        /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
         public void SetColor(float r, float g, float b)
         {
             _stateCurrent._colorTint = new Vector3(
@@ -685,6 +884,13 @@ namespace KWEngine3.GameObjects
                 MathHelper.Clamp(b, 0, 1));
         }
 
+        /// <summary>
+        /// Setzt die selbstleuchtende Farbtönung des Objekts
+        /// </summary>
+        /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
+        /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
+        /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
+        /// <param name="intensity">Helligkeit (zwischen 0 und 2)</param>
         public void SetColorEmissive(float r, float g, float b, float intensity)
         {
             _stateCurrent._colorEmissive = new Vector4(
@@ -694,21 +900,39 @@ namespace KWEngine3.GameObjects
                 MathHelper.Clamp(intensity, 0, 2));
         }
 
+        /// <summary>
+        /// Setzt fest, wie metallisch das Objekt ist
+        /// </summary>
+        /// <param name="m">Metallwert (zwischen 0 und 1)</param>
         public void SetMetallic(float m)
         {
             _gModel._metallic = MathHelper.Clamp(m, 0f, 1f);
         }
 
+        /// <summary>
+        /// Setzt die Art des Metalls
+        /// </summary>
+        /// <param name="type">Metalltyp</param>
         public void SetMetallicType(MetallicType type)
         {
             _gModel._metallicType = type;
         }
 
+        /// <summary>
+        /// Setzt die Rauheit der Objektoberfläche (Standard: 1)
+        /// </summary>
+        /// <param name="r">Rauheit (zwischen 0 und 1)</param>
         public void SetRoughness(float r)
         {
             _gModel._roughness = MathHelper.Clamp(r, 0.00001f, 1f);
         }
 
+        /// <summary>
+        /// Setzt die Textur des Objekts
+        /// </summary>
+        /// <param name="filename">Dateiname der Textur (inkl. relativem Pfad)</param>
+        /// <param name="type">Art der Textur (Standard: Albedo)</param>
+        /// <param name="meshId">ID des 3D-Modellanteils (Standard: 0)</param>
         public void SetTexture(string filename, TextureType type = TextureType.Albedo, int meshId = 0)
         {
             if (filename == null)
@@ -716,32 +940,58 @@ namespace KWEngine3.GameObjects
             _gModel.SetTexture(filename.ToLower().Trim(), type, meshId);
         }
 
+        /// <summary>
+        /// Setzt die Texturverschiebung auf dem Objekt
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
         public void SetTextureOffset(float x, float y)
         {
             _stateCurrent._uvTransform = new Vector4(_stateCurrent._uvTransform.X, _stateCurrent._uvTransform.Y, x, y);
         }
 
+        /// <summary>
+        /// Setzt die Texturwiederholung auf dem Objekt (Standard: 1)
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
         public void SetTextureRepeat(float x, float y)
         {
             _stateCurrent._uvTransform = new Vector4(x, y, _stateCurrent._uvTransform.Z, _stateCurrent._uvTransform.W);
         }
 
+        /// <summary>
+        /// Gibt an, ob dieses Objekt an einem anderen Objekt angeheftet wurde
+        /// </summary>
         public bool IsAttachedToGameObject { get { return _attachedTo != null; } }
 
+        /// <summary>
+        /// (Normalisierter) Blickrichtungsvektor des Objekts
+        /// </summary>
         public Vector3 LookAtVector
         {
             get { return _stateCurrent._lookAtVector; }
         }
 
+        /// <summary>
+        /// (Normalisierter) Lokaler Oben-Vektor des Objekts
+        /// </summary>
         public Vector3 LookAtVectorLocalUp
         {
             get { return _stateCurrent._lookAtVectorUp; }
         }
+        /// <summary>
+        /// (Normalisierter) Lokaler Rechts-Vektor des Objekts
+        /// </summary>
         public Vector3 LookAtVectorLocalRight
         {
             get { return _stateCurrent._lookAtVectorRight; }
         }
 
+        /// <summary>
+        /// Konvertiert die aktuelle Rotation in Gradangaben für jede der drei Weltachsen
+        /// </summary>
+        /// <returns>Gradangaben für die aktuelle Rotation des Objekts um die x-, y- und z-Achse</returns>
         public Vector3 GetRotationEulerAngles()
         {
             return HelperRotation.ConvertQuaternionToEulerAngles(Rotation);
@@ -754,8 +1004,9 @@ namespace KWEngine3.GameObjects
         /// <param name="y">y</param>
         /// <param name="z">z</param>
         /// <param name="diameter">Durchmesser um den Punkt</param>
-        /// <returns></returns>
-        public bool IsLookingAt(float x, float y, float z, float diameter)
+        /// <param name="offsetY">(optionale) y-Verschiebung der Blickrichtung</param>
+        /// <returns>true, wenn die aktuelle Blickrichtung den Punkt inkl. Durchmesser schneidet</returns>
+        public bool IsLookingAt(float x, float y, float z, float diameter, float offsetY = 0)
         {
             return IsLookingAt(new Vector3(x, y, z), diameter);
         }
@@ -765,7 +1016,8 @@ namespace KWEngine3.GameObjects
         /// </summary>
         /// <param name="target">Zielposition</param>
         /// <param name="diameter">Durchmesser um das Ziel</param>
-        /// <returns></returns>
+        /// <param name="offsetY">(optionale) y-Verschiebung der Blickrichtung</param>
+        /// <returns>true, wenn die aktuelle Blickrichtung den Punkt inkl. Durchmesser schneidet</returns>
         public bool IsLookingAt(Vector3 target, float diameter, float offsetY = 0f)
         {
             Vector3 position = Center + new Vector3(0, offsetY, 0);
@@ -790,17 +1042,15 @@ namespace KWEngine3.GameObjects
 
                 Vector3.Dot(axis, deltaGO, out float e);
                 Vector3.Dot(rayDirection, axis, out float f);
-                float t1 = (e + aabb[0][i]) / f; // Intersection with the "left" plane
-                float t2 = (e + aabb[1][i]) / f; // Intersection with the "right" plane
+                float t1 = (e + aabb[0][i]) / f; 
+                float t2 = (e + aabb[1][i]) / f; 
                 if (t1 > t2)
                 {
                     float w = t1;
                     t1 = t2;
                     t2 = w;
                 }
-                // tMax is the nearest "far" intersection (amongst the X,Y and Z planes pairs)
                 if (t2 < tMax) tMax = t2;
-                // tMin is the farthest "near" intersection (amongst the X,Y and Z planes pairs)
                 if (t1 > tMin) tMin = t1;
 
 
@@ -818,9 +1068,6 @@ namespace KWEngine3.GameObjects
         {
             _stateCurrent._rotation = HelperVector.GetRotationToMatchSurfaceNormal(LookAtVector, surfaceNormal);
         }
-
-
-
 
         /// <summary>
         /// Bindet eine andere GameObject-Instanz an den jeweiligen Knochen des aktuell verwendeten Modells
@@ -858,7 +1105,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Entfernt die Bindung (Attachment) einer GameObject-Instanz 
         /// </summary>
-        /// <param name="boneName"></param>
+        /// <param name="boneName">Name des Knochens</param>
         public void DetachGameObjectFromBone(string boneName)
         {
             if (_gModel.ModelOriginal.BoneNames.IndexOf(boneName) >= 0)
@@ -939,6 +1186,11 @@ namespace KWEngine3.GameObjects
             return null;
         }
 
+        /// <summary>
+        /// Vergleicht das Objekt bzgl. seiner Entfernung zur Kamera mit einem anderen Objekt
+        /// </summary>
+        /// <param name="other">anderes GameObjekt</param>
+        /// <returns>1, wenn das aufrufende Objekt näher an der Kamera ist, sonst -1</returns>
         public int CompareTo(GameObject other)
         {
             float distanceToCameraThis = (this.Center - KWEngine.CurrentWorld.CameraPosition).LengthSquared;

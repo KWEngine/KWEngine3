@@ -1,17 +1,17 @@
 ﻿using KWEngine3.EngineCamera;
-using KWEngine3.Exceptions;
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 
 namespace KWEngine3
 {
+    /// <summary>
+    /// Basisklasse für Spielwelten
+    /// </summary>
     public abstract class World
     {
         #region Internals
@@ -324,11 +324,21 @@ namespace KWEngine3
         }
         #endregion
 
+        /// <summary>
+        /// Setzt die Farbe des Umgebungslichts (dort wo kein Licht scheint)
+        /// </summary>
+        /// <param name="r">Rotanteil (0 bis 1)</param>
+        /// <param name="g">Grünanteil (0 bis 1)</param>
+        /// <param name="b">Blauanteil (0 bis 1)</param>
         public void SetColorAmbient(float r, float g, float b)
         {
             SetColorAmbient(new Vector3(r, g, b));
         }
 
+        /// <summary>
+        /// Setzt die Farbe des Umgebungslichts (dort wo kein Licht scheint)
+        /// </summary>
+        /// <param name="a">Rot-/Grün-/Blauanteil</param>
         public void SetColorAmbient(Vector3 a)
         {
             _colorAmbient = new Vector3(
@@ -338,8 +348,15 @@ namespace KWEngine3
                 );
         }
 
+        /// <summary>
+        /// Gibt an, ob aktuell ein ViewSpaceGameObject verwendet wird
+        /// </summary>
         public bool IsViewSpaceGameObjectAttached { get { return _viewSpaceGameObject != null && _viewSpaceGameObject.IsValid; } }
 
+        /// <summary>
+        /// Heftet ein Objekt als ViewSpaceGameObject an die aktuelle Welt bzw. dessen Kamera an
+        /// </summary>
+        /// <param name="vsg">Anzuheftende Instanz</param>
         public void SetViewSpaceGameObject(ViewSpaceGameObject vsg)
         {
             if(vsg == null || !vsg.IsValid)
@@ -352,6 +369,10 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Erfragt die Position des aktuell angehefteten ViewSpaceGameObject
+        /// </summary>
+        /// <returns>Position (aber falls kein Objekt angeheftet ist: (0|0|0))</returns>
         public Vector3 GetViewSpaceGameObjectPosition()
         {
             if(IsViewSpaceGameObjectAttached)
@@ -362,6 +383,11 @@ namespace KWEngine3
             return Vector3.Zero;
         }
 
+        /// <summary>
+        /// Setzt die Skybox für den 3D-Hintergrund
+        /// </summary>
+        /// <param name="filename">Dateiname inkl. relativem Pfad</param>
+        /// <param name="rotationY">Startrotation des Hintergrunds um die Y-Achse (Standard: 0)</param>
         public void SetBackgroundSkybox(string filename, float rotationY = 0f)
         {
             if (filename == null || filename.Length == 0)
@@ -372,10 +398,18 @@ namespace KWEngine3
             _background.SetSkybox(filename, rotationY);
         }
 
+        /// <summary>
+        /// Setzt den Helligkeitsverstärker für einen Hintergrund
+        /// </summary>
+        /// <param name="m">Verstärkerwert (muss >= 0 sein)</param>
         public void SetBackgroundBrightnessMultiplier(float m)
         {
             _background.SetBrightnessMultiplier(m);
         }
+        /// <summary>
+        /// Setzt ein 2D-Hintergrundbild
+        /// </summary>
+        /// <param name="filename">Dateiname inkl. relativem Pfad</param>
         public void SetBackground2D(string filename)
         {
             if (filename == null || filename.Length == 0)
@@ -386,21 +420,40 @@ namespace KWEngine3
             _background.SetStandard(filename);
         }
 
+        /// <summary>
+        /// Verschiebt das 2D-Hintergrundbild um die angegebenen Werte
+        /// </summary>
+        /// <param name="x">x-Verschiebung</param>
+        /// <param name="y">y-Verschiebung</param>
         public void SetBackground2DOffset(float x, float y)
         {
             _background.SetOffset(x, y);
         }
 
+        /// <summary>
+        /// Setzt die Texturwiederholung des 2D-Hintergrundbilds
+        /// </summary>
+        /// <param name="x">x-Wiederholung</param>
+        /// <param name="y">y-Wiederholung</param>
         public void SetBackground2DRepeat(float x, float y)
         {
             _background.SetRepeat(x, y);
         }
 
+        /// <summary>
+        /// Beschneidet die 2D-Hintergrundtextur
+        /// </summary>
+        /// <param name="x">Beschneidung in x-Richtung</param>
+        /// <param name="y">Beschneidung in y-Richtung</param>
         public void SetBackground2DClip(float x, float y)
         {
             _background.SetClip(x, y);
         }
 
+        /// <summary>
+        /// Fügt ein Explosionsobjekt hinzu
+        /// </summary>
+        /// <param name="ex">Objekt</param>
         public void AddExplosionObject(ExplosionObject ex)
         {
             if (!_particleAndExplosionObjects.Contains(ex))
@@ -410,6 +463,10 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Fügt ein Partikelobjekt hinzu
+        /// </summary>
+        /// <param name="po">Objekt</param>
         public void AddParticleObject(ParticleObject po)
         {
             if (!_particleAndExplosionObjects.Contains(po))
@@ -419,6 +476,10 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Fügt ein GameObject der Welt hinzu
+        /// </summary>
+        /// <param name="g">Objekt</param>
         public void AddGameObject(GameObject g)
         {
             if (!_gameObjects.Contains(g) && !_gameObjectsToBeAdded.Contains(g))
@@ -428,12 +489,20 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Löscht das angegebene Objekt aus der Welt
+        /// </summary>
+        /// <param name="g">Objekt</param>
         public void RemoveGameObject(GameObject g)
         {
             if (!_gameObjectsToBeRemoved.Contains(g))
                 _gameObjectsToBeRemoved.Add(g);
         }
 
+        /// <summary>
+        /// Fügt das angegebene Lichtobjekt der Welt hinzu
+        /// </summary>
+        /// <param name="l">Objekt</param>
         public void AddLightObject(LightObject l)
         {
             if (_lightObjects.Count + _lightObjectsToBeAdded.Count < KWEngine.MAX_LIGHTS)
@@ -448,16 +517,24 @@ namespace KWEngine3
             }
             else
             {
-                KWEngine.LogWriteLine("LightObject ignored: Max. concurrent limit of " + KWEngine.MAX_LIGHTS + " lights per world has been reached.");
+                KWEngine.LogWriteLine("[World] LightObject ignored: limit of " + KWEngine.MAX_LIGHTS + " concurrent lights per world has been reached");
             }
         }
 
+        /// <summary>
+        /// Löscht das angegebene Licht-Objekt aus der Welt
+        /// </summary>
+        /// <param name="l">Objekt</param>
         public void RemoveLightObject(LightObject l)
         {
             if (!_lightObjectsToBeRemoved.Contains(l))
                 _lightObjectsToBeRemoved.Add(l);
         }
 
+        /// <summary>
+        /// Fügt das angegebene Terrain-Objekt der Welt hinzu
+        /// </summary>
+        /// <param name="t">Objekt</param>
         public void AddTerrainObject(TerrainObject t)
         {
             if (!_terrainObjects.Contains(t) && !_terrainObjectsToBeAdded.Contains(t))
@@ -467,29 +544,53 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Löscht das angegebene Terrain-Objekt aus der Welt
+        /// </summary>
+        /// <param name="t">Objekt</param>
         public void RemoveTerrainObject(TerrainObject t)
         {
             if (!_terrainObjectsToBeRemoved.Contains(t))
                 _terrainObjectsToBeRemoved.Add(t);
         }
 
+        /// <summary>
+        /// Fügt ein HUD-Objekt der Welt hinzu
+        /// </summary>
+        /// <param name="h">Objekt</param>
         public void AddHUDObject(HUDObject h)
         {
             if (!_hudObjects.Contains(h) && !_hudObjectsToBeAdded.Contains(h))
                 _hudObjectsToBeAdded.Add(h);
         }
 
+        /// <summary>
+        /// Löscht das angegebene HUD-Objekt aus der Welt
+        /// </summary>
+        /// <param name="h">Objekt</param>
         public void RemoveHUDObject(HUDObject h)
         {
             if (!_hudObjectsToBeRemoved.Contains(h))
                 _hudObjectsToBeRemoved.Add(h);
         }
 
+        /// <summary>
+        /// Setzt die Kameraposition
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
+        /// <param name="offsetY">(optional: Verschiebung in y-Richtung)</param>
         public void SetCameraPosition(float x, float y, float z, float offsetY = 0f)
         {
             SetCameraPosition(new Vector3(x, y, z), offsetY);
         }
 
+        /// <summary>
+        /// Setzt die Kameraposition
+        /// </summary>
+        /// <param name="position">Positionswert in 3D</param>
+        /// <param name="offsetY">(optional: Verschiebung in y-Richtung)</param>
         public void SetCameraPosition(Vector3 position, float offsetY = 0f)
         {
             if (KWEngine.Mode == EngineMode.Play)
@@ -502,11 +603,21 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Setzt das Ziel der Kamera
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="z">z</param>
         public void SetCameraTarget(float x, float y, float z)
         {
             SetCameraTarget(new Vector3(x, y, z));
         }
 
+        /// <summary>
+        /// Setzt das Ziel der Kamera
+        /// </summary>
+        /// <param name="target">Zielposition</param>
         public void SetCameraTarget(Vector3 target)
         {
             if (KWEngine.Mode == EngineMode.Play)
@@ -519,6 +630,11 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Verschiebt die Kamera einmalig auf die Position des angegebenen GameObject
+        /// </summary>
+        /// <param name="g">GameObject-Instanz</param>
+        /// <param name="offsetY">Relative Verschiebung der Kamera in y-Richtung</param>
         public void SetCameraToFirstPersonGameObject(GameObject g, float offsetY = 0f)
         {
             _cameraGame.degX = 0;
@@ -526,6 +642,10 @@ namespace KWEngine3
             _cameraGame.AdjustToGameObject(g, offsetY);
         }
 
+        /// <summary>
+        /// Rotiert die Kamera gemäß der gegebenen Bewegung
+        /// </summary>
+        /// <param name="yawPitch">Bewegung in x-/y-Richtung</param>
         public void AddCameraRotation(Vector2 yawPitch)
         {
             if(_mouseGrabDelta != Vector2.Zero)
@@ -651,53 +771,112 @@ namespace KWEngine3
             return h;
         }
 
-        public float GameTime { get { return KWEngine.ApplicationTime; } }
+        /// <summary>
+        /// Zeit in Sekunden, die die Applikation bereits geöffnet ist
+        /// </summary>
+        public float ApplicationTime { get { return KWEngine.ApplicationTime; } }
+        /// <summary>
+        /// Zeit in Sekunden, die die aktuelle Welt bereits läuft
+        /// </summary>
         public float WorldTime { get { return KWEngine.WorldTime; } }
 
+        /// <summary>
+        /// Verweis auf Keyboardeingaben
+        /// </summary>
         public KeyboardState Keyboard { get { return KWEngine.Window.KeyboardState; } }
+        /// <summary>
+        /// Verweis auf Mauseingaben
+        /// </summary>
         public MouseState Mouse { get { return KWEngine.Window.MouseState; } }
+        /// <summary>
+        /// Verweis auf das aktuelle Programmfenster
+        /// </summary>
         public GLWindow Window { get { return KWEngine.Window; } }
 
+        /// <summary>
+        /// Blickrichtung der Kamera
+        /// </summary>
         public Vector3 CameraLookAtVector { get { return _cameraGame._stateCurrent.LookAtVector; } }
+        /// <summary>
+        /// Blickrichtung der Kamera nach oben
+        /// </summary>
         public Vector3 CameraLookAtVectorLocalUp { get { return _cameraGame._stateCurrent.LookAtVectorLocalUp; } }
+        /// <summary>
+        /// Blickrichtung der Kamera nach rechts
+        /// </summary>
         public Vector3 CameraLookAtVectorLocalRight { get { return _cameraGame._stateCurrent.LookAtVectorLocalRight; } }
+        /// <summary>
+        /// Kameraposition
+        /// </summary>
         public Vector3 CameraPosition { get { return _cameraGame._stateCurrent._position; } }
+        /// <summary>
+        /// Kameraziel
+        /// </summary>
         public Vector3 CameraTarget { get { return _cameraGame._stateCurrent._target; } }
 
+        /// <summary>
+        /// Fange den Mauszeiger und blende ihn aus (für First-Person-Modus)
+        /// </summary>
         public void MouseCursorGrab()
         {
             Window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
             Window.MousePosition = Window.ClientSize / 2;
             _mouseGrabDelta = Mouse.Delta;
         }
+        /// <summary>
+        /// Verstecke den Mauszeiger
+        /// </summary>
         public void MouseCursorHide()
         {
             Window.CursorState = OpenTK.Windowing.Common.CursorState.Hidden;
         }
+        /// <summary>
+        /// Setzt den Mauszeiger wieder auf seinen Normalzustand (sichtbar) zurück
+        /// </summary>
         public void MouseCursorReset()
         {
             Window.CursorState = OpenTK.Windowing.Common.CursorState.Normal;
         }
+        /// <summary>
+        /// Setze den Mauszeiger in die Mitte des Fensters
+        /// </summary>
         public void MouseCursorResetPosition()
         {
             Window.MousePosition = Window.ClientRectangle.HalfSize;
         }
 
-        public void SetFOV(int fov)
+        /// <summary>
+        /// Setze den Blickwinkel der Kamera
+        /// </summary>
+        /// <param name="fov">Blickwinkel in Grad (zwischen 10 und 180)</param>
+        public void SetCameraFOV(int fov)
         {
             _cameraGame.SetFOVForPerspectiveProjection(fov);
         }
 
+        /// <summary>
+        /// Erfragt die Liste der aktuellen GameObject-Instanzen der Welt
+        /// </summary>
+        /// <returns>Liste</returns>
         public IReadOnlyCollection<GameObject> GetGameObjects()
         {
             return _gameObjects.AsReadOnly();
         }
 
+        /// <summary>
+        /// Erfragt die Liste der aktuellen LightObject-Instanzen der Welt
+        /// </summary>
+        /// <returns>Liste</returns>
         public IReadOnlyCollection<LightObject> GetLightObjects()
         {
             return _lightObjects.AsReadOnly();
         }
 
+        /// <summary>
+        /// Lade eine Weltkonfiguation aus der angegebenen JSON-Datei
+        /// </summary>
+        /// <param name="filename">Dateiname (inkl. relativem Pfad)</param>
+        /// <param name="callerName">(nicht verwenden!)</param>
         public void LoadJSON(string filename, [CallerMemberName] string callerName = "")
         {
             if(callerName != "Prepare")
@@ -720,7 +899,14 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Vorbereitungsmethode der Welt
+        /// </summary>
         public abstract void Prepare();
+        
+        /// <summary>
+        /// Act-Methode der Welt
+        /// </summary>
         public abstract void Act();
     }
 }

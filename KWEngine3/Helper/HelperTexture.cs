@@ -502,7 +502,7 @@ namespace KWEngine3.Helper
                 GL.BindTexture(TextureTarget.Texture2D, 0);
 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 KWEngine.LogWriteLine("[Texture] File " + (filename == null ? "" : filename.Trim()) + " invalid");
                 return -1;

@@ -19,20 +19,19 @@ namespace KWEngine3TestProject.Classes.WorldJumpAndRunPhysics
         private readonly Vector3 GRAVITY = new Vector3(0, 0.005f, 0);        // gravity (always stays the same)
         private readonly Vector3 VELOCITYJUMP = new Vector3(0, 0.175f, 0);   // velocity per jump
 
-        private float _animationTime = 0;
-        private JumpState _currentState = JumpState.Fall;                   // three states for stand, jump and fall (default)
-        private Vector3 _velocity = Vector3.Zero;                           // jump velocity (will become > 0 at jump start and then starts decreasing)
+        private JumpState _currentState = JumpState.Fall;                    // three states for stand, jump and fall (default)
+        private Vector3 _velocity = Vector3.Zero;                            // jump velocity (will become > 0 at jump start and then starts decreasing)
         private float _walkSpeed = 0.05f;                                    // default walking speed
-        private bool _upKeyReleased = true;                                 // true, if the up key has been released between jumps
+        private bool _upKeyReleased = true;                                  // true, if the up key has been released between jumps
 
         public override void Act()
         {
-            bool stateJustSwitched = false;                                 // becomes true if state just switched
+            bool stateJustSwitched = false;                                  // becomes true if state just switched
             
-            ProcessMovement();                                            // handles basic movement inputs
+            ProcessMovement();                                               // handles basic movement inputs
 
-            if (IsJumpKeyPressed())                                       // if jump is pressed, switch state
-            {                                                               // and apply velocity:
+            if (IsJumpKeyPressed())                                          // if jump is pressed, switch state
+            {                                                                // and apply velocity:
                 if (_currentState == JumpState.Stand && _upKeyReleased == true)
                 {
                     Audio.PlaySound(@"./sfx/jumpUp.ogg");
@@ -121,7 +120,6 @@ namespace KWEngine3TestProject.Classes.WorldJumpAndRunPhysics
                     stateJustSwitched = true;
                     _currentState = JumpState.Stand;                    
                     _velocity = Vector3.Zero;                               // reset velocity to 0 as well!
-                    _animationTime = 0; 
                 }
             }
 
