@@ -300,8 +300,8 @@ namespace KWEngine3.Editor
                     string roughnessFilename = SelectedGameObject._gModel.Material[0].TextureRoughness.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureRoughness.Filename : "";
                     string metallicFilename = SelectedGameObject._gModel.Material[0].TextureMetallic.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureMetallic.Filename : "";
 
-                    float uvX = SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.UVTransform.X : 1f;
-                    float uvY = SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.UVTransform.Y : 1f;
+                    float uvX = SelectedGameObject._stateCurrent._uvTransform.X; // SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.UVTransform.X : 1f;
+                    float uvY = SelectedGameObject._stateCurrent._uvTransform.Y; // SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.UVTransform.Y : 1f;
                     System.Numerics.Vector2 uvTransform = new System.Numerics.Vector2(uvX, uvY);
 
                     if (ImGui.InputText("Albedo", ref albedoFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
@@ -597,7 +597,7 @@ namespace KWEngine3.Editor
 
                 if (SelectedTerrainObject._gModel.Material[0].TextureAlbedo.IsTextureSet)
                 {
-                    if (ImGui.InputFloat2("Texture transform", ref uvTransform, "%.2f", ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
+                    if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                     {
                         SelectedTerrainObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
                     }

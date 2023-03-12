@@ -91,13 +91,24 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Gibt an, ob das Objekt über Animationen verfügt
+        /// Gibt an, ob das Objekt gerade eine ausgewählt hat
         /// </summary>
         public bool IsAnimated
         {
             get
             {
                 return _gModel.ModelOriginal.HasBones && _statePrevious._animationID >= 0;
+            }
+        }
+
+        /// <summary>
+        /// Gibt an, ob das Objekt über Animationen verfügt
+        /// </summary>
+        public bool HasAnimations
+        {
+            get
+            {
+                return _gModel.ModelOriginal.HasBones && _gModel.ModelOriginal.Animations != null && _gModel.ModelOriginal.Animations.Count > 0;
             }
         }
 
