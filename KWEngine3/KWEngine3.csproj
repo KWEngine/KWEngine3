@@ -1,267 +1,268 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Title>KWEngine3</Title>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-	<Product>KWEngine3 (updated: 2023-03-13)</Product>
-	<PackageId>KWEngine3</PackageId>
-	<AssemblyVersion>3.0.0.0</AssemblyVersion>
-	<FileVersion>3.0.0.0</FileVersion>
-	<NeutralLanguage>de</NeutralLanguage>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Title>KWEngine3</Title>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Product>KWEngine3 (updated: 2023-03-13)</Product>
+		<PackageId>KWEngine3</PackageId>
+		<AssemblyVersion>3.0.0.0</AssemblyVersion>
+		<FileVersion>3.0.0.0</FileVersion>
+		<ProductVersion>3.0.0.0</ProductVersion>
+		<NeutralLanguage>de</NeutralLanguage>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Assets\Fonts\anonymous.dds" />
-    <None Remove="Assets\Fonts\anonymous2.dds" />
-    <None Remove="Assets\Fonts\anonymous3.dds" />
-    <None Remove="Assets\Fonts\anonymous4.dds" />
-    <None Remove="Assets\Models\dollar.mtl" />
-    <None Remove="Assets\Models\dollar.obj" />
-    <None Remove="Assets\Models\heart.mtl" />
-    <None Remove="Assets\Models\heart.obj" />
-    <None Remove="Assets\Models\Hitbox.obj" />
-    <None Remove="Assets\Models\kwcube.obj" />
-    <None Remove="Assets\Models\kwcube6.mtl" />
-    <None Remove="Assets\Models\kwcube6.obj" />
-    <None Remove="Assets\Models\kwquad.obj" />
-    <None Remove="Assets\Models\kwrect.obj" />
-    <None Remove="Assets\Models\kwsphere.fbx" />
-    <None Remove="Assets\Models\kwsphere.obj" />
-    <None Remove="Assets\Models\lightbulb.obj" />
-    <None Remove="Assets\Models\skull.mtl" />
-    <None Remove="Assets\Models\skull.obj" />
-    <None Remove="Assets\Models\star.mtl" />
-    <None Remove="Assets\Models\star.obj" />
-    <None Remove="Assets\Textures\alpha.png" />
-    <None Remove="Assets\Textures\black.png" />
-    <None Remove="Assets\Textures\checkerboard.png" />
-    <None Remove="Assets\Textures\fire01.dds" />
-    <None Remove="Assets\Textures\fire02.dds" />
-    <None Remove="Assets\Textures\fire03.dds" />
-    <None Remove="Assets\Textures\fire04.dds" />
-    <None Remove="Assets\Textures\heightmap.png" />
-    <None Remove="Assets\Textures\normalmap.png" />
-    <None Remove="Assets\Textures\particleburst_bubbles.dds" />
-    <None Remove="Assets\Textures\particleburst_bubbles_unicolor.dds" />
-    <None Remove="Assets\Textures\particleburst_explosioncolored.dds" />
-    <None Remove="Assets\Textures\particleburst_firework.dds" />
-    <None Remove="Assets\Textures\particleburst_hearts.dds" />
-    <None Remove="Assets\Textures\particleburst_plusplusplus.dds" />
-    <None Remove="Assets\Textures\particleburst_shield.dds" />
-    <None Remove="Assets\Textures\particleburst_teleport1.dds" />
-    <None Remove="Assets\Textures\particleburst_teleport2.dds" />
-    <None Remove="Assets\Textures\particleburst_teleport3.dds" />
-    <None Remove="Assets\Textures\smoke01.dds" />
-    <None Remove="Assets\Textures\smoke02.dds" />
-    <None Remove="Assets\Textures\smoke03.dds" />
-    <None Remove="Assets\Textures\white.png" />
-    <None Remove="Shaders\shader.background.2d.frag" />
-    <None Remove="Shaders\shader.background.2d.vert" />
-    <None Remove="Shaders\shader.background.skybox.frag" />
-    <None Remove="Shaders\shader.background.skybox.vert" />
-    <None Remove="Shaders\shader.bloom.downsample.frag" />
-    <None Remove="Shaders\shader.bloom.upsample.frag" />
-    <None Remove="Shaders\shader.bloom.vert" />
-    <None Remove="Shaders\shader.copy.frag" />
-    <None Remove="Shaders\shader.copy.vert" />
-    <None Remove="Shaders\shader.editor.frag" />
-    <None Remove="Shaders\shader.editor.geom" />
-    <None Remove="Shaders\shader.editor.light.frag" />
-    <None Remove="Shaders\shader.editor.light.geom" />
-    <None Remove="Shaders\shader.editor.light.vert" />
-    <None Remove="Shaders\shader.editor.lightbulb.gbuffer.frag" />
-    <None Remove="Shaders\shader.editor.lightbulb.gbuffer.vert" />
-    <None Remove="Shaders\shader.editor.vert" />
-    <None Remove="Shaders\shader.explosion.frag" />
-    <None Remove="Shaders\shader.explosion.vert" />
-    <None Remove="Shaders\shader.forward.particle.frag" />
-    <None Remove="Shaders\shader.forward.particle.vert" />
-    <None Remove="Shaders\shader.gbuffer.frag" />
-    <None Remove="Shaders\shader.gbuffer.vert" />
-    <None Remove="Shaders\shader.grid.frag" />
-    <None Remove="Shaders\shader.grid.geom" />
-    <None Remove="Shaders\shader.grid.vert" />
-    <None Remove="Shaders\shader.hud.frag" />
-    <None Remove="Shaders\shader.hud.vert" />
-    <None Remove="Shaders\shader.lighting.forward.frag" />
-    <None Remove="Shaders\shader.lighting.forward.vert" />
-    <None Remove="Shaders\shader.lighting.gbuffer.frag" />
-    <None Remove="Shaders\shader.lighting.gbuffer.vert" />
-    <None Remove="Shaders\shader.msm16.blur.frag" />
-    <None Remove="Shaders\shader.msm16.blur.vert" />
-    <None Remove="Shaders\shader.msm16.cube.frag" />
-    <None Remove="Shaders\shader.msm16.cube.geom" />
-    <None Remove="Shaders\shader.msm16.cube.vert" />
-    <None Remove="Shaders\shader.msm16.frag" />
-    <None Remove="Shaders\shader.msm16.vert" />
-    <None Remove="Shaders\shader.octree.frag" />
-    <None Remove="Shaders\shader.octree.geom" />
-    <None Remove="Shaders\shader.octree.vert" />
-    <None Remove="Shaders\shader.terrain.gbuffer.frag" />
-    <None Remove="Shaders\shader.terrain.gbuffer.vert" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Assets\Fonts\anonymous.dds" />
+		<None Remove="Assets\Fonts\anonymous2.dds" />
+		<None Remove="Assets\Fonts\anonymous3.dds" />
+		<None Remove="Assets\Fonts\anonymous4.dds" />
+		<None Remove="Assets\Models\dollar.mtl" />
+		<None Remove="Assets\Models\dollar.obj" />
+		<None Remove="Assets\Models\heart.mtl" />
+		<None Remove="Assets\Models\heart.obj" />
+		<None Remove="Assets\Models\Hitbox.obj" />
+		<None Remove="Assets\Models\kwcube.obj" />
+		<None Remove="Assets\Models\kwcube6.mtl" />
+		<None Remove="Assets\Models\kwcube6.obj" />
+		<None Remove="Assets\Models\kwquad.obj" />
+		<None Remove="Assets\Models\kwrect.obj" />
+		<None Remove="Assets\Models\kwsphere.fbx" />
+		<None Remove="Assets\Models\kwsphere.obj" />
+		<None Remove="Assets\Models\lightbulb.obj" />
+		<None Remove="Assets\Models\skull.mtl" />
+		<None Remove="Assets\Models\skull.obj" />
+		<None Remove="Assets\Models\star.mtl" />
+		<None Remove="Assets\Models\star.obj" />
+		<None Remove="Assets\Textures\alpha.png" />
+		<None Remove="Assets\Textures\black.png" />
+		<None Remove="Assets\Textures\checkerboard.png" />
+		<None Remove="Assets\Textures\fire01.dds" />
+		<None Remove="Assets\Textures\fire02.dds" />
+		<None Remove="Assets\Textures\fire03.dds" />
+		<None Remove="Assets\Textures\fire04.dds" />
+		<None Remove="Assets\Textures\heightmap.png" />
+		<None Remove="Assets\Textures\normalmap.png" />
+		<None Remove="Assets\Textures\particleburst_bubbles.dds" />
+		<None Remove="Assets\Textures\particleburst_bubbles_unicolor.dds" />
+		<None Remove="Assets\Textures\particleburst_explosioncolored.dds" />
+		<None Remove="Assets\Textures\particleburst_firework.dds" />
+		<None Remove="Assets\Textures\particleburst_hearts.dds" />
+		<None Remove="Assets\Textures\particleburst_plusplusplus.dds" />
+		<None Remove="Assets\Textures\particleburst_shield.dds" />
+		<None Remove="Assets\Textures\particleburst_teleport1.dds" />
+		<None Remove="Assets\Textures\particleburst_teleport2.dds" />
+		<None Remove="Assets\Textures\particleburst_teleport3.dds" />
+		<None Remove="Assets\Textures\smoke01.dds" />
+		<None Remove="Assets\Textures\smoke02.dds" />
+		<None Remove="Assets\Textures\smoke03.dds" />
+		<None Remove="Assets\Textures\white.png" />
+		<None Remove="Shaders\shader.background.2d.frag" />
+		<None Remove="Shaders\shader.background.2d.vert" />
+		<None Remove="Shaders\shader.background.skybox.frag" />
+		<None Remove="Shaders\shader.background.skybox.vert" />
+		<None Remove="Shaders\shader.bloom.downsample.frag" />
+		<None Remove="Shaders\shader.bloom.upsample.frag" />
+		<None Remove="Shaders\shader.bloom.vert" />
+		<None Remove="Shaders\shader.copy.frag" />
+		<None Remove="Shaders\shader.copy.vert" />
+		<None Remove="Shaders\shader.editor.frag" />
+		<None Remove="Shaders\shader.editor.geom" />
+		<None Remove="Shaders\shader.editor.light.frag" />
+		<None Remove="Shaders\shader.editor.light.geom" />
+		<None Remove="Shaders\shader.editor.light.vert" />
+		<None Remove="Shaders\shader.editor.lightbulb.gbuffer.frag" />
+		<None Remove="Shaders\shader.editor.lightbulb.gbuffer.vert" />
+		<None Remove="Shaders\shader.editor.vert" />
+		<None Remove="Shaders\shader.explosion.frag" />
+		<None Remove="Shaders\shader.explosion.vert" />
+		<None Remove="Shaders\shader.forward.particle.frag" />
+		<None Remove="Shaders\shader.forward.particle.vert" />
+		<None Remove="Shaders\shader.gbuffer.frag" />
+		<None Remove="Shaders\shader.gbuffer.vert" />
+		<None Remove="Shaders\shader.grid.frag" />
+		<None Remove="Shaders\shader.grid.geom" />
+		<None Remove="Shaders\shader.grid.vert" />
+		<None Remove="Shaders\shader.hud.frag" />
+		<None Remove="Shaders\shader.hud.vert" />
+		<None Remove="Shaders\shader.lighting.forward.frag" />
+		<None Remove="Shaders\shader.lighting.forward.vert" />
+		<None Remove="Shaders\shader.lighting.gbuffer.frag" />
+		<None Remove="Shaders\shader.lighting.gbuffer.vert" />
+		<None Remove="Shaders\shader.msm16.blur.frag" />
+		<None Remove="Shaders\shader.msm16.blur.vert" />
+		<None Remove="Shaders\shader.msm16.cube.frag" />
+		<None Remove="Shaders\shader.msm16.cube.geom" />
+		<None Remove="Shaders\shader.msm16.cube.vert" />
+		<None Remove="Shaders\shader.msm16.frag" />
+		<None Remove="Shaders\shader.msm16.vert" />
+		<None Remove="Shaders\shader.octree.frag" />
+		<None Remove="Shaders\shader.octree.geom" />
+		<None Remove="Shaders\shader.octree.vert" />
+		<None Remove="Shaders\shader.terrain.gbuffer.frag" />
+		<None Remove="Shaders\shader.terrain.gbuffer.vert" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Assets\Fonts\anonymous.dds" />
-    <EmbeddedResource Include="Assets\Fonts\anonymous2.dds" />
-    <EmbeddedResource Include="Assets\Fonts\anonymous3.dds" />
-    <EmbeddedResource Include="Assets\Fonts\anonymous4.dds" />
-    <EmbeddedResource Include="Assets\Models\dollar.mtl" />
-    <EmbeddedResource Include="Assets\Models\dollar.obj" />
-    <EmbeddedResource Include="Assets\Models\heart.mtl" />
-    <EmbeddedResource Include="Assets\Models\heart.obj" />
-    <EmbeddedResource Include="Assets\Models\kwcube.obj" />
-    <EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
-    <EmbeddedResource Include="Assets\Models\kwcube6.obj" />
-    <EmbeddedResource Include="Assets\Models\kwquad.obj" />
-    <EmbeddedResource Include="Assets\Models\kwrect.obj" />
-    <EmbeddedResource Include="Assets\Models\kwsphere.fbx" />
-    <EmbeddedResource Include="Assets\Models\lightbulb.obj" />
-    <EmbeddedResource Include="Assets\Models\skull.mtl" />
-    <EmbeddedResource Include="Assets\Models\skull.obj" />
-    <EmbeddedResource Include="Assets\Models\star.mtl" />
-    <EmbeddedResource Include="Assets\Models\star.obj" />
-    <EmbeddedResource Include="Assets\Textures\alpha.png" />
-    <EmbeddedResource Include="Assets\Textures\normalmap.png" />
-    <EmbeddedResource Include="Assets\Textures\black.png" />
-    <EmbeddedResource Include="Assets\Textures\checkerboard.png" />
-    <EmbeddedResource Include="Assets\Textures\fire01.dds" />
-    <EmbeddedResource Include="Assets\Textures\fire02.dds" />
-    <EmbeddedResource Include="Assets\Textures\fire03.dds" />
-    <EmbeddedResource Include="Assets\Textures\fire04.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_bubbles.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_bubbles_unicolor.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_explosioncolored.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_firework.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_hearts.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_plusplusplus.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_shield.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_teleport1.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_teleport2.dds" />
-    <EmbeddedResource Include="Assets\Textures\particleburst_teleport3.dds" />
-    <EmbeddedResource Include="Assets\Textures\smoke01.dds" />
-    <EmbeddedResource Include="Assets\Textures\smoke02.dds" />
-    <EmbeddedResource Include="Assets\Textures\smoke03.dds" />
-    <EmbeddedResource Include="Assets\Textures\heightmap.png" />
-    <EmbeddedResource Include="Assets\Textures\white.png" />
-    <EmbeddedResource Include="Shaders\shader.forward.particle.frag" />
-    <EmbeddedResource Include="Shaders\shader.forward.particle.vert" />
-    <EmbeddedResource Include="Shaders\shader.terrain.gbuffer.frag">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.terrain.gbuffer.vert">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.hud.frag" />
-    <EmbeddedResource Include="Shaders\shader.hud.vert" />
-    <EmbeddedResource Include="Shaders\shader.msm16.blur.frag" />
-    <EmbeddedResource Include="Shaders\shader.msm16.blur.vert" />
-    <EmbeddedResource Include="Shaders\shader.msm16.cube.geom" />
-    <EmbeddedResource Include="Shaders\shader.msm16.frag" />
-    <EmbeddedResource Include="Shaders\shader.msm16.vert" />
-    <EmbeddedResource Include="Shaders\shader.octree.frag" />
-    <EmbeddedResource Include="Shaders\shader.octree.geom" />
-    <EmbeddedResource Include="Shaders\shader.octree.vert" />
-    <EmbeddedResource Include="Shaders\shader.lighting.forward.vert">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.lighting.forward.frag">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.lighting.gbuffer.frag">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.lighting.gbuffer.vert">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.editor.light.geom">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.editor.light.frag">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.editor.light.vert">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.editor.lightbulb.gbuffer.frag">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.editor.lightbulb.gbuffer.vert">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.copy.frag">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.copy.vert">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.gbuffer.frag">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.gbuffer.vert">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Shaders\shader.grid.frag" />
-    <EmbeddedResource Include="Shaders\shader.grid.geom" />
-    <EmbeddedResource Include="Shaders\shader.grid.vert" />
-    <EmbeddedResource Include="Shaders\shader.editor.frag" />
-    <EmbeddedResource Include="Shaders\shader.editor.geom" />
-    <EmbeddedResource Include="Shaders\shader.editor.vert" />
-    <EmbeddedResource Include="Shaders\shader.msm16.cube.frag" />
-    <EmbeddedResource Include="Shaders\shader.msm16.cube.vert" />
-    <EmbeddedResource Include="Shaders\shader.bloom.downsample.frag" />
-    <EmbeddedResource Include="Shaders\shader.bloom.upsample.frag" />
-    <EmbeddedResource Include="Shaders\shader.bloom.vert" />
-    <EmbeddedResource Include="Shaders\shader.background.2d.frag" />
-    <EmbeddedResource Include="Shaders\shader.background.skybox.frag" />
-    <EmbeddedResource Include="Shaders\shader.background.2d.vert" />
-    <EmbeddedResource Include="Shaders\shader.background.skybox.vert" />
-    <EmbeddedResource Include="Shaders\shader.explosion.frag" />
-    <EmbeddedResource Include="Shaders\shader.explosion.vert" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Assets\Fonts\anonymous.dds" />
+		<EmbeddedResource Include="Assets\Fonts\anonymous2.dds" />
+		<EmbeddedResource Include="Assets\Fonts\anonymous3.dds" />
+		<EmbeddedResource Include="Assets\Fonts\anonymous4.dds" />
+		<EmbeddedResource Include="Assets\Models\dollar.mtl" />
+		<EmbeddedResource Include="Assets\Models\dollar.obj" />
+		<EmbeddedResource Include="Assets\Models\heart.mtl" />
+		<EmbeddedResource Include="Assets\Models\heart.obj" />
+		<EmbeddedResource Include="Assets\Models\kwcube.obj" />
+		<EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
+		<EmbeddedResource Include="Assets\Models\kwcube6.obj" />
+		<EmbeddedResource Include="Assets\Models\kwquad.obj" />
+		<EmbeddedResource Include="Assets\Models\kwrect.obj" />
+		<EmbeddedResource Include="Assets\Models\kwsphere.fbx" />
+		<EmbeddedResource Include="Assets\Models\lightbulb.obj" />
+		<EmbeddedResource Include="Assets\Models\skull.mtl" />
+		<EmbeddedResource Include="Assets\Models\skull.obj" />
+		<EmbeddedResource Include="Assets\Models\star.mtl" />
+		<EmbeddedResource Include="Assets\Models\star.obj" />
+		<EmbeddedResource Include="Assets\Textures\alpha.png" />
+		<EmbeddedResource Include="Assets\Textures\normalmap.png" />
+		<EmbeddedResource Include="Assets\Textures\black.png" />
+		<EmbeddedResource Include="Assets\Textures\checkerboard.png" />
+		<EmbeddedResource Include="Assets\Textures\fire01.dds" />
+		<EmbeddedResource Include="Assets\Textures\fire02.dds" />
+		<EmbeddedResource Include="Assets\Textures\fire03.dds" />
+		<EmbeddedResource Include="Assets\Textures\fire04.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_bubbles.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_bubbles_unicolor.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_explosioncolored.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_firework.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_hearts.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_plusplusplus.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_shield.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_teleport1.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_teleport2.dds" />
+		<EmbeddedResource Include="Assets\Textures\particleburst_teleport3.dds" />
+		<EmbeddedResource Include="Assets\Textures\smoke01.dds" />
+		<EmbeddedResource Include="Assets\Textures\smoke02.dds" />
+		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
+		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
+		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.forward.particle.frag" />
+		<EmbeddedResource Include="Shaders\shader.forward.particle.vert" />
+		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.frag">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.vert">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.hud.frag" />
+		<EmbeddedResource Include="Shaders\shader.hud.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16.blur.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16.blur.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16.cube.geom" />
+		<EmbeddedResource Include="Shaders\shader.msm16.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16.vert" />
+		<EmbeddedResource Include="Shaders\shader.octree.frag" />
+		<EmbeddedResource Include="Shaders\shader.octree.geom" />
+		<EmbeddedResource Include="Shaders\shader.octree.vert" />
+		<EmbeddedResource Include="Shaders\shader.lighting.forward.vert">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.lighting.forward.frag">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer.frag">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer.vert">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.editor.light.geom">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.editor.light.frag">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.editor.light.vert">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.editor.lightbulb.gbuffer.frag">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.editor.lightbulb.gbuffer.vert">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.copy.frag">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.copy.vert">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.gbuffer.frag">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.gbuffer.vert">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.grid.frag" />
+		<EmbeddedResource Include="Shaders\shader.grid.geom" />
+		<EmbeddedResource Include="Shaders\shader.grid.vert" />
+		<EmbeddedResource Include="Shaders\shader.editor.frag" />
+		<EmbeddedResource Include="Shaders\shader.editor.geom" />
+		<EmbeddedResource Include="Shaders\shader.editor.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16.cube.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16.cube.vert" />
+		<EmbeddedResource Include="Shaders\shader.bloom.downsample.frag" />
+		<EmbeddedResource Include="Shaders\shader.bloom.upsample.frag" />
+		<EmbeddedResource Include="Shaders\shader.bloom.vert" />
+		<EmbeddedResource Include="Shaders\shader.background.2d.frag" />
+		<EmbeddedResource Include="Shaders\shader.background.skybox.frag" />
+		<EmbeddedResource Include="Shaders\shader.background.2d.vert" />
+		<EmbeddedResource Include="Shaders\shader.background.skybox.vert" />
+		<EmbeddedResource Include="Shaders\shader.explosion.frag" />
+		<EmbeddedResource Include="Shaders\shader.explosion.vert" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AssimpNet" Version="4.1.0" />
-    <PackageReference Include="glTF2Loader" Version="1.0.0" />
-    <PackageReference Include="ImGui.NET" Version="1.89.4" />
-    <PackageReference Include="OpenTK" Version="4.7.7" />
-    <PackageReference Include="SkiaSharp" Version="2.88.3" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AssimpNet" Version="4.1.0" />
+		<PackageReference Include="glTF2Loader" Version="1.0.0" />
+		<PackageReference Include="ImGui.NET" Version="1.89.4" />
+		<PackageReference Include="OpenTK" Version="4.7.7" />
+		<PackageReference Include="SkiaSharp" Version="2.88.3" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="libassimp.dylib.x64">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="OpenAL32.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="OpenAL32.x86">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libassimp.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="libassimp.dylib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="libassimp.dylib.x64">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="OpenAL32.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="OpenAL32.x86">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="libassimp.dylib">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="libassimp.dylib">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Model\GeoModel.cs">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Model\GeoModel.cs">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Compile>
+	</ItemGroup>
 </Project>
