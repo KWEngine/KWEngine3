@@ -8,6 +8,11 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <Title>KWEngine3</Title>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+	<Product>KWEngine3 (updated: 2023-03-13)</Product>
+	<PackageId>KWEngine3</PackageId>
+	<AssemblyVersion>3.0.0.0</AssemblyVersion>
+	<FileVersion>3.0.0.0</FileVersion>
+	<NeutralLanguage>de</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
