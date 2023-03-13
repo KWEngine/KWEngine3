@@ -207,6 +207,8 @@ namespace KWEngine3.Renderer
             {
                 GeoMesh mesh = meshes[i];
                 GeoMaterial material = g._gModel.Material[i];
+                if (material.ColorAlbedo.W <= 0)
+                    continue;
 
                 if (g.IsAnimated)
                 {

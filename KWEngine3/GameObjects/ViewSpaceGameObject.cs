@@ -42,6 +42,23 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Textur, falls das Modell des Objekts KWCube, KWSphere oder KWQuad ist
+        /// </summary>
+        /// <param name="file">Texturdatei (inkl. relativem Pfad)</param>
+        /// <param name="type">Texturtyp</param>
+        public void SetTextureForPrimitiveModel(string file, TextureType type = TextureType.Albedo)
+        {
+            if(_gameObject._gModel.ModelOriginal.IsPrimitive)
+            {
+                _gameObject.SetTexture(file, type);
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[ViewSpaceGameObject] Cannot set texture on non-primitive model");
+            }
+        }
+
+        /// <summary>
         /// Aktivitätsmethode des Objekts
         /// </summary>
         public abstract void Act();
@@ -94,6 +111,8 @@ namespace KWEngine3.GameObjects
         {
             _rotation = Quaternion.FromEulerAngles(MathHelper.DegreesToRadians(x), MathHelper.DegreesToRadians(y), MathHelper.DegreesToRadians(z));
         }
+
+
 
         /// <summary>
         /// Lässt das Objekt auf Kollisionen mit anderen GameObject-Instanzen prüfen

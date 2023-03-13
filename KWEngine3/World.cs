@@ -604,6 +604,17 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Aktualisiert die Kameraperspektive für den First-Person-Modus
+        /// </summary>
+        /// <param name="position">Zielposition</param>
+        /// <param name="offsetY">optionaler vertikaler Offset</param>
+        public void UpdateCameraPositionForFirstPersonView(Vector3 position, float offsetY = 0)
+        {
+            Vector3 newPos = position + new Vector3(0f, offsetY, 0f);
+            _cameraGame.SetPositionAndTarget(newPos, newPos + CameraLookAtVector);
+        }
+
+        /// <summary>
         /// Setzt das Ziel der Kamera
         /// </summary>
         /// <param name="x">x</param>
