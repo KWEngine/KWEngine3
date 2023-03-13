@@ -23,7 +23,7 @@ namespace KWEngine3TestProject.Worlds
                                                         new Vector3(0, 20, 0),      // the point to rotate around (aka pivot)
                                                         20,                         // the radius to that point
                                                         _sunDegrees,                // the degrees of rotation
-                                                        Plane.XZ                    // the axis/plane to rotate around
+                                                        Axis.Y                      // the axis/plane to rotate around
                                                         );
             _sun.SetPosition(newSunPosition);
             _sunDegrees = (_sunDegrees - 0.5f) % 360f;   // this will cycle from 0 to 359 and then back to 0

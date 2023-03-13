@@ -238,15 +238,7 @@ namespace KWEngine3.Helper
             return list;
         }
         
-        /// <summary>
-        /// Prüft, ob ein Strahl die Hitbox einer GameObject-Instanz trifft und gibt die genaue Position des Schnittpunkts an
-        /// </summary>
-        /// <param name="g">Zu prüfende GameObject-Instanz</param>
-        /// <param name="origin">Ursprung des Strahls</param>
-        /// <param name="worldRay">Richtung des Strahls (muss normalisiert sein)</param>
-        /// <param name="intersectionPoint">Ergebnis der Prüfung (Position des Schnittpunkts)</param>
-        /// <returns>true, wenn der Strahl das Objekt trifft</returns>
-        public static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint)
+        internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint)
         {
             return GetIntersectionPointOnObjectForRay(g, origin, worldRay, out intersectionPoint, out Vector3 normal);
         }

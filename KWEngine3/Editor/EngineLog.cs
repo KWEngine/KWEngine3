@@ -12,9 +12,8 @@
                 if (_messages.Count >= MAXMESSAGES)
                     _messages.Dequeue();
                 _messages.Enqueue(message);
-#if DEBUG
+
                 Console.WriteLine(message);
-#endif
             }
 
         }

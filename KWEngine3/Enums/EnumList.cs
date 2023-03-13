@@ -440,17 +440,40 @@
     public enum Plane
     {
         /// <summary>
-        /// X
+        /// YZ
         /// </summary>
         YZ,
         /// <summary>
-        /// Y
+        /// XZ
         /// </summary>
         XZ,
         /// <summary>
-        /// Z
+        /// XY
         /// </summary>
         XY,
+        /// <summary>
+        /// Kamerablickebene
+        /// </summary>
+        Camera
+    }
+
+    /// <summary>
+    /// Bezeichnet die Achse
+    /// </summary>
+    public enum Axis
+    {
+        /// <summary>
+        /// X
+        /// </summary>
+        X,
+        /// <summary>
+        /// Y
+        /// </summary>
+        Y,
+        /// <summary>
+        /// Z
+        /// </summary>
+        Z,
         /// <summary>
         /// Kamerablickebene
         /// </summary>

@@ -104,29 +104,29 @@ namespace KWEngine3.Helper
         /// <param name="point">Mittelpunkt der Rotation</param>
         /// <param name="distance">Distanz zum Mittelpunkt</param>
         /// <param name="degrees">Grad der Rotation</param>
-        /// <param name="plane">Achse der Rotation (Standard: Y)</param>
+        /// <param name="axis">Achse der Rotation (Standard: Y)</param>
         /// <returns>Position des rotierten Punkts</returns>
-        public static Vector3 CalculatePositionAfterRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Plane plane = Plane.XZ)
+        public static Vector3 CalculatePositionAfterRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Axis axis = Axis.Y)
         {
             float radians = MathHelper.DegreesToRadians(degrees % 360);
             Matrix4.CreateTranslation(point, out translationPointMatrix);
 
-            if (plane == Plane.YZ)
+            if (axis == Axis.X)
             {
                 Matrix4.CreateRotationX(radians, out rotationMatrix);
                 Matrix4.CreateTranslation(0, 0, distance, out translationMatrix);
             }
-            else if (plane == Plane.XZ)
+            else if (axis == Axis.Y)
             {
                 Matrix4.CreateRotationY(radians, out rotationMatrix);
                 Matrix4.CreateTranslation(0, 0, distance, out translationMatrix);
             }
-            else if (plane == Plane.XY)
+            else if (axis == Axis.Z)
             {
                 Matrix4.CreateRotationZ(radians, out rotationMatrix);
                 Matrix4.CreateTranslation(0, distance, 0, out translationMatrix);
             }
-            else if(plane == Plane.Camera)
+            else if(axis == Axis.Camera)
             {
                 Vector3 camLookAt = KWEngine.CurrentWorld._cameraGame._stateCurrent.LookAtVector;
                 rotationMatrix = HelperMatrix.CreateRotationMatrixForAxisAngle(ref camLookAt, ref radians);
