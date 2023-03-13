@@ -335,6 +335,7 @@
       <Method Name="CalculateOverlap" Hidden="true" />
       <Method Name="ClipFaces" Hidden="true" />
       <Method Name="ClipLineToPlane" Hidden="true" />
+      <Method Name="GetRayIntersectionPointOnGameObject" Hidden="true" />
       <Method Name="IsBetweenOrdered" Hidden="true" />
       <Method Name="IsInFrontOfPlane" Hidden="true" />
       <Method Name="IsPointOnTrianglePlane" Hidden="true" />
@@ -354,7 +355,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="4" Width="2.75" />
+    <Position X="12.5" Y="3.75" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -364,7 +365,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="12.5" Y="5.5" Width="2.75" />
+    <Position X="12.5" Y="5.25" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -383,7 +384,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="12.5" Y="8.25" Width="2.75" />
+    <Position X="12.5" Y="8" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
     </Members>
