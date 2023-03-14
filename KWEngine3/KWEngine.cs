@@ -230,9 +230,9 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f)
+        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.025f)
         /// </summary>
-        public static float MouseSensitivity { get; set; } = 0.05f;
+        public static float MouseSensitivity { get; set; } = 0.025f;
 
         internal static GeoModel KWStar;
         internal static GeoModel KWHeart;
