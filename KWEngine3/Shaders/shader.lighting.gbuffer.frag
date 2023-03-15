@@ -216,7 +216,7 @@ void main()
 
     // actual shading:
     vec4 pbr = getPBR();
-    gl_FragDepth = pbr.x; // clip space depth
+    //gl_FragDepth = pbr.x; // clip space depth
     vec4 fragPositionDepth = getFragmentPositionAndDepth();
     
 	vec3 albedo = getAlbedo().xyz;

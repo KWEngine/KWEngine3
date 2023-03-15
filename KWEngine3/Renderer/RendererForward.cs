@@ -115,7 +115,7 @@ namespace KWEngine3.Renderer
         public static void SetGlobals()
         {
             // lights array:
-            GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * 17, KWEngine.CurrentWorld._preparedLightsArray);
+            GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * KWEngine.LIGHTINDEXDIVIDER, KWEngine.CurrentWorld._preparedLightsArray);
             GL.Uniform1(ULightCount, KWEngine.CurrentWorld._preparedLightsCount);
             GL.Uniform3(UColorAmbient, KWEngine.CurrentWorld._colorAmbient);
 

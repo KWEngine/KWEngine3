@@ -72,6 +72,26 @@ namespace KWEngine3.Framebuffers
             return error == FramebufferErrorCode.FramebufferComplete;
         }
 
+        public void CopyDepthFrom(Framebuffer src)
+        {
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, src.ID);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, ID);
+
+            GL.BlitFramebuffer(
+                0,
+                0,
+                KWEngine.Window.ClientRectangle.Size.X,
+                KWEngine.Window.ClientRectangle.Size.Y,
+                0,
+                0,
+                KWEngine.Window.ClientRectangle.Size.X,
+                KWEngine.Window.ClientRectangle.Size.Y,
+                ClearBufferMask.DepthBufferBit,
+                BlitFramebufferFilter.Nearest
+                );
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        }
+
         public abstract void Clear();
     }
 }

@@ -231,7 +231,7 @@ vec4 getEmissive()
 {
     if(uUseTexturesAlbedoNormalEmissive.z > 0)
     {
-        return texture(uTextureEmissive, vTexture);
+        return texture(uTextureEmissive, vTexture) + uColorEmissive;
     }
     else
     {

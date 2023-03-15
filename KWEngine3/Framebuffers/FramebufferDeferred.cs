@@ -23,7 +23,7 @@ namespace KWEngine3.Framebuffers
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 1));   // Albedo
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA32F, width, height, 2));   // Normal and ID attachment
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA32F, width, height, 3));   // CSDepth, Metallic, Roughness attachment
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA8, width, height, 4));   // Emissive
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16F, width, height, 4));   // Emissive
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];
             for(int i = 0; i < Attachments.Count; i++)
             {

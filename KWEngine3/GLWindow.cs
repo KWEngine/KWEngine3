@@ -213,6 +213,7 @@ namespace KWEngine3
 
             // Lighting pass:
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+            //RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
             RenderManager.FramebufferLightingPass.Bind();
             RendererLightingPass.Bind();
             RendererLightingPass.SetGlobals();
