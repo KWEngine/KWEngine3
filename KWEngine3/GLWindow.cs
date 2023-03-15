@@ -213,10 +213,12 @@ namespace KWEngine3
 
             // Lighting pass:
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
-            //RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
-            RenderManager.FramebufferLightingPass.Bind();
+            RenderManager.FramebufferLightingPass.BindAndClearColor();
+            RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
+            RenderManager.FramebufferLightingPass.Bind(false);
             RendererLightingPass.Bind();
             RendererLightingPass.SetGlobals();
+
             RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
 
             if(KWEngine.CurrentWorld._background.Type != BackgroundType.None)

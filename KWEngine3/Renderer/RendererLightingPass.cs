@@ -173,10 +173,12 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UColorAmbient, KWEngine.CurrentWorld._colorAmbient);
 
             // render that damn quad already:
+            GL.Disable(EnableCap.DepthTest);
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
-            GL.BindVertexArray(0);
+            GL.Enable(EnableCap.DepthTest);
 
+            GL.BindVertexArray(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 

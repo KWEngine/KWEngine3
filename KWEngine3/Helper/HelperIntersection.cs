@@ -240,7 +240,7 @@ namespace KWEngine3.Helper
         
         internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint)
         {
-            return GetIntersectionPointOnObjectForRay(g, origin, worldRay, out intersectionPoint, out Vector3 normal);
+            return GetIntersectionPointOnObjectForRay(g, origin, worldRay, out intersectionPoint, out Vector3 normal, true);
         }
         
         /// <summary>
@@ -251,12 +251,13 @@ namespace KWEngine3.Helper
         /// <param name="rayDirection">Richtung des Strahls</param>
         /// <param name="intersectionPoint">Schnittpunkt (Ausgabe)</param>
         /// <param name="faceNormal">Ebene des Schnittpunkts (Ausgabe)</param>
+        /// <param name="includeNonCollisionObjects">Sollen Objekte berücksichtigt werden, die NICHT als Kollisionsobjekt markiert sind?</param>
         /// <returns>true, wenn der Strahl das GameObject getroffen hat</returns>
-        public static bool GetIntersectionPointOnObjectForRay(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal)
+        public static bool GetIntersectionPointOnObjectForRay(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal, bool includeNonCollisionObjects = true)
         {
             faceNormal = KWEngine.WorldUp;
             intersectionPoint = new Vector3();
-            if (g == null || !g.IsCollisionObject)
+            if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
             {
                 return false;
             }
