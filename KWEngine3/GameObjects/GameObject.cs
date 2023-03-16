@@ -145,12 +145,12 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return null;
             }
-            else if (_currentOctreeNode == null)
-            {
-                return null;
-            }
-            List<GameObject> potentialColliders = new List<GameObject>();
-            CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
+            //else if (_currentOctreeNode == null)
+            //{
+            //    return null;
+            //}
+            List<GameObject> potentialColliders = this._collisionCandidates;//new List<GameObject>();
+            //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
 
             foreach (GameObject collider in potentialColliders)
             {
@@ -184,12 +184,12 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return null;
             }
-            else if (_currentOctreeNode == null)
-            {
-                return null;
-            }
-            List<GameObject> potentialColliders = new List<GameObject>();
-            CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
+            //else if (_currentOctreeNode == null)
+            //{
+            //    return null;
+            //}
+            List<GameObject> potentialColliders = this._collisionCandidates;//; new List<GameObject>();
+            //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
             foreach (GameObject collider in potentialColliders)
             {
@@ -223,12 +223,12 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return intersections;
             }
-            else if (_currentOctreeNode == null)
-            {
-                return intersections;
-            }
-            List<GameObject> potentialColliders = new List<GameObject>();
-            CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
+            //else if (_currentOctreeNode == null)
+            //{
+            //    return intersections;
+            //}
+            List<GameObject> potentialColliders = this._collisionCandidates;// new List<GameObject>();
+            //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
 
             foreach (GameObject collider in potentialColliders)
             {
@@ -263,12 +263,12 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return intersections;
             }
-            else if (_currentOctreeNode == null)
-            {
-                return intersections;
-            }
-            List<GameObject> potentialColliders = new List<GameObject>();
-            CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
+            //else if (_currentOctreeNode == null)
+            //{
+            //    return intersections;
+            //}
+            List<GameObject> potentialColliders = this._collisionCandidates;
+            //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
             foreach (GameObject collider in potentialColliders)
             {
@@ -1226,6 +1226,10 @@ namespace KWEngine3.GameObjects
         internal bool _isCollisionObject = false;
         internal bool _isShadowCaster = false;
 
+        internal Vector2 LeftRightMost { get; set; } = new Vector2(0, 0);
+        internal Vector2 BackFrontMost { get; set; } = new Vector2(0, 0);
+        internal Vector2 BottomTopMost { get; set; } = new Vector2(0, 0);
+
         internal void SetScale(Vector3 s)
         {
             SetScale(s.X, s.Y, s.Z);
@@ -1387,7 +1391,24 @@ namespace KWEngine3.GameObjects
             _stateCurrent._dimensions.X = dimMax.X - dimMin.X;
             _stateCurrent._dimensions.Y = dimMax.Y - dimMin.Y;
             _stateCurrent._dimensions.Z = dimMax.Z - dimMin.Z;
+
+            LeftRightMost = new Vector2(_stateCurrent._center.X - _stateCurrent._dimensions.X / 2 - KWEngine.SweepAndPruneTolerance, _stateCurrent._center.X + _stateCurrent._dimensions.X / 2 + KWEngine.SweepAndPruneTolerance);
+            BackFrontMost = new Vector2(_stateCurrent._center.Z - _stateCurrent._dimensions.Z / 2 - KWEngine.SweepAndPruneTolerance, _stateCurrent._center.Z + _stateCurrent._dimensions.Z / 2 + KWEngine.SweepAndPruneTolerance);
+            BottomTopMost = new Vector2(_stateCurrent._center.Y - _stateCurrent._dimensions.Y / 2 - KWEngine.SweepAndPruneTolerance, _stateCurrent._center.Y + _stateCurrent._dimensions.Y / 2 + KWEngine.SweepAndPruneTolerance);
         }
+
+        internal Vector2 GetExtentsForAxis(int a)
+        {
+            if (a == 1)
+                return BottomTopMost;
+            else if (a == 2)
+                return BackFrontMost;
+            else
+                return LeftRightMost;
+
+        }
+
+        internal List<GameObject> _collisionCandidates = new List<GameObject>();
 
         internal void TurnTowardsViewForFPObject(Vector3 target)
         {

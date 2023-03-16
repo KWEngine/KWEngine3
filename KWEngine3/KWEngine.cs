@@ -33,23 +33,18 @@ namespace KWEngine3
         /// Aktuelle Welt
         /// </summary>
         public static World CurrentWorld { get; internal set; } = null;
-        internal static Dictionary<World, Dictionary<string, int>> CustomTextures { get; set; } = new Dictionary<World, Dictionary<string, int>>();
+        //internal static Dictionary<World, Dictionary<string, int>> CustomTextures { get; set; } = new Dictionary<World, Dictionary<string, int>>();
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
 
         internal static void DeleteCustomModelsAndTextures(World w)
         {
-            // TEXTURES
-            bool texturesFound = CustomTextures.TryGetValue(w, out Dictionary<string, int> textures);
-            if(texturesFound)
+            for(int i = KWEngine.CurrentWorld._customTextures.Count - 1; i >= 0; i--)
             {
-                for(int i = textures.Keys.Count - 1; i >= 0; i--)
-                {
-                    string currentTextureFilename = textures.Keys.ElementAt(i);
-                    int currentTexture = textures[currentTextureFilename];
-                    HelperTexture.DeleteTexture(currentTexture);
-                }
-                textures.Clear();
+                string currentTextureFilename = KWEngine.CurrentWorld._customTextures.Keys.ElementAt(i);
+                int currentTexture = KWEngine.CurrentWorld._customTextures[currentTextureFilename];
+                HelperTexture.DeleteTexture(currentTexture);
             }
+            KWEngine.CurrentWorld._customTextures.Clear();
 
             // MODELS
             for(int i = Models.Keys.Count - 1; i >= 3; i--)
@@ -71,13 +66,19 @@ namespace KWEngine3
         /// <summary>
         /// Gibt an, ob der Octree sichtbar ist
         /// </summary>
-        public static bool OctreeVisible { get { return _octreeVisible; } set { _octreeVisible = value; } }
+        internal static bool OctreeVisible { get { return _octreeVisible; } set { _octreeVisible = value; } }
 
         internal static float _octreeSafetyZone = 1f;
         /// <summary>
         /// Zusätzliches Padding für den Octree (Standard: 1)
         /// </summary>
-        public static float OctreeSafetyZone { get { return _octreeSafetyZone; } set { _octreeSafetyZone = MathHelper.Max(0f, value); } }
+        internal static float OctreeSafetyZone { get { return _octreeSafetyZone; } set { _octreeSafetyZone = MathHelper.Max(0f, value); } }
+
+        internal static float _swpruneTolerance = 1.0f;
+        /// <summary>
+        /// Zusätzliches Padding für die Kollisionsvorhersage (Standard: 1.0f)
+        /// </summary>
+        public static float SweepAndPruneTolerance { get { return _swpruneTolerance; } set { _swpruneTolerance = MathHelper.Max(0f, value); } }
 
         internal static void DeselectAll()
         {
@@ -376,20 +377,18 @@ namespace KWEngine3
             texDiffuse.UVMapIndex = 0;
             texDiffuse.UVTransform = new Vector4(1, 1, 0, 0);
 
-            bool dictFound = CustomTextures.TryGetValue(CurrentWorld, out Dictionary<string, int> texDict);
-
-            if (dictFound && texDict.ContainsKey(texture))
+            if (KWEngine.CurrentWorld._customTextures.ContainsKey(texture))
             {
-                texDiffuse.OpenGLID = texDict[texture];
+                texDiffuse.OpenGLID = KWEngine.CurrentWorld._customTextures[texture];
             }
             else
             {
                 int texId = HelperTexture.LoadTextureForModelExternal(texture, out int mipMaps);
                 texDiffuse.OpenGLID = texId > 0 ? texId : KWEngine.TextureDefault;
 
-                if (dictFound && texId > 0)
+                if (texId > 0)
                 {
-                    texDict.Add(texture, texDiffuse.OpenGLID);
+                    KWEngine.CurrentWorld._customTextures.Add(texture, texDiffuse.OpenGLID);
                 }
             }
             mat.TextureAlbedo = texDiffuse;

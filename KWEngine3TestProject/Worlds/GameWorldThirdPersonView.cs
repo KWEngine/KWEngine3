@@ -2,6 +2,7 @@
 using KWEngine3.GameObjects;
 using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldThirdPersonView;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace KWEngine3TestProject.Worlds
             SetBackgroundBrightnessMultiplier(4);
             SetBackgroundSkybox(@".\Textures\skybox.dds");
 
-            Immovable f01 = new Immovable();
+            Floor f01 = new Floor();
             f01.Name = "Floor";
             f01.SetModel("KWCube");
             f01.SetTexture(@"./textures/tiles_albedo.jpg", TextureType.Albedo);       // regular texture file
@@ -46,6 +47,26 @@ namespace KWEngine3TestProject.Worlds
             p01.IsCollisionObject = true;
             p01.SetRotation(0, 180, 0);
             AddGameObject(p01);
+            /*
+            AimingSphere s = new AimingSphere();
+            s.Name = "AimingSphere";
+            s.SetModel("KWSphere");
+            s.SetColorEmissive(0, 0, 1, 2);
+            AddGameObject(s);
+            //p01.SetAimingSphere(s);
+            */
+
+            Immovable box01 = new Immovable();
+            box01.SetScale(2);
+            box01.SetPosition(4, 1, -4);
+            box01.IsCollisionObject = true;
+            box01.IsShadowCaster = true;
+            AddGameObject(box01);
+
+            HUDObject crosshair = new HUDObject(HUDObjectType.Image, Window.Width / 2, Window.Height / 2);
+            crosshair.Name = "Crosshair";
+            crosshair.SetTexture(@".\textures\crosshair.dds");
+            AddHUDObject(crosshair);
 
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetFOV(32);

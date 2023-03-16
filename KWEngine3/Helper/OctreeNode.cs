@@ -52,12 +52,6 @@ namespace KWEngine3.Helper
             Counter = 0;
         }
 
-        public bool WouldAChildNodeEncloseHitbox(GameObject g, out OctreeNode child)
-        {
-            child = null;
-            return false;
-        }
-
         public bool DoesNodeEncloseGameObject(GameObject g)
         {
             bool leftOk = Center.X - Scale.X + KWEngine._octreeSafetyZone <= g._stateCurrent._center.X - g._stateCurrent._dimensions.X / 2;

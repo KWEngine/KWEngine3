@@ -16,7 +16,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             Move(_speed);
 
             Intersection i = GetIntersection();
-            if (i != null && !(i.Object is Player))
+            if (i != null && !(i.Object is PlayerThirdPerson))
             {
                 ExplosionObject ex = new ExplosionObject(8, 0.25f, 0.5f, 2f, ExplosionType.Cube);
                 ex.SetPosition(_lastPos != Vector3.Zero ? _lastPos : Position);

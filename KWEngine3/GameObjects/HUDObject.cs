@@ -94,28 +94,27 @@ namespace KWEngine3.GameObjects
         /// <param name="red">Rot</param>
         /// <param name="green">Grün</param>
         /// <param name="blue">Blau</param>
-        /// <param name="intensity">Helligkeit</param>
-        public void SetColor(float red, float green, float blue, float intensity)
+        public void SetColor(float red, float green, float blue)
         {
             _tint.X = HelperGeneral.Clamp(red, 0, 1);
             _tint.Y = HelperGeneral.Clamp(green, 0, 1);
             _tint.Z = HelperGeneral.Clamp(blue, 0, 1);
-            _tint.W = HelperGeneral.Clamp(intensity, 0, 1);
+            _tint.W = 1.0f;
         }
 
         /// <summary>
         /// Glow-Effekt des Objekts
         /// </summary>
-        /// <param name="red">Rot</param>
-        /// <param name="green">Grün</param>
-        /// <param name="blue">Blau</param>
-        /// <param name="intensity">Intensität</param>
+        /// <param name="red">Rot (zwischen 0 und 1)</param>
+        /// <param name="green">Grün (zwischen 0 und 1)</param>
+        /// <param name="blue">Blau (zwischen 0 und 1)</param>
+        /// <param name="intensity">Intensität (zwischen 0 und 2)</param>
         public void SetGlow(float red, float green, float blue, float intensity)
         {
             _glow.X = HelperGeneral.Clamp(red, 0, 1);
             _glow.Y = HelperGeneral.Clamp(green, 0, 1);
             _glow.Z = HelperGeneral.Clamp(blue, 0, 1);
-            _glow.W = HelperGeneral.Clamp(intensity, 0, 1);
+            _glow.W = HelperGeneral.Clamp(intensity, 0, 2);
         }
 
         private void UpdateTextures()
@@ -170,16 +169,21 @@ namespace KWEngine3.GameObjects
         /// <param name="filename">Bilddatei</param>
         public void SetTexture(string filename)
         {
+            if(filename == null)
+            {
+                KWEngine.LogWriteLine("[HUDObject] Texture file not found");
+                return;
+            }
             if (File.Exists(filename) && _type == HUDObjectType.Image)
             {
-                if (KWEngine.CustomTextures[KWEngine.CurrentWorld].ContainsKey(filename))
+                if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
                 {
-                    _textureId = KWEngine.CustomTextures[KWEngine.CurrentWorld][filename];
+                    _textureId = KWEngine.CurrentWorld._customTextures[filename];
                 }
                 else
                 {
                     _textureId = HelperTexture.LoadTextureForBackgroundExternal(filename, out int mipMapLevels);
-                    KWEngine.CustomTextures[KWEngine.CurrentWorld].Add(filename, _textureId);
+                    KWEngine.CurrentWorld._customTextures.Add(filename, _textureId);
                 }
                 _count = 1;
                 _textureName = filename.Trim();

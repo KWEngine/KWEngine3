@@ -22,11 +22,18 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
         private readonly float _cooldown = 0.25f;
         private float _lastShot = -1;
 
+        private AimingSphere _aimingSphere = null;
+
         private enum PlayerState
         {
             OnFloor = 0,
             Jump = 2,
             Fall = 3
+        }
+
+        public void SetAimingSphere(AimingSphere g)
+        {
+            _aimingSphere = g;
         }
 
         public override void Act()
@@ -88,6 +95,19 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 DoShoot();
             }
 
+            HUDObject h = CurrentWorld.GetHUDObjectByName("Crosshair");
+            bool result = HelperIntersection.IsMouseCursorOnAny<Immovable>(out Immovable o);
+            if(result)
+            {
+                if (h != null)
+                    h.SetGlow(1, 0, 0, 2);
+            }
+            else
+            {
+                if (h != null)
+                    h.SetGlow(1, 1, 1, 0);
+            }
+
             DoStates();
             DoCollisionDetection();
             DoAnimation(running);
@@ -109,16 +129,18 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 }
                 else
                 {
-                    target = HelperIntersection.GetMouseIntersectionPoint(Plane.Camera, 0);
+                    target = HelperIntersection.GetMouseIntersectionPointOnPlane(Center + LookAtVector * 10, Plane.Camera);
                 }
+
+                Vector3 directionToTarget = Vector3.NormalizeFast(target - Center);
 
                 Shot s = new Shot();
                 s.SetModel("KWSphere");
-                s.SetScale(0.25f);
+                s.SetScale(0.125f);
                 s.SetColor(0, 0, 1);
                 s.SetColorEmissive(0, 0, 1, 1.25f);
                 s.IsCollisionObject = true;
-                s.SetPosition(Center + LookAtVector * 0.25f);
+                s.SetPosition(Center + directionToTarget * 0.75f);
                 s.TurnTowardsXYZ(target);
 
                 CurrentWorld.AddGameObject(s);

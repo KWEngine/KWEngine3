@@ -732,12 +732,12 @@ namespace KWEngine3.Editor
                 ImGui.SliderFloat("Background brightness", ref KWEngine.CurrentWorld._background._brightnessMultiplier, 0f, 10f);
                 ImGui.Separator();
                 
-                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Collision detection debugging:");
+                /*ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Collision detection debugging:");
                 ImGui.Checkbox("Octree", ref KWEngine._octreeVisible);
                 ImGui.SameLine();
                 ImGui.SliderFloat("Safety Zone", ref KWEngine._octreeSafetyZone, 0f, 10f);
                 ImGui.Separator();
-                
+                */
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Camera:");
                 ImGui.PushItemWidth(200);
                 if (ImGui.SliderFloat("FOV", ref fov, 20f, 180f))

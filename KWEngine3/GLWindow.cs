@@ -411,6 +411,7 @@ namespace KWEngine3
                 foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
                 {
                     HelperSimulation.BlendGameObjectStates(g, alpha);
+                    g._collisionCandidates.Clear();
                 }
                 foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)
                 {
@@ -449,21 +450,14 @@ namespace KWEngine3
         {
             int n = 0;
 
-            List<GameObject> postponedObjects = new List<GameObject>();
-            List<GameObject> postponedObjectsAttachments = new List<GameObject>();
-
-            KWEngine.CurrentWorld.AddRemoveGameObjects();
-            KWEngine.CurrentWorld.AddRemoveTerrainObjects();
-            KWEngine.CurrentWorld.AddRemoveLightObjects();
-            KWEngine.CurrentWorld.AddRemoveHUDObjects();
-
+            /*
             HelperOctree.Init(
                 KWEngine.CurrentWorld._worldCenter,
                 new Vector3(
                     (KWEngine.CurrentWorld._xMinMax.Y - KWEngine.CurrentWorld._xMinMax.X) * 0.5f + KWEngine._octreeSafetyZone,
                     (KWEngine.CurrentWorld._yMinMax.Y - KWEngine.CurrentWorld._yMinMax.X) * 0.5f + KWEngine._octreeSafetyZone,
                     (KWEngine.CurrentWorld._zMinMax.Y - KWEngine.CurrentWorld._zMinMax.X) * 0.5f + KWEngine._octreeSafetyZone));
-
+            
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
                 HelperOctree.Add(g);
@@ -472,10 +466,19 @@ namespace KWEngine3
             {
                 HelperOctree.Add(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
             }
+            */
 
             KWEngine.CurrentWorld.ResetWorldDimensions();
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
+                List<GameObject> postponedObjects = new List<GameObject>();
+                List<GameObject> postponedObjectsAttachments = new List<GameObject>();
+
+                KWEngine.CurrentWorld.AddRemoveGameObjects();
+                KWEngine.CurrentWorld.AddRemoveTerrainObjects();
+                KWEngine.CurrentWorld.AddRemoveLightObjects();
+                KWEngine.CurrentWorld.AddRemoveHUDObjects();
+                HelperSweepAndPrune.SweepAndPrune();
                 n++;
 
                 KWEngine.CurrentWorld._cameraGame.BackupCameraState();
