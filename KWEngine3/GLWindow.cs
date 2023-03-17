@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using KWEngine2.Renderer;
 using KWEngine3.Audio;
 using KWEngine3.Editor;
@@ -46,7 +48,8 @@ namespace KWEngine3
                      APIVersion = Version.Parse("4.0"),
                      Flags = ContextFlags.ForwardCompatible,
                      WindowState = WindowState.Fullscreen,
-                     Vsync = vSync ? VSyncMode.On : VSyncMode.Off
+                     Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
+                     Title = "KWEngine 3"
                  }
                  )
         {
@@ -69,7 +72,8 @@ namespace KWEngine3
                      WindowState = WindowState.Normal,
                      Size = new Vector2i(width, height),
                      WindowBorder = WindowBorder.Fixed,
-                     Vsync = vSync ? VSyncMode.On : VSyncMode.Off
+                     Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
+                     Title = "KWEngine 3"
                  }
         )
         {
@@ -96,7 +100,12 @@ namespace KWEngine3
             KWEngine._folderDivider = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
             KWEngine._folderDividerString = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\\" : "/";
 
-            Title = "KWEngine3 | OpenGL Version: " + GL.GetString(StringName.Version);
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            string version = fileVersionInfo.ProductVersion;
+            string date = fileVersionInfo.ProductName.Substring(fileVersionInfo.ProductName.IndexOf('2'), 10);
+
+            Title = "KWEngine " + version + " (" + date + ") | OpenGL Version: " + GL.GetString(StringName.Version);
             KWEngine.InitializeFontsAndDefaultTextures();
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
@@ -270,7 +279,8 @@ namespace KWEngine3
             RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0]);
 
             //if (KWEngine.Mode == EngineMode.Edit && HelperOctree._rootNode != null)
-            if (KWEngine.OctreeVisible && HelperOctree._rootNode != null)
+            /*
+            if (HelperOctree._rootNode != null)
             {
                 GL.Disable(EnableCap.DepthTest);
                 RendererOctreeNodes.Bind();
@@ -278,6 +288,7 @@ namespace KWEngine3
                 RendererOctreeNodes.Draw(HelperOctree._rootNode, ref vp);
                 GL.Enable(EnableCap.DepthTest);
             }
+            */
 
             // unbind last render program:
             GL.UseProgram(0);

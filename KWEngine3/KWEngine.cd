@@ -33,14 +33,13 @@
       <Field Name="_folderDividerString" Hidden="true" />
       <Field Name="_glowRadius" Hidden="true" />
       <Field Name="_octreeSafetyZone" Hidden="true" />
-      <Field Name="_octreeVisible" Hidden="true" />
       <Field Name="_stateCameraGameBeforeToggle" Hidden="true" />
+      <Field Name="_swpruneTolerance" Hidden="true" />
       <Field Name="_uniformOffsetMultiplier" Hidden="true" />
       <Field Name="_worldUp" Hidden="true" />
       <Field Name="BLOOMHEIGHT" Hidden="true" />
       <Field Name="BLOOMWIDTH" Hidden="true" />
       <Method Name="BuildDefaultTerrainModel" Hidden="true" />
-      <Property Name="CustomTextures" Hidden="true" />
       <Field Name="DefaultCameraPosition" Hidden="true" />
       <Method Name="DeleteCustomModelsAndTextures" Hidden="true" />
       <Property Name="DeltaTimeAccumulator" Hidden="true" />
@@ -84,7 +83,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgAZLgBAISAAKAFpkhuARAAQCAAggIQDGnWSlVCUIE=</HashCode>
+      <HashCode>BYgAZLABAISAAKAFpghuARAAQCAAggIQjGnWSlVCEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -161,6 +160,7 @@
       <Field Name="_attachedTo" Hidden="true" />
       <Field Name="_attachmentMatrix" Hidden="true" />
       <Field Name="_attachmentMatrixUpdatedByBone" Hidden="true" />
+      <Field Name="_collisionCandidates" Hidden="true" />
       <Field Name="_currentOctreeNode" Hidden="true" />
       <Field Name="_gameObjectsAttached" Hidden="true" />
       <Field Name="_gModel" Hidden="true" />
@@ -178,9 +178,12 @@
       <Method Name="AddRotationXFromEditor" Hidden="true" />
       <Method Name="AddRotationYFromEditor" Hidden="true" />
       <Method Name="AddRotationZFromEditor" Hidden="true" />
+      <Property Name="BackFrontMost" Hidden="true" />
+      <Property Name="BottomTopMost" Hidden="true" />
       <Method Name="CollectPotentialCollidersFromChildren" Hidden="true" />
       <Method Name="CollectPotentialCollidersFromParent" Hidden="true" />
       <Method Name="CollectPotentialIntersections" Hidden="true" />
+      <Method Name="GetExtentsForAxis" Hidden="true" />
       <Property Name="HasArmatureAndAnimations" Hidden="true" />
       <Property Name="HasEmissiveTexture" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
@@ -188,13 +191,14 @@
       <Method Name="InitStates" Hidden="true" />
       <Property Name="IsAttachedToGameObject" Hidden="true" />
       <Property Name="IsQuad" Hidden="true" />
+      <Property Name="LeftRightMost" Hidden="true" />
       <Method Name="ResetBoneAttachments" Hidden="true" />
       <Method Name="SetScaleRotationAndTranslation" Hidden="true" />
       <Method Name="TurnTowardsViewForFPObject" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zikCOxgGGJyo8qTswAqMIwZVASRzi1lJIIkAHkhYVNU=</HashCode>
+      <HashCode>zikCOxgGmJyo8rTswBqMIwZVgSRzi1lJIIkAHkhYVNU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -222,7 +226,7 @@
       <Method Name="UpdateTextures" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QAAIAAAQAAAAUiRwAIAAQQSAAGAAQghIAGiAAgACICE=</HashCode>
+      <HashCode>QAAIAACQAAAAUiRwAIAAQQSAAGABQggIAGiBAgACICE=</HashCode>
       <FileName>GameObjects\HUDObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -350,12 +354,12 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BAIQAhAAABACAAAAMIAAAACAAQAgBIAGAAEKABILAAg=</HashCode>
+      <HashCode>BAIQAhAAABACAAAAMIAAAACAAQAgBIAWAAECABIJAAg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="3.75" Width="2.75" />
+    <Position X="12.5" Y="3.5" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -365,7 +369,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="12.5" Y="5.25" Width="2.75" />
+    <Position X="12.5" Y="4.75" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -384,7 +388,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="12.5" Y="8" Width="2.75" />
+    <Position X="12.5" Y="7.5" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
     </Members>
@@ -401,7 +405,7 @@
     </TypeIdentifier>
   </Struct>
   <Enum Name="KWEngine3.GameObjects.HUDObjectType">
-    <Position X="0.5" Y="12.75" Width="2.75" />
+    <Position X="0.5" Y="13" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAACAAAAAA=</HashCode>
       <FileName>GameObjects\HUDObject.cs</FileName>

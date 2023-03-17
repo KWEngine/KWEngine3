@@ -39,7 +39,7 @@ namespace KWEngine3.Helper
             {
                 if (to.IsCollisionObject)
                 {
-                    Vector3 miPointLow = GetMouseIntersectionPoint(Plane.XZ, to._stateCurrent._center.Y);
+                    Vector3 miPointLow = GetMouseIntersectionPointOnPlane(Plane.XZ, to._stateCurrent._center.Y);
                     if (RayTerrainIntersection(to, miPointLow + new Vector3(0, to._hitboxes[0]._center.Y + to._hitboxes[0]._dimensions.Y, 0), -Vector3.UnitY, out intersectionPoint))
                     {
                         return true;
@@ -56,7 +56,7 @@ namespace KWEngine3.Helper
         /// <param name="planeNormal">Kollisionsebene (Standard: Camera)</param>
         /// <param name="planeHeight">Höhe der Kollisionsebene</param>
         /// <returns>3D-Mauskoordinaten</returns>
-        public static Vector3 GetMouseIntersectionPoint(Plane planeNormal = Plane.Camera, float planeHeight = 0f)
+        public static Vector3 GetMouseIntersectionPointOnPlane(Plane planeNormal = Plane.Camera, float planeHeight = 0f)
         {
             Vector3 normal;
             if (planeNormal == Plane.XZ)
@@ -171,7 +171,7 @@ namespace KWEngine3.Helper
             int minIndex = -1;
             for (int i = 0; i < list.Length; i++)
             {
-                bool rayHitGameObject = IsMouseCursorInsideHitboxVolume(list[i]);
+                bool rayHitGameObject = IsMouseCursorInsideGameObjectVolume(list[i]);
                 if (rayHitGameObject)
                 {
                     float currentDistance = (origin - list[i].Center).LengthSquared;
@@ -392,7 +392,7 @@ namespace KWEngine3.Helper
         /// </summary>
         /// <param name="g">Zu untersuchendes GameObject</param>
         /// <returns>true, wenn der Mauszeiger (näherungsweise) auf dem Objekt liegt</returns>
-        public static bool IsMouseCursorInsideHitboxVolume(GameObject g)
+        public static bool IsMouseCursorInsideGameObjectVolume(GameObject g)
         {
             Vector2 mc;
             if (KWEngine.Window.CursorState == OpenTK.Windowing.Common.CursorState.Grabbed)

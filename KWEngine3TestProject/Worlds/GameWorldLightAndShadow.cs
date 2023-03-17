@@ -30,7 +30,7 @@ namespace KWEngine3TestProject.Worlds
 
 
             // RED LIGHT CONTROL:
-            Vector3 mouseCursorPos = HelperIntersection.GetMouseIntersectionPoint(Plane.XZ, 3);
+            Vector3 mouseCursorPos = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 3);
             _mouseLight.SetPosition(mouseCursorPos);
             _mouseLightSphere.SetPosition(mouseCursorPos);
         }

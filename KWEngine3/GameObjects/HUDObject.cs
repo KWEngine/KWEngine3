@@ -27,7 +27,7 @@ namespace KWEngine3.GameObjects
         public bool IsVisible { get; set; } = true;
         internal Vector2 _absolute = new Vector2(0, 0);
         internal Vector4 _tint = new Vector4(1, 1, 1, 1);
-        internal Vector4 _glow = new Vector4(0, 0, 0, 0);
+        internal Vector4 _glow = new Vector4(0, 0, 0, 1);
         internal HUDObjectType _type = HUDObjectType.Image;
         internal int _textureId = KWEngine.TextureAlpha;
         internal int[] _offsets = new int[] { 0 };
@@ -103,18 +103,35 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Glow-Effekt des Objekts
+        /// Setzt die Sichtbarkeit des Objekts
+        /// </summary>
+        /// <param name="o">Sichtbarkeit (zwischen 0 und 1)</param>
+        public void SetOpacity(float o)
+        {
+            _tint.W = HelperGeneral.Clamp(o, 0, 1);
+        }
+
+        /// <summary>
+        /// Setzt die Glühfarbe des Objekts
         /// </summary>
         /// <param name="red">Rot (zwischen 0 und 1)</param>
         /// <param name="green">Grün (zwischen 0 und 1)</param>
         /// <param name="blue">Blau (zwischen 0 und 1)</param>
-        /// <param name="intensity">Intensität (zwischen 0 und 2)</param>
-        public void SetGlow(float red, float green, float blue, float intensity)
+        
+        public void SetColorGlow(float red, float green, float blue)
         {
             _glow.X = HelperGeneral.Clamp(red, 0, 1);
             _glow.Y = HelperGeneral.Clamp(green, 0, 1);
             _glow.Z = HelperGeneral.Clamp(blue, 0, 1);
-            _glow.W = HelperGeneral.Clamp(intensity, 0, 2);
+        }
+
+        /// <summary>
+        /// Setzt die Glühintensität des Objekts
+        /// </summary>
+        /// <param name="intensity">Intensität (zwischen 0 und 1)</param>
+        public void SetColorGlowIntensity(float intensity)
+        {
+            _glow.W = HelperGeneral.Clamp(intensity, 0, 1);
         }
 
         private void UpdateTextures()

@@ -94,7 +94,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             {
                 DoShoot();
             }
-
+            /*
             HUDObject h = CurrentWorld.GetHUDObjectByName("Crosshair");
             bool result = HelperIntersection.IsMouseCursorOnAny<Immovable>(out Immovable o);
             if(result)
@@ -107,7 +107,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 if (h != null)
                     h.SetGlow(1, 1, 1, 0);
             }
-
+            */
             DoStates();
             DoCollisionDetection();
             DoAnimation(running);
@@ -124,12 +124,12 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                     result = HelperIntersection.GetIntersectionPointOnObjectForRay(o, CurrentWorld.CameraPosition, HelperIntersection.GetMouseRay(), out target, out Vector3 faceNormal);
                     if(!result)
                     {
-                        target = HelperIntersection.GetMouseIntersectionPoint(Plane.Camera, 0);
+                        target = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.Camera, 0);
                     }
                 }
                 else
                 {
-                    target = HelperIntersection.GetMouseIntersectionPointOnPlane(Center + LookAtVector * 10, Plane.Camera);
+                    target = HelperIntersection.GetMouseIntersectionPointOnPlane(Center + LookAtVector * 50, Plane.Camera);
                 }
 
                 Vector3 directionToTarget = Vector3.NormalizeFast(target - Center);

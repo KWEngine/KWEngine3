@@ -730,6 +730,7 @@ namespace KWEngine3.Editor
                     KWEngine.CurrentWorld.SetColorAmbient(colorAmbientNew.X, colorAmbientNew.Y, colorAmbientNew.Z);
                 }
                 ImGui.SliderFloat("Background brightness", ref KWEngine.CurrentWorld._background._brightnessMultiplier, 0f, 10f);
+                
                 ImGui.Separator();
                 
                 /*ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Collision detection debugging:");
@@ -752,7 +753,9 @@ namespace KWEngine3.Editor
                     KWEngine.CurrentWorld._cameraGame = KWEngine.CurrentWorld._cameraEditor;
                     KWEngine.CurrentWorld._cameraGame._statePrevious = KWEngine.CurrentWorld._cameraGame._stateCurrent;
                 }
+                ImGui.NewLine();
                 ImGui.Separator();
+                ImGui.NewLine();
                 ImGui.Indent(-312);
                 if(ImGui.Button("Export world & objects"))
                 {

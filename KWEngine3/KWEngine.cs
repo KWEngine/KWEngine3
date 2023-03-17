@@ -61,19 +61,20 @@ namespace KWEngine3
         /// Gibt an, ob der Edit-Modus aktiv ist
         /// </summary>
         public static bool EditModeActive { get { return Mode == EngineMode.Edit; } }
-
+        /*
         internal static bool _octreeVisible = false;
         /// <summary>
         /// Gibt an, ob der Octree sichtbar ist
         /// </summary>
         internal static bool OctreeVisible { get { return _octreeVisible; } set { _octreeVisible = value; } }
 
-        internal static float _octreeSafetyZone = 1f;
         /// <summary>
         /// Zusätzliches Padding für den Octree (Standard: 1)
         /// </summary>
         internal static float OctreeSafetyZone { get { return _octreeSafetyZone; } set { _octreeSafetyZone = MathHelper.Max(0f, value); } }
+        */
 
+        internal static float _octreeSafetyZone = 1f;
         internal static float _swpruneTolerance = 1.0f;
         /// <summary>
         /// Zusätzliches Padding für die Kollisionsvorhersage (Standard: 1.0f)
