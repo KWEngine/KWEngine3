@@ -31,7 +31,6 @@ namespace KWEngine3
         internal Matrix4 _viewProjectionMatrixHUD;
         internal KWBuilderOverlay Overlay { get; set; }
         internal float _f12timestamp = 0;
- 
 
         internal int AnisotropicFiltering { get; set; } = 4;
 
@@ -415,7 +414,13 @@ namespace KWEngine3
         {
             if (KWEngine.CurrentWorld != null)
             {
-                int n = UpdateCurrentWorldAndObjects();
+                if(KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
+                {
+                    KWEngine.CurrentWorld._startingFrameActive = false;
+                }
+                int n = 0;
+                if(KWEngine.CurrentWorld._startingFrameActive == false)
+                    n = UpdateCurrentWorldAndObjects();
                 
                 KWEngine.LastSimulationUpdateCycleCount = n;
                 float alpha = KWEngine.DeltaTimeAccumulator / KWEngine.DeltaTimeCurrentNibbleSize;

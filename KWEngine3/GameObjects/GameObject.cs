@@ -297,10 +297,9 @@ namespace KWEngine3.GameObjects
         /// <returns>Rotation (als Quaternion)</returns>
         public Quaternion GetRotationToTarget(Vector3 target)
         {
-            target.Z += 0.000001f;
-            Matrix4 lookat = Matrix4.LookAt(target, Position, KWEngine.WorldUp);
-            lookat.Transpose();
-            Quaternion q = Quaternion.FromMatrix(new Matrix3(lookat));
+            Matrix3 lookat = new Matrix3(Matrix4.LookAt(target, Center, KWEngine.WorldUp));
+            lookat = Matrix3.Transpose(lookat);
+            Quaternion q = Quaternion.FromMatrix(lookat);
             q.Invert();
             return q;
         }
@@ -311,7 +310,7 @@ namespace KWEngine3.GameObjects
         /// <param name="target">Zielkoordinate</param>
         public void TurnTowardsXYZ(Vector3 target)
         {
-            _stateCurrent._rotation = GetRotationToTarget(target);
+            SetRotation(GetRotationToTarget(target));
         }
 
         /// <summary>
@@ -319,7 +318,7 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public void AdjustRotationToCameraRotation()
         {
-            _stateCurrent._rotation = HelperRotation.GetRotationTowardsCamera();
+            SetRotation(HelperRotation.GetRotationTowardsCamera());
         }
 
         /// <summary>
@@ -346,7 +345,7 @@ namespace KWEngine3.GameObjects
             if (lookat.Determinant != 0)
             {
                 lookat.Invert();
-                _stateCurrent._rotation = Quaternion.FromMatrix(new Matrix3(lookat));
+                SetRotation(Quaternion.FromMatrix(new Matrix3(lookat)));
             }
         }
 
@@ -375,7 +374,7 @@ namespace KWEngine3.GameObjects
             if (lookat.Determinant != 0)
             {
                 lookat.Invert();
-                _stateCurrent._rotation = Quaternion.FromMatrix(new Matrix3(lookat));
+                SetRotation(Quaternion.FromMatrix(new Matrix3(lookat)));
             }
         }
 
@@ -1077,7 +1076,7 @@ namespace KWEngine3.GameObjects
         /// <param name="surfaceNormal">Ebenenvektor</param>
         public void SetRotationToMatchSurfaceNormal(Vector3 surfaceNormal)
         {
-            _stateCurrent._rotation = HelperVector.GetRotationToMatchSurfaceNormal(LookAtVector, surfaceNormal);
+            SetRotation(HelperVector.GetRotationToMatchSurfaceNormal(LookAtVector, surfaceNormal));
         }
 
         /// <summary>
@@ -1409,22 +1408,6 @@ namespace KWEngine3.GameObjects
         }
 
         internal List<GameObject> _collisionCandidates = new List<GameObject>();
-
-        internal void TurnTowardsViewForFPObject(Vector3 target)
-        {
-            _stateCurrent._rotation = GetRotationToTarget(target);
-            _stateRender._rotation = _stateCurrent._rotation;
-            _stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(_stateRender);
-            _stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(_stateRender._modelMatrix));
-        }
-
-        internal bool IsQuad
-        {
-            get
-            {
-                return _gModel.ModelOriginal.Name == "kwquad.obj";
-            }
-        }
 
         internal void CollectPotentialCollidersFromParent<T>(List<GameObject> colliders, OctreeNode node)
         {

@@ -42,7 +42,7 @@ namespace KWEngine3
 
         internal Camera _cameraGame;
         internal Camera _cameraEditor;
-        internal Vector2 _mouseGrabDelta = Vector2.Zero;
+        internal bool _startingFrameActive = false;
 
         internal Vector2 _xMinMax = new Vector2(float.MaxValue, float.MinValue);
         internal Vector2 _yMinMax = new Vector2(float.MaxValue, float.MinValue);
@@ -659,18 +659,6 @@ namespace KWEngine3
         /// <param name="yawPitch">Bewegung in x-/y-Richtung</param>
         public void AddCameraRotation(Vector2 yawPitch)
         {
-            if(_mouseGrabDelta != Vector2.Zero)
-            {
-                if (Mouse.Delta != Vector2.Zero)
-                {
-                    return;
-                }
-                else
-                {
-                    _mouseGrabDelta = Vector2.Zero;
-                    return;
-                }
-            }
             _cameraGame.YawAndPitch(yawPitch * KWEngine.MouseSensitivity);
         }
 
@@ -832,7 +820,7 @@ namespace KWEngine3
         {
             Window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
             Window.MousePosition = Window.ClientSize / 2;
-            _mouseGrabDelta = Mouse.Delta;
+            _startingFrameActive = true;
         }
         /// <summary>
         /// Verstecke den Mauszeiger

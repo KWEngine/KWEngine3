@@ -88,25 +88,6 @@ namespace KWEngine3.Editor
         {
             ImGuiIOPtr ptr =  ImGui.GetIO();
             return ptr.WantCaptureMouse;
-            /*
-            if (IsCursorOutsideOfWindow(mousePosition))
-            {
-                return false;
-            }
-
-            bool result = SelectedGameObject != null || SelectedLightObject != null || SelectedTerrainObject != null;
-            bool result2 = IsCursorInsideRectangle(mousePosition,
-                    KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH,
-                    KWEngine.Window.ClientSize.X - 1,
-                    0,
-                    24 + 600);
-
-            bool result3 = _worldMenuActive;
-            bool result4 = IsCursorInsideRectangle(
-                mousePosition, 0, 512, KWEngine.Window.ClientSize.Y - 256, KWEngine.Window.ClientSize.Y);
-                
-            return (result && result2) || (result3 && result4);
-            */
         }
 
         private static bool IsCursorInsideRectangle(Vector2 mousePosition, int left, int right, int top, int bottom)

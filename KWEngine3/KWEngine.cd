@@ -107,12 +107,12 @@
       <Field Name="_lightObjects" Hidden="true" />
       <Field Name="_lightObjectsToBeAdded" Hidden="true" />
       <Field Name="_lightObjectsToBeRemoved" Hidden="true" />
-      <Field Name="_mouseGrabDelta" Hidden="true" />
       <Field Name="_particleAndExplosionObjects" Hidden="true" />
       <Field Name="_preparedCubeMapIndices" Hidden="true" />
       <Field Name="_preparedLightsArray" Hidden="true" />
       <Field Name="_preparedLightsCount" Hidden="true" />
       <Field Name="_preparedTex2DIndices" Hidden="true" />
+      <Field Name="_startingFrameActive" Hidden="true" />
       <Field Name="_terrainObjects" Hidden="true" />
       <Field Name="_terrainObjectsToBeAdded" Hidden="true" />
       <Field Name="_terrainObjectsToBeRemoved" Hidden="true" />
@@ -141,7 +141,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAlkOK6ABDQCZAEQwoGAhQgCTKJZCKIUUQHCH/AMAnA=</HashCode>
+      <HashCode>SAlkOK6ABDQCZAEQwoGAhQgCTKJZCKIUUQHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -190,15 +190,13 @@
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
       <Property Name="IsAttachedToGameObject" Hidden="true" />
-      <Property Name="IsQuad" Hidden="true" />
       <Property Name="LeftRightMost" Hidden="true" />
       <Method Name="ResetBoneAttachments" Hidden="true" />
       <Method Name="SetScaleRotationAndTranslation" Hidden="true" />
-      <Method Name="TurnTowardsViewForFPObject" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zikCOxgGmJyo8rTswBqMIwZVgSRzi1lJIIkAHkhYVNU=</HashCode>
+      <HashCode>zikCOxgGmJyo8rTswBqMIwZFgSRzi1kJIIkAHkhYVNU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

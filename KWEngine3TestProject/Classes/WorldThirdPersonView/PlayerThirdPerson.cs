@@ -11,7 +11,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
     public class PlayerThirdPerson : GameObject
     {
         private float _rotationScaleFactor = 1f;
-        private Vector2 _currentCameraRotation = new Vector2(0, 0);
+        private Vector2 _currentCameraRotation = new Vector2(0, -5);
         private float _limitYUp = 5;
         private float _limitYDown = -75;
         private PlayerState _state = PlayerState.Fall;
@@ -21,6 +21,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
         private bool _upKeyPressed = false;
         private readonly float _cooldown = 0.25f;
         private float _lastShot = -1;
+        private bool _debug = false;
 
         private AimingSphere _aimingSphere = null;
 
@@ -94,20 +95,30 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             {
                 DoShoot();
             }
-            /*
-            HUDObject h = CurrentWorld.GetHUDObjectByName("Crosshair");
-            bool result = HelperIntersection.IsMouseCursorOnAny<Immovable>(out Immovable o);
-            if(result)
+
+            if(_debug && _aimingSphere != null)
             {
-                if (h != null)
-                    h.SetGlow(1, 0, 0, 2);
+                bool result = HelperIntersection.IsMouseCursorOnAny<Immovable>(out Immovable o);
+                Vector3 target;
+                if (result)
+                {
+                    result = HelperIntersection.GetIntersectionPointOnObjectForRay(o, CurrentWorld.CameraPosition, HelperIntersection.GetMouseRay(), out target, out Vector3 faceNormal);
+                    if(result)
+                    {
+                        _aimingSphere.SetPosition(target);
+                        _aimingSphere.SetOpacity(1);
+                    }
+                    else
+                    {
+                        _aimingSphere.SetOpacity(0);
+                    }
+                }
+                else
+                {
+                    _aimingSphere.SetOpacity(0);
+                }
             }
-            else
-            {
-                if (h != null)
-                    h.SetGlow(1, 1, 1, 0);
-            }
-            */
+          
             DoStates();
             DoCollisionDetection();
             DoAnimation(running);
@@ -124,15 +135,13 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                     result = HelperIntersection.GetIntersectionPointOnObjectForRay(o, CurrentWorld.CameraPosition, HelperIntersection.GetMouseRay(), out target, out Vector3 faceNormal);
                     if(!result)
                     {
-                        target = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.Camera, 0);
+                        target = HelperIntersection.GetMouseIntersectionPointOnPlane(Center + LookAtVector * 10, Plane.Camera);
                     }
                 }
                 else
                 {
-                    target = HelperIntersection.GetMouseIntersectionPointOnPlane(Center + LookAtVector * 50, Plane.Camera);
+                    target = HelperIntersection.GetMouseIntersectionPointOnPlane(Center + LookAtVector * 10, Plane.Camera);
                 }
-
-                Vector3 directionToTarget = Vector3.NormalizeFast(target - Center);
 
                 Shot s = new Shot();
                 s.SetModel("KWSphere");
@@ -140,7 +149,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 s.SetColor(0, 0, 1);
                 s.SetColorEmissive(0, 0, 1, 1.25f);
                 s.IsCollisionObject = true;
-                s.SetPosition(Center + directionToTarget * 0.75f);
+                s.SetPosition(Center + LookAtVector * 0.75f);
                 s.TurnTowardsXYZ(target);
 
                 CurrentWorld.AddGameObject(s);
@@ -246,7 +255,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             // Berechne anhand der Mausbewegung, um wieviel Grad die Kamera
             // sich drehen müsste:
             _currentCameraRotation.X += msMovement.X * _rotationScaleFactor;
-            _currentCameraRotation.Y += msMovement.Y * _rotationScaleFactor;
+            _currentCameraRotation.Y -= msMovement.Y * _rotationScaleFactor;
             // Damit die Kamera nicht "über Kopf" geht, wird die Rotation nach
             // oben und unten begrenzt:
             if (_currentCameraRotation.Y < _limitYDown)
