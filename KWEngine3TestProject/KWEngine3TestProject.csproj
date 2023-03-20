@@ -82,7 +82,10 @@
     <None Update="Models\FightingShroom_normal.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Models\FirstPersonView\fpsArms.glb">
+    <None Update="Models\FirstPersonView\fps_arms.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\FirstPersonView\fps_arms.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Models\fps_arms.fbx">

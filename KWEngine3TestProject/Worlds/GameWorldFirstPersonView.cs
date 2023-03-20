@@ -18,7 +18,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             SetCameraFOV(90);
-            KWEngine.LoadModel("fpsArms", @".\Models\FirstPersonView\fpsArms.glb");
+            KWEngine.LoadModel("fpsArms", @".\Models\FirstPersonView\fps_arms.fbx");
 
             List<string> bones = KWEngine.GetModelBoneNames("fpsArms");
             foreach(string bone in bones)
