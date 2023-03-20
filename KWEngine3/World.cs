@@ -370,6 +370,22 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Gibt das aktuell verwendete ViewSpaceGameObject zurück
+        /// </summary>
+        /// <returns>ViewSpaceGameObject-Instanz</returns>
+        public ViewSpaceGameObject GetViewSpaceGameObject()
+        {
+            if (_viewSpaceGameObject == null || !_viewSpaceGameObject.IsValid)
+            {
+                return null;
+            }
+            else
+            {
+                return _viewSpaceGameObject;
+            }
+        }
+
+        /// <summary>
         /// Erfragt die Position des aktuell angehefteten ViewSpaceGameObject
         /// </summary>
         /// <returns>Position (aber falls kein Objekt angeheftet ist: (0|0|0))</returns>

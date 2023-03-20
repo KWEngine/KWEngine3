@@ -12,6 +12,8 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
         public override void Act()
         {
             UpdatePosition();
+            SetAnimationID(0);
+            SetAnimationPercentageAdvance(0.001f);
         }
     }
 }

@@ -1128,7 +1128,6 @@ namespace KWEngine3.GameObjects
                         GameObject attachment = _gameObjectsAttached[node];
 
                         attachment._attachedTo = null;
-                        attachment._attachmentMatrixUpdatedByBone = false;
                         _gameObjectsAttached.Remove(node);
 
                         Vector3 position = attachment._stateCurrent._modelMatrix.ExtractTranslation();
@@ -1217,7 +1216,6 @@ namespace KWEngine3.GameObjects
         internal GameObjectModel _gModel;
         internal List<GeoNode> _attachBoneNodes = new List<GeoNode>();
         internal List<Matrix4> _attachBoneNodesOffsets = new List<Matrix4>();
-        internal bool _attachmentMatrixUpdatedByBone = false;
         internal GameObject _attachedTo = null;
         internal Matrix4 _attachmentMatrix = Matrix4.Identity;
         internal Dictionary<GeoNode, GameObject> _gameObjectsAttached = new Dictionary<GeoNode, GameObject>();

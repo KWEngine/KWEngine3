@@ -20,6 +20,12 @@ namespace KWEngine3TestProject.Worlds
             SetCameraFOV(90);
             KWEngine.LoadModel("fpsArms", @".\Models\FirstPersonView\fpsArms.glb");
 
+            List<string> bones = KWEngine.GetModelBoneNames("fpsArms");
+            foreach(string bone in bones)
+            {
+                KWEngine.LogWriteLine(bone); // hand.R
+            }
+
             Immovable f01 = new Immovable();
             f01.SetModel("KWCube");
             f01.SetTexture(@"./textures/tiles_albedo.jpg", TextureType.Albedo);       // regular texture file
@@ -38,6 +44,14 @@ namespace KWEngine3TestProject.Worlds
             p01.SetScale(1.0f, 2.0f, 1.0f);
             p01.IsCollisionObject = true;
             AddGameObject(p01);
+
+            Attachment att01 = new Attachment();
+            att01.Name = "Attachment";
+            att01.SetColor(0, 0, 1);
+            att01.SetScale(0.25f);
+            att01.SetPosition(0, 0.125f, 0);
+            att01.SetColorEmissive(0, 0, 1, 1);
+            AddGameObject(att01);
 
             MouseCursorGrab();
             SetCameraToFirstPersonGameObject(p01, 0.5f);

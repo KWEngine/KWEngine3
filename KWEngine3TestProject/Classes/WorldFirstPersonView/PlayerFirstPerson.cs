@@ -10,8 +10,31 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
 {
     public class PlayerFirstPerson : GameObject
     {
+        private float _lastKeyPress = float.MinValue;
+
         public override void Act()
         {
+            ViewSpaceGameObject vsg = CurrentWorld.GetViewSpaceGameObject();
+            if (vsg != null && (Keyboard.IsKeyDown(Keys.D1) || Keyboard.IsKeyDown(Keys.D2)))
+            {
+                if (WorldTime - _lastKeyPress > 0.125f)
+                {
+                    Attachment att = CurrentWorld.GetGameObjectByName<Attachment>("Attachment");
+                    if (att != null)
+                    {
+                        if (Keyboard.IsKeyDown(Keys.D1))
+                        {
+                            vsg.AttachGameObjectToBone(att, "hand.R");
+                        }
+                        else
+                        {
+                            vsg.DetachGameObjectFromBone("hand.R");
+                        }
+                    }
+                    _lastKeyPress = WorldTime;
+                }
+            }
+
             CurrentWorld.AddCameraRotation(MouseMovement);
 
             int move = 0;
