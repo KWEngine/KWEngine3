@@ -18,6 +18,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             SetCameraFOV(90);
+            KWEngine.LoadModel("fpsArms", @".\Models\FirstPersonView\fpsArms.glb");
 
             Immovable f01 = new Immovable();
             f01.SetModel("KWCube");
@@ -41,9 +42,8 @@ namespace KWEngine3TestProject.Worlds
             MouseCursorGrab();
             SetCameraToFirstPersonGameObject(p01, 0.5f);
             ViewSpaceWeapon vsw = new ViewSpaceWeapon();
-            vsw.SetModel("KWSphere");
-            vsw.SetTextureForPrimitiveModel(@".\Textures\iron_panel_albedo.dds");
-            vsw.SetOffset(0f, -0.25f, 1f);
+            vsw.SetModel("fpsArms");
+            vsw.SetOffset(0f, -0.25f, 0.75f);
             vsw.SetScale(0.25f);
             SetViewSpaceGameObject(vsw);
         }

@@ -148,150 +148,153 @@ namespace KWEngine3
 
             KWEngine.LastFrameTime = (float)e.Time * 1000;
 
-            // Render to G-Buffer:
-            RenderManager.FramebufferDeferred.Bind();
-            RendererGBuffer.Bind();
-            gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene());
-
-            // Render terrain objects to G-Buffer:
-            if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
+            if (!KWEngine.CurrentWorld._startingFrameActive)
             {
-                RendererTerrainGBuffer.Bind();
-                RendererTerrainGBuffer.RenderScene();
-            }
 
-            if(KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
-            {
-                RendererExplosion.Bind();
-                RendererExplosion.SetGlobals();
-                RendererExplosion.RenderExplosions(KWEngine.CurrentWorld._particleAndExplosionObjects);
-            }
- 
-            if (KWEngine.Mode == EngineMode.Edit)
-            {
-                GL.Disable(EnableCap.DepthTest);
+                // Render to G-Buffer:
+                RenderManager.FramebufferDeferred.Bind();
+                RendererGBuffer.Bind();
+                gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene());
 
-                RendererLightOverlay.Bind();
-                RendererLightOverlay.SetGlobals();
-                RendererLightOverlay.Draw(KWEngine.CurrentWorld._lightObjects);
-                GL.Enable(EnableCap.DepthTest);
-            }
- 
-
-            // Shadow map pass:
-            KWEngine.CurrentWorld.PrepareLightObjectsForRenderPass();
-            if (Framebuffer._fbShadowMapCounter > 0)
-            {
-                RendererShadowMap.Bind();
-                foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
+                // Render terrain objects to G-Buffer:
+                if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
                 {
-                    if (l.ShadowCasterType != ShadowQuality.NoShadow)
+                    RendererTerrainGBuffer.Bind();
+                    RendererTerrainGBuffer.RenderScene();
+                }
+
+                if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
+                {
+                    RendererExplosion.Bind();
+                    RendererExplosion.SetGlobals();
+                    RendererExplosion.RenderExplosions(KWEngine.CurrentWorld._particleAndExplosionObjects);
+                }
+
+                if (KWEngine.Mode == EngineMode.Edit)
+                {
+                    GL.Disable(EnableCap.DepthTest);
+
+                    RendererLightOverlay.Bind();
+                    RendererLightOverlay.SetGlobals();
+                    RendererLightOverlay.Draw(KWEngine.CurrentWorld._lightObjects);
+                    GL.Enable(EnableCap.DepthTest);
+                }
+
+
+                // Shadow map pass:
+                KWEngine.CurrentWorld.PrepareLightObjectsForRenderPass();
+                if (Framebuffer._fbShadowMapCounter > 0)
+                {
+                    RendererShadowMap.Bind();
+                    foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
-                        if (l.Type == LightType.Point)
+                        if (l.ShadowCasterType != ShadowQuality.NoShadow)
                         {
-                            pointLights.Add(l);
-                            continue;
+                            if (l.Type == LightType.Point)
+                            {
+                                pointLights.Add(l);
+                                continue;
+                            }
+                            l._fbShadowMap.Bind();
+                            RendererShadowMap.RenderSceneForLight(l);
                         }
-                        l._fbShadowMap.Bind();
-                        RendererShadowMap.RenderSceneForLight(l);
                     }
-                }
-                if (pointLights.Count > 0)
-                {
-                    RendererShadowMapCube.Bind();
-                    foreach (LightObject l in pointLights)
+                    if (pointLights.Count > 0)
                     {
-                        l._fbShadowMap.Bind();
-                        RendererShadowMapCube.RenderSceneForLight(l);
+                        RendererShadowMapCube.Bind();
+                        foreach (LightObject l in pointLights)
+                        {
+                            l._fbShadowMap.Bind();
+                            RendererShadowMapCube.RenderSceneForLight(l);
+                        }
+                    }
+
+                    // Shadow map blur pass:
+                    RendererShadowMapBlur.Bind();
+                    foreach (LightObject shadowLight in KWEngine.CurrentWorld._currentShadowLights)
+                    {
+                        RendererShadowMapBlur.Draw(shadowLight);
                     }
                 }
 
-                // Shadow map blur pass:
-                RendererShadowMapBlur.Bind();
-                foreach (LightObject shadowLight in KWEngine.CurrentWorld._currentShadowLights)
+                // clear inbetween:
+                GL.UseProgram(0);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+                GL.BindTexture(TextureTarget.TextureCubeMap, 0);
+
+                // Lighting pass:
+                GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+                RenderManager.FramebufferLightingPass.BindAndClearColor();
+                RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
+                RenderManager.FramebufferLightingPass.Bind(false);
+                RendererLightingPass.Bind();
+                RendererLightingPass.SetGlobals();
+
+                RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
+
+                if (KWEngine.CurrentWorld._background.Type != BackgroundType.None)
                 {
-                    RendererShadowMapBlur.Draw(shadowLight);
+                    if (KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
+                    {
+                        RendererBackgroundSkybox.Bind();
+                        RendererBackgroundSkybox.SetGlobals();
+                        RendererBackgroundSkybox.Draw();
+                    }
+                    else
+                    {
+                        RendererBackgroundStandard.Bind();
+                        RendererBackgroundStandard.SetGlobals();
+                        RendererBackgroundStandard.Draw();
+                    }
                 }
-            }
 
-            // clear inbetween:
-            GL.UseProgram(0);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-            GL.BindTexture(TextureTarget.TextureCubeMap, 0);
-
-            // Lighting pass:
-            GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
-            RenderManager.FramebufferLightingPass.BindAndClearColor();
-            RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
-            RenderManager.FramebufferLightingPass.Bind(false);
-            RendererLightingPass.Bind();
-            RendererLightingPass.SetGlobals();
-
-            RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
-
-            if(KWEngine.CurrentWorld._background.Type != BackgroundType.None)
-            {
-                if(KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
+                // Forward rendering pass:
+                if (gameObjectsForForwardRendering.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
-                    RendererBackgroundSkybox.Bind();
-                    RendererBackgroundSkybox.SetGlobals();
-                    RendererBackgroundSkybox.Draw();
+                    RendererForward.Bind();
+                    RendererForward.SetGlobals();
+                    if (gameObjectsForForwardRendering.Count > 0)
+                        RendererForward.RenderScene(gameObjectsForForwardRendering);
+                    if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+                    {
+                        RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
+                    }
                 }
-                else
+
+                if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
                 {
-                    RendererBackgroundStandard.Bind();
-                    RendererBackgroundStandard.SetGlobals();
-                    RendererBackgroundStandard.Draw();
+                    RendererParticle.Bind();
+                    RendererParticle.RenderParticles(KWEngine.CurrentWorld._particleAndExplosionObjects);
                 }
-            }
 
-            // Forward rendering pass:
-            if (gameObjectsForForwardRendering.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
-            {
-                RendererForward.Bind();
-                RendererForward.SetGlobals();
-                if(gameObjectsForForwardRendering.Count > 0)
-                    RendererForward.RenderScene(gameObjectsForForwardRendering);
-                if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+                // HUD objects pass:
+                RendererHUD.Bind();
+                RendererHUD.SetGlobals();
+                RendererHUD.RenderHUDObjects();
+
+                // Bloom pass:
+                RenderManager.DoBloomPass();
+
+                // Final screen pass
+                RenderManager.BindScreen();
+                RendererCopy.Bind();
+                RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0]);
+
+                //if (KWEngine.Mode == EngineMode.Edit && HelperOctree._rootNode != null)
+                /*
+                if (HelperOctree._rootNode != null)
                 {
-                    RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
+                    GL.Disable(EnableCap.DepthTest);
+                    RendererOctreeNodes.Bind();
+                    Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
+                    RendererOctreeNodes.Draw(HelperOctree._rootNode, ref vp);
+                    GL.Enable(EnableCap.DepthTest);
                 }
+                */
+
+                // unbind last render program:
+                GL.UseProgram(0);
             }
-
-            if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
-            {
-                RendererParticle.Bind();
-                RendererParticle.RenderParticles(KWEngine.CurrentWorld._particleAndExplosionObjects);
-            }
-
-            // HUD objects pass:
-            RendererHUD.Bind();
-            RendererHUD.SetGlobals();
-            RendererHUD.RenderHUDObjects();
-
-            // Bloom pass:
-            RenderManager.DoBloomPass();
-
-            // Final screen pass
-            RenderManager.BindScreen();
-            RendererCopy.Bind();
-            RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0]);
-
-            //if (KWEngine.Mode == EngineMode.Edit && HelperOctree._rootNode != null)
-            /*
-            if (HelperOctree._rootNode != null)
-            {
-                GL.Disable(EnableCap.DepthTest);
-                RendererOctreeNodes.Bind();
-                Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-                RendererOctreeNodes.Draw(HelperOctree._rootNode, ref vp);
-                GL.Enable(EnableCap.DepthTest);
-            }
-            */
-
-            // unbind last render program:
-            GL.UseProgram(0);
- 
             KWBuilderOverlay.AddFrameTime(KWEngine.LastFrameTime);
             RenderOverlay((float)e.Time);
  
@@ -429,6 +432,11 @@ namespace KWEngine3
                     HelperSimulation.BlendGameObjectStates(g, alpha);
                     g._collisionCandidates.Clear();
                 }
+                if(KWEngine.CurrentWorld._viewSpaceGameObject != null)
+                {
+                    KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.Clear();
+                }
+
                 foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)
                 {
                     HelperSimulation.BlendLightObjectStates(l, alpha);

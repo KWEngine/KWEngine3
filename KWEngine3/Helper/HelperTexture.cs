@@ -531,20 +531,34 @@ namespace KWEngine3.Helper
                     }
                     texID = GL.GenTexture();
                     GL.BindTexture(TextureTarget.Texture2D, texID);
-                    byte[] data;
+                    
+                    byte[] data = image.Bytes;
                     if (image.ColorType == SKColorType.Rgba8888)
                     {
-                        data = image.Bytes;
                         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
                          PixelFormat.Rgba, PixelType.UnsignedByte, data);
                     }
-                    else
+                    else if (image.ColorType == SKColorType.Gray8)
                     {
-                        data = image.Bytes;
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, image.Width, image.Height, 0,
+                         PixelFormat.Red, PixelType.UnsignedByte, data);
+                    }
+                    else if (image.ColorType == SKColorType.Rgb888x)
+                    {
                         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 0,
                          PixelFormat.Rgb, PixelType.UnsignedByte, data);
                     }
-
+                    else if (image.ColorType == SKColorType.Bgra8888)
+                    {
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
+                         PixelFormat.Bgra, PixelType.UnsignedByte, data);
+                    }
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Texture] GLB Texture source invalid");
+                        return -1;
+                    }
+                    
                     GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFiltering);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);

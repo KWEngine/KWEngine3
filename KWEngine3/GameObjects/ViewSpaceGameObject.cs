@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Helper;
+using KWEngine3.Model;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -234,6 +235,72 @@ namespace KWEngine3.GameObjects
         {
             if (IsValid)
                 _gameObject.SetAnimationPercentageAdvance(p);
+        }
+
+        /// <summary>
+        /// Bindet eine andere GameObject-Instanz an den jeweiligen Knochen des aktuell verwendeten Modells
+        /// </summary>
+        /// <param name="g">Anzuhängende Instanz</param>
+        /// <param name="boneName">Name des Knochens, an den die Instanz angehängt werden soll</param>
+        public void AttachGameObjectToBone(GameObject g, string boneName)
+        {
+            if (IsValid)
+                _gameObject.AttachGameObjectToBone(g, boneName);
+        }
+
+        /// <summary>
+        /// Entfernt die Bindung (Attachment) einer GameObject-Instanz 
+        /// </summary>
+        /// <param name="boneName">Name des Knochens</param>
+        public void DetachGameObjectFromBone(string boneName)
+        {
+            if (IsValid)
+                _gameObject.DetachGameObjectFromBone(boneName);
+        }
+
+        /// <summary>
+        /// Liefert true, wenn mind. eine GameObject-Instanz an einen Knochen des aufrufenden Objekts gebunden ist
+        /// </summary>
+        public bool HasAttachedGameObjects { get { return IsValid ? _gameObject._gameObjectsAttached.Count > 0 : false; } }
+
+        /// <summary>
+        /// Liefert eine Liste der Knochennamen, an die aktuell eine andere GameObject-Instanz gebunden ist
+        /// </summary>
+        /// <returns>Liste der verwendeten Knochennamen (für Attachments)</returns>
+        public List<string> GetBoneNamesForAttachedGameObject()
+        {
+            List<string> values = new List<string>();
+            if(IsValid)
+            {
+                values.AddRange(_gameObject.GetBoneNamesForAttachedGameObject());
+            }
+            return values;
+        }
+
+        /// <summary>
+        /// Liefert die Referenz auf das Objekt, an das die aktuelle Instanz gebunden ist (kann null sein!)
+        /// </summary>
+        /// <returns>GameObject, an das die Instanz (via Knochen) gebunden ist</returns>
+        public GameObject GetGameObjectThatIAmAttachedTo()
+        {
+            if (IsValid)
+                return _gameObject._attachedTo;
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Liefert die an einen Knochen gebundene GameObject-Instanz
+        /// </summary>
+        /// <param name="boneName">Knochenname</param>
+        /// <returns>Gebundene GameObject-Instanz</returns>
+        public GameObject GetAttachedGameObjectForBone(string boneName)
+        {
+            if(IsValid)
+            {
+                return _gameObject.GetAttachedGameObjectForBone(boneName);
+            }
+            return null;
         }
     }
 }
