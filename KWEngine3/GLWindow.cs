@@ -445,10 +445,12 @@ namespace KWEngine3
                 {
                     HelperSimulation.BlendTerrainObjectStates(t, alpha);
                 }
-                if(KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+                /*
+                if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
                     HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha);
                 }
+                */
                 HelperSimulation.BlendCameraStates(ref KWEngine.CurrentWorld._cameraGame, ref KWEngine.CurrentWorld._cameraEditor, alpha);
 
                 if (KWEngine.Mode == EngineMode.Edit)
@@ -555,7 +557,8 @@ namespace KWEngine3
                 {
                     KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._statePrevious = KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._stateCurrent;
                     KWEngine.CurrentWorld._viewSpaceGameObject.Act();
-                    foreach(GameObject attachment in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._gameObjectsAttached.Values)
+                    HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, 0f);
+                    foreach (GameObject attachment in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._gameObjectsAttached.Values)
                     {
                         attachment.Act();
                     }
