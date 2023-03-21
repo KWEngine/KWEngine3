@@ -32,6 +32,7 @@ namespace KWEngine3.Helper
         public List<SerializedLightObject> LightObjects { get; set; }
         public List<SerializedTerrainObject> TerrainObjects { get; set; }
         public List<SerializedHUDObject> HUDObjects { get; set; }
+        public SerializedViewSpaceGameObject ViewSpaceGameObject { get; set; }
 
         public static SerializedWorld GenerateWorldExportFor(World w)
         {
@@ -61,8 +62,23 @@ namespace KWEngine3.Helper
             wj.TerrainObjects = GenerateTerrainObjects(w);
             wj.LightObjects = GenerateLightObjects(w);
             wj.HUDObjects = GenerateHUDObjects(w);
+            if(w.IsViewSpaceGameObjectAttached)
+                wj.ViewSpaceGameObject = GenerateViewSpaceGameObject(w);
 
             return wj;
+        }
+
+        public static SerializedViewSpaceGameObject GenerateViewSpaceGameObject(World w)
+        {
+            SerializedViewSpaceGameObject svsg = new SerializedViewSpaceGameObject();
+            svsg.ID = w._viewSpaceGameObject._gameObject.ID.ToString();
+            svsg.Type = w._viewSpaceGameObject.GetType().FullName;
+            svsg.ModelName = w._viewSpaceGameObject._gameObject._modelNameInDB;
+            svsg.ModelPath = w._viewSpaceGameObject._gameObject._gModel.ModelOriginal.Filename;
+            svsg.Position = new float[]{w._viewSpaceGameObject._offset.X, -w._viewSpaceGameObject._offset.Y, w._viewSpaceGameObject._offset.Z};
+            svsg.Rotation = new float[] { w._viewSpaceGameObject._rotation.X, w._viewSpaceGameObject._rotation.Y, w._viewSpaceGameObject._rotation.Z, w._viewSpaceGameObject._rotation.W };
+            svsg.Scale = new float[] { w._viewSpaceGameObject._gameObject.Scale.X, w._viewSpaceGameObject._gameObject.Scale.Y, w._viewSpaceGameObject._gameObject.Scale.Z };
+            return svsg;
         }
 
         public static List<SerializedHUDObject> GenerateHUDObjects(World w)
@@ -79,7 +95,7 @@ namespace KWEngine3.Helper
             List<SerializedGameObject> gameObjects = new List<SerializedGameObject>();
             foreach (GameObject g in w._gameObjects)
             {
-                gameObjects.Add(SerializedGameObject.GenerateSerializedGameObject(g));
+                gameObjects.Add(SerializedGameObject.GenerateSerializedGameObject(g, w));
             }
             return gameObjects;
         }

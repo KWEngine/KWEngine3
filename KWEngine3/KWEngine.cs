@@ -448,7 +448,7 @@ namespace KWEngine3
         /// <param name="callerName">(wird für interne Zwecke benötigt)</param>
         public static void LoadModel(string name, string filename, [CallerMemberName] string callerName = "")
         {
-            if (callerName != "Prepare" && callerName != "BuildWorld")
+            if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
             {
                 KWEngine.LogWriteLine("[Import] Models must be imported in Prepare()");
                 return; 

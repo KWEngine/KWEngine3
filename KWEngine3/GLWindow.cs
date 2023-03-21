@@ -529,9 +529,13 @@ namespace KWEngine3
                             postponedObjects.Add(g);
                             continue;
                         }
-                        else if (g.IsAttachedToGameObject)
+                        else if (g.IsAttachedToGameObject && g.GetGameObjectThatIAmAttachedTo() != KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
                         {
                             postponedObjectsAttachments.Add(g);
+                            continue;
+                        }
+                        else if(g.GetGameObjectThatIAmAttachedTo() == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
+                        {
                             continue;
                         }
                         g.Act();
@@ -547,17 +551,22 @@ namespace KWEngine3
                     KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                 }
 
-                foreach (GameObject g in postponedObjectsAttachments)
-                {
-                    g.Act();
-                    KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
-                    KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
-                }
-
                 if (!KWEngine.EditModeActive && KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
                     KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._statePrevious = KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._stateCurrent;
                     KWEngine.CurrentWorld._viewSpaceGameObject.Act();
+                    foreach(GameObject attachment in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._gameObjectsAttached.Values)
+                    {
+                        attachment.Act();
+                    }
+                }
+
+                foreach (GameObject g in postponedObjectsAttachments)
+                {
+                    if (!KWEngine.EditModeActive)
+                        g.Act();
+                    KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
+                    KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                 }
 
                 for (int i = KWEngine.CurrentWorld._particleAndExplosionObjects.Count - 1; i >= 0; i--)

@@ -1232,6 +1232,19 @@ namespace KWEngine3.GameObjects
             SetScale(s.X, s.Y, s.Z);
         }
 
+        internal string GetBoneNameForAttachedGameObject(GameObject g)
+        {
+            foreach(GeoNode node in _gameObjectsAttached.Keys)
+            {
+                GameObject attachedObject = _gameObjectsAttached[node];
+                if(attachedObject == g)
+                {
+                    return node.Name;
+                }
+            }
+            return null;
+        }
+
         internal void AddRotationXFromEditor(float r, bool worldSpace = false)
         {
             Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitX, HelperRotation.CalculateRadiansFromDegrees(r));
@@ -1460,6 +1473,7 @@ namespace KWEngine3.GameObjects
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
 
         internal string _modelNameInDB = "KWCube";
+        internal int _importedID = -1;
         #endregion
     }
 }

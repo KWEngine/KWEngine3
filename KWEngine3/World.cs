@@ -60,6 +60,12 @@ namespace KWEngine3
             return myTempList;
         }
 
+        internal GameObject GetGameObjectByID(int id)
+        {
+            GameObject go = _gameObjects.Find(g => g.ID == id);
+            return go;
+        }
+
         internal void ResetWorldDimensions()
         {
             _xMinMax = new Vector2(float.MaxValue, float.MinValue);

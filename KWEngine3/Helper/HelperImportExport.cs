@@ -92,17 +92,69 @@ namespace KWEngine3.Helper
             }
 
             // Build and add game object instances:
+            List<string[]> attachmentList = new List<string[]>();
             foreach(SerializedGameObject sg in sw.GameObjects)
             {
                 if(!IsBuiltInModel(sg.ModelName))
                 {
                     KWEngine.LoadModel(sg.ModelName, sg.ModelPath);
                 }
-                w.AddGameObject(BuildGameObject(sg));
+                w.AddGameObject(BuildGameObject(sg, sw, attachmentList));
+            }
+            KWEngine.CurrentWorld.AddRemoveGameObjects();
+
+            if (sw.ViewSpaceGameObject != null)
+                BuildAndAddViewSpaceGameObject(sw.ViewSpaceGameObject, w);
+
+            // Rebuild attachments:
+            foreach (string[] attachment in attachmentList)
+            {
+                // 0: attachedObjectID, 1: parentBoneName, 2: parentID
+                int attachedObjectID = Convert.ToInt32(attachment[0]);
+                string parentBoneName = attachment[1];
+                int parentID = Convert.ToInt32(attachment[2]);
+
+                GameObject attachmentObject = w._gameObjects.Find(g => g._importedID == attachedObjectID);
+                if(attachmentObject != null)
+                {
+                    GameObject parentObject = w._gameObjects.Find(g => g._importedID == parentID);
+                    if(parentObject != null)
+                    {
+                        parentObject.AttachGameObjectToBone(attachmentObject, parentBoneName);
+
+                        SerializedGameObject sg = sw.GameObjects.Find(g => g.ID == attachedObjectID);
+                        if(sg != null)
+                        {
+                            HelperGameObjectAttachment.SetPositionOffsetForAttachment(attachmentObject, new Vector3(sg.PositionOffset[0], sg.PositionOffset[1], sg.PositionOffset[2]));
+                            Quaternion q = new Quaternion(sg.RotationOffset[0], sg.RotationOffset[1], sg.RotationOffset[2], sg.RotationOffset[3]);
+                            Vector3 qEuler = q.ToEulerAngles();
+                            HelperGameObjectAttachment.SetRotationForAttachment(attachmentObject, qEuler.X, qEuler.Y, qEuler.Z);
+                            HelperGameObjectAttachment.SetScaleForAttachment(attachmentObject, new Vector3(sg.ScaleOffset[0], sg.ScaleOffset[1], sg.ScaleOffset[2]));
+                        }
+                        else
+                        {
+                            HelperGameObjectAttachment.SetPositionOffsetForAttachment(attachmentObject, Vector3.Zero);
+                            HelperGameObjectAttachment.SetRotationForAttachment(attachmentObject, 0, 0, 0);
+                            HelperGameObjectAttachment.SetScaleForAttachment(attachmentObject, Vector3.One);
+                        }
+                    }
+                    else
+                    {
+                        if (sw.ViewSpaceGameObject != null)
+                        {
+                            // attached to the view space game object:
+                            w._viewSpaceGameObject.AttachGameObjectToBone(attachmentObject, parentBoneName);
+                            HelperGameObjectAttachment.SetPositionOffsetForAttachment(attachmentObject, attachmentObject._positionOffsetForAttachment);
+                            Vector3 qEuler = attachmentObject.Rotation.ToEulerAngles();
+                            HelperGameObjectAttachment.SetRotationForAttachment(attachmentObject, qEuler.X, qEuler.Y, qEuler.Z);
+                            HelperGameObjectAttachment.SetScaleForAttachment(attachmentObject, attachmentObject._scaleOffsetForAttachment);
+                        }
+                    }
+                }
             }
 
             // Build and add light object instances:
-            foreach(SerializedLightObject sl in sw.LightObjects)
+            foreach (SerializedLightObject sl in sw.LightObjects)
             {
                 w.AddLightObject(BuildLightObject(sl));
             }
@@ -130,10 +182,27 @@ namespace KWEngine3.Helper
                 w.AddHUDObject(BuildHUDObject(sh));
             }
 
-            KWEngine.CurrentWorld.AddRemoveGameObjects();
+            
             KWEngine.CurrentWorld.AddRemoveTerrainObjects();
             KWEngine.CurrentWorld.AddRemoveLightObjects();
             KWEngine.CurrentWorld.AddRemoveHUDObjects();
+        }
+
+        private static void BuildAndAddViewSpaceGameObject(SerializedViewSpaceGameObject svsgs, World w)
+        {
+            ViewSpaceGameObject vsg = (ViewSpaceGameObject)Assembly.GetEntryAssembly().CreateInstance(svsgs.Type);
+            if (!IsBuiltInModel(svsgs.ModelName))
+            {
+                KWEngine.LoadModel(svsgs.ModelName, svsgs.ModelPath);
+            }
+            vsg.SetModel(svsgs.ModelName);
+
+            w.SetViewSpaceGameObject(vsg);
+            vsg.SetOffset(svsgs.Position[0], svsgs.Position[1], svsgs.Position[2]);
+            Quaternion q = new Quaternion(svsgs.Rotation[0], svsgs.Rotation[1], svsgs.Rotation[2], svsgs.Rotation[3]);
+            Vector3 qEuler = q.ToEulerAngles();
+            vsg.SetRotation(qEuler.X, qEuler.Y, qEuler.Z);
+            vsg.SetScale(svsgs.Scale[0]);
         }
 
         private static HUDObject BuildHUDObject(SerializedHUDObject sh)
@@ -204,7 +273,7 @@ namespace KWEngine3.Helper
             return l;
         }
 
-        private static GameObject BuildGameObject(SerializedGameObject sg)
+        private static GameObject BuildGameObject(SerializedGameObject sg, SerializedWorld sw, List<string[]> attachmentList)
         {
             GameObject g = (GameObject)Assembly.GetEntryAssembly().CreateInstance(sg.Type);
             g.SetModel(sg.ModelName);
@@ -212,6 +281,7 @@ namespace KWEngine3.Helper
             g.IsCollisionObject = sg.IsCollisionObject;
             g.UpdateLast = sg.UpdateLast;
             g.Name = sg.Name;
+            g._importedID = sg.ID;
 
             g.SetPosition(sg.Position[0], sg.Position[1], sg.Position[2]);
             g.SetScale(sg.Scale[0], sg.Scale[1], sg.Scale[2]);
@@ -242,7 +312,21 @@ namespace KWEngine3.Helper
             if (IsBuiltInModel(sg.ModelName) && IsTextureSet(sg.TextureEmissive))
                 g.SetTexture(sg.TextureEmissive, TextureType.Emissive);
 
-
+            if(sg.AttachedToID > 0 && sg.AttachedToParentBone.Length > 0)
+            {
+                // find parent in sw:
+                SerializedGameObject parent = sw.GameObjects.Find(swgo => swgo.ID == sg.AttachedToID);
+                if(parent != null)
+                {
+                    // 0: attachedObjectID, 1: parentBoneName, 2: parentID
+                    attachmentList.Add(new string[] {sg.ID.ToString(), sg.AttachedToParentBone, sg.AttachedToID.ToString()}); 
+                }
+            }
+            else if(sg.AttachedToID == -1 && sg.AttachedToParentBone.Length > 0)
+            {
+                // must be attached to viewspacegameobject:
+                attachmentList.Add(new string[] { sg.ID.ToString(), sg.AttachedToParentBone, sg.AttachedToID.ToString() });
+            }
 
             return g;
         }

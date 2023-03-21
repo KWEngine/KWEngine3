@@ -718,6 +718,9 @@
     <None Update="Models\WorldLightAndShadow\KlotzMann.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Worlds\2023-03-20_world-export.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
