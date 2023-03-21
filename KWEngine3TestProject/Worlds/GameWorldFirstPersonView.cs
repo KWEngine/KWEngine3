@@ -43,6 +43,7 @@ namespace KWEngine3TestProject.Worlds
             p01.SetPosition(-2.5f, 1.0f, -1.25f);
             p01.SetScale(1.0f, 2.0f, 1.0f);
             p01.IsCollisionObject = true;
+            p01.UpdateLast = true;
             AddGameObject(p01);
 
             Attachment att01 = new Attachment();
