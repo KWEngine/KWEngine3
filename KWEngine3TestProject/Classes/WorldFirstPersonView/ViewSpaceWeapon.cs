@@ -13,7 +13,7 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
         {
             UpdatePosition();
             SetAnimationID(0);
-            SetAnimationPercentage(0.9f);
+            SetAnimationPercentageAdvance(0.01f);
         }
     }
 }

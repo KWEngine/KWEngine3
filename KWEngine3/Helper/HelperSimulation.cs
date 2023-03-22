@@ -129,14 +129,29 @@ namespace KWEngine3.Helper
             camEditor._stateRender.UpdateViewProjectionMatrix(camEditor._zNear, camEditor._zFar);
         }
 
-        private static void UpdateBoneTransforms(GameObject g)
+        internal static void UpdateBoneTransformsForViewSpaceGameObject(ViewSpaceGameObject vsg)
+        {
+            if (vsg._gameObject.IsAnimated)
+            {
+                GeoAnimation a = vsg._gameObject._gModel.ModelOriginal.Animations[vsg._gameObject._stateCurrent._animationID];
+                Matrix4 identity = Matrix4.Identity;
+                vsg._gameObject._attachBoneNodes.Clear();
+                for (int i = 0; i < vsg._gameObject._gameObjectsAttached.Keys.Count; i++)
+                {
+                    GeoNode boneNode = vsg._gameObject._gameObjectsAttached.Keys.ElementAt(i);
+                    vsg._gameObject._attachBoneNodes.Add(boneNode);
+                }
+                ReadNodeHierarchy(vsg._gameObject, a.DurationInTicks * vsg._gameObject._stateCurrent._animationPercentage, ref a, vsg._gameObject._gModel.ModelOriginal.Root, ref identity, vsg._gameObject._attachBoneNodes, true);
+            }
+        }
+
+        internal static void UpdateBoneTransforms(GameObject g)
         {
             if (g.IsAnimated)
             {
                 GeoAnimation a = g._gModel.ModelOriginal.Animations[g._stateRender._animationID];
                 Matrix4 identity = Matrix4.Identity;
                 g._attachBoneNodes.Clear();
-                g._attachBoneNodesOffsets.Clear();
                 for (int i = 0; i < g._gameObjectsAttached.Keys.Count; i++)
                 {
                     GeoNode boneNode = g._gameObjectsAttached.Keys.ElementAt(i);
@@ -146,7 +161,7 @@ namespace KWEngine3.Helper
             }
         }
 
-        private static void ReadNodeHierarchy(GameObject g, float timestamp, ref GeoAnimation animation, GeoNode node, ref Matrix4 parentTransform, List<GeoNode> attachBones)
+        private static void ReadNodeHierarchy(GameObject g, float timestamp, ref GeoAnimation animation, GeoNode node, ref Matrix4 parentTransform, List<GeoNode> attachBones, bool isVSG = false)
         {
             animation.AnimationChannels.TryGetValue(node.Name, out GeoNodeAnimationChannel channel);
             Matrix4 nodeTransformation = node.Transform;
@@ -175,7 +190,16 @@ namespace KWEngine3.Helper
                             GameObject attachedObject = g._gameObjectsAttached[node];
                             if (attachedObject != null)
                             {
-                                Matrix4 attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                                Matrix4 attachmentMatrix;
+                                if(isVSG)
+                                {
+                                    attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
+                                }
+                                else
+                                {
+                                    attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                                }
+                                
                                 Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
                                 Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
                                 Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;

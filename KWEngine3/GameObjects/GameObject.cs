@@ -1215,7 +1215,7 @@ namespace KWEngine3.GameObjects
         internal string _name = "(no name)";
         internal GameObjectModel _gModel;
         internal List<GeoNode> _attachBoneNodes = new List<GeoNode>();
-        internal List<Matrix4> _attachBoneNodesOffsets = new List<Matrix4>();
+        //internal List<Matrix4> _attachBoneNodesOffsets = new List<Matrix4>();
         internal GameObject _attachedTo = null;
         internal Matrix4 _attachmentMatrix = Matrix4.Identity;
         internal Dictionary<GeoNode, GameObject> _gameObjectsAttached = new Dictionary<GeoNode, GameObject>();
@@ -1320,7 +1320,7 @@ namespace KWEngine3.GameObjects
         internal void ResetBoneAttachments()
         {
             _attachBoneNodes.Clear();
-            _attachBoneNodesOffsets.Clear();
+            //_attachBoneNodesOffsets.Clear();
 
             foreach(GameObject attachment in _gameObjectsAttached.Values)
             {

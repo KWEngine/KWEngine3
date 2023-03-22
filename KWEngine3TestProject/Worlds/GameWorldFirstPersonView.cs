@@ -27,6 +27,7 @@ namespace KWEngine3TestProject.Worlds
             }
 
             Immovable f01 = new Immovable();
+            f01.Name = "Floor";
             f01.SetModel("KWCube");
             f01.SetTexture(@"./textures/tiles_albedo.jpg", TextureType.Albedo);       // regular texture file
             f01.SetTexture(@"./textures/tiles_normal.jpg", TextureType.Normal);       // (optional) normal map for custom light reflections
