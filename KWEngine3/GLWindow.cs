@@ -549,7 +549,7 @@ namespace KWEngine3
                             postponedObjectsAttachments.Add(g);
                             continue;
                         }
-                        else if(g.GetGameObjectThatIAmAttachedTo() == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
+                        else if(KWEngine.CurrentWorld._viewSpaceGameObject != null && g.GetGameObjectThatIAmAttachedTo() == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
                         {
                             continue;
                         }
