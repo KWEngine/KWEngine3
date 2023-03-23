@@ -1,11 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using KWEngine2.Renderer;
 using KWEngine3.Audio;
 using KWEngine3.Editor;
-using KWEngine3.EngineCamera;
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
@@ -418,19 +416,29 @@ namespace KWEngine3
         {
             if (KWEngine.CurrentWorld != null)
             {
+                List<GameObject> postponedViewSpaceAttachments = new List<GameObject>();
                 if(KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
                 {
                     KWEngine.CurrentWorld._startingFrameActive = false;
                 }
                 int n = 0;
                 if(KWEngine.CurrentWorld._startingFrameActive == false)
+                {
                     n = UpdateCurrentWorldAndObjects();
+                }
                 
                 KWEngine.LastSimulationUpdateCycleCount = n;
                 float alpha = KWEngine.DeltaTimeAccumulator / KWEngine.DeltaTimeCurrentNibbleSize;
                 foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
                 {
-                    HelperSimulation.BlendGameObjectStates(g, alpha);
+                    if(g.IsAttachedToViewSpaceGameObject == false)
+                    {
+                        HelperSimulation.BlendGameObjectStates(g, alpha);
+                    }
+                    else
+                    {
+                        postponedViewSpaceAttachments.Add(g);
+                    }
                     g._collisionCandidates.Clear();
                 }
 
@@ -449,6 +457,10 @@ namespace KWEngine3
                 if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
                     HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha);
+                    foreach(GameObject att in postponedViewSpaceAttachments)
+                    {
+                        HelperSimulation.BlendGameObjectStates(att, 1f);
+                    }
                     KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.Clear();
                 }
                 

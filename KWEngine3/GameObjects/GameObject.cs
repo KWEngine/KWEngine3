@@ -1472,6 +1472,8 @@ namespace KWEngine3.GameObjects
         internal Vector3 _scaleOffsetForAttachment = Vector3.One;
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
 
+        internal bool IsAttachedToViewSpaceGameObject { get { return _attachedTo != null && _attachedTo == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject; } }
+
         internal string _modelNameInDB = "KWCube";
         internal int _importedID = -1;
         #endregion
