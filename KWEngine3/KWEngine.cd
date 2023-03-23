@@ -130,6 +130,7 @@
       <Method Name="BuildAndAddDefaultLightObject" Hidden="true" />
       <Method Name="Dispose" Hidden="true" />
       <Method Name="Export" Hidden="true" />
+      <Method Name="GetGameObjectByID" Hidden="true" />
       <Method Name="GetGameObjects" Hidden="true" />
       <Method Name="GetGameObjectsSortedByType" Hidden="true" />
       <Method Name="GetLightObjects" Hidden="true" />
@@ -141,7 +142,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAlkOK6ABDQCZAEQwoGAhQgCTKJZCKIUUQHCH/AMAnE=</HashCode>
+      <HashCode>SAlkOK6ABDQCZAERwoGAhQgCTKJZCKIUUQHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -156,15 +157,14 @@
     <Position X="6.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_attachBoneNodes" Hidden="true" />
-      <Field Name="_attachBoneNodesOffsets" Hidden="true" />
       <Field Name="_attachedTo" Hidden="true" />
       <Field Name="_attachmentMatrix" Hidden="true" />
-      <Field Name="_attachmentMatrixUpdatedByBone" Hidden="true" />
       <Field Name="_collisionCandidates" Hidden="true" />
       <Field Name="_currentOctreeNode" Hidden="true" />
       <Field Name="_gameObjectsAttached" Hidden="true" />
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_hitboxes" Hidden="true" />
+      <Field Name="_importedID" Hidden="true" />
       <Field Name="_isCollisionObject" Hidden="true" />
       <Field Name="_isShadowCaster" Hidden="true" />
       <Field Name="_modelNameInDB" Hidden="true" />
@@ -183,6 +183,7 @@
       <Method Name="CollectPotentialCollidersFromChildren" Hidden="true" />
       <Method Name="CollectPotentialCollidersFromParent" Hidden="true" />
       <Method Name="CollectPotentialIntersections" Hidden="true" />
+      <Method Name="GetBoneNameForAttachedGameObject" Hidden="true" />
       <Method Name="GetExtentsForAxis" Hidden="true" />
       <Property Name="HasArmatureAndAnimations" Hidden="true" />
       <Property Name="HasEmissiveTexture" Hidden="true" />
@@ -190,13 +191,14 @@
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
       <Property Name="IsAttachedToGameObject" Hidden="true" />
+      <Property Name="IsAttachedToViewSpaceGameObject" Hidden="true" />
       <Property Name="LeftRightMost" Hidden="true" />
       <Method Name="ResetBoneAttachments" Hidden="true" />
       <Method Name="SetScaleRotationAndTranslation" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zikCOxgGmJyo8rTswBqMIwZFgSRzi1kJIIkAHkhYVNU=</HashCode>
+      <HashCode>zikCOxoGmJyq0rTswBqMIQZFgSRzi1kJIIkAHkhYVNU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -263,7 +265,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="3.5" Y="13.5" Width="2.75" />
+    <Position X="3.5" Y="13.75" Width="2.75" />
     <Members>
       <Field Name="_fbShadowMap" Hidden="true" />
       <Field Name="_shadowBias" Hidden="true" />
