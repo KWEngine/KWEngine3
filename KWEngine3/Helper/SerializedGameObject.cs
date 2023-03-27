@@ -39,6 +39,8 @@ namespace KWEngine3.Helper
         public string TextureMetallic { get; set; }
         public string TextureEmissive { get; set; }
 
+        public float[] TextureTransform { get; set; }
+
         public static SerializedGameObject GenerateSerializedGameObject(GameObject g, World w)
         {
             SerializedGameObject sg = new SerializedGameObject();
@@ -69,6 +71,8 @@ namespace KWEngine3.Helper
             sg.TextureRoughness = g._gModel.Material[0].TextureRoughness.Filename;
             sg.TextureMetallic = g._gModel.Material[0].TextureMetallic.Filename;
             sg.TextureEmissive = g._gModel.Material[0].TextureEmissive.Filename;
+            sg.TextureTransform = new float[] { g._stateCurrent._uvTransform.X, g._stateCurrent._uvTransform.Y };
+            
 
             if(g.IsAttachedToGameObject)
             {

@@ -188,7 +188,11 @@ namespace KWEngine3.Renderer
                 GL.Enable(EnableCap.Blend);
                 foreach (GameObject g in transparentObjects)
                 {
-                    if(!g.SkipRender && g.IsInsideScreenSpace)
+                    if(KWEngine.Mode == EngineMode.Edit)
+                    {
+                        Draw(g);
+                    }
+                    else if(!g.SkipRender && g.IsInsideScreenSpace)
                         Draw(g);
                 }
                 GL.Disable(EnableCap.Blend);

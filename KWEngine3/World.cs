@@ -264,7 +264,7 @@ namespace KWEngine3
             _preparedLightsCount = 0;
             foreach (LightObject l in _lightObjects)
             {
-                if (!l.IsInsideScreenSpace)
+                if (KWEngine.Mode == EngineMode.Play && !l.IsInsideScreenSpace)
                     continue;
 
                 // 00-03 = position and shadow map texture index (vec4)

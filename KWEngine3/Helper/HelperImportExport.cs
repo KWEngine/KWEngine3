@@ -312,6 +312,8 @@ namespace KWEngine3.Helper
             if (IsBuiltInModel(sg.ModelName) && IsTextureSet(sg.TextureEmissive))
                 g.SetTexture(sg.TextureEmissive, TextureType.Emissive);
 
+            g.SetTextureRepeat(sg.TextureTransform[0], sg.TextureTransform[1]);
+
             if(sg.AttachedToID > 0 && sg.AttachedToParentBone.Length > 0)
             {
                 // find parent in sw:

@@ -341,8 +341,8 @@ namespace KWEngine3
                 KWBuilderOverlay.IsButtonActive(MouseButton.Middle)
                 && !KWBuilderOverlay.IsCursorOnAnyControl())
             {
-                KWEngine.CurrentWorld._cameraEditor.MoveUpDown(-e.DeltaY * KWEngine.MouseSensitivity);
-                KWEngine.CurrentWorld._cameraEditor.Strafe(e.DeltaX * KWEngine.MouseSensitivity);
+                KWEngine.CurrentWorld._cameraEditor.MoveUpDown(-e.DeltaY * KWEngine.MouseSensitivity * 2f);
+                KWEngine.CurrentWorld._cameraEditor.Strafe(e.DeltaX * KWEngine.MouseSensitivity * 2f);
             }
 
             if (KWEngine.Mode == EngineMode.Edit && 
@@ -353,7 +353,7 @@ namespace KWEngine3
                 bool result2 = KWBuilderOverlay.IsCursorPressedOnAnyControl(MouseButton.Left);
                 if (!result1 && !result2)
                 {
-                    KWEngine.CurrentWorld._cameraEditor.ArcBall(e.Delta);
+                    KWEngine.CurrentWorld._cameraEditor.ArcBall(e.Delta * KWEngine.MouseSensitivity * 20f);
                 }
                     
             }
@@ -378,7 +378,7 @@ namespace KWEngine3
             base.OnMouseWheel(e);
             if (KWEngine.Mode == EngineMode.Edit && !KWBuilderOverlay.IsCursorOnAnyControl())
             {
-                KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * 1.5f);
+                KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * 4f);
             }
             Overlay.MouseScroll(e.Offset);
         }
