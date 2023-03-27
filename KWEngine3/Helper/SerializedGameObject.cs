@@ -71,8 +71,7 @@ namespace KWEngine3.Helper
             sg.TextureRoughness = g._gModel.Material[0].TextureRoughness.Filename;
             sg.TextureMetallic = g._gModel.Material[0].TextureMetallic.Filename;
             sg.TextureEmissive = g._gModel.Material[0].TextureEmissive.Filename;
-            sg.TextureTransform = new float[] { g._stateCurrent._uvTransform.X, g._stateCurrent._uvTransform.Y };
-            
+            sg.TextureTransform = new float[] { g._stateCurrent._uvTransform.X, g._stateCurrent._uvTransform.Y, g._stateCurrent._uvTransform.Z, g._stateCurrent._uvTransform.W };
 
             if(g.IsAttachedToGameObject)
             {

@@ -254,6 +254,13 @@ namespace KWEngine3.Helper
             if (IsBuiltInModel(st.ModelName) && IsTextureSet(st.TextureEmissive))
                 t.SetTexture(st.TextureEmissive, TextureType.Emissive);
 
+            if (st.TextureTransform != null && st.TextureTransform.Length >= 2)
+            {
+                t.SetTextureRepeat(st.TextureTransform[0], st.TextureTransform[1]);
+                if (st.TextureTransform.Length == 4)
+                    t.SetTextureOffset(st.TextureTransform[2], st.TextureTransform[3]);
+            }
+
             return t;
         }
 
@@ -313,6 +320,9 @@ namespace KWEngine3.Helper
                 g.SetTexture(sg.TextureEmissive, TextureType.Emissive);
 
             g.SetTextureRepeat(sg.TextureTransform[0], sg.TextureTransform[1]);
+            if(sg.TextureTransform.Length == 4)
+                g.SetTextureOffset(sg.TextureTransform[2], sg.TextureTransform[3]);
+
 
             if(sg.AttachedToID > 0 && sg.AttachedToParentBone.Length > 0)
             {

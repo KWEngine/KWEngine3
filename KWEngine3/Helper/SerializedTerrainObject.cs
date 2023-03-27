@@ -33,6 +33,7 @@ namespace KWEngine3.Helper
         public string TextureRoughness { get; set; }
         public string TextureMetallic { get; set; }
         public string TextureEmissive { get; set; }
+        public float[] TextureTransform { get; set; }
 
 
         public static SerializedTerrainObject GenerateSerializedTerrainObject(TerrainObject t)
@@ -63,6 +64,8 @@ namespace KWEngine3.Helper
             st.TextureRoughness = t._gModel.Material[0].TextureRoughness.Filename;
             st.TextureMetallic = t._gModel.Material[0].TextureMetallic.Filename;
             st.TextureEmissive = t._gModel.Material[0].TextureEmissive.Filename;
+
+            st.TextureTransform = new float[] { t._stateCurrent._uvTransform.X, t._stateCurrent._uvTransform.Y, t._stateCurrent._uvTransform.Z, t._stateCurrent._uvTransform.W };
 
             return st;
         }
