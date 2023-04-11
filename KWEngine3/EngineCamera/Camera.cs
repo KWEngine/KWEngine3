@@ -58,9 +58,9 @@ namespace KWEngine3.EngineCamera
             _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
         }
 
-        internal void UpdatePitchYaw()
+        internal void UpdatePitchYaw(bool invert = false)
         {
-            Vector3 d = -_stateCurrent.LookAtVector;            
+            Vector3 d = _stateCurrent.LookAtVector * (invert ? - 1 : 1);            
             degX = (float)MathHelper.RadiansToDegrees(Math.Atan2(d.X, d.Z));
             degY = (float)MathHelper.RadiansToDegrees(Math.Asin(d.Y));
         }
@@ -106,6 +106,7 @@ namespace KWEngine3.EngineCamera
         {
             Vector3 centerAdjusted = g.Center + new Vector3(0f, offsetY, 0f);
             SetPositionAndTarget(centerAdjusted, centerAdjusted + g.LookAtVector);
+            UpdatePitchYaw();
         }
 
         internal void SetPositionAndTarget(Vector3 position, Vector3 target)

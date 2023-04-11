@@ -756,7 +756,7 @@ namespace KWEngine3.Editor
                 if (ImGui.MenuItem("Reset"))
                 {
                     KWEngine.CurrentWorld._cameraEditor = KWEngine.CurrentWorld._cameraGame;
-                    KWEngine.CurrentWorld._cameraEditor.UpdatePitchYaw();
+                    KWEngine.CurrentWorld._cameraEditor.UpdatePitchYaw(true);
                 }
                 ImGui.EndMenu();
             }

@@ -95,7 +95,7 @@ namespace KWEngine3
             if(EditModeActive)
             {
                 CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
-                CurrentWorld._cameraEditor.UpdatePitchYaw();
+                CurrentWorld._cameraEditor.UpdatePitchYaw(true);
                 _stateCameraGameBeforeToggle = Window.CursorState;
                 CurrentWorld.MouseCursorReset();
             }
