@@ -394,9 +394,12 @@ namespace KWEngine3.Editor
                 {
                     SelectedLightObject.SetPosition(new OpenTK.Mathematics.Vector3(pNew.X, pNew.Y, pNew.Z));
                 }
-                if (ImGui.InputFloat3("Target (X,Y,Z)", ref tNew, "%.1f"))
+                if (SelectedLightObject.Type != LightType.Point)
                 {
-                    SelectedLightObject.SetTarget(new OpenTK.Mathematics.Vector3(tNew.X, tNew.Y, tNew.Z));
+                    if (ImGui.InputFloat3("Target (X,Y,Z)", ref tNew, "%.1f"))
+                    {
+                        SelectedLightObject.SetTarget(new OpenTK.Mathematics.Vector3(tNew.X, tNew.Y, tNew.Z));
+                    }
                 }
 
                 ImGui.Separator();

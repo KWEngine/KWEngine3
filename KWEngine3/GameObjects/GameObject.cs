@@ -77,15 +77,22 @@ namespace KWEngine3.GameObjects
             bool modelFound = KWEngine.Models.TryGetValue(modelname, out GeoModel model);
             if (modelFound)
             {
-                _modelNameInDB = modelname;
-                _gModel = new GameObjectModel(model);
-                for(int i = 0; i < _gModel.Material.Length; i++)
+                if (!model.IsTerrain)
                 {
-                    _gModel.Material[i] = model.Meshes.Values.ToArray()[i].Material;
+                    _modelNameInDB = modelname;
+                    _gModel = new GameObjectModel(model);
+                    for (int i = 0; i < _gModel.Material.Length; i++)
+                    {
+                        _gModel.Material[i] = model.Meshes.Values.ToArray()[i].Material;
+                    }
+                    InitHitboxes();
+                    InitRenderStateMatrices();
+                    ResetBoneAttachments();
                 }
-                InitHitboxes();
-                InitRenderStateMatrices();
-                ResetBoneAttachments();
+                else
+                {
+                    KWEngine.LogWriteLine("[GameObject] Cannot set a terrain model (" + modelname + ") as GameObject model.");
+                }
             }
             return modelFound;
         }
