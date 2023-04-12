@@ -38,9 +38,7 @@ namespace KWEngine3.Model
 
         internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal)
         {
-            AssimpContext importer = new AssimpContext();
-            importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
-            importer.SetConfig(new MaxBoneCountConfig(KWEngine.MAX_BONES));
+            
             FileType type = CheckFileEnding(filename);
             if(type == FileType.GLTF)
             {
@@ -49,6 +47,9 @@ namespace KWEngine3.Model
             }
             else
             {
+                AssimpContext importer = new AssimpContext();
+                importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
+                importer.SetConfig(new MaxBoneCountConfig(KWEngine.MAX_BONES));
                 Scene scene = null;
                 if (am != AssemblyMode.File)
                 {
