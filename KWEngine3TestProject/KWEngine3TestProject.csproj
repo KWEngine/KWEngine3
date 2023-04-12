@@ -61,9 +61,6 @@
     <None Update="Models\Barn\barn.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Models\Barn\barn.glb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="Models\Barn\barn.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

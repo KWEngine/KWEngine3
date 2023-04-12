@@ -39,7 +39,7 @@
         },
         {
             "mesh" : 2,
-            "name" : "BarnBaked_nohitbox",
+            "name" : "BarnBaked",
             "translation" : [
                 -0.8075879812240601,
                 1.557863473892212,
@@ -148,7 +148,7 @@
             ]
         },
         {
-            "name" : "BarnBakedMesh_nohitbox",
+            "name" : "BarnBakedMesh",
             "primitives" : [
                 {
                     "attributes" : {
