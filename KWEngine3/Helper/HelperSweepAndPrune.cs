@@ -27,6 +27,8 @@ namespace KWEngine3.Helper
             axisList.Sort(
                 (x, y) =>
                 {
+                    x._collisionCandidates.Clear();
+                    y._collisionCandidates.Clear();
                     if(_sweepTestAxisIndex == 0)
                     {
                         return x.LeftRightMost.X < y.LeftRightMost.X ? -1 : 1;

@@ -200,18 +200,21 @@ namespace KWEngine3.GameObjects
 
             foreach (GameObject collider in potentialColliders)
             {
-                foreach (GameObjectHitbox hbother in collider._hitboxes)
+                if (collider is T)
                 {
-                    if (!hbother.IsActive)
-                        continue;
-
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                    foreach (GameObjectHitbox hbother in collider._hitboxes)
                     {
-                        if (!hbcaller.IsActive)
+                        if (!hbother.IsActive)
                             continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            return i;
+
+                        foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                        {
+                            if (!hbcaller.IsActive)
+                                continue;
+                            Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                            if (i != null)
+                                return i;
+                        }
                     }
                 }
             }
@@ -279,18 +282,21 @@ namespace KWEngine3.GameObjects
 
             foreach (GameObject collider in potentialColliders)
             {
-                foreach (GameObjectHitbox hbother in collider._hitboxes)
+                if (collider is T)
                 {
-                    if (!hbother.IsActive)
-                        continue;
-
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                    foreach (GameObjectHitbox hbother in collider._hitboxes)
                     {
-                        if (!hbcaller.IsActive)
+                        if (!hbother.IsActive)
                             continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            intersections.Add(i);
+
+                        foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                        {
+                            if (!hbcaller.IsActive)
+                                continue;
+                            Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                            if (i != null)
+                                intersections.Add(i);
+                        }
                     }
                 }
             }

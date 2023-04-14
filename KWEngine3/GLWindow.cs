@@ -439,7 +439,6 @@ namespace KWEngine3
                     {
                         postponedViewSpaceAttachments.Add(g);
                     }
-                    g._collisionCandidates.Clear();
                 }
 
                 foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)

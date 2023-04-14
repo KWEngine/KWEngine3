@@ -65,13 +65,13 @@ void main()
 	float metallic = uMetallicRoughness.x;
 	float roughness = uMetallicRoughness.y;
 	bool roughnessThroughMetallic = false;
-	if(uUseTexturesMetallicRoughness.x > 0)
+	if(uUseTexturesMetallicRoughness.x > 0) // x = metallic
 	{
 		if(uTextureIsMetallicRoughnessCombined > 0)
 		{
 			vec4 t = texture(uTextureMetallic, vTexture);
-			metallic = t.b;  //TODO
-			roughness = t.g; //TODO
+			metallic = t.b;  
+			roughness = t.g; 
 			roughnessThroughMetallic = true;
 		}
 		else
@@ -79,7 +79,7 @@ void main()
 			metallic = texture(uTextureMetallic, vTexture).r;
 		}
 	}
-	if(uUseTexturesMetallicRoughness.y > 0)
+	if(uUseTexturesMetallicRoughness.y > 0) // y = roughness
 	{
 		if(!roughnessThroughMetallic)
 		{

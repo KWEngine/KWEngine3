@@ -561,6 +561,7 @@ namespace KWEngine3.Model
                             tex.OpenGLID = glTextureId;
                         }
                         geoMaterial.TextureMetallic = tex;
+                        geoMaterial.TextureRoughnessInMetallic = true;
                         geoMaterial.TextureRoughnessIsSpecular = true;
                     }
                 }

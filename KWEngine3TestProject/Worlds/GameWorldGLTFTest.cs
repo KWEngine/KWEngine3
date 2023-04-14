@@ -18,9 +18,12 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             SetCameraPosition(50, 50, 50);
+            SetColorAmbient(0.1f, 0.1f, 0.1f);
+            SetBackgroundSkybox("./Textures/skybox.dds", 0);
+            SetBackgroundBrightnessMultiplier(10f);
 
 
-            KWEngine.LoadModel("Barn", "./Models/Barn/barn.gltf");
+            KWEngine.LoadModel("Barn", "./Models/Barn/barn_main.gltf");
 
             Immovable i01 = new Immovable();
             i01.Name = "Barn";
