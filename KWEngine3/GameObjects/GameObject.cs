@@ -156,26 +156,21 @@ namespace KWEngine3.GameObjects
             //{
             //    return null;
             //}
-            List<GameObject> potentialColliders = this._collisionCandidates;//new List<GameObject>();
+            List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//new List<GameObject>();
             //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
 
-            foreach (GameObject collider in potentialColliders)
+            foreach (GameObjectHitbox hbother in potentialColliders)
             {
-                foreach (GameObjectHitbox hbother in collider._hitboxes)
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
                 {
-                    if (!hbother.IsActive)
+                    if (!hbcaller.IsActive)
                         continue;
-
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                    {
-                        if (!hbcaller.IsActive)
-                            continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            return i;
-                    }
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        return i;
                 }
             }
+            
             return null;
         }
 
@@ -195,27 +190,23 @@ namespace KWEngine3.GameObjects
             //{
             //    return null;
             //}
-            List<GameObject> potentialColliders = this._collisionCandidates;//; new List<GameObject>();
+            List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//; new List<GameObject>();
             //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-            foreach (GameObject collider in potentialColliders)
-            {
-                if (collider is T)
-                {
-                    foreach (GameObjectHitbox hbother in collider._hitboxes)
-                    {
-                        if (!hbother.IsActive)
-                            continue;
 
-                        foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                        {
-                            if (!hbcaller.IsActive)
-                                continue;
-                            Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                            if (i != null)
-                                return i;
-                        }
-                    }
+            foreach (GameObjectHitbox hbother in potentialColliders)
+            {
+                if((hbother.Owner is T) == false)
+                {
+                    continue;
+                }
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                {
+                    if (!hbcaller.IsActive)
+                        continue;
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        return i;
                 }
             }
             return null;
@@ -237,26 +228,22 @@ namespace KWEngine3.GameObjects
             //{
             //    return intersections;
             //}
-            List<GameObject> potentialColliders = this._collisionCandidates;// new List<GameObject>();
+            List<GameObjectHitbox> potentialColliders = this._collisionCandidates;// new List<GameObject>();
             //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
 
-            foreach (GameObject collider in potentialColliders)
-            {
-                foreach (GameObjectHitbox hbother in collider._hitboxes)
-                {
-                    if (!hbother.IsActive)
-                        continue;
 
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                    {
-                        if (!hbcaller.IsActive)
-                            continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            intersections.Add(i);
-                    }
+            foreach (GameObjectHitbox hbother in potentialColliders)
+            {
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                {
+                    if (!hbcaller.IsActive)
+                        continue;
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        intersections.Add(i);
                 }
             }
+            
             return intersections;
         }
 
@@ -277,27 +264,23 @@ namespace KWEngine3.GameObjects
             //{
             //    return intersections;
             //}
-            List<GameObject> potentialColliders = this._collisionCandidates;
+            List<GameObjectHitbox> potentialColliders = this._collisionCandidates;
             //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-            foreach (GameObject collider in potentialColliders)
-            {
-                if (collider is T)
-                {
-                    foreach (GameObjectHitbox hbother in collider._hitboxes)
-                    {
-                        if (!hbother.IsActive)
-                            continue;
 
-                        foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                        {
-                            if (!hbcaller.IsActive)
-                                continue;
-                            Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                            if (i != null)
-                                intersections.Add(i);
-                        }
-                    }
+            foreach (GameObjectHitbox hbother in potentialColliders)
+            {
+                if((hbother.Owner is T) == false)
+                {
+                    continue;
+                }
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                {
+                    if (!hbcaller.IsActive)
+                        continue;
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        intersections.Add(i);
                 }
             }
             return intersections;
@@ -1431,7 +1414,7 @@ namespace KWEngine3.GameObjects
 
         }
 
-        internal List<GameObject> _collisionCandidates = new List<GameObject>();
+        internal List<GameObjectHitbox> _collisionCandidates = new List<GameObjectHitbox>();
 
         internal void CollectPotentialCollidersFromParent<T>(List<GameObject> colliders, OctreeNode node)
         {

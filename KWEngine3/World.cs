@@ -73,6 +73,8 @@ namespace KWEngine3
             _zMinMax = new Vector2(float.MaxValue, float.MinValue);
         }
 
+        internal List<GameObjectHitbox> _gameObjectHitboxes = new List<GameObjectHitbox>();
+
         internal GameObject BuildAndAddDefaultGameObject(string classname)
         {
             GameObject g = (GameObject)Assembly.GetEntryAssembly().CreateInstance(classname);
@@ -195,12 +197,26 @@ namespace KWEngine3
                 g.ID = 0;
 
                 _gameObjects.Remove(g);
+                foreach(GameObjectHitbox hb in g._hitboxes)
+                {
+                    if(hb.IsActive)
+                    {
+                        _gameObjectHitboxes.Remove(hb);
+                    }
+                }
             }
             _gameObjectsToBeRemoved.Clear();
 
             foreach (GameObject g in _gameObjectsToBeAdded)
             {
                 _gameObjects.Add(g);
+                foreach (GameObjectHitbox hb in g._hitboxes)
+                {
+                    if (hb.IsActive)
+                    {
+                        _gameObjectHitboxes.Add(hb);
+                    }
+                }
             }
             _gameObjectsToBeAdded.Clear();
         }

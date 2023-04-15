@@ -20,68 +20,74 @@ namespace KWEngine3.Helper
             if (objectCount < 2)
                 return;
 
-            List<GameObject> axisList = new List<GameObject>(KWEngine.CurrentWorld._gameObjects);
+            List<GameObjectHitbox> axisList = new List<GameObjectHitbox>(KWEngine.CurrentWorld._gameObjectHitboxes);
             if (vsgObject)
-                axisList.Add(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
+            {
+                foreach (GameObjectHitbox vsgHitbox in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._hitboxes)
+                {
+                    if (vsgHitbox.IsActive)
+                    {
+                        axisList.Add(vsgHitbox);
+                    }
+                }
+            }
 
             axisList.Sort(
                 (x, y) =>
                 {
-                    x._collisionCandidates.Clear();
-                    y._collisionCandidates.Clear();
+                    x.Owner._collisionCandidates.Clear();
+                    //y.Owner._collisionCandidates.Clear();
                     if(_sweepTestAxisIndex == 0)
                     {
-                        return x.LeftRightMost.X < y.LeftRightMost.X ? -1 : 1;
+                        return x._left < y._left ? -1 : 1;
                     }
                     else if(_sweepTestAxisIndex == 1)
                     {
-                        return x.BottomTopMost.X < y.BottomTopMost.X ? -1 : 1;
+                        return x._low < y._low ? -1 : 1;
                     }
                     else
                     {
-                        return x.BackFrontMost.X < y.BackFrontMost.X ? -1 : 1;
+                        return x._back < y._back ? -1 : 1;
                     }
                 }
             );
-
-            /*if (_sweepTestAxisIndex == 0)
-                axisList = axisList.OrderBy(x => x.LeftRightMost.X).ToList();
-            else if (_sweepTestAxisIndex == 1)
-                axisList = axisList.OrderBy(x => x.BottomTopMost.X).ToList();
-            else if (_sweepTestAxisIndex == 2)
-                axisList = axisList.OrderBy(x => x.BackFrontMost.X).ToList();
-            */
 
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);
             for (int i = 0; i < axisList.Count(); i++)
             {
-                if (axisList[i].IsCollisionObject == false)
+                if (axisList[i].Owner.IsCollisionObject == false)
                 {
                     continue;
                 }
 
-                Vector3 currentCenter = axisList[i].Center;
+                Vector3 currentCenter = axisList[i]._center;
                 centerSum += currentCenter;
                 centerSqSum += (currentCenter * currentCenter);
 
                 for (int j = i + 1; j < axisList.Count; j++)
                 {
-                    GameObject fromJ = axisList[j];
-                    if (fromJ.IsCollisionObject == false)
+                    if (axisList[j].Owner.IsCollisionObject == false)
                     {
                         continue;
                     }
-
-                    GameObject fromI = axisList[i]; // i = leftmost, j = Center
-                    float fromJExtendsX = fromJ.GetExtentsForAxis(_sweepTestAxisIndex).X; // left side of right neighbor 
-                    float fromIExtendsY = fromI.GetExtentsForAxis(_sweepTestAxisIndex).Y; // right side of object
+                    /*
+                     if (a == 1)
+                        return BottomTopMost;
+                    else if (a == 2)
+                        return BackFrontMost;
+                    else
+                        return LeftRightMost;
+                     */
+                    float fromJExtendsX = _sweepTestAxisIndex == 0 ? axisList[j]._left : _sweepTestAxisIndex == 1 ? axisList[j]._low : axisList[j]._back;  // side of neighbor 
+                    float fromIExtendsY = _sweepTestAxisIndex == 0 ? axisList[i]._right : _sweepTestAxisIndex == 1 ? axisList[i]._high : axisList[i]._front; // right side of object
                     if (fromJExtendsX > fromIExtendsY)
                     {
                         break;
                     }
-                    fromI._collisionCandidates.Add(fromJ);
-                    fromJ._collisionCandidates.Add(fromI);
+
+                    axisList[i].Owner._collisionCandidates.Add(axisList[j]);
+                    axisList[j].Owner._collisionCandidates.Add(axisList[i]);
                 }
             }
             centerSum /= axisList.Count;

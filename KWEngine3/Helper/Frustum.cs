@@ -29,7 +29,7 @@ namespace KWEngine3.Helper
         internal void UpdateScreenSpaceStatus(LightObject l)
         {
             l.GetVolume(out Vector3 center, out Vector3 dimensions);
-            l.IsInsideScreenSpace = VolumeVsFrustum(center, dimensions.X / 2, dimensions.Y / 2, dimensions.Z / 2);
+            l.IsInsideScreenSpace = VolumeVsFrustum(center, dimensions.X, dimensions.Y, dimensions.Z);
         }
 
         internal enum ClippingPlane : int

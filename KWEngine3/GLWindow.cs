@@ -506,9 +506,9 @@ namespace KWEngine3
             }
             */
 
-            KWEngine.CurrentWorld.ResetWorldDimensions();
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
+                KWEngine.CurrentWorld.ResetWorldDimensions();
                 List<GameObject> postponedObjects = new List<GameObject>();
                 List<GameObject> postponedObjectsAttachments = new List<GameObject>();
 
