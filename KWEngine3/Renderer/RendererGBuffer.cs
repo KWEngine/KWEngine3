@@ -121,18 +121,23 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UColorTint, g._stateRender._colorTint);
             
             GL.Uniform1(UId, g.ID);
-            GL.Uniform3(UMetallicRoughness, new Vector3(g._gModel._metallic, g._gModel._roughness, (int)g._gModel._metallicType));
+            
 
             GeoMesh[] meshes = g._gModel.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];
                 GeoMaterial material = g._gModel.Material[i];
-                
+
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
-                if(material.TextureEmissive.IsTextureSet)
+                if (g._gModel.ModelOriginal.IsPrimitive)
+                    GL.Uniform3(UMetallicRoughness, new Vector3(g._gModel._metallic, g._gModel._roughness, (int)g._gModel._metallicType));
+                else
+                    GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, (int)g._gModel._metallicType));
+
+                if (material.TextureEmissive.IsTextureSet)
                     GL.Uniform4(UColorEmissive, Vector4.Zero);
                 else
                     GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
