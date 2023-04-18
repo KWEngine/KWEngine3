@@ -1,5 +1,6 @@
 ﻿using KWEngine3;
 using KWEngine3TestProject.Classes;
+using KWEngine3TestProject.Classes.WorldGLTFTest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,12 @@ namespace KWEngine3TestProject.Worlds
             i01.HasTransparencyTexture = true;
             i01.SetScale(10);
             AddGameObject(i01);
+
+            GLTFPlayer p = new GLTFPlayer();
+            p.SetModel("Ninja");
+            p.SetAnimationID(7);
+            p.SetScale(10);
+            AddGameObject(p);
         }
     }
 }

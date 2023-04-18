@@ -226,6 +226,19 @@ namespace KWEngine3.Helper
             {
                 return new Vector3(1, 1, 1);
             }
+
+            GeoAnimationKeyframe firstKey = channel.ScaleKeys[0];
+            if (timestamp < firstKey.Time)
+            {
+                GeoAnimationKeyframe lastKey = channel.ScaleKeys[channel.ScaleKeys.Count - 1];
+                float deltaTime = firstKey.Time;
+                float factor = timestamp / deltaTime;
+                Vector3 scalingStart = lastKey.Scale;
+                Vector3 scalingEnd = firstKey.Scale;
+                Vector3.Lerp(scalingStart, scalingEnd, factor, out Vector3 scaling);
+                return scaling;
+            }
+
             for (int i = 0; i < channel.ScaleKeys.Count - 1; i++)
             {
                 GeoAnimationKeyframe key = channel.ScaleKeys[i];
@@ -250,6 +263,19 @@ namespace KWEngine3.Helper
             {
                 return new Vector3(0, 0, 0);
             }
+
+            GeoAnimationKeyframe firstKey = channel.TranslationKeys[0];
+            if (timestamp < firstKey.Time)
+            {
+                GeoAnimationKeyframe lastKey = channel.TranslationKeys[channel.TranslationKeys.Count - 1];
+                float deltaTime = firstKey.Time;
+                float factor = timestamp / deltaTime;
+                Vector3 transStart = lastKey.Translation;
+                Vector3 transEnd = firstKey.Translation;
+                Vector3.Lerp(transStart, transEnd, factor, out Vector3 translation);
+                return translation;
+            }
+
             for (int i = 0; i < channel.TranslationKeys.Count - 1; i++)
             {
                 GeoAnimationKeyframe key = channel.TranslationKeys[i];
@@ -275,6 +301,20 @@ namespace KWEngine3.Helper
             {
                 return Quaternion.Identity;
             }
+
+            GeoAnimationKeyframe firstKey = channel.RotationKeys[0];
+            if (timestamp < firstKey.Time)
+            {
+                GeoAnimationKeyframe lastKey = channel.RotationKeys[channel.RotationKeys.Count - 1];
+                float deltaTime = firstKey.Time;
+                float factor = timestamp / deltaTime;
+                Quaternion transStart = lastKey.Rotation;
+                Quaternion transEnd = firstKey.Rotation;
+                return Quaternion.Slerp(transStart, transEnd, factor);
+                
+            }
+
+
             for (int i = 0; i < channel.RotationKeys.Count - 1; i++)
             {
                 if (timestamp >= channel.RotationKeys[i].Time && timestamp <= channel.RotationKeys[i + 1].Time)
