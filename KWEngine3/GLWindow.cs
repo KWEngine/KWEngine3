@@ -543,14 +543,19 @@ namespace KWEngine3
                             postponedObjects.Add(g);
                             continue;
                         }
-                        else if (g.IsAttachedToGameObject && g.GetGameObjectThatIAmAttachedTo() != KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
+                        else if (g.IsAttachedToGameObject)
                         {
-                            postponedObjectsAttachments.Add(g);
-                            continue;
-                        }
-                        else if(KWEngine.CurrentWorld._viewSpaceGameObject != null && g.GetGameObjectThatIAmAttachedTo() == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
-                        {
-                            continue;
+                            // is g's parent the viewspace-gameobject?
+                            // if true, the object gets updated in a later state and does not need to get updated here
+                            if (KWEngine.CurrentWorld._viewSpaceGameObject != null && g.GetGameObjectThatIAmAttachedTo() == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                postponedObjectsAttachments.Add(g);
+                                continue;
+                            }
                         }
                         g.Act();
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);

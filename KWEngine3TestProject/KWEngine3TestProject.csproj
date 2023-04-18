@@ -106,6 +106,9 @@
     <None Update="Models\gltftestcube255.glb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Models\GLTFTest\sword.glb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Models\GLTFTest\sword_albedo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -758,5 +761,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties models_4gltftest_4sword_1gltf__JsonSchema="https://deta.space/assets/spacefile.schema.json" /></VisualStudio></ProjectExtensions>
 
 </Project>
