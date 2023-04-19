@@ -667,16 +667,11 @@ namespace KWEngine3.GameObjects
         /// <param name="z">Skalierung in z-Richtung</param>
         public void SetScale(float x, float y, float z)
         {
-            if (x > float.Epsilon && y > float.Epsilon && z > float.Epsilon)
-            {
-                _stateCurrent._scale = new Vector3(x, y, z);
-                UpdateModelMatrixAndHitboxes();
-            }
-            else
-            {
-                _stateCurrent._scale = new Vector3(1, 1, 1);
-                UpdateModelMatrixAndHitboxes();
-            }
+            _stateCurrent._scale = new Vector3(
+                Math.Max(float.Epsilon, x) ,
+                Math.Max(float.Epsilon, y),
+                Math.Max(float.Epsilon, z));
+            UpdateModelMatrixAndHitboxes();
         }
 
         /// <summary>
@@ -1215,7 +1210,6 @@ namespace KWEngine3.GameObjects
         internal GameObject _attachedTo = null;
         internal Matrix4 _attachmentMatrix = Matrix4.Identity;
         internal Dictionary<GeoNode, GameObject> _gameObjectsAttached = new Dictionary<GeoNode, GameObject>();
-        internal OctreeNode _currentOctreeNode = null;
         internal bool _isCollisionObject = false;
         internal bool _isShadowCaster = false;
 
@@ -1416,13 +1410,13 @@ namespace KWEngine3.GameObjects
 
         internal List<GameObjectHitbox> _collisionCandidates = new List<GameObjectHitbox>();
 
-        internal void CollectPotentialCollidersFromParent<T>(List<GameObject> colliders, OctreeNode node)
+        internal void CollectPotentialCollidersFromParent<T>(List<GameObjectHitbox> colliders, OctreeNode node)
         {
             if (node.Parent != null)
             {
-                foreach(GameObject g in node.Parent.GameObjectsInThisNode)
+                foreach(GameObjectHitbox g in node.Parent.HitboxesInThisNode)
                 {
-                    if(g != this && g is T)
+                    if(g.Owner != this && g.Owner is T)
                         colliders.Add(g);
                 }
                 
@@ -1430,26 +1424,26 @@ namespace KWEngine3.GameObjects
             }
         }
 
-        internal void CollectPotentialCollidersFromChildren<T>(List<GameObject> colliders, OctreeNode node)
+        internal void CollectPotentialCollidersFromChildren<T>(List<GameObjectHitbox> colliders, OctreeNode node)
         {
             foreach (OctreeNode child in node.ChildOctreeNodes)
             {
-                foreach (GameObject g in child.GameObjectsInThisNode)
+                foreach (GameObjectHitbox g in child.HitboxesInThisNode)
                 {
-                    if (g != this && g is T)
+                    if (g.Owner != this && g.Owner is T)
                         colliders.Add(g);
                 }
                 CollectPotentialCollidersFromChildren<T>(colliders, child);
             }
         }
 
-        internal void CollectPotentialIntersections<T>(List<GameObject> colliders, OctreeNode node)
+        internal void CollectPotentialIntersections<T>(List<GameObjectHitbox> colliders, OctreeNode node)
         {
             CollectPotentialCollidersFromParent<T>(colliders, node);
 
-            foreach(GameObject g in node.GameObjectsInThisNode)
+            foreach(GameObjectHitbox g in node.HitboxesInThisNode)
             {
-                if(g != this && g is T)
+                if(g.Owner != this && g.Owner is T)
                     colliders.Add(g);
             }
 

@@ -14,7 +14,7 @@ namespace KWEngine3.Helper
         {
             get
             {
-                return GameObjectsInThisNode.Count;
+                return HitboxesInThisNode.Count;
             }
         }
 
@@ -36,7 +36,7 @@ namespace KWEngine3.Helper
         public Vector3 Color { get; private set; } = COLORS[Counter % COLORS.Length];
         public OctreeNode Parent { get; private set; } = null;
 
-        public List<GameObject> GameObjectsInThisNode = new List<GameObject>();
+        public List<GameObjectHitbox> HitboxesInThisNode = new List<GameObjectHitbox>();
 
         public List<OctreeNode> ChildOctreeNodes { get; private set; } = new List<OctreeNode>();
 
@@ -52,26 +52,22 @@ namespace KWEngine3.Helper
             Counter = 0;
         }
 
-        public bool DoesNodeEncloseGameObject(GameObject g)
+        public bool DoesNodeEncloseHitbox(GameObjectHitbox g)
         {
-            bool leftOk = Center.X - Scale.X + KWEngine._octreeSafetyZone <= g._stateCurrent._center.X - g._stateCurrent._dimensions.X / 2;
-            bool rightOk = Center.X + Scale.X - KWEngine._octreeSafetyZone >= g._stateCurrent._center.X + g._stateCurrent._dimensions.X / 2;
-            bool topOk = Center.Y + Scale.Y - KWEngine._octreeSafetyZone >= g._stateCurrent._center.Y + g._stateCurrent._dimensions.Y / 2;
-            bool bottomOk = Center.Y - Scale.Y + KWEngine._octreeSafetyZone <= g._stateCurrent._center.Y - g._stateCurrent._dimensions.Y / 2;
-            bool backOk = Center.Z - Scale.Z + KWEngine._octreeSafetyZone <= g._stateCurrent._center.Z - g._stateCurrent._dimensions.Z / 2;
-            bool frontOk = Center.Z + Scale.Z - KWEngine._octreeSafetyZone  >= g._stateCurrent._center.Z + g._stateCurrent._dimensions.Z / 2;
+            bool leftRightOK = g._center.X + g._fullDiameter <= Center.X + Scale.X && g._center.X - g._fullDiameter >= Center.X - Scale.X;
+            bool bottomTopOK = g._center.Y + g._fullDiameter <= Center.Y + Scale.Y && g._center.Y - g._fullDiameter >= Center.Y - Scale.Y;
+            bool backFrontOK = g._center.Z + g._fullDiameter <= Center.Z + Scale.Z && g._center.Z - g._fullDiameter >= Center.Z - Scale.Z;
 
-            bool result = leftOk && rightOk && topOk && bottomOk && backOk && frontOk;
-            return result;
+            return leftRightOK && bottomTopOK && backFrontOK;
         }
 
-        public void AddGameObjectToNode(GameObject g)
+        public void AddHitboxToNode(GameObjectHitbox g)
         {
-            GameObjectsInThisNode.Add(g);
+            HitboxesInThisNode.Add(g);
             g._currentOctreeNode = this;
         }
 
-        public bool AddGameObject(GameObject g)
+        public bool AddGameObjectHitbox(GameObjectHitbox g)
         {
             // If it has child OctreeNodes already, place the new hitbox
             // center point in one of those child OctreeNodes:
@@ -80,7 +76,7 @@ namespace KWEngine3.Helper
                 // would a child octree node enclose this object?
                 foreach (OctreeNode n in ChildOctreeNodes)
                 {
-                    bool result = n.AddGameObject(g);
+                    bool result = n.AddGameObjectHitbox(g);
                     if (result)
                         return true;
                 }
@@ -88,7 +84,7 @@ namespace KWEngine3.Helper
                 // if we did not return true by now, 
                 // no child was able to take it.
                 // so, this instance right here must take it:
-                AddGameObjectToNode(g);
+                AddHitboxToNode(g);
                 return true;
             }
             else
@@ -97,11 +93,11 @@ namespace KWEngine3.Helper
                 // check if the hitbox center point is inside
                 // the region and if it is, decide whether
                 // to subdivide or to just store it:
-                if (GameObjectsInThisNode.Count < MAXGAMEOBJECTSPERNODE )
+                if (HitboxesInThisNode.Count < MAXGAMEOBJECTSPERNODE )
                 {
-                    if (DoesNodeEncloseGameObject(g))
+                    if (DoesNodeEncloseHitbox(g))
                     {
-                        AddGameObjectToNode(g);
+                        AddHitboxToNode(g);
                         return true;
                     }
                 }
@@ -111,13 +107,13 @@ namespace KWEngine3.Helper
                     // would a child node enclose it?
                     foreach (OctreeNode n in ChildOctreeNodes)
                     {
-                        bool result = n.AddGameObject(g);
+                        bool result = n.AddGameObjectHitbox(g);
                         if (result)
                             return true;
                     }
 
                     // ok, we have to take this object anyway :-)
-                    AddGameObjectToNode(g);
+                    AddHitboxToNode(g);
                     return true;
                 }
             }

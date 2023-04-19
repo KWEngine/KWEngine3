@@ -7,17 +7,17 @@ namespace KWEngine3.Helper
     {
         public static OctreeNode _rootNode;
 
-        public static void Init(Vector3 worldCenter, Vector3 worldDimensions)
+        public static void Init(Vector3 worldCenter, float maxDimension)
         {
             OctreeNode.ResetCounter();
-            _rootNode = new OctreeNode(worldDimensions, worldCenter);
+            _rootNode = new OctreeNode(new Vector3(maxDimension), worldCenter);
             
         }
 
-        public static void Add(GameObject g)
+        public static void Add(GameObjectHitbox g)
         {
-            if(g.IsCollisionObject)
-                _rootNode.AddGameObject(g);
+            if(g.IsActive)
+                _rootNode.AddGameObjectHitbox(g);
         }
     }
 }

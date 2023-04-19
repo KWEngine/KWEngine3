@@ -815,7 +815,7 @@ namespace KWEngine3.Editor
                         }
                     }
                 }
-                ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine();
+                ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine();
                 ImGui.Indent(512 - 64);
                 if(ImGui.Button("Close"))
                 {

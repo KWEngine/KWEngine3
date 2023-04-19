@@ -24,6 +24,7 @@ namespace KWEngine3.GameObjects
 
         internal GameObject Owner { get; private set; }
         internal GeoMeshHitbox _mesh;
+        internal OctreeNode _currentOctreeNode = null;
 
         public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh)
         {

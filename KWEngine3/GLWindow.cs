@@ -283,11 +283,11 @@ namespace KWEngine3
                 /*
                 if (HelperOctree._rootNode != null)
                 {
-                    GL.Disable(EnableCap.DepthTest);
+                    //GL.Disable(EnableCap.DepthTest);
                     RendererOctreeNodes.Bind();
                     Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
                     RendererOctreeNodes.Draw(HelperOctree._rootNode, ref vp);
-                    GL.Enable(EnableCap.DepthTest);
+                    //GL.Enable(EnableCap.DepthTest);
                 }
                 */
 
@@ -488,24 +488,6 @@ namespace KWEngine3
         {
             int n = 0;
 
-            /*
-            HelperOctree.Init(
-                KWEngine.CurrentWorld._worldCenter,
-                new Vector3(
-                    (KWEngine.CurrentWorld._xMinMax.Y - KWEngine.CurrentWorld._xMinMax.X) * 0.5f + KWEngine._octreeSafetyZone,
-                    (KWEngine.CurrentWorld._yMinMax.Y - KWEngine.CurrentWorld._yMinMax.X) * 0.5f + KWEngine._octreeSafetyZone,
-                    (KWEngine.CurrentWorld._zMinMax.Y - KWEngine.CurrentWorld._zMinMax.X) * 0.5f + KWEngine._octreeSafetyZone));
-            
-            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
-            {
-                HelperOctree.Add(g);
-            }
-            if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
-            {
-                HelperOctree.Add(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
-            }
-            */
-
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
                 KWEngine.CurrentWorld.ResetWorldDimensions();
@@ -517,6 +499,21 @@ namespace KWEngine3
                 KWEngine.CurrentWorld.AddRemoveLightObjects();
                 KWEngine.CurrentWorld.AddRemoveHUDObjects();
                 HelperSweepAndPrune.SweepAndPrune();
+
+                /*
+                // Octree test:
+                float dimX = KWEngine.CurrentWorld._xMinMax.Y - KWEngine.CurrentWorld._xMinMax.X;
+                float dimY = KWEngine.CurrentWorld._yMinMax.Y - KWEngine.CurrentWorld._yMinMax.X;
+                float dimZ = KWEngine.CurrentWorld._zMinMax.Y - KWEngine.CurrentWorld._zMinMax.X;
+                float dimMax = Math.Max(Math.Max(dimX, dimY), dimZ);
+                HelperOctree.Init(KWEngine.CurrentWorld._worldCenter, dimMax);
+
+                foreach (GameObjectHitbox hb in KWEngine.CurrentWorld._gameObjectHitboxes)
+                {
+                    HelperOctree.Add(hb);
+                }
+                */
+
                 n++;
 
                 KWEngine.CurrentWorld._cameraGame.BackupCameraState();
