@@ -36,7 +36,7 @@ namespace KWEngine3.Helper
                 (x, y) =>
                 {
                     x.Owner._collisionCandidates.Clear();
-                    //y.Owner._collisionCandidates.Clear();
+                    y.Owner._collisionCandidates.Clear();
                     if(_sweepTestAxisIndex == 0)
                     {
                         return x._left < y._left ? -1 : 1;

@@ -13,14 +13,23 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldMotionTest : World
     {
+        private Vector3 _pivot;
+        private float _degrees = 0;
+        private float _distance = 50;
+        private float _height = 10;
+
         public override void Act()
         {
-            
+            Vector3 newCamPos = HelperRotation.CalculatePositionAfterRotationAroundPointOnAxis(_pivot, _distance, _degrees);
+            newCamPos.Y = _height;
+            SetCameraPosition(newCamPos);
+            _degrees = (_degrees + 0.5f) % 360;
         }
 
         public override void Prepare()
         {
-            SetCameraPosition(0, 10, 50);
+            _pivot = Vector3.Zero;
+            SetCameraPosition(0, _height, _distance);
 
             for(int i = 0; i < 100; i++)
             {
