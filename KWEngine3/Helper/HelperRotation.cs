@@ -141,7 +141,7 @@ namespace KWEngine3.Helper
             return finalTranslationPoint;
         }
         
-        /*
+        
         /// <summary>
         /// Berechnet die Position eines Punkts, der um einen angegeben Punkt entlang einer Achse rotiert wird
         /// </summary>
@@ -150,7 +150,7 @@ namespace KWEngine3.Helper
         /// <param name="degrees">Grad der Rotation</param>
         /// <param name="axis">Achse der Rotation (normalisiert!)</param>
         /// <returns>Position des rotierten Punkts</returns>
-        public static Vector3 CalculateRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Vector3 axis)
+        public static Vector3 CalculatePositionAfterRotationAroundPointOnAxis(Vector3 point, float distance, float degrees, Vector3 axis)
         {
             float radians = MathHelper.DegreesToRadians(degrees % 360);
             Matrix4.CreateTranslation(point, out translationPointMatrix);
@@ -165,7 +165,7 @@ namespace KWEngine3.Helper
 
             return finalTranslationPoint;
         }
-        */
+        
 
         /// <summary>
         /// Erfragt die Rotation, die nötig wäre, damit eine Quelle zu einem Ziel guckt

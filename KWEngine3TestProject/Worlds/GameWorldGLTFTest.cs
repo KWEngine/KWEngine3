@@ -19,7 +19,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            SetCameraPosition(-15, 15, 15);
+            SetCameraPosition(0, 25, 25);
             SetCameraTarget(0, 10, 0);
             SetColorAmbient(0.75f, 0.75f, 0.75f);
             SetBackgroundSkybox("./Textures/skybox.dds", 0);
@@ -47,6 +47,9 @@ namespace KWEngine3TestProject.Worlds
             HelperGameObjectAttachment.SetScaleForAttachment(i01, 50, 50, 50);
             HelperGameObjectAttachment.SetPositionOffsetForAttachment(i01, 0, 0, 0);
             HelperGameObjectAttachment.SetRotationForAttachment(i01, 0, 0, 0);
+
+            GLTFRotationObject rotO = new GLTFRotationObject();
+            AddGameObject(rotO);
 
             foreach (string bone in KWEngine.GetModelBoneNames("Ninja"))
             {
