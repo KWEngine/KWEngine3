@@ -242,6 +242,7 @@ namespace KWEngine3
         internal static GeoModel KWDollar;
         internal static GeoModel KWLightBulb;
         internal static GeoModel KWTerrainDefault;
+        internal static GeoModel KWCapsule;
 
         internal static void InitializeModels()
         {
@@ -253,6 +254,7 @@ namespace KWEngine3
             KWSkull = SceneImporter.LoadModel("skull.obj", false, SceneImporter.AssemblyMode.Internal);
             KWDollar = SceneImporter.LoadModel("dollar.obj", false, SceneImporter.AssemblyMode.Internal);
             KWLightBulb = SceneImporter.LoadModel("lightbulb.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWCapsule = SceneImporter.LoadModel("capsulehitbox.obj", false, SceneImporter.AssemblyMode.Internal);
             KWTerrainDefault = KWEngine.BuildDefaultTerrainModel("TerrainDefault", 10, 0, 10);
 
             for (int i = 0; i < ExplosionObject.Axes.Length; i++)

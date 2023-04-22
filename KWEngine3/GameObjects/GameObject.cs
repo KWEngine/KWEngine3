@@ -1198,6 +1198,20 @@ namespace KWEngine3.GameObjects
             return distanceToCameraOther > distanceToCameraThis ? 1 : -1;
         }
 
+        /// <summary>
+        /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
+        /// </summary>
+        /// <param name="meshIndex">Index des 3D-Mesh, für das die Hitbox getauscht werden soll</param>
+        public void SetHitboxToCapsuleForMesh(int meshIndex = 0)
+        {
+            if(_hitboxes.Count > meshIndex)
+            {
+                Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.Center, 1.0f), _hitboxes[meshIndex]._mesh.Transform).Xyz;
+                this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter);
+                UpdateModelMatrixAndHitboxes();
+            }
+        }
+
         #region Internals
         internal GameObjectState _statePrevious;
         internal GameObjectState _stateCurrent;
@@ -1290,7 +1304,7 @@ namespace KWEngine3.GameObjects
             _hitboxes.Clear();
             foreach(GeoMeshHitbox gmh in _gModel.ModelOriginal.MeshHitboxes)
             {
-                _hitboxes.Add(new GameObjectHitbox(this, gmh));
+                _hitboxes.Add(new GameObjectHitbox(this, gmh, Vector3.Zero));
             }
             UpdateModelMatrixAndHitboxes();
         }

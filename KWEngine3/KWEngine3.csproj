@@ -8,7 +8,7 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2023-04-19)</Product>
+		<Product>KWEngine3 (updated: 2023-04-22)</Product>
 		<PackageId>KWEngine3</PackageId>
 		<Version>3.0.0.0</Version>
 		<AssemblyVersion>3.0.0.0</AssemblyVersion>
@@ -30,6 +30,7 @@
 		<None Remove="Assets\Fonts\anonymous2.dds" />
 		<None Remove="Assets\Fonts\anonymous3.dds" />
 		<None Remove="Assets\Fonts\anonymous4.dds" />
+		<None Remove="Assets\Models\capsulehitbox.obj" />
 		<None Remove="Assets\Models\dollar.mtl" />
 		<None Remove="Assets\Models\dollar.obj" />
 		<None Remove="Assets\Models\heart.mtl" />
@@ -121,6 +122,7 @@
 		<EmbeddedResource Include="Assets\Fonts\anonymous2.dds" />
 		<EmbeddedResource Include="Assets\Fonts\anonymous3.dds" />
 		<EmbeddedResource Include="Assets\Fonts\anonymous4.dds" />
+		<EmbeddedResource Include="Assets\Models\capsulehitbox.obj" />
 		<EmbeddedResource Include="Assets\Models\dollar.mtl" />
 		<EmbeddedResource Include="Assets\Models\dollar.obj" />
 		<EmbeddedResource Include="Assets\Models\heart.mtl" />

@@ -25,11 +25,13 @@ namespace KWEngine3.GameObjects
         internal GameObject Owner { get; private set; }
         internal GeoMeshHitbox _mesh;
         internal OctreeNode _currentOctreeNode = null;
+        internal Vector3 _offset;
 
-        public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh)
+        public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh, Vector3 offset)
         {
             Owner = owner;
             _mesh = mesh;
+            _offset = offset;
 
             if (_mesh.IsExtended)
             {
@@ -67,7 +69,7 @@ namespace KWEngine3.GameObjects
                     Vector3.TransformNormal(_mesh.Normals[i], _modelMatrixFinal, out _normals[i]);
                     _normals[i].NormalizeFast();
                 }
-                Vector3.TransformPosition(_mesh.Vertices[i], _modelMatrixFinal, out _vertices[i]);
+                Vector3.TransformPosition(_mesh.Vertices[i] + _offset, _modelMatrixFinal, out _vertices[i]);
 
                 if (_vertices[i].X > maxX)
                     maxX = _vertices[i].X;
@@ -82,7 +84,7 @@ namespace KWEngine3.GameObjects
                 if (_vertices[i].Z < minZ)
                     minZ = _vertices[i].Z;
             }
-            Vector3.TransformPosition(_mesh.Center, _modelMatrixFinal, out _center);
+            Vector3.TransformPosition(_mesh.Center + _offset, _modelMatrixFinal, out _center);
             gCenter += _center;
 
             float xWidth = maxX - minX;
