@@ -35,6 +35,7 @@ namespace KWEngine3.Model
         public int VBOIndex { get; internal set; }
         public string Name { get; internal set; }
         public string NameOrg { get; internal set; }
+
         internal Matrix4 Transform;
         public GeoVertex[] Vertices { get; internal set; }
         public OpenTK.Graphics.OpenGL4.PrimitiveType Primitive;

@@ -427,6 +427,7 @@ namespace KWEngine3.Model
             else
             {
                 Material material = scene.Materials[materialId];
+                geoMaterial.RenderBackFace = material.DoubleSided;
                 geoMaterial.Name = material.Name;
                 geoMaterial.BlendMode = OpenTK.Graphics.OpenGL4.BlendingFactor.OneMinusSrcAlpha;
                 geoMaterial.ColorAlbedo = new Vector4(material.PbrMetallicRoughness.BaseColorFactor[0], material.PbrMetallicRoughness.BaseColorFactor[1], material.PbrMetallicRoughness.BaseColorFactor[2], material.PbrMetallicRoughness.BaseColorFactor[3]);

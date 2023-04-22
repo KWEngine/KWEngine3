@@ -53,6 +53,7 @@
       <Method Name="InitializeFontsAndDefaultTextures" Hidden="true" />
       <Method Name="InitializeModels" Hidden="true" />
       <Method Name="InitializeParticles" Hidden="true" />
+      <Field Name="KWCapsule" Hidden="true" />
       <Field Name="KWDollar" Hidden="true" />
       <Field Name="KWHeart" Hidden="true" />
       <Field Name="KWLightBulb" Hidden="true" />
@@ -83,7 +84,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgAZLABAISAAKAFpghuARAAQCAAggIQjGnWSlVCEIE=</HashCode>
+      <HashCode>BYgAZLABAISBAKAFpghuARAAQCAAggIQjGnWSlVCEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -161,7 +162,6 @@
       <Field Name="_attachedTo" Hidden="true" />
       <Field Name="_attachmentMatrix" Hidden="true" />
       <Field Name="_collisionCandidates" Hidden="true" />
-      <Field Name="_currentOctreeNode" Hidden="true" />
       <Field Name="_gameObjectsAttached" Hidden="true" />
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_hitboxes" Hidden="true" />
@@ -199,7 +199,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zikCOxoGmJyq0rTswBqMIQZFgSRzi1kJIIkAHkhYVNU=</HashCode>
+      <HashCode>zikCOxoGmJyq0rTswBqMIQZFgSRzi1kJIIgAHkhYVNU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

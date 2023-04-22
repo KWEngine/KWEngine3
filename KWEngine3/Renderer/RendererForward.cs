@@ -253,11 +253,21 @@ namespace KWEngine3.Renderer
                 
                 UploadTextures(ref material, g);
 
+                if (material.RenderBackFace)
+                {
+                    GL.Disable(EnableCap.CullFace);
+                }
+
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
                 GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
+
+                if (material.RenderBackFace)
+                {
+                    GL.Disable(EnableCap.CullFace);
+                }
             }
         }
 

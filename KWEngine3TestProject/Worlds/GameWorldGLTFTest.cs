@@ -25,9 +25,8 @@ namespace KWEngine3TestProject.Worlds
             SetBackgroundSkybox("./Textures/skybox.dds", 0);
             SetBackgroundBrightnessMultiplier(1.25f);
 
-
-            KWEngine.LoadModel("Sword", "./Models/GLTFTest/Sword.glb");
             KWEngine.LoadModel("Ninja", "./Models/GLTFTest/SwordNinjaAnimated.gltf");
+            KWEngine.LoadModel("Sword", "./Models/GLTFTest/Sword.glb");
 
             Immovable i01 = new Immovable();
             i01.Name = "Sword";

@@ -24,6 +24,7 @@ namespace KWEngine3.Model
 
         public bool TextureRoughnessIsSpecular;
         public bool TextureRoughnessInMetallic;
+        public bool RenderBackFace;
 
         public void SetTexture(string texture, TextureType type, int id)
         {
