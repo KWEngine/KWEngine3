@@ -1019,10 +1019,12 @@ namespace KWEngine3.Model
                         weightsData[i] = BitConverter.ToSingle(dataWeights, i * bytesPerDataWeights);
                     }
                 }
+
                 // Handle last vertex:
                 int lastVertexIndex = verticesArray.Count - 1;
+                int lastVertexIndex2 = verticesArray.Count * 4 - 1;
                 GeoVertex vertexLast = verticesArray[lastVertexIndex];
-                int tmpWeightsSetLast = FillGeoVertexWithBoneIdsAndWeights(bonesData[lastVertexIndex -4], bonesData[lastVertexIndex - 3], bonesData[lastVertexIndex - 2], bonesData[lastVertexIndex - 1], weightsData[lastVertexIndex - 4], weightsData[lastVertexIndex - 3], weightsData[lastVertexIndex - 2], weightsData[lastVertexIndex - 1], ref vertexLast, out List<int> bIds);
+                int tmpWeightsSetLast = FillGeoVertexWithBoneIdsAndWeights(bonesData[lastVertexIndex2 -4], bonesData[lastVertexIndex2 - 3], bonesData[lastVertexIndex2 - 2], bonesData[lastVertexIndex2 - 1], weightsData[lastVertexIndex2 - 4], weightsData[lastVertexIndex2 - 3], weightsData[lastVertexIndex2 - 2], weightsData[lastVertexIndex2 - 1], ref vertexLast, out List<int> bIds);
                 if (tmpWeightsSetLast > numberOfWeightsActuallySet)
                 {
                     numberOfWeightsActuallySet = tmpWeightsSetLast;
@@ -1034,7 +1036,6 @@ namespace KWEngine3.Model
                 }
                 
             }
-            //numberOfWeightsSet = numberOfWeightsActuallySet;
             return verticesArray.ToArray();
         }
 
