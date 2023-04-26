@@ -199,7 +199,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zikCOxoGmJyq0rTswBqMIQZFgSRzi1kJIIgAHkhYVNU=</HashCode>
+      <HashCode>zikCOxoGmJyq0rTuwBqMIQZFgSRzi1kJIIgAHkhYVNU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

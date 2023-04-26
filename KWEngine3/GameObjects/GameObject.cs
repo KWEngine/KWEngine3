@@ -41,6 +41,11 @@ namespace KWEngine3.GameObjects
         public string Name { get { return _name; } set { if (value != null && value.Length > 0) _name = value; } }
 
         /// <summary>
+        /// Gibt an, ob für das Objekt auch die der Kamera abgewandten Seiten gerendet werden sollen. Dies kann helfen, einseitige Meshes korrekt zu rendern.
+        /// </summary>
+        public bool DisableBackfaceCulling { get; set; } = false;
+
+        /// <summary>
         /// Standardkonstruktor (erzeugt mit einem Würfel als 3D-Modell)
         /// </summary>
         public GameObject()

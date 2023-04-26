@@ -21,6 +21,10 @@ namespace KWEngine3TestProject.Worlds
             DirectoryInfo di = new DirectoryInfo("./Models/PlatformerPack");
             foreach(FileInfo fi in di.GetFiles())
             {
+                if (fi.Name == "Toon.gltf")
+                {
+
+                }
                 KWEngine.LoadModel(fi.Name.Substring(0, fi.Name.LastIndexOf('.')), "./Models/PlatformerPack/" + fi.Name);
             }
 

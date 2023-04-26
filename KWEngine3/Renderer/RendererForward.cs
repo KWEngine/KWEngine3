@@ -253,7 +253,7 @@ namespace KWEngine3.Renderer
                 
                 UploadTextures(ref material, g);
 
-                if (material.RenderBackFace)
+                if (material.RenderBackFace && g.DisableBackfaceCulling)
                 {
                     GL.Disable(EnableCap.CullFace);
                 }
@@ -264,7 +264,7 @@ namespace KWEngine3.Renderer
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
 
-                if (material.RenderBackFace)
+                if (material.RenderBackFace && g.DisableBackfaceCulling)
                 {
                     GL.Disable(EnableCap.CullFace);
                 }
