@@ -327,7 +327,7 @@ namespace KWEngine3.Editor
 
                     if (SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet)
                     {
-                        if (ImGui.InputFloat2("Texture transform", ref uvTransform, "%.2f", ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
+                        if (ImGui.InputFloat2("Texture transform", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
                         {
                             SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
                         }
@@ -730,13 +730,14 @@ namespace KWEngine3.Editor
                     KWEngine.CurrentWorld._cameraEditor.SetFOVForPerspectiveProjection(fov);
                 }
                 ImGui.PopItemWidth();
-                ImGui.SameLine();
+                /*ImGui.SameLine();
                 ImGui.Indent(312);
                 if (ImGui.Button("Apply perspective to game"))
                 {
                     KWEngine.CurrentWorld._cameraGame = KWEngine.CurrentWorld._cameraEditor;
                     KWEngine.CurrentWorld._cameraGame._statePrevious = KWEngine.CurrentWorld._cameraGame._stateCurrent;
                 }
+                */
                 ImGui.NewLine();
                 ImGui.Separator();
                 ImGui.NewLine();
@@ -760,6 +761,11 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.CurrentWorld._cameraEditor = KWEngine.CurrentWorld._cameraGame;
                     KWEngine.CurrentWorld._cameraEditor.UpdatePitchYaw(true);
+                }
+                if(ImGui.MenuItem("Apply current view to game camera"))
+                {
+                    KWEngine.CurrentWorld._cameraGame = KWEngine.CurrentWorld._cameraEditor;
+                    KWEngine.CurrentWorld._cameraGame._statePrevious = KWEngine.CurrentWorld._cameraGame._stateCurrent;
                 }
                 ImGui.EndMenu();
             }

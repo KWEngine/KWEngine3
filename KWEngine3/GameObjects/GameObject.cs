@@ -1207,7 +1207,9 @@ namespace KWEngine3.GameObjects
             if(_hitboxes.Count > meshIndex)
             {
                 Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.Center, 1.0f), _hitboxes[meshIndex]._mesh.Transform).Xyz;
-                this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter);
+                Vector3 frontbottomleft = new Vector3(_hitboxes[meshIndex]._mesh.minX, _hitboxes[meshIndex]._mesh.minY, _hitboxes[meshIndex]._mesh.maxZ);
+                Vector3 backtopright = new Vector3(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ);
+                this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
                 UpdateModelMatrixAndHitboxes();
             }
         }
@@ -1304,7 +1306,7 @@ namespace KWEngine3.GameObjects
             _hitboxes.Clear();
             foreach(GeoMeshHitbox gmh in _gModel.ModelOriginal.MeshHitboxes)
             {
-                _hitboxes.Add(new GameObjectHitbox(this, gmh, Vector3.Zero));
+                _hitboxes.Add(new GameObjectHitbox(this, gmh));
             }
             UpdateModelMatrixAndHitboxes();
         }

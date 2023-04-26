@@ -25,14 +25,29 @@ namespace KWEngine3.GameObjects
         internal GameObject Owner { get; private set; }
         internal GeoMeshHitbox _mesh;
         internal OctreeNode _currentOctreeNode = null;
-        internal Vector3 _offset;
+        internal Matrix4 _capsulePreTransform = Matrix4.Identity;
+        internal bool _isCapsule = false;
 
-        public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh, Vector3 offset)
+        public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh, Vector3 offset, Vector3 frontbottomleft, Vector3 backtopright)
         {
             Owner = owner;
             _mesh = mesh;
-            _offset = offset;
 
+            _isCapsule = true;
+            _capsulePreTransform =  Matrix4.CreateScale(backtopright.X - frontbottomleft.X, backtopright.Y - frontbottomleft.Y, frontbottomleft.Z - backtopright.Z) * Matrix4.CreateTranslation(offset);
+
+            if (_mesh.IsExtended)
+            {
+                _vertices = new Vector3[mesh.Vertices.Length];
+                _normals = new Vector3[mesh.Normals.Length];
+            }
+        }
+
+        public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh)
+        {
+            Owner = owner;
+            _mesh = mesh;
+           
             if (_mesh.IsExtended)
             {
                 _vertices = new Vector3[mesh.Vertices.Length];
@@ -45,15 +60,23 @@ namespace KWEngine3.GameObjects
             if (!IsActive)
                 return false;
 
+            Matrix4 meshPreTransform = _mesh.Transform;
+
+            if (_isCapsule)
+            {
+                meshPreTransform = _capsulePreTransform * meshPreTransform;
+            }
+
             if (Owner._stateCurrent._scaleHitbox != Vector3.One)
             {
-                Matrix4.Mult(_mesh.Transform, Matrix4.CreateScale(Owner._stateCurrent._scaleHitbox), out Matrix4 tempMatrix);
+                Matrix4.Mult(meshPreTransform, Matrix4.CreateScale(Owner._stateCurrent._scaleHitbox), out Matrix4 tempMatrix);
                 Matrix4.Mult(tempMatrix, HelperMatrix.CreateModelMatrix(Owner._stateCurrent), out _modelMatrixFinal);
             }
             else
             {
-                Matrix4.Mult(_mesh.Transform, HelperMatrix.CreateModelMatrix(Owner._stateCurrent), out _modelMatrixFinal);
+                Matrix4.Mult(meshPreTransform, HelperMatrix.CreateModelMatrix(Owner._stateCurrent), out _modelMatrixFinal);
             }
+            
 
             float minX = float.MaxValue;
             float maxX = float.MinValue;
@@ -69,7 +92,7 @@ namespace KWEngine3.GameObjects
                     Vector3.TransformNormal(_mesh.Normals[i], _modelMatrixFinal, out _normals[i]);
                     _normals[i].NormalizeFast();
                 }
-                Vector3.TransformPosition(_mesh.Vertices[i] + _offset, _modelMatrixFinal, out _vertices[i]);
+                Vector3.TransformPosition(_mesh.Vertices[i], _modelMatrixFinal, out _vertices[i]);
 
                 if (_vertices[i].X > maxX)
                     maxX = _vertices[i].X;
@@ -84,7 +107,7 @@ namespace KWEngine3.GameObjects
                 if (_vertices[i].Z < minZ)
                     minZ = _vertices[i].Z;
             }
-            Vector3.TransformPosition(_mesh.Center + _offset, _modelMatrixFinal, out _center);
+            Vector3.TransformPosition(_mesh.Center, _modelMatrixFinal, out _center);
             gCenter += _center;
 
             float xWidth = maxX - minX;
