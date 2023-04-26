@@ -741,7 +741,7 @@ namespace KWEngine3.Model
                 }
                 else
                 {
-                    if (i.Uri.StartsWith("data:application/octet-stream;base64"))
+                    if (i.BufferView >= 0 || (i.Uri != null && i.Uri.StartsWith("data:application/octet-stream;base64")))
                     {
                         data = GetDataFromBase64Stream(scene, i, i.Uri);
                     }
@@ -855,15 +855,50 @@ namespace KWEngine3.Model
 
         private static byte[] GetDataFromBase64Stream(Gltf scene, glTFLoader.Schema.Image accessor, string uri)
         {
-            int commapos = uri.IndexOf(',');
-            int bufferViewId = accessor.BufferView != null ? (int)accessor.BufferView : -1;
+            byte[] chunk = null;
             byte[] data = null;
-            if (commapos >= 0 && bufferViewId >= 0)
+            int bufferViewId = bufferViewId = accessor.BufferView != null ? (int)accessor.BufferView : -1;
+            if (uri != null && bufferViewId >= 0)
             {
-                byte[] chunk = Convert.FromBase64String(uri.Substring(commapos + 1));
-                data = new byte[scene.BufferViews[bufferViewId].ByteLength];
-                Array.Copy(chunk, scene.BufferViews[bufferViewId].ByteOffset, data, 0, data.Length);
+                int commapos = uri.IndexOf(',');
+                if (commapos >= 0)
+                {
+                    chunk = Convert.FromBase64String(uri.Substring(commapos + 1));
+                    data = new byte[scene.BufferViews[bufferViewId].ByteLength];
+                    Array.Copy(chunk, scene.BufferViews[bufferViewId].ByteOffset, data, 0, data.Length);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
+                    return null;
+                }
             }
+            else if (uri == null && bufferViewId >= 0)
+            {
+                int bufferId = scene.BufferViews[bufferViewId].Buffer;
+                glTFLoader.Schema.Buffer buff = scene.Buffers[bufferId];
+                if(buff.Uri != null && buff.Uri.StartsWith("data:application/octet-stream;base64"))
+                {
+                    int commapos = buff.Uri.IndexOf(',');
+                    if (commapos >= 0)
+                    {
+                        chunk = Convert.FromBase64String(buff.Uri.Substring(commapos + 1));
+                        data = new byte[scene.BufferViews[bufferViewId].ByteLength];
+                        Array.Copy(chunk, scene.BufferViews[bufferViewId].ByteOffset, data, 0, data.Length);
+                    }
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
+                        return null;
+                    }
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
+                    return null;
+                }
+            }
+            
             else
             {
                 KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
@@ -1547,7 +1582,7 @@ namespace KWEngine3.Model
                     ga.AnimationChannels = new Dictionary<string, GeoNodeAnimationChannel>();
                     if (a.Channels != null)
                     {
-                        List<GeoNodeAnimationChannel> channels = new List<GeoNodeAnimationChannel>();
+                        Dictionary<string, GeoNodeAnimationChannel> channels = new Dictionary<string, GeoNodeAnimationChannel>();
                         List<GeoAnimationKeyframe> rotationKeys = new List<GeoAnimationKeyframe>();
                         List<GeoAnimationKeyframe> scaleKeys = new List<GeoAnimationKeyframe>();
                         List<GeoAnimationKeyframe> translationKeys = new List<GeoAnimationKeyframe>();
@@ -1577,21 +1612,15 @@ namespace KWEngine3.Model
                                     kframes.Add(keyframe);
                                 }
 
-                                for (int i = 0; i < channels.Count; i++)
-                                {
-                                    if (channels[i].NodeName == targetBoneName)
-                                    {
-                                        gnac = channels[i];
-                                        break;
-                                    }
-                                }
+                                channels.TryGetValue(targetBoneName, out gnac);
                                 if (gnac == null)
                                 {
                                     gnac = new GeoNodeAnimationChannel();
                                     gnac.NodeName = targetBoneName;
-                                    channels.Add(gnac);
+                                    channels.Add(targetBoneName, gnac);
                                 }
                                 gnac.TranslationKeys = kframes;
+
                             }
 
                             // Rotation:
@@ -1615,19 +1644,12 @@ namespace KWEngine3.Model
                                     kframes.Add(keyframe);
                                 }
 
-                                for (int i = 0; i < channels.Count; i++)
-                                {
-                                    if (channels[i].NodeName == targetBoneName)
-                                    {
-                                        gnac = channels[i];
-                                        break;
-                                    }
-                                }
+                                channels.TryGetValue(targetBoneName, out gnac);
                                 if (gnac == null)
                                 {
                                     gnac = new GeoNodeAnimationChannel();
                                     gnac.NodeName = targetBoneName;
-                                    channels.Add(gnac);
+                                    channels.Add(targetBoneName, gnac);
                                 }
                                 gnac.RotationKeys = kframes;
                             }
@@ -1653,24 +1675,17 @@ namespace KWEngine3.Model
                                     kframes.Add(keyframe);
                                 }
 
-                                for (int i = 0; i < channels.Count; i++)
-                                {
-                                    if (channels[i].NodeName == targetBoneName)
-                                    {
-                                        gnac = channels[i];
-                                        break;
-                                    }
-                                }
+                                channels.TryGetValue(targetBoneName, out gnac);
                                 if (gnac == null)
                                 {
                                     gnac = new GeoNodeAnimationChannel();
                                     gnac.NodeName = targetBoneName;
-                                    channels.Add(gnac);
+                                    channels.Add(targetBoneName, gnac);
                                 }
                                 gnac.ScaleKeys = kframes;
                             }
                         }
-                        foreach (GeoNodeAnimationChannel channel in channels)
+                        foreach (GeoNodeAnimationChannel channel in channels.Values)
                         {
                             ga.AnimationChannels.Add(channel.NodeName, channel);
                         }
