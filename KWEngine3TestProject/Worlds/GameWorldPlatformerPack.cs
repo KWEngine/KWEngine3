@@ -21,6 +21,8 @@ namespace KWEngine3TestProject.Worlds
             {
                 KWEngine.LoadModel(fi.Name.Substring(0, fi.Name.LastIndexOf('.')), "./Models/PlatformerPack/" + fi.Name);
             }
+
+
         }
     }
 }
