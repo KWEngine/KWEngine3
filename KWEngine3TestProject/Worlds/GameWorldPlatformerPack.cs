@@ -1,5 +1,6 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldPlatformerPack;
 using System;
 using System.Collections.Generic;
@@ -21,11 +22,8 @@ namespace KWEngine3TestProject.Worlds
             DirectoryInfo di = new DirectoryInfo("./Models/PlatformerPack");
             foreach(FileInfo fi in di.GetFiles())
             {
-                if (fi.Name == "Toon.gltf")
-                {
-
-                }
-                KWEngine.LoadModel(fi.Name.Substring(0, fi.Name.LastIndexOf('.')), "./Models/PlatformerPack/" + fi.Name);
+                if(HelperGeneral.IsModelFile(fi.Name))
+                    KWEngine.LoadModel(fi.Name.Substring(0, fi.Name.LastIndexOf('.')), "./Models/PlatformerPack/" + fi.Name);
             }
 
 
@@ -101,10 +99,6 @@ namespace KWEngine3TestProject.Worlds
             p.IsCollisionObject = true;
             p.SetHitboxToCapsuleForMesh(0);
             p.SetAnimationID(0);
-            foreach(string bone in KWEngine.GetModelBoneNames("Toon"))
-            {
-                Console.WriteLine(bone);
-            }
             AddGameObject(p);
 
             Weapon w = new Weapon();

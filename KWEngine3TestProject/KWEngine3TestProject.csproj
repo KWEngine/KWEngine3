@@ -334,7 +334,10 @@
     <None Update="Models\PlatformerPack\Gem_Pink.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Models\PlatformerPack\George.gltf">
+    <None Update="Models\PlatformerPack\GeorgeRobot.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\PlatformerPack\GeorgeRobot_Albedo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Models\PlatformerPack\Goal_Flag.gltf">

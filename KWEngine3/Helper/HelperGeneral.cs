@@ -1,5 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
+using System.Runtime.InteropServices;
 
 namespace KWEngine3.Helper
 {
@@ -8,6 +9,107 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
+        /// <summary>
+        /// Prüft, ob der Dateiname darauf hindeutet, dass ein 3D-Modell in der Datei gespeichert ist
+        /// </summary>
+        /// <param name="file">Dateiname (inkl. Dateiendung)</param>
+        /// <returns>true, wenn es sich um eine Datei mit 3D-Modell handelt</returns>
+        public static bool IsModelFile(string file)
+        {
+            string ext = file.Substring(file.LastIndexOf('.') + 1).ToLower();
+            switch(ext)
+            {
+                case "gltf":
+                    return true;
+                case "glb":
+                    return true;
+                case "fbx":
+                    return true;
+                case "obj":
+                    return true;
+                case "dae":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// Prüft, ob der Dateiname darauf hindeutet, dass ein 3D-Modell in der Datei gespeichert ist
+        /// </summary>
+        /// <param name="file">Datei als FileInfo-Objekt</param>
+        /// <returns>true, wenn es sich um eine Datei mit 3D-Modell handelt</returns>
+        public static bool IsModelFile(FileInfo file)
+        {
+            string ext = file.Extension.ToLower();
+            switch (ext)
+            {
+                case "gltf":
+                    return true;
+                case "glb":
+                    return true;
+                case "fbx":
+                    return true;
+                case "obj":
+                    return true;
+                case "dae":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        internal static Vector3 ToVector3(byte[] ar, int start, int length)
+        {
+
+            byte[] data = ar;//= { 1, 0, 0, 0, 9, 8, 7 }; // IntValue = 1, Array = {9,8,7}
+            IntPtr ptPoit = Marshal.AllocHGlobal(length);
+            Marshal.Copy(data, start, ptPoit, length);
+
+            
+            Vector3 x = (Vector3)Marshal.PtrToStructure(ptPoit, typeof(Vector3));
+            Marshal.FreeHGlobal(ptPoit);
+
+            return x;
+        }
+
+        internal static Quaternion ToQuaternion(byte[] ar, int start, int length)
+        {
+
+            byte[] data = ar;
+            IntPtr ptPoit = Marshal.AllocHGlobal(length);
+            Marshal.Copy(data, start, ptPoit, length);
+
+
+            Quaternion x = (Quaternion)Marshal.PtrToStructure(ptPoit, typeof(Quaternion));
+            Marshal.FreeHGlobal(ptPoit);
+
+            return x;
+        }
+
+        internal static Vector3[] ConvertByteArrayToVector3List(Span<byte> myArray)
+        {
+            return MemoryMarshal.Cast<byte, Vector3>(myArray).ToArray();
+        }
+
+        internal static Quaternion[] ConvertByteArrayToQuaternionList(Span<byte> myArray)
+        {
+            return MemoryMarshal.Cast<byte, Quaternion>(myArray).ToArray();
+        }
+
+        internal static float[] ConvertByteArrayToFloatList(Span<byte> myArray)
+        {
+            return MemoryMarshal.Cast<byte, float>(myArray).ToArray();
+        }
+
+        internal static T CastToStruct<T>(this byte[] data) where T : struct
+        {
+            var pData = GCHandle.Alloc(data, GCHandleType.Pinned);
+            var result = (T)Marshal.PtrToStructure(pData.AddrOfPinnedObject(), typeof(T));
+            pData.Free();
+            return result;
+        }
+
         internal static Vector3 Get3DMouseCoords(Vector2 mc)
         {
             mc.X = (2.0f * mc.X) / KWEngine.Window.ClientRectangle.Size.X - 1.0f;

@@ -238,6 +238,10 @@ namespace KWEngine3.Helper
                 Vector3.Lerp(scalingStart, scalingEnd, factor, out Vector3 scaling);
                 return scaling;
             }
+            if(timestamp > channel.ScaleKeys[channel.ScaleKeys.Count - 1].Time)
+            {
+                return channel.ScaleKeys[channel.ScaleKeys.Count - 1].Scale;
+            }
 
             for (int i = 0; i < channel.ScaleKeys.Count - 1; i++)
             {
@@ -275,6 +279,10 @@ namespace KWEngine3.Helper
                 Vector3.Lerp(transStart, transEnd, factor, out Vector3 translation);
                 return translation;
             }
+            if (timestamp > channel.TranslationKeys[channel.TranslationKeys.Count - 1].Time)
+            {
+                return channel.TranslationKeys[channel.TranslationKeys.Count - 1].Translation;
+            }
 
             for (int i = 0; i < channel.TranslationKeys.Count - 1; i++)
             {
@@ -311,9 +319,12 @@ namespace KWEngine3.Helper
                 Quaternion transStart = lastKey.Rotation;
                 Quaternion transEnd = firstKey.Rotation;
                 return Quaternion.Slerp(transStart, transEnd, factor);
-                
             }
 
+            if (timestamp > channel.RotationKeys[channel.RotationKeys.Count - 1].Time)
+            {
+                return channel.RotationKeys[channel.RotationKeys.Count - 1].Rotation;
+            }
 
             for (int i = 0; i < channel.RotationKeys.Count - 1; i++)
             {
