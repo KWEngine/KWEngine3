@@ -196,10 +196,12 @@
       <Property Name="LeftRightMost" Hidden="true" />
       <Method Name="ResetBoneAttachments" Hidden="true" />
       <Method Name="SetScaleRotationAndTranslation" Hidden="true" />
+      <Method Name="SetTextureOffsetForMaterial" Hidden="true" />
+      <Method Name="SetTextureRepeatForMaterial" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zikCOxoGmJyq0rTuwBqMIQZFgSRzi1kJIIgAHkhYVNU=</HashCode>
+      <HashCode>zykCOxoGmJyq0rTuwBqMIQZFgSRzi1kJIIgAHkhYVNU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
