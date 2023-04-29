@@ -704,6 +704,7 @@ namespace KWEngine3.GameObjects
             {
                 _stateCurrent._scaleHitbox = Vector3.One;
             }
+            UpdateModelMatrixAndHitboxes();
         }
 
         /// <summary>
@@ -956,6 +957,18 @@ namespace KWEngine3.GameObjects
             _stateCurrent._uvTransform = new Vector4(_stateCurrent._uvTransform.X, _stateCurrent._uvTransform.Y, x, y);
         }
 
+
+        /// <summary>
+        /// Setzt die Texturverschiebung auf dem Objekt
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// /// <param name="meshId">ID des 3D-Modellanteils (Standard: 0)</param>
+        public void SetTextureOffset(float x, float y, int meshId)
+        {
+            SetTextureOffsetForMaterial(x, y, meshId);
+        }
+
         /// <summary>
         /// Setzt die Texturwiederholung auf dem Objekt (Standard: 1)
         /// </summary>
@@ -964,6 +977,47 @@ namespace KWEngine3.GameObjects
         public void SetTextureRepeat(float x, float y)
         {
             _stateCurrent._uvTransform = new Vector4(x, y, _stateCurrent._uvTransform.Z, _stateCurrent._uvTransform.W);
+        }
+
+        /// <summary>
+        /// Setzt die Texturwiederholung auf einem einzelnen Mesh eines Objekts (Standard: 1)
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        /// <param name="meshIndex">Nullbasierter Index des zu ändernden Meshs/Materials</param>
+        public void SetTextureRepeat(float x, float y, int meshIndex)
+        {
+            SetTextureRepeatForMaterial(x, y, meshIndex);
+        }
+        
+        internal void SetTextureRepeatForMaterial(float x, float y, int materialIndex)
+        {
+            if(_gModel.Material.Length > materialIndex && _gModel.Material[materialIndex].TextureAlbedo.IsTextureSet)
+            {
+                float clipX = _gModel.Material[materialIndex].TextureAlbedo.UVTransform.Z;
+                float clipY = _gModel.Material[materialIndex].TextureAlbedo.UVTransform.W;
+                _gModel.Material[materialIndex].TextureAlbedo.UVTransform = new Vector4(x, y, clipX, clipY);
+            }
+            else
+            {
+                if(_gModel.Material.Length <= materialIndex)
+                    KWEngine.LogWriteLine("[GameObject] Texture repeat: invalid material");
+            }
+        }
+
+        internal void SetTextureOffsetForMaterial(float x, float y, int materialIndex)
+        {
+            if (_gModel.Material.Length > materialIndex && _gModel.Material[materialIndex].TextureAlbedo.IsTextureSet)
+            {
+                float repeatX = _gModel.Material[materialIndex].TextureAlbedo.UVTransform.X;
+                float repeatY = _gModel.Material[materialIndex].TextureAlbedo.UVTransform.Y;
+                _gModel.Material[materialIndex].TextureAlbedo.UVTransform = new Vector4(repeatX, repeatY, x, y);
+            }
+            else
+            {
+                if (_gModel.Material.Length <= materialIndex)
+                    KWEngine.LogWriteLine("[GameObject] Texture offset: invalid material");
+            }
         }
 
         /// <summary>

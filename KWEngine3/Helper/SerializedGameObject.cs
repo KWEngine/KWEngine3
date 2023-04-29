@@ -1,4 +1,5 @@
 ﻿using KWEngine3.GameObjects;
+using KWEngine3.Model;
 
 namespace KWEngine3.Helper
 {
@@ -31,20 +32,19 @@ namespace KWEngine3.Helper
         public float Metallic { get; set; }
         public float Roughness { get; set; }
         public MetallicType MetallicType { get; set; }
-        public float[] TextureOffset { get; set; }
-        public float[] TextureRepeat { get; set; }
-        public string TextureAlbedo { get; set; }
-        public string TextureNormal { get; set; }
-        public string TextureRoughness { get; set; }
-        public string TextureMetallic { get; set; }
-        public string TextureEmissive { get; set; }
-
+        public List<float[]> TextureOffset { get; set; }
+        public List<float[]> TextureRepeat { get; set; }
+        public string[] TextureAlbedo { get; set; }
+        public string[] TextureNormal { get; set; }
+        public string[] TextureRoughness { get; set; }
+        public string[] TextureMetallic { get; set; }
+        public string[] TextureEmissive { get; set; }
+        public bool[] TextureRoughnessInMetallic { get; set; }
         public float[] TextureTransform { get; set; }
 
         public static SerializedGameObject GenerateSerializedGameObject(GameObject g, World w)
         {
             SerializedGameObject sg = new SerializedGameObject();
-
             sg.ID = g.ID;
             sg.IsShadowCaster = g.IsShadowCaster;
             sg.IsCollisionObject = g.IsCollisionObject;
@@ -64,13 +64,35 @@ namespace KWEngine3.Helper
             sg.Metallic = g._gModel._metallic;
             sg.Roughness = g._gModel._roughness;
             sg.MetallicType = g._gModel._metallicType;
-            sg.TextureOffset = new float[] { g._gModel.Material[0].TextureAlbedo.UVTransform.Z, g._gModel.Material[0].TextureAlbedo.UVTransform.W };
-            sg.TextureRepeat = new float[] { g._gModel.Material[0].TextureAlbedo.UVTransform.X, g._gModel.Material[0].TextureAlbedo.UVTransform.Y };
-            sg.TextureAlbedo = g._gModel.Material[0].TextureAlbedo.Filename;
-            sg.TextureNormal = g._gModel.Material[0].TextureNormal.Filename;
-            sg.TextureRoughness = g._gModel.Material[0].TextureRoughness.Filename;
-            sg.TextureMetallic = g._gModel.Material[0].TextureMetallic.Filename;
-            sg.TextureEmissive = g._gModel.Material[0].TextureEmissive.Filename;
+
+            // Export/import repeat for all materials...
+            sg.TextureOffset = new List<float[]>();
+            sg.TextureRepeat = new List<float[]>();
+            foreach (GeoMaterial mat in g._gModel.Material)
+            {
+                sg.TextureRepeat.Add(new float[] { mat.TextureAlbedo.UVTransform.X, mat.TextureAlbedo.UVTransform.Y });
+                sg.TextureOffset.Add(new float[] { mat.TextureAlbedo.UVTransform.Z, mat.TextureAlbedo.UVTransform.W });
+            }
+
+            sg.TextureAlbedo = new string[g._gModel.Material.Length];
+            sg.TextureNormal = new string[g._gModel.Material.Length];
+            sg.TextureRoughness = new string[g._gModel.Material.Length];
+            sg.TextureMetallic = new string[g._gModel.Material.Length];
+            sg.TextureEmissive = new string[g._gModel.Material.Length];
+            sg.TextureRoughnessInMetallic = new bool[g._gModel.Material.Length];
+
+            int i = 0;
+            foreach (GeoMaterial mat in g._gModel.Material)
+            {
+                sg.TextureAlbedo[i] = mat.TextureAlbedo.IsTextureSet ? mat.TextureAlbedo.Filename : null;
+                sg.TextureNormal[i] = mat.TextureNormal.IsTextureSet ? mat.TextureNormal.Filename : null;
+                sg.TextureRoughness[i] = mat.TextureRoughness.IsTextureSet ? mat.TextureRoughness.Filename : null;
+                sg.TextureMetallic[i] = mat.TextureMetallic.IsTextureSet ? mat.TextureMetallic.Filename : null;
+                sg.TextureEmissive[i] = mat.TextureEmissive.IsTextureSet ? mat.TextureEmissive.Filename : null;
+                sg.TextureRoughnessInMetallic[i] = mat.TextureRoughnessInMetallic;
+                i++;
+            }
+
             sg.TextureTransform = new float[] { g._stateCurrent._uvTransform.X, g._stateCurrent._uvTransform.Y, g._stateCurrent._uvTransform.Z, g._stateCurrent._uvTransform.W };
 
             if(g.IsAttachedToGameObject)

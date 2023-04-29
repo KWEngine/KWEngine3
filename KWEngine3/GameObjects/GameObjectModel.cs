@@ -21,27 +21,32 @@ namespace KWEngine3.GameObjects
 
         public void SetTexture(string filename, TextureType type, int meshId)
         {
-            int textureId;
-            if(KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
+            if (Material.Length > meshId)
             {
-                textureId = KWEngine.CurrentWorld._customTextures[filename];
-            }
-            else
-            {
-                HelperGeneral.CheckGLErrors();
-                textureId = HelperTexture.LoadTextureForModelExternal(filename, out int mipMaps);
-                HelperGeneral.CheckGLErrors();
-                if (textureId < 0)
+                int textureId;
+                if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
                 {
-                    textureId = KWEngine.TextureDefault;
+                    textureId = KWEngine.CurrentWorld._customTextures[filename];
                 }
                 else
                 {
-                    KWEngine.CurrentWorld._customTextures.Add(filename, textureId);
-                }
+                    textureId = HelperTexture.LoadTextureForModelExternal(filename, out int mipMaps);
+                    if (textureId < 0)
+                    {
+                        textureId = KWEngine.TextureDefault;
+                    }
+                    else
+                    {
+                        KWEngine.CurrentWorld._customTextures.Add(filename, textureId);
+                    }
 
+                }
+                Material[meshId].SetTexture(filename, type, textureId);
             }
-            Material[meshId].SetTexture(filename, type, textureId);
+            else
+            {
+                KWEngine.LogWriteLine("[GameObject] Invalid texture id");
+            }
         }
 
         public void UnsetTextureForPrimitive(TextureType type)

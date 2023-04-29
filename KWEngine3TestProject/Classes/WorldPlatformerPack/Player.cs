@@ -55,12 +55,15 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
             {
                 if (i.Object is Obstacle)
                 {
+                   
+                    
                     if (Math.Abs(i.MTV.X) > Math.Abs(mtv.X))
                         mtv.X = i.MTV.X;
                     if (Math.Abs(i.MTV.Y) > Math.Abs(mtv.Y))
                         mtv.Y = i.MTV.Y;
                     if (Math.Abs(i.MTV.Z) > Math.Abs(mtv.Z))
                         mtv.Z = i.MTV.Z;
+                    
                 }
                 else if (i.Object is Weapon)
                 {
@@ -71,10 +74,11 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
                     HelperGameObjectAttachment.SetScaleForAttachment(i.Object, 1.25f, 1.25f, 1.25f);
                 }
             }
-            MoveOffset(mtv);
+            if(mtv != Vector3.Zero)
+                MoveOffset(mtv);
 
-            CurrentWorld.SetCameraPosition(Center + new Vector3(0, 10, 25));
-            CurrentWorld.SetCameraTarget(Center);
+            CurrentWorld.SetCameraPosition(Position + new Vector3(0, 10, 25));
+            CurrentWorld.SetCameraTarget(Position);
 
         }
     }

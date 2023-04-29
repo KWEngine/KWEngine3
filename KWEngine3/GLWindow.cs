@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using KWEngine2.Renderer;
 using KWEngine3.Audio;
 using KWEngine3.Editor;
 using KWEngine3.Framebuffers;

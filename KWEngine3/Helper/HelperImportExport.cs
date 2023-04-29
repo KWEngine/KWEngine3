@@ -26,7 +26,7 @@ namespace KWEngine3.Helper
             }
             if(json.Length > 0)
             {
-                string filename = DateTime.Now.ToString("yyyy-MM-dd") + "_world-export.json";
+                string filename = wex.Type + ".json";
                 bool ok = false;
                 try
                 {
@@ -239,19 +239,19 @@ namespace KWEngine3.Helper
             t.SetMetallic(st.Metallic);
             t.SetRoughness(st.Roughness);
 
-            if (IsBuiltInModel(st.ModelName) && IsTextureSet(st.TextureAlbedo))
+            if (IsTextureSetTerrain(st.TextureAlbedo))
                 t.SetTexture(st.TextureAlbedo);
 
-            if (IsBuiltInModel(st.ModelName) && IsTextureSet(st.TextureNormal))
+            if (IsTextureSetTerrain(st.TextureNormal))
                 t.SetTexture(st.TextureNormal, TextureType.Normal);
 
-            if (IsBuiltInModel(st.ModelName) && IsTextureSet(st.TextureRoughness))
+            if (IsTextureSetTerrain(st.TextureRoughness))
                 t.SetTexture(st.TextureRoughness, TextureType.Roughness);
 
-            if (IsBuiltInModel(st.ModelName) && IsTextureSet(st.TextureMetallic))
+            if (IsTextureSetTerrain(st.TextureMetallic))
                 t.SetTexture(st.TextureMetallic, TextureType.Metallic);
 
-            if (IsBuiltInModel(st.ModelName) && IsTextureSet(st.TextureEmissive))
+            if (IsTextureSetTerrain(st.TextureEmissive))
                 t.SetTexture(st.TextureEmissive, TextureType.Emissive);
 
             if (st.TextureTransform != null && st.TextureTransform.Length >= 2)
@@ -301,23 +301,39 @@ namespace KWEngine3.Helper
             g.SetMetallicType(sg.MetallicType);
             g.SetRoughness(sg.Roughness);
 
-            g.SetTextureOffset(sg.TextureOffset[0], sg.TextureOffset[1]);
-            g.SetTextureRepeat(sg.TextureRepeat[0], sg.TextureRepeat[1]);
+           
 
-            if (IsBuiltInModel(sg.ModelName) && IsTextureSet(sg.TextureAlbedo))
-                g.SetTexture(sg.TextureAlbedo);
+            for(int i = 0; i < sg.TextureAlbedo.Length; i++)
+            {
+                if (IsTextureSet(sg.TextureAlbedo[i], g._gModel.Material[i].TextureAlbedo.Filename))
+                    g.SetTexture(sg.TextureAlbedo[i], TextureType.Albedo, i);
 
-            if (IsBuiltInModel(sg.ModelName) && IsTextureSet(sg.TextureNormal))
-                g.SetTexture(sg.TextureNormal, TextureType.Normal);
+                if (IsTextureSet(sg.TextureNormal[i], g._gModel.Material[i].TextureNormal.Filename))
+                    g.SetTexture(sg.TextureNormal[i], TextureType.Normal, i);
 
-            if (IsBuiltInModel(sg.ModelName) && IsTextureSet(sg.TextureRoughness))
-                g.SetTexture(sg.TextureRoughness, TextureType.Roughness);
+                if (IsTextureSet(sg.TextureRoughness[i], g._gModel.Material[i].TextureRoughness.Filename))
+                    g.SetTexture(sg.TextureRoughness[i], TextureType.Roughness, i);
 
-            if (IsBuiltInModel(sg.ModelName) && IsTextureSet(sg.TextureMetallic))
-                g.SetTexture(sg.TextureMetallic, TextureType.Metallic);
+                if (IsTextureSet(sg.TextureMetallic[i], g._gModel.Material[i].TextureMetallic.Filename))
+                    g.SetTexture(sg.TextureMetallic[i], TextureType.Metallic, i);
 
-            if (IsBuiltInModel(sg.ModelName) && IsTextureSet(sg.TextureEmissive))
-                g.SetTexture(sg.TextureEmissive, TextureType.Emissive);
+                if (IsTextureSet(sg.TextureEmissive[i], g._gModel.Material[i].TextureEmissive.Filename))
+                    g.SetTexture(sg.TextureEmissive[i], TextureType.Emissive, i);
+
+            }
+
+            for (int i = 0; i < sg.TextureRepeat.Count; i++)
+            {
+                float[] repeat = sg.TextureRepeat[i];
+                float[] offset = sg.TextureOffset[i];
+                g.SetTextureRepeat(repeat[0], repeat[1], i);
+                g.SetTextureOffset(offset[0], offset[1], i);
+            }
+
+            for(int i = 0; i < sg.TextureRoughnessInMetallic.Length; i++)
+            {
+                g._gModel.Material[i].TextureRoughnessInMetallic = sg.TextureRoughnessInMetallic[i];
+            }
 
             g.SetTextureRepeat(sg.TextureTransform[0], sg.TextureTransform[1]);
             if(sg.TextureTransform.Length == 4)
@@ -345,10 +361,31 @@ namespace KWEngine3.Helper
 
         private static bool IsBuiltInModel(string name)
         {
-            return name == "KWCube" || name == "KWSphere" || name == "KWQuad";
+            return name == "KWCube" || name == "KWSphere" || name == "KWQuad" || name == "KWPlatform";
         }
 
-        private static bool IsTextureSet(string texname)
+        
+        private static bool IsTextureSet(string texname, string currentTex)
+        {
+            if (texname != null)
+            {
+                bool texesAreEqual = false;
+                if(currentTex != null)
+                {
+                    string currentTexFileOnly = Path.GetFileNameWithoutExtension(currentTex).ToLower().Trim();
+                    string texnameFileOnly = Path.GetFileNameWithoutExtension(texname).ToLower().Trim();
+                    texesAreEqual = currentTexFileOnly == texnameFileOnly;
+                }
+
+                return texname != null && texname.Trim().Length > 0 && !texesAreEqual;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static bool IsTextureSetTerrain(string texname)
         {
             return texname != null && texname.Trim().Length > 0;
         }

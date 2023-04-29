@@ -39,12 +39,17 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(sun);
 
             Floor f = new Floor();
-            f.SetScale(66, 1, 66);
-            f.SetPosition(0, -0.5f, 0);
+            f.SetModel("KWPlatform");
+            f.SetScale(66, 8, 66);
+            f.SetPosition(0, -4f, 0);
             f.IsCollisionObject = true;
             f.IsShadowCaster = true;
-            f.SetTexture("./Textures/Grass_02_512.png");
-            f.SetTextureRepeat(4, 4);
+            f.SetTexture("./Textures/Grass_02_512.png", TextureType.Albedo, 0);
+            f.SetTexture("./Textures/Grass_02_512.png", TextureType.Albedo, 1);
+            f.SetTexture("./Textures/Grass_02_512.png", TextureType.Albedo, 2);
+            f.SetTextureRepeat(4, 4, 0);
+            f.SetTextureRepeat(4, 1, 1);
+            f.SetTextureRepeat(4, 1, 2);
             AddGameObject(f);
 
             for(float x = -24; x < 40; x += 16)
@@ -53,6 +58,7 @@ namespace KWEngine3TestProject.Worlds
                 fence.Name = "Fence";
                 fence.SetModel("Fence_Middle16");
                 fence.SetPosition(x, 0, 32);
+                fence.SetHitboxScale(1, 10, 1);
                 fence.IsCollisionObject = true;
                 fence.IsShadowCaster = true;
                 AddGameObject(fence);
@@ -64,6 +70,7 @@ namespace KWEngine3TestProject.Worlds
                 fence.Name = "Fence";
                 fence.SetModel("Fence_Middle16");
                 fence.SetPosition(x, 0, -32);
+                fence.SetHitboxScale(1, 10, 1);
                 fence.IsCollisionObject = true;
                 fence.IsShadowCaster = true;
                 AddGameObject(fence);
@@ -76,6 +83,7 @@ namespace KWEngine3TestProject.Worlds
                 fence.SetModel("Fence_Middle16");
                 fence.SetPosition(-32, 0, z);
                 fence.SetRotation(0, 90, 0);
+                fence.SetHitboxScale(1, 10, 1);
                 fence.IsCollisionObject = true;
                 fence.IsShadowCaster = true;
                 AddGameObject(fence);
@@ -88,13 +96,15 @@ namespace KWEngine3TestProject.Worlds
                 fence.SetModel("Fence_Middle16");
                 fence.SetPosition(32, 0, z);
                 fence.SetRotation(0, 90, 0);
+                fence.SetHitboxScale(1, 10, 1);
                 fence.IsCollisionObject = true;
                 fence.IsShadowCaster = true;
                 AddGameObject(fence);
             }
 
             Player p = new Player();
-            p.SetModel("Toon");
+            p.SetModel("GeorgeRobot");
+            p.SetTexture("./Models/PlatformerPack/GeorgeRobot_Albedo_Blue.png", TextureType.Albedo, 0);
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
             p.SetHitboxToCapsuleForMesh(0);

@@ -47,7 +47,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld._customTextures.Clear();
 
             // MODELS
-            for(int i = Models.Keys.Count - 1; i >= 3; i--)
+            for(int i = Models.Keys.Count - 1; i >= 4; i--)
             {
                 string modelName = Models.Keys.ElementAt(i);
                 GeoModel m = Models[modelName];
@@ -249,6 +249,7 @@ namespace KWEngine3
             Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", true, SceneImporter.AssemblyMode.Internal));
             Models.Add("KWQuad", SceneImporter.LoadModel("kwquad.obj", true, SceneImporter.AssemblyMode.Internal));
             Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.fbx", true, SceneImporter.AssemblyMode.Internal));
+            Models.Add("KWPlatform", SceneImporter.LoadModel("kwplatform.obj", true, SceneImporter.AssemblyMode.Internal));
             KWStar = SceneImporter.LoadModel("star.obj", false, SceneImporter.AssemblyMode.Internal);
             KWHeart = SceneImporter.LoadModel("heart.obj", false, SceneImporter.AssemblyMode.Internal);
             KWSkull = SceneImporter.LoadModel("skull.obj", false, SceneImporter.AssemblyMode.Internal);
@@ -455,7 +456,7 @@ namespace KWEngine3
                 KWEngine.LogWriteLine("[Import] Models must be imported in Prepare()");
                 return; 
             }
-
+            GeoModel m = null;
             if (Models.ContainsKey(name.Trim()))
             {
                 if (callerName != "BuildWorld")
@@ -463,18 +464,25 @@ namespace KWEngine3
                     KWEngine.LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " already exists");
                     return;
                 }
-            }
-            GeoModel m = SceneImporter.LoadModel(filename, true, SceneImporter.AssemblyMode.File);
-            if (m != null)
-            {
-                name = name.Trim();
-                m.Name = name;
-                Models.Add(name, m);
+                else
+                {
+                    m = Models[name.Trim()];
+                }
             }
             else
             {
-                KWEngine.LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " invalid");
-                return;
+                m = SceneImporter.LoadModel(filename, true, SceneImporter.AssemblyMode.File);
+                if (m != null)
+                {
+                    name = name.Trim();
+                    m.Name = name;
+                    Models.Add(name, m);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " invalid");
+                    return;
+                }
             }
         }
 

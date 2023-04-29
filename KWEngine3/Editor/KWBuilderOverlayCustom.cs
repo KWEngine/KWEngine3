@@ -118,6 +118,14 @@ namespace KWEngine3.Editor
                 float colorEmissiveIntensityNew = SelectedGameObject._stateCurrent._colorEmissive.W;
                 string gName = SelectedGameObject.Name;
                 string modelName = SelectedGameObject._gModel.ModelOriginal.Name;
+                if (modelName == "kwcube.obj")
+                    modelName = "KWCube";
+                else if (modelName == "kwsphere.fbx")
+                    modelName = "KWSphere";
+                else if (modelName == "kwquad.obj")
+                    modelName = "KWQuad";
+                else if (modelName == "kwplatform.obj")
+                    modelName = "KWPlatform";
 
                 ImGui.Begin("GameObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
                 ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 720 - 32), ImGuiCond.Once);
@@ -741,7 +749,6 @@ namespace KWEngine3.Editor
                 ImGui.NewLine();
                 ImGui.Separator();
                 ImGui.NewLine();
-                ImGui.Indent(-312);
                 if(ImGui.Button("Export world & objects"))
                 {
                     KWEngine.CurrentWorld.Export();

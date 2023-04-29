@@ -7,7 +7,7 @@ using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using KWEngine3;
 
-namespace KWEngine2.Renderer
+namespace KWEngine3.Renderer
 {
     internal static class RendererParticle 
     {

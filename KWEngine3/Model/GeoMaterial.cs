@@ -95,6 +95,7 @@ namespace KWEngine3.Model
                     Height = height,
                     MipMaps = mipmaps
                 };
+                TextureRoughnessInMetallic = false;
             }
             else if (type == TextureType.Normal)
             {
