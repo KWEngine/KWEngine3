@@ -322,6 +322,9 @@
     <None Update="Models\PlatformerPack\Fence_Middle16.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Models\PlatformerPack\Fence_Middle64.gltf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Models\PlatformerPack\Fruit.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -52,55 +52,44 @@ namespace KWEngine3TestProject.Worlds
             f.SetTextureRepeat(8, 1, 2);
             AddGameObject(f);
 
-            for(float x = -24; x < 40; x += 16)
-            {
-                Obstacle fence = new Obstacle();
-                fence.Name = "Fence";
-                fence.SetModel("Fence_Middle16");
-                fence.SetPosition(x, 0, 32);
-                fence.SetHitboxScale(1, 10, 1);
-                fence.IsCollisionObject = true;
-                fence.IsShadowCaster = true;
-                AddGameObject(fence);
-            }
+            Obstacle fenceFront = new Obstacle();
+            fenceFront.Name = "FenceFront";
+            fenceFront.SetModel("Fence_Middle64");
+            fenceFront.SetPosition(0, 0, 32);
+            fenceFront.IsCollisionObject = true;
+            fenceFront.IsShadowCaster = true;
+            AddGameObject(fenceFront);
 
-            for (float x = -24; x < 40; x += 16)
-            {
-                Obstacle fence = new Obstacle();
-                fence.Name = "Fence";
-                fence.SetModel("Fence_Middle16");
-                fence.SetPosition(x, 0, -32);
-                fence.SetHitboxScale(1, 10, 1);
-                fence.IsCollisionObject = true;
-                fence.IsShadowCaster = true;
-                AddGameObject(fence);
-            }
+            Obstacle fenceBack = new Obstacle();
+            fenceBack.Name = "FenceBack";
+            fenceBack.SetModel("Fence_Middle64");
+            fenceBack.SetPosition(0, 0, -32);
+            fenceBack.IsCollisionObject = true;
+            fenceBack.IsShadowCaster = true;
+            AddGameObject(fenceBack);
 
-            for (float z = -24; z < 40; z += 16)
-            {
-                Obstacle fence = new Obstacle();
-                fence.Name = "Fence";
-                fence.SetModel("Fence_Middle16");
-                fence.SetPosition(-32, 0, z);
-                fence.SetRotation(0, 90, 0);
-                fence.SetHitboxScale(1, 10, 1);
-                fence.IsCollisionObject = true;
-                fence.IsShadowCaster = true;
-                AddGameObject(fence);
-            }
 
-            for (float z = -24; z < 40; z += 16)
-            {
-                Obstacle fence = new Obstacle();
-                fence.Name = "Fence";
-                fence.SetModel("Fence_Middle16");
-                fence.SetPosition(32, 0, z);
-                fence.SetRotation(0, 90, 0);
-                fence.SetHitboxScale(1, 10, 1);
-                fence.IsCollisionObject = true;
-                fence.IsShadowCaster = true;
-                AddGameObject(fence);
-            }
+            Obstacle fenceLeft = new Obstacle();
+            fenceLeft.Name = "FenceLeft";
+            fenceLeft.SetModel("Fence_Middle64");
+            fenceLeft.SetPosition(-32, 0, 0);
+            fenceLeft.SetRotation(0, 90, 0);
+            fenceLeft.SetHitboxScale(1, 10, 1);
+            fenceLeft.IsCollisionObject = true;
+            fenceLeft.IsShadowCaster = true;
+            AddGameObject(fenceLeft);
+
+
+            Obstacle fenceRight = new Obstacle();
+            fenceRight.Name = "FenceRight";
+            fenceRight.SetModel("Fence_Middle64");
+            fenceRight.SetPosition(32, 0, 0);
+            fenceRight.SetRotation(0, 90, 0);
+            fenceRight.SetHitboxScale(1, 10, 1);
+            fenceRight.IsCollisionObject = true;
+            fenceRight.IsShadowCaster = true;
+            AddGameObject(fenceRight);
+
 
             Player p = new Player();
             p.SetModel("Toon");
