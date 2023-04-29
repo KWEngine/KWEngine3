@@ -119,7 +119,7 @@ namespace KWEngine3.GameObjects
         /// <param name="m">Faktor (0 bis 1)</param>
         public void SetMetallic(float m)
         {
-            _gModel._metallic = MathHelper.Clamp(m, 0f, 1f);
+            _gModel._metallicTerrain = MathHelper.Clamp(m, 0f, 1f);
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace KWEngine3.GameObjects
         /// <param name="r">Rauheit</param>
         public void SetRoughness(float r)
         {
-            _gModel._roughness = MathHelper.Clamp(r, 0.00001f, 1f);
+            _gModel._roughnessTerrain = MathHelper.Clamp(r, 0.00001f, 1f);
         }
 
         /// <summary>

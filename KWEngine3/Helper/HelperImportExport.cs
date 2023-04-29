@@ -297,11 +297,12 @@ namespace KWEngine3.Helper
 
             g.SetColor(sg.Color[0], sg.Color[1], sg.Color[2]);
             g.SetColorEmissive(sg.ColorEmissive[0], sg.ColorEmissive[1], sg.ColorEmissive[2], sg.ColorEmissive[3]);
-            g.SetMetallic(sg.Metallic);
+            for(int i = 0; i < sg.Metallic.Count; i++)
+            {
+                g.SetMetallic(sg.Metallic[i], i);
+                g.SetRoughness(sg.Roughness[i], i);
+            }
             g.SetMetallicType(sg.MetallicType);
-            g.SetRoughness(sg.Roughness);
-
-           
 
             for(int i = 0; i < sg.TextureAlbedo.Length; i++)
             {

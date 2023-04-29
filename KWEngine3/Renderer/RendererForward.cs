@@ -214,10 +214,7 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W <= 0)
                     continue;
 
-                if (g._gModel.ModelOriginal.IsPrimitive)
-                    GL.Uniform2(UMetallicRoughness, new Vector2(g._gModel._metallic, g._gModel._roughness));
-                else
-                    GL.Uniform2(UMetallicRoughness, new Vector2(material.Metallic, material.Roughness));
+                GL.Uniform2(UMetallicRoughness, new Vector2(material.Metallic, material.Roughness));
 
                 if (g.IsAnimated)
                 {

@@ -132,10 +132,7 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
-                if (g._gModel.ModelOriginal.IsPrimitive)
-                    GL.Uniform3(UMetallicRoughness, new Vector3(g._gModel._metallic, g._gModel._roughness, (int)g._gModel._metallicType));
-                else
-                    GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, (int)g._gModel._metallicType));
+                GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, (int)g._gModel._metallicType));
 
                 if (material.TextureEmissive.IsTextureSet)
                     GL.Uniform4(UColorEmissive, Vector4.Zero);
@@ -152,10 +149,6 @@ namespace KWEngine3.Renderer
                         Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
                         GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
                     }
-                    
-                    //float[] matrices = HelperMatrix.Matrix4ToArray(g._stateRender._boneTranslationMatrices[mesh.Name]);
-                    //GL.Uniform4(UBoneTransforms, matrices.Length / 4, matrices);
-                    
                 }
                 else
                 {

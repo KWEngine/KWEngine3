@@ -54,8 +54,8 @@ namespace KWEngine3.Helper
 
             st.Color = new float[] { t._stateCurrent._colorTint.X, t._stateCurrent._colorTint.Y, t._stateCurrent._colorTint.Z };
             st.ColorEmissive = new float[] { t._stateCurrent._colorEmissive.X, t._stateCurrent._colorEmissive.Y, t._stateCurrent._colorEmissive.Z, t._stateCurrent._colorEmissive.W };
-            st.Metallic = t._gModel._metallic;
-            st.Roughness = t._gModel._roughness;
+            st.Metallic = t._gModel._metallicTerrain;
+            st.Roughness = t._gModel._roughnessTerrain;
             st.MetallicType = t._gModel._metallicType;
             st.TextureOffset = new float[] { t._stateCurrent._uvTransform.Z, t._stateCurrent._uvTransform.W };
             st.TextureRepeat = new float[] { t._stateCurrent._uvTransform.X, t._stateCurrent._uvTransform.Y };

@@ -9,8 +9,8 @@ namespace KWEngine3.GameObjects
     {
         public GeoModel ModelOriginal { get; set; } = null;
         public GeoMaterial[] Material { get; set; }
-        internal float _metallic = 0f;
-        internal float _roughness = 1f;
+        internal float _metallicTerrain = 0f;
+        internal float _roughnessTerrain = 1f;
         internal MetallicType _metallicType = MetallicType.Default;
 
         public GameObjectModel(GeoModel mOrg)
@@ -49,9 +49,9 @@ namespace KWEngine3.GameObjects
             }
         }
 
-        public void UnsetTextureForPrimitive(TextureType type)
+        public void UnsetTextureForPrimitive(TextureType type, int meshId = 0)
         {
-            Material[0].SetTexture(null, type, -1);
+            Material[meshId].SetTexture(null, type, -1);
         }
     }
 }

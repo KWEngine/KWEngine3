@@ -911,9 +911,11 @@ namespace KWEngine3.GameObjects
         /// Setzt fest, wie metallisch das Objekt ist
         /// </summary>
         /// <param name="m">Metallwert (zwischen 0 und 1)</param>
-        public void SetMetallic(float m)
+        /// <param name="meshId">ID des zu ändernden Meshs/Materials (Standard: 0)</param>
+        public void SetMetallic(float m, int meshId = 0)
         {
-            _gModel._metallic = MathHelper.Clamp(m, 0f, 1f);
+            if(meshId < _gModel.Material.Length)
+                _gModel.Material[meshId].Metallic = MathHelper.Clamp(m, 0f, 1f);
         }
 
         /// <summary>
@@ -929,9 +931,11 @@ namespace KWEngine3.GameObjects
         /// Setzt die Rauheit der Objektoberfläche (Standard: 1)
         /// </summary>
         /// <param name="r">Rauheit (zwischen 0 und 1)</param>
-        public void SetRoughness(float r)
+        /// <param name="meshId">ID des zu ändernden Meshs/Materials (Standard: 0)</param>
+        public void SetRoughness(float r, int meshId = 0)
         {
-            _gModel._roughness = MathHelper.Clamp(r, 0.00001f, 1f);
+            if (meshId < _gModel.Material.Length)
+                _gModel.Material[meshId].Roughness = MathHelper.Clamp(r, 0.00001f, 1f);
         }
 
         /// <summary>

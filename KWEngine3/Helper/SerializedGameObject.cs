@@ -29,8 +29,8 @@ namespace KWEngine3.Helper
         // COLOR
         public float[] Color { get; set; }
         public float[] ColorEmissive { get; set; }
-        public float Metallic { get; set; }
-        public float Roughness { get; set; }
+        public List<float> Metallic { get; set; }
+        public List<float> Roughness { get; set; }
         public MetallicType MetallicType { get; set; }
         public List<float[]> TextureOffset { get; set; }
         public List<float[]> TextureRepeat { get; set; }
@@ -61,19 +61,14 @@ namespace KWEngine3.Helper
 
             sg.Color = new float[] { g._stateCurrent._colorTint.X, g._stateCurrent._colorTint.Y, g._stateCurrent._colorTint.Z };
             sg.ColorEmissive = new float[] { g._stateCurrent._colorEmissive.X, g._stateCurrent._colorEmissive.Y, g._stateCurrent._colorEmissive.Z, g._stateCurrent._colorEmissive.W };
-            sg.Metallic = g._gModel._metallic;
-            sg.Roughness = g._gModel._roughness;
+            
             sg.MetallicType = g._gModel._metallicType;
 
             // Export/import repeat for all materials...
             sg.TextureOffset = new List<float[]>();
             sg.TextureRepeat = new List<float[]>();
-            foreach (GeoMaterial mat in g._gModel.Material)
-            {
-                sg.TextureRepeat.Add(new float[] { mat.TextureAlbedo.UVTransform.X, mat.TextureAlbedo.UVTransform.Y });
-                sg.TextureOffset.Add(new float[] { mat.TextureAlbedo.UVTransform.Z, mat.TextureAlbedo.UVTransform.W });
-            }
-
+            sg.Metallic = new List<float>();
+            sg.Roughness = new List<float>();
             sg.TextureAlbedo = new string[g._gModel.Material.Length];
             sg.TextureNormal = new string[g._gModel.Material.Length];
             sg.TextureRoughness = new string[g._gModel.Material.Length];
@@ -84,6 +79,11 @@ namespace KWEngine3.Helper
             int i = 0;
             foreach (GeoMaterial mat in g._gModel.Material)
             {
+                sg.TextureRepeat.Add(new float[] { mat.TextureAlbedo.UVTransform.X, mat.TextureAlbedo.UVTransform.Y });
+                sg.TextureOffset.Add(new float[] { mat.TextureAlbedo.UVTransform.Z, mat.TextureAlbedo.UVTransform.W });
+                sg.Metallic.Add(mat.Metallic);
+                sg.Roughness.Add(mat.Roughness);
+
                 sg.TextureAlbedo[i] = mat.TextureAlbedo.IsTextureSet ? mat.TextureAlbedo.Filename : null;
                 sg.TextureNormal[i] = mat.TextureNormal.IsTextureSet ? mat.TextureNormal.Filename : null;
                 sg.TextureRoughness[i] = mat.TextureRoughness.IsTextureSet ? mat.TextureRoughness.Filename : null;

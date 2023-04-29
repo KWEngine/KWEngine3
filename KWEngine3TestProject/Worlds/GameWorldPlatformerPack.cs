@@ -45,11 +45,11 @@ namespace KWEngine3TestProject.Worlds
             f.IsCollisionObject = true;
             f.IsShadowCaster = true;
             f.SetTexture("./Textures/Grass_02_512.png", TextureType.Albedo, 0);
-            f.SetTexture("./Textures/Grass_02_512.png", TextureType.Albedo, 1);
-            f.SetTexture("./Textures/Grass_02_512.png", TextureType.Albedo, 2);
+            f.SetTexture("./Textures/Grass_01_512.png", TextureType.Albedo, 1);
+            f.SetTexture("./Textures/Grass_01_512.png", TextureType.Albedo, 2);
             f.SetTextureRepeat(4, 4, 0);
-            f.SetTextureRepeat(4, 1, 1);
-            f.SetTextureRepeat(4, 1, 2);
+            f.SetTextureRepeat(8, 1, 1);
+            f.SetTextureRepeat(8, 1, 2);
             AddGameObject(f);
 
             for(float x = -24; x < 40; x += 16)
@@ -103,8 +103,7 @@ namespace KWEngine3TestProject.Worlds
             }
 
             Player p = new Player();
-            p.SetModel("GeorgeRobot");
-            p.SetTexture("./Models/PlatformerPack/GeorgeRobot_Albedo_Blue.png", TextureType.Albedo, 0);
+            p.SetModel("Toon");
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
             p.SetHitboxToCapsuleForMesh(0);
@@ -114,7 +113,7 @@ namespace KWEngine3TestProject.Worlds
             Weapon w = new Weapon();
             w.SetModel("Gun");
             w.Name = "Gun";
-            w.SetScale(2);
+            w.SetScale(3);
             w.IsCollisionObject = true;
             w.SetPosition(15, 0.25f, 10);
             w.SetPivot(15, 0.25f, 10);
@@ -122,6 +121,7 @@ namespace KWEngine3TestProject.Worlds
 
             SetBackgroundSkybox("./Textures/skybox.png");
             SetBackgroundBrightnessMultiplier(1.25f);
+            
         }
     }
 }

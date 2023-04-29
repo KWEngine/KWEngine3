@@ -1,7 +1,9 @@
-﻿using ImGuiNET;
+﻿using Assimp;
+using ImGuiNET;
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
+using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -258,8 +260,8 @@ namespace KWEngine3.Editor
 
                 if (SelectedGameObject._gModel.ModelOriginal.IsPrimitive)
                 {
-                    float roughness = SelectedGameObject._gModel._roughness;
-                    float metallic = SelectedGameObject._gModel._metallic;
+                    float roughness = SelectedGameObject._gModel.Material[0].Roughness;
+                    float metallic = SelectedGameObject._gModel.Material[0].Metallic;
                     if (SelectedGameObject._gModel.Material[0].TextureRoughness.IsTextureSet == false)
                     {
                         if (ImGui.SliderFloat("Global roughness", ref roughness, 0f, 1f))
@@ -342,6 +344,150 @@ namespace KWEngine3.Editor
                     }
 
                     
+                }
+                else if(SelectedGameObject._modelNameInDB == "KWPlatform")
+                {
+                    float[] roughness = new float[SelectedGameObject._gModel.Material.Length];
+                    float[] metallic = new float[SelectedGameObject._gModel.Material.Length];
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Metallic/Roughness:");
+                    ImGui.PushItemWidth(100);
+                    for (int i = 0; i < SelectedGameObject._gModel.Material.Length; i++)
+                    {
+                        if (SelectedGameObject._gModel.Material[i].ColorAlbedo.W <= 0)
+                            continue;
+                        if(i > 0)
+                            ImGui.SameLine();
+                        roughness[i] = SelectedGameObject._gModel.Material[i].Roughness;
+                        if (SelectedGameObject._gModel.Material[i].TextureRoughness.IsTextureSet == false)
+                        {
+                            if (ImGui.SliderFloat("R #" + i, ref roughness[i], 0f, 1f))
+                            {
+                                SelectedGameObject.SetRoughness(roughness[i], i);
+                            }
+                            
+                        }
+                        else
+                        {
+                            // TODO
+                            ImGui.TextColored(new System.Numerics.Vector4(0, 0, 0, 1), "-------------------");
+                        }
+                        
+                    }
+                    
+                    for (int i = 0; i < SelectedGameObject._gModel.Material.Length; i++)
+                    {
+                        if (SelectedGameObject._gModel.Material[i].ColorAlbedo.W <= 0)
+                            continue;
+                        if (i > 0 )
+                            ImGui.SameLine();
+                        metallic[i] = SelectedGameObject._gModel.Material[i].Metallic;
+
+                        if (SelectedGameObject._gModel.Material[i].TextureMetallic.IsTextureSet == false)
+                        {
+                            if (ImGui.SliderFloat("M #" + i, ref metallic[i], 0f, 1f))
+                            {
+                                SelectedGameObject.SetMetallic(metallic[i], i);
+                            }
+                        }
+                        else
+                        {
+                            //TODO
+                            ImGui.TextColored(new System.Numerics.Vector4(0, 0, 0, 1), "-------------------");
+                        }
+
+                    }
+                    ImGui.PopItemWidth();
+
+                    _metallicTypesIndex = (int)SelectedGameObject._gModel._metallicType;
+                    if (ImGui.Combo("Metallic type", ref _metallicTypesIndex, _metallicTypes, _metallicTypes.Length))
+                    {
+                        SelectedGameObject.SetMetallicType(_metallicTypesIndex);
+                    }
+
+                    ImGui.Separator();
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Textures (0=Top/Bottom, 1=Left/Right, 2=Front/Back):");
+                    string[] albedo_t = new string[SelectedGameObject._gModel.Material.Length];
+                    string[] normal_t = new string[SelectedGameObject._gModel.Material.Length];
+                    string[] metallic_t = new string[SelectedGameObject._gModel.Material.Length];
+                    string[] roughness_t = new string[SelectedGameObject._gModel.Material.Length];
+                    string[] emissive_t = new string[SelectedGameObject._gModel.Material.Length];
+
+                    ImGui.PushItemWidth(150);
+                    for (int i = 0; i < SelectedGameObject._gModel.Material.Length; i++)
+                    {
+                        if (SelectedGameObject._gModel.Material[i].ColorAlbedo.W <= 0)
+                            continue;
+
+                        if(i > 0)
+                            ImGui.Separator();
+
+                        albedo_t[i] = SelectedGameObject._gModel.Material[i].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureAlbedo.Filename : "";
+                        normal_t[i] = SelectedGameObject._gModel.Material[i].TextureNormal.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureNormal.Filename : "";
+                        metallic_t[i] = SelectedGameObject._gModel.Material[i].TextureMetallic.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureMetallic.Filename : "";
+                        roughness_t[i] = SelectedGameObject._gModel.Material[i].TextureRoughness.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureRoughness.Filename : "";
+                        emissive_t[i] = SelectedGameObject._gModel.Material[i].TextureEmissive.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureEmissive.Filename : "";
+
+                        
+
+                        if (ImGui.InputText("Albedo " + i, ref albedo_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
+                        {
+                            if (FileNameEmpty(albedo_t[i]))
+                                SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Albedo, i);
+                            else if (File.Exists(albedo_t[i]))
+                                SelectedGameObject.SetTexture(albedo_t[i].Trim().ToLower(), TextureType.Albedo, i);
+                            
+
+                        }
+                        ImGui.SameLine();
+                        if (ImGui.InputText("Normal " + i, ref normal_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
+                        {
+                            if (FileNameEmpty(normal_t[i]))
+                                SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Normal, i);
+                            else if (File.Exists(normal_t[i]))
+                                SelectedGameObject.SetTexture(normal_t[i].Trim().ToLower(), TextureType.Normal, i);
+
+                        }
+                        
+                        if (ImGui.InputText("Roughn." + i, ref roughness_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
+                        {
+                            if (FileNameEmpty(roughness_t[i]))
+                                SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Roughness, i);
+                            else if (File.Exists(roughness_t[i]))
+                                SelectedGameObject.SetTexture(roughness_t[i].Trim().ToLower(), TextureType.Roughness, i);
+
+
+                        }
+                        ImGui.SameLine();
+                        if (ImGui.InputText("Metal  " + i, ref metallic_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
+                        {
+                            if (FileNameEmpty(metallic_t[i]))
+                                SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Metallic, i);
+                            else if (File.Exists(metallic_t[i]))
+                                SelectedGameObject.SetTexture(metallic_t[i].Trim().ToLower(), TextureType.Metallic, i);
+
+                        }
+                        
+                    }
+                    ImGui.PopItemWidth();
+
+                    // Texture transform:
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "UV transform:");
+                    ImGui.PushItemWidth(96);
+                    for (int i = 0; i < SelectedGameObject._gModel.Material.Length; i++)
+                    {
+                        if(SelectedGameObject._gModel.Material[i].TextureAlbedo.IsTextureSet)
+                        {
+                            System.Numerics.Vector2 uvTransform = new System.Numerics.Vector2(SelectedGameObject._gModel.Material[i].TextureAlbedo.UVTransform.X, SelectedGameObject._gModel.Material[i].TextureAlbedo.UVTransform.Y);
+                            if (ImGui.InputFloat2("XY #" + i, ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
+                            {
+                                SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y, i);
+                            }
+                        }
+                        ImGui.SameLine();
+                    }
+
+
+                    ImGui.PopItemWidth();
                 }
                 else if(SelectedGameObject.HasArmatureAndAnimations)
                 {
@@ -512,8 +658,8 @@ namespace KWEngine3.Editor
 
                 ImGui.Separator();
 
-                float roughness = SelectedTerrainObject._gModel._roughness;
-                float metallic = SelectedTerrainObject._gModel._metallic;
+                float roughness = SelectedTerrainObject._gModel._roughnessTerrain;
+                float metallic = SelectedTerrainObject._gModel._metallicTerrain;
                 if (SelectedTerrainObject._gModel.Material[0].TextureRoughness.IsTextureSet == false)
                 {
                     if (ImGui.SliderFloat("Global roughness", ref roughness, 0f, 1f))
@@ -840,7 +986,7 @@ namespace KWEngine3.Editor
             ImGui.Begin("Information", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize);
             ImGui.SetWindowSize(new System.Numerics.Vector2(316, KWEngine.Window.ClientSize.Y - 32));
             ImGui.SetWindowPos(new System.Numerics.Vector2(0, 20), ImGuiCond.Once);
-            ImGui.BeginChild("LOG", new System.Numerics.Vector2(300, 200), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.HorizontalScrollbar);
+            ImGui.BeginChild("LOG", new System.Numerics.Vector2(300, 128), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.HorizontalScrollbar);
             ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Log messages:");
             ImGui.Separator();
             foreach (string logMessage in EngineLog._messages.ToArray())
@@ -861,7 +1007,7 @@ namespace KWEngine3.Editor
             ImGui.EndChild();
 
             // Object list:
-            int y = KWEngine.Window.ClientSize.Y - 128 - 200 - 96;
+            int y = KWEngine.Window.ClientSize.Y - 128 - 128 - 96;
             ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(300, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);            
             if (ImGui.TreeNodeEx("GameObject instances", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.CollapsingHeader | ImGuiTreeNodeFlags.DefaultOpen))
             {
