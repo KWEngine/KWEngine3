@@ -9,16 +9,11 @@ namespace KWEngine3.Helper
         internal static int _sweepTestAxisIndex = 0;
         internal static void SweepAndPrune()
         {
-            int objectCount = KWEngine.CurrentWorld._gameObjects.Count;
             bool vsgObject = false;
-            if (KWEngine.CurrentWorld._viewSpaceGameObject != null)
+            if (KWEngine.CurrentWorld._viewSpaceGameObject != null && KWEngine.CurrentWorld._viewSpaceGameObject.IsCollisionObject)
             {
-                objectCount++;
                 vsgObject = true;
             }
-
-            if (objectCount < 2)
-                return;
 
             List<GameObjectHitbox> axisList = new List<GameObjectHitbox>(KWEngine.CurrentWorld._gameObjectHitboxes);
             if (vsgObject)
@@ -71,14 +66,6 @@ namespace KWEngine3.Helper
                     {
                         continue;
                     }
-                    /*
-                     if (a == 1)
-                        return BottomTopMost;
-                    else if (a == 2)
-                        return BackFrontMost;
-                    else
-                        return LeftRightMost;
-                     */
                     float fromJExtendsX = _sweepTestAxisIndex == 0 ? axisList[j]._left : _sweepTestAxisIndex == 1 ? axisList[j]._low : axisList[j]._back;  // side of neighbor 
                     float fromIExtendsY = _sweepTestAxisIndex == 0 ? axisList[i]._right : _sweepTestAxisIndex == 1 ? axisList[i]._high : axisList[i]._front; // right side of object
                     if (fromJExtendsX > fromIExtendsY)

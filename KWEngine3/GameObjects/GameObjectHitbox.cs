@@ -90,7 +90,7 @@ namespace KWEngine3.GameObjects
                 if (i < _normals.Length)
                 {
                     Vector3.TransformNormal(_mesh.Normals[i], _modelMatrixFinal, out _normals[i]);
-                    _normals[i].NormalizeFast();
+                    _normals[i].Normalize();
                 }
                 Vector3.TransformPosition(_mesh.Vertices[i], _modelMatrixFinal, out _vertices[i]);
 

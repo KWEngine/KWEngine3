@@ -210,11 +210,14 @@ namespace KWEngine3
             foreach (GameObject g in _gameObjectsToBeAdded)
             {
                 _gameObjects.Add(g);
-                foreach (GameObjectHitbox hb in g._hitboxes)
+                if (g._isCollisionObject)
                 {
-                    if (hb.IsActive)
+                    foreach (GameObjectHitbox hb in g._hitboxes)
                     {
-                        _gameObjectHitboxes.Add(hb);
+                        if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
+                        {
+                            _gameObjectHitboxes.Add(hb);
+                        }
                     }
                 }
             }

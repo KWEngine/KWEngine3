@@ -49,6 +49,8 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
             }
 
             // Collision detection:
+            if(isMoving)
+                Console.WriteLine("!");
             List<Intersection> intersections = GetIntersections();
             foreach(Intersection i in intersections)
             {

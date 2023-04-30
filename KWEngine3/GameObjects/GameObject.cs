@@ -18,7 +18,33 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt an, ob das Objekt ein Kollisionen erzeugen und überprüfen kann
         /// </summary>
-        public bool IsCollisionObject { get { return _isCollisionObject; } set { _isCollisionObject = value; } }
+        public bool IsCollisionObject { 
+            get 
+            { 
+                return _isCollisionObject;
+            } 
+            set 
+            {
+                bool valueBefore = _isCollisionObject;
+                _isCollisionObject = value;
+                if (valueBefore == true && value == false)
+                {
+                    foreach (GameObjectHitbox hb in _hitboxes)
+                    {
+                        if (hb.IsActive)
+                            KWEngine.CurrentWorld._gameObjectHitboxes.Remove(hb);
+                    }
+                }
+                else if(valueBefore == false && value == true)
+                {
+                    foreach (GameObjectHitbox hb in _hitboxes)
+                    {
+                        if (hb.IsActive && !KWEngine.CurrentWorld._gameObjectHitboxes.Contains(hb))
+                            KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
+                    }
+                }
+            } 
+        }
         /// <summary>
         /// Gibt an, ob das Objekt Schatten werfen und empfangen kann
         /// </summary>
@@ -1272,7 +1298,10 @@ namespace KWEngine3.GameObjects
                 Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.Center, 1.0f), _hitboxes[meshIndex]._mesh.Transform).Xyz;
                 Vector3 frontbottomleft = new Vector3(_hitboxes[meshIndex]._mesh.minX, _hitboxes[meshIndex]._mesh.minY, _hitboxes[meshIndex]._mesh.maxZ);
                 Vector3 backtopright = new Vector3(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ);
+                bool wasRemoved = CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
                 this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
+                if(wasRemoved)
+                    CurrentWorld._gameObjectHitboxes.Add(this._hitboxes[meshIndex]);
                 UpdateModelMatrixAndHitboxes();
             }
         }

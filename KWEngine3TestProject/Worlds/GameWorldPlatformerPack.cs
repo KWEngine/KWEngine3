@@ -4,9 +4,7 @@ using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldPlatformerPack;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -39,6 +37,7 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(sun);
 
             Floor f = new Floor();
+            f.Name = "Floor";
             f.SetModel("KWPlatform");
             f.SetScale(66, 8, 66);
             f.SetPosition(0, -4f, 0);
@@ -92,6 +91,7 @@ namespace KWEngine3TestProject.Worlds
 
 
             Player p = new Player();
+            p.Name = "Player";
             p.SetModel("Toon");
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
