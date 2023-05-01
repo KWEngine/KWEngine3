@@ -1174,7 +1174,6 @@ namespace KWEngine3.GameObjects
                 {
                     if (_gameObjectsAttached.ContainsKey(node) == false)
                     {
-                        g.SetPosition(0, 0, 0);
                         g.SetRotation(0, 0, 0);
                         g.SetScale(1, 1, 1);
                         g._attachedTo = this;
