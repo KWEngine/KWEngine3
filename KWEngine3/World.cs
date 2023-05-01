@@ -275,6 +275,7 @@ namespace KWEngine3
         internal void PrepareLightObjectsForRenderPass()
         {
             int offset = 0;
+            int offsetTex = 0;
             int cubemapIndex = -1;
             int tex2dIndex = 1;
             _preparedTex2DIndices.Clear();
@@ -284,7 +285,10 @@ namespace KWEngine3
             foreach (LightObject l in _lightObjects)
             {
                 if (KWEngine.Mode == EngineMode.Play && !l.IsInsideScreenSpace)
+                {
+                    offsetTex += KWEngine.LIGHTINDEXDIVIDER;
                     continue;
+                }
 
                 // 00-03 = position and shadow map texture index (vec4)
                 _preparedLightsArray[offset + 00] = l._stateRender._position.X;
@@ -297,13 +301,13 @@ namespace KWEngine3
                 else if (l.Type == LightType.Point)
                 {
                     _currentShadowLights.Add(l);
-                    _preparedCubeMapIndices.Add(offset / KWEngine.LIGHTINDEXDIVIDER);
+                    _preparedCubeMapIndices.Add(offsetTex / KWEngine.LIGHTINDEXDIVIDER);
                     _preparedLightsArray[offset + 03] = cubemapIndex--;
                 }
                 else
                 {
                     _currentShadowLights.Add(l);
-                    _preparedTex2DIndices.Add(offset / KWEngine.LIGHTINDEXDIVIDER);
+                    _preparedTex2DIndices.Add(offsetTex / KWEngine.LIGHTINDEXDIVIDER);
                     _preparedLightsArray[offset + 03] = tex2dIndex++;
                 }
                 // 04-06 = lookatvector (vec3)
@@ -325,6 +329,7 @@ namespace KWEngine3
                 _preparedLightsArray[offset + 16] = l._shadowOffset;
 
                 offset += KWEngine.LIGHTINDEXDIVIDER;
+                offsetTex += KWEngine.LIGHTINDEXDIVIDER;
                 _preparedLightsCount++;
             }
         }
