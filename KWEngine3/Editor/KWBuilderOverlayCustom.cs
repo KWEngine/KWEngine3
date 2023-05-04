@@ -27,6 +27,7 @@ namespace KWEngine3.Editor
             { MouseButton.Middle, new KWMouseButtonState() },
             };
         private static bool _isSkybox = false;
+        private static double _lastUpdateCycleTime = 0;
 
         public static bool IsButtonActive(MouseButton btn)
         {
@@ -39,6 +40,11 @@ namespace KWEngine3.Editor
             {
                 AddFrameTime(0f);
             }
+        }
+
+        public static void UpdateLastUpdateTime(double time)
+        {
+            _lastUpdateCycleTime = time;
         }
 
         public static void AddFrameTime(float t)
@@ -997,17 +1003,18 @@ namespace KWEngine3.Editor
             ImGui.EndChild();
 
             // Frame times
-            ImGui.BeginChild("PERFORMANCE", new System.Numerics.Vector2(300, 128), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
+            ImGui.BeginChild("PERFORMANCE", new System.Numerics.Vector2(300, 144), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
             ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Performance analysis:");
             float[] ftimes = _frameTimes.ToArray();
             ImGui.PlotLines("Frame times", ref ftimes[0], _frameTimes.Count, 0, "", 1f, 100f);
             ImGui.LabelText(Math.Round(KWEngine.LastFrameTime, 2) + " ms", "Last render cycle time:");
             ImGui.LabelText(_fpsValue + " fps", "Average fps:");
             ImGui.LabelText(KWEngine.LastSimulationUpdateCycleCount.ToString(), "Last update cycle count:");
+            ImGui.LabelText(Math.Round(_lastUpdateCycleTime, 2).ToString() + " ms", "Last update cycle time:");
             ImGui.EndChild();
 
             // Object list:
-            int y = KWEngine.Window.ClientSize.Y - 128 - 128 - 96;
+            int y = KWEngine.Window.ClientSize.Y - 128 - 144 - 96;
             ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(300, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);            
             if (ImGui.TreeNodeEx("GameObject instances", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.CollapsingHeader | ImGuiTreeNodeFlags.DefaultOpen))
             {

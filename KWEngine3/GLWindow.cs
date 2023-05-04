@@ -30,6 +30,7 @@ namespace KWEngine3
         internal KWBuilderOverlay Overlay { get; set; }
         internal float _f12timestamp = 0;
 
+        internal Stopwatch _updateWatch = new Stopwatch();
         internal int AnisotropicFiltering { get; set; } = 4;
 
         /// <summary>
@@ -486,9 +487,10 @@ namespace KWEngine3
         internal int UpdateCurrentWorldAndObjects()
         {
             int n = 0;
-
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
+                _updateWatch.Restart();
+
                 KWEngine.CurrentWorld.ResetWorldDimensions();
                 List<GameObject> postponedObjects = new List<GameObject>();
                 List<GameObject> postponedObjectsAttachments = new List<GameObject>();
@@ -607,6 +609,8 @@ namespace KWEngine3
                 }
 
                 KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
+                if(!KWEngine.EditModeActive)
+                    KWBuilderOverlay.UpdateLastUpdateTime(_updateWatch.ElapsedTicks / (double)Stopwatch.Frequency * 1000);
             }
             return n;
         }
