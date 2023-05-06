@@ -25,10 +25,10 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
         {
             if (IsAttachedToGameObject == false)
             {
-                float y = (float)Math.Sin(CurrentWorld.WorldTime * 2);
+                float y = (float)Math.Sin(CurrentWorld.WorldTime);
                 SetPosition(_pivot + new Vector3(0, y * 0.25f, 0));
 
-                AddRotationY(1 + Math.Abs(y));
+                AddRotationY(0.5f + Math.Abs(y));
             }
             
         }

@@ -50,7 +50,7 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
 
             if (move != 0 || strafe != 0)
             {
-                MoveAndStrafeAlongCameraXZ(move, strafe, 0.05f);
+                MoveAndStrafeAlongCameraXZ(move, strafe, 0.025f);
             }
 
             CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0.5f);

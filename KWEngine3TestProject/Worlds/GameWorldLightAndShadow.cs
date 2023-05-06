@@ -26,7 +26,7 @@ namespace KWEngine3TestProject.Worlds
                                                         Axis.Y                      // the axis/plane to rotate around
                                                         );
             _sun.SetPosition(newSunPosition);
-            _sunDegrees = (_sunDegrees - 0.5f) % 360f;   // this will cycle from 0 to 359 and then back to 0
+            _sunDegrees = (_sunDegrees - 0.25f) % 360f;   // this will cycle from 0 to 359 and then back to 0
 
 
             // RED LIGHT CONTROL:

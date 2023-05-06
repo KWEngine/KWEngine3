@@ -10,7 +10,7 @@ namespace KWEngine3TestProject.Classes.WorldLightAndShadow
         {
             if (IsAnimated)
             {
-                SetAnimationPercentageAdvance(0.001f);
+                SetAnimationPercentageAdvance(0.0005f);
             }
         }
     }

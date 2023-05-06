@@ -13,7 +13,7 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
 {
     public class Player : GameObject
     {
-        private float _speed = 0.1f;
+        private float _speed = 0.05f;
 
         public override void Act()
         {
@@ -21,9 +21,9 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
             bool isMoving = false;
 
             if (Keyboard.IsKeyDown(Keys.A))
-                AddRotationY(+2);
+                AddRotationY(+1);
             if (Keyboard.IsKeyDown(Keys.D))
-                AddRotationY(-2);
+                AddRotationY(-1);
 
             if (Keyboard.IsKeyDown(Keys.W))
             {
@@ -40,7 +40,7 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
             if(isMoving == true)
             {
                 SetAnimationID(11);
-                SetAnimationPercentageAdvance(0.01f);
+                SetAnimationPercentageAdvance(0.005f);
             }
             else
             {

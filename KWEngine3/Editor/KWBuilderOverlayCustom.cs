@@ -28,6 +28,7 @@ namespace KWEngine3.Editor
             };
         private static bool _isSkybox = false;
         private static double _lastUpdateCycleTime = 0;
+        private static double _lastRenderCallsTime = 0;
 
         public static bool IsButtonActive(MouseButton btn)
         {
@@ -40,6 +41,11 @@ namespace KWEngine3.Editor
             {
                 AddFrameTime(0f);
             }
+        }
+
+        public static void UpdateLastRenderCallsTime(double time)
+        {
+            _lastRenderCallsTime = time;
         }
 
         public static void UpdateLastUpdateTime(double time)
@@ -992,7 +998,7 @@ namespace KWEngine3.Editor
             ImGui.Begin("Information", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize);
             ImGui.SetWindowSize(new System.Numerics.Vector2(316, KWEngine.Window.ClientSize.Y - 32));
             ImGui.SetWindowPos(new System.Numerics.Vector2(0, 20), ImGuiCond.Once);
-            ImGui.BeginChild("LOG", new System.Numerics.Vector2(300, 128), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.HorizontalScrollbar);
+            ImGui.BeginChild("LOG", new System.Numerics.Vector2(300, 128-32), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.HorizontalScrollbar);
             ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Log messages:");
             ImGui.Separator();
             foreach (string logMessage in EngineLog._messages.ToArray())
@@ -1003,7 +1009,7 @@ namespace KWEngine3.Editor
             ImGui.EndChild();
 
             // Frame times
-            ImGui.BeginChild("PERFORMANCE", new System.Numerics.Vector2(300, 144), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
+            ImGui.BeginChild("PERFORMANCE", new System.Numerics.Vector2(300, 144+32), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
             ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Performance analysis:");
             float[] ftimes = _frameTimes.ToArray();
             ImGui.PlotLines("Frame times", ref ftimes[0], _frameTimes.Count, 0, "", 1f, 100f);
@@ -1011,6 +1017,7 @@ namespace KWEngine3.Editor
             ImGui.LabelText(_fpsValue + " fps", "Average fps:");
             ImGui.LabelText(KWEngine.LastSimulationUpdateCycleCount.ToString(), "Last update cycle count:");
             ImGui.LabelText(Math.Round(_lastUpdateCycleTime, 2).ToString() + " ms", "Last update cycle time:");
+            ImGui.LabelText(Math.Round(_lastRenderCallsTime, 2).ToString() + " ms", "Last render calls time:");
             ImGui.EndChild();
 
             // Object list:

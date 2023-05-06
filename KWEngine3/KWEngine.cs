@@ -18,7 +18,7 @@ namespace KWEngine3
     /// </summary>
     public class KWEngine
     {
-        internal const float SIMULATIONNIBBLESIZE = 1f / 120f;
+        internal const float SIMULATIONNIBBLESIZE = 1f / 240f;
         internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
         internal const int MAXGAMEOBJECTID = 16777216;
         internal const int LIGHTINDEXDIVIDER = 17;
@@ -106,10 +106,10 @@ namespace KWEngine3
             }
         }
         
-        internal static float DeltaTimeAccumulator { get; set; } = 0.0f;
+        internal static double DeltaTimeAccumulator { get; set; } = 0.0f;
         internal static float DeltaTimeFactorForOverlay { get; set; } = 1f;
         //public static float DeltaTimeFactor { get; internal set; } = 1f;
-        internal static float DeltaTimeCurrentNibbleSize { get; set; } = SIMULATIONNIBBLESIZE;
+        internal static double DeltaTimeCurrentNibbleSize { get; set; } = SIMULATIONNIBBLESIZE;
         
         /// <summary>
         /// Gibt an, wie lange die aktuelle Welt bereits aktiv ist

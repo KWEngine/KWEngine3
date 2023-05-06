@@ -16,12 +16,12 @@ namespace KWEngine3TestProject.Classes.WorldJumpAndRunPhysics
             Fall
         }
 
-        private readonly Vector3 GRAVITY = new Vector3(0, 0.005f, 0);        // gravity (always stays the same)
-        private readonly Vector3 VELOCITYJUMP = new Vector3(0, 0.175f, 0);   // velocity per jump
+        private readonly Vector3 GRAVITY = new Vector3(0, 0.00125f, 0);      // gravity (always stays the same)
+        private readonly Vector3 VELOCITYJUMP = new Vector3(0, 0.095f, 0);   // velocity per jump
 
         private JumpState _currentState = JumpState.Fall;                    // three states for stand, jump and fall (default)
         private Vector3 _velocity = Vector3.Zero;                            // jump velocity (will become > 0 at jump start and then starts decreasing)
-        private float _walkSpeed = 0.05f;                                    // default walking speed
+        private float _walkSpeed = 0.025f;                                   // default walking speed
         private bool _upKeyReleased = true;                                  // true, if the up key has been released between jumps
 
         public override void Act()
@@ -226,13 +226,13 @@ namespace KWEngine3TestProject.Classes.WorldJumpAndRunPhysics
                 {
                     // switch to walk animation id:
                     SetAnimationID(2);
-                    SetAnimationPercentageAdvance(0.02f);
+                    SetAnimationPercentageAdvance(0.01f);
                 }
                 else
                 {
                     // If player is standing still, switch to idle animation id:
                     SetAnimationID(0);
-                    SetAnimationPercentageAdvance(0.00125f);
+                    SetAnimationPercentageAdvance(0.00125f / 2f);
                 }
             }
             else
@@ -247,7 +247,7 @@ namespace KWEngine3TestProject.Classes.WorldJumpAndRunPhysics
                     {
                         SetAnimationPercentage(0);
                     }
-                    SetAnimationPercentageAdvance(0.0125f);
+                    SetAnimationPercentageAdvance(0.0125f / 2f);
                 }
                 else
                 {
@@ -255,7 +255,7 @@ namespace KWEngine3TestProject.Classes.WorldJumpAndRunPhysics
                     {
                         SetAnimationPercentage(0);
                     }
-                    SetAnimationPercentageAdvance(0.0125f);
+                    SetAnimationPercentageAdvance(0.0125f / 2f);
                 }
             }
         }

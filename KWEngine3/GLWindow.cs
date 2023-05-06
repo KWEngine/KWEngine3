@@ -30,7 +30,7 @@ namespace KWEngine3
         internal KWBuilderOverlay Overlay { get; set; }
         internal float _f12timestamp = 0;
 
-        internal Stopwatch _updateWatch = new Stopwatch();
+        internal Stopwatch _stopwatch = new Stopwatch();
         internal int AnisotropicFiltering { get; set; } = 4;
 
         /// <summary>
@@ -294,9 +294,13 @@ namespace KWEngine3
                 // unbind last render program:
                 GL.UseProgram(0);
             }
+
             KWBuilderOverlay.AddFrameTime(KWEngine.LastFrameTime);
             RenderOverlay((float)e.Time);
- 
+
+            double elapsedTimeForCallsInMS = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency * 1000.0;
+            KWBuilderOverlay.UpdateLastRenderCallsTime(elapsedTimeForCallsInMS);
+
             // bring image to monitor screen:
             SwapBuffers();
             FrameTotalCount++;
@@ -414,64 +418,65 @@ namespace KWEngine3
 
         internal void UpdateScene()
         {
-            if (KWEngine.CurrentWorld != null)
+            List<GameObject> postponedViewSpaceAttachments = new List<GameObject>();
+            if(KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
             {
-                List<GameObject> postponedViewSpaceAttachments = new List<GameObject>();
-                if(KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
+                KWEngine.CurrentWorld._startingFrameActive = false;
+            }
+            int n = 0;
+            if(KWEngine.CurrentWorld._startingFrameActive == false)
+            {
+                n = UpdateCurrentWorldAndObjects(out double elapsedTimeForCall);
+                if (!KWEngine.EditModeActive)
+                    KWBuilderOverlay.UpdateLastUpdateTime(elapsedTimeForCall);
+            }
+
+            // Start render calls:
+            _stopwatch.Restart();
+            KWEngine.LastSimulationUpdateCycleCount = n;
+            float alpha = (float)(KWEngine.DeltaTimeAccumulator / KWEngine.DeltaTimeCurrentNibbleSize);
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if(g.IsAttachedToViewSpaceGameObject == false)
                 {
-                    KWEngine.CurrentWorld._startingFrameActive = false;
+                    HelperSimulation.BlendGameObjectStates(g, alpha);
                 }
-                int n = 0;
-                if(KWEngine.CurrentWorld._startingFrameActive == false)
+                else
                 {
-                    n = UpdateCurrentWorldAndObjects();
+                    postponedViewSpaceAttachments.Add(g);
                 }
+            }
+
+            foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)
+            {
+                HelperSimulation.BlendLightObjectStates(l, alpha);
+            }
+
+            foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+            {
+                HelperSimulation.BlendTerrainObjectStates(t, alpha);
+            }
+
+            HelperSimulation.BlendCameraStates(ref KWEngine.CurrentWorld._cameraGame, ref KWEngine.CurrentWorld._cameraEditor, alpha);
+
+            if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+            {
+                HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha);
+                foreach(GameObject att in postponedViewSpaceAttachments)
+                {
+                    HelperSimulation.BlendGameObjectStates(att, 1f);
+                }
+                KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.Clear();
+            }
                 
-                KWEngine.LastSimulationUpdateCycleCount = n;
-                float alpha = KWEngine.DeltaTimeAccumulator / KWEngine.DeltaTimeCurrentNibbleSize;
-                foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
-                {
-                    if(g.IsAttachedToViewSpaceGameObject == false)
-                    {
-                        HelperSimulation.BlendGameObjectStates(g, alpha);
-                    }
-                    else
-                    {
-                        postponedViewSpaceAttachments.Add(g);
-                    }
-                }
-
-                foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)
-                {
-                    HelperSimulation.BlendLightObjectStates(l, alpha);
-                }
-
-                foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
-                {
-                    HelperSimulation.BlendTerrainObjectStates(t, alpha);
-                }
-
-                HelperSimulation.BlendCameraStates(ref KWEngine.CurrentWorld._cameraGame, ref KWEngine.CurrentWorld._cameraEditor, alpha);
-
-                if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
-                {
-                    HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha);
-                    foreach(GameObject att in postponedViewSpaceAttachments)
-                    {
-                        HelperSimulation.BlendGameObjectStates(att, 1f);
-                    }
-                    KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.Clear();
-                }
-                
                 
 
-                if (KWEngine.Mode == EngineMode.Edit)
-                {
-                    KWEngine.CurrentWorld._cameraEditor._frustum.UpdateFrustum(
-                        KWEngine.CurrentWorld._cameraEditor._stateCurrent.ProjectionMatrix,
-                        KWEngine.CurrentWorld._cameraEditor._stateCurrent.ViewMatrix
-                        );
-                }
+            if (KWEngine.Mode == EngineMode.Edit)
+            {
+                KWEngine.CurrentWorld._cameraEditor._frustum.UpdateFrustum(
+                    KWEngine.CurrentWorld._cameraEditor._stateCurrent.ProjectionMatrix,
+                    KWEngine.CurrentWorld._cameraEditor._stateCurrent.ViewMatrix
+                    );
             }
         }
 
@@ -484,133 +489,136 @@ namespace KWEngine3
         /// </summary>
         public int Height { get { return ClientSize.Y; } }
 
-        internal int UpdateCurrentWorldAndObjects()
+        internal int UpdateCurrentWorldAndObjects(out double elapsedUpdateTimeForCallInMS)
         {
             int n = 0;
+            elapsedUpdateTimeForCallInMS = 0.0;
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
-                _updateWatch.Restart();
-
-                KWEngine.CurrentWorld.ResetWorldDimensions();
-                List<GameObject> postponedObjects = new List<GameObject>();
-                List<GameObject> postponedObjectsAttachments = new List<GameObject>();
-
-                KWEngine.CurrentWorld.AddRemoveGameObjects();
-                KWEngine.CurrentWorld.AddRemoveTerrainObjects();
-                KWEngine.CurrentWorld.AddRemoveLightObjects();
-                KWEngine.CurrentWorld.AddRemoveHUDObjects();
-                HelperSweepAndPrune.SweepAndPrune();
-
-                /*
-                // Octree test:
-                float dimX = KWEngine.CurrentWorld._xMinMax.Y - KWEngine.CurrentWorld._xMinMax.X;
-                float dimY = KWEngine.CurrentWorld._yMinMax.Y - KWEngine.CurrentWorld._yMinMax.X;
-                float dimZ = KWEngine.CurrentWorld._zMinMax.Y - KWEngine.CurrentWorld._zMinMax.X;
-                float dimMax = Math.Max(Math.Max(dimX, dimY), dimZ);
-                HelperOctree.Init(KWEngine.CurrentWorld._worldCenter, dimMax);
-
-                foreach (GameObjectHitbox hb in KWEngine.CurrentWorld._gameObjectHitboxes)
+                _stopwatch.Restart();
+                if (KWEngine.CurrentWorld != null)
                 {
-                    HelperOctree.Add(hb);
-                }
-                */
+                    KWEngine.CurrentWorld.ResetWorldDimensions();
+                    List<GameObject> postponedObjects = new List<GameObject>();
+                    List<GameObject> postponedObjectsAttachments = new List<GameObject>();
 
-                n++;
+                    KWEngine.CurrentWorld.AddRemoveGameObjects();
+                    KWEngine.CurrentWorld.AddRemoveTerrainObjects();
+                    KWEngine.CurrentWorld.AddRemoveLightObjects();
+                    KWEngine.CurrentWorld.AddRemoveHUDObjects();
+                    HelperSweepAndPrune.SweepAndPrune();
 
-                KWEngine.CurrentWorld._cameraGame.BackupCameraState();
-                KWEngine.CurrentWorld._cameraEditor.BackupCameraState();
-                
-                foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
-                {
-                    l._statePrevious = l._stateCurrent;
-                    KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(l);
-                }
-                foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
-                {
-                    t._statePrevious = t._stateCurrent;
-                    KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
-                }
-                
-                foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
-                {
-                    g._statePrevious = g._stateCurrent;
-                    if (!KWEngine.EditModeActive)
+                    /*
+                    // Octree test:
+                    float dimX = KWEngine.CurrentWorld._xMinMax.Y - KWEngine.CurrentWorld._xMinMax.X;
+                    float dimY = KWEngine.CurrentWorld._yMinMax.Y - KWEngine.CurrentWorld._yMinMax.X;
+                    float dimZ = KWEngine.CurrentWorld._zMinMax.Y - KWEngine.CurrentWorld._zMinMax.X;
+                    float dimMax = Math.Max(Math.Max(dimX, dimY), dimZ);
+                    HelperOctree.Init(KWEngine.CurrentWorld._worldCenter, dimMax);
+
+                    foreach (GameObjectHitbox hb in KWEngine.CurrentWorld._gameObjectHitboxes)
                     {
-                        if (g.UpdateLast)
+                        HelperOctree.Add(hb);
+                    }
+                    */
+
+                    n++;
+
+                    KWEngine.CurrentWorld._cameraGame.BackupCameraState();
+                    KWEngine.CurrentWorld._cameraEditor.BackupCameraState();
+
+                    foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
+                    {
+                        l._statePrevious = l._stateCurrent;
+                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(l);
+                    }
+                    foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+                    {
+                        t._statePrevious = t._stateCurrent;
+                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
+                    }
+
+                    foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+                    {
+                        g._statePrevious = g._stateCurrent;
+                        if (!KWEngine.EditModeActive)
                         {
-                            postponedObjects.Add(g);
-                            continue;
-                        }
-                        else if (g.IsAttachedToGameObject)
-                        {
-                            // is g's parent the viewspace-gameobject?
-                            // if true, the object gets updated in a later state and does not need to get updated here
-                            if (KWEngine.CurrentWorld._viewSpaceGameObject != null && g.GetGameObjectThatIAmAttachedTo() == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
+                            if (g.UpdateLast)
                             {
+                                postponedObjects.Add(g);
                                 continue;
                             }
-                            else
+                            else if (g.IsAttachedToGameObject)
                             {
-                                postponedObjectsAttachments.Add(g);
-                                continue;
+                                // is g's parent the viewspace-gameobject?
+                                // if true, the object gets updated in a later state and does not need to get updated here
+                                if (KWEngine.CurrentWorld._viewSpaceGameObject != null && g.GetGameObjectThatIAmAttachedTo() == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject)
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    postponedObjectsAttachments.Add(g);
+                                    continue;
+                                }
                             }
+                            g.Act();
+                            KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
+                            KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                         }
+
+                    }
+
+                    foreach (GameObject g in postponedObjects)
+                    {
                         g.Act();
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                     }
-                    
-                }
 
-                foreach (GameObject g in postponedObjects)
-                {
-                    g.Act();
-                    KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
-                    KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
-                }
-
-                foreach (GameObject g in postponedObjectsAttachments)
-                {
-                    if (!KWEngine.EditModeActive)
-                        g.Act();
-                    KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
-                    KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
-                }
-
-                for (int i = KWEngine.CurrentWorld._particleAndExplosionObjects.Count - 1; i >= 0; i--)
-                {
-                    TimeBasedObject tbo = KWEngine.CurrentWorld._particleAndExplosionObjects[i];
-                    if (tbo._done)
-                        KWEngine.CurrentWorld._particleAndExplosionObjects.Remove(tbo);
-                    else
-                        tbo.Act();
-                }
-
-                if (!KWEngine.EditModeActive)
-                    KWEngine.CurrentWorld.Act();
-
-                if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
-                {
-                    KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._statePrevious = KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._stateCurrent;
-                    if (!KWEngine.EditModeActive)
-                    {
-                        KWEngine.CurrentWorld._viewSpaceGameObject.Act();
-                        //HelperSimulation.UpdateBoneTransformsForViewSpaceGameObject(KWEngine.CurrentWorld._viewSpaceGameObject);
-                    }
-                    KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
-
-                    foreach (GameObject attachment in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._gameObjectsAttached.Values)
+                    foreach (GameObject g in postponedObjectsAttachments)
                     {
                         if (!KWEngine.EditModeActive)
-                            attachment.Act();
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(attachment);
+                            g.Act();
+                        KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
+                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                     }
 
-                }
+                    for (int i = KWEngine.CurrentWorld._particleAndExplosionObjects.Count - 1; i >= 0; i--)
+                    {
+                        TimeBasedObject tbo = KWEngine.CurrentWorld._particleAndExplosionObjects[i];
+                        if (tbo._done)
+                            KWEngine.CurrentWorld._particleAndExplosionObjects.Remove(tbo);
+                        else
+                            tbo.Act();
+                    }
 
-                KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
-                if(!KWEngine.EditModeActive)
-                    KWBuilderOverlay.UpdateLastUpdateTime(_updateWatch.ElapsedTicks / (double)Stopwatch.Frequency * 1000);
+                    if (!KWEngine.EditModeActive)
+                        KWEngine.CurrentWorld.Act();
+
+                    if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+                    {
+                        KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._statePrevious = KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._stateCurrent;
+                        if (!KWEngine.EditModeActive)
+                        {
+                            KWEngine.CurrentWorld._viewSpaceGameObject.Act();
+                            //HelperSimulation.UpdateBoneTransformsForViewSpaceGameObject(KWEngine.CurrentWorld._viewSpaceGameObject);
+                        }
+                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
+
+                        foreach (GameObject attachment in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._gameObjectsAttached.Values)
+                        {
+                            if (!KWEngine.EditModeActive)
+                                attachment.Act();
+                            KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(attachment);
+                        }
+
+                    }
+
+                    double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;// * 1000.0;
+                    KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
+                    elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
+                }
             }
             return n;
         }
