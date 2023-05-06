@@ -4,6 +4,7 @@
     <Position X="3.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_f12timestamp" Hidden="true" />
+      <Field Name="_stopwatch" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Property Name="AnisotropicFiltering" Hidden="true" />
       <Property Name="FrameTotalCount" Hidden="true" />
@@ -22,7 +23,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AACAAAAABQABAQCAUAAAAEACAhAAACYAKAAAEAECAgA=</HashCode>
+      <HashCode>AACAAAAABQABAQCAUAAAAEACAhAABCYAKAAAEAECAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
