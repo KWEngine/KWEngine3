@@ -388,6 +388,9 @@
     <None Update="Models\PlatformerPack\Plant_Small.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Models\PlatformerPack\Ramp01.gltf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Models\PlatformerPack\RockPlatform_Tall.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

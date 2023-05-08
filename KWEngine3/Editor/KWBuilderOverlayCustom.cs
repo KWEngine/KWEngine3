@@ -190,7 +190,11 @@ namespace KWEngine3.Editor
 
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Misc. properties:");
-                ImGui.Checkbox("Is collision object?", ref SelectedGameObject._isCollisionObject);
+                bool isCollObj = SelectedGameObject._isCollisionObject;
+                if (ImGui.Checkbox("Is collision object?", ref isCollObj))
+                {
+                    SelectedGameObject.IsCollisionObject = isCollObj;
+                }
                 ImGui.SameLine();
                 ImGui.Checkbox("Is shadow caster?", ref SelectedGameObject._isShadowCaster);
                 ImGui.SameLine();
