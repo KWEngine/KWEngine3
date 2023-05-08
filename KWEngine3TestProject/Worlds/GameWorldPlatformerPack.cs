@@ -107,7 +107,7 @@ namespace KWEngine3TestProject.Worlds
 
             PlayerPlatformerPack p = new PlayerPlatformerPack();
             p.Name = "Player";
-            p.SetModel("GeorgeRobot");
+            p.SetModel("Toon");
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
             p.SetHitboxToCapsuleForMesh(0);
