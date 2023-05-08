@@ -417,6 +417,30 @@ namespace KWEngine3.Helper
 
         #region Internals
 
+        internal static Matrix4 CalculateMeshTransformForGameObject(GameObject g, int meshIndex)
+        {
+            Matrix4 meshTransform = Matrix4.Identity;
+
+            if(g.HasArmatureAndAnimations)
+            {
+                // Search for mesh with given name:
+                string meshName = g._hitboxes[meshIndex]._mesh.Name;
+                foreach(string b in g._gModel.ModelOriginal.BoneNames)
+                {
+                    if(b == meshName)
+                    {
+
+                    }
+                }
+            }
+            else
+            {
+                meshTransform = g._hitboxes[meshIndex]._mesh.Transform;
+            }
+
+            return meshTransform;
+        }
+
         internal static Vector3[] bounds = new Vector3[2];
         internal static bool RayBoxIntersection(ref Vector3 rayOrigin, ref Vector3 rayDirection, GameObjectHitbox hitbox)
         {

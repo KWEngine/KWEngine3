@@ -1303,14 +1303,18 @@ namespace KWEngine3.GameObjects
         {
             if(_hitboxes.Count > meshIndex)
             {
+                Matrix4 meshTransform = HelperIntersection.CalculateMeshTransformForGameObject(this, meshIndex);
+
                 Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.Center, 1.0f), _hitboxes[meshIndex]._mesh.Transform).Xyz;
                 Vector3 frontbottomleft = new Vector3(_hitboxes[meshIndex]._mesh.minX, _hitboxes[meshIndex]._mesh.minY, _hitboxes[meshIndex]._mesh.maxZ);
                 Vector3 backtopright = new Vector3(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ);
                 bool wasRemoved = CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
-                this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
-                if(wasRemoved)
+                if (wasRemoved)
+                {
+                    this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
                     CurrentWorld._gameObjectHitboxes.Add(this._hitboxes[meshIndex]);
-                UpdateModelMatrixAndHitboxes();
+                    UpdateModelMatrixAndHitboxes();
+                }
             }
         }
 
@@ -1403,12 +1407,31 @@ namespace KWEngine3.GameObjects
 
         internal void InitHitboxes()
         {
+            RemoveHitboxesFromWorldHitboxList();
             _hitboxes.Clear();
             foreach(GeoMeshHitbox gmh in _gModel.ModelOriginal.MeshHitboxes)
             {
                 _hitboxes.Add(new GameObjectHitbox(this, gmh));
             }
+            UpdateWorldHitboxList();
             UpdateModelMatrixAndHitboxes();
+        }
+
+        internal void RemoveHitboxesFromWorldHitboxList()
+        {
+            foreach(GameObjectHitbox hb in _hitboxes)
+            {
+                CurrentWorld._gameObjectHitboxes.Remove(hb);
+            }
+        }
+
+        internal void UpdateWorldHitboxList()
+        {
+            foreach (GameObjectHitbox hb in _hitboxes)
+            {
+                if(hb.IsActive)
+                    KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
+            }
         }
 
         internal void DetachGameObjectFromBone(GameObject attachment)
