@@ -417,20 +417,53 @@ namespace KWEngine3.Helper
 
         #region Internals
 
-        internal static Matrix4 CalculateMeshTransformForGameObject(GameObject g, int meshIndex)
+        internal static void GetArmatureTransformForDefaultAnimation(GameObject g, GeoNode node, ref Matrix4 transform, ref bool found)
+        {
+            GeoNodeAnimationChannel nac;
+            bool nacFound = g._gModel.ModelOriginal.Animations[0].AnimationChannels.TryGetValue(node.Name, out nac);
+            transform = node.Transform * transform;
+
+            if (!nacFound)
+            {
+                foreach(GeoNode child in node.Children)
+                {
+                    GetArmatureTransformForDefaultAnimation(g, child, ref transform, ref found);
+                    if (found)
+                        return;
+                }
+            }
+            else
+            {
+                
+                foreach (GeoMesh mesh in g._gModel.ModelOriginal.Meshes.Values)
+                {
+                    int index = mesh.BoneNames.IndexOf(node.Name);
+                    if (index >= 0)
+                    {
+                        transform = mesh.BoneOffset[index] * transform * g._gModel.ModelOriginal.TransformGlobalInverse;
+                        break;
+                    }
+                }
+                
+                found = true;
+            }
+        }
+
+        internal static Matrix4 CalculateMeshTransformForGameObject(GameObject g, int meshIndex, CapsuleHitboxMode mode)
         {
             Matrix4 meshTransform = Matrix4.Identity;
 
-            if(g.HasArmatureAndAnimations)
+            if (mode == CapsuleHitboxMode.Default || mode == CapsuleHitboxMode.AlwaysArmatureTransform)
             {
-                // Search for mesh with given name:
-                string meshName = g._hitboxes[meshIndex]._mesh.Name;
-                foreach(string b in g._gModel.ModelOriginal.BoneNames)
-                {
-                    if(b == meshName)
-                    {
 
-                    }
+                if (g.HasArmatureAndAnimations)
+                {
+                    bool found = false;
+                    GetArmatureTransformForDefaultAnimation(g, g._gModel.ModelOriginal.Armature, ref meshTransform, ref found);
+                }
+                else
+                {
+                    meshTransform = g._hitboxes[meshIndex]._mesh.Transform;
                 }
             }
             else

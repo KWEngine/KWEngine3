@@ -1299,15 +1299,17 @@ namespace KWEngine3.GameObjects
         /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
         /// </summary>
         /// <param name="meshIndex">Index des 3D-Mesh, für das die Hitbox getauscht werden soll</param>
-        public void SetHitboxToCapsuleForMesh(int meshIndex = 0)
+        /// <param name="mode">Modus zur Bestimmung der richtigen Hitbox-Orientierung</param>
+        public void SetHitboxToCapsuleForMesh(int meshIndex = 0, CapsuleHitboxMode mode = CapsuleHitboxMode.Default)
         {
             if(_hitboxes.Count > meshIndex)
             {
-                Matrix4 meshTransform = HelperIntersection.CalculateMeshTransformForGameObject(this, meshIndex);
+                Matrix4 meshTransform = HelperIntersection.CalculateMeshTransformForGameObject(this, meshIndex, mode);
 
-                Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.Center, 1.0f), _hitboxes[meshIndex]._mesh.Transform).Xyz;
-                Vector3 frontbottomleft = new Vector3(_hitboxes[meshIndex]._mesh.minX, _hitboxes[meshIndex]._mesh.minY, _hitboxes[meshIndex]._mesh.maxZ);
-                Vector3 backtopright = new Vector3(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ);
+                Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.Center, 1.0f), meshTransform).Xyz;
+                Vector3 frontbottomleft = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.minX, _hitboxes[meshIndex]._mesh.minY, _hitboxes[meshIndex]._mesh.maxZ, 1f), meshTransform).Xyz;
+                Vector3 backtopright = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ, 1f), meshTransform).Xyz
+                    ;
                 bool wasRemoved = CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
                 if (wasRemoved)
                 {

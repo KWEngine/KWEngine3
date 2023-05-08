@@ -195,14 +195,16 @@
       <Property Name="IsAttachedToGameObject" Hidden="true" />
       <Property Name="IsAttachedToViewSpaceGameObject" Hidden="true" />
       <Property Name="LeftRightMost" Hidden="true" />
+      <Method Name="RemoveHitboxesFromWorldHitboxList" Hidden="true" />
       <Method Name="ResetBoneAttachments" Hidden="true" />
       <Method Name="SetScaleRotationAndTranslation" Hidden="true" />
       <Method Name="SetTextureOffsetForMaterial" Hidden="true" />
       <Method Name="SetTextureRepeatForMaterial" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
+      <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zykCOxoGmJyq0rTuwBqMIQZFgSRzi1kJIIgAHkhYVNU=</HashCode>
+      <HashCode>zykCOxoGmJyq0rTuwBqMIQZFgSRzi1kJIIgAHkhaVNU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -340,9 +342,11 @@
     <Position X="12.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="bounds" Hidden="true" />
+      <Method Name="CalculateMeshTransformForGameObject" Hidden="true" />
       <Method Name="CalculateOverlap" Hidden="true" />
       <Method Name="ClipFaces" Hidden="true" />
       <Method Name="ClipLineToPlane" Hidden="true" />
+      <Method Name="GetArmatureTransformForDefaultAnimation" Hidden="true" />
       <Method Name="GetRayIntersectionPointOnGameObject" Hidden="true" />
       <Method Name="IsBetweenOrdered" Hidden="true" />
       <Method Name="IsInFrontOfPlane" Hidden="true" />
@@ -358,7 +362,7 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BAIQAhAAABACAAAAMIAAAACAAQAgBIAWAAECABIJAAg=</HashCode>
+      <HashCode>BQIQAhAAABACAAAAMIAAAACAAQAgBIAWAAECABIJBAg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>

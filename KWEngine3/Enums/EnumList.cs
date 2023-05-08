@@ -22,6 +22,25 @@
     }
 
     /// <summary>
+    /// Modus für das Setzen der Kapsel-Hitbox bei 3D-Modellen
+    /// </summary>
+    public enum CapsuleHitboxMode
+    {
+        /// <summary>
+        /// Standardmodus, der je nach 3D-Modell errät, welcher Modus geeignet sein könnte (Standard)
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// Benutze immer die Informationen aus dem 3D-Modell-Mesh ohne Knochenskelett
+        /// </summary>
+        AlwaysMeshTransform = 1,
+        /// <summary>
+        /// Benutze immer die Informationen aus dem Knochenskelett (Armature) des Modells (falls vorhanden)
+        /// </summary>
+        AlwaysArmatureTransform = 2
+    }
+
+    /// <summary>
     /// Art der Partikel
     /// </summary>
     public enum ParticleType
