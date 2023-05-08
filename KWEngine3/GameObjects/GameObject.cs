@@ -72,6 +72,15 @@ namespace KWEngine3.GameObjects
         public bool DisableBackfaceCulling { get; set; } = false;
 
         /// <summary>
+        /// Erfragt den Namen des aktuell gesetzten 3D-Modells
+        /// </summary>
+        /// <returns>Modellname</returns>
+        public string GetModelName()
+        {
+            return _modelNameInDB;
+        }
+
+        /// <summary>
         /// Standardkonstruktor (erzeugt mit einem Würfel als 3D-Modell)
         /// </summary>
         public GameObject()

@@ -89,13 +89,28 @@ namespace KWEngine3TestProject.Worlds
             fenceRight.IsShadowCaster = true;
             AddGameObject(fenceRight);
 
+            Obstacle ramp01 = new Obstacle();
+            ramp01.SetModel("Ramp01");
+            ramp01.SetPosition(10, 0, -10);
+            ramp01.SetScale(4);
+            ramp01.IsCollisionObject = true;
+            ramp01.IsShadowCaster = true;
+            AddGameObject(ramp01);
 
-            Player p = new Player();
+            Obstacle plateau01 = new Obstacle();
+            plateau01.SetPosition(0, 2, -19);
+            plateau01.SetScale(30, 4, 10);
+            plateau01.IsCollisionObject = true;
+            plateau01.IsShadowCaster = true;
+            plateau01.SetColor(0.7f, 0.5f, 0.275f);
+            AddGameObject(plateau01);
+
+            PlayerPlatformerPack p = new PlayerPlatformerPack();
             p.Name = "Player";
             p.SetModel("Toon");
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
-            p.SetHitboxToCapsuleForMesh(0);
+            //p.SetHitboxToCapsuleForMesh(0);
             p.SetAnimationID(0);
             AddGameObject(p);
 
