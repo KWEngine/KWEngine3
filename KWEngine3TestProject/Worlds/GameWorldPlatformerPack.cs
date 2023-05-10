@@ -126,9 +126,17 @@ namespace KWEngine3TestProject.Worlds
             SetBackgroundSkybox("./Textures/skybox.png");
             SetBackgroundBrightnessMultiplier(1.25f);
 
-            WorldEvent testEvent = new WorldEvent(4, "test", "blabla");
+            WorldEvent testEvent = new WorldEvent(3, "test1", "blabla1");
             AddWorldEvent(testEvent);
-            
+
+            WorldEvent testEvent2 = new WorldEvent(5, "test2", "blabla2");
+            AddWorldEvent(testEvent2);
+
+        }
+
+        protected override void OnWorldEvent(WorldEvent e)
+        {
+            base.OnWorldEvent(e);
         }
     }
 }

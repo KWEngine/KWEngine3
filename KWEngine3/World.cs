@@ -17,7 +17,7 @@ namespace KWEngine3
         #region Internals
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
-        internal Queue<WorldEvent> _eventQueue = new Queue<WorldEvent>();
+        internal List<WorldEvent> _eventQueue = new List<WorldEvent>();
 
         internal List<GameObject> _gameObjects = new List<GameObject>();
         internal List<GameObject> _gameObjectsToBeAdded = new List<GameObject>();
@@ -64,31 +64,24 @@ namespace KWEngine3
 
         internal void ProcessWorldEventQueue()
         {
-            while (true)
+            for(int i = _eventQueue.Count - 1; i >= 0; i--)
             {
-                if (_eventQueue.Count > 0)
+                WorldEvent e = _eventQueue[i];
+                if (e != null)
                 {
-                    WorldEvent e = _eventQueue.Peek();
-                    if (e != null)
+                    if (e.Timestamp <= WorldTime)
                     {
-                        if (e.Timestamp <= WorldTime)
-                        {
-                            e = _eventQueue.Dequeue();
-                            OnWorldEvent(e);
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        OnWorldEvent(e);
+                        _eventQueue.RemoveAt(i);
                     }
                     else
                     {
-                        _eventQueue.Dequeue();
+                        break;
                     }
                 }
                 else
                 {
-                    break;
+                    _eventQueue.RemoveAt(i);
                 }
             }
         }
@@ -994,7 +987,7 @@ namespace KWEngine3
         /// <param name="e">Ereignisinstanz</param>
         protected virtual void OnWorldEvent(WorldEvent e)
         {
-
+            KWEngine.LogWriteLine("[World] WorldEvent ignoriert");
         }
 
         /// <summary>
@@ -1005,7 +998,8 @@ namespace KWEngine3
         {
             if(e != null)
             {
-                _eventQueue.Enqueue(e);
+                _eventQueue.Add(e);
+                _eventQueue.Sort();
             }
             else
             {

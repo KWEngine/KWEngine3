@@ -9,7 +9,7 @@ namespace KWEngine3
     /// <summary>
     /// Ereignisklasse für World-Instanzen
     /// </summary>
-    public class WorldEvent
+    public class WorldEvent : IComparable<WorldEvent>
     {
         /// <summary>
         /// Zeitstempel (in Sekunden) seit Beginn der aktuellen Weltzeit. Zu diesem Zeitpunkt wird das Event ausgeführt.
@@ -37,6 +37,16 @@ namespace KWEngine3
             Timestamp = timestamp;
             Description = description == null ? "" : description;
             Tag = tag;
+        }
+
+        /// <summary>
+        /// Standardvergleichmethode für das Sortieren der Ereignisobjekte (wird intern benötigt)
+        /// </summary>
+        /// <param name="other">Vergleichsereignis</param>
+        /// <returns>Vergleichsergebnis (-1, 0 oder 1)</returns>
+        public int CompareTo(WorldEvent other)
+        {
+            return Timestamp.CompareTo(other.Timestamp) * -1;
         }
     }
 }

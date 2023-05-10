@@ -407,6 +407,14 @@
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
+  <Class Name="KWEngine3.WorldEvent">
+    <Position X="12.5" Y="10" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAQAAAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>WorldEvent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
     <Position X="9.5" Y="5.5" Width="2.75" />
     <TypeIdentifier>
