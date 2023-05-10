@@ -1,6 +1,5 @@
 ﻿namespace KWEngine3
 {
-
     /// <summary>
     /// Art der Animationsbewegung
     /// </summary>

@@ -596,6 +596,8 @@ namespace KWEngine3
                     if (!KWEngine.EditModeActive)
                         KWEngine.CurrentWorld.Act();
 
+                    KWEngine.CurrentWorld.ProcessWorldEventQueue();
+
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                     {
                         KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._statePrevious = KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._stateCurrent;

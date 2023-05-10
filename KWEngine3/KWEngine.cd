@@ -100,6 +100,7 @@
       <Field Name="_colorAmbient" Hidden="true" />
       <Field Name="_currentShadowLights" Hidden="true" />
       <Field Name="_customTextures" Hidden="true" />
+      <Field Name="_eventQueue" Hidden="true" />
       <Field Name="_gameObjectHitboxes" Hidden="true" />
       <Field Name="_gameObjects" Hidden="true" />
       <Field Name="_gameObjectsToBeAdded" Hidden="true" />
@@ -141,11 +142,12 @@
       <Method Name="GetTransparentGameObjects" Hidden="true" />
       <Method Name="Init" Hidden="true" />
       <Method Name="PrepareLightObjectsForRenderPass" Hidden="true" />
+      <Method Name="ProcessWorldEventQueue" Hidden="true" />
       <Method Name="ResetWorldDimensions" Hidden="true" />
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAl0OK6ABDQCZAERwoGAhQgCTKJZCKIUUQHCH/AMAnE=</HashCode>
+      <HashCode>SAl0OK6ABDQCZAERxoGAhQgCTKJZCaYUUYHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -271,7 +273,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="3.5" Y="13.75" Width="2.75" />
+    <Position X="3.5" Y="14.25" Width="2.75" />
     <Members>
       <Field Name="_fbShadowMap" Hidden="true" />
       <Field Name="_shadowBias" Hidden="true" />

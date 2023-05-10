@@ -17,6 +17,8 @@ namespace KWEngine3
         #region Internals
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
+        internal Queue<WorldEvent> _eventQueue = new Queue<WorldEvent>();
+
         internal List<GameObject> _gameObjects = new List<GameObject>();
         internal List<GameObject> _gameObjectsToBeAdded = new List<GameObject>();
         internal List<GameObject> _gameObjectsToBeRemoved = new List<GameObject>();
@@ -58,6 +60,37 @@ namespace KWEngine3
                 .OrderBy(item => item.GetType().Name)
                 .ToList().AsReadOnly();
             return myTempList;
+        }
+
+        internal void ProcessWorldEventQueue()
+        {
+            while (true)
+            {
+                if (_eventQueue.Count > 0)
+                {
+                    WorldEvent e = _eventQueue.Peek();
+                    if (e != null)
+                    {
+                        if (e.Timestamp <= WorldTime)
+                        {
+                            e = _eventQueue.Dequeue();
+                            OnWorldEvent(e);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        _eventQueue.Dequeue();
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
 
         internal GameObject GetGameObjectByID(int id)
@@ -353,6 +386,7 @@ namespace KWEngine3
             _lightObjectsToBeAdded.Clear();
         }
         #endregion
+
 
         /// <summary>
         /// Setzt die Farbe des Umgebungslichts (dort wo kein Licht scheint)
@@ -953,5 +987,30 @@ namespace KWEngine3
         /// Act-Methode der Welt
         /// </summary>
         public abstract void Act();
+
+        /// <summary>
+        /// Diese Methode wird im Falle eines geplanten Ereignisses aufgerufen, so dass das jeweilige Ereignis indidivuell verarbeitet werden kann.
+        /// </summary>
+        /// <param name="e">Ereignisinstanz</param>
+        protected virtual void OnWorldEvent(WorldEvent e)
+        {
+
+        }
+
+        /// <summary>
+        /// Fügt ein geplantes Weltereignis der weltinternen Ereignisliste hinzu
+        /// </summary>
+        /// <param name="e">Hinzufügendes Ereignisobjekt</param>
+        public void AddWorldEvent(WorldEvent e)
+        {
+            if(e != null)
+            {
+                _eventQueue.Enqueue(e);
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[World] Ungültiges WorldEvent-Objekt");
+            }
+        }
     }
 }
