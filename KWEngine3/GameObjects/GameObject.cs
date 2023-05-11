@@ -493,7 +493,7 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return Mouse.Delta;
+                return KWEngine.Window._mouseDeltaToUse;
             }
         }
         /// <summary>

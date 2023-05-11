@@ -25,6 +25,10 @@ namespace KWEngine3
         /// </summary>
         public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
 
+        internal Vector2 _mouseDeltaSum = new Vector2(0, 0);
+        internal Vector2 _mouseDeltaToUse = new Vector2(0, 0);
+        internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
+
         internal ulong FrameTotalCount { get; set; } = 0;
         internal Matrix4 _viewProjectionMatrixHUD;
         internal KWBuilderOverlay Overlay { get; set; }
@@ -89,6 +93,23 @@ namespace KWEngine3
             GLAudioEngine.InitAudioEngine();
         }
 
+        internal void GatherMouseDelta()
+        {
+            double elapsed = _stopWatchMouseDelta.ElapsedTicks / (double)Stopwatch.Frequency;
+            if(elapsed >= 1.0/240.0)
+            {
+                _mouseDeltaSum += MouseState.Delta;
+                _mouseDeltaToUse = _mouseDeltaSum;
+                _mouseDeltaSum = Vector2.Zero;
+                _stopWatchMouseDelta.Restart();
+            }
+            else
+            {
+                _mouseDeltaSum += MouseState.Delta;
+            }
+            
+        }
+
         /// <summary>
         /// Standard-Initialisierungen
         /// </summary>
@@ -141,6 +162,7 @@ namespace KWEngine3
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             UpdateDeltaTime(e.Time);
+            GatherMouseDelta();
             UpdateScene();
             KWEngine.LastUpdateTime = (float)e.Time * 1000;
 
@@ -407,6 +429,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.CurrentWorld.Prepare();
             HelperGeneral.FlushAndFinish();
+            _stopWatchMouseDelta.Restart();
         }
 
         internal void UpdateDeltaTime(double t)
