@@ -37,9 +37,10 @@ namespace KWEngine3
         /// Standardkonstruktor für den Fullscreen-Modus
         /// </summary>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
-        public GLWindow(bool vSync = true)
+        /// <param name="renderFrequency">optionale Erzwingung einer bestimmten Bildwiederholrate des Fenters (Standard: 0 = keine Erzwingung)</param>
+        public GLWindow(bool vSync = true, double renderFrequency = 0)
             : this(
-                 new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 0 },
+                 new GameWindowSettings() { RenderFrequency = renderFrequency, UpdateFrequency = 0 },
                  new NativeWindowSettings()
                  {
                      API = ContextAPI.OpenGL,
@@ -59,9 +60,10 @@ namespace KWEngine3
         /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
         /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
-        public GLWindow(int width, int height, bool vSync = true) 
+        /// <param name="renderFrequency">optionale Erzwingung einer bestimmten Bildwiederholrate des Fenters (Standard: 0 = keine Erzwingung)</param>
+        public GLWindow(int width, int height, bool vSync = true, double renderFrequency = 0) 
             : this(
-                 new GameWindowSettings() { RenderFrequency = 0, UpdateFrequency = 0 },
+                 new GameWindowSettings() { RenderFrequency = renderFrequency, UpdateFrequency = 0 },
                  new NativeWindowSettings()
                  {
                      API = ContextAPI.OpenGL,
