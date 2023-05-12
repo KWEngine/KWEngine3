@@ -727,9 +727,17 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Rotiert die Kamera gemäß der gegebenen Bewegung
+        /// Rotiert die Kamera gemäß der gegebenen Mausbewegung
         /// </summary>
-        /// <param name="yawPitch">Bewegung in x-/y-Richtung</param>
+        public void AddCameraRotationFromMouseDelta()
+        {
+            _cameraGame.YawAndPitch(new Vector2(KWEngine.Window._mouseDeltaToUse.X * Math.Abs(KWEngine.MouseSensitivity), KWEngine.Window._mouseDeltaToUse.Y * KWEngine.MouseSensitivity));
+        }
+
+        /// <summary>
+        /// Rotiert die Kamera gemäß des gegebenen Bewegungsdeltas
+        /// </summary>
+        /// <param name="yawPitch">Bewegung in x-/y-Richtung (Delta)</param>
         public void AddCameraRotation(Vector2 yawPitch)
         {
             _cameraGame.YawAndPitch(yawPitch * KWEngine.MouseSensitivity);

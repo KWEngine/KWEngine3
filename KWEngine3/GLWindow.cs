@@ -96,18 +96,14 @@ namespace KWEngine3
         internal void GatherMouseDelta()
         {
             double elapsed = _stopWatchMouseDelta.ElapsedTicks / (double)Stopwatch.Frequency;
-            if(elapsed >= 1.0/240.0)
+            //TODO: Workaround for OpenTK 4.7.7 MouseDelta bug
+            _mouseDeltaSum += MouseState.Delta * (VSync == VSyncMode.Off && RenderFrequency == 0 ? (1f / 0.240f) / KWEngine.LastFrameTime : 1f);
+            if (elapsed >= KWEngine.SIMULATIONNIBBLESIZE)
             {
-                _mouseDeltaSum += MouseState.Delta;
                 _mouseDeltaToUse = _mouseDeltaSum;
                 _mouseDeltaSum = Vector2.Zero;
                 _stopWatchMouseDelta.Restart();
             }
-            else
-            {
-                _mouseDeltaSum += MouseState.Delta;
-            }
-            
         }
 
         /// <summary>
@@ -164,7 +160,6 @@ namespace KWEngine3
             UpdateDeltaTime(e.Time);
             GatherMouseDelta();
             UpdateScene();
-            KWEngine.LastUpdateTime = (float)e.Time * 1000;
 
             List<LightObject> pointLights = new List<LightObject>();
             List<GameObject> gameObjectsForForwardRendering = new List<GameObject>();

@@ -119,7 +119,6 @@ namespace KWEngine3
         /// Gibt an, wie lange die Anwendung bereits aktiv ist
         /// </summary>
         public static float ApplicationTime { get; internal set; } = 0.0f;
-        internal static float LastUpdateTime { get; set; } = 0.0f;
         internal static float LastFrameTime { get; set; } = 0.0f;
         internal static int LastSimulationUpdateCycleCount { get; set; } = 0;
         /// <summary>
@@ -232,9 +231,9 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.025f)
+        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.0125f)
         /// </summary>
-        public static float MouseSensitivity { get; set; } = 0.025f;
+        public static float MouseSensitivity { get; set; } = 0.0125f;
 
         internal static GeoModel KWStar;
         internal static GeoModel KWHeart;

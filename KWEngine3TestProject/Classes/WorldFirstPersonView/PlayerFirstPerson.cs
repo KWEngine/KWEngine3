@@ -35,7 +35,7 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
                 }
             }
 
-            CurrentWorld.AddCameraRotation(MouseMovement);
+            CurrentWorld.AddCameraRotationFromMouseDelta();
 
             int move = 0;
             int strafe = 0;

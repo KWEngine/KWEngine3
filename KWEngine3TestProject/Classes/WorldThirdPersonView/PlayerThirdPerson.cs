@@ -15,8 +15,8 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
         private float _limitYUp = 5;
         private float _limitYDown = -75;
         private PlayerState _state = PlayerState.Fall;
-        private float _gravity = 0.01f;
-        private float _speed = 0.05f;
+        private float _gravity = 0.005f;
+        private float _speed = 0.025f;
         private float _momentum = 0;
         private bool _upKeyPressed = false;
         private readonly float _cooldown = 0.25f;
@@ -234,7 +234,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                     if (running)
                     {
                         SetAnimationID(2);
-                        SetAnimationPercentageAdvance(0.02f);
+                        SetAnimationPercentageAdvance(0.01f);
                     }
                     else
                     {
@@ -245,7 +245,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 else if (_state == PlayerState.Jump || _state == PlayerState.Fall)
                 {
                     SetAnimationID(3);
-                    SetAnimationPercentageAdvance(0.0125f);
+                    SetAnimationPercentageAdvance(0.0075f);
                 }
             }
         }
