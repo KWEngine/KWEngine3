@@ -4,10 +4,14 @@
     <Position X="3.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_f12timestamp" Hidden="true" />
+      <Field Name="_mouseDeltaSum" Hidden="true" />
+      <Field Name="_mouseDeltaToUse" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
+      <Field Name="_stopWatchMouseDelta" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Property Name="AnisotropicFiltering" Hidden="true" />
       <Property Name="FrameTotalCount" Hidden="true" />
+      <Method Name="GatherMouseDelta" Hidden="true" />
       <Method Name="OnLoad" Hidden="true" />
       <Method Name="OnMouseDown" Hidden="true" />
       <Method Name="OnMouseMove" Hidden="true" />
@@ -16,6 +20,7 @@
       <Method Name="OnRenderFrame" Hidden="true" />
       <Method Name="OnResize" Hidden="true" />
       <Method Name="OnTextInput" Hidden="true" />
+      <Method Name="OnUpdateFrame" Hidden="true" />
       <Property Name="Overlay" Hidden="true" />
       <Method Name="RenderOverlay" Hidden="true" />
       <Method Name="UpdateCurrentWorldAndObjects" Hidden="true" />
@@ -23,7 +28,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AACAAAAABQABAQCAUAAAAEACAhAABCYAKAAAEAECAgA=</HashCode>
+      <HashCode>AACBAAAABQARAQCAUAAAAEAiAhIABCaAKAAAEAECAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -63,7 +68,6 @@
       <Field Name="KWTerrainDefault" Hidden="true" />
       <Property Name="LastFrameTime" Hidden="true" />
       <Property Name="LastSimulationUpdateCycleCount" Hidden="true" />
-      <Property Name="LastUpdateTime" Hidden="true" />
       <Field Name="LIGHTINDEXDIVIDER" Hidden="true" />
       <Field Name="Matrix4Dummy" Hidden="true" />
       <Field Name="MAXGAMEOBJECTID" Hidden="true" />
@@ -85,7 +89,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgAZLABAISBAKAFpghuARAAQCAAggIQjGnWSlVCEIE=</HashCode>
+      <HashCode>BYgAZLABAISBAKAFpghuARAAQCAAggIQjGmWSlVCEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -147,7 +151,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAl0OK6ABDQCZAERxoGAhQgCTKJZCaYUUYHCH/AMAnE=</HashCode>
+      <HashCode>SAl0OK6ABDQCZAERxoGAhQgCTKJZCKYUUYHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>

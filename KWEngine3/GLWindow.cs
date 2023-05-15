@@ -97,7 +97,7 @@ namespace KWEngine3
         {
             double elapsed = _stopWatchMouseDelta.ElapsedTicks / (double)Stopwatch.Frequency;
             //TODO: Workaround for OpenTK 4.7.7 MouseDelta bug
-            _mouseDeltaSum += MouseState.Delta * (VSync == VSyncMode.Off && RenderFrequency == 0 ? (1f / 0.240f) / KWEngine.LastFrameTime : 1f);
+            _mouseDeltaSum += MouseState.Delta; // * (VSync == VSyncMode.Off && RenderFrequency == 0 ? (1f / 0.240f) / KWEngine.LastFrameTime : 1f);
             if (elapsed >= KWEngine.SIMULATIONNIBBLESIZE)
             {
                 _mouseDeltaToUse = _mouseDeltaSum;
@@ -139,6 +139,16 @@ namespace KWEngine3
          }
 
         /// <summary>
+        /// Wird für Änderungen der Tastatureingaben und Mauseingaben verwendet
+        /// </summary>
+        /// <param name="args">aktuelle Angaben</param>
+        protected override void OnUpdateFrame(FrameEventArgs args)
+        {
+            base.OnUpdateFrame(args);
+            GatherMouseDelta();
+        }
+
+        /// <summary>
         /// Wird ausgeführt, wenn sich das Fenster vergrößert/verkleinert
         /// </summary>
         /// <param name="e">Parameter</param>
@@ -158,7 +168,7 @@ namespace KWEngine3
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             UpdateDeltaTime(e.Time);
-            GatherMouseDelta();
+            
             UpdateScene();
 
             List<LightObject> pointLights = new List<LightObject>();
