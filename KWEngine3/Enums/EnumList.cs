@@ -375,16 +375,16 @@
     /// <summary>
     /// Aktivierung von Post-Processing-Effekten (Standard: hohe Qualität)
     /// </summary>
-    public enum PostProcessingState
+    public enum PostProcessingQuality
     {
         /// <summary>
         /// Standard
         /// </summary>
-        HighQuality,
+        High,
         /// <summary>
         /// Niedrige Qualität (Artefaktbildung möglich)
         /// </summary>
-        LowQuality,
+        Low,
         /// <summary>
         /// Ausgeschaltet
         /// </summary>
@@ -512,6 +512,7 @@
         RGBA16UI,
         RGBA16F,
         RGBA32F,
-        DEPTH32F
+        DEPTH32F,
+        DEPTH16F
     }
 }

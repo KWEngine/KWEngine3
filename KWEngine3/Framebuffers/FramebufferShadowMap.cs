@@ -29,9 +29,7 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
-            HelperGeneral.CheckGLErrors();
-            
-            HelperGeneral.CheckGLErrors();
+            bool hq = KWEngine.Window._ppQuality == PostProcessingQuality.High;
             Bind(false);
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Nearest, TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
@@ -39,13 +37,13 @@ namespace KWEngine3.Framebuffers
 
             if(_lightType == LightType.Point)
             {
-                Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 1, TextureMinFilter.Nearest, TextureWrapMode.ClampToBorder, true, true));
+                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Nearest, TextureWrapMode.ClampToBorder, true, true));
             }
             else
             {
                 Renderbuffers.Add(GL.GenRenderbuffer());
                 GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent32f, width, height);
+                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, width, height);
                 GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
             }
 

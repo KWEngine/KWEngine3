@@ -6,6 +6,7 @@
       <Field Name="_f12timestamp" Hidden="true" />
       <Field Name="_mouseDeltaSum" Hidden="true" />
       <Field Name="_mouseDeltaToUse" Hidden="true" />
+      <Field Name="_ppQuality" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
       <Field Name="_stopWatchMouseDelta" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
@@ -28,7 +29,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AACBAAAABQARAQCAUAAAAEAiAhIABCaAKAAAEAECAgA=</HashCode>
+      <HashCode>AACBAAAABQARAQCAUAgAAEAiAhIABCaAKAAAEAECAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -151,7 +152,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAl0OK6ABDQCZAERxoGAhQgCTKJZCKYUUYHCH/AMAnE=</HashCode>
+      <HashCode>SAl0OK6ABDQCZAERxoGAhQgCTKJZCaYUUYHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>

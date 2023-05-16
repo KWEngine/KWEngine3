@@ -28,6 +28,7 @@ namespace KWEngine3
         internal Vector2 _mouseDeltaSum = new Vector2(0, 0);
         internal Vector2 _mouseDeltaToUse = new Vector2(0, 0);
         internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
+        internal PostProcessingQuality _ppQuality = PostProcessingQuality.High;
 
         internal ulong FrameTotalCount { get; set; } = 0;
         internal Matrix4 _viewProjectionMatrixHUD;
@@ -42,7 +43,8 @@ namespace KWEngine3
         /// </summary>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         /// <param name="renderFrequency">optionale Erzwingung einer bestimmten Bildwiederholrate des Fenters (Standard: 0 = keine Erzwingung)</param>
-        public GLWindow(bool vSync = true, double renderFrequency = 0)
+        /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
+        public GLWindow(bool vSync = true, double renderFrequency = 0, PostProcessingQuality ppQuality = PostProcessingQuality.High)
             : this(
                  new GameWindowSettings() { RenderFrequency = renderFrequency, UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -52,10 +54,11 @@ namespace KWEngine3
                      Flags = ContextFlags.ForwardCompatible,
                      WindowState = WindowState.Fullscreen,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
-                     Title = "KWEngine 3"
+                     Title = ""
                  }
                  )
         {
+            _ppQuality = ppQuality;
         }
 
         /// <summary>
@@ -65,7 +68,8 @@ namespace KWEngine3
         /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         /// <param name="renderFrequency">optionale Erzwingung einer bestimmten Bildwiederholrate des Fenters (Standard: 0 = keine Erzwingung)</param>
-        public GLWindow(int width, int height, bool vSync = true, double renderFrequency = 0) 
+        /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
+        public GLWindow(int width, int height, bool vSync = true, double renderFrequency = 0, PostProcessingQuality ppQuality = PostProcessingQuality.High) 
             : this(
                  new GameWindowSettings() { RenderFrequency = renderFrequency, UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -77,10 +81,11 @@ namespace KWEngine3
                      Size = new Vector2i(width, height),
                      WindowBorder = WindowBorder.Fixed,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
-                     Title = "KWEngine 3"
+                     Title = ""
                  }
         )
         {
+            _ppQuality = ppQuality;
         }
 
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
@@ -122,7 +127,8 @@ namespace KWEngine3
             string version = fileVersionInfo.ProductVersion;
             string date = fileVersionInfo.ProductName.Substring(fileVersionInfo.ProductName.IndexOf('2'), 10);
 
-            Title = "KWEngine " + version + " (" + date + ") | OpenGL Version: " + GL.GetString(StringName.Version);
+            if(Title == null || Title == "")
+                Title = "KWEngine " + version + " (" + date + ") | OpenGL Version: " + GL.GetString(StringName.Version);
             KWEngine.InitializeFontsAndDefaultTextures();
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
@@ -238,10 +244,13 @@ namespace KWEngine3
                     }
 
                     // Shadow map blur pass:
-                    RendererShadowMapBlur.Bind();
-                    foreach (LightObject shadowLight in KWEngine.CurrentWorld._currentShadowLights)
+                    if (_ppQuality == PostProcessingQuality.High)
                     {
-                        RendererShadowMapBlur.Draw(shadowLight);
+                        RendererShadowMapBlur.Bind();
+                        foreach (LightObject shadowLight in KWEngine.CurrentWorld._currentShadowLights)
+                        {
+                            RendererShadowMapBlur.Draw(shadowLight);
+                        }
                     }
                 }
 
@@ -301,12 +310,17 @@ namespace KWEngine3
                 RendererHUD.RenderHUDObjects();
 
                 // Bloom pass:
-                RenderManager.DoBloomPass();
+                if (_ppQuality != PostProcessingQuality.Disabled)
+                {
+                    RenderManager.DoBloomPass();
+                }
 
                 // Final screen pass
                 RenderManager.BindScreen();
                 RendererCopy.Bind();
-                RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0]);
+                HelperGeneral.CheckGLErrors();
+                RendererCopy.Draw(RenderManager.FramebufferLightingPass, _ppQuality == PostProcessingQuality.Disabled ? null : RenderManager.FramebuffersBloomTemp[0]);
+                HelperGeneral.CheckGLErrors();
 
                 //if (KWEngine.Mode == EngineMode.Edit && HelperOctree._rootNode != null)
                 /*

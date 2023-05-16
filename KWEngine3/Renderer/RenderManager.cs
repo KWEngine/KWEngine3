@@ -111,7 +111,8 @@ namespace KWEngine3.Renderer
         {
             GL.Disable(EnableCap.DepthTest);
             RendererBloomDownsample.Bind();
-            for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
+
+            for (int i = 0; i < (KWEngine.Window._ppQuality == PostProcessingQuality.High ? KWEngine.MAX_BLOOM_BUFFERS : 3); i++)
             {
                 GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> i, KWEngine.BLOOMHEIGHT >> i);
                 FramebuffersBloom[i].Bind(true);
@@ -119,7 +120,7 @@ namespace KWEngine3.Renderer
             }
 
             RendererBloomUpsample.Bind();
-            for (int i = KWEngine.MAX_BLOOM_BUFFERS - 1; i > 0 ; i--)
+            for (int i = (KWEngine.Window._ppQuality == PostProcessingQuality.High ? KWEngine.MAX_BLOOM_BUFFERS : 3) - 1; i > 0 ; i--)
             {
                 GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> (i - 1), KWEngine.BLOOMHEIGHT >> (i - 1));
                 FramebuffersBloomTemp[i - 1].Bind(true);

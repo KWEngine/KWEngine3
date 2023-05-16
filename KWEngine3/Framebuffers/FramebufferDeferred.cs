@@ -18,11 +18,13 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
+            bool hq = KWEngine.Window._ppQuality == PostProcessingQuality.High;
+
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA32F, width, height, 0));   // Position and depth attachment
+            Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.RGBA32F : FramebufferTextureMode.RGBA16F, width, height, 0));   // Position and depth attachment
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 1));   // Albedo
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA32F, width, height, 2));   // Normal and ID attachment
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA32F, width, height, 3));   // CSDepth, Metallic, Roughness attachment
+            Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.RGBA32F : FramebufferTextureMode.RGBA16F, width, height, 2));   // Normal and ID attachment
+            Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.RGBA32F : FramebufferTextureMode.RGBA16F, width, height, 3));   // CSDepth, Metallic, Roughness attachment
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16F, width, height, 4));   // Emissive
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];
             for(int i = 0; i < Attachments.Count; i++)
@@ -32,7 +34,7 @@ namespace KWEngine3.Framebuffers
             GL.DrawBuffers(Attachments.Count, dbe);
             Renderbuffers.Add(GL.GenRenderbuffer());
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent32f, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
             GL.BindTexture(TextureTarget.Texture2D, 0);

@@ -61,8 +61,17 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, fbSourceBloom.Attachments[0].ID);
+            if (fbSourceBloom != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, fbSourceBloom.Attachments[0].ID);
+            }
+            else
+            {
+                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
+            }
             GL.Uniform1(UTextureAlbedo, 1);
+            
+            
 
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());

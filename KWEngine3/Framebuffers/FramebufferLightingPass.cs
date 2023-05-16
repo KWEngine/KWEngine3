@@ -12,6 +12,8 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
+            bool hq = KWEngine.Window._ppQuality == PostProcessingQuality.High;
+
             Bind(false);
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 0));   // Color
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 1));   // Bloom
@@ -24,7 +26,7 @@ namespace KWEngine3.Framebuffers
             
             Renderbuffers.Add(GL.GenRenderbuffer());
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent32f, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
             GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
             GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
 
