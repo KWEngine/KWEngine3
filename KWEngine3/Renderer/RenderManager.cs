@@ -112,20 +112,60 @@ namespace KWEngine3.Renderer
             GL.Disable(EnableCap.DepthTest);
             RendererBloomDownsample.Bind();
 
-            for (int i = 0; i < (KWEngine.Window._ppQuality == PostProcessingQuality.High ? KWEngine.MAX_BLOOM_BUFFERS : 3); i++)
+            if(KWEngine.Window._ppQuality == PostProcessingQuality.High)
             {
-                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> i, KWEngine.BLOOMHEIGHT >> i);
-                FramebuffersBloom[i].Bind(true);
-                RendererBloomDownsample.Draw(i == 0 ? FramebufferLightingPass : FramebuffersBloom[i - 1]);
-            }
+                for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
+                {
+                    GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> i, KWEngine.BLOOMHEIGHT >> i);
+                    FramebuffersBloom[i].Bind(true);
+                    RendererBloomDownsample.Draw(i == 0 ? FramebufferLightingPass : FramebuffersBloom[i - 1]);
+                }
 
-            RendererBloomUpsample.Bind();
-            for (int i = (KWEngine.Window._ppQuality == PostProcessingQuality.High ? KWEngine.MAX_BLOOM_BUFFERS : 3) - 1; i > 0 ; i--)
-            {
-                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> (i - 1), KWEngine.BLOOMHEIGHT >> (i - 1));
-                FramebuffersBloomTemp[i - 1].Bind(true);
-                RendererBloomUpsample.Draw(i == KWEngine.MAX_BLOOM_BUFFERS - 1 ? FramebuffersBloom[i] : FramebuffersBloomTemp[i], FramebuffersBloom[i - 1]);
+                RendererBloomUpsample.Bind();
+                for (int i = KWEngine.MAX_BLOOM_BUFFERS - 1; i > 0; i--)
+                {
+                    GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> (i - 1), KWEngine.BLOOMHEIGHT >> (i - 1));
+                    FramebuffersBloomTemp[i - 1].Bind(true);
+                    RendererBloomUpsample.Draw(i == KWEngine.MAX_BLOOM_BUFFERS - 1 ? FramebuffersBloom[i] : FramebuffersBloomTemp[i], FramebuffersBloom[i - 1]);
+                }
             }
+            else
+            {
+                // DOWNSAMPLE STEPS:
+
+                // #1:
+                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> 0, KWEngine.BLOOMHEIGHT >> 0);
+                FramebuffersBloom[0].Bind(true);
+                RendererBloomDownsample.Draw(FramebufferLightingPass);
+
+                // #2:
+                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> 2, KWEngine.BLOOMHEIGHT >> 2);
+                FramebuffersBloom[2].Bind(true);
+                RendererBloomDownsample.Draw(FramebuffersBloom[0]);
+
+                // #3:
+                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> 5, KWEngine.BLOOMHEIGHT >> 5);
+                FramebuffersBloom[5].Bind(true);
+                RendererBloomDownsample.Draw(FramebuffersBloom[2]);
+
+                RendererBloomUpsample.Bind();
+
+                // UPSAMPLE STEPS:
+                // #3: 
+                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> 2, KWEngine.BLOOMHEIGHT >> 2);
+                FramebuffersBloomTemp[2].Bind(true); // target
+                // first parameter = smaller tex, second parameter = bigger tex
+                // framebuffersbloomtemp = upsample fbs
+                RendererBloomUpsample.Draw(FramebuffersBloom[5], FramebuffersBloom[2]);
+
+                // #2: 
+                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> 0, KWEngine.BLOOMHEIGHT >> 0);
+                FramebuffersBloomTemp[0].Bind(true); // target
+                // first parameter = smaller tex, second parameter = bigger tex
+                // framebuffersbloomtemp = upsample fbs
+                RendererBloomUpsample.Draw(FramebuffersBloom[2], FramebuffersBloom[0]);
+            }
+            
 
             GL.Enable(EnableCap.DepthTest);
         }
