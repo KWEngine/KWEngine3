@@ -352,7 +352,7 @@ namespace KWEngine3
         /// <summary>
         /// Wird aufgerufen, wenn Text eingegeben wird
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e">Parameter</param>
         protected override void OnTextInput(TextInputEventArgs e)
         {
             base.OnTextInput(e);

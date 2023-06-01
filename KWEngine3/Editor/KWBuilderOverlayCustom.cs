@@ -104,6 +104,12 @@ namespace KWEngine3.Editor
             return ptr.WantCaptureMouse;
         }
 
+        public static bool DiscardKeyboardNavigation()
+        {
+            ImGuiIOPtr ptr = ImGui.GetIO();
+            return ptr.WantCaptureKeyboard;
+        }
+
         private static bool IsCursorInsideRectangle(Vector2 mousePosition, int left, int right, int top, int bottom)
         {
             return mousePosition.X >= left && mousePosition.X <= right && mousePosition.Y >= top && mousePosition.Y <= bottom;
@@ -1082,6 +1088,8 @@ namespace KWEngine3.Editor
             ImGui.End();
 
             DrawObjectDetails();
+
+            HandleKeyboardNavigation();
         }
 
         private static readonly float[] pixelColor = new float[4];
@@ -1099,6 +1107,23 @@ namespace KWEngine3.Editor
         public static GameObject SelectedGameObject { get; internal set; } = null;
         public static TerrainObject SelectedTerrainObject { get; internal set; } = null;
         public static LightObject SelectedLightObject { get; internal set; } = null;
+
+        public static void HandleKeyboardNavigation()
+        {
+            if (KWEngine.Mode == EngineMode.Edit && DiscardKeyboardNavigation() == false)
+            {
+                float rate = KWEngine.LastFrameTime / (1f/60f * 1000f);
+
+                if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.D))
+                {
+                    KWEngine.CurrentWorld._cameraEditor.Strafe(0.5f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) ? -1 : 1));
+                }
+                if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.W) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.S))
+                {
+                    KWEngine.CurrentWorld._cameraEditor.Move(0.5f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.S) ? -1 : 1));
+                }
+            }
+        }
 
         public static void HandleMouseSelection(Vector2 mousePosition)
         {
@@ -1129,6 +1154,8 @@ namespace KWEngine3.Editor
                     if (pickedGameObject != null)
                     {
                         SelectedGameObject = pickedGameObject;
+                        SelectedLightObject = null;
+                        SelectedTerrainObject = null;
                     }
                     else
                     {
@@ -1137,6 +1164,7 @@ namespace KWEngine3.Editor
                         if (SelectedTerrainObject != null)
                         {
                             SelectedGameObject = null;
+                            SelectedLightObject = null;
                         }
                     }
                 }
