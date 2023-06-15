@@ -1122,6 +1122,10 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.CurrentWorld._cameraEditor.Move(0.5f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.S) ? -1 : 1));
                 }
+                if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.E) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q))
+                {
+                    KWEngine.CurrentWorld._cameraEditor.MoveUpDown(0.5f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q) ? -1 : 1));
+                }
             }
         }
 
