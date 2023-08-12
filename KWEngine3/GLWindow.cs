@@ -25,9 +25,9 @@ namespace KWEngine3
         /// </summary>
         public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
 
-        internal Vector2 _mouseDeltaSum = new Vector2(0, 0);
-        internal Vector2 _mouseDeltaToUse = new Vector2(0, 0);
-        internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
+        //internal Vector2 _mouseDeltaSum = new Vector2(0, 0);
+        //internal Vector2 _mouseDeltaToUse = new Vector2(0, 0);
+        //internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
         internal PostProcessingQuality _ppQuality = PostProcessingQuality.High;
 
         internal ulong FrameTotalCount { get; set; } = 0;
@@ -42,11 +42,10 @@ namespace KWEngine3
         /// Standardkonstruktor für den Fullscreen-Modus
         /// </summary>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
-        /// <param name="renderFrequency">optionale Erzwingung einer bestimmten Bildwiederholrate des Fenters (Standard: 0 = keine Erzwingung)</param>
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
-        public GLWindow(bool vSync = true, double renderFrequency = 0, PostProcessingQuality ppQuality = PostProcessingQuality.High)
+        public GLWindow(bool vSync = true, PostProcessingQuality ppQuality = PostProcessingQuality.High)
             : this(
-                 new GameWindowSettings() { RenderFrequency = renderFrequency, UpdateFrequency = 0 },
+                 new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
                  {
                      API = ContextAPI.OpenGL,
@@ -67,11 +66,10 @@ namespace KWEngine3
         /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
         /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
-        /// <param name="renderFrequency">optionale Erzwingung einer bestimmten Bildwiederholrate des Fenters (Standard: 0 = keine Erzwingung)</param>
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
-        public GLWindow(int width, int height, bool vSync = true, double renderFrequency = 0, PostProcessingQuality ppQuality = PostProcessingQuality.High) 
+        public GLWindow(int width, int height, bool vSync = true, PostProcessingQuality ppQuality = PostProcessingQuality.High) 
             : this(
-                 new GameWindowSettings() { RenderFrequency = renderFrequency, UpdateFrequency = 0 },
+                 new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
                  {
                      API = ContextAPI.OpenGL,
@@ -98,6 +96,7 @@ namespace KWEngine3
             GLAudioEngine.InitAudioEngine();
         }
 
+        /*
         internal void GatherMouseDelta()
         {
             double elapsed = _stopWatchMouseDelta.ElapsedTicks / (double)Stopwatch.Frequency;
@@ -110,6 +109,7 @@ namespace KWEngine3
                 _stopWatchMouseDelta.Restart();
             }
         }
+        */
 
         /// <summary>
         /// Standard-Initialisierungen
@@ -151,7 +151,7 @@ namespace KWEngine3
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
-            GatherMouseDelta();
+            //GatherMouseDelta();
         }
 
         /// <summary>
@@ -448,7 +448,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.CurrentWorld.Prepare();
             HelperGeneral.FlushAndFinish();
-            _stopWatchMouseDelta.Restart();
+            //_stopWatchMouseDelta.Restart();
         }
 
         internal void UpdateDeltaTime(double t)

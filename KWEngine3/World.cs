@@ -731,7 +731,8 @@ namespace KWEngine3
         /// </summary>
         public void AddCameraRotationFromMouseDelta()
         {
-            _cameraGame.YawAndPitch(new Vector2(KWEngine.Window._mouseDeltaToUse.X * Math.Abs(KWEngine.MouseSensitivity), KWEngine.Window._mouseDeltaToUse.Y * KWEngine.MouseSensitivity));
+            //_cameraGame.YawAndPitch(new Vector2(KWEngine.Window._mouseDeltaToUse.X * Math.Abs(KWEngine.MouseSensitivity), KWEngine.Window._mouseDeltaToUse.Y * KWEngine.MouseSensitivity));
+            _cameraGame.YawAndPitch(new Vector2(KWEngine.Window.MouseState.Delta.X * Math.Abs(KWEngine.MouseSensitivity), KWEngine.Window.MouseState.Delta.Y * KWEngine.MouseSensitivity));
         }
 
         /// <summary>

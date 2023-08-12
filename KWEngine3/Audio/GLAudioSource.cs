@@ -40,7 +40,7 @@ namespace KWEngine3.Audio
         {
             get
             {
-                return AL.GetSourceState(mSource) == ALSourceState.Playing;
+                return AL.GetSource(mSource, ALGetSourcei.SourceState) == (int)ALSourceState.Playing;
             }
         }
 
