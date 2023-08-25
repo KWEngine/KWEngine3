@@ -265,5 +265,27 @@ namespace KWEngine3.GameObjects
                 Framebuffer.UpdateGlobalShadowMapCounter(false);
             }
         }
+
+        /// <summary>
+        /// Gibt die aktuelle Position des Lichtobjekts zurück
+        /// </summary>
+        public Vector3 Position
+        {
+            get
+            {
+                return _stateCurrent._position;
+            }
+        }
+
+        /// <summary>
+        /// Gibt die aktuelle Zielposition des Lichtobjekts zurück (nur für gerichtete Lichter gültig)
+        /// </summary>
+        public Vector3 Target
+        {
+            get
+            {
+                return _stateCurrent._target;
+            }
+        }
     }
 }
