@@ -16,7 +16,7 @@ namespace KWEngine3.Editor
         private const int MAXFRAMETIMES = 240;
         private const int WINDOW_RIGHT_WIDTH = 460;
         private const int ROUNDDIGITCOUNT = 2;
-        private const float KEYBOARDCOOLDOWN = 0.01f;
+        private const float KEYBOARDCOOLDOWN = 0.05f;
         private const float POSITIONSTEP = 0.05f;
         private static Queue<float> _frameTimes = new Queue<float>(MAXFRAMETIMES);
         private static float _frameTimeSum = 0f;
@@ -210,7 +210,7 @@ namespace KWEngine3.Editor
 
                 // Position/Rotation/Scale
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Position, Rotation & Scale:");
-                if (ImGui.InputFloat3("Position (X,Y,Z)", ref pNew, "%.1f"))
+                if (ImGui.InputFloat3("Position (X,Y,Z)", ref pNew, "%.2f"))
                 {
                     SelectedGameObject.SetPosition(new Vector3(pNew.X, pNew.Y, pNew.Z));
                 }
@@ -568,13 +568,13 @@ namespace KWEngine3.Editor
                 }
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Position & Target:");
-                if (ImGui.InputFloat3("Position (X,Y,Z)", ref pNew, "%.1f"))
+                if (ImGui.InputFloat3("Position (X,Y,Z)", ref pNew, "%.2f"))
                 {
                     SelectedLightObject.SetPosition(new OpenTK.Mathematics.Vector3(pNew.X, pNew.Y, pNew.Z));
                 }
                 if (SelectedLightObject.Type != LightType.Point)
                 {
-                    if (ImGui.InputFloat3("Target (X,Y,Z)", ref tNew, "%.1f"))
+                    if (ImGui.InputFloat3("Target (X,Y,Z)", ref tNew, "%.2f"))
                     {
                         SelectedLightObject.SetTarget(new OpenTK.Mathematics.Vector3(tNew.X, tNew.Y, tNew.Z));
                     }
@@ -1170,66 +1170,72 @@ namespace KWEngine3.Editor
                     }
                     else if (SelectedLightObject != null)
                     {
-                        if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageUp))
+                        if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl))
                         {
-                            Vector3 p = SelectedLightObject.Position;
-                            SelectedLightObject.SetPosition(p.X, (float)Math.Round(p.Y + POSITIONSTEP, ROUNDDIGITCOUNT), p.Z);
+                            // TARGETS:
+                            if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageUp))
+                            {
+                                Vector3 p = SelectedLightObject.Target;
+                                SelectedLightObject.SetTarget(p.X, (float)Math.Round(p.Y + POSITIONSTEP, ROUNDDIGITCOUNT), p.Z);
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageDown))
+                            {
+                                Vector3 p = SelectedLightObject.Target;
+                                SelectedLightObject.SetTarget(p.X, (float)Math.Round(p.Y - POSITIONSTEP, ROUNDDIGITCOUNT), p.Z);
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Left))
+                            {
+                                Vector3 p = SelectedLightObject.Target;
+                                SelectedLightObject.SetTarget((float)Math.Round(p.X - POSITIONSTEP, ROUNDDIGITCOUNT), p.Y, p.Z);
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Right))
+                            {
+                                Vector3 p = SelectedLightObject.Target;
+                                SelectedLightObject.SetTarget((float)Math.Round(p.X + POSITIONSTEP, ROUNDDIGITCOUNT), p.Y, p.Z);
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Up))
+                            {
+                                Vector3 p = SelectedLightObject.Target;
+                                SelectedLightObject.SetTarget(p.X, p.Y, (float)Math.Round(p.Z + POSITIONSTEP, ROUNDDIGITCOUNT));
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Down))
+                            {
+                                Vector3 p = SelectedLightObject.Target;
+                                SelectedLightObject.SetTarget(p.X, p.Y, (float)Math.Round(p.Z - POSITIONSTEP, ROUNDDIGITCOUNT));
+                            }
                         }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageDown))
+                        else
                         {
-                            Vector3 p = SelectedLightObject.Position;
-                            SelectedLightObject.SetPosition(p.X, (float)Math.Round(p.Y - POSITIONSTEP, ROUNDDIGITCOUNT), p.Z);
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Left))
-                        {
-                            Vector3 p = SelectedLightObject.Position;
-                            SelectedLightObject.SetPosition((float)Math.Round(p.X - POSITIONSTEP, ROUNDDIGITCOUNT), p.Y, p.Z);
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Right))
-                        {
-                            Vector3 p = SelectedLightObject.Position;
-                            SelectedLightObject.SetPosition((float)Math.Round(p.X + POSITIONSTEP, ROUNDDIGITCOUNT), p.Y, p.Z);
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Up))
-                        {
-                            Vector3 p = SelectedLightObject.Position;
-                            SelectedLightObject.SetPosition(p.X, p.Y, (float)Math.Round(p.Z + POSITIONSTEP, ROUNDDIGITCOUNT));
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Down))
-                        {
-                            Vector3 p = SelectedLightObject.Position;
-                            SelectedLightObject.SetPosition(p.X, p.Y, (float)Math.Round(p.Z - POSITIONSTEP, ROUNDDIGITCOUNT));
-                        }
-                        // TARGETS:
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageUp) && (KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl)))
-                        {
-                            Vector3 p = SelectedLightObject.Target;
-                            SelectedLightObject.SetTarget(p.X, (float)Math.Round(p.Y + POSITIONSTEP, ROUNDDIGITCOUNT), p.Z);
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageDown) && (KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl)))
-                        {
-                            Vector3 p = SelectedLightObject.Target;
-                            SelectedLightObject.SetTarget(p.X, (float)Math.Round(p.Y - POSITIONSTEP, ROUNDDIGITCOUNT), p.Z);
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Left) && (KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl)))
-                        {
-                            Vector3 p = SelectedLightObject.Target;
-                            SelectedLightObject.SetTarget((float)Math.Round(p.X - POSITIONSTEP, ROUNDDIGITCOUNT), p.Y, p.Z);
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Right) && (KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl)))
-                        {
-                            Vector3 p = SelectedLightObject.Target;
-                            SelectedLightObject.SetTarget((float)Math.Round(p.X + POSITIONSTEP, ROUNDDIGITCOUNT), p.Y, p.Z);
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Up) && (KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl)))
-                        {
-                            Vector3 p = SelectedLightObject.Target;
-                            SelectedLightObject.SetTarget(p.X, p.Y, (float)Math.Round(p.Z + POSITIONSTEP, ROUNDDIGITCOUNT));
-                        }
-                        else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Down) && (KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl)))
-                        {
-                            Vector3 p = SelectedLightObject.Target;
-                            SelectedLightObject.SetTarget(p.X, p.Y, (float)Math.Round(p.Z - POSITIONSTEP, ROUNDDIGITCOUNT));
+                            if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageUp))
+                            {
+                                Vector3 p = SelectedLightObject.Position;
+                                SelectedLightObject.SetPosition(p.X, (float)Math.Round(p.Y + POSITIONSTEP, ROUNDDIGITCOUNT), p.Z);
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageDown))
+                            {
+                                Vector3 p = SelectedLightObject.Position;
+                                SelectedLightObject.SetPosition(p.X, (float)Math.Round(p.Y - POSITIONSTEP, ROUNDDIGITCOUNT), p.Z);
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Left))
+                            {
+                                Vector3 p = SelectedLightObject.Position;
+                                SelectedLightObject.SetPosition((float)Math.Round(p.X - POSITIONSTEP, ROUNDDIGITCOUNT), p.Y, p.Z);
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Right))
+                            {
+                                Vector3 p = SelectedLightObject.Position;
+                                SelectedLightObject.SetPosition((float)Math.Round(p.X + POSITIONSTEP, ROUNDDIGITCOUNT), p.Y, p.Z);
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Up))
+                            {
+                                Vector3 p = SelectedLightObject.Position;
+                                SelectedLightObject.SetPosition(p.X, p.Y, (float)Math.Round(p.Z + POSITIONSTEP, ROUNDDIGITCOUNT));
+                            }
+                            else if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Down))
+                            {
+                                Vector3 p = SelectedLightObject.Position;
+                                SelectedLightObject.SetPosition(p.X, p.Y, (float)Math.Round(p.Z - POSITIONSTEP, ROUNDDIGITCOUNT));
+                            }
                         }
                     }
                 }
