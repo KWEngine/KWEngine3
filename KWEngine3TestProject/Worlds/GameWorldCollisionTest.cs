@@ -1,5 +1,5 @@
 ﻿using KWEngine3;
-using KWEngine3TestProject.Classes;
+using KWEngine3TestProject.Classes.WorldCollisionTest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,29 +17,26 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            SetCameraFOV(30);
+
+
             Immovable i01 = new Immovable();
-            i01.Name = "LeftMost";
+            i01.Name = "Floor";
             i01.IsCollisionObject = true;
-            i01.SetPosition(-3, 0, 0);
-            i01.SetScale(2);
+            i01.SetPosition(0, -2, 0);
+            i01.SetScale(5, 2, 2);
+            i01.SetRotation(0, 0, -15);
             i01.SetColor(1, 0, 0);
             AddGameObject(i01);
 
-            Immovable i02 = new Immovable();
-            i02.Name = "Center";
-            i02.IsCollisionObject = true;
-            i02.SetPosition(-1.5f, 0, 0);
-            i02.SetScale(2);
-            i02.SetColor(0, 1, 0);
-            AddGameObject(i02);
-
-            Immovable i03 = new Immovable();
-            i03.Name = "RightMost";
-            i03.IsCollisionObject = true;
-            i03.SetPosition(1, 0, 0);
-            i03.SetScale(2);
-            i03.SetColor(0, 0, 1);
-            AddGameObject(i03);
+            Player p1 = new Player();
+            p1.Name = "Player #1";
+            p1.IsCollisionObject = true;
+            p1.SetModel("KWQuad");
+            p1.SetHitboxScale(1, 1, 100);
+            p1.SetColor(1, 1, 1);
+            p1.SetPosition(0, 2, 0);
+            AddGameObject(p1);
         }
     }
 }
