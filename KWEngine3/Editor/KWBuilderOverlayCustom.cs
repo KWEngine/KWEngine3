@@ -1093,7 +1093,7 @@ namespace KWEngine3.Editor
 
             HandleKeyboardNavigation();
         }
-
+        /*
         private static readonly float[] pixelColor = new float[4];
         internal static int FramebufferPicking(Vector2 mousePosition)
         {
@@ -1105,6 +1105,7 @@ namespace KWEngine3.Editor
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, previousFBID);
             return (int)pixelColor[3];
         }
+        */
 
         public static GameObject SelectedGameObject { get; internal set; } = null;
         public static TerrainObject SelectedTerrainObject { get; internal set; } = null;
@@ -1260,8 +1261,7 @@ namespace KWEngine3.Editor
                 }
             }
 
-
-            int id = FramebufferPicking(mousePosition);
+            int id = HelperIntersection.FramebufferPicking(mousePosition);
             if (id != 0)
             {
                 if (id > 0)

@@ -34,6 +34,16 @@ namespace KWEngine3.Helper
         /// Setzt die Größe des angehefteten Objekts, nachdem es an das Elternobjekt angeheftet wurde
         /// </summary>
         /// <param name="attachedObject">Angeheftetes Objekt</param>
+        /// <param name="s">Gleichmäßige Skalierung in alle drei Achsenrichtungen</param>
+        public static void SetScaleForAttachment(GameObject attachedObject, float s)
+        {
+            SetScaleForAttachment(attachedObject, new Vector3(s, s, s));
+        }
+
+        /// <summary>
+        /// Setzt die Größe des angehefteten Objekts, nachdem es an das Elternobjekt angeheftet wurde
+        /// </summary>
+        /// <param name="attachedObject">Angeheftetes Objekt</param>
         /// <param name="x">Skalierung in x-Richtung</param>
         /// <param name="y">Skalierung in y-Richtung</param>
         /// <param name="z">Skalierung in z-Richtung</param>

@@ -1,5 +1,7 @@
 ﻿using KWEngine3.GameObjects;
 using KWEngine3.Model;
+using KWEngine3.Renderer;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.Helper
@@ -35,7 +37,7 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Mauszeiger über einem Terrain-Objekt liegt</returns>
         public static bool GetMouseIntersectionPointOnAnyTerrain(out Vector3 intersectionPoint)
         {
-            foreach(TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
+            foreach (TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
             {
                 if (to.IsCollisionObject)
                 {
@@ -86,7 +88,7 @@ namespace KWEngine3.Helper
             {
                 mc = KWEngine.Window.MousePosition;
             }
-            
+
             Vector3 worldRay = HelperGeneral.Get3DMouseCoords(mc);
             bool result;
             Vector3 intersection;
@@ -157,24 +159,32 @@ namespace KWEngine3.Helper
         /// Gibt die am nächsten liegende (vom Mauszeiger überlagerte) GameObject-Instanz zurück
         /// </summary>
         /// <typeparam name="T">Beliebige Unterklasse von GameObject</typeparam>
+        /// <param name="gameObject">Gefundene GameObject-Instanz (nur gefüllt, wenn der Rückgabewert true ist)</param>
+        /// <param name="includeNonCollisionObjects">Sollen auch Objekte einbezogen werden, die nicht als Kollisionsobjekte markiert sind?</param>
         /// <returns>true, wenn der Mauscursor auf einem Objekt der angegebenen Art ist</returns>
-        public static bool IsMouseCursorOnAny<T>(out T gameObject) where T : GameObject
+        public static bool IsMouseCursorOnAny<T>(out T gameObject, bool includeNonCollisionObjects = true) where T : GameObject
         {
             gameObject = null;
-            GameObject[] list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T).ToArray();
+            GameObject[] list;
+            if(includeNonCollisionObjects)
+                list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T).ToArray();
+            else
+                list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T && go.IsCollisionObject).ToArray();
             if (list.Length == 0)
                 return false;
 
-            Vector3 origin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
-            
+
+            Vector3 rayDirection = GetMouseRay();
+            Vector3 rayOrigin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
+
             float minDistance = float.MaxValue;
             int minIndex = -1;
             for (int i = 0; i < list.Length; i++)
             {
-                bool rayHitGameObject = IsMouseCursorInsideGameObjectVolume(list[i]);
+                bool rayHitGameObject = IsMouseCursorOnGameObject(list[i], rayOrigin, rayDirection, true);
                 if (rayHitGameObject)
                 {
-                    float currentDistance = (origin - list[i].Center).LengthSquared;
+                    float currentDistance = (rayOrigin - list[i].Center).LengthSquared;
                     if (currentDistance < minDistance)
                     {
                         minDistance = currentDistance;
@@ -188,6 +198,7 @@ namespace KWEngine3.Helper
                 return true;
             }
             return false;
+
         }
 
         /// <summary>
@@ -197,9 +208,9 @@ namespace KWEngine3.Helper
         /// <param name="direction">Blickrichtung</param>
         /// <param name="maxDistance">Objekte weiter weg als dieser Wert werden ignoriert (Standard: 0 = unendliche Entfernung)</param>
         /// <param name="sort">true, falls die Objekte ihrer Entfernung nach aufsteigend sortiert werden sollen</param>
-        /// <param name="caller">Aufrufendes Objekt</param>
+        /// <param name="caller">Aufrufendes Objekt, das bei Nennung ignoriert wird</param>
         /// <returns>Liste der GameObjectDistance-Instanzen</returns>
-        public static List<RayIntersection> GetObjectDistancesInFrontOfViewVector(Vector3 origin, Vector3 direction, float maxDistance = 0, bool sort = false, GameObject caller = null)
+        public static List<RayIntersection> GetObjectDistancesInFrontOfViewVector<T>(Vector3 origin, Vector3 direction, float maxDistance = 0, bool sort = false, GameObject caller = null) where T : GameObject
         {
             List<RayIntersection> list = new List<RayIntersection>();
             if (maxDistance == 0)
@@ -213,6 +224,8 @@ namespace KWEngine3.Helper
                 {
                     continue;
                 }
+                if ((g is T) == false)
+                    continue;
 
                 bool result = GetIntersectionPointOnObjectForRay(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
                 if (result)
@@ -237,12 +250,12 @@ namespace KWEngine3.Helper
             }
             return list;
         }
-        
+
         internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint)
         {
             return GetIntersectionPointOnObjectForRay(g, origin, worldRay, out intersectionPoint, out Vector3 normal, true);
         }
-        
+
         /// <summary>
         /// Berechnet den Schnittpunkt eines Strahls mit dem angegebenen GameObject
         /// </summary>
@@ -262,14 +275,14 @@ namespace KWEngine3.Helper
                 return false;
             }
 
-                
+
             int resultSum = 0;
             float minDistance = float.MaxValue;
 
             for (int i = 0; i < g._hitboxes.Count; i++)
             {
                 GameObjectHitbox currentHitbox = g._hitboxes[i];
-                    
+
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
                     if (currentHitbox.IsExtended)
@@ -279,9 +292,9 @@ namespace KWEngine3.Helper
                         if (dot < 0)
                         {
                             bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
-                            if(hit)
+                            if (hit)
                             {
-                                    
+
                                 float currentDistance = (rayOrigin - currentContact).LengthSquared;
                                 if (currentDistance < minDistance)
                                 {
@@ -301,7 +314,7 @@ namespace KWEngine3.Helper
                         {
                             Vector3 currentContact = Vector3.Zero;
                             bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out currentContact);
-                            if(!hit)
+                            if (!hit)
                             {
                                 hit = RayTriangleIntersection(rayOrigin, rayDirection, v4, v5, v6, out currentContact);
                             }
@@ -391,31 +404,125 @@ namespace KWEngine3.Helper
         /// Erfragt, ob der Mauszeiger (näherungsweise) auf dem Objekt liegt (schneller als die präziseren Methoden)
         /// </summary>
         /// <param name="g">Zu untersuchendes GameObject</param>
-        /// <returns>true, wenn der Mauszeiger (näherungsweise) auf dem Objekt liegt</returns>
-        public static bool IsMouseCursorInsideGameObjectVolume(GameObject g)
+        /// <param name="includeNonCollisionObjects">Sollen das Objekt auch dann untersucht werden, wenn es kein Kollisionsobjekt ist?</param>
+        /// <returns>true, wenn der Mauszeiger auf dem Objekt liegt</returns>
+        public static bool IsMouseCursorOnGameObject(GameObject g, bool includeNonCollisionObjects = true)
         {
-            Vector2 mc;
-            if (KWEngine.Window.CursorState == OpenTK.Windowing.Common.CursorState.Grabbed)
+            if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
             {
-                mc = KWEngine.Window.ClientRectangle.HalfSize;
+                return false;
             }
-            else
-            {
-                mc = KWEngine.Window.MousePosition;
-            }
-            Vector3 rayDirection = HelperGeneral.Get3DMouseCoords(mc);
+
+            Vector3 rayDirection = GetMouseRay();
             Vector3 rayOrigin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
-            foreach(GameObjectHitbox h in g._hitboxes)
+
+            for (int i = 0; i < g._hitboxes.Count; i++)
             {
-                if(RayBoxIntersection(ref rayOrigin, ref rayDirection, h) == true)
+                GameObjectHitbox currentHitbox = g._hitboxes[i];
+
+                for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
-                    return true;
+                    if (currentHitbox.IsExtended)
+                    {
+                        currentHitbox.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
+                        float dot = Vector3.Dot(rayDirection, currentFaceNormal);
+                        if (dot < 0)
+                        {
+                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
+                            if (hit)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        currentHitbox.GetVerticesForCubeFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 currentFaceNormal);
+                        float dot = Vector3.Dot(rayDirection, currentFaceNormal);
+                        if (dot < 0)
+                        {
+                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
+                            if (!hit)
+                            {
+                                hit = RayTriangleIntersection(rayOrigin, rayDirection, v4, v5, v6, out currentContact);
+                            }
+                            if (hit)
+                            {
+                                return true;
+                            }
+                        }
+                    }
                 }
             }
             return false;
         }
 
         #region Internals
+
+        internal static bool IsMouseCursorOnGameObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, bool includeNonCollisionObjects)
+        {
+            if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < g._hitboxes.Count; i++)
+            {
+                GameObjectHitbox currentHitbox = g._hitboxes[i];
+
+                // test if object is far behind camera:
+                Vector3 camToObject = Vector3.NormalizeFast(currentHitbox._center - rayOrigin);
+                if (Vector3.Dot(camToObject, rayDirection) < 0)
+                    continue;
+
+                for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
+                {
+                    if (currentHitbox.IsExtended)
+                    {
+                        currentHitbox.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
+                        float dot = Vector3.Dot(rayDirection, currentFaceNormal);
+                        if (dot < 0)
+                        {
+                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
+                            if (hit)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        currentHitbox.GetVerticesForCubeFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 currentFaceNormal);
+                        float dot = Vector3.Dot(rayDirection, currentFaceNormal);
+                        if (dot < 0)
+                        {
+                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
+                            if (!hit)
+                            {
+                                hit = RayTriangleIntersection(rayOrigin, rayDirection, v4, v5, v6, out currentContact);
+                            }
+                            if (hit)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static readonly float[] pixelColor = new float[4];
+        internal static int FramebufferPicking(Vector2 mousePosition)
+        {
+            GL.GetInteger(GetPName.FramebufferBinding, out int previousFBID);
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, RenderManager.FramebufferDeferred.ID);
+            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
+            GL.ReadBuffer(ReadBufferMode.ColorAttachment2);
+            GL.ReadPixels((int)mousePosition.X, KWEngine.Window.ClientSize.Y - (int)mousePosition.Y, 1, 1, PixelFormat.Rgba, PixelType.Float, pixelColor);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, previousFBID);
+            return (int)pixelColor[3];
+        }
 
         internal static void GetArmatureTransformForDefaultAnimation(GameObject g, GeoNode node, ref Matrix4 transform, ref bool found)
         {
@@ -434,7 +541,7 @@ namespace KWEngine3.Helper
             }
             else
             {
-                
+
                 foreach (GeoMesh mesh in g._gModel.ModelOriginal.Meshes.Values)
                 {
                     int index = mesh.BoneNames.IndexOf(node.Name);
@@ -444,7 +551,7 @@ namespace KWEngine3.Helper
                         break;
                     }
                 }
-                
+
                 found = true;
             }
         }

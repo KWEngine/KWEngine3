@@ -79,6 +79,15 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Erfragt die aktuelle Färbung des Partikelobjekts
+        /// </summary>
+        public Vector4 Color
+        {
+            get { return _tint; }
+        }
+
+
+        /// <summary>
         /// Konstruktormethode für Partikel
         /// </summary>
         /// <param name="scale">Skalierung</param>

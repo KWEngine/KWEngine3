@@ -25,9 +25,6 @@ namespace KWEngine3
         /// </summary>
         public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
 
-        //internal Vector2 _mouseDeltaSum = new Vector2(0, 0);
-        //internal Vector2 _mouseDeltaToUse = new Vector2(0, 0);
-        //internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
         internal PostProcessingQuality _ppQuality = PostProcessingQuality.High;
 
         internal ulong FrameTotalCount { get; set; } = 0;
@@ -96,20 +93,22 @@ namespace KWEngine3
             GLAudioEngine.InitAudioEngine();
         }
 
-        /*
+        internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
+        internal Vector2 _mouseDeltaSum = Vector2.Zero;
+        internal Vector2 _mouseDeltaToUse = Vector2.Zero;
         internal void GatherMouseDelta()
         {
             double elapsed = _stopWatchMouseDelta.ElapsedTicks / (double)Stopwatch.Frequency;
-            //TODO: Workaround for OpenTK 4.7.7 MouseDelta bug
+            // Workaround for OpenTK 4.8 MouseDelta bug
             _mouseDeltaSum += MouseState.Delta; // * (VSync == VSyncMode.Off && RenderFrequency == 0 ? (1f / 0.240f) / KWEngine.LastFrameTime : 1f);
-            if (elapsed >= KWEngine.SIMULATIONNIBBLESIZE)
+            if (elapsed >= 1/60f)//KWEngine.SIMULATIONNIBBLESIZE)
             {
                 _mouseDeltaToUse = _mouseDeltaSum;
                 _mouseDeltaSum = Vector2.Zero;
                 _stopWatchMouseDelta.Restart();
             }
         }
-        */
+        
 
         /// <summary>
         /// Standard-Initialisierungen
@@ -151,7 +150,7 @@ namespace KWEngine3
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
-            //GatherMouseDelta();
+            GatherMouseDelta();
         }
 
         /// <summary>
@@ -448,7 +447,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.CurrentWorld.Prepare();
             HelperGeneral.FlushAndFinish();
-            //_stopWatchMouseDelta.Restart();
+            _stopWatchMouseDelta.Restart();
         }
 
         internal void UpdateDeltaTime(double t)

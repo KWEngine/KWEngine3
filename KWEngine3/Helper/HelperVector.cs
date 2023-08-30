@@ -92,6 +92,18 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Berechnet den Vektor, der entsteht, wenn der übergebene Vektor um die angegebenen Grad rotiert wird
+        /// </summary>
+        /// <param name="vector">zu rotierender Vektor</param>
+        /// <param name="degrees">Rotation (in Grad)</param>
+        /// <param name="axis">Achse, um den rotiert wird</param>
+        /// <returns>Rotierter Vektor</returns>
+        public static Vector3 RotateVector(Vector3 vector, float degrees, Axis axis)
+        {
+            return RotateVector(vector, degrees, axis == Axis.X ? Plane.YZ : axis == Axis.Y ? Plane.XZ : Plane.XY);
+        }
+
+        /// <summary>
         /// Berechnet die 2D-Bildschirmkoordinaten für die übergebene GameObject-Instanz.
         /// </summary>
         /// <param name="g">GameObject-Instanz</param>

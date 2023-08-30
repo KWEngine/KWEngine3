@@ -420,26 +420,7 @@ namespace KWEngine3.GameObjects
         /// <returns>true, wenn der Mauszeiger auf dem Objekt liegt</returns>
         public bool IsMouseCursorInsideMyHitbox()
         {
-            Vector2 mc;
-            if (KWEngine.Window.CursorState == OpenTK.Windowing.Common.CursorState.Grabbed)
-            {
-                mc = KWEngine.Window.ClientRectangle.HalfSize;
-            }
-            else
-            {
-                mc = KWEngine.Window.MousePosition;
-            }
-
-            Vector3 rayDirection = HelperGeneral.Get3DMouseCoords(mc);
-            Vector3 rayOrigin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
-            foreach (GameObjectHitbox h in this._hitboxes)
-            {
-                if (HelperIntersection.RayBoxIntersection(ref rayOrigin, ref rayDirection, h) == true)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return HelperIntersection.IsMouseCursorOnGameObject(this, true);
         }
 
         /// <summary>
@@ -493,8 +474,8 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                //return KWEngine.Window._mouseDeltaToUse;
-                return KWEngine.Window.MouseState.Delta;
+                return KWEngine.Window._mouseDeltaToUse;
+                //return KWEngine.Window.MouseState.Delta;
             }
         }
         /// <summary>

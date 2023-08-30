@@ -4,11 +4,15 @@
     <Position X="3.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_f12timestamp" Hidden="true" />
+      <Field Name="_mouseDeltaSum" Hidden="true" />
+      <Field Name="_mouseDeltaToUse" Hidden="true" />
       <Field Name="_ppQuality" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
+      <Field Name="_stopWatchMouseDelta" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Property Name="AnisotropicFiltering" Hidden="true" />
       <Property Name="FrameTotalCount" Hidden="true" />
+      <Method Name="GatherMouseDelta" Hidden="true" />
       <Method Name="OnLoad" Hidden="true" />
       <Method Name="OnMouseDown" Hidden="true" />
       <Method Name="OnMouseMove" Hidden="true" />
@@ -25,7 +29,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AACBAAAABQABAQCAUAgAAEACAhAABCYAKAAAEAECAgA=</HashCode>
+      <HashCode>AACBAAAABQARAQCAUAgAAEAiAhIABCaAKAAAEAECAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -349,6 +353,7 @@
       <Method Name="CalculateOverlap" Hidden="true" />
       <Method Name="ClipFaces" Hidden="true" />
       <Method Name="ClipLineToPlane" Hidden="true" />
+      <Method Name="FramebufferPicking" Hidden="true" />
       <Method Name="GetArmatureTransformForDefaultAnimation" Hidden="true" />
       <Method Name="GetRayIntersectionPointOnGameObject" Hidden="true" />
       <Method Name="IsBetweenOrdered" Hidden="true" />
@@ -356,6 +361,7 @@
       <Method Name="IsPointOnTrianglePlane" Hidden="true" />
       <Method Name="LinePlaneIntersection" Hidden="true" />
       <Method Name="Overlaps" Hidden="true" />
+      <Field Name="pixelColor" Hidden="true" />
       <Method Name="RayBoxIntersection" Hidden="true" />
       <Method Name="RayTerrainIntersection" Hidden="true" />
       <Method Name="RayTriangleIntersection" Hidden="true" />
@@ -365,7 +371,7 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQIQAhAAABACAAAAMIAAAACAAQAgBIAWAAECABIJBAg=</HashCode>
+      <HashCode>BQIQAhAAABACAAAAMIAAAACAAQAgBIgGAAGCABIJJAg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>

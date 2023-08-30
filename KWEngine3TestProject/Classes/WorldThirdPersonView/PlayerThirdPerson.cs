@@ -98,7 +98,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
 
             if(_debug && _aimingSphere != null)
             {
-                bool result = HelperIntersection.IsMouseCursorOnAny<Immovable>(out Immovable o);
+                bool result = HelperIntersection.IsMouseCursorOnAny<Immovable>(out Immovable o, false);
                 Vector3 target;
                 if (result)
                 {
@@ -128,7 +128,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
         {
             if (WorldTime - _lastShot > _cooldown)
             {
-                bool result = HelperIntersection.IsMouseCursorOnAny<Immovable>(out Immovable o);
+                bool result = HelperIntersection.IsMouseCursorOnAny<Immovable>(out Immovable o, false);
                 Vector3 target;
                 if (result)
                 {
