@@ -415,6 +415,9 @@
     <None Update="Models\PlatformerPack\Star.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Models\PlatformerPack\Sword.glb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Models\PlatformerPack\Thunder.gltf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
