@@ -166,12 +166,17 @@ namespace KWEngine3
             _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0.1f, 100f);
         }
 
+        internal int MouseCursorGameObjectID = -1;
+
         /// <summary>
         /// Wird ausgeführt, wenn ein neues Bild gezeichnet werden soll
         /// </summary>
         /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            // TODO: Prevent this from stalling the render cycle
+            //MouseCursorGameObjectID = HelperIntersection.FramebufferPicking(MouseState.Position);
+
             UpdateDeltaTime(e.Time);
             
             UpdateScene();

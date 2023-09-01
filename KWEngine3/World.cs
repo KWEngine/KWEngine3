@@ -99,6 +99,19 @@ namespace KWEngine3
             }
         }
 
+        internal T GetGameObjectByID<T>(int id) where T : GameObject
+        {
+            int index = _gameObjects.FindIndex(g => g.ID == id && g is T);
+            if (index >= 0)
+            {
+                return _gameObjects[index] as T;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         internal void ResetWorldDimensions()
         {
             _xMinMax = new Vector2(float.MaxValue, float.MinValue);
@@ -387,6 +400,16 @@ namespace KWEngine3
         }
         #endregion
 
+        /// <summary>
+        /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
+        /// </summary>
+        public Vector2 MouseMovement
+        {
+            get
+            {
+                return KWEngine.Window._mouseDeltaToUse;
+            }
+        }
 
         /// <summary>
         /// Setzt die Farbe des Umgebungslichts (dort wo kein Licht scheint)
