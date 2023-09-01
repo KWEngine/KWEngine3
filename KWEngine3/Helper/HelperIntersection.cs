@@ -31,6 +31,20 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Gibt die aktuellen Mauszeigerursprungskoordinaten zurück (entspricht immer der Kameraposition)
+        /// </summary>
+        /// <returns>Mauszeigerursprungskoordinaten</returns>
+        public static Vector3 GetMouseOrigin()
+        {
+            Vector3 result = Vector3.Zero;
+            if(KWEngine.CurrentWorld != null)
+            {
+                return KWEngine.CurrentWorld.CameraPosition;
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Berechnet den ungefähren Schnittpunkt des Mauszeigers mit einem Terrain-Objekt.
         /// </summary>
         /// <param name="intersectionPoint">Ausgabe des Schnittpunkts (wenn der Mauszeiger über einem Terrain-Objekt liegt - sonst (0|0|0))</param>
@@ -156,7 +170,54 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Gibt die am nächsten liegende (vom Mauszeiger überlagerte) GameObject-Instanz zurück
+        /// Prüft pixelgenau, ob der Mauszeiger über einem Objekt des angegebenen Typs liegt und gibt ggf. diese Instanz über den out-Parameter zurück
+        /// (EINSCHRÄNKUNG: Funktioniert NICHT für (teil-)transparente Objekte oder für Objekte mit transparenter Textur)
+        /// </summary>
+        /// <typeparam name="T">Beliebige Unterklasse von GameObject</typeparam>
+        /// <param name="gameObject">Gefundene GameObject-Instanz (nur gefüllt, wenn der Rückgabewert true ist)</param>
+        /// <returns>true, wenn der Mauscursor auf einem Objekt der angegebenen Art ist</returns>
+        public static bool IsMouseCursorOnAnyFast<T>(out T gameObject) where T : GameObject
+        {
+            gameObject = null;
+            int id = FramebufferPicking(KWEngine.Window.MouseState.PreviousPosition);
+            if (id > 0)
+            {
+                GameObject tmp = KWEngine.CurrentWorld.GetGameObjectByID(id);
+                if (tmp is T)
+                {
+                    gameObject = tmp as T;
+                    return true;
+                }
+                else return false;
+            }
+            else return false;
+        }
+
+        /// <summary>
+        /// Prüft pixelgenau, ob der Mauszeiger über einem GameObject liegt und gibt ggf. diese Instanz über den out-Parameter zurück
+        /// (EINSCHRÄNKUNG: Funktioniert NICHT für (teil-)transparente Objekte oder für Objekte mit transparenter Textur)
+        /// </summary>
+        /// <param name="gameObject">Gefundene GameObject-Instanz (nur gefüllt, wenn der Rückgabewert true ist)</param>
+        /// <returns>true, wenn der Mauscursor auf einem Objekt der angegebenen Art ist</returns>
+        public static bool IsMouseCursorOnAnyFast(out GameObject gameObject)
+        {
+            gameObject = null;
+            int id = FramebufferPicking(KWEngine.Window.MouseState.PreviousPosition);
+            if (id > 0)
+            {
+                GameObject tmp = KWEngine.CurrentWorld.GetGameObjectByID(id);
+                if (tmp != null)
+                {
+                    gameObject = tmp;
+                    return true;
+                }
+                else return false;
+            }
+            else return false;
+        }
+
+        /// <summary>
+        /// Prüft, ob der Mauszeiger über einem Objekt des angegebenen Typs liegt und gibt ggf. diese Instanz über den out-Parameter zurück
         /// </summary>
         /// <typeparam name="T">Beliebige Unterklasse von GameObject</typeparam>
         /// <param name="gameObject">Gefundene GameObject-Instanz (nur gefüllt, wenn der Rückgabewert true ist)</param>

@@ -88,8 +88,15 @@ namespace KWEngine3
 
         internal GameObject GetGameObjectByID(int id)
         {
-            GameObject go = _gameObjects.Find(g => g.ID == id);
-            return go;
+            int index = _gameObjects.FindIndex(g => g.ID == id);
+            if(index >= 0)
+            {
+                return _gameObjects[index];
+            }
+            else
+            {
+                return null;
+            }
         }
 
         internal void ResetWorldDimensions()
