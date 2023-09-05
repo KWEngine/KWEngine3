@@ -2,6 +2,7 @@
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldPlatformerPack;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +13,18 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-
+            if (Keyboard[Keys.F1])
+            {
+                Window.SetWorld(new GameWorldJumpAndRunPhysics());
+            }
+            else if (Keyboard[Keys.F2])
+            {
+                Window.SetWorld(new GameWorldLightAndShadow());
+            }
+            else if (Keyboard[Keys.F3])
+            {
+                Window.SetWorld(new GameWorldPlatformerPack());
+            }
         }
 
         public override void Prepare()

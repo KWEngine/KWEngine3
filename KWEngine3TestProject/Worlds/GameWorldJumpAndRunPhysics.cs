@@ -4,6 +4,7 @@ using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldJumpAndRunPhysics;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -16,6 +17,19 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
+            if (Keyboard[Keys.F1])
+            {
+                Window.SetWorld(new GameWorldJumpAndRunPhysics());
+            }
+            else if (Keyboard[Keys.F2])
+            {
+                Window.SetWorld(new GameWorldLightAndShadow());
+            }
+            else if (Keyboard[Keys.F3])
+            {
+                Window.SetWorld(new GameWorldPlatformerPack());
+            }
+
             // Animate the lights:
             _lightOffsetX = (_lightOffsetX + 0.005f) % (float)(Math.PI * 2);
             _lightOffsetY = (_lightOffsetY + 0.0065f) % (float)(Math.PI * 2);
@@ -108,14 +122,14 @@ namespace KWEngine3TestProject.Worlds
             Audio.PreloadSound(@"./sfx/jumpUp.ogg");
             Audio.PreloadSound(@"./sfx/jumpLand.ogg");
 
-            _light = new LightObject(LightType.Directional, ShadowQuality.High);
+            _light = new LightObject(LightType.Directional, ShadowQuality.Low);
             _light.SetColor(0.25f, 1f, 0.25f, 4);
             _light.SetPosition(0, 5, 10);
             _light.SetNearFar(1, 50);
             _light.SetTarget(0, -2.5f, 0);
             AddLightObject(_light);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.Low);
             sun.SetColor(1f, 0.5f, 1f, 2);
             sun.SetPosition(25, 25, 25);
             sun.SetTarget(0, 0, 0);

@@ -115,6 +115,26 @@ namespace KWEngine3.Model
                    
                 }
             }
+
+            // Delete all connected instances (c#):
+            foreach(GeoMesh m in Meshes.Values)
+            {
+                m.BoneIndices = null;
+                m.BoneNames = null;
+                m.BoneOffset = null;
+                m.BoneOffsetInverse = null;
+                m.BoneTranslationMatrixCount = -1;
+                m.Vertices = null;
+            }
+
+            this.NodesWithoutHierarchy = null;
+            this.MeshHitboxes = null;
+            this.Meshes = null;
+            this.Animations = null;
+            this.Armature = null;
+            this.BoneNames = null;
+            this.Root = null;
+            this.Textures = null;
         }
 
         internal void CalculatePath()

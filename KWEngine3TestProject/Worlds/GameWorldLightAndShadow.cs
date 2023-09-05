@@ -4,6 +4,7 @@ using KWEngine3.Helper;
 using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldLightAndShadow;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Drawing;
 
 namespace KWEngine3TestProject.Worlds
@@ -17,6 +18,19 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
+            if (Keyboard[Keys.F1])
+            {
+                Window.SetWorld(new GameWorldJumpAndRunPhysics());
+            }
+            else if (Keyboard[Keys.F2])
+            {
+                Window.SetWorld(new GameWorldLightAndShadow());
+            }
+            else if (Keyboard[Keys.F3])
+            {
+                Window.SetWorld(new GameWorldPlatformerPack());
+            }
+
             // SUN CONTROL:
             // Move sun around the scene:
             Vector3 newSunPosition = HelperRotation.CalculatePositionAfterRotationAroundPointOnAxis(

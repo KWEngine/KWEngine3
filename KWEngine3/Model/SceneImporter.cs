@@ -2,6 +2,7 @@
 using System.Reflection;
 using Assimp;
 using Assimp.Configs;
+using Assimp.Unmanaged;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
 
@@ -126,6 +127,9 @@ namespace KWEngine3.Model
                 }
 
                 GeoModel model = ProcessScene(scene, am == AssemblyMode.File ? filename.ToLower().Trim() : filename, am);
+                scene.Clear();
+                importer.Dispose();
+                
                 return model;
             }
         }
