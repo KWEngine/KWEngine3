@@ -67,7 +67,7 @@ namespace KWEngine3
             for(int i = _eventQueue.Count - 1; i >= 0; i--)
             {
                 WorldEvent e = _eventQueue[i];
-                if (e != null)
+                if (e != null && e.Owner == KWEngine.CurrentWorld)
                 {
                     if (e.Timestamp <= WorldTime)
                     {
@@ -1037,6 +1037,7 @@ namespace KWEngine3
         {
             if(e != null)
             {
+                e.Owner = this;
                 _eventQueue.Add(e);
                 _eventQueue.Sort();
             }

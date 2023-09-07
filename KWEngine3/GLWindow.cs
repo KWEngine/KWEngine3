@@ -466,6 +466,7 @@ namespace KWEngine3
 
         internal void UpdateScene()
         {
+            
             List<GameObject> postponedViewSpaceAttachments = new List<GameObject>();
             if(KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
             {
@@ -474,7 +475,8 @@ namespace KWEngine3
             int n = 0;
             if(KWEngine.CurrentWorld._startingFrameActive == false)
             {
-                n = UpdateCurrentWorldAndObjects(out double elapsedTimeForCall);
+                World currentWorldForLoop = KWEngine.CurrentWorld;
+                n = UpdateCurrentWorldAndObjects(currentWorldForLoop, out double elapsedTimeForCall);
                 if (!KWEngine.EditModeActive)
                     KWBuilderOverlay.UpdateLastUpdateTime(elapsedTimeForCall);
             }
@@ -537,14 +539,14 @@ namespace KWEngine3
         /// </summary>
         public int Height { get { return ClientSize.Y; } }
 
-        internal int UpdateCurrentWorldAndObjects(out double elapsedUpdateTimeForCallInMS)
+        internal int UpdateCurrentWorldAndObjects(World worldBeforeLoop, out double elapsedUpdateTimeForCallInMS)
         {
             int n = 0;
             elapsedUpdateTimeForCallInMS = 0.0;
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
                 _stopwatch.Restart();
-                if (KWEngine.CurrentWorld != null)
+                if (KWEngine.CurrentWorld != null && worldBeforeLoop == KWEngine.CurrentWorld)
                 {
                     KWEngine.CurrentWorld.ResetWorldDimensions();
                     List<GameObject> postponedObjects = new List<GameObject>();
@@ -668,6 +670,10 @@ namespace KWEngine3
                     double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;// * 1000.0;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
+                }
+                else
+                {
+                    break;
                 }
             }
             return n;

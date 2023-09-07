@@ -48,5 +48,7 @@ namespace KWEngine3
         {
             return Timestamp.CompareTo(other.Timestamp) * -1;
         }
+
+        internal World Owner { get; set; } = null;
     }
 }

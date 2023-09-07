@@ -41,10 +41,13 @@ namespace KWEngine3.Framebuffers
             }
             else
             {
+                // TODO: Check whether this can go or not :-)
+                /*
                 Renderbuffers.Add(GL.GenRenderbuffer());
                 GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
                 GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, width, height);
                 GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
+                */
             }
 
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
