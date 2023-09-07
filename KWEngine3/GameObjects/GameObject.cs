@@ -1272,8 +1272,10 @@ namespace KWEngine3.GameObjects
         /// <returns>1, wenn das aufrufende Objekt näher an der Kamera ist, sonst -1</returns>
         public int CompareTo(GameObject other)
         {
-            float distanceToCameraThis = (this.Center - KWEngine.CurrentWorld.CameraPosition).LengthSquared;
-            float distanceToCameraOther = (other.Center - KWEngine.CurrentWorld.CameraPosition).LengthSquared;
+            Vector3 camPos = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateCurrent._position: KWEngine.CurrentWorld.CameraPosition;
+
+            float distanceToCameraThis = (this.Center - camPos).LengthSquared;
+            float distanceToCameraOther = (other.Center - camPos).LengthSquared;
             return distanceToCameraOther > distanceToCameraThis ? 1 : -1;
         }
 

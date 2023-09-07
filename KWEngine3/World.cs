@@ -35,6 +35,10 @@ namespace KWEngine3
         internal List<HUDObject> _hudObjectsToBeAdded = new List<HUDObject>();
         internal List<HUDObject> _hudObjectsToBeRemoved = new List<HUDObject>();
 
+        internal List<TextObject> _textObjects = new List<TextObject>();
+        internal List<TextObject> _textObjectsToBeAdded = new List<TextObject>();
+        internal List<TextObject> _textObjectsToBeRemoved = new List<TextObject>();
+
         internal List<TimeBasedObject> _particleAndExplosionObjects = new List<TimeBasedObject>();
 
         internal Queue<ushort> _availableGameObjectIDs = new Queue<ushort>();
@@ -235,6 +239,21 @@ namespace KWEngine3
             _hudObjectsToBeAdded.Clear();
         }
 
+        internal void AddRemoveTextObjects()
+        {
+            foreach (TextObject t in _textObjectsToBeRemoved)
+            {
+                _textObjects.Remove(t);
+            }
+            _textObjectsToBeRemoved.Clear();
+
+            foreach (TextObject t in _textObjectsToBeAdded)
+            {
+                _textObjects.Add(t);
+            }
+            _textObjectsToBeAdded.Clear();
+        }
+
         internal void AddRemoveGameObjects()
         {
             foreach (GameObject g in _gameObjectsToBeRemoved)
@@ -303,6 +322,12 @@ namespace KWEngine3
                 RemoveHUDObject(h);
             }
             AddRemoveHUDObjects();
+
+            foreach (TextObject t in _textObjects)
+            {
+                RemoveTextObject(t);
+            }
+            AddRemoveTextObjects();
 
             KWEngine.DeleteCustomModelsAndTextures(this);
         }
@@ -675,6 +700,26 @@ namespace KWEngine3
         {
             if (!_hudObjectsToBeRemoved.Contains(h))
                 _hudObjectsToBeRemoved.Add(h);
+        }
+
+
+        /// <summary>
+        /// Fügt ein Textobjekt der Welt hinzu
+        /// </summary>
+        /// <param name="t">Objekt</param>
+        public void AddTextObject(TextObject t)
+        {
+            if (!_textObjects.Contains(t) && !_textObjectsToBeAdded.Contains(t))
+                _textObjectsToBeAdded.Add(t);
+        }
+        /// <summary>
+        /// Löscht das angegebene Textobjekt aus der Welt
+        /// </summary>
+        /// <param name="t">Objekt</param>
+        public void RemoveTextObject(TextObject t)
+        {
+            if(!_textObjectsToBeRemoved.Contains(t))
+                _textObjectsToBeRemoved.Add(t);
         }
 
         /// <summary>

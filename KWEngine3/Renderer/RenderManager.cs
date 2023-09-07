@@ -56,6 +56,7 @@ namespace KWEngine3.Renderer
             RendererBackgroundStandard.Init();
             RendererExplosion.Init();
             RendererParticle.Init();
+            RendererForwardText.Init();
 
             RendererShadowMap.Init();
             RendererShadowMapCube.Init();

@@ -302,6 +302,11 @@ namespace KWEngine3
                     }
                 }
 
+                if(KWEngine.CurrentWorld._textObjects.Count > 0)
+                {
+
+                }
+
                 if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
                 {
                     RendererParticle.Bind();
