@@ -485,6 +485,9 @@ namespace KWEngine3
             _stopwatch.Restart();
             KWEngine.LastSimulationUpdateCycleCount = n;
             float alpha = (float)(KWEngine.DeltaTimeAccumulator / KWEngine.DeltaTimeCurrentNibbleSize);
+            if (alpha < 0 || alpha > 1)
+                alpha = 0;
+
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
                 if(g.IsAttachedToViewSpaceGameObject == false)
