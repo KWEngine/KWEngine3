@@ -279,7 +279,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="3.5" Y="14.25" Width="2.75" />
+    <Position X="3.5" Y="14.75" Width="2.75" />
     <Members>
       <Field Name="_fbShadowMap" Hidden="true" />
       <Field Name="_shadowBias" Hidden="true" />
@@ -421,7 +421,7 @@
   <Class Name="KWEngine3.WorldEvent">
     <Position X="12.5" Y="11" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAgAAQAAAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAACAAAAgAAQAAAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>WorldEvent.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
