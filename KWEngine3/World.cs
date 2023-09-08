@@ -820,6 +820,18 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Durchsucht alle TextObject-Instanzen und gibt das erste Suchergebnis zum angegebenen Namen zurück
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public TextObject GetTextObjectByName(string name)
+        {
+            name = name.Trim();
+            TextObject t = _textObjects.Find(to => to.Name == name);
+            return t;
+        }
+
+        /// <summary>
         /// Erstellt eine Liste aller GameObject-Instanzen mit einem bestimmten Namen
         /// </summary>
         /// <param name="name">gesuchter Name</param>

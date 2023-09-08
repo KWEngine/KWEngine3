@@ -11,6 +11,7 @@ namespace KWEngine3.GameObjects
         public Quaternion _rotation;
         public float _scale;
         public float _width;
+        public float _spreadFactor;
         public Vector4 _color;
         public Vector4 _colorEmissive;
         public Matrix4 _modelMatrix;
@@ -21,6 +22,7 @@ namespace KWEngine3.GameObjects
             _position = Vector3.Zero;
             _rotation = Quaternion.Identity;
             _scale = 1f;
+            _spreadFactor = 1f;
             _color = new Vector4(1, 1, 1, 1);
             _colorEmissive = new Vector4(0, 0, 0, 0);
             _modelMatrix = Matrix4.Identity;

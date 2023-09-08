@@ -297,14 +297,14 @@ namespace KWEngine3
                     if (gameObjectsForForwardRendering.Count > 0)
                         RendererForward.RenderScene(gameObjectsForForwardRendering);
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
-                    {
                         RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
-                    }
                 }
 
                 if(KWEngine.CurrentWorld._textObjects.Count > 0)
                 {
-
+                    RendererForwardText.Bind();
+                    RendererForwardText.SetGlobals();
+                    RendererForwardText.RenderScene();
                 }
 
                 if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
@@ -515,6 +515,11 @@ namespace KWEngine3
                 HelperSimulation.BlendTerrainObjectStates(t, alpha);
             }
 
+            foreach(TextObject t in KWEngine.CurrentWorld._textObjects)
+            {
+                HelperSimulation.BlendTextObjectStates(t, alpha);
+            }
+
             HelperSimulation.BlendCameraStates(ref KWEngine.CurrentWorld._cameraGame, ref KWEngine.CurrentWorld._cameraEditor, alpha);
 
             if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
@@ -527,8 +532,6 @@ namespace KWEngine3
                 KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.Clear();
             }
                 
-                
-
             if (KWEngine.Mode == EngineMode.Edit)
             {
                 KWEngine.CurrentWorld._cameraEditor._frustum.UpdateFrustum(
@@ -564,6 +567,7 @@ namespace KWEngine3
                     KWEngine.CurrentWorld.AddRemoveTerrainObjects();
                     KWEngine.CurrentWorld.AddRemoveLightObjects();
                     KWEngine.CurrentWorld.AddRemoveHUDObjects();
+                    KWEngine.CurrentWorld.AddRemoveTextObjects();
                     HelperSweepAndPrune.SweepAndPrune();
 
                     /*
@@ -649,6 +653,12 @@ namespace KWEngine3
                             KWEngine.CurrentWorld._particleAndExplosionObjects.Remove(tbo);
                         else
                             tbo.Act();
+                    }
+
+                    foreach(TextObject t in KWEngine.CurrentWorld._textObjects)
+                    {
+                        t._statePrevious = t._stateCurrent;
+                        t.Act();
                     }
 
                     if (!KWEngine.EditModeActive)

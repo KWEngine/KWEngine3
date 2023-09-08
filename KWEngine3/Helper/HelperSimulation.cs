@@ -2,6 +2,7 @@
 using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
+using OpenTK.Platform.Windows;
 
 namespace KWEngine3.Helper
 {
@@ -59,6 +60,19 @@ namespace KWEngine3.Helper
             }
         }
 
+        public static void BlendTextObjectStates(TextObject t, float alpha)
+        {
+            t._stateRender._position = Vector3.Lerp(t._statePrevious._position, t._stateCurrent._position, alpha);
+            t._stateRender._color = Vector4.Lerp(t._statePrevious._color, t._stateCurrent._color, alpha);
+            t._stateRender._colorEmissive = Vector4.Lerp(t._statePrevious._colorEmissive, t._stateCurrent._colorEmissive, alpha);
+            t._stateRender._scale = Vector3.Lerp(new Vector3(t._statePrevious._scale), new Vector3(t._stateCurrent._scale), alpha).X;
+            t._stateRender._rotation = Quaternion.Slerp(t._statePrevious._rotation, t._stateCurrent._rotation, alpha);
+            t._stateRender._width = Vector3.Lerp(new Vector3(t._statePrevious._width), new Vector3(t._stateCurrent._width), alpha).X;
+            t._stateRender._spreadFactor = t._statePrevious._spreadFactor * (1f - alpha) + t._stateCurrent._spreadFactor * alpha;
+
+            Vector3 tmpScale = new Vector3(t._stateRender._scale);
+            t._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref tmpScale, ref t._stateRender._rotation, ref t._stateRender._position);
+        }
         public static void BlendTerrainObjectStates(TerrainObject t, float alpha)
         {
             t._stateRender._position = Vector3.Lerp(t._statePrevious._position, t._stateCurrent._position, alpha);

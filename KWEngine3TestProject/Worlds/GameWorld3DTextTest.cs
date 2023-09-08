@@ -24,7 +24,7 @@ namespace KWEngine3TestProject.Worlds
             Immovable i01 = new Immovable();
             i01.Name = "Floor";
             i01.IsCollisionObject = true;
-            i01.SetPosition(0, -1, 0);
+            i01.SetPosition(0, -4, 0);
             i01.SetScale(5, 2, 2);
             i01.SetRotation(0, 0, 0);
             i01.SetColor(1, 0, 1);
@@ -36,10 +36,12 @@ namespace KWEngine3TestProject.Worlds
             p1.SetModel("KWCube");
             p1.SetHitboxScale(1, 1, 1);
             p1.SetColor(1, 1, 0);
-            p1.SetPosition(0, 2, 0);
+            p1.SetPosition(0, 3, 0);
             AddGameObject(p1);
 
             TextObject t1 = new TextObject("Hallo Welt.");
+            t1.SetColorEmissive(1, 1, 1, 1);
+            t1.SetCharacterSpreadFactor(0.5f);
             AddTextObject(t1);
         }
     }

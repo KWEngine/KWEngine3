@@ -24,7 +24,7 @@ namespace KWEngine3.Renderer
         public static int UColorAmbient { get; private set; } = -1;
         public static int UCharacterOffsets { get; private set; } = -1;
         public static int UTextOffset { get; private set; } = -1;
-        public static int UCharacterCount { get; private set; } = -1;
+        public static int USpread { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;        
 
@@ -61,7 +61,7 @@ namespace KWEngine3.Renderer
                 ULightCount = GL.GetUniformLocation(ProgramID, "uLightCount");
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
                 UCharacterOffsets = GL.GetUniformLocation(ProgramID, "uCharacterOffsets");
-                UCharacterCount = GL.GetUniformLocation(ProgramID, "uCharacterCount");
+                USpread = GL.GetUniformLocation(ProgramID, "uSpread");
                 UTextOffset = GL.GetUniformLocation(ProgramID, "uTextOffset");
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
@@ -138,7 +138,7 @@ namespace KWEngine3.Renderer
             KWEngine.CurrentWorld._textObjects.Sort();
         }
 
-        public static void RenderScene(List<GameObject> transparentObjects)
+        public static void RenderScene()
         {
             if (KWEngine.CurrentWorld != null)
             {
@@ -160,13 +160,12 @@ namespace KWEngine3.Renderer
         {
             GL.Uniform4(UColorTint, t._stateRender._color);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
-            GL.Uniform1(UCharacterCount, t._offsets.Count);
             GL.Uniform1(UCharacterOffsets, t._offsets.Count, t._offsets.ToArray());
-            GL.Uniform1(UTextOffset, t._offsets.Count / 2.0f);
+            GL.Uniform1(UTextOffset, t._offsets.Count * t._stateRender._spreadFactor / 2.0f);
+            GL.Uniform1(USpread, t._stateRender._spreadFactor);
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             
             UploadTextures(t);
-
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
             GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, t._offsets.Count);

@@ -37,6 +37,7 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public TextObject()
         {
+            InitStates();
             SetText("o_O");
         }
 
@@ -46,6 +47,7 @@ namespace KWEngine3.GameObjects
         /// <param name="text">Anzuzeigender Text</param>
         public TextObject(string text)
         {
+            InitStates();
             SetText(text);
         }
 
@@ -64,6 +66,16 @@ namespace KWEngine3.GameObjects
 
             _text = text.ToList();
             GenerateOffsetsForText();
+        }
+
+        /// <summary>
+        /// Gibt an, wie weit die Textzeichen voneinander entfernt liegen sollen (Standard: 1)
+        /// </summary>
+        /// <param name="f">Entfernungsfaktor (Werte zwischen 0.75f und 2f)</param>
+        public void SetCharacterSpreadFactor(float f)
+        {
+            _stateCurrent._spreadFactor = Math.Clamp(f, 0.75f, 2f);
+            UpdateWidth();
         }
 
         /// <summary>
@@ -193,6 +205,14 @@ namespace KWEngine3.GameObjects
             return distanceToCameraOther > distanceToCameraThis ? 1 : -1;
         }
 
+        /// <summary>
+        /// Methode, die von der Engine automatisch aufgerufen wird, um das Objekt zu aktualisieren
+        /// </summary>
+        public virtual void Act()
+        {
+
+        }
+
         #region internals
         internal TextObjectState _stateCurrent;
         internal TextObjectState _statePrevious;
@@ -202,6 +222,13 @@ namespace KWEngine3.GameObjects
         internal List<int> _offsets = new List<int>();
         internal FontFace _fontFace = FontFace.Anonymous;
         internal string _name = "undefined text object";
+
+        internal void InitStates()
+        {
+            _stateCurrent = new TextObjectState(this);
+            _stateRender = new TextObjectState(this);
+            _statePrevious = _stateCurrent;
+        }
 
         internal void GenerateOffsetsForText()
         {
@@ -215,7 +242,7 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateWidth()
         {
-            _stateCurrent._width = _stateCurrent._scale * _offsets.Count;
+            _stateCurrent._width = _stateCurrent._scale * _offsets.Count * _stateCurrent._spreadFactor;
         }
         #endregion
     }

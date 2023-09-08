@@ -6,8 +6,9 @@ layout(location = 2) in vec3 aNormal;
 
 uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
-uniform float uCharacterOffsets[128];
+uniform int uCharacterOffsets[128];
 uniform float uTextOffset;
+uniform float uSpread;
 uniform mat4 uViewProjectionMatrixShadowMap[3];
 
 out vec4 vPosition;
@@ -19,10 +20,8 @@ void main()
 {
 	vec4 totalLocalPos = vec4(0.0);
 	vec4 totalNormal = vec4(0.0);
-	vec4 totalTangent = vec4(0.0);
-	vec4 totalBiTangent = vec4(0.0);
 	
-	totalLocalPos = vec4(aPosition, 1.0) - vec4(uTextOffset, 0, 0, 0);
+	totalLocalPos = vec4(aPosition, 1.0) - vec4(uTextOffset, 0, 0, 0) + vec4(gl_InstanceID * uSpread, 0, gl_InstanceID * 0.001, 0);
 	totalNormal = vec4(aNormal, 0.0);
 
 	gl_Position = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
@@ -32,5 +31,6 @@ void main()
 		vShadowCoord[i] = uViewProjectionMatrixShadowMap[i] * uModelMatrix * totalLocalPos;
 	}
 	vNormal = normalize((uModelMatrix * totalNormal).xyz);
-	vTexture = aTexture + vec2(uCharacterOffsets[gl_InstanceID], 0);
+	vTexture.x = aTexture.x / 256.0 + (uCharacterOffsets[gl_InstanceID] / 256.0);
+	vTexture.y = aTexture.y;
 }
