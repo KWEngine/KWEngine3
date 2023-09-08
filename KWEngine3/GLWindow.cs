@@ -658,7 +658,11 @@ namespace KWEngine3
                     foreach(TextObject t in KWEngine.CurrentWorld._textObjects)
                     {
                         t._statePrevious = t._stateCurrent;
-                        t.Act();
+                        if (!KWEngine.EditModeActive)
+                        {
+                            t.Act();
+                        }
+                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
                     }
 
                     if (!KWEngine.EditModeActive)

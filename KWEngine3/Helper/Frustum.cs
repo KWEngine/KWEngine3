@@ -17,7 +17,10 @@ namespace KWEngine3.Helper
         {
 
         }
-
+        internal void UpdateScreenSpaceStatus(TextObject t)
+        {
+            t.IsInsideScreenSpace = SphereVsFrustum(t.Position, t._stateCurrent._width / 2f);
+        }
         internal void UpdateScreenSpaceStatus(GameObject g)
         {
             g.IsInsideScreenSpace = VolumeVsFrustum(g.Center, g._stateCurrent._dimensions.X / 2, g._stateCurrent._dimensions.Y / 2, g._stateCurrent._dimensions.Z / 2);

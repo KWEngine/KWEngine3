@@ -124,6 +124,60 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Erhöht die Rotation um die x-Achse
+        /// </summary>
+        /// <param name="r">Grad</param>
+        /// <param name="worldSpace">true, wenn um die Weltachse statt um die lokale Achse rotiert werden soll</param>
+        public void AddRotationX(float r, bool worldSpace = false)
+        {
+            Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitX, HelperRotation.CalculateRadiansFromDegrees(r));
+            if (worldSpace)
+            {
+                _stateCurrent._rotation = tmpRotate * _stateCurrent._rotation;
+            }
+            else
+            {
+                _stateCurrent._rotation = _stateCurrent._rotation * tmpRotate;
+            }
+        }
+
+        /// <summary>
+        /// Erhöht die Rotation um die y-Achse
+        /// </summary>
+        /// <param name="r">Grad</param>
+        /// <param name="worldSpace">true, wenn um die Weltachse statt um die lokale Achse rotiert werden soll</param>
+        public void AddRotationY(float r, bool worldSpace = false)
+        {
+            Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitY, HelperRotation.CalculateRadiansFromDegrees(r));
+            if (worldSpace)
+            {
+                _stateCurrent._rotation = tmpRotate * _stateCurrent._rotation;
+            }
+            else
+            {
+                _stateCurrent._rotation = _stateCurrent._rotation * tmpRotate;
+            }
+        }
+
+        /// <summary>
+        /// Erhöht die Rotation um die z-Achse
+        /// </summary>
+        /// <param name="r">Grad</param>
+        /// <param name="worldSpace">true, wenn um die Weltachse statt um die lokale Achse rotiert werden soll</param>
+        public void AddRotationZ(float r, bool worldSpace = false)
+        {
+            Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitZ, HelperRotation.CalculateRadiansFromDegrees(r));
+            if (worldSpace)
+            {
+                _stateCurrent._rotation = tmpRotate * _stateCurrent._rotation;
+            }
+            else
+            {
+                _stateCurrent._rotation = _stateCurrent._rotation * tmpRotate;
+            }
+        }
+
+        /// <summary>
         /// Setzt die Größe der Instanz (Standard: 1)
         /// </summary>
         /// <param name="s">Größenangabe</param>
@@ -212,6 +266,12 @@ namespace KWEngine3.GameObjects
         {
 
         }
+
+        /// <summary>
+        /// Gibt an, ob sich das Objekt aktuell im Blickfeld der Kamera befindet
+        /// </summary>
+        public bool IsInsideScreenSpace { get; internal set; } = true;
+
 
         #region internals
         internal TextObjectState _stateCurrent;

@@ -148,8 +148,15 @@ namespace KWEngine3.Renderer
                 GeoMesh mesh = KWEngine.Models["KWQuad"].Meshes.Values.ElementAt(0);
                 foreach (TextObject t in KWEngine.CurrentWorld._textObjects)
                 {
-                    //TODO: Frustum culling!
-                    Draw(t, mesh);
+                    if (KWEngine.EditModeActive)
+                    {
+                        Draw(t, mesh);
+                    }
+                    else
+                    {
+                        if (t.IsInsideScreenSpace)
+                            Draw(t, mesh);
+                    }
                 }
                 GL.Disable(EnableCap.Blend);
                 //GL.Enable(EnableCap.CullFace);

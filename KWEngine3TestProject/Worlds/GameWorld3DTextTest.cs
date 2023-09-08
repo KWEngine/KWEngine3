@@ -1,11 +1,8 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
 using KWEngine3TestProject.Classes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -13,13 +10,25 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            
+            /*
+            TextObject t = GetTextObjectByName("Test");
+            if(t != null)
+            {
+                if (Keyboard[Keys.Q])
+                    t.SetPosition(t.Position.X - 0.01f, t.Position.Y, t.Position.Z);
+                if (Keyboard[Keys.E])
+                    t.SetPosition(t.Position.X + 0.01f, t.Position.Y, t.Position.Z);
+
+                KWEngine.LogWriteLine(t.Position);
+                KWEngine.LogWriteLine(t.IsInsideScreenSpace);
+                KWEngine.LogWriteLine("-------");
+            }
+            */
         }
 
         public override void Prepare()
         {
             SetCameraFOV(90);
-
 
             Immovable i01 = new Immovable();
             i01.Name = "Floor";
@@ -40,9 +49,21 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(p1);
 
             TextObject t1 = new TextObject("Hallo Welt.");
-            t1.SetColorEmissive(1, 1, 1, 1);
-            t1.SetCharacterSpreadFactor(0.5f);
+            t1.Name = "Test";
+            t1.SetColorEmissive(1, 1, 1, 0.5f);
+            t1.SetFont(FontFace.NovaMono);
+            t1.SetScale(0.25f);
+            t1.SetCharacterSpreadFactor(0.75f);
             AddTextObject(t1);
+
+            TextObject t2 = new TextObject("Dies iost ein Test");
+            t2.Name = "Test2";
+            t2.SetColorEmissive(1, 1, 1, 0.5f);
+            t2.SetFont(FontFace.NovaMono);
+            t2.SetScale(0.25f);
+            t2.SetPosition(5, 0, -1);
+            t2.SetCharacterSpreadFactor(0.75f);
+            AddTextObject(t2);
         }
     }
 }

@@ -126,6 +126,9 @@
       <Field Name="_terrainObjects" Hidden="true" />
       <Field Name="_terrainObjectsToBeAdded" Hidden="true" />
       <Field Name="_terrainObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_textObjects" Hidden="true" />
+      <Field Name="_textObjectsToBeAdded" Hidden="true" />
+      <Field Name="_textObjectsToBeRemoved" Hidden="true" />
       <Field Name="_viewSpaceGameObject" Hidden="true" />
       <Field Name="_worldCenter" Hidden="true" />
       <Field Name="_xMinMax" Hidden="true" />
@@ -135,6 +138,7 @@
       <Method Name="AddRemoveHUDObjects" Hidden="true" />
       <Method Name="AddRemoveLightObjects" Hidden="true" />
       <Method Name="AddRemoveTerrainObjects" Hidden="true" />
+      <Method Name="AddRemoveTextObjects" Hidden="true" />
       <Property Name="BackgroundTextureType" Hidden="true" />
       <Method Name="BuildAndAddDefaultGameObject" Hidden="true" />
       <Method Name="BuildAndAddDefaultLightObject" Hidden="true" />
@@ -153,7 +157,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAl0OK6ABDQCZAERxoGAhQgCTKJZCaYUUYHCH/AMAnE=</HashCode>
+      <HashCode>SAl0OK6ABDQCZAERzoGAhQgCTK5ZCaYUUaHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -279,7 +283,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="3.5" Y="14.75" Width="2.75" />
+    <Position X="9.5" Y="13.5" Width="2.75" />
     <Members>
       <Field Name="_fbShadowMap" Hidden="true" />
       <Field Name="_shadowBias" Hidden="true" />
@@ -300,7 +304,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="13.5" Width="2.75" />
+    <Position X="3.5" Y="15.25" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -423,6 +427,26 @@
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAgAAQAAAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>WorldEvent.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KWEngine3.GameObjects.TextObject">
+    <Position X="12.5" Y="13.75" Width="2.75" />
+    <Members>
+      <Field Name="_fontFace" Hidden="true" />
+      <Field Name="_name" Hidden="true" />
+      <Field Name="_offsets" Hidden="true" />
+      <Field Name="_stateCurrent" Hidden="true" />
+      <Field Name="_statePrevious" Hidden="true" />
+      <Field Name="_stateRender" Hidden="true" />
+      <Field Name="_text" Hidden="true" />
+      <Method Name="GenerateOffsetsForText" Hidden="true" />
+      <Method Name="InitStates" Hidden="true" />
+      <Method Name="UpdateWidth" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>QABAIQAAQAQAAAQgAICAAATAAABBAggIAAgAigBAANQ=</HashCode>
+      <FileName>GameObjects\TextObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>

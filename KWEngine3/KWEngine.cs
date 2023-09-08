@@ -101,6 +101,7 @@ namespace KWEngine3
             }
             else
             {
+                CurrentWorld._cameraGame._frustum.UpdateFrustum(CurrentWorld._cameraGame._stateCurrent.ProjectionMatrix, CurrentWorld._cameraGame._stateCurrent.ViewMatrix);
                 Window.CursorState = _stateCameraGameBeforeToggle;
                 DeselectAll();
             }
