@@ -28,6 +28,11 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Verweis auf die aktuelle Welt
+        /// </summary>
+        public World CurrentWorld { get { return KWEngine.CurrentWorld; } }
+
+        /// <summary>
         /// Aktueller Text der Instanz
         /// </summary>
         public string Text { get { return new string(_text.ToArray()); } }
@@ -102,6 +107,37 @@ namespace KWEngine3.GameObjects
         /// Erfragt die aktuelle Position der Instanz
         /// </summary>
         public Vector3 Position { get { return _stateCurrent._position; } }
+
+        /// <summary>
+        /// Dreht das Objekt, so dass es sich zur Zielkoordinate dreht
+        /// </summary>
+        /// <param name="target">Zielkoordinate</param>
+        public void TurnTowardsXYZ(Vector3 target)
+        {
+            SetRotation(GetRotationToTarget(target));
+        }
+
+        /// <summary>
+        /// Gleicht die Rotation der Instanz an die der Kamera an
+        /// </summary>
+        public void AdjustRotationToCameraRotation()
+        {
+            SetRotation(HelperRotation.GetRotationTowardsCamera());
+        }
+
+        /// <summary>
+        /// Erfragt die Rotation, die zu einem bestimmten Ziel notwendig wäre
+        /// </summary>
+        /// <param name="target">Zielpunkt</param>
+        /// <returns>Rotation (als Quaternion)</returns>
+        public Quaternion GetRotationToTarget(Vector3 target)
+        {
+            Matrix3 lookat = new Matrix3(Matrix4.LookAt(target, Position, KWEngine.WorldUp));
+            lookat = Matrix3.Transpose(lookat);
+            Quaternion q = Quaternion.FromMatrix(lookat);
+            q.Invert();
+            return q;
+        }
 
         /// <summary>
         /// Setzt die Orientierung der Instanz
@@ -217,6 +253,16 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Erfragt den aktuellen Skalierungsfaktor der Instanz
+        /// </summary>
+        public float Scale { get { return _stateCurrent._scale; } }
+
+        /// <summary>
+        /// Erfragt die aktuelle Transparenz der Instanz
+        /// </summary>
+        public float Opacity { get { return _stateCurrent._color.W; } }
+
+        /// <summary>
         /// Steuert die Transparenz der Instanz
         /// </summary>
         /// <param name="opacity">Transparenzwert (0 = voll transparent, 1 = voll sichtbar)</param>
@@ -271,6 +317,11 @@ namespace KWEngine3.GameObjects
         /// Gibt an, ob sich das Objekt aktuell im Blickfeld der Kamera befindet
         /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
+
+        /// <summary>
+        /// Erfragt die aktuelle Breite des Objekts (mit Rücksicht auf CharacterSpreadFactor und Skalierung)
+        /// </summary>
+        public float Width { get { return _stateCurrent._width; } }
 
 
         #region internals

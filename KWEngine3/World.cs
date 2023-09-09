@@ -175,7 +175,10 @@ namespace KWEngine3
 
         internal void Export()
         {
-            HelperImportExport.ExportWorld(this);
+            if(KWEngine.CurrentWorld != null)
+            {
+                HelperImportExport.ExportWorld(KWEngine.CurrentWorld);
+            }
         }
 
         internal void AddRemoveTerrainObjects()

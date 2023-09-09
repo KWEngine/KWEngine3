@@ -37,7 +37,7 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public Vector3 Position { get; internal set; } = Vector3.Zero;
         /// <summary>
-        /// Aktuelle Welt
+        /// Verweis auf die aktuelle Welt
         /// </summary>
         public World CurrentWorld { get; internal set; } = null;
         internal Vector3 _scale = new Vector3(32f, 32f, 1f);

@@ -84,6 +84,11 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Verweis auf die aktuelle Welt
+        /// </summary>
+        public World CurrentWorld { get { return KWEngine.CurrentWorld; } }
+
+        /// <summary>
         /// Setzt die Position des Lichtobjekts
         /// </summary>
         /// <param name="x">x</param>
@@ -160,6 +165,28 @@ namespace KWEngine3.GameObjects
             {
                 return _stateCurrent._color;
             }
+        }
+
+        /// <summary>
+        /// Bewegt die Instanz in die entsprechende Achsenrichtung
+        /// </summary>
+        /// <param name="x">Bewegung in x-Achse</param>
+        /// <param name="y">Bewegung in y-Achse</param>
+        /// <param name="z">Bewegung in z-Achse</param>
+        public void MoveOffset(float x, float y, float z)
+        {
+            SetPosition(Position.X + x, Position.Y + y, Position.Z + z);
+        }
+
+        /// <summary>
+        /// Bewegt die Zielposition der Instanz in die entsprechende Achsenrichtung
+        /// </summary>
+        /// <param name="x">Bewegung in x-Achse</param>
+        /// <param name="y">Bewegung in y-Achse</param>
+        /// <param name="z">Bewegung in z-Achse</param>
+        public void MoveOffsetTarget(float x, float y, float z)
+        {
+            SetTarget(Target.X + x, Target.Y + y, Target.Z + z);
         }
 
         /// <summary>

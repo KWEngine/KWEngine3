@@ -60,7 +60,7 @@ namespace KWEngine3TestProject.Worlds
             t2.Name = "Test2";
             t2.SetColorEmissive(1, 1, 1, 0.5f);
             t2.SetFont(FontFace.NovaMono);
-            t2.SetScale(0.25f);
+            t2.SetScale(0.5f);
             t2.SetPosition(5, 0, -1);
             t2.SetCharacterSpreadFactor(0.75f);
             AddTextObject(t2);

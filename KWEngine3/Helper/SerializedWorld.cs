@@ -32,6 +32,7 @@ namespace KWEngine3.Helper
         public List<SerializedLightObject> LightObjects { get; set; }
         public List<SerializedTerrainObject> TerrainObjects { get; set; }
         public List<SerializedHUDObject> HUDObjects { get; set; }
+        public List<SerializedTextObject> TextObjects { get; set; }
         public SerializedViewSpaceGameObject ViewSpaceGameObject { get; set; }
 
         public static SerializedWorld GenerateWorldExportFor(World w)
@@ -62,6 +63,7 @@ namespace KWEngine3.Helper
             wj.TerrainObjects = GenerateTerrainObjects(w);
             wj.LightObjects = GenerateLightObjects(w);
             wj.HUDObjects = GenerateHUDObjects(w);
+            wj.TextObjects = GenerateTextObjects(w);
             if(w.IsViewSpaceGameObjectAttached)
                 wj.ViewSpaceGameObject = GenerateViewSpaceGameObject(w);
 
@@ -90,6 +92,17 @@ namespace KWEngine3.Helper
             }
             return hudObjects;
         }
+
+        public static List<SerializedTextObject> GenerateTextObjects(World w)
+        {
+            List<SerializedTextObject> textObjects = new List<SerializedTextObject>();
+            foreach (TextObject t in w._textObjects)
+            {
+                textObjects.Add(SerializedTextObject.GenerateSerializedTextObject(t));
+            }
+            return textObjects;
+        }
+
         public static List<SerializedGameObject> GenerateGameObjects(World w)
         {
             List<SerializedGameObject> gameObjects = new List<SerializedGameObject>();

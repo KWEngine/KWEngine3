@@ -182,7 +182,13 @@ namespace KWEngine3.Helper
                 w.AddHUDObject(BuildHUDObject(sh));
             }
 
-            
+            // Build and add text object instances:
+            foreach (SerializedTextObject st in sw.TextObjects)
+            {
+                w.AddTextObject(BuildTextObject(st));
+            }
+
+
             KWEngine.CurrentWorld.AddRemoveTerrainObjects();
             KWEngine.CurrentWorld.AddRemoveLightObjects();
             KWEngine.CurrentWorld.AddRemoveHUDObjects();
@@ -223,6 +229,28 @@ namespace KWEngine3.Helper
             h.SetPosition(sh.Position[0], sh.Position[1]);
 
             return h;
+        }
+
+        private static TextObject BuildTextObject(SerializedTextObject st)
+        {
+            TextObject t = (TextObject)Assembly.GetEntryAssembly().CreateInstance(st.Type);
+            t.SetText(st.Text);
+            t.Name = st.Name;
+            t.SetScale(st.Scale);
+            t.SetCharacterSpreadFactor(st.Spread);
+            t.SetText(st.Text);
+
+            t.SetOpacity(st.Color[3]);
+            t.SetColor(st.Color[0], st.Color[1], st.Color[2]);
+            t.SetColorEmissive(st.ColorEmissive[0], st.ColorEmissive[1], st.ColorEmissive[2], st.ColorEmissive[3]);
+            t.SetPosition(st.Position[0], st.Position[1], st.Position[2]);
+
+            Vector3 euler = HelperRotation.ConvertQuaternionToEulerAngles(new Quaternion(st.Rotation[0], st.Rotation[1], st.Rotation[2], st.Rotation[3]));
+            t.SetRotation(euler.X, euler.Y, euler.Z);
+
+            t.SetFont(st.Font);
+
+            return t;
         }
 
         private static TerrainObject BuildTerrainObject(SerializedTerrainObject st)
