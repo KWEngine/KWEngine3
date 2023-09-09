@@ -460,18 +460,21 @@ namespace KWEngine3
             KWEngine.CurrentWorld.Init();
             KWEngine.CurrentWorld.SetCameraPosition(KWEngine.DefaultCameraPosition);
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
+            KWEngine.WorldTime = 0;
             KWEngine.CurrentWorld.Prepare();
+
             HelperGeneral.FlushAndFinish();
             _mouseDeltaSum = Vector2.Zero;
             _mouseDeltaToUse = Vector2.Zero;
             _stopWatchMouseDelta.Restart();
+            
         }
 
         internal void UpdateDeltaTime(double t)
         {
             float tf = (float)t;
             KWEngine.ApplicationTime += tf;
-            if (KWEngine.Mode == EngineMode.Play)
+            if (KWEngine.Mode == EngineMode.Play && KWEngine.CurrentWorld._startingFrameActive == false)
                 KWEngine.WorldTime += tf;
             KWEngine.DeltaTimeAccumulator += Math.Min(tf, KWEngine.SIMULATIONMAXACCUMULATOR);
         }

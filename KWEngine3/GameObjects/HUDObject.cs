@@ -235,7 +235,7 @@ namespace KWEngine3.GameObjects
         /// <param name="y">Höhe in Pixeln</param>
         public void SetPosition(float x, float y)
         {
-            Position = new Vector3(x - KWEngine.Window.Size.X / 2, KWEngine.Window.Size.Y - y - KWEngine.Window.Size.Y / 2, 0);
+            Position = new Vector3(x - KWEngine.Window.ClientSize.X / 2, KWEngine.Window.ClientSize.Y - y - KWEngine.Window.ClientSize.Y / 2, 0);
             _absolute.X = x;
             _absolute.Y = y;
             UpdatePositions();
@@ -277,7 +277,7 @@ namespace KWEngine3.GameObjects
         public bool IsMouseCursorOnMe()
         {
             if (KWEngine.Window.IsMouseInWindow){
-                Vector2 mouseCoords = KWEngine.Window.MousePosition;
+                Vector2 mouseCoords = KWEngine.Window.MouseState.Position;
                 float left, right, top, bottom;
 
                 if(_type == HUDObjectType.Image)
