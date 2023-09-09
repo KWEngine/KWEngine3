@@ -98,14 +98,22 @@ namespace KWEngine3
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
         internal void GatherMouseDelta()
         {
-            double elapsed = _stopWatchMouseDelta.ElapsedTicks / (double)Stopwatch.Frequency;
-            // Workaround for OpenTK 4.8 MouseDelta bug
-            _mouseDeltaSum += MouseState.Delta; // * (VSync == VSyncMode.Off && RenderFrequency == 0 ? (1f / 0.240f) / KWEngine.LastFrameTime : 1f);
-            if (elapsed >= 1/60f)//KWEngine.SIMULATIONNIBBLESIZE)
+            if (KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld._startingFrameActive)
             {
-                _mouseDeltaToUse = _mouseDeltaSum;
+                double elapsed = _stopWatchMouseDelta.ElapsedTicks / (double)Stopwatch.Frequency;
+                // Workaround for OpenTK 4.8 MouseDelta bug
+                _mouseDeltaSum += MouseState.Delta; // * (VSync == VSyncMode.Off && RenderFrequency == 0 ? (1f / 0.240f) / KWEngine.LastFrameTime : 1f);
+                if (elapsed >= 1 / 60f)//KWEngine.SIMULATIONNIBBLESIZE)
+                {
+                    _mouseDeltaToUse = _mouseDeltaSum;
+                    _mouseDeltaSum = Vector2.Zero;
+                    _stopWatchMouseDelta.Restart();
+                }
+            }
+            else
+            {
+                _mouseDeltaToUse = Vector2.Zero;
                 _mouseDeltaSum = Vector2.Zero;
-                _stopWatchMouseDelta.Restart();
             }
         }
         
@@ -174,9 +182,6 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            // TODO: Prevent this from stalling the render cycle
-            //MouseCursorGameObjectID = HelperIntersection.FramebufferPicking(MouseState.Position);
-
             UpdateDeltaTime(e.Time);
             
             UpdateScene();
@@ -457,6 +462,8 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.CurrentWorld.Prepare();
             HelperGeneral.FlushAndFinish();
+            _mouseDeltaSum = Vector2.Zero;
+            _mouseDeltaToUse = Vector2.Zero;
             _stopWatchMouseDelta.Restart();
         }
 
