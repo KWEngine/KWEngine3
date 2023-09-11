@@ -68,15 +68,15 @@ namespace KWEngine3
 
         internal void ProcessWorldEventQueue()
         {
-            for(int i = _eventQueue.Count - 1; i >= 0; i--)
+            for (int i = _eventQueue.Count - 1; i >= 0; i--)
             {
                 WorldEvent e = _eventQueue[i];
-                if (e != null && e.Owner == KWEngine.CurrentWorld)
+                if (e.Owner == KWEngine.CurrentWorld)
                 {
                     if (e.Timestamp <= WorldTime)
                     {
                         OnWorldEvent(e);
-                        _eventQueue.RemoveAt(i);
+                        _eventQueue.Remove(e);
                     }
                     else
                     {
@@ -85,7 +85,7 @@ namespace KWEngine3
                 }
                 else
                 {
-                    _eventQueue.RemoveAt(i);
+                    _eventQueue.Remove(e);
                 }
             }
         }
@@ -333,6 +333,8 @@ namespace KWEngine3
             AddRemoveTextObjects();
 
             KWEngine.DeleteCustomModelsAndTextures(this);
+
+            _eventQueue.Clear();
         }
 
         internal List<GameObject> GetTransparentGameObjects()
