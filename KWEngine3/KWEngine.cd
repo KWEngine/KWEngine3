@@ -157,7 +157,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAl0OK6ABDQCZAERzoGAhQgCTK5ZCaYUUaHCH/AMAnE=</HashCode>
+      <HashCode>SAl0OK6ABDQCZAERzoGAhYgCTK5ZCaYUUaHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -449,7 +449,7 @@
       <Method Name="UpdateWidth" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QABAMQAAQAQAAAQgAIKAAQTAAABBAggIAAgAigBAANQ=</HashCode>
+      <HashCode>QABAMQAAQBQAAAQgAIKAAUTAAABBCggIAIgAigBAANQ=</HashCode>
       <FileName>GameObjects\TextObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

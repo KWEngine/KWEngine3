@@ -954,6 +954,17 @@ namespace KWEngine3
         public float WorldTime { get { return KWEngine.WorldTime; } }
 
         /// <summary>
+        /// Setzt die vergangene Weltzeit zurück auf 0 Sekunden (ACHTUNG: Löscht alle vorhandenen Explosions- und Partikelobjekte sowie geplante Events in der Welt)
+        /// </summary>
+        /// <param name="initialTime">optional: setzt die Weltzeit auf die angegebene Sekundenzahl</param>
+        public void ResetWorldTime(float initialTime = 0f)
+        {
+            _eventQueue.Clear();
+            _particleAndExplosionObjects.Clear();
+            KWEngine.WorldTime = Math.Max(0, initialTime);
+        }
+
+        /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
         public KeyboardState Keyboard { get { return KWEngine.Window.KeyboardState; } }
