@@ -102,7 +102,7 @@ namespace KWEngine3.Audio
             {
                 if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
                 {
-                    AL.SourceStop(sourceId);
+                    mSources[sourceId].Stop();
                 }
             }
         }
@@ -177,11 +177,12 @@ namespace KWEngine3.Audio
             if (looping)
             {
                 AL.Source(source.GetSourceId(), ALSourceb.Looping, true);
-                
+                source.SetLooping(true);
             }
             else
             {
                 AL.Source(source.GetSourceId(), ALSourceb.Looping, false);
+                source.SetLooping(false);
             }
             AL.Source(source.GetSourceId(), ALSourcef.Gain, volume);
             AL.SourcePlay(source.GetSourceId());
