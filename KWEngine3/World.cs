@@ -161,7 +161,7 @@ namespace KWEngine3
                 _availableLightObjectIDs.Enqueue(i);
                 _availableGameObjectIDs.Enqueue(i);
             }
-            Window.MousePosition = Window.ClientSize / 2;
+            //Window.MousePosition = Window.ClientSize / 2;
             _cameraGame = new Camera();
             _cameraEditor = _cameraGame;
         }

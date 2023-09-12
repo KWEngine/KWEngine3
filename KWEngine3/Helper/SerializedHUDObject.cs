@@ -21,12 +21,12 @@ namespace KWEngine3.Helper
 
             sh.Name = h.Name;
             sh.IsVisible = h.IsVisible;
-            sh.Type = h._type;
+            sh.Type = h is HUDObjectText ? HUDObjectType.Text : HUDObjectType.Image;
             sh.Scale = new float[] { h._scale.X, h._scale.Y };
-            sh.Text = h._text;
-            sh.Texture = h._textureName;
-            sh.Position = new int[] { (int)h._absolute.X, (int)h._absolute.Y };
-            sh.Font = h.Font;
+            //sh.Text = h._text;
+            //sh.Texture = h._textureName;
+            //sh.Position = new int[] { (int)h._absolute.X, (int)h._absolute.Y };
+            //sh.Font = h.Font;
 
             return sh;
         }

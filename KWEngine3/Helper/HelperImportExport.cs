@@ -213,6 +213,7 @@ namespace KWEngine3.Helper
 
         private static HUDObject BuildHUDObject(SerializedHUDObject sh)
         {
+            /*
             HUDObject h = new HUDObject(sh.Type, 0, 0);
             h.Name = sh.Name;
             h.IsVisible = sh.IsVisible;
@@ -229,6 +230,8 @@ namespace KWEngine3.Helper
             h.SetPosition(sh.Position[0], sh.Position[1]);
 
             return h;
+            */
+            return null;
         }
 
         private static TextObject BuildTextObject(SerializedTextObject st)

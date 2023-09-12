@@ -4,50 +4,25 @@ using KWEngine3.Helper;
 namespace KWEngine3.GameObjects
 {
     /// <summary>
-    /// Art des HUD-Objekts
+    /// HUD-Oberklasse
     /// </summary>
-    public enum HUDObjectType { 
-        /// <summary>
-        /// Bild
-        /// </summary>
-        Image, 
-        /// <summary>
-        /// Text
-        /// </summary>
-        Text }
-
-    /// <summary>
-    /// HUD-Klasse
-    /// </summary>
-    public sealed class HUDObject
+    public abstract class HUDObject
     {
         /// <summary>
         /// Gibt an, ob das HUDObject sichtbar ist oder nicht (Standard: true)
         /// </summary>
         public bool IsVisible { get; set; } = true;
-        internal Vector2 _absolute = new Vector2(0, 0);
-        internal Vector4 _tint = new Vector4(1, 1, 1, 1);
-        internal Vector4 _glow = new Vector4(0, 0, 0, 1);
-        internal HUDObjectType _type = HUDObjectType.Image;
-        internal int _textureId = KWEngine.TextureAlpha;
-        internal int[] _offsets = new int[] { 0 };
-        internal string _textureName = "";
-        /// <summary>
-        /// Position
-        /// </summary>
-        public Vector3 Position { get; internal set; } = Vector3.Zero;
+
         /// <summary>
         /// Verweis auf die aktuelle Welt
         /// </summary>
-        public World CurrentWorld { get; internal set; } = null;
-        internal Vector3 _scale = new Vector3(32f, 32f, 1f);
-        internal Quaternion _rotation = Quaternion.Identity;
-        internal Matrix4 _rotationMatrix = Matrix4.Identity;
-        internal List<Vector3> _positions = new List<Vector3>();
-        internal List<Matrix4> _modelMatrices = new List<Matrix4>();
-        internal Matrix4 _scaleMatrix = Matrix4.CreateScale(32f,32f, 1f);
-        internal string _text = null;
-        internal int _count = 1;
+        public World CurrentWorld { get { return KWEngine.CurrentWorld; } }
+
+        /// <summary>
+        /// Position des Objekts auf dem Bildschirm
+        /// (die Koordinaten (0;0) beschreiben die linke obere Ecke)
+        /// </summary>
+        public Vector2 Position { get; internal set; } = Vector2.Zero;
 
         /// <summary>
         /// Name der Instanz
@@ -55,38 +30,40 @@ namespace KWEngine3.GameObjects
         public string Name { get; set; } = "undefined HUD object.";
 
         /// <summary>
-        /// Schriftart des HUD-Objekts
+        /// Setzt die Position
         /// </summary>
-        public FontFace Font { get; private set; } = FontFace.Anonymous;
-
-        internal float _spread = 26f;
-        /// <summary>
-        /// Laufweite der Buchstaben (Standard: 26)
-        /// </summary>
-        public float CharacterSpreadFactor
+        /// <param name="x">Breite in Pixeln</param>
+        /// <param name="y">Höhe in Pixeln</param>
+        public void SetPosition(float x, float y)
         {
-            get
-            {
-                return _spread;
-            }
-            set
-            {
-                _spread = HelperGeneral.Clamp(value, 1f, 1024f);
-                UpdatePositions();
-            }
+            Position = new Vector2(x, y);
+            UpdateMVP();
         }
 
         /// <summary>
-        /// Setzt die Rotation des HUD-Objekts
+        /// Setzt die Position
         /// </summary>
-        /// <param name="x">X-Rotation in Grad</param>
-        /// <param name="y">Y-Rotation in Grad</param>
-        public void SetRotation(float x, float y)
+        /// <param name="p">Höhe in Pixeln</param>
+        public void SetPosition(Vector2 p)
         {
-            _rotation = HelperRotation.GetQuaternionForEulerDegrees(x, y, 0);
-            _rotationMatrix = Matrix4.CreateFromQuaternion(_rotation);
-            UpdatePositions();
+            SetPosition(p.X, p.Y);
         }
+
+        /// <summary>
+        /// Zentriert das Objekt im Fenster
+        /// </summary>
+        public void SetPositionToWindowCenter()
+        {
+            SetPosition(KWEngine.Window.ClientRectangle.HalfSize.X, KWEngine.Window.ClientRectangle.HalfSize.Y);
+        }
+
+        /// <summary>
+        /// Prüft, ob der Mauszeiger auf dem HUD-Objekt ist
+        /// </summary>
+        /// <returns>true, wenn die Maus auf dem HUD-Objekt ist</returns>
+        public abstract bool IsMouseCursorOnMe();
+
+
 
         /// <summary>
         /// Färbung des Objekts
@@ -117,7 +94,7 @@ namespace KWEngine3.GameObjects
         /// <param name="red">Rot (zwischen 0 und 1)</param>
         /// <param name="green">Grün (zwischen 0 und 1)</param>
         /// <param name="blue">Blau (zwischen 0 und 1)</param>
-        
+
         public void SetColorGlow(float red, float green, float blue)
         {
             _glow.X = HelperGeneral.Clamp(red, 0, 1);
@@ -134,195 +111,52 @@ namespace KWEngine3.GameObjects
             _glow.W = HelperGeneral.Clamp(intensity, 0, 1);
         }
 
-        private void UpdateTextures()
+        /// <summary>
+        /// Setzt die Rotation des HUD-Objekts
+        /// </summary>
+        /// <param name="x">X-Rotation in Grad</param>
+        /// <param name="y">Y-Rotation in Grad</param>
+        public void SetRotation(float x, float y)
         {
-            _textureId = KWEngine.FontTextureArray[(int)Font];
-            for (int i = 0; i < _count; i++)
-            {
-                int offset = (int)_text[i] - 32;
-                _offsets[i] = offset;
-            }
+            _rotation = HelperRotation.GetQuaternionForEulerDegrees(x, y, 0);
+            UpdateMVP();
         }
 
         /// <summary>
-        /// Setzt die Größe
+        /// Setzt die Größe (gültige Werte zwischen 0.001 und 2048)
         /// </summary>
         /// <param name="width">Breite</param>
         /// <param name="height">Höhe</param>
         public void SetScale(float width, float height)
         {
-            _scale.X = HelperGeneral.Clamp(width, 0.001f, float.MaxValue);
-            _scale.Y = HelperGeneral.Clamp(height, 0.001f, float.MaxValue);
+            _scale.X = HelperGeneral.Clamp(width, 0.001f, 2048f);
+            _scale.Y = HelperGeneral.Clamp(height, 0.001f, 2048f);
             _scale.Z = 1;
-            _scaleMatrix = Matrix4.CreateScale(_scale);
-            UpdatePositions();
-        }
-
-
-        /// <summary>
-        /// Erfragt den aktuell für das Objekt festgelegten Text
-        /// </summary>
-        public string Text { get { return _type == HUDObjectType.Text ? _text : ""; } }
-
-        /// <summary>
-        /// Setzt den Text
-        /// </summary>
-        /// <param name="text">Text</param>
-        public void SetText(string text)
-        {
-            if(_type == HUDObjectType.Text && text != null)
-            {
-                _text = text.Trim();
-                _count = _text.Length;
-                _offsets = new int[_count];
-                UpdatePositions();
-                UpdateTextures();
-                _textureName = "";
-            }
-            else
-            {
-                KWEngine.LogWriteLine("SetText() invalid for HUD images");
-                return;
-            }
+            UpdateMVP();
         }
 
         /// <summary>
-        /// Setzt die Textur
+        /// Setzt die Größe (Breite und Höhe gleichermaßen)
         /// </summary>
-        /// <param name="filename">Bilddatei</param>
-        public void SetTexture(string filename)
+        /// <param name="scale">Größe der Buchstaben bzw. des Bilds (in Pixeln)</param>
+        public void SetScale(float scale)
         {
-            if(filename == null)
-            {
-                KWEngine.LogWriteLine("[HUDObject] Texture file not found");
-                return;
-            }
-            if (File.Exists(filename) && _type == HUDObjectType.Image)
-            {
-                if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
-                {
-                    _textureId = KWEngine.CurrentWorld._customTextures[filename];
-                }
-                else
-                {
-                    _textureId = HelperTexture.LoadTextureForBackgroundExternal(filename, out int mipMapLevels);
-                    KWEngine.CurrentWorld._customTextures.Add(filename, _textureId);
-                }
-                _count = 1;
-                _textureName = filename.Trim();
-            }
-            else
-            {
-                KWEngine.LogWriteLine("SetTexture() invalid for HUD texts");
-                return;
-            }
+            SetScale(scale, scale);
         }
 
-        /// <summary>
-        /// Konstruktormethode
-        /// </summary>
-        /// <param name="type">Art des Objekts </param>
-        /// <param name="x">Breitenposition</param>
-        /// <param name="y">Höhenposition</param>
-        public HUDObject(HUDObjectType type, float x, float y)
+        #region Internals
+        internal Vector4 _tint = new Vector4(1, 1, 1, 1);
+        internal Vector4 _glow = new Vector4(0, 0, 0, 1);
+        internal Vector3 _scale = new Vector3(24f, 24f, 1f);
+        internal Quaternion _rotation = Quaternion.Identity;
+        internal Matrix4 _modelMatrix = Matrix4.Identity;
+
+        internal void UpdateMVP()
         {
-            _type = type;
-            Position = new Vector3(x - KWEngine.Window.ClientSize.X / 2, KWEngine.Window.ClientSize.Y - y - KWEngine.Window.ClientSize.Y / 2, 0);
-            _absolute.X = x;
-            _absolute.Y = y;
-            
-            UpdatePositions();
+            Vector3 p = new Vector3(Position.X, Position.Y, 0);
+            _modelMatrix = HelperMatrix.CreateModelMatrix(ref _scale, ref _rotation, ref p);
         }
+        #endregion
 
-        /// <summary>
-        /// Setzt die Position
-        /// </summary>
-        /// <param name="x">Breite in Pixeln</param>
-        /// <param name="y">Höhe in Pixeln</param>
-        public void SetPosition(float x, float y)
-        {
-            Position = new Vector3(x - KWEngine.Window.ClientSize.X / 2, KWEngine.Window.ClientSize.Y - y - KWEngine.Window.ClientSize.Y / 2, 0);
-            _absolute.X = x;
-            _absolute.Y = y;
-            UpdatePositions();
-        }
-
-        private void SetPosition(int index, Vector3 pos)
-        {
-            pos.X = pos.X + (CharacterSpreadFactor * index);
-            lock (_positions)
-            {
-                _positions.Add(pos);
-            }
-            lock (_modelMatrices)
-            {
-                _modelMatrices.Add(_scaleMatrix * _rotationMatrix * Matrix4.CreateTranslation(pos));
-            }
-        }
-
-        internal void UpdatePositions()
-        {
-            lock (_positions)
-            {
-                lock (_modelMatrices)
-                {
-                    _positions.Clear();
-                    _modelMatrices.Clear();
-                    for (int i = 0; i < _count; i++)
-                    {
-                        SetPosition(i, Position);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Prüft, ob der Mauszeiger auf dem HUD-Objekt ist
-        /// </summary>
-        /// <returns>true, wenn die Maus auf dem HUD-Objekt ist</returns>
-        public bool IsMouseCursorOnMe()
-        {
-            if (KWEngine.Window.IsMouseInWindow){
-                Vector2 mouseCoords = KWEngine.Window.MouseState.Position;
-                float left, right, top, bottom;
-
-                if(_type == HUDObjectType.Image)
-                {
-                    left = _absolute.X - _scale.X * 0.5f;
-                    right = _absolute.X + _scale.X * 0.5f;
-
-                    top = _absolute.Y - _scale.Y * 0.5f;
-                    bottom = _absolute.Y + _scale.Y * 0.5f;
-                }
-                else
-                {
-                    left = _absolute.X - _scale.X * 0.5f;
-                    right = _absolute.X + ((_count - 1) * _spread) + _scale.X * 0.5f;
-
-                    top = _absolute.Y - _scale.Y * 0.5f;
-                    bottom = _absolute.Y + _scale.Y * 0.5f;
-                }
-
-                if(mouseCoords.X >= left && mouseCoords.X <= right && mouseCoords.Y >= top && mouseCoords.Y <= bottom)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-                return false;
-        }
-
-        /// <summary>
-        /// Setzt die Schriftart der Instanz
-        /// </summary>
-        /// <param name="fontFace">zu nutzende Schriftart</param>
-        public void SetFont(FontFace fontFace)
-        {
-            Font = fontFace;
-        }
     }
 }

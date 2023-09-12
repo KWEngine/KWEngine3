@@ -29,6 +29,7 @@ namespace KWEngine3
 
         internal ulong FrameTotalCount { get; set; } = 0;
         internal Matrix4 _viewProjectionMatrixHUD;
+        internal Matrix4 _viewProjectionMatrixHUDNew;
         internal KWBuilderOverlay Overlay { get; set; }
         internal float _f12timestamp = 0;
 
@@ -172,6 +173,7 @@ namespace KWEngine3
  
             Overlay.WindowResized(ClientSize.X, ClientSize.Y);
             _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0.1f, 100f);
+            _viewProjectionMatrixHUDNew = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X, ClientSize.Y, 0, 0.1f, 100f);
         }
 
         internal int MouseCursorGameObjectID = -1;
@@ -552,13 +554,18 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Fensterbreite (Inhalt)
+        /// Fensterbreite (Inhalt) in Pixeln
         /// </summary>
         public int Width { get { return ClientSize.X; } }
         /// <summary>
-        /// Fensterhöhe (Inhalt)
+        /// Fensterhöhe (Inhalt) in Pixeln
         /// </summary>
         public int Height { get { return ClientSize.Y; } }
+
+        /// <summary>
+        /// Gibt die (relative) Mitte des Fensters in Pixeln an
+        /// </summary>
+        public Vector2 Center { get { return ClientRectangle.HalfSize; } }
 
         internal int UpdateCurrentWorldAndObjects(World worldBeforeLoop, out double elapsedUpdateTimeForCallInMS)
         {

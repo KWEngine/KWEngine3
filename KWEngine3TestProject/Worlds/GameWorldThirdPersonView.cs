@@ -53,12 +53,12 @@ namespace KWEngine3TestProject.Worlds
             box01.IsCollisionObject = true;
             box01.IsShadowCaster = true;
             AddGameObject(box01);
-
+            /*
             HUDObject crosshair = new HUDObject(HUDObjectType.Image, Window.Width / 2, Window.Height / 2);
             crosshair.Name = "Crosshair";
             crosshair.SetTexture(@".\textures\crosshair.dds");
             AddHUDObject(crosshair);
-
+            */
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetFOV(32);
             sun.SetNearFar(20, 100);

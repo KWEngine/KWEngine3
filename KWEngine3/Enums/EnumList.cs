@@ -1,6 +1,25 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Modues der Textanordnung in einem HUDObject
+    /// </summary>
+    public enum TextAlignMode
+    {
+        /// <summary>
+        /// Linksbündig
+        /// </summary>
+        Left,
+        /// <summary>
+        /// Zentriert
+        /// </summary>
+        Center,
+        /// <summary>
+        /// Rechtsbündig
+        /// </summary>
+        Right
+    }
+
+    /// <summary>
     /// Art der Animationsbewegung
     /// </summary>
     public enum ExplosionAnimation
@@ -514,5 +533,11 @@
         RGBA32F,
         DEPTH32F,
         DEPTH16F
+    }
+
+    internal enum HUDObjectType
+    {
+        Text,
+        Image
     }
 }
