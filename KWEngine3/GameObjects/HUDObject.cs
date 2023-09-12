@@ -158,6 +158,12 @@ namespace KWEngine3.GameObjects
             UpdatePositions();
         }
 
+
+        /// <summary>
+        /// Erfragt den aktuell für das Objekt festgelegten Text
+        /// </summary>
+        public string Text { get { return _type == HUDObjectType.Text ? _text : ""; } }
+
         /// <summary>
         /// Setzt den Text
         /// </summary>
