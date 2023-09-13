@@ -144,7 +144,7 @@ namespace KWEngine3.GameObjects
         #region Internals
         internal int _textureId = (int)FontFace.Anonymous;
         internal int[] _offsets = null;
-        internal float _spread = 0f;
+        internal float _spread = 1f;
         internal string _text = "";
         
         internal void UpdateOffsetList()
