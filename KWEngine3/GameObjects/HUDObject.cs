@@ -63,7 +63,30 @@ namespace KWEngine3.GameObjects
         /// <returns>true, wenn die Maus auf dem HUD-Objekt ist</returns>
         public abstract bool IsMouseCursorOnMe();
 
+        /// <summary>
+        /// Aktuelle Färbung des Objekts
+        /// </summary>
+        public Vector3 Color { get { return _tint.Xyz; } }
 
+        /// <summary>
+        /// Aktuelle Sichtbarkeit des Objekts
+        /// </summary>
+        public float Opacity { get { return _tint.W; } }
+
+        /// <summary>
+        /// AKtuelle Glühfarbe des Objekts
+        /// </summary>
+        public Vector3 GlowColor { get { return _glow.Xyz; } }
+
+        /// <summary>
+        /// Aktuelle Glühintensität des Objekts
+        /// </summary>
+        public float GlowIntensity { get { return _glow.W; } }
+
+        /// <summary>
+        /// Aktuelle Größe des Objekts (bei Text gilt die Größe je Zeichen)
+        /// </summary>
+        public Vector2 Scale { get { return _scale.Xy; } }
 
         /// <summary>
         /// Färbung des Objekts
@@ -112,10 +135,10 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Größe (gültige Werte zwischen 0.001 und 2048)
+        /// Setzt die Größe (bei Text gilt die Größe je Zeichen)
         /// </summary>
-        /// <param name="width">Breite</param>
-        /// <param name="height">Höhe</param>
+        /// <param name="width">Breite (gültige Werte zwischen 0.001 und 2048)</param>
+        /// <param name="height">Höhe (gültige Werte zwischen 0.001 und 2048)</param>
         public void SetScale(float width, float height)
         {
             _scale.X = HelperGeneral.Clamp(width, 0.001f, 2048f);

@@ -213,25 +213,38 @@ namespace KWEngine3.Helper
 
         private static HUDObject BuildHUDObject(SerializedHUDObject sh)
         {
-            /*
-            HUDObject h = new HUDObject(sh.Type, 0, 0);
-            h.Name = sh.Name;
-            h.IsVisible = sh.IsVisible;
             if(sh.Type == HUDObjectType.Image)
             {
-                h.SetTexture(sh.Texture);
+                HUDObjectImage h = new HUDObjectImage(sh.Texture);
+                h.Name = sh.Name;
+                h.SetPosition(sh.Position[0], sh.Position[1]);
+                h.SetScale(sh.Scale[0], sh.Scale[1]);
+                h.IsVisible = sh.IsVisible;
+                h.SetColor(sh.Color[0], sh.Color[1], sh.Color[2]);
+                h.SetOpacity(sh.Color[3]);
+                h.SetColorGlow(sh.Glow[0], sh.Glow[1], sh.Glow[2]);
+                h.SetColorGlowIntensity(sh.Glow[3]);
+
+                return h;
             }
             else
             {
-                h.SetFont(sh.Font);
-                h.SetText(sh.Text);
-            }
-            h.SetScale(sh.Scale[0], sh.Scale[1]);
-            h.SetPosition(sh.Position[0], sh.Position[1]);
+                HUDObjectText h = new HUDObjectText(sh.Text);
+                h.Name = sh.Name;
+                h.SetPosition(sh.Position[0], sh.Position[1]);
+                h.SetScale(sh.Scale[0], sh.Scale[1]);
+                h.IsVisible = sh.IsVisible;
+                h.SetColor(sh.Color[0], sh.Color[1], sh.Color[2]);
+                h.SetOpacity(sh.Color[3]);
+                h.SetColorGlow(sh.Glow[0], sh.Glow[1], sh.Glow[2]);
+                h.SetColorGlowIntensity(sh.Glow[3]);
 
-            return h;
-            */
-            return null;
+                h.SetTextAlignment(sh.Alignment);
+                h.SetFont(sh.Font);
+                h.SetCharacterDistanceFactor(sh.CharacterDistanceFactor);
+
+                return h;
+            }
         }
 
         private static TextObject BuildTextObject(SerializedTextObject st)

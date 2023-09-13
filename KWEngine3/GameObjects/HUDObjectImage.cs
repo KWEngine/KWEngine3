@@ -1,6 +1,5 @@
 ﻿using KWEngine3.Helper;
 using OpenTK.Mathematics;
-using System.Security.Cryptography.X509Certificates;
 
 namespace KWEngine3.GameObjects
 {
@@ -11,6 +10,7 @@ namespace KWEngine3.GameObjects
     {
         #region Internals
         internal int _textureId = KWEngine.TextureAlpha;
+        internal string _textureName = "";
         #endregion
 
         /// <summary>
@@ -73,11 +73,11 @@ namespace KWEngine3.GameObjects
                 else
                 {
                     _textureId = HelperTexture.LoadTextureForBackgroundExternal(filename, out int mipMapLevels);
-                    
                     KWEngine.CurrentWorld._customTextures.Add(filename, _textureId);
                 }
                 if (HelperTexture.GetTextureDimensionsAlbedo(_textureId, out int width, out int height))
                 {
+                    _textureName = filename;
                     SetScale(width, height);
                 }
             }
