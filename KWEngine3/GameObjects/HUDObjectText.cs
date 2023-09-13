@@ -101,10 +101,19 @@ namespace KWEngine3.GameObjects
                 Vector2 mouseCoords = KWEngine.Window.MouseState.Position;
                 float left, right, top, bottom;
                 float characterWidth = _scale.X;
-                left = Position.X;
-                right = Position.X + (_text.Length - 1) * _spread * characterWidth + characterWidth;
-                float diff = right - left;
 
+                left = Position.X;
+                right = Position.X + (_text.Length - 1) * Math.Abs(_spread) * characterWidth + characterWidth;
+                float diff = right - left;
+               
+                if(TextAlignment == TextAlignMode.Left)
+                {
+                    if(_spread < 0)
+                    {
+                        left -= (diff - characterWidth);
+                        right -= (diff - characterWidth);
+                    }
+                }
                 if (TextAlignment == TextAlignMode.Center)
                 {
                     left -= diff / 2f;
@@ -112,8 +121,16 @@ namespace KWEngine3.GameObjects
                 }
                 else if(TextAlignment == TextAlignMode.Right)
                 {
-                    right -= diff;
-                    left -= diff;
+                    if (_spread >= 0)
+                    {
+                        right -= diff;
+                        left -= diff;
+                    }
+                    else
+                    {
+                        right -= characterWidth;
+                        left -= characterWidth;
+                    }
                 }
                 top = Position.Y - _scale.Y * 0.5f;
                 bottom = Position.Y + _scale.Y * 0.5f;

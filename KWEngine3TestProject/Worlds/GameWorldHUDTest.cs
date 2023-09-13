@@ -102,7 +102,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            _h1 = new HUDObjectText("Hello World");
+            _h1 = new HUDObjectText("LeftPlus1");
             _h1.SetPosition(64, 256 + 48 * 0);
             _h1.SetCharacterDistanceFactor(1f);
             _h1.SetTextAlignment(TextAlignMode.Left);
@@ -111,45 +111,45 @@ namespace KWEngine3TestProject.Worlds
             _h1.SetScale(24, 24);
             AddHUDObject(_h1);
 
-            _h2 = new HUDObjectText("Hello World");
-            _h2.SetPosition(64, 256 + 48 * 1);
-            _h2.SetCharacterDistanceFactor(2.5f);
+            _h2 = new HUDObjectText("LeftMinus2");
+            _h2.SetPosition(768, 256 + 48 * 1);
+            _h2.SetCharacterDistanceFactor(-2.0f);
             _h2.SetTextAlignment(TextAlignMode.Left);
             _h2.SetColorGlow(1, 0, 1);
             _h2.SetColorGlowIntensity(0);
             _h2.SetScale(24, 24);
             AddHUDObject(_h2);
 
-            _h3 = new HUDObjectText("HHHH");
+            _h3 = new HUDObjectText("CenterPlus2");
             _h3.SetPosition(Window.Center.X, 256 + 48 * 2);
-            _h3.SetCharacterDistanceFactor(1f);
-            _h3.SetTextAlignment(TextAlignMode.Left);
+            _h3.SetCharacterDistanceFactor(2f);
+            _h3.SetTextAlignment(TextAlignMode.Center);
             _h3.SetColorGlow(1, 0, 1);
             _h3.SetColorGlowIntensity(0);
             _h3.SetScale(24, 24);
             AddHUDObject(_h3);
 
-            _h4 = new HUDObjectText("HHHH");
+            _h4 = new HUDObjectText("CenterMinus3");
             _h4.SetPosition(Window.Center.X, 256 + 48 *3);
-            _h4.SetCharacterDistanceFactor(10f);
+            _h4.SetCharacterDistanceFactor(-3f);
             _h4.SetTextAlignment(TextAlignMode.Center);
             _h4.SetColorGlow(1, 0, 1);
             _h4.SetColorGlowIntensity(0);
             _h4.SetScale(24, 24);
             AddHUDObject(_h4);
 
-            _h5 = new HUDObjectText("HHHH");
+            _h5 = new HUDObjectText("RightPlus2");
             _h5.SetPosition(Window.Center.X, 256 + 48 * 4);
-            _h5.SetCharacterDistanceFactor(1f);
+            _h5.SetCharacterDistanceFactor(2f);
             _h5.SetTextAlignment(TextAlignMode.Right);
             _h5.SetColorGlow(1, 0, 1);
             _h5.SetColorGlowIntensity(0);
             _h5.SetScale(24, 24);
             AddHUDObject(_h5);
 
-            _h6 = new HUDObjectText("HHHH");
-            _h6.SetPosition(Window.Center.X, 256 + 48 * 5);
-            _h6.SetCharacterDistanceFactor(5.75f);
+            _h6 = new HUDObjectText("RightMinus3");
+            _h6.SetPosition(Window.Center.X - 256, 256 + 48 * 5);
+            _h6.SetCharacterDistanceFactor(-3.0f);
             _h6.SetTextAlignment(TextAlignMode.Right);
             _h6.SetColorGlow(1, 0, 1);
             _h6.SetColorGlowIntensity(0);
