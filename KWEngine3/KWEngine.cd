@@ -432,9 +432,10 @@
     <Position X="0.5" Y="8.25" Width="2.75" />
     <Members>
       <Field Name="_textureId" Hidden="true" />
+      <Field Name="_textureName" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAQAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAE=</HashCode>
+      <HashCode>AAAAAAAQAAAAAAQAAAAAAAAAACAAAAAAAAAAAAAAAAE=</HashCode>
       <FileName>GameObjects\HUDObjectImage.cs</FileName>
     </TypeIdentifier>
   </Class>
