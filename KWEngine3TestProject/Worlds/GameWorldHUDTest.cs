@@ -11,9 +11,35 @@ namespace KWEngine3TestProject.Worlds
         private HUDObjectText _h1;
         private HUDObjectText _h2;
         private HUDObjectText _h3;
+        private HUDObjectText _h4;
+        private HUDObjectText _h5;
+        private HUDObjectText _h6;
+        private HUDObjectImage _hCrosshair;
+        private float _h1Distance = 1;
+        private bool _h1DistanceGrow = true;
 
         public override void Act()
         {
+            /*
+            if(_h1DistanceGrow)
+            {
+                _h1Distance += 0.0025f;
+                _h1.SetCharacterDistanceFactor(_h1Distance);
+                if(_h1Distance >= 2)
+                {
+                    _h1DistanceGrow = false;
+                }
+            }
+            else
+            {
+                _h1Distance -= 0.0025f;
+                _h1.SetCharacterDistanceFactor(_h1Distance);
+                if (_h1Distance <= 0.1f)
+                {
+                    _h1DistanceGrow = true;
+                }
+            }
+            */
             if(_h1.IsMouseCursorOnMe())
             {
                 _h1.SetColorGlowIntensity(0.9f);
@@ -22,17 +48,121 @@ namespace KWEngine3TestProject.Worlds
             {
                 _h1.SetColorGlowIntensity(0.0f);
             }
+            if (_h2.IsMouseCursorOnMe())
+            {
+                _h2.SetColorGlowIntensity(0.9f);
+            }
+            else
+            {
+                _h2.SetColorGlowIntensity(0.0f);
+            }
+            if (_h3.IsMouseCursorOnMe())
+            {
+                _h3.SetColorGlowIntensity(0.9f);
+            }
+            else
+            {
+                _h3.SetColorGlowIntensity(0.0f);
+            }
+            if (_h4.IsMouseCursorOnMe())
+            {
+                _h4.SetColorGlowIntensity(0.9f);
+            }
+            else
+            {
+                _h4.SetColorGlowIntensity(0.0f);
+            }
+            if (_h5.IsMouseCursorOnMe())
+            {
+                _h5.SetColorGlowIntensity(0.9f);
+            }
+            else
+            {
+                _h5.SetColorGlowIntensity(0.0f);
+            }
+            if (_h6.IsMouseCursorOnMe())
+            {
+                _h6.SetColorGlowIntensity(0.9f);
+            }
+            else
+            {
+                _h6.SetColorGlowIntensity(0.0f);
+            }
+
+
+            if (_hCrosshair.IsMouseCursorOnMe())
+            {
+                _hCrosshair.SetColorGlowIntensity(0.9f);
+            }
+            else
+            {
+                _hCrosshair.SetColorGlowIntensity(0.0f);
+            }
         }
 
         public override void Prepare()
         {
             _h1 = new HUDObjectText("Hello World");
-            _h1.SetPositionToWindowCenter();
+            _h1.SetPosition(64, 256 + 48 * 0);
             _h1.SetCharacterDistanceFactor(1f);
-            _h1.SetTextAlignment(TextAlignMode.Center);
+            _h1.SetTextAlignment(TextAlignMode.Left);
             _h1.SetColorGlow(1, 0, 1);
+            _h1.SetColorGlowIntensity(0);
             _h1.SetScale(24, 24);
             AddHUDObject(_h1);
+
+            _h2 = new HUDObjectText("Hello World");
+            _h2.SetPosition(64, 256 + 48 * 1);
+            _h2.SetCharacterDistanceFactor(2.5f);
+            _h2.SetTextAlignment(TextAlignMode.Left);
+            _h2.SetColorGlow(1, 0, 1);
+            _h2.SetColorGlowIntensity(0);
+            _h2.SetScale(24, 24);
+            AddHUDObject(_h2);
+
+            _h3 = new HUDObjectText("HHHH");
+            _h3.SetPosition(Window.Center.X, 256 + 48 * 2);
+            _h3.SetCharacterDistanceFactor(1f);
+            _h3.SetTextAlignment(TextAlignMode.Left);
+            _h3.SetColorGlow(1, 0, 1);
+            _h3.SetColorGlowIntensity(0);
+            _h3.SetScale(24, 24);
+            AddHUDObject(_h3);
+
+            _h4 = new HUDObjectText("HHHH");
+            _h4.SetPosition(Window.Center.X, 256 + 48 *3);
+            _h4.SetCharacterDistanceFactor(10f);
+            _h4.SetTextAlignment(TextAlignMode.Center);
+            _h4.SetColorGlow(1, 0, 1);
+            _h4.SetColorGlowIntensity(0);
+            _h4.SetScale(24, 24);
+            AddHUDObject(_h4);
+
+            _h5 = new HUDObjectText("HHHH");
+            _h5.SetPosition(Window.Center.X, 256 + 48 * 4);
+            _h5.SetCharacterDistanceFactor(1f);
+            _h5.SetTextAlignment(TextAlignMode.Right);
+            _h5.SetColorGlow(1, 0, 1);
+            _h5.SetColorGlowIntensity(0);
+            _h5.SetScale(24, 24);
+            AddHUDObject(_h5);
+
+            _h6 = new HUDObjectText("HHHH");
+            _h6.SetPosition(Window.Center.X, 256 + 48 * 5);
+            _h6.SetCharacterDistanceFactor(5.75f);
+            _h6.SetTextAlignment(TextAlignMode.Right);
+            _h6.SetColorGlow(1, 0, 1);
+            _h6.SetColorGlowIntensity(0);
+            _h6.SetScale(24, 24);
+            AddHUDObject(_h6);
+
+            _hCrosshair = new HUDObjectImage();
+            _hCrosshair.SetPosition(768, 196);
+            _hCrosshair.SetTexture(@".\Textures\crosshair.dds");
+            _hCrosshair.SetScale(128, 64);
+            _hCrosshair.SetColorGlow(1, 1, 0);
+            _hCrosshair.SetColorGlowIntensity(0);
+            AddHUDObject(_hCrosshair);
 
         }
     }

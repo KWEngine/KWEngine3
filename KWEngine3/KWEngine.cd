@@ -10,6 +10,7 @@
       <Field Name="_stopwatch" Hidden="true" />
       <Field Name="_stopWatchMouseDelta" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
+      <Field Name="_viewProjectionMatrixHUDNew" Hidden="true" />
       <Property Name="AnisotropicFiltering" Hidden="true" />
       <Property Name="FrameTotalCount" Hidden="true" />
       <Method Name="GatherMouseDelta" Hidden="true" />
@@ -30,7 +31,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AACBAAAABQARAQCEUAgAAEAiAhIABCaAKAAAEAECAgA=</HashCode>
+      <HashCode>AACBAAAABQARAQiEUAgAAEAiAhIABCaAKAAAEAEKAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -96,7 +97,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.World">
-    <Position X="3.5" Y="3" Width="2.75" />
+    <Position X="3.5" Y="3.25" Width="2.75" />
     <Members>
       <Field Name="_availableGameObjectIDs" Hidden="true" />
       <Field Name="_availableLightObjectIDs" Hidden="true" />
@@ -222,33 +223,6 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
-  <Class Name="KWEngine3.GameObjects.HUDObject">
-    <Position X="0.5" Y="8.25" Width="2.75" />
-    <Members>
-      <Field Name="_absolute" Hidden="true" />
-      <Field Name="_count" Hidden="true" />
-      <Field Name="_glow" Hidden="true" />
-      <Field Name="_modelMatrices" Hidden="true" />
-      <Field Name="_offsets" Hidden="true" />
-      <Field Name="_positions" Hidden="true" />
-      <Field Name="_rotation" Hidden="true" />
-      <Field Name="_rotationMatrix" Hidden="true" />
-      <Field Name="_scale" Hidden="true" />
-      <Field Name="_scaleMatrix" Hidden="true" />
-      <Field Name="_spread" Hidden="true" />
-      <Field Name="_text" Hidden="true" />
-      <Field Name="_textureId" Hidden="true" />
-      <Field Name="_textureName" Hidden="true" />
-      <Field Name="_tint" Hidden="true" />
-      <Field Name="_type" Hidden="true" />
-      <Method Name="UpdatePositions" Hidden="true" />
-      <Method Name="UpdateTextures" Hidden="true" />
-    </Members>
-    <TypeIdentifier>
-      <HashCode>QAAIAACQAAAAUiRwAIAAQQSAAGABQggIAGiBAgACICE=</HashCode>
-      <FileName>GameObjects\HUDObject.cs</FileName>
-    </TypeIdentifier>
-  </Class>
   <Class Name="KWEngine3.GameObjects.Intersection">
     <Position X="9.5" Y="0.5" Width="2.75" />
     <Members>
@@ -305,7 +279,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="3.5" Y="15.25" Width="2.75" />
+    <Position X="3.5" Y="15.5" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -454,6 +428,30 @@
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
+  <Class Name="KWEngine3.GameObjects.HUDObjectImage">
+    <Position X="0.5" Y="8.25" Width="2.75" />
+    <Members>
+      <Field Name="_textureId" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>GameObjects\HUDObjectImage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.HUDObjectText">
+    <Position X="0.5" Y="10" Width="2.75" />
+    <Members>
+      <Field Name="_offsets" Hidden="true" />
+      <Field Name="_spread" Hidden="true" />
+      <Field Name="_text" Hidden="true" />
+      <Field Name="_textureId" Hidden="true" />
+      <Method Name="UpdateOffsetList" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>UAAAAAAQAAAAAAAAEIAAAACAAAAAAAAIQAAASAASIAE=</HashCode>
+      <FileName>GameObjects\HUDObjectText.cs</FileName>
+    </TypeIdentifier>
+  </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
     <Position X="9.5" Y="5.5" Width="2.75" />
     <TypeIdentifier>
@@ -461,12 +459,5 @@
       <FileName>GameObjects\IntersectionVolume.cs</FileName>
     </TypeIdentifier>
   </Struct>
-  <Enum Name="KWEngine3.GameObjects.HUDObjectType">
-    <Position X="0.5" Y="13" Width="2.75" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAACAAAAAA=</HashCode>
-      <FileName>GameObjects\HUDObject.cs</FileName>
-    </TypeIdentifier>
-  </Enum>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

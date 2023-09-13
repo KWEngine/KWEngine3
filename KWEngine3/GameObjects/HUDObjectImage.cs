@@ -1,5 +1,6 @@
 ﻿using KWEngine3.Helper;
 using OpenTK.Mathematics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace KWEngine3.GameObjects
 {
@@ -11,6 +12,23 @@ namespace KWEngine3.GameObjects
         #region Internals
         internal int _textureId = KWEngine.TextureAlpha;
         #endregion
+
+        /// <summary>
+        /// Standardkonstruktor für bildbasierte HUD-Objekte, der noch keine Bilddatei festlegt
+        /// </summary>
+        public HUDObjectImage()
+        {
+
+        }
+
+        /// <summary>
+        /// Standardkonstruktor für bildbasierte HUD-Objekte
+        /// </summary>
+        /// <param name="filename">Name der Bilddatei</param>
+        public HUDObjectImage(string filename)
+        {
+            SetTexture(filename);
+        }
 
         /// <summary>
         /// Prüft, ob der Mauszeiger über dem Bildobjekt liegt
@@ -33,7 +51,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Textur (bzw. das Bild)
+        /// Setzt das anzuzeigende Bild (als Textur) und skaliert das Objekt auf die Originalgröße dieses Bildes
         /// </summary>
         /// <param name="filename">Name der Bilddatei</param>
         public void SetTexture(string filename)
@@ -41,6 +59,7 @@ namespace KWEngine3.GameObjects
             if (filename == null)
             {
                 KWEngine.LogWriteLine("[HUDObject] Texture file not found");
+                _textureId = KWEngine.TextureAlpha;
                 return;
             }
 
@@ -54,12 +73,18 @@ namespace KWEngine3.GameObjects
                 else
                 {
                     _textureId = HelperTexture.LoadTextureForBackgroundExternal(filename, out int mipMapLevels);
+                    
                     KWEngine.CurrentWorld._customTextures.Add(filename, _textureId);
+                }
+                if (HelperTexture.GetTextureDimensionsAlbedo(_textureId, out int width, out int height))
+                {
+                    SetScale(width, height);
                 }
             }
             else
             {
                 KWEngine.LogWriteLine("[HUDObject] Texture file not found");
+                _textureId = KWEngine.TextureAlpha;
             }
         }
     }

@@ -134,8 +134,15 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
             GL.Uniform1(UTexture, 0);
             GL.Uniform1(UMode, 1);
+            GL.Uniform1(UOffsets, 0, _arrayEmptyInt32);
+            GL.Uniform1(UOffsetCount, 0);
+            GL.Uniform1(UTextAlign, 0);
+            GL.Uniform1(UCharacterWidth, ho._scale.X);
+            GL.Uniform1(UCharacterDistance, 1f);
 
             GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         }
+
+        internal static int[] _arrayEmptyInt32 = new int[0];
     }
 }

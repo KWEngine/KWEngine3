@@ -7,7 +7,7 @@ namespace KWEngine3TestProject
     {
         public GameWindow() : base(1280, 720)
         {
-            SetWorld(new GameWorldHUDTest());
+            SetWorld(new GameWorldStart());
         }
     }
 }

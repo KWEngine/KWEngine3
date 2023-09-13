@@ -52,7 +52,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Zentriert das Objekt im Fenster
         /// </summary>
-        public void SetPositionToWindowCenter()
+        public void CenterOnScreen()
         {
             SetPosition(KWEngine.Window.ClientRectangle.HalfSize.X, KWEngine.Window.ClientRectangle.HalfSize.Y);
         }
@@ -112,17 +112,6 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Rotation des HUD-Objekts
-        /// </summary>
-        /// <param name="x">X-Rotation in Grad</param>
-        /// <param name="y">Y-Rotation in Grad</param>
-        public void SetRotation(float x, float y)
-        {
-            _rotation = HelperRotation.GetQuaternionForEulerDegrees(x, y, 0);
-            UpdateMVP();
-        }
-
-        /// <summary>
         /// Setzt die Größe (gültige Werte zwischen 0.001 und 2048)
         /// </summary>
         /// <param name="width">Breite</param>
@@ -148,13 +137,12 @@ namespace KWEngine3.GameObjects
         internal Vector4 _tint = new Vector4(1, 1, 1, 1);
         internal Vector4 _glow = new Vector4(0, 0, 0, 1);
         internal Vector3 _scale = new Vector3(24f, 24f, 1f);
-        internal Quaternion _rotation = Quaternion.Identity;
         internal Matrix4 _modelMatrix = Matrix4.Identity;
 
         internal void UpdateMVP()
         {
             Vector3 p = new Vector3(Position.X, Position.Y, 0);
-            _modelMatrix = HelperMatrix.CreateModelMatrix(ref _scale, ref _rotation, ref p);
+            _modelMatrix = HelperMatrix.CreateModelMatrixForHUD(ref _scale, ref p);
         }
         #endregion
 
