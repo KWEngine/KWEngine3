@@ -1591,16 +1591,6 @@ namespace KWEngine3.GameObjects
 
         internal string _modelNameInDB = "KWCube";
         internal int _importedID = -1;
-
-        /// <summary>
-        /// Erfragt, ob der Mauszeiger über dem (aus Sicht der Kamera) sichtbaren Teil des Objekts liegt.
-        /// ACHTUNG: Funktioniert NICHT mit (halb-)transparenten Objekten oder Objekten mit Transparenzanteilen in der Textur
-        /// </summary>
-        /// <returns>true, wenn der Mauszeiger auf dem Objekt liegt</returns>
-        internal bool IsMouseCursorOnMeFast()
-        {
-            return KWEngine.Window.MouseCursorGameObjectID == this.ID;
-        }
         #endregion
     }
 }

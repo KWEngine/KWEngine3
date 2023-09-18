@@ -94,27 +94,24 @@ namespace KWEngine3
             GLAudioEngine.InitAudioEngine();
         }
 
-        internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
-        internal Vector2 _mouseDeltaSum = Vector2.Zero;
+        //internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
+        internal Vector2 _mouseAbsolute = Vector2.Zero;
+        internal Vector2 _mouseOut = Vector2.Zero;
+        internal float _mouseCoefficient = 0.5f;
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
-        internal void GatherMouseDelta()
+        internal Vector2 _mousePosSum = Vector2.Zero;
+        internal void GatherMouseDelta(float dt)
         {
             if (KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld._startingFrameActive)
             {
-                double elapsed = _stopWatchMouseDelta.ElapsedTicks / (double)Stopwatch.Frequency;
-                // Workaround for OpenTK 4.8 MouseDelta bug
-                _mouseDeltaSum += MouseState.Delta; // * (VSync == VSyncMode.Off && RenderFrequency == 0 ? (1f / 0.240f) / KWEngine.LastFrameTime : 1f);
-                if (elapsed >= 1 / 60f)//KWEngine.SIMULATIONNIBBLESIZE)
-                {
-                    _mouseDeltaToUse = _mouseDeltaSum;
-                    _mouseDeltaSum = Vector2.Zero;
-                    _stopWatchMouseDelta.Restart();
-                }
+                Vector2 delta = MouseState.Position - MouseState.PreviousPosition;
+                _mouseAbsolute += delta;
+                _mouseOut -= (float)Math.Exp(-_mouseCoefficient * dt * 1000f) * (_mouseAbsolute - _mouseOut);
+                Console.WriteLine(  _mouseOut);
             }
             else
             {
-                _mouseDeltaToUse = Vector2.Zero;
-                _mouseDeltaSum = Vector2.Zero;
+                
             }
         }
         
@@ -159,7 +156,7 @@ namespace KWEngine3
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
-            GatherMouseDelta();
+            
         }
 
         /// <summary>
@@ -176,8 +173,6 @@ namespace KWEngine3
             _viewProjectionMatrixHUDNew = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X, ClientSize.Y, 0, 0.1f, 100f);
         }
 
-        internal int MouseCursorGameObjectID = -1;
-
         /// <summary>
         /// Wird ausgeführt, wenn ein neues Bild gezeichnet werden soll
         /// </summary>
@@ -185,7 +180,8 @@ namespace KWEngine3
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             UpdateDeltaTime(e.Time);
-            
+            GatherMouseDelta((float)e.Time);
+
             UpdateScene();
 
             List<LightObject> pointLights = new List<LightObject>();
@@ -466,9 +462,9 @@ namespace KWEngine3
             KWEngine.CurrentWorld.Prepare();
 
             HelperGeneral.FlushAndFinish();
-            _mouseDeltaSum = Vector2.Zero;
+            //_mouseDeltaSum = Vector2.Zero;
             _mouseDeltaToUse = Vector2.Zero;
-            _stopWatchMouseDelta.Restart();
+            //_stopWatchMouseDelta.Restart();
             
         }
 
