@@ -30,7 +30,7 @@ namespace KWEngine3
         internal int AnisotropicFiltering { get; set; } = 4;
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
         internal List<Vector2> _mouseDeltas = new List<Vector2>(MOUSEDELTAMAXSAMPLECOUNT);
-        internal const int DELTASFORMOVINGAVG = 2;
+        internal const int DELTASFORMOVINGAVG = 4;
         internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
 
 
@@ -39,32 +39,30 @@ namespace KWEngine3
             if (KWEngine.CurrentWorld._startingFrameActive)
                 return Vector2.Zero;
 
-            _mouseDeltas.Add(mouseDelta);
+            _mouseDeltas.Add(mouseDelta * (1f / dt_ms));
             while (_mouseDeltas.Count > MOUSEDELTAMAXSAMPLECOUNT)
             {
                 _mouseDeltas.RemoveAt(0);
             }
+            int samplesToLookAt = (int)Math.Ceiling(DELTASFORMOVINGAVG * Math.Pow(1f / dt_ms, 4.0));
+            samplesToLookAt = Math.Min(samplesToLookAt + (DELTASFORMOVINGAVG - samplesToLookAt % DELTASFORMOVINGAVG), MOUSEDELTAMAXSAMPLECOUNT - 1);
 
-            float dtFactorReversed = (1000f / 60f) / dt_ms;
-            float dtFactorReversedSquared = dtFactorReversed * dtFactorReversed;
-            int samplesToLookAt = (int)Math.Ceiling(DELTASFORMOVINGAVG * dtFactorReversedSquared);
-            while (samplesToLookAt % DELTASFORMOVINGAVG != 0)
-                samplesToLookAt++;
-            float sampleWeightStep = 1.0f / samplesToLookAt;
+            
+            float sampleWeightStep = 1.0f / (samplesToLookAt - 1);
             int thresholdForNextWeightStep = samplesToLookAt / DELTASFORMOVINGAVG;
-
             float currentSampleWeight = sampleWeightStep;
             Vector2 movingAvg = Vector2.Zero;
-            for (int i = Math.Max(0, _mouseDeltas.Count - 1 - samplesToLookAt), j = 0; i < _mouseDeltas.Count; i++, j++)
+            
+            for (int i = Math.Max(0, _mouseDeltas.Count - 1 - samplesToLookAt), j = 1; i < _mouseDeltas.Count; i++, j++)
             {
                 movingAvg += _mouseDeltas[i] * currentSampleWeight;
                 if (j == thresholdForNextWeightStep)
                 {
                     currentSampleWeight += sampleWeightStep;
-                    j = 0;
+                    j = 1;
                 }
             }
-            return movingAvg * dtFactorReversedSquared;
+            return movingAvg;
         }
 
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
