@@ -1120,15 +1120,15 @@ namespace KWEngine3.Editor
 
                 if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.D))
                 {
-                    KWEngine.CurrentWorld._cameraEditor.Strafe(0.5f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) ? -1 : 1));
+                    KWEngine.CurrentWorld._cameraEditor.Strafe(0.25f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) ? -1 : 1));
                 }
                 if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.W) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.S))
                 {
-                    KWEngine.CurrentWorld._cameraEditor.Move(0.5f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.S) ? -1 : 1));
+                    KWEngine.CurrentWorld._cameraEditor.Move(0.25f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.S) ? -1 : 1));
                 }
                 if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.E) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q))
                 {
-                    KWEngine.CurrentWorld._cameraEditor.MoveUpDown(0.5f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q) ? -1 : 1));
+                    KWEngine.CurrentWorld._cameraEditor.MoveUpDown(0.25f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q) ? -1 : 1));
                 }
 
                 if (KWEngine.CurrentWorld.ApplicationTime - _lastKeyboardTimeInSeconds >= KEYBOARDCOOLDOWN)

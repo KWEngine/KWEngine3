@@ -4,17 +4,17 @@
     <Position X="3.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_f12timestamp" Hidden="true" />
-      <Field Name="_mouseDeltaSum" Hidden="true" />
+      <Field Name="_mouseDeltas" Hidden="true" />
       <Field Name="_mouseDeltaToUse" Hidden="true" />
       <Field Name="_ppQuality" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
-      <Field Name="_stopWatchMouseDelta" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUDNew" Hidden="true" />
       <Property Name="AnisotropicFiltering" Hidden="true" />
+      <Field Name="DELTASFORMOVINGAVG" Hidden="true" />
       <Property Name="FrameTotalCount" Hidden="true" />
-      <Method Name="GatherMouseDelta" Hidden="true" />
-      <Field Name="MouseCursorGameObjectID" Hidden="true" />
+      <Method Name="GatherWeightedMovingAvg" Hidden="true" />
+      <Field Name="MOUSEDELTAMAXSAMPLECOUNT" Hidden="true" />
       <Method Name="OnLoad" Hidden="true" />
       <Method Name="OnMouseDown" Hidden="true" />
       <Method Name="OnMouseMove" Hidden="true" />
@@ -31,7 +31,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AACBAAAABQARAQiEUAgAAEAiAhIABCaAKAAAEAEKAgA=</HashCode>
+      <HashCode>AACBBAAABQABAQiAUAgAAEACAhIABCYAaAAAUAEKAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -207,7 +207,6 @@
       <Method Name="InitStates" Hidden="true" />
       <Property Name="IsAttachedToGameObject" Hidden="true" />
       <Property Name="IsAttachedToViewSpaceGameObject" Hidden="true" />
-      <Method Name="IsMouseCursorOnMeFast" Hidden="true" />
       <Property Name="LeftRightMost" Hidden="true" />
       <Method Name="RemoveHitboxesFromWorldHitboxList" Hidden="true" />
       <Method Name="ResetBoneAttachments" Hidden="true" />
@@ -338,9 +337,7 @@
       <Method Name="GetRayIntersectionPointOnGameObject" Hidden="true" />
       <Method Name="IsBetweenOrdered" Hidden="true" />
       <Method Name="IsInFrontOfPlane" Hidden="true" />
-      <Method Name="IsMouseCursorOnAnyFast" Hidden="true" />
       <Method Name="IsMouseCursorOnGameObject" Hidden="true" />
-      <Method Name="IsMouseCursorOnGameObjectFast" Hidden="true" />
       <Method Name="IsPointOnTrianglePlane" Hidden="true" />
       <Method Name="LinePlaneIntersection" Hidden="true" />
       <Method Name="Overlaps" Hidden="true" />
@@ -354,7 +351,7 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQIQAhQAABACAgAAMIAAAACAAQAgBIgGABGCABIJJAg=</HashCode>
+      <HashCode>BQIQAhAAABACAgAAMIAAAACAAQAgBIgGAAGCABIJJAg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>

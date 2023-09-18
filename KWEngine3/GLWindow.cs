@@ -20,21 +20,62 @@ namespace KWEngine3
     /// </summary>
     public abstract class GLWindow : GameWindow
     {
-        /// <summary>
-        /// Prüft, ob der Mauszeiger aktuell innerhalb des Fensters ist
-        /// </summary>
-        public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
-
         internal PostProcessingQuality _ppQuality = PostProcessingQuality.High;
-
         internal ulong FrameTotalCount { get; set; } = 0;
         internal Matrix4 _viewProjectionMatrixHUD;
         internal Matrix4 _viewProjectionMatrixHUDNew;
         internal KWBuilderOverlay Overlay { get; set; }
         internal float _f12timestamp = 0;
-
         internal Stopwatch _stopwatch = new Stopwatch();
         internal int AnisotropicFiltering { get; set; } = 4;
+        internal Vector2 _mouseDeltaToUse = Vector2.Zero;
+        internal List<Vector2> _mouseDeltas = new List<Vector2>(MOUSEDELTAMAXSAMPLECOUNT);
+        internal const int DELTASFORMOVINGAVG = 2;
+        internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
+
+
+        internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
+        {
+            if (KWEngine.CurrentWorld._startingFrameActive)
+                return Vector2.Zero;
+
+            _mouseDeltas.Add(mouseDelta);
+            while (_mouseDeltas.Count > MOUSEDELTAMAXSAMPLECOUNT)
+            {
+                _mouseDeltas.RemoveAt(0);
+            }
+
+            float dtFactorReversed = (1000f / 60f) / dt_ms;
+            float dtFactorReversedSquared = dtFactorReversed * dtFactorReversed;
+            int samplesToLookAt = (int)Math.Ceiling(DELTASFORMOVINGAVG * dtFactorReversedSquared);
+            while (samplesToLookAt % DELTASFORMOVINGAVG != 0)
+                samplesToLookAt++;
+            float sampleWeightStep = 1.0f / samplesToLookAt;
+            int thresholdForNextWeightStep = samplesToLookAt / DELTASFORMOVINGAVG;
+
+            float currentSampleWeight = sampleWeightStep;
+            Vector2 movingAvg = Vector2.Zero;
+            for (int i = Math.Max(0, _mouseDeltas.Count - 1 - samplesToLookAt), j = 0; i < _mouseDeltas.Count; i++, j++)
+            {
+                movingAvg += _mouseDeltas[i] * currentSampleWeight;
+                if (j == thresholdForNextWeightStep)
+                {
+                    currentSampleWeight += sampleWeightStep;
+                    j = 0;
+                }
+            }
+            return movingAvg * dtFactorReversedSquared;
+        }
+
+        internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
+        {
+            Overlay = new KWBuilderOverlay(ClientSize.X, ClientSize.Y);
+            CenterWindow();
+            KWEngine.Window = this;
+            KWEngine.InitializeModels();
+            KWEngine.InitializeParticles();
+            GLAudioEngine.InitAudioEngine();
+        }
 
         /// <summary>
         /// Standardkonstruktor für den Fullscreen-Modus
@@ -84,37 +125,12 @@ namespace KWEngine3
             _ppQuality = ppQuality;
         }
 
-        internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
-        {
-            Overlay = new KWBuilderOverlay(ClientSize.X, ClientSize.Y);
-            CenterWindow();
-            KWEngine.Window = this;
-            KWEngine.InitializeModels();
-            KWEngine.InitializeParticles();
-            GLAudioEngine.InitAudioEngine();
-        }
-
-        //internal Stopwatch _stopWatchMouseDelta = new Stopwatch();
-        internal Vector2 _mouseAbsolute = Vector2.Zero;
-        internal Vector2 _mouseOut = Vector2.Zero;
-        internal float _mouseCoefficient = 0.5f;
-        internal Vector2 _mouseDeltaToUse = Vector2.Zero;
-        internal Vector2 _mousePosSum = Vector2.Zero;
-        internal void GatherMouseDelta(float dt)
-        {
-            if (KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld._startingFrameActive)
-            {
-                Vector2 delta = MouseState.Position - MouseState.PreviousPosition;
-                _mouseAbsolute += delta;
-                _mouseOut -= (float)Math.Exp(-_mouseCoefficient * dt * 1000f) * (_mouseAbsolute - _mouseOut);
-                Console.WriteLine(  _mouseOut);
-            }
-            else
-            {
-                
-            }
-        }
         
+
+        /// <summary>
+        /// Prüft, ob der Mauszeiger aktuell innerhalb des Fensters ist
+        /// </summary>
+        public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
 
         /// <summary>
         /// Standard-Initialisierungen
@@ -180,7 +196,7 @@ namespace KWEngine3
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             UpdateDeltaTime(e.Time);
-            GatherMouseDelta((float)e.Time);
+            _mouseDeltaToUse = GatherWeightedMovingAvg(MouseState.Delta, (float)(e.Time * 1000.0));
 
             UpdateScene();
 
@@ -437,7 +453,7 @@ namespace KWEngine3
             base.OnMouseWheel(e);
             if (KWEngine.Mode == EngineMode.Edit && !KWBuilderOverlay.IsCursorOnAnyControl())
             {
-                KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * 4f);
+                KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * 2f);
             }
             Overlay.MouseScroll(e.Offset);
         }
@@ -460,12 +476,9 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.WorldTime = 0;
             KWEngine.CurrentWorld.Prepare();
+            _mouseDeltaToUse = Vector2.Zero;
 
             HelperGeneral.FlushAndFinish();
-            //_mouseDeltaSum = Vector2.Zero;
-            _mouseDeltaToUse = Vector2.Zero;
-            //_stopWatchMouseDelta.Restart();
-            
         }
 
         internal void UpdateDeltaTime(double t)
