@@ -140,8 +140,8 @@ namespace KWEngine3
         }
 
         internal static float _glowRadius = 0.75f;
-        internal const int BLOOMWIDTH = 1280;//720;//960;
-        internal const int BLOOMHEIGHT = 720; //405;//540;
+        internal const int BLOOMWIDTH = 960;//720;//960;
+        internal const int BLOOMHEIGHT = 540; //405;//540;
 
         /// <summary>
         /// Anzahl der Renderschritte für den Glow-Effekt

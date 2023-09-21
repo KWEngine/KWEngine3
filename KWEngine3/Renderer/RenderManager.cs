@@ -12,8 +12,8 @@ namespace KWEngine3.Renderer
         public static FramebufferLighting FramebufferLightingPass { get; set; }
         public static FramebufferBloom[] FramebuffersBloom { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
-        public const int LQPENALTY_W = 512;
-        public const int LQPENALTY_H = 256;
+        public const int LQPENALTY_W = 384;
+        public const int LQPENALTY_H = 196;
 
         public static void BindScreen(bool clear = true)
         {
@@ -44,6 +44,7 @@ namespace KWEngine3.Renderer
                 {
                     int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY_W) >> (i * 1);
                     int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY_H) >> (i * 1);
+                    Console.WriteLine(  bloomwidth + " * " + bloomheight);
                     FramebuffersBloom[i] = new FramebufferBloom(bloomwidth, bloomheight);
                     FramebuffersBloomTemp[i] = new FramebufferBloom(bloomwidth, bloomheight);
                 }
