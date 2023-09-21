@@ -59,7 +59,7 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, fbSource1.Attachments[0].ID);
             GL.Uniform1(UTextureSmaller, 0);
 
-            GL.Uniform1(UBloomRadius, KWEngine.Window._ppQuality == PostProcessingQuality.High ? KWEngine.GlowRadius : KWEngine.GlowRadius * 2); // default: 0.5
+            GL.Uniform1(UBloomRadius, KWEngine.GlowRadius);
 
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, fbSource2.Attachments[0].ID);

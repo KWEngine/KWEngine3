@@ -54,8 +54,8 @@ void main()
     vec2 txSmall = 1.0 / textureSize(uTextureSmaller, 0);
     vec2 txBig = 1.0 / textureSize(uTextureBigger, 0);
 
-    vec4 colorSmallerTex = sampleTent(uTextureSmaller, txSmall, uBloomRadius * 1.5) * (0.4 + uBloomRadius); 
-    vec4 colorBiggerTex = sampleTent(uTextureBigger, txBig, uBloomRadius * 1.5) * (0.6 + (1.0 - uBloomRadius));
+    vec4 colorSmallerTex = sampleTent(uTextureSmaller, txSmall, uBloomRadius * 1.0) * (0.4 + uBloomRadius); 
+    vec4 colorBiggerTex = sampleTent(uTextureBigger, txBig, uBloomRadius * 1.0) * (0.6 + (1.0 - uBloomRadius));
 
     color = combine(colorSmallerTex, colorBiggerTex);
 }

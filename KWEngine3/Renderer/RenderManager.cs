@@ -12,7 +12,8 @@ namespace KWEngine3.Renderer
         public static FramebufferLighting FramebufferLightingPass { get; set; }
         public static FramebufferBloom[] FramebuffersBloom { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
-        public const int LQPENALTY = 384;
+        public const int LQPENALTY_W = 512;
+        public const int LQPENALTY_H = 256;
 
         public static void BindScreen(bool clear = true)
         {
@@ -41,13 +42,11 @@ namespace KWEngine3.Renderer
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS / 2; i++)
                 {
-                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY) >> (i * 2);
-                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY) >> (i * 2);
-                    Console.WriteLine(bloomwidth + " * " + bloomheight);
+                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY_W) >> (i * 1);
+                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY_H) >> (i * 1);
                     FramebuffersBloom[i] = new FramebufferBloom(bloomwidth, bloomheight);
                     FramebuffersBloomTemp[i] = new FramebufferBloom(bloomwidth, bloomheight);
                 }
-                Console.WriteLine(  "---------");
             }
             else
             {
@@ -153,9 +152,8 @@ namespace KWEngine3.Renderer
                 // DOWNSAMPLE STEPS:
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS / 2; i++)
                 {
-                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY) >> (i * 2);
-                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY) >> (i * 2);
-                    Console.WriteLine("d: " + bloomwidth + " * " + bloomheight);
+                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY_W) >> (i * 1);
+                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY_H) >> (i * 1);
                     GL.Viewport(0, 0, bloomwidth, bloomheight);
                     FramebuffersBloom[i].Bind(true);
                     RendererBloomDownsample.Draw(i == 0 ? FramebufferLightingPass : FramebuffersBloom[i - 1]);
@@ -164,9 +162,8 @@ namespace KWEngine3.Renderer
                 RendererBloomUpsample.Bind();
                 for (int i = KWEngine.MAX_BLOOM_BUFFERS / 2 - 1; i > 0; i--)
                 {
-                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY) >> ((i - 1) * 2);
-                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY) >> ((i - 1) * 2);
-                    Console.WriteLine("u: " + bloomwidth + " * " + bloomheight);
+                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY_W) >> ((i - 1) * 1);
+                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY_H) >> ((i - 1) * 1);
                     GL.Viewport(0, 0, bloomwidth, bloomheight);
                     FramebuffersBloomTemp[i - 1].Bind(true);
                     if(i == KWEngine.MAX_BLOOM_BUFFERS / 2 - 1)
@@ -180,44 +177,7 @@ namespace KWEngine3.Renderer
 
                     
                 }
-                Console.WriteLine(  "oooooooo");
-
-                /*
-                // #1:
-                GL.Viewport(0, 0, (KWEngine.BLOOMWIDTH - LQPENALTY) >> 0, (KWEngine.BLOOMHEIGHT - LQPENALTY ) >> 0);
-                FramebuffersBloom[0].Bind(true);
-                RendererBloomDownsample.Draw(FramebufferLightingPass);
-
-                // #2:
-                GL.Viewport(0, 0, (KWEngine.BLOOMWIDTH - LQPENALTY) >> 2, (KWEngine.BLOOMHEIGHT - LQPENALTY) >> 2);
-                FramebuffersBloom[2].Bind(true);
-                RendererBloomDownsample.Draw(FramebuffersBloom[0]);
-
-                // #3:
-                GL.Viewport(0, 0, (KWEngine.BLOOMWIDTH - LQPENALTY) >> 5, (KWEngine.BLOOMHEIGHT - LQPENALTY) >> 5);
-                FramebuffersBloom[5].Bind(true);
-                RendererBloomDownsample.Draw(FramebuffersBloom[2]);
-
-                RendererBloomUpsample.Bind();
-
-                // UPSAMPLE STEPS:
-                // #3: 
-                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> 2, KWEngine.BLOOMHEIGHT >> 2);
-                FramebuffersBloomTemp[2].Bind(true); // target
-                // first parameter = smaller tex, second parameter = bigger tex
-                // framebuffersbloomtemp = upsample fbs
-                RendererBloomUpsample.Draw(FramebuffersBloom[5], FramebuffersBloom[2]);
-
-                // #2: 
-                GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> 0, KWEngine.BLOOMHEIGHT >> 0);
-                FramebuffersBloomTemp[0].Bind(true); // target
-                // first parameter = smaller tex, second parameter = bigger tex
-                // framebuffersbloomtemp = upsample fbs
-                RendererBloomUpsample.Draw(FramebuffersBloom[2], FramebuffersBloom[0]);
-                */
             }
-            
-
             GL.Enable(EnableCap.DepthTest);
         }
     }

@@ -45,6 +45,13 @@ namespace KWEngine3TestProject.Worlds
             i04.SetColor(1, 0.5f, 0.25f);
             i04.SetColorEmissive(1, 0.5f, 0.25f, 5f);
             AddGameObject(i04);
+
+            Immovable i05 = new Immovable();
+            i05.SetPosition(3, 0, 0);
+            i05.SetScale(3f, 3f, 3f);
+            i05.SetColor(1, 0.5f, 0.25f);
+            i05.SetColorEmissive(1, 0.5f, 0.25f, 5f);
+            AddGameObject(i05);
         }
     }
 }
