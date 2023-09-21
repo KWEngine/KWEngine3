@@ -44,7 +44,6 @@ namespace KWEngine3.Renderer
                 {
                     int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY_W) >> (i * 1);
                     int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY_H) >> (i * 1);
-                    Console.WriteLine(  bloomwidth + " * " + bloomheight);
                     FramebuffersBloom[i] = new FramebufferBloom(bloomwidth, bloomheight);
                     FramebuffersBloomTemp[i] = new FramebufferBloom(bloomwidth, bloomheight);
                 }
