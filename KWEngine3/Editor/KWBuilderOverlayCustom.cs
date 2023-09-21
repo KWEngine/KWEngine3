@@ -907,11 +907,15 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.CurrentWorld._cameraEditor.SetFOVForPerspectiveProjection(fov);
                 }
-                if (ImGui.SliderFloat("Bloom Radius", ref KWEngine._glowRadius, 0f, 1f))
-                {
-                    //KWEngine.CurrentWorld._cameraEditor.SetFOVForPerspectiveProjection(fov);
-                }
                 ImGui.PopItemWidth();
+                ImGui.PushItemWidth(72);
+                ImGui.SliderFloat("Glow Radius", ref KWEngine._glowRadius, 0f, 1f);
+                ImGui.SameLine();
+                ImGui.SliderFloat("Glow #1", ref KWEngine._glowUpsampleF1, 0.01f, 1f);
+                ImGui.SameLine();
+                ImGui.SliderFloat("Glow #2", ref KWEngine._glowUpsampleF2, 0.01f, 1f);
+                ImGui.PopItemWidth();
+
                 /*ImGui.SameLine();
                 ImGui.Indent(312);
                 if (ImGui.Button("Apply perspective to game"))

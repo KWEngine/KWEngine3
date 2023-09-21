@@ -139,10 +139,10 @@ namespace KWEngine3
             EngineLog.Clear();
         }
 
-        internal static float _glowRadius = 0.75f;
+        
+
         internal const int BLOOMWIDTH = 960;//720;//960;
         internal const int BLOOMHEIGHT = 540; //405;//540;
-
         /// <summary>
         /// Anzahl der Renderschritte für den Glow-Effekt
         /// </summary>
@@ -163,13 +163,16 @@ namespace KWEngine3
         /// Anzahl der Schattenlichter pro Welt (anteilig an MAX_LIGHTS)
         /// </summary>
         public const int MAX_SHADOWMAPS = 3;
-        internal static Matrix4 Identity = Matrix4.Identity;
-        private static Vector3 _worldUp = new Vector3(0, 1, 0);
 
+        internal static Matrix4 Identity = Matrix4.Identity;
+        //private static Vector3 _worldUp = new Vector3(0, 1, 0);
         internal static int _uniformOffsetMultiplier = 1;
+        internal static float _glowRadius = 1.0f;
+        internal static float _glowUpsampleF1 = 0.10f;
+        internal static float _glowUpsampleF2 = 1.00f;
 
         /// <summary>
-        /// Verhältnis zwischen innerem und äußerem Glühen (von 0 bis 1, Standard: 0.75)
+        /// Steuert das Ausmaß des durch Überbelichtung erzeugten Glow-Effekts (von 0 bis 1, Standard: 1.0)
         /// </summary>
         public static float GlowRadius
         {
@@ -182,6 +185,15 @@ namespace KWEngine3
                 _glowRadius = HelperGeneral.Clamp(value, 0f, 1f);
             }
         }
+
+        /// <summary>
+        /// Steuert den Stil des Glühens (Faktor 1, erlaubte Werte zwischen 0 und 1, Standard: 0.1)
+        /// </summary>
+        public static float GlowStyleFactor1 { get { return _glowUpsampleF1; } set { _glowUpsampleF1 = Math.Clamp(value, 0.01f, 1.0f); } }
+        /// <summary>
+        /// Steuert den Stil des Glühens (Faktor 2, erlaubte Werte zwischen 0 und 1, Standard: 1.0)
+        /// </summary>
+        public static float GlowStyleFactor2 { get { return _glowUpsampleF2; } set { _glowUpsampleF2 = Math.Clamp(value, 0.01f, 1.0f); } }
 
         internal static Matrix4 Matrix4Dummy = Matrix4.Identity;
 

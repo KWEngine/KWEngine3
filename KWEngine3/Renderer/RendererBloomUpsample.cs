@@ -2,6 +2,7 @@
 using KWEngine3.Helper;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using System.Reflection;
 
 namespace KWEngine3.Renderer
@@ -59,7 +60,7 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, fbSource1.Attachments[0].ID);
             GL.Uniform1(UTextureSmaller, 0);
 
-            GL.Uniform1(UBloomRadius, KWEngine.GlowRadius);
+            GL.Uniform3(UBloomRadius, new Vector3(KWEngine._glowRadius, KWEngine._glowUpsampleF1, KWEngine._glowUpsampleF2));
 
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, fbSource2.Attachments[0].ID);

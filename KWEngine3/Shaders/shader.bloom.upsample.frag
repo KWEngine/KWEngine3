@@ -4,7 +4,7 @@ in		vec2 vTexture;
 
 uniform sampler2D uTextureSmaller;  // smaller tex (bloom)
 uniform sampler2D uTextureBigger;  // bigger tex (fb)
-uniform float uBloomRadius;
+uniform vec3 uBloomRadius;
 
 out		vec4 color;
 
@@ -54,8 +54,8 @@ void main()
     vec2 txSmall = 1.0 / textureSize(uTextureSmaller, 0);
     vec2 txBig = 1.0 / textureSize(uTextureBigger, 0);
 
-    vec4 colorSmallerTex = sampleTent(uTextureSmaller, txSmall, uBloomRadius * 1.0) * (0.35 + uBloomRadius); 
-    vec4 colorBiggerTex = sampleTent(uTextureBigger, txBig, uBloomRadius * 1.0) * (0.55 + (1.0 - uBloomRadius));
+    vec4 colorSmallerTex = sampleTent(uTextureSmaller, txSmall, uBloomRadius.x) * (uBloomRadius.y + uBloomRadius.x); 
+    vec4 colorBiggerTex = sampleTent(uTextureBigger, txBig, uBloomRadius.x) * (uBloomRadius.z + (1.0 - uBloomRadius.x));
 
     color = combine(colorSmallerTex, colorBiggerTex);
 }
