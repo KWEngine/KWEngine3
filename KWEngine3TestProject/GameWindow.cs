@@ -5,9 +5,9 @@ namespace KWEngine3TestProject
 {
     public class GameWindow : GLWindow
     {
-        public GameWindow() : base(1280, 720)
+        public GameWindow() : base(1280, 720, true, PostProcessingQuality.Low)
         {
-            SetWorld(new GameWorldStart());
+            SetWorld(new GameWorldBloomTest());
         }
     }
 }

@@ -3,6 +3,7 @@
 in		vec2 vTexture;
 
 uniform sampler2D uTexture;
+uniform float uBloomRadius;
 
 out		vec4 color;
 
@@ -36,5 +37,5 @@ vec4 DownsampleBox13Tap(sampler2D samplerTex, vec2 texelSize, float bloomRadius)
 void main()
 {
     vec2 texelSize = 1.0 / textureSize(uTexture, 0);
-    color = DownsampleBox13Tap(uTexture, texelSize, 1.0);
+    color = DownsampleBox13Tap(uTexture, texelSize, uBloomRadius * 1.25);
 }

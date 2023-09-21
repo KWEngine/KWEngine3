@@ -128,10 +128,10 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Glühintensität des Objekts
         /// </summary>
-        /// <param name="intensity">Intensität (zwischen 0 und 1)</param>
+        /// <param name="intensity">Intensität (zwischen 0 und 2)</param>
         public void SetColorGlowIntensity(float intensity)
         {
-            _glow.W = HelperGeneral.Clamp(intensity, 0, 1);
+            _glow.W = HelperGeneral.Clamp(intensity, 0, 2);
         }
 
         /// <summary>

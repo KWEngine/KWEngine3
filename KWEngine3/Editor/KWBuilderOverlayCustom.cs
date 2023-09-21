@@ -267,7 +267,7 @@ namespace KWEngine3.Editor
                     {
                         SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, SelectedGameObject._stateCurrent._colorEmissive.W);
                     }
-                    if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 2, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                    if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 10, "%.2f", ImGuiSliderFlags.AlwaysClamp))
                     {
                         SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, colorEmissiveIntensityNew);
                     }
@@ -673,7 +673,7 @@ namespace KWEngine3.Editor
                 }
                 //
 
-                if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 2, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 10, "%.2f", ImGuiSliderFlags.AlwaysClamp))
                 {
                     SelectedTerrainObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, colorEmissiveIntensityNew);
                 }
@@ -907,6 +907,10 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.CurrentWorld._cameraEditor.SetFOVForPerspectiveProjection(fov);
                 }
+                if (ImGui.SliderFloat("Bloom Radius", ref KWEngine._glowRadius, 0f, 1f))
+                {
+                    //KWEngine.CurrentWorld._cameraEditor.SetFOVForPerspectiveProjection(fov);
+                }
                 ImGui.PopItemWidth();
                 /*ImGui.SameLine();
                 ImGui.Indent(312);
@@ -916,7 +920,6 @@ namespace KWEngine3.Editor
                     KWEngine.CurrentWorld._cameraGame._statePrevious = KWEngine.CurrentWorld._cameraGame._stateCurrent;
                 }
                 */
-                ImGui.NewLine();
                 ImGui.Separator();
                 ImGui.NewLine();
                 if(ImGui.Button("Export world & objects"))
@@ -924,7 +927,7 @@ namespace KWEngine3.Editor
                     KWEngine.CurrentWorld.Export();
                 }
                 ImGui.SameLine();
-                ImGui.Indent(312);
+                ImGui.Indent(440);
                 if (ImGui.Button("Close"))
                 {
                     _worldMenuActive = false;

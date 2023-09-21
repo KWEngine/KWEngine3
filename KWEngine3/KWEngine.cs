@@ -139,14 +139,14 @@ namespace KWEngine3
             EngineLog.Clear();
         }
 
-        internal static float _glowRadius = .75f;
-        internal const int BLOOMWIDTH = 720;//960;
-        internal const int BLOOMHEIGHT = 405;//540;
+        internal static float _glowRadius = 0.75f;
+        internal const int BLOOMWIDTH = 1280;//720;//960;
+        internal const int BLOOMHEIGHT = 720; //405;//540;
 
         /// <summary>
         /// Anzahl der Renderschritte für den Glow-Effekt
         /// </summary>
-        public const int MAX_BLOOM_BUFFERS = 7;
+        public const int MAX_BLOOM_BUFFERS = 8;
         /// <summary>
         /// Anzahl der Gewichte pro Knochen
         /// </summary>
@@ -169,7 +169,7 @@ namespace KWEngine3
         internal static int _uniformOffsetMultiplier = 1;
 
         /// <summary>
-        /// Verhältnis zwischen innerem und äußerem Glühen (von 0 bis 1, Standard: 0.5)
+        /// Verhältnis zwischen innerem und äußerem Glühen (von 0 bis 1, Standard: 0.75)
         /// </summary>
         public static float GlowRadius
         {
@@ -179,7 +179,7 @@ namespace KWEngine3
             }
             set
             {
-                _glowRadius = HelperGeneral.Clamp(value, 0, 1);
+                _glowRadius = HelperGeneral.Clamp(value, 0f, 1f);
             }
         }
 

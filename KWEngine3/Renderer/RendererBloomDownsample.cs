@@ -10,6 +10,7 @@ namespace KWEngine3.Renderer
     {
         public static int ProgramID { get; private set; } = -1;
         public static int UTexture { get; private set; } = -1;
+        public static int UBloomRadius { get; private set; } = -1;
 
         public static void Init()
         {
@@ -35,6 +36,7 @@ namespace KWEngine3.Renderer
 
                 GL.LinkProgram(ProgramID);
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
+                UBloomRadius = GL.GetUniformLocation(ProgramID, "uBloomRadius");
             }
         }
 
@@ -56,7 +58,10 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D,  fbSource.Attachments[attachmentIndex].ID);
             GL.Uniform1(UTexture, 0);
-            
+
+
+            GL.Uniform1(UBloomRadius, KWEngine._glowRadius);
+
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
             GL.BindVertexArray(0);
