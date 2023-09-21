@@ -222,8 +222,8 @@ namespace KWEngine3.Helper
                 h.IsVisible = sh.IsVisible;
                 h.SetColor(sh.Color[0], sh.Color[1], sh.Color[2]);
                 h.SetOpacity(sh.Color[3]);
-                h.SetColorGlow(sh.Glow[0], sh.Glow[1], sh.Glow[2]);
-                h.SetColorGlowIntensity(sh.Glow[3]);
+                h.SetColorEmissive(sh.Glow[0], sh.Glow[1], sh.Glow[2]);
+                h.SetColorEmissiveIntensity(sh.Glow[3]);
 
                 return h;
             }
@@ -236,8 +236,8 @@ namespace KWEngine3.Helper
                 h.IsVisible = sh.IsVisible;
                 h.SetColor(sh.Color[0], sh.Color[1], sh.Color[2]);
                 h.SetOpacity(sh.Color[3]);
-                h.SetColorGlow(sh.Glow[0], sh.Glow[1], sh.Glow[2]);
-                h.SetColorGlowIntensity(sh.Glow[3]);
+                h.SetColorEmissive(sh.Glow[0], sh.Glow[1], sh.Glow[2]);
+                h.SetColorEmissiveIntensity(sh.Glow[3]);
 
                 h.SetTextAlignment(sh.Alignment);
                 h.SetFont(sh.Font);

@@ -118,7 +118,7 @@ namespace KWEngine3.GameObjects
         /// <param name="green">Grün (zwischen 0 und 1)</param>
         /// <param name="blue">Blau (zwischen 0 und 1)</param>
 
-        public void SetColorGlow(float red, float green, float blue)
+        public void SetColorEmissive(float red, float green, float blue)
         {
             _glow.X = HelperGeneral.Clamp(red, 0, 1);
             _glow.Y = HelperGeneral.Clamp(green, 0, 1);
@@ -128,10 +128,10 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Glühintensität des Objekts
         /// </summary>
-        /// <param name="intensity">Intensität (zwischen 0 und 2)</param>
-        public void SetColorGlowIntensity(float intensity)
+        /// <param name="intensity">Intensität (zwischen 0 und 1)</param>
+        public void SetColorEmissiveIntensity(float intensity)
         {
-            _glow.W = HelperGeneral.Clamp(intensity, 0, 2);
+            _glow.W = HelperGeneral.Clamp(intensity, 0, 1);
         }
 
         /// <summary>
