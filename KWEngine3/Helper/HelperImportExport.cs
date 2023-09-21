@@ -253,7 +253,7 @@ namespace KWEngine3.Helper
             t.SetText(st.Text);
             t.Name = st.Name;
             t.SetScale(st.Scale);
-            t.SetCharacterSpreadFactor(st.Spread);
+            t.SetCharacterDistanceFactor(st.Spread);
             t.SetText(st.Text);
 
             t.SetOpacity(st.Color[3]);

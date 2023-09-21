@@ -420,7 +420,7 @@
       <Method Name="UpdateWidth" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QABAMQAAQBQAAAQgAIKAAUTAAABBCggIAIgAigBAANQ=</HashCode>
+      <HashCode>QABAMQAAABQAAAQgAIKAAUTAAABBCggIQIgAygBAANQ=</HashCode>
       <FileName>GameObjects\TextObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

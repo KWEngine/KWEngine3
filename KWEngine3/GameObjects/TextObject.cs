@@ -77,11 +77,17 @@ namespace KWEngine3.GameObjects
         /// Gibt an, wie weit die Textzeichen voneinander entfernt liegen sollen (Standard: 1)
         /// </summary>
         /// <param name="f">Entfernungsfaktor (Werte zwischen 0.75f und 2f)</param>
-        public void SetCharacterSpreadFactor(float f)
+        public void SetCharacterDistanceFactor(float f)
         {
             _stateCurrent._spreadFactor = Math.Clamp(f, 0.75f, 2f);
             UpdateWidth();
         }
+
+        /// <summary>
+        /// Gibt den aktuell verwendeten Distanzfaktor für den Zeichenzwischenraum an
+        /// </summary>
+        public float CharacterDistanceFactor { get { return _stateCurrent._spreadFactor; } }
+
 
         /// <summary>
         /// Setzt die Position der Instanz
