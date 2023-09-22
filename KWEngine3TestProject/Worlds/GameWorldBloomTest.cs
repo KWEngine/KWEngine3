@@ -8,13 +8,32 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldBloomTest : World
     {
+        private float _timestampLastExplosion = 0;
+        private float _timestampLastParticle = 0;
         public override void Act()
         {
-           
+           if(WorldTime - _timestampLastExplosion > 1.5f)
+           {
+                ExplosionObject e = new ExplosionObject(64, 0.5f, 5f, 1f, ExplosionType.Cube);
+                e.SetColorEmissive(1, 1, 1, 2);
+                e.SetPosition(-5, 8, 0);
+                AddExplosionObject(e);
+                _timestampLastExplosion = WorldTime;
+           }
+
+            if (WorldTime - _timestampLastParticle > 5f)
+            {
+                ParticleObject p = new ParticleObject(4, ParticleType.BurstFire3);
+                p.SetPosition(8, 8, 0);
+                p.SetColor(1, 1, 1, 0.75f);
+                AddParticleObject(p);
+                _timestampLastParticle = WorldTime;
+            }
         }
 
         public override void Prepare()
         {
+            SetBackground2D(@"./Textures/greenmountains.dds");
             SetCameraFOV(90);
             SetCameraPosition(0, 0, 25);
 

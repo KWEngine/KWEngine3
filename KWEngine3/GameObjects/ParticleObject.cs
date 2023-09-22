@@ -25,7 +25,7 @@ namespace KWEngine3.GameObjects
         internal float _lastUpdate = -1;
         internal long _durationInMS = 5000;
         internal int _frame = 0;
-        internal long _aliveInMS = 0;
+        internal float _aliveInMS = 0;
         internal float _scaleFactor = 1;
         internal ParticleInfo _info;
 
@@ -118,16 +118,15 @@ namespace KWEngine3.GameObjects
         {
             float now = KWEngine.WorldTime;      
             float diff = _lastUpdate < 0 ? 0 : now - _lastUpdate;
-            _aliveInMS += (long)(diff * 1000);
+            _aliveInMS += diff * 1000;
             _frame = (int)(_aliveInMS / 32);
             int frameloop = _frame % _info.Samples;
 
             if (_type == ParticleType.LoopSmoke1 || _type == ParticleType.LoopSmoke2 || _type == ParticleType.LoopSmoke3)
             {
                 _frame = frameloop;
-                float liveInPercent = _aliveInMS / (float)_durationInMS;
                 // f(x) = -64000(x - 0.5)¹⁶ + 1
-                _scaleFactor = -64000f * (float)Math.Pow(liveInPercent - 0.5f, 16) + 1;
+                _scaleFactor = -64000f * (float)Math.Pow(_aliveInMS / _durationInMS - 0.5f, 16) + 1;
                 _scaleCurrent.X = _scale.X * _scaleFactor;
                 _scaleCurrent.Y = _scale.Y * _scaleFactor;
                 _scaleCurrent.Z = _scale.Z * _scaleFactor;
