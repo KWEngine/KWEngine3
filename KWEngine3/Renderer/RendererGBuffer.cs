@@ -130,7 +130,7 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
-                GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, (int)g._gModel._metallicType));
+                GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, Convert.ToSingle((int)g._gModel._metallicType)));
 
                 if (material.TextureEmissive.IsTextureSet)
                     GL.Uniform4(UColorEmissive, Vector4.Zero);

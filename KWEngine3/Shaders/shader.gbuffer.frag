@@ -88,5 +88,5 @@ void main()
 		}
 	}
 
-	metallicRoughnessMetallicType = vec3(metallic, max(roughness, 0.00001), uMetallicRoughness.z);
+	metallicRoughnessMetallicType = vec3(metallic, max(roughness, 0.00001), uMetallicRoughness.z / 10.0);
 }

@@ -12,10 +12,10 @@ namespace KWEngine3.Framebuffers
         {
         }
 
-        public override void Clear()
+        public override void Clear(bool keepDepth = false)
         {
             GL.ClearColor(1, 1, 1, 1);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | (keepDepth ? ClearBufferMask.None : ClearBufferMask.DepthBufferBit));
         }
 
         public override void Init(int width, int height)

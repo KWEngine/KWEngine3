@@ -107,7 +107,7 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UColorTint, t._stateRender._colorTint);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
             GL.Uniform1(UId, t.ID);
-            GL.Uniform3(UMetallicRoughness, new Vector3(t._gModel._metallicTerrain, t._gModel._roughnessTerrain, (int)t._gModel._metallicType));
+            GL.Uniform3(UMetallicRoughness, new Vector3(t._gModel._metallicTerrain, t._gModel._roughnessTerrain, Convert.ToSingle((int)t._gModel._metallicType)));
 
             GeoMesh[] meshes = t._gModel.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)

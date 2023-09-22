@@ -23,7 +23,7 @@ namespace KWEngine3.Framebuffers
             ClearColorValues.Add(0, new float[] { 0, 0, 0, 1 });
         }
 
-        public override void Clear()
+        public override void Clear(bool keepDepth = false)
         {
             for(int i = 0; i < ClearColorValues.Count; i++)
             {

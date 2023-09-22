@@ -13,13 +13,14 @@ namespace KWEngine3.Framebuffers
         public FramebufferShadowMapBlur _blurBuffer1;
         public FramebufferShadowMapBlur _blurBuffer2;
 
-        public override void Clear()
+        public override void Clear(bool keepDepth = false)
         {
             for (int i = 0; i < ClearColorValues.Count; i++)
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);
             }
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            if(keepDepth == false)
+                GL.Clear(ClearBufferMask.DepthBufferBit);
         }
 
         public FramebufferShadowMap(int width, int height, LightType lightType)

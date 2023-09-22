@@ -17,32 +17,27 @@ namespace KWEngine3.Framebuffers
             Bind(false);
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 0));   // Color
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 1));   // Bloom
-            DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];
-            for(int i = 0; i < Attachments.Count; i++)
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 2)); // Depth
+            DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
+            for(int i = 0; i < Attachments.Count - 1; i++)
             {
                 dbe[i] = DrawBuffersEnum.ColorAttachment0 + i;
             }
             GL.DrawBuffers(Attachments.Count, dbe);
-            
-            Renderbuffers.Add(GL.GenRenderbuffer());
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             ClearColorValues.Add(0, new float[] { 0, 0, 0, 1 });
             ClearColorValues.Add(1, new float[] { 0, 0, 0, 1 });
         }
 
-        public override void Clear()
+        public override void Clear(bool keepDepth = false)
         {
             for(int i = 0; i < ClearColorValues.Count; i++)
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);
             }
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            if(keepDepth == false)
+                GL.Clear(ClearBufferMask.DepthBufferBit);
         }
 
         public void BindAndClearDepth()
@@ -51,9 +46,10 @@ namespace KWEngine3.Framebuffers
             GL.Clear(ClearBufferMask.DepthBufferBit);
         }
 
-        public void BindAndClearColor()
+        public void BindAndClearColor(bool keepDepth = false)
         {
-            Bind(false);
+            //Bind(false);
+            Bind(true, keepDepth);
             for (int i = 0; i < ClearColorValues.Count; i++)
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);

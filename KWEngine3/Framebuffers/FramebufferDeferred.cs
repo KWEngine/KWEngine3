@@ -26,19 +26,14 @@ namespace KWEngine3.Framebuffers
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16F, width, height, 2));  // Normal and CSDepth
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 3));     // Metallic, Roughness, MetallicType attachment
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16F, width, height, 4));  // Emissive TODO: check if there is a R8G8B8A16 texture mode in OpenGL
-            DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];
-            for(int i = 0; i < Attachments.Count; i++)
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 5)); // Depth
+            
+            DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
+            for(int i = 0; i < Attachments.Count - 1; i++)
             {
                 dbe[i] = DrawBuffersEnum.ColorAttachment0 + i;
             }
             GL.DrawBuffers(Attachments.Count, dbe);
-            
-            Renderbuffers.Add(GL.GenRenderbuffer());
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-            
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             ClearColorValues.Add(0, new float[] { 0, 0, 0, 0 });
@@ -50,13 +45,14 @@ namespace KWEngine3.Framebuffers
             ClearDepthValues.Add(0, new float[] { 0, 0, 0, 0 });
         }
 
-        public override void Clear()
+        public override void Clear(bool keepDepth = false)
         {
             for(int i = 0; i < ClearColorValues.Count; i++)
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);
             }
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            if(keepDepth == false)
+                GL.Clear(ClearBufferMask.DepthBufferBit);
         }
     }
 }

@@ -150,7 +150,9 @@ float DistributionGGX(vec3 N, vec3 H, float a)
 
 vec3 getPBR()
 {
-    return texture(uTexturePBR, vTexture).xyz; //x=metallic, y = roughness, z = metallic type
+    vec3 tmp = texture(uTexturePBR, vTexture).xyz; //x=metallic, y = roughness, z = metallic type
+    tmp.z = tmp.z * 10;
+    return tmp;
 }
 
 vec4 getFragmentPositionAndId()

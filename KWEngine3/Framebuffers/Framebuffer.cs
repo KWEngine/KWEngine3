@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Exceptions;
+using KWEngine3.Helper;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine3.Framebuffers
@@ -30,7 +31,7 @@ namespace KWEngine3.Framebuffers
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
-        public void Bind(bool clear = true)
+        public void Bind(bool clear = true, bool keepDepth = false)
         {
             if (ID > 0)
             {
@@ -72,7 +73,7 @@ namespace KWEngine3.Framebuffers
             return error == FramebufferErrorCode.FramebufferComplete;
         }
 
-        public void CopyDepthFrom(Framebuffer src)
+        public void CopyDepthFrom(Framebuffer src) // usually: src = deferred
         {
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, src.ID);
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, ID);
@@ -92,6 +93,6 @@ namespace KWEngine3.Framebuffers
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
         }
 
-        public abstract void Clear();
+        public abstract void Clear(bool keepDepth = false);
     }
 }

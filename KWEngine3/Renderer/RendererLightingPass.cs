@@ -12,9 +12,9 @@ namespace KWEngine3.Renderer
     {
         public static int ProgramID { get; private set; } = -1;
        
-        public static int UTexturePositionDepth { get; private set; } = -1;
+        public static int UTexturePositionId { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
-        public static int UTextureNormalId { get; private set; } = -1;
+        public static int UTextureNormalDepth { get; private set; } = -1;
         public static int UTextureCSDepthMetallicRoughnessOcclusion { get; private set; } = -1;
         public static int UTextureEmissive { get; private set; } = -1;
         public static int ULights { get; private set; } = -1;
@@ -55,9 +55,9 @@ namespace KWEngine3.Renderer
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
                 GL.LinkProgram(ProgramID);
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
-                UTexturePositionDepth = GL.GetUniformLocation(ProgramID, "uTexturePositionDepth");
+                UTexturePositionId = GL.GetUniformLocation(ProgramID, "uTexturePositionId");
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
-                UTextureNormalId = GL.GetUniformLocation(ProgramID, "uTextureNormalId");
+                UTextureNormalDepth = GL.GetUniformLocation(ProgramID, "uTextureNormalDepth");
                 UTextureCSDepthMetallicRoughnessOcclusion = GL.GetUniformLocation(ProgramID, "uTexturePBR");
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
                 ULights = GL.GetUniformLocation(ProgramID, "uLights");
@@ -149,20 +149,20 @@ namespace KWEngine3.Renderer
             //Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             //GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
 
-            // position & depth texture:
+            // position & id texture:
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
-            GL.Uniform1(UTexturePositionDepth, 0);
+            GL.Uniform1(UTexturePositionId, 0);
 
             // albedo:
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[1].ID);
             GL.Uniform1(UTextureAlbedo, 1);
 
-            // normalId:
+            // normal & depth:
             GL.ActiveTexture(TextureUnit.Texture2);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[2].ID);
-            GL.Uniform1(UTextureNormalId, 2);
+            GL.Uniform1(UTextureNormalDepth, 2);
 
             // pbr:
             GL.ActiveTexture(TextureUnit.Texture3);
