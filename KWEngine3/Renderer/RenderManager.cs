@@ -3,6 +3,7 @@ using KWEngine3.Framebuffers;
 using KWEngine3.Model;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace KWEngine3.Renderer
 {
@@ -12,8 +13,8 @@ namespace KWEngine3.Renderer
         public static FramebufferLighting FramebufferLightingPass { get; set; }
         public static FramebufferBloom[] FramebuffersBloom { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
-        public const int LQPENALTY_W = 384;
-        public const int LQPENALTY_H = 196;
+        public const int LQPENALTY_W = 160;
+        public const int LQPENALTY_H = 96;
 
         public static void BindScreen(bool clear = true)
         {
@@ -42,10 +43,9 @@ namespace KWEngine3.Renderer
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS / 2; i++)
                 {
-                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY_W) >> (i * 1);
-                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY_H) >> (i * 1);
-                    FramebuffersBloom[i] = new FramebufferBloom(bloomwidth, bloomheight);
-                    FramebuffersBloomTemp[i] = new FramebufferBloom(bloomwidth, bloomheight);
+                    Vector2i bloomSize = GetBloomSize(i);
+                    FramebuffersBloom[i] = new FramebufferBloom(bloomSize.X, bloomSize.Y);
+                    FramebuffersBloomTemp[i] = new FramebufferBloom(bloomSize.X, bloomSize.Y);
                 }
             }
             else
@@ -85,7 +85,6 @@ namespace KWEngine3.Renderer
             RendererLightFrustum.Init();
             RendererOctreeNodes.Init();
             
-
             RendererBloomDownsample.Init();
             RendererBloomUpsample.Init();
 
@@ -152,9 +151,8 @@ namespace KWEngine3.Renderer
                 // DOWNSAMPLE STEPS:
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS / 2; i++)
                 {
-                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY_W) >> (i * 1);
-                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY_H) >> (i * 1);
-                    GL.Viewport(0, 0, bloomwidth, bloomheight);
+                    Vector2i bloomSize = GetBloomSize(i, true);
+                    GL.Viewport(0, 0, bloomSize.X, bloomSize.Y);
                     FramebuffersBloom[i].Bind(true);
                     RendererBloomDownsample.Draw(i == 0 ? FramebufferLightingPass : FramebuffersBloom[i - 1]);
                 }
@@ -162,9 +160,8 @@ namespace KWEngine3.Renderer
                 RendererBloomUpsample.Bind();
                 for (int i = KWEngine.MAX_BLOOM_BUFFERS / 2 - 1; i > 0; i--)
                 {
-                    int bloomwidth = (KWEngine.BLOOMWIDTH - LQPENALTY_W) >> ((i - 1) * 1);
-                    int bloomheight = (KWEngine.BLOOMHEIGHT - LQPENALTY_H) >> ((i - 1) * 1);
-                    GL.Viewport(0, 0, bloomwidth, bloomheight);
+                    Vector2i bloomSize = GetBloomSize(i, false);
+                    GL.Viewport(0, 0, bloomSize.X, bloomSize.Y);
                     FramebuffersBloomTemp[i - 1].Bind(true);
                     if(i == KWEngine.MAX_BLOOM_BUFFERS / 2 - 1)
                     {
@@ -179,6 +176,24 @@ namespace KWEngine3.Renderer
                 }
             }
             GL.Enable(EnableCap.DepthTest);
+        }
+
+        public static Vector2i GetBloomSize(int i = 0, bool downsample = true)
+        {
+            if (downsample)
+            {
+                return new Vector2i(
+                     (KWEngine.BLOOMWIDTH - LQPENALTY_W * (i + 1)) >> i,
+                     (KWEngine.BLOOMHEIGHT - LQPENALTY_H * (i + 1)) >> i
+                    );
+            }
+            else
+            {
+                return new Vector2i(
+                     (KWEngine.BLOOMWIDTH - LQPENALTY_W * (i - 0)) >> (i - 1),
+                     (KWEngine.BLOOMHEIGHT - LQPENALTY_H * (i - 0)) >> (i - 1)
+                    );
+            }
         }
     }
 }

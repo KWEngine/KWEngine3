@@ -168,7 +168,7 @@ namespace KWEngine3
         //private static Vector3 _worldUp = new Vector3(0, 1, 0);
         internal static int _uniformOffsetMultiplier = 1;
         internal static float _glowRadius = 1.0f;
-        internal static float _glowUpsampleF1 = 0.10f;
+        internal static float _glowUpsampleF1 = 0.30f;
         internal static float _glowUpsampleF2 = 1.00f;
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Steuert den Stil des Glühens (Faktor 1, erlaubte Werte zwischen 0 und 1, Standard: 0.1)
+        /// Steuert den Stil des Glühens (Faktor 1, erlaubte Werte zwischen 0 und 1, Standard: 0.3)
         /// </summary>
         public static float GlowStyleFactor1 { get { return _glowUpsampleF1; } set { _glowUpsampleF1 = Math.Clamp(value, 0.01f, 1.0f); } }
         /// <summary>

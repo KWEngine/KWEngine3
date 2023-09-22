@@ -41,11 +41,12 @@
       <Field Name="_folderDivider" Hidden="true" />
       <Field Name="_folderDividerString" Hidden="true" />
       <Field Name="_glowRadius" Hidden="true" />
+      <Field Name="_glowUpsampleF1" Hidden="true" />
+      <Field Name="_glowUpsampleF2" Hidden="true" />
       <Field Name="_octreeSafetyZone" Hidden="true" />
       <Field Name="_stateCameraGameBeforeToggle" Hidden="true" />
       <Field Name="_swpruneTolerance" Hidden="true" />
       <Field Name="_uniformOffsetMultiplier" Hidden="true" />
-      <Field Name="_worldUp" Hidden="true" />
       <Field Name="BLOOMHEIGHT" Hidden="true" />
       <Field Name="BLOOMWIDTH" Hidden="true" />
       <Method Name="BuildDefaultTerrainModel" Hidden="true" />
@@ -92,7 +93,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgAZLABAISBAKAFpghuARAAQCAAggIQjGmWSlVCEIE=</HashCode>
+      <HashCode>BYgARLABAISJAKAFpghuARAAQCAAggIQjGmWStVCEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -163,7 +164,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="6" Width="2.75" />
+    <Position X="0.5" Y="6.25" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -426,7 +427,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectImage">
-    <Position X="0.5" Y="8.25" Width="2.75" />
+    <Position X="0.5" Y="8.5" Width="2.75" />
     <Members>
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
@@ -437,7 +438,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectText">
-    <Position X="0.5" Y="10" Width="2.75" />
+    <Position X="0.5" Y="10.25" Width="2.75" />
     <Members>
       <Field Name="_offsets" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
@@ -451,7 +452,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObject">
-    <Position X="0.5" Y="13.5" Width="2.75" />
+    <Position X="0.5" Y="13.75" Width="2.75" />
     <Members>
       <Field Name="_glow" Hidden="true" />
       <Field Name="_modelMatrix" Hidden="true" />
