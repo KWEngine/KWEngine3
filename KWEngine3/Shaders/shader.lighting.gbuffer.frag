@@ -151,7 +151,7 @@ float DistributionGGX(vec3 N, vec3 H, float a)
 vec3 getPBR()
 {
     vec3 tmp = texture(uTexturePBR, vTexture).xyz; //x=metallic, y = roughness, z = metallic type
-    tmp.z = tmp.z * 10;
+    tmp.z = round(tmp.z * 9);
     return tmp;
 }
 
