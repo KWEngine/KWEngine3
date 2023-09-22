@@ -1,11 +1,9 @@
-﻿using KWEngine3.EngineCamera;
-using KWEngine3.GameObjects;
+﻿using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace KWEngine3.Renderer
 {

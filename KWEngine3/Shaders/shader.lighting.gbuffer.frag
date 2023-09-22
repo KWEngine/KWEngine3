@@ -112,7 +112,6 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) //, float metallic)
 {
-    //return metallic * F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }  
 
@@ -257,7 +256,6 @@ void main()
 			differenceLightDirectionAndFragmentDirection = clamp((theta - spotOuterCutOff) / epsilon, 0.0, 1.0);    
 		}
 
-        //float attenuation = currentLightFar / (dist * dist);
         float theDistanceClamped = clamp(dist, 0.0, currentLightFar);
         float attenuation = currentLightClr.w * (currentLightType < 0 ? 1.0 : cos(ninetydegrees / currentLightFar * theDistanceClamped));
         vec3 radiance     = currentLightClr.xyz * attenuation * differenceLightDirectionAndFragmentDirection; 
@@ -308,7 +306,6 @@ void main()
         }
 
         Lo += (kD * albedo / PI + specular) * radiance * NdotL * darkeningCurrentLight;
-        //Lo += (kD + specular) * radiance * NdotL * darkeningCurrentLight;
     }
 
     vec3 reflectionColor = getReflectionColor(V, N, pbr.y);// y = roughness

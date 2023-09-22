@@ -532,7 +532,7 @@ namespace KWEngine3.Helper
             GL.GetInteger(GetPName.FramebufferBinding, out int previousFBID);
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, RenderManager.FramebufferDeferred.ID);
             GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-            GL.ReadBuffer(ReadBufferMode.ColorAttachment2);
+            GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
             GL.ReadPixels((int)mousePosition.X, KWEngine.Window.ClientSize.Y - (int)mousePosition.Y, 1, 1, PixelFormat.Rgba, PixelType.Float, pixelColor);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, previousFBID);
             return (int)pixelColor[3];

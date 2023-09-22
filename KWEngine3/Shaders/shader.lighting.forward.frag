@@ -209,7 +209,7 @@ vec4 getPBR()
 
 vec4 getFragmentPositionAndDepth()
 {
-    return vec4(vPosition.xyz, 0.0); //gl_FragDepth);
+    return vec4(vPosition.xyz, 0.0);
 }
 
 vec4 getAlbedo()
