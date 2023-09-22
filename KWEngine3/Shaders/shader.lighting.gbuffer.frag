@@ -5,10 +5,10 @@ in vec2 vTexture;
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;
 
-uniform sampler2D uTexturePositionDepth;
+uniform sampler2D uTexturePositionId;
 uniform sampler2D uTextureAlbedo;
-uniform sampler2D uTextureNormalId;
-uniform sampler2D uTexturePBR; //x=cs depth, y = metallic, z = roughness, w = metallic type
+uniform sampler2D uTextureNormalDepth;
+uniform sampler2D uTexturePBR; //x=metallic, y = roughness, z = metallic type
 uniform sampler2D uTextureEmissive;
 uniform sampler2D uShadowMap[3];
 uniform samplerCube uShadowMapCube[3];
@@ -149,14 +149,14 @@ float DistributionGGX(vec3 N, vec3 H, float a)
 
 
 
-vec4 getPBR()
+vec3 getPBR()
 {
-    return texture(uTexturePBR, vTexture);  //x=cs depth, y = metallic, z = roughness, w = metallic type (cast to int)
+    return texture(uTexturePBR, vTexture).xyz; //x=metallic, y = roughness, z = metallic type
 }
 
-vec4 getFragmentPositionAndDepth()
+vec4 getFragmentPositionAndId()
 {
-    return texture(uTexturePositionDepth, vTexture);
+    return texture(uTexturePositionId, vTexture);
 }
 
 vec4 getAlbedo()
@@ -169,9 +169,9 @@ vec4 getEmissive()
     return texture(uTextureEmissive, vTexture);
 }
 
-vec4 getNormalId()
+vec4 getNormalDepth()
 {
-    return texture(uTextureNormalId, vTexture);
+    return texture(uTextureNormalDepth, vTexture);
 }
 
 vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness)
@@ -202,31 +202,30 @@ vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness)
 
 void main()
 {
-    vec4 normalId = getNormalId();
-    if(normalId.w < 0.0)
+    vec4 normalDepth = getNormalDepth();
+
+    vec4 fragPositionId = getFragmentPositionAndId();
+    if(fragPositionId.w < 0.0)
     {
         color = vec4(texture(uTextureAlbedo, vTexture).xyz, 1.0);
         bloom = vec4(0.0, 0.0, 0.0, 1.0);
         return;
     }
-    else if(normalId.w == 0.0)
+    else if(fragPositionId.w == 0.0)
     {
         discard;
     }
 
     // actual shading:
-    vec4 pbr = getPBR();
-    //gl_FragDepth = pbr.x; // clip space depth
-    vec4 fragPositionDepth = getFragmentPositionAndDepth();
-    
+    vec3 pbr = getPBR();
 	vec3 albedo = getAlbedo().xyz;
     vec4 emissive4 = getEmissive();
     vec3 emissive = emissive4.xyz;
 
-    vec3 N = normalId.xyz;
-    vec3 V = normalize(uCameraPos - fragPositionDepth.xyz);
-    vec3 F0 = getF0(int(pbr.w));
-    F0 = mix(F0, albedo, pbr.y);
+    vec3 N = normalDepth.xyz;
+    vec3 V = normalize(uCameraPos - fragPositionId.xyz);
+    vec3 F0 = getF0(int(pbr.z));
+    F0 = mix(F0, albedo, pbr.x);
 
     // TODO: is item affected by light?
     vec3 Lo = vec3(0.0);
@@ -244,9 +243,9 @@ void main()
         float currentLightHardness = uLights[i + 16];
 
         // calculate per-light radiance
-        vec3 L = normalize(currentLightPos - fragPositionDepth.xyz);
+        vec3 L = normalize(currentLightPos - fragPositionId.xyz);
         vec3 H = normalize(V + L);
-        float dist    = length(currentLightPos - fragPositionDepth.xyz);
+        float dist    = length(currentLightPos - fragPositionId.xyz);
 
         float differenceLightDirectionAndFragmentDirection = 1.0;
 		if(currentLightType > 0)
@@ -265,14 +264,14 @@ void main()
 
 
         // cook-torrance brdf
-        float NDF = DistributionGGX(N, H, pbr.z); //z = roughness
-        float G   = GeometrySmith(N, V, L, pbr.z);      
+        float NDF = DistributionGGX(N, H, pbr.y); //y = roughness
+        float G   = GeometrySmith(N, V, L, pbr.y);      
         vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
         
         vec3 kS = F;
         vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - pbr.y;	 // y = metallic
+        kD *= 1.0 - pbr.x;	 // x = metallic
 
         vec3 numerator    = NDF * G * F;
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
@@ -285,7 +284,7 @@ void main()
         float darkeningCurrentLight = 1.0;
         if(shadowMapIndex > 0) // directional or sun light
         {
-            vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPositionDepth.xyz, 1.0);
+            vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPositionId.xyz, 1.0);
 
             // if the light is directional, we first have to linearize the depth values:
 			vec3 projCoordsForTextureLookup = (vShadowCoord.xyz / vShadowCoord.w) * 0.5 + 0.5;
@@ -302,7 +301,7 @@ void main()
             darkeningCurrentLight = calculateShadowCube(
                 abs(shadowMapIndex) - 1, 
                 currentLightPos.xyz, 
-                fragPositionDepth.xyz, 
+                fragPositionId.xyz, 
                 vec2(currentLightNear, currentLightFar), 
                 currentLightBias, 
                 currentLightHardness);
@@ -312,10 +311,10 @@ void main()
         //Lo += (kD + specular) * radiance * NdotL * darkeningCurrentLight;
     }
 
-    vec3 reflectionColor = getReflectionColor(V, N, pbr.z);// z = roughness
-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.z); // z = roughness
+    vec3 reflectionColor = getReflectionColor(V, N, pbr.y);// y = roughness
+    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.y); // y = roughness
     vec3 kDW = 1.0 - F;
-    kDW *= (1.0 - pbr.y); // y = metallic	
+    kDW *= (1.0 - pbr.x); // x = metallic	
     vec3 specularW = reflectionColor * F * uColorAmbient; 
     vec3 ambient = uColorAmbient * kDW * albedo + specularW + emissive * emissive4.w;
     vec3 colorTemp = ambient + Lo;

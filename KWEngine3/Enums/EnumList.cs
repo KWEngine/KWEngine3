@@ -531,6 +531,7 @@
         RGBA16UI,
         RGBA16F,
         RGBA32F,
+        RG8,
         DEPTH32F,
         DEPTH16F
     }

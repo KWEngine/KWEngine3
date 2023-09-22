@@ -5,10 +5,10 @@ in vec2 vTexture;
 in vec3 vNormal;
 in mat3 vTBN;
 
-layout(location = 0) out vec4 positionDepth;
+layout(location = 0) out vec4 positionId;
 layout(location = 1) out vec4 albedo;
-layout(location = 2) out vec4 normalId;
-layout(location = 3) out vec4 csDepthMetallicRoughnessMetallicType;
+layout(location = 2) out vec4 normalCsDepth;
+layout(location = 3) out vec3 metallicRoughnessMetallicType;
 layout(location = 4) out vec4 emissive;
 
 uniform vec3 uColorTint;
@@ -27,7 +27,8 @@ uniform int uTextureIsMetallicRoughnessCombined;
 
 void main()
 {
-	positionDepth = vPosition;
+	positionId.xyz = vPosition.xyz;
+	positionId.w = float(uId);
 
 	// Albedo color:
 	if(uUseTexturesAlbedoNormalEmissive.x > 0)
@@ -59,7 +60,7 @@ void main()
 	{
 		normal = vNormal;
 	}
-	normalId = vec4(normalize(normal), float(uId));
+	normalCsDepth = vec4(normalize(normal), gl_FragCoord.z);
 
 	//Metallic/Roughness
 	float metallic = uMetallicRoughness.x;
@@ -87,5 +88,5 @@ void main()
 		}
 	}
 
-	csDepthMetallicRoughnessMetallicType = vec4(gl_FragCoord.z, metallic, max(roughness, 0.00001), uMetallicRoughness.z);
+	metallicRoughnessMetallicType = vec3(metallic, max(roughness, 0.00001), uMetallicRoughness.z);
 }
