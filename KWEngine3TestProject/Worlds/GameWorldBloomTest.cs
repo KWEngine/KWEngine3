@@ -71,6 +71,13 @@ namespace KWEngine3TestProject.Worlds
             i05.SetColor(1, 0.5f, 0.25f);
             i05.SetColorEmissive(1, 0.5f, 0.25f, 5f);
             AddGameObject(i05);
+
+            HUDObjectText t1 = new HUDObjectText("a TEST this is.");
+            t1.SetColor(1, 0, 1);
+            t1.SetPosition(Window.Center.X, Window.Center.Y / 3);
+            t1.SetColorEmissive(1, 1, 1);
+            t1.SetColorEmissiveIntensity(1);
+            AddHUDObject(t1);
         }
     }
 }

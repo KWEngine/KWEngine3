@@ -168,7 +168,7 @@ namespace KWEngine3
         internal static int _uniformOffsetMultiplier = 1;
         internal static float _glowRadius = 1.0f;
         internal static float _glowUpsampleF1 = 0.20f;
-        internal static float _glowUpsampleF2 = 0.40f;
+        internal static float _glowUpsampleF2 = 0.80f;
 
         /// <summary>
         /// Steuert das Ausmaß des durch Überbelichtung erzeugten Glow-Effekts (von 0 bis 1, Standard: 1.0)
@@ -190,7 +190,7 @@ namespace KWEngine3
         /// </summary>
         public static float GlowStyleFactor1 { get { return _glowUpsampleF1; } set { _glowUpsampleF1 = Math.Clamp(value, 0.01f, 1.0f); } }
         /// <summary>
-        /// Steuert den Stil des Glühens (Faktor 2, erlaubte Werte zwischen 0 und 1, Standard: 0.4)
+        /// Steuert den Stil des Glühens (Faktor 2, erlaubte Werte zwischen 0 und 1, Standard: 0.8)
         /// </summary>
         public static float GlowStyleFactor2 { get { return _glowUpsampleF2; } set { _glowUpsampleF2 = Math.Clamp(value, 0.01f, 1.0f); } }
 
