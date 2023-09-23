@@ -109,7 +109,6 @@ namespace KWEngine3
         
         internal static double DeltaTimeAccumulator { get; set; } = 0.0f;
         internal static float DeltaTimeFactorForOverlay { get; set; } = 1f;
-        //public static float DeltaTimeFactor { get; internal set; } = 1f;
         internal static double DeltaTimeCurrentNibbleSize { get; set; } = SIMULATIONNIBBLESIZE;
         
         /// <summary>
@@ -168,8 +167,8 @@ namespace KWEngine3
         //private static Vector3 _worldUp = new Vector3(0, 1, 0);
         internal static int _uniformOffsetMultiplier = 1;
         internal static float _glowRadius = 1.0f;
-        internal static float _glowUpsampleF1 = 0.30f;
-        internal static float _glowUpsampleF2 = 1.00f;
+        internal static float _glowUpsampleF1 = 0.20f;
+        internal static float _glowUpsampleF2 = 0.40f;
 
         /// <summary>
         /// Steuert das Ausmaß des durch Überbelichtung erzeugten Glow-Effekts (von 0 bis 1, Standard: 1.0)
@@ -187,11 +186,11 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Steuert den Stil des Glühens (Faktor 1, erlaubte Werte zwischen 0 und 1, Standard: 0.3)
+        /// Steuert den Stil des Glühens (Faktor 1, erlaubte Werte zwischen 0 und 1, Standard: 0.2)
         /// </summary>
         public static float GlowStyleFactor1 { get { return _glowUpsampleF1; } set { _glowUpsampleF1 = Math.Clamp(value, 0.01f, 1.0f); } }
         /// <summary>
-        /// Steuert den Stil des Glühens (Faktor 2, erlaubte Werte zwischen 0 und 1, Standard: 1.0)
+        /// Steuert den Stil des Glühens (Faktor 2, erlaubte Werte zwischen 0 und 1, Standard: 0.4)
         /// </summary>
         public static float GlowStyleFactor2 { get { return _glowUpsampleF2; } set { _glowUpsampleF2 = Math.Clamp(value, 0.01f, 1.0f); } }
 

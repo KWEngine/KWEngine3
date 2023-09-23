@@ -16,7 +16,6 @@ namespace KWEngine3.Renderer
         public static int UTextureAlbedo { get; private set; } = -1;
         public static int UTextureNormalDepth { get; private set; } = -1;
         public static int UTextureCSDepthMetallicRoughnessOcclusion { get; private set; } = -1;
-        public static int UTextureEmissive { get; private set; } = -1;
         public static int ULights { get; private set; } = -1;
         public static int ULightCount { get; private set; } = -1;
         public static int UColorAmbient { get; private set; } = -1;
@@ -59,7 +58,6 @@ namespace KWEngine3.Renderer
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
                 UTextureNormalDepth = GL.GetUniformLocation(ProgramID, "uTextureNormalDepth");
                 UTextureCSDepthMetallicRoughnessOcclusion = GL.GetUniformLocation(ProgramID, "uTexturePBR");
-                UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
                 ULights = GL.GetUniformLocation(ProgramID, "uLights");
                 ULightCount = GL.GetUniformLocation(ProgramID, "uLightCount");
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
@@ -83,8 +81,8 @@ namespace KWEngine3.Renderer
 
         public static void SetGlobals()
         {
-            TextureUnit currentTextureUnit = TextureUnit.Texture5;
-            int currentTextureNumber = 5;
+            TextureUnit currentTextureUnit = TextureUnit.Texture4;
+            int currentTextureNumber = 4;
             // upload shadow maps (tex2d):
             int i = 0;
             for (i = 0; i < KWEngine.CurrentWorld._preparedTex2DIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
@@ -109,8 +107,9 @@ namespace KWEngine3.Renderer
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
                 GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
             }
-            HelperGeneral.CheckGLErrors();
-            // upload cube maps, so reset counter to 0:
+
+
+            // upload cube maps, so reset i to 0:
             for (i = 0; i < KWEngine.CurrentWorld._preparedCubeMapIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 LightObject l = KWEngine.CurrentWorld._lightObjects[KWEngine.CurrentWorld._preparedCubeMapIndices[i]];
@@ -146,9 +145,6 @@ namespace KWEngine3.Renderer
 
         public static void Draw(Framebuffer fbSource)
         {
-            //Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-            //GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
-
             // position & id texture:
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
@@ -168,11 +164,6 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture3);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[3].ID);
             GL.Uniform1(UTextureCSDepthMetallicRoughnessOcclusion, 3);
-
-            // emissive:
-            GL.ActiveTexture(TextureUnit.Texture4);
-            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[4].ID);
-            GL.Uniform1(UTextureEmissive, 4);
 
             // lights array:
             GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * 17, KWEngine.CurrentWorld._preparedLightsArray);

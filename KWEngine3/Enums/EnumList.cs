@@ -529,6 +529,7 @@
         RGB8,
         RGBA8,
         RGBA16UI,
+        RGB16F,
         RGBA16F,
         RGBA32F,
         RG8,

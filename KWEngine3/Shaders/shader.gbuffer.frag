@@ -6,10 +6,9 @@ in vec3 vNormal;
 in mat3 vTBN;
 
 layout(location = 0) out vec4 positionId;
-layout(location = 1) out vec4 albedo;
+layout(location = 1) out vec3 albedo;
 layout(location = 2) out vec4 normalCsDepth;
 layout(location = 3) out vec3 metallicRoughnessMetallicType;
-layout(location = 4) out vec4 emissive;
 
 uniform vec3 uColorTint;
 uniform vec3 uColorMaterial;
@@ -29,16 +28,7 @@ void main()
 {
 	positionId.xyz = vPosition.xyz;
 	positionId.w = float(uId);
-
-	// Albedo color:
-	if(uUseTexturesAlbedoNormalEmissive.x > 0)
-	{
-		albedo = vec4(texture(uTextureAlbedo, vTexture).xyz * uColorTint, 1.0);
-	}
-	else
-	{
-		albedo = vec4(uColorMaterial.xyz * uColorTint.xyz, 1.0);
-	}
+	vec4 emissive;
 
 	// Emissive color:
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
@@ -49,6 +39,18 @@ void main()
 	{
 		emissive = uColorEmissive;
 	}
+
+	// Albedo color:
+	if(uUseTexturesAlbedoNormalEmissive.x > 0)
+	{
+		albedo = texture(uTextureAlbedo, vTexture).xyz * uColorTint  + emissive.xyz * emissive.w;
+	}
+	else
+	{
+		albedo = uColorMaterial.xyz * uColorTint.xyz + emissive.xyz * emissive.w;
+	}
+
+	
 
 	// Normals:
 	vec3 normal;

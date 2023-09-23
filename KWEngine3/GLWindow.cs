@@ -25,7 +25,6 @@ namespace KWEngine3
         internal Matrix4 _viewProjectionMatrixHUD;
         internal Matrix4 _viewProjectionMatrixHUDNew;
         internal KWBuilderOverlay Overlay { get; set; }
-        internal float _f12timestamp = 0;
         internal Stopwatch _stopwatch = new Stopwatch();
         internal int AnisotropicFiltering { get; set; } = 4;
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
@@ -730,10 +729,9 @@ namespace KWEngine3
 
         internal void RenderOverlay(float t)
         {
-            if (KeyboardState.IsKeyDown(Keys.F12) && KWEngine.ApplicationTime - _f12timestamp > 0.25f)
+            if (KeyboardState.IsKeyPressed(Keys.F11))
             {
                 KWEngine.ToggleEditMode();
-                _f12timestamp = KWEngine.ApplicationTime;
             }
             if (KWEngine.EditModeActive)
             {

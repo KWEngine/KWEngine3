@@ -6,10 +6,9 @@ in vec3 vNormal;
 in mat3 vTBN;
 
 layout(location = 0) out vec4 positionId;
-layout(location = 1) out vec4 albedo;
+layout(location = 1) out vec3 albedo;
 layout(location = 2) out vec4 normalDepth;
 layout(location = 3) out vec3 metallicRoughnessMetallicType;
-layout(location = 4) out vec4 emissive;
 
 uniform vec3 uColorTint;
 uniform vec3 uColorMaterial;
@@ -21,22 +20,13 @@ uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureRoughness;
 uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureEmissive;
-uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = 1 means: object has transparency!
+uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = 1 means: object has transparency (not used yet)!
 uniform ivec3 uUseTexturesAlbedoNormalEmissive; // x = albedo, y = normal, z = emissive
 
 void main()
 {
 	positionId = vec4(vPosition.xyz, float(uId));
-
-	// Albedo color:
-	if(uUseTexturesAlbedoNormalEmissive.x > 0)
-	{
-		albedo = vec4(texture(uTextureAlbedo, vTexture).xyz * uColorTint, 1.0);
-	}
-	else
-	{
-		albedo = vec4(uColorMaterial.xyz * uColorTint.xyz, 1.0);
-	}
+	vec4 emissive;
 
 	// Emissive color:
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
@@ -46,6 +36,16 @@ void main()
 	else
 	{
 		emissive = uColorEmissive;
+	}
+
+	// Albedo color:
+	if(uUseTexturesAlbedoNormalEmissive.x > 0)
+	{
+		albedo = texture(uTextureAlbedo, vTexture).xyz * uColorTint + emissive.xyz * emissive.w;
+	}
+	else
+	{
+		albedo = uColorMaterial.xyz * uColorTint.xyz + emissive.xyz * emissive.w;
 	}
 
 	// Normals:

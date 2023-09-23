@@ -9,7 +9,6 @@ uniform sampler2D uTexturePositionId;
 uniform sampler2D uTextureAlbedo;
 uniform sampler2D uTextureNormalDepth;
 uniform sampler2D uTexturePBR; //x=metallic, y = roughness, z = metallic type
-uniform sampler2D uTextureEmissive;
 uniform sampler2D uShadowMap[3];
 uniform samplerCube uShadowMapCube[3];
 uniform samplerCube uTextureSkybox;
@@ -160,14 +159,9 @@ vec4 getFragmentPositionAndId()
     return texture(uTexturePositionId, vTexture);
 }
 
-vec4 getAlbedo()
+vec3 getAlbedo()
 {
-    return texture(uTextureAlbedo, vTexture);
-}
-
-vec4 getEmissive()
-{
-    return texture(uTextureEmissive, vTexture);
+    return texture(uTextureAlbedo, vTexture).xyz;
 }
 
 vec4 getNormalDepth()
@@ -219,9 +213,10 @@ void main()
 
     // actual shading:
     vec3 pbr = getPBR();
-	vec3 albedo = getAlbedo().xyz;
-    vec4 emissive4 = getEmissive();
-    vec3 emissive = emissive4.xyz;
+	vec3 albedo = getAlbedo();
+    vec3 emissive = vec3(max(0, albedo.x - 1.0), max(0, albedo.y - 1.0), max(0, albedo.z - 1.0));
+    albedo = vec3(min(albedo.x, 1.0), min(albedo.y, 1.0), min(albedo.z, 1.0));
+    
 
     vec3 N = normalDepth.xyz;
     vec3 V = normalize(uCameraPos - fragPositionId.xyz);
@@ -315,7 +310,7 @@ void main()
     vec3 kDW = 1.0 - F;
     kDW *= (1.0 - pbr.x); // x = metallic	
     vec3 specularW = reflectionColor * F * uColorAmbient; 
-    vec3 ambient = uColorAmbient * kDW * albedo + specularW + emissive * emissive4.w;
+    vec3 ambient = uColorAmbient * kDW * albedo + specularW + emissive;
     vec3 colorTemp = ambient + Lo;
     color = vec4(colorTemp, 1.0);
 
