@@ -28,26 +28,27 @@ void main()
 {
 	positionId.xyz = vPosition.xyz;
 	positionId.w = float(uId);
-	vec4 emissive;
+	vec3 emissive;
 
 	// Emissive color:
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
 	{
-		emissive = texture(uTextureEmissive, vTexture) + uColorEmissive;
+		vec3 emissiveFromTexture = texture(uTextureEmissive, vTexture).xyz * 5.0;
+		emissive = emissiveFromTexture + uColorEmissive.xyz * uColorEmissive.w;
 	}
 	else
 	{
-		emissive = uColorEmissive;
+		emissive = uColorEmissive.xyz * uColorEmissive.w;
 	}
 
 	// Albedo color:
 	if(uUseTexturesAlbedoNormalEmissive.x > 0)
 	{
-		albedo = texture(uTextureAlbedo, vTexture).xyz * uColorTint  + emissive.xyz * emissive.w;
+		albedo = texture(uTextureAlbedo, vTexture).xyz * uColorTint  + emissive;
 	}
 	else
 	{
-		albedo = uColorMaterial.xyz * uColorTint.xyz + emissive.xyz * emissive.w;
+		albedo = uColorMaterial.xyz * uColorTint.xyz + emissive;
 	}
 
 	

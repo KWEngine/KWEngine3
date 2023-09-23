@@ -73,8 +73,8 @@ namespace KWEngine3TestProject.Worlds
             // Initialize sphere object that shows the mouse cursor's position (not needed but a nice gimmick):
             _mouseLightSphere = new Immovable();
             _mouseLightSphere.SetModel("KWSphere");
-            _mouseLightSphere.SetColorEmissive(1, 0.25f, 0.25f, 1.5f);
-            _mouseLightSphere.SetColor(1, 0.25f, 0.25f);
+            _mouseLightSphere.SetColorEmissive(1, 0.25f, 0.25f, 4.5f);
+            _mouseLightSphere.SetColor(1, 0.25f, 0.125f);
             _mouseLightSphere.SetScale(0.25f);
             AddGameObject(_mouseLightSphere);
 
