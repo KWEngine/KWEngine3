@@ -11,11 +11,10 @@ namespace KWEngine3.Renderer
     internal static class RendererLightingPass
     {
         public static int ProgramID { get; private set; } = -1;
-       
-        public static int UTexturePositionId { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
-        public static int UTextureNormalDepth { get; private set; } = -1;
-        public static int UTextureCSDepthMetallicRoughnessOcclusion { get; private set; } = -1;
+        public static int UTextureNormal { get; private set; } = -1;
+        public static int UTextureID { get; private set; } = -1;
+        public static int UTextureMetallicRoughnessMetallicType { get; private set; } = -1;
         public static int ULights { get; private set; } = -1;
         public static int ULightCount { get; private set; } = -1;
         public static int UColorAmbient { get; private set; } = -1;
@@ -28,6 +27,8 @@ namespace KWEngine3.Renderer
         public static int UTextureBackground { get; private set; } = -1;
         public static int UUseTextureReflection { get; private set; } = -1;
         public static int UTextureSkyboxRotation { get; private set; } = -1;
+        public static int UTextureDepth { get; private set; } = -1;
+        public static int UViewProjectionMatrixInverted { get; private set; } = -1;
 
         public static void Init()
         {
@@ -54,22 +55,29 @@ namespace KWEngine3.Renderer
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
                 GL.LinkProgram(ProgramID);
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
-                UTexturePositionId = GL.GetUniformLocation(ProgramID, "uTexturePositionId");
+                
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
-                UTextureNormalDepth = GL.GetUniformLocation(ProgramID, "uTextureNormalDepth");
-                UTextureCSDepthMetallicRoughnessOcclusion = GL.GetUniformLocation(ProgramID, "uTexturePBR");
+                UTextureNormal = GL.GetUniformLocation(ProgramID, "uTextureNormal");
+                UTextureMetallicRoughnessMetallicType = GL.GetUniformLocation(ProgramID, "uTexturePBR");
+                UTextureID = GL.GetUniformLocation(ProgramID, "uTextureId");
+                UTextureDepth = GL.GetUniformLocation(ProgramID, "uTextureDepth");
+
                 ULights = GL.GetUniformLocation(ProgramID, "uLights");
                 ULightCount = GL.GetUniformLocation(ProgramID, "uLightCount");
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
                 UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
+                
                 UShadowMap = GL.GetUniformLocation(ProgramID, "uShadowMap");
                 UShadowMapCube = GL.GetUniformLocation(ProgramID, "uShadowMapCube");
-                UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
 
+                
                 UTextureSkybox = GL.GetUniformLocation(ProgramID, "uTextureSkybox");
                 UTextureBackground = GL.GetUniformLocation(ProgramID, "uTextureBackground");
                 UUseTextureReflection = GL.GetUniformLocation(ProgramID, "uUseTextureReflection");
                 UTextureSkyboxRotation = GL.GetUniformLocation(ProgramID, "uTextureSkyboxRotation");
+
+                UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
+                UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
             }
         }
 
@@ -81,8 +89,8 @@ namespace KWEngine3.Renderer
 
         public static void SetGlobals()
         {
-            TextureUnit currentTextureUnit = TextureUnit.Texture4;
-            int currentTextureNumber = 4;
+            TextureUnit currentTextureUnit = TextureUnit.Texture5;
+            int currentTextureNumber = 5;
             // upload shadow maps (tex2d):
             int i = 0;
             for (i = 0; i < KWEngine.CurrentWorld._preparedTex2DIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
@@ -141,29 +149,38 @@ namespace KWEngine3.Renderer
 
             GL.Uniform3(UUseTextureReflection, new Vector3i(KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox ? 1 : KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? -1 : 0, KWEngine.CurrentWorld._background._mipMapLevels, (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000)));
             GL.UniformMatrix3(UTextureSkyboxRotation, false, ref KWEngine.CurrentWorld._background._rotation);
+
+            Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
+            vp.Invert();
+            GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vp);
         }
 
         public static void Draw(Framebuffer fbSource)
         {
-            // position & id texture:
+            // depth tex:
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
-            GL.Uniform1(UTexturePositionId, 0);
+            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[4].ID);
+            GL.Uniform1(UTextureDepth, 0);
 
             // albedo:
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[1].ID);
+            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
             GL.Uniform1(UTextureAlbedo, 1);
 
-            // normal & depth:
+            // normal:
             GL.ActiveTexture(TextureUnit.Texture2);
-            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[2].ID);
-            GL.Uniform1(UTextureNormalDepth, 2);
+            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[1].ID);
+            GL.Uniform1(UTextureNormal, 2);
 
             // pbr:
             GL.ActiveTexture(TextureUnit.Texture3);
+            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[2].ID);
+            GL.Uniform1(UTextureMetallicRoughnessMetallicType, 3);
+
+            // id:
+            GL.ActiveTexture(TextureUnit.Texture4);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[3].ID);
-            GL.Uniform1(UTextureCSDepthMetallicRoughnessOcclusion, 3);
+            GL.Uniform1(UTextureID, 4);
 
             // lights array:
             GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * 17, KWEngine.CurrentWorld._preparedLightsArray);

@@ -526,6 +526,7 @@
 
     internal enum FramebufferTextureMode
     {
+        R32F,
         RGB8,
         RGBA8,
         RGBA16UI,

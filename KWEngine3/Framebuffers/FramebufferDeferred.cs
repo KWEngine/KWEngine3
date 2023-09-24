@@ -1,10 +1,4 @@
-﻿using KWEngine3.Helper;
-using OpenTK.Graphics.OpenGL4;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine3.Framebuffers
 {
@@ -19,10 +13,10 @@ namespace KWEngine3.Framebuffers
         public override void Init(int width, int height)
         {
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA32F, width, height, 0));  // Position and ID
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 1));   // Albedo
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16F, width, height, 2));  // Normal and CSDepth
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 3));     // Metallic, Roughness, MetallicType attachment
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 0));   // Albedo
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 1));   // Normal
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2));     // Metallic, Roughness, MetallicType attachment
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R32F, width, height, 3));     // ID
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4)); // Depth
             
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
@@ -33,10 +27,10 @@ namespace KWEngine3.Framebuffers
             GL.DrawBuffers(Attachments.Count, dbe);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            ClearColorValues.Add(0, new float[] { 0, 0, 0, 0 });
+            ClearColorValues.Add(0, new float[] { 0, 0, 0 });
             ClearColorValues.Add(1, new float[] { 0, 0, 0 });
-            ClearColorValues.Add(2, new float[] { 0, 0, 0, 1 });
-            ClearColorValues.Add(3, new float[] { 0, 1, 0 });
+            ClearColorValues.Add(2, new float[] { 0, 1, 0 });
+            ClearColorValues.Add(3, new float[] { 0 });
 
             ClearDepthValues.Add(0, new float[] { 0, 0, 0, 0 });
         }

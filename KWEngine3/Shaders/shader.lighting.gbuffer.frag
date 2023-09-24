@@ -5,12 +5,15 @@ in vec2 vTexture;
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;
 
-uniform sampler2D uTexturePositionId;
 uniform sampler2D uTextureAlbedo;
-uniform sampler2D uTextureNormalDepth;
+uniform sampler2D uTextureNormal;
 uniform sampler2D uTexturePBR; //x=metallic, y = roughness, z = metallic type
+uniform sampler2D uTextureDepth;
+uniform sampler2D uTextureId;
+
 uniform sampler2D uShadowMap[3];
 uniform samplerCube uShadowMapCube[3];
+
 uniform samplerCube uTextureSkybox;
 uniform mat3 uTextureSkyboxRotation;
 uniform sampler2D uTextureBackground;
@@ -20,6 +23,7 @@ uniform float uLights[850];
 uniform int uLightCount;
 uniform vec3 uCameraPos;
 uniform vec3 uColorAmbient;
+uniform mat4 uViewProjectionMatrixInverted;
 
 const float PI = 3.141593;
 const float ninetydegrees = 1.5708;
@@ -145,7 +149,10 @@ float DistributionGGX(vec3 N, vec3 H, float a)
     return nom / denom;
 }
 
-
+float getId()
+{
+    return texture(uTextureId, vTexture).r;
+}
 
 vec3 getPBR()
 {
@@ -154,19 +161,14 @@ vec3 getPBR()
     return tmp;
 }
 
-vec4 getFragmentPositionAndId()
-{
-    return texture(uTexturePositionId, vTexture);
-}
-
 vec3 getAlbedo()
 {
     return texture(uTextureAlbedo, vTexture).xyz;
 }
 
-vec4 getNormalDepth()
+vec3 getNormal()
 {
-    return texture(uTextureNormalDepth, vTexture);
+    return texture(uTextureNormal, vTexture).xyz;
 }
 
 vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness)
@@ -195,18 +197,26 @@ vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness)
 	return refl;
 }
 
+vec3 getFragmentPosition()
+{
+    float depth = texture(uTextureDepth, vTexture).r * 2.0 - 1.0;
+    vec4 clipSpaceCoordinate = vec4(vTexture * 2.0 - 1.0, depth, 1.0);
+    vec4 worldSpaceCoordinate = uViewProjectionMatrixInverted * clipSpaceCoordinate;
+    worldSpaceCoordinate.xyz /= worldSpaceCoordinate.w;
+    return worldSpaceCoordinate.xyz;
+}
+
 void main()
 {
-    vec4 normalDepth = getNormalDepth();
-
-    vec4 fragPositionId = getFragmentPositionAndId();
-    if(fragPositionId.w < 0.0)
+    vec3 normal = getNormal();
+    int id  = int(round(getId()));
+    if(id < 0)
     {
         color = vec4(texture(uTextureAlbedo, vTexture).xyz, 1.0);
         bloom = vec4(0.0, 0.0, 0.0, 1.0);
         return;
     }
-    else if(fragPositionId.w == 0.0)
+    else if(id == 0)
     {
         discard;
     }
@@ -217,9 +227,9 @@ void main()
     vec3 emissive = vec3(max(0, albedo.x - 1.0), max(0, albedo.y - 1.0), max(0, albedo.z - 1.0));
     albedo = vec3(min(albedo.x, 1.0), min(albedo.y, 1.0), min(albedo.z, 1.0));
     
-
-    vec3 N = normalDepth.xyz;
-    vec3 V = normalize(uCameraPos - fragPositionId.xyz);
+    vec3 fragPosition = getFragmentPosition();
+    vec3 N = normal;
+    vec3 V = normalize(uCameraPos - fragPosition);
     vec3 F0 = getF0(int(pbr.z));
     F0 = mix(F0, albedo, pbr.x);
 
@@ -239,9 +249,9 @@ void main()
         float currentLightHardness = uLights[i + 16];
 
         // calculate per-light radiance
-        vec3 L = normalize(currentLightPos - fragPositionId.xyz);
+        vec3 L = normalize(currentLightPos - fragPosition);
         vec3 H = normalize(V + L);
-        float dist    = length(currentLightPos - fragPositionId.xyz);
+        float dist    = length(currentLightPos - fragPosition);
 
         float differenceLightDirectionAndFragmentDirection = 1.0;
 		if(currentLightType > 0)
@@ -279,7 +289,7 @@ void main()
         float darkeningCurrentLight = 1.0;
         if(shadowMapIndex > 0) // directional or sun light
         {
-            vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPositionId.xyz, 1.0);
+            vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPosition, 1.0);
 
             // if the light is directional, we first have to linearize the depth values:
 			vec3 projCoordsForTextureLookup = (vShadowCoord.xyz / vShadowCoord.w) * 0.5 + 0.5;
@@ -296,7 +306,7 @@ void main()
             darkeningCurrentLight = calculateShadowCube(
                 abs(shadowMapIndex) - 1, 
                 currentLightPos.xyz, 
-                fragPositionId.xyz, 
+                fragPosition, 
                 vec2(currentLightNear, currentLightFar), 
                 currentLightBias, 
                 currentLightHardness);
