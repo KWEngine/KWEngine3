@@ -15,8 +15,12 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            KWEngine.LoadModel("Hazard_Saw", @"./Models/Tutorial/Hazard_Saw.gltf");
+            KWEngine.LoadModel("Thunder", @"./Models/Tutorial/Thunder.gltf");
+            KWEngine.LoadModel("Toon", @"./Models/Tutorial/Toon.glb");
+
             SetCameraPosition(0, 10, 110);
-            SetCameraTarget(0, 0, 90);
+            SetCameraTarget(0, 0, 95);
 
             Floor f = new Floor();
             f.SetModel("KWPlatform");
@@ -32,9 +36,11 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(f);
 
             Player p = new Player();
-            p.SetPosition(0, 0.5f, 95);
-            p.IsCollisionObject = true;
             AddGameObject(p);
+
+            Saw testSaw = new Saw();
+            testSaw.SetPosition(-5, 1.25f, 90);
+            AddGameObject(testSaw);
         }
     }
 }

@@ -724,6 +724,15 @@
     <None Update="Models\ThirdPersonView\ubot_specular.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Models\Tutorial\Hazard_Saw.gltf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Tutorial\Thunder.gltf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Tutorial\Toon.glb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Models\UBot\uBot.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1015,10 +1024,6 @@
     <None Update="Textures\Wood_02_512.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\Tutorial\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties models_4gltftest_4sword_1gltf__JsonSchema="https://deta.space/assets/spacefile.schema.json" /></VisualStudio></ProjectExtensions>

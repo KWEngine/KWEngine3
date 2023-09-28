@@ -6,6 +6,15 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
     internal class Player : GameObject
     {
         private float _speed = 0.01f;
+        private float _timeLastShot = 0;
+
+        public Player()
+        {
+            SetModel("Toon");
+            SetPosition(0, 0.0f, 95);
+            AddRotationY(180);
+            IsCollisionObject = true;
+        }
 
         public override void Act()
         {
@@ -24,6 +33,16 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             if (Keyboard.IsKeyDown(Keys.S) == true)
             {
                 MoveOffset(0, 0, +_speed);
+            }
+
+            if(WorldTime - _timeLastShot > 0.15f && Mouse.IsButtonDown(MouseButton.Left))
+            {
+                _timeLastShot = WorldTime;
+
+                Shot s = new Shot();
+                s.SetPosition(this.Center + this.LookAtVector * 0.5f);
+                s.SetRotation(this.Rotation);
+                CurrentWorld.AddGameObject(s);
             }
         }
     }
