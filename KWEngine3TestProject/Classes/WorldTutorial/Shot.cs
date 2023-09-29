@@ -13,7 +13,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         public Shot()
         {
             IsCollisionObject = true;
-            SetScale(0.1f, 0.1f, 0.3f);
+            SetScale(0.1f, 0.1f, 0.5f);
             SetColor(1, 0, 0);
             SetColorEmissive(1, 1, 0, 3);
         }
