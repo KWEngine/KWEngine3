@@ -15,6 +15,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             SetModel("Toon");
             SetPosition(0, 0.0f, 95);
             AddRotationY(180);
+            SetScale(0.5f);
             IsCollisionObject = true;
         }
 
@@ -40,7 +41,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
                 MoveOffset(0, 0, +_speed);
             }
 
-            if(WorldTime - _timeLastShot > 0.125f && (Mouse.IsButtonDown(MouseButton.Left) || Keyboard.IsKeyDown(Keys.Space)))
+            if(WorldTime - _timeLastShot > 0.05f && (Mouse.IsButtonDown(MouseButton.Left) || Keyboard.IsKeyDown(Keys.Space)))
             {
                 _timeLastShot = WorldTime;
 

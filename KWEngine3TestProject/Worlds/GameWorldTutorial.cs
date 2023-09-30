@@ -18,6 +18,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.LoadModel("Hazard_Saw", @"./Models/Tutorial/Hazard_Saw.gltf");
             KWEngine.LoadModel("Thunder", @"./Models/Tutorial/Thunder.gltf");
             KWEngine.LoadModel("Toon", @"./Models/Tutorial/Toon.glb");
+            KWEngine.LoadModel("PowerUp", @"./Models/Tutorial/PowerUp.gltf");
 
             SetCameraPosition(0, 10, 110);
             SetCameraTarget(0, 0, 95);
@@ -41,6 +42,10 @@ namespace KWEngine3TestProject.Worlds
             Saw testSaw = new Saw();
             testSaw.SetPosition(-5, 1.25f, 90);
             AddGameObject(testSaw);
+
+            PowerUp testPowerUp = new PowerUp("x5");
+            testPowerUp.SetPosition(5, 0, 90);
+            AddGameObject(testPowerUp);
         }
     }
 }

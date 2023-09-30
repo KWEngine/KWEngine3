@@ -18,7 +18,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         {
             SetModel("Hazard_Saw");
             SetColorEmissive(1, 1, 1, 0.25f);
-            _text = new SawText(this);
+            _text = new SawText();
             
             UpdateText();
             KWEngine.CurrentWorld.AddTextObject(_text);
@@ -46,6 +46,9 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             {
                 CurrentWorld.RemoveTextObject(_text);
                 CurrentWorld.RemoveGameObject(this);
+                ParticleObject po = new ParticleObject(8, ParticleType.BurstTeleport1);
+                po.SetPosition(Position);
+                CurrentWorld.AddParticleObject(po);
             }
         }
     }

@@ -13,9 +13,9 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         public Shot()
         {
             IsCollisionObject = true;
-            SetScale(0.1f, 0.1f, 0.5f);
+            SetScale(0.1f, 0.1f, 1.125f);
             SetColor(1, 0, 0);
-            SetColorEmissive(1, 1, 0, 3);
+            SetColorEmissive(1, 1, 0, 2);
         }
         public override void Act()
         {
