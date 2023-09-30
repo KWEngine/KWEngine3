@@ -72,9 +72,9 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Glühfarbe der Explosionspartikel
         /// </summary>
-        /// <param name="red">Rot (0 bis 1)</param>
-        /// <param name="green">Grün (0 bis 1)</param>
-        /// <param name="blue">Blau (0 bis 1)</param>
+        /// <param name="red">Rot (0 bis 2)</param>
+        /// <param name="green">Grün (0 bis 2)</param>
+        /// <param name="blue">Blau (0 bis 2)</param>
         /// <param name="intensity">Helligkeit (0 bis 10)</param>
         public void SetColorEmissive(float red, float green, float blue, float intensity)
         {

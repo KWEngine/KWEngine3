@@ -29,7 +29,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         {
             //MoveOffset(0, 0, 0.01f);
             AddRotationZ(1);
-            _text.SetPosition(Position + new Vector3(0, 0, 0.1f));
+            _text.SetPosition(Position + new Vector3(0, 0, 0.25f));
             
         }
 

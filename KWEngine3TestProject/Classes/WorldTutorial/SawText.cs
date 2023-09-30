@@ -22,7 +22,6 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             SetRotation(tmp * 0.5f, 0, tmp * 0.5f);
 
             float tmp2 = (tmp + 2.0f) / 20.0f + 0.85f;
-            Console.WriteLine(tmp2);
             SetScale(tmp2);
         }
     }

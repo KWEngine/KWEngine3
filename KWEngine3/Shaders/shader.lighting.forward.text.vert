@@ -21,7 +21,7 @@ void main()
 	vec4 totalLocalPos = vec4(0.0);
 	vec4 totalNormal = vec4(0.0);
 	
-	totalLocalPos = vec4(aPosition, 1.0) - vec4(uTextOffset, 0, 0, 0) + vec4(gl_InstanceID * uSpread, 0, gl_InstanceID * 0.001, 0);
+	totalLocalPos = vec4(aPosition, 1.0) - vec4(uTextOffset, 0, 0, 0) + vec4(gl_InstanceID * uSpread, 0, (gl_InstanceID - uTextOffset / 2.0) * 0.0015, 0);
 	totalNormal = vec4(aNormal, 0.0);
 
 	gl_Position = uViewProjectionMatrix * uModelMatrix * totalLocalPos;

@@ -20,8 +20,9 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             _text = new PowerUpText();
             _text.SetText(type);
             KWEngine.CurrentWorld.AddTextObject(_text);
-            SetScale(2);
+            SetScale(3.0f);
             UpdateTextPosition();
+            SetColorEmissive(0.25f, 0.25f, 0.25f, 1f);
             IsCollisionObject = true;
             HasTransparencyTexture = true;
         }
@@ -31,11 +32,23 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             UpdateTextPosition();
         }
 
+        public void Destroy()
+        {
+            CurrentWorld.RemoveGameObject(this);
+            CurrentWorld.RemoveTextObject(_text);
+
+            ExplosionObject e = new ExplosionObject(512, 1.0f, 5.0f, 1.0f, ExplosionType.Star);
+            e.SetAlgorithm(ExplosionAnimation.WindUp);
+            e.SetPosition(Position);
+            e.SetColorEmissive(1, 1, 1, 5);
+            CurrentWorld.AddExplosionObject(e);
+        }
+
         private void UpdateTextPosition()
         {
             if (_text != null)
             {
-                _text.SetPosition(this.Center + new Vector3(0.5f, 0, 0.25f));
+                _text.SetPosition(this.Center + new Vector3(0.5f, 0, 0.125f));
             }
         }
     }

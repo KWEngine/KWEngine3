@@ -50,6 +50,24 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
                 s.SetRotation(this.Rotation);
                 CurrentWorld.AddGameObject(s);
             }
+            HandleCollisions();
+        }
+
+        private void HandleCollisions()
+        {
+            List<Intersection> intersections = GetIntersections();
+            foreach(Intersection i in intersections)
+            {
+                if(i.Object is Saw)
+                {
+
+                }
+                else if(i.Object is PowerUp)
+                {
+                    (i.Object as PowerUp).Destroy();
+
+                }
+            }
         }
     }
 }

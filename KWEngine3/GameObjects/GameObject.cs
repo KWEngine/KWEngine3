@@ -911,16 +911,16 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die selbstleuchtende Farbtönung des Objekts
         /// </summary>
-        /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
-        /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
-        /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
+        /// <param name="r">Rotanteil (zwischen 0 und 2)</param>
+        /// <param name="g">Grünanteil (zwischen 0 und 2)</param>
+        /// <param name="b">Blauanteil (zwischen 0 und 2)</param>
         /// <param name="intensity">Helligkeit (zwischen 0 und 10)</param>
         public void SetColorEmissive(float r, float g, float b, float intensity)
         {
             _stateCurrent._colorEmissive = new Vector4(
-                MathHelper.Clamp(r, 0, 1),
-                MathHelper.Clamp(g, 0, 1),
-                MathHelper.Clamp(b, 0, 1),
+                MathHelper.Clamp(r, 0, 2),
+                MathHelper.Clamp(g, 0, 2),
+                MathHelper.Clamp(b, 0, 2),
                 MathHelper.Clamp(intensity, 0, 10));
         }
 
