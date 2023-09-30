@@ -25,7 +25,7 @@ namespace KWEngine3TestProject.Worlds
 
             Floor f = new Floor();
             f.SetModel("KWPlatform");
-            f.SetTexture(@"./Textures/Rock_01_512.png", TextureType.Albedo, 0);
+            f.SetTexture(@"./Textures/Rock_02_512.png", TextureType.Albedo, 0);
             f.SetTextureRepeat(2, 10, 0);
             f.SetTexture(@"./Textures/Brick_01_512.png", TextureType.Albedo, 1);
             f.SetTextureRepeat(20, 0.25f, 1);

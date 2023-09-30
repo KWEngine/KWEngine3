@@ -168,7 +168,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, t._stateRender._color);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
             GL.Uniform1(UCharacterOffsets, t._offsets.Count, t._offsets.ToArray());
-            GL.Uniform1(UTextOffset, t._offsets.Count * t._stateRender._spreadFactor / 2.0f);
+            GL.Uniform1(UTextOffset, (t._offsets.Count - 1) * t._stateRender._spreadFactor / 2.0f);
             GL.Uniform1(USpread, t._stateRender._spreadFactor);
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             

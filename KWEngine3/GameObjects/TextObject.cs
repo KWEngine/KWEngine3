@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using KWEngine3.Helper;
+﻿using KWEngine3.Helper;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects

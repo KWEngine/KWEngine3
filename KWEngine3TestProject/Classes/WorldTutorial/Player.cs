@@ -7,7 +7,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
 {
     internal class Player : GameObject
     {
-        private float _speed = 0.01f;
+        private float _speed = 0.015f;
         private float _timeLastShot = 0;
 
         public Player()

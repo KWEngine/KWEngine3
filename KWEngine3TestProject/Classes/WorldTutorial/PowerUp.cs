@@ -48,7 +48,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         {
             if (_text != null)
             {
-                _text.SetPosition(this.Center + new Vector3(0.5f, 0, 0.125f));
+                _text.SetPosition(this.Center + new Vector3(0, 0, 0.125f));
             }
         }
     }
