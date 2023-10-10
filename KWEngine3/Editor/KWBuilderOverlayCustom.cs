@@ -249,7 +249,7 @@ namespace KWEngine3.Editor
                 ImGui.Text("Computed rotation angles: " + Math.Round(angles.X, 0) + " | " + Math.Round(angles.Y, 0) + " | " + Math.Round(angles.Z, 0));
 
                 ImGui.Separator();
-                if (ImGui.InputFloat3("Scale (X,Y,Z)", ref sNew, "%.1f"))
+                if (ImGui.InputFloat3("Scale (X,Y,Z)", ref sNew, "%.2f"))
                 {
                     SelectedGameObject.SetScale(sNew.X, sNew.Y, sNew.Z);
                 }
