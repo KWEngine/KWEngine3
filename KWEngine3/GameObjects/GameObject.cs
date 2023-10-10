@@ -690,9 +690,9 @@ namespace KWEngine3.GameObjects
         public void SetScale(float x, float y, float z)
         {
             _stateCurrent._scale = new Vector3(
-                Math.Max(float.Epsilon, x) ,
-                Math.Max(float.Epsilon, y),
-                Math.Max(float.Epsilon, z));
+                Math.Max(0.000001f, x) ,
+                Math.Max(0.000001f, y),
+                Math.Max(0.000001f, z));
             UpdateModelMatrixAndHitboxes();
         }
 
