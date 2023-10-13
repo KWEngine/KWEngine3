@@ -131,6 +131,8 @@ namespace KWEngine3.Helper
 
             float rad = (float)Math.Acos(dot / denominator);
             float value = MathHelper.RadiansToDegrees(rad);
+            if (float.IsNaN(value))
+                value = 0;
             if (delta.X < 0)
                 value = 360 - value;
             return value;
