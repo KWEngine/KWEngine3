@@ -9,6 +9,8 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
     {
         private float _speed = 0.015f;
         private float _timeLastShot = 0;
+        private float _cooldown = 0.15f;
+        
 
         public Player()
         {
@@ -41,7 +43,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
                 MoveOffset(0, 0, +_speed);
             }
 
-            if(WorldTime - _timeLastShot > 0.05f && (Mouse.IsButtonDown(MouseButton.Left) || Keyboard.IsKeyDown(Keys.Space)))
+            if(WorldTime - _timeLastShot >= _cooldown && (Mouse.IsButtonDown(MouseButton.Left) || Keyboard.IsKeyDown(Keys.Space)))
             {
                 _timeLastShot = WorldTime;
 
@@ -68,6 +70,11 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
 
                 }
             }
+        }
+
+        public void DecreaseGunCooldownBy(float factor)
+        {
+            _cooldown *= factor;
         }
     }
 }
