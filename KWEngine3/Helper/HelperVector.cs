@@ -113,7 +113,29 @@ namespace KWEngine3.Helper
             return GetScreenCoordinatesFor(g.Center);
         }
 
-        
+        /// <summary>
+        /// Berechnet den Winkel (in Grad), der zwischen zwei 3D-Objekten auf dem Bildschirm existiert.
+        /// Die Gradzahlen beginnen bei 0° (oben) und gehen im Uhrzeigersinn bis 359.9°.
+        /// </summary>
+        /// <param name="source">Position A (in 3D-Koordinaten)</param>
+        /// <param name="target">Position B (in 3D-Koordinaten)</param>
+        /// <returns>Winkel (in Grad)</returns>
+        public static float GetScreenAngleBetween(Vector3 source, Vector3 target)
+        {
+            Vector2 source2d = GetScreenCoordinatesFor(source);
+            Vector2 target2d = GetScreenCoordinatesFor(target);
+            Vector2 delta = target2d - source2d;
+
+            float dot = Vector2.Dot(delta, -Vector2.UnitY);
+            float denominator = delta.Length * 1;
+
+            float rad = (float)Math.Acos(dot / denominator);
+            float value = MathHelper.RadiansToDegrees(rad);
+            if (delta.X < 0)
+                value = 360 - value;
+            return value;
+        }
+
         /// <summary>
         /// Berechnet die 2D-Bildschirmkoordinaten für die übergebene 3D-Position.
         /// </summary>
