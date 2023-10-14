@@ -92,7 +92,6 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(VAO);
             GL.DrawArrays(PrimitiveType.Points, 0, 1);
             GL.BindVertexArray(0);
-            HelperGeneral.CheckGLErrors();
 
             foreach (OctreeNode child in n.ChildOctreeNodes)
             {

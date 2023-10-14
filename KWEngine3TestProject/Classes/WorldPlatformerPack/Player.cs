@@ -53,7 +53,7 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
 
             if (_state == 0)
             {
-                MoveOffset(0, -_gravity / 10f, 0);
+                MoveOffset(0, -_gravity, 0);
             }
             else
             {
@@ -93,7 +93,7 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
                     HelperGameObjectAttachment.SetScaleForAttachment(i.Object, 1.25f, 1.25f, 1.25f);
                 }
             }
-
+            
             if(obstacleCorrection && !upCorrection)
             {
                 _state = 1; // set state to 'fall'

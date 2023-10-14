@@ -294,7 +294,6 @@ namespace KWEngine3
 
         internal void Dispose()
         {
-            HelperGeneral.CheckGLErrors();
             foreach (LightObject l in _lightObjectsToBeAdded)
             {
                 l.DeleteShadowMap();
@@ -521,14 +520,15 @@ namespace KWEngine3
         /// </summary>
         /// <param name="filename">Dateiname inkl. relativem Pfad</param>
         /// <param name="rotationY">Startrotation des Hintergrunds um die Y-Achse (Standard: 0)</param>
-        public void SetBackgroundSkybox(string filename, float rotationY = 0f)
+        /// <param name="type">Typ der Skybox [CubeMap oder Gleichwinkelbild (Equirectangular), Standard: CubeMap]</param>
+        public void SetBackgroundSkybox(string filename, float rotationY = 0f, SkyboxType type = SkyboxType.CubeMap)
         {
             if (filename == null || filename.Length == 0)
             {
                 _background.Unset();
                 return;
             }
-            _background.SetSkybox(filename, rotationY);
+            _background.SetSkybox(filename, rotationY, type);
         }
 
         /// <summary>

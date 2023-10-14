@@ -693,6 +693,60 @@ namespace KWEngine3.Helper
             return texID;
         }
 
+        internal static int LoadTextureSkyboxEquirectangular(string filename, out int mipMapLevels, out int w, out int h)
+        {
+            if (!File.Exists(filename))
+            {
+                mipMapLevels = 0;
+                w = -1;
+                h = -1;
+                return -1;
+            }
+            int texID;
+            if (filename.ToLower().EndsWith(".dds"))
+            {
+                HelperDDS2.TryLoadDDS(filename, false, out texID, out int width, out int height, true);
+                mipMapLevels = 0;
+                w = width;
+                h = height;
+                return texID;
+            }
+            try
+            {
+                SKBitmap image = SKBitmap.Decode(filename);
+                if (image == null)
+                {
+
+                    throw new Exception("File " + filename + " is not a valid image file.");
+                }
+                texID = GL.GenTexture();
+                w = image.Width;
+                h = image.Height;
+                GL.BindTexture(TextureTarget.Texture2D, texID);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, GetPixelInternalFormatForSKColorType(image.ColorType), image.Width, image.Height, 0,
+                    GetPixelFormatForSKColorType(image.ColorType), PixelType.UnsignedByte, image.Bytes);
+
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                mipMapLevels = GetMaxMipMapLevels(image.Width, image.Height);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapLevels - 2));
+
+                image.Dispose();
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            }
+            catch (Exception ex)
+            {
+                KWEngine.LogWriteLine("[Texture] File " + (filename == null ? "" : filename.Trim()) + " invalid");
+                throw new Exception("Could not load image file " + filename + "! Make sure to copy it to the correct output directory. " + "[" + ex.Message + "]");
+            }
+            return texID;
+        }
+
         internal static int LoadTextureSkybox(string filename, out int mipMapLevels)
         {
             if (!filename.ToLower().EndsWith("jpg") && !filename.ToLower().EndsWith("jpeg") && !filename.ToLower().EndsWith("png") && !filename.ToLower().EndsWith("dds"))
