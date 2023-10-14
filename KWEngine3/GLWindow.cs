@@ -94,6 +94,7 @@ namespace KWEngine3
                  )
         {
             _ppQuality = ppQuality;
+            KWEngine.InitializeFontsAndDefaultTextures();
         }
 
         /// <summary>
@@ -120,6 +121,7 @@ namespace KWEngine3
         )
         {
             _ppQuality = ppQuality;
+            KWEngine.InitializeFontsAndDefaultTextures();
         }
 
         
@@ -147,7 +149,7 @@ namespace KWEngine3
 
             if(Title == null || Title == "")
                 Title = "KWEngine " + version + " (" + date + ") | OpenGL Version: " + GL.GetString(StringName.Version);
-            KWEngine.InitializeFontsAndDefaultTextures();
+            
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
             RenderManager.InitializeClearColor();
@@ -276,17 +278,15 @@ namespace KWEngine3
 
                 // clear inbetween:
                 GL.UseProgram(0);
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.BindTexture(TextureTarget.TextureCubeMap, 0);
 
                 // Lighting pass:
                 GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
                 RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
                 RenderManager.FramebufferLightingPass.Bind(false);
+
                 RendererLightingPass.Bind();
                 RendererLightingPass.SetGlobals();
-
                 RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
 
                 if (KWEngine.CurrentWorld._background.Type != BackgroundType.None)
@@ -304,7 +304,6 @@ namespace KWEngine3
                         RendererBackgroundStandard.Draw();
                     }
                 }
-
                 // Forward rendering pass:
                 if (gameObjectsForForwardRendering.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
@@ -343,9 +342,7 @@ namespace KWEngine3
                 // Final screen pass
                 RenderManager.BindScreen();
                 RendererCopy.Bind();
-                HelperGeneral.CheckGLErrors();
                 RendererCopy.Draw(RenderManager.FramebufferLightingPass, _ppQuality == PostProcessingQuality.Disabled ? null : RenderManager.FramebuffersBloomTemp[0]);
-                HelperGeneral.CheckGLErrors();
 
                 //if (KWEngine.Mode == EngineMode.Edit && HelperOctree._rootNode != null)
                 /*

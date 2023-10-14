@@ -21,7 +21,6 @@ namespace KWEngine3.Framebuffers
             {
                 for (int j = 0; j < 6; j++)
                 {
-                    HelperGeneral.CheckGLErrors();
                     GL.TexImage2D(
                         TextureTarget.TextureCubeMapPositiveX + j, 
                         0, 
@@ -41,13 +40,9 @@ namespace KWEngine3.Framebuffers
                         mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH16F ? PixelFormat.DepthComponent : (mode == FramebufferTextureMode.RGB8 || mode == FramebufferTextureMode.RGB16F )? PixelFormat.Rgb : mode == FramebufferTextureMode.RG8 ? PixelFormat.Rg : mode == FramebufferTextureMode.R32F ?  PixelFormat.Red : PixelFormat.Rgba,
                         mode == FramebufferTextureMode.RGBA16UI ? PixelType.UnsignedShort : (mode == FramebufferTextureMode.RGBA8 || mode == FramebufferTextureMode.RG8) ? PixelType.UnsignedByte : (mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat : PixelType.Float,
                         IntPtr.Zero);
-                    HelperGeneral.CheckGLErrors();
                 }
-                HelperGeneral.CheckGLErrors();
                 GL.TexParameterI(_target, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
-                HelperGeneral.CheckGLErrors();
                 GL.TexParameterI(_target, TextureParameterName.TextureCompareFunc, new int[] { (int)DepthFunction.Lequal });
-                HelperGeneral.CheckGLErrors();
             }
             else
             {
@@ -72,7 +67,6 @@ namespace KWEngine3.Framebuffers
                     IntPtr.Zero);
                 
             }
-            HelperGeneral.CheckGLErrors();
             
             GL.TexParameterI(_target, TextureParameterName.TextureWrapS, ref wrapmode);
             GL.TexParameterI(_target, TextureParameterName.TextureWrapT, ref wrapmode);
@@ -93,7 +87,6 @@ namespace KWEngine3.Framebuffers
             }
             if (_target == TextureTarget.Texture2D && filter == TextureMinFilter.LinearMipmapLinear)
                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-            HelperGeneral.CheckGLErrors();
         }
 
         public void Bind()

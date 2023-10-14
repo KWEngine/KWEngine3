@@ -50,7 +50,6 @@ namespace KWEngine3.ShadowMapping
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             GL.BindVertexArray(0);
-            HelperGeneral.CheckGLErrors();
         }
 
         public static int GetVAOId()

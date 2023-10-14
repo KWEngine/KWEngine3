@@ -14,6 +14,7 @@ uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uBoneTransforms[128];
 uniform vec3 uTextureTransformOpacity;
+uniform vec2 uTextureOffset;
 
 
 void main()
@@ -33,6 +34,6 @@ void main()
 	vec4 transformedPosition = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
 	vZ = transformedPosition.z;
 	vW = transformedPosition.w;
-	vTexture = aTexture * uTextureTransformOpacity.xy;
+	vTexture = aTexture * uTextureTransformOpacity.xy + uTextureOffset;
 	gl_Position = transformedPosition;
 }

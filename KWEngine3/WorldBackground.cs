@@ -12,19 +12,41 @@ namespace KWEngine3
 
         public BackgroundType Type { get; set; } = BackgroundType.None;
         internal Matrix3 _rotation  = Matrix3.Identity;
+        internal Matrix3 _rotationReflection = Matrix3.Identity;
         public Vector2 Offset { get; set; } = Vector2.Zero;
         public Vector2 Scale { get; set; } = Vector2.One;
         public Vector2 Clip { get; set; } = Vector2.One;
         public float _brightnessMultiplier = 1f;
         public string _filename = "";
+        public SkyboxType SkyBoxType { get; set; } = SkyboxType.CubeMap;
 
-        public void SetSkybox(string filename, float rotation = 0f)
+        public void SetSkybox(string filename, float rotation = 0f, SkyboxType type = SkyboxType.CubeMap)
         {
             filename = filename == null ? "" : filename.Trim();
-            int texId = HelperTexture.LoadTextureSkybox(filename, out _mipMapLevels);
+            int texId;
+            if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename.ToLower()))
+            {
+                texId = KWEngine.CurrentWorld._customTextures[filename.ToLower()];
+            }
+            else
+            {
+                if (type == SkyboxType.CubeMap)
+                    texId = HelperTexture.LoadTextureSkybox(filename, out _mipMapLevels);
+                else
+                    texId = HelperTexture.LoadTextureSkyboxEquirectangular(filename, out _mipMapLevels, out int w, out int h);
+                if(texId > 0)
+                    KWEngine.CurrentWorld._customTextures.Add(filename.ToLower(), texId);
+            }
             if(texId > 0)
             {
-                _rotation = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation));
+                SkyBoxType = type;
+                if (type == SkyboxType.CubeMap)
+                    _rotation = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation));
+                else
+                {
+                    _rotation = Matrix3.CreateRotationX(-(float)Math.PI / 2f) * Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation + 180));
+                    _rotationReflection = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation - 135));
+                }
                 _skyboxId = texId;
                 DeleteStandard();
                 Type = BackgroundType.Skybox;
@@ -45,7 +67,17 @@ namespace KWEngine3
         public void SetStandard(string filename)
         {
             filename = filename == null ? "" : filename.Trim();
-            int texId = HelperTexture.LoadTextureForBackgroundExternal(filename, out _mipMapLevels);
+            int texId;
+            if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename.ToLower()))
+            {
+                texId = KWEngine.CurrentWorld._customTextures[filename.ToLower()];
+            }
+            else
+            {
+                texId = HelperTexture.LoadTextureForBackgroundExternal(filename, out _mipMapLevels);
+                if (texId > 0)
+                    KWEngine.CurrentWorld._customTextures.Add(filename.ToLower(), texId);
+            }
             if(texId > 0)
             {
                 _standardId = texId;

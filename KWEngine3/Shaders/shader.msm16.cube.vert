@@ -9,6 +9,7 @@ uniform int uUseAnimations;
 uniform mat4 uModelMatrix;
 uniform mat4 uBoneTransforms[128];
 uniform vec3 uTextureTransformOpacity;
+uniform vec2 uTextureOffset;
 
 out vec2 vTexture;
 
@@ -23,6 +24,6 @@ void main()
 	}
 	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
 
-	vTexture = aTexture * uTextureTransformOpacity.xy;
+	vTexture = aTexture * uTextureTransformOpacity.xy + uTextureOffset;
 	gl_Position = uModelMatrix * totalLocalPos;
 }

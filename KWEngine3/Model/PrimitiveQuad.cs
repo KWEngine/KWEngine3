@@ -43,7 +43,6 @@ namespace KWEngine3.Model
 
         public static void Init()
         {
-            HelperGeneral.CheckGLErrors();
             _vao = GL.GenVertexArray();
             GL.BindVertexArray(_vao);
 
@@ -69,7 +68,6 @@ namespace KWEngine3.Model
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             GL.BindVertexArray(0);
-            HelperGeneral.CheckGLErrors();
         }
 
         public static int GetVAOId()

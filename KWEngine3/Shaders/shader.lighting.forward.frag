@@ -38,6 +38,7 @@ uniform vec4 uColorTint;
 uniform int uMetallicType;
 
 const float PI = 3.141593;
+const float PI2 = 0.5 / PI;
 const float ninetydegrees = 1.5708;
 const mat4 quantizationMatrix3Inv = mat4(
 										0.2227744146, 0.1549679261, 0.1451988946, 0.163127443,
@@ -69,16 +70,27 @@ const vec3 metallicF0Values[9] = vec3[](
     vec3(0.95, 0.93, 0.88)
     );
 
+vec3 sampleFromEquirectangular(vec3 worldPosition, vec3 normal, float mipMapLevel)
+{
+    vec3 R = normalize(reflect(worldPosition - uCameraPos, normal));
+    vec2 uv;
+    uv.x = atan( -R.z, -R.x ) * PI2 + 0.5;
+    uv.y = 1.0 - (R.y * 0.5 + 0.5);
+
+    return textureLod(uTextureBackground, uv, mipMapLevel).xyz;
+}
+
 vec3 getF0(int type)
 {
     return metallicF0Values[type];
 }
 
-vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness)
+vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fragPosWorld)
 {
 	float mipMapLevel = 0.0;
 	vec3 refl = vec3(1.0);
-	if(uUseTextureReflection.x > 0) // x = type, y = mipmaplevels
+    // x = type, y = mipmaplevels
+	if(uUseTextureReflection.x == 1) //2 = equi, 1 = cubemap 
 	{
 		vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
 
@@ -86,6 +98,14 @@ vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness)
 		mipMapLevel = roughness * mipMapLevels;
 		refl = textureLod(uTextureSkybox, reflectedCameraSurfaceNormal, mipMapLevel).xyz * (float(uUseTextureReflection.z) / 1000.0);
 	}
+    else if(uUseTextureReflection.x == 2)
+    {
+        vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
+
+		int mipMapLevels = uUseTextureReflection.y;
+		mipMapLevel = roughness * mipMapLevels;
+		refl = sampleFromEquirectangular(fragPosWorld, reflectedCameraSurfaceNormal, mipMapLevel);
+    }
 	else if(uUseTextureReflection.x < 0)
 	{
 		vec3 reflectedCameraSurfaceNormal = reflect(-fragmentToCamera, N);
@@ -346,7 +366,7 @@ void main()
         //Lo += (kD + specular) * radiance * NdotL * darkeningCurrentLight;
     }
 
-    vec3 reflectionColor = getReflectionColor(V, N, pbr.z);// z = roughness
+    vec3 reflectionColor = getReflectionColor(V, N, pbr.z, fragPositionDepth.xyz);// z = roughness
     vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.z); // z = roughness
     vec3 kDW = 1.0 - F;
     kDW *= (1.0 - pbr.y); // y = metallic	

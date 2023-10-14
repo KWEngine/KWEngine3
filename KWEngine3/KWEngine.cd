@@ -3,7 +3,6 @@
   <Class Name="KWEngine3.GLWindow">
     <Position X="3.5" Y="0.5" Width="2.75" />
     <Members>
-      <Field Name="_f12timestamp" Hidden="true" />
       <Field Name="_mouseDeltas" Hidden="true" />
       <Field Name="_mouseDeltaToUse" Hidden="true" />
       <Field Name="_ppQuality" Hidden="true" />
@@ -31,7 +30,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AACBBAAABQABAQiAUAgAAEACAhIABCYAaAAAUAEKAgA=</HashCode>
+      <HashCode>AACBBAAABQAAAQiAUAgAAEACAhIABCYAaAAAUAEKAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -357,7 +356,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="8.75" Width="2.75" />
+    <Position X="12.5" Y="9" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -391,12 +390,12 @@
       <Method Name="LookRotation" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAEAAAAAAAAAAAAAEAAAAAAAABCCAAgAAAAAAAAAAEA=</HashCode>
+      <HashCode>AAEAAAAAAAAAAAAAEAAAACAAABCCAAgAAAAAAAAAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="12.5" Y="10.25" Width="2.75" />
+    <Position X="12.5" Y="10.5" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -407,7 +406,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="12.5" Y="12.75" Width="2.75" />
+    <Position X="12.5" Y="13" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />

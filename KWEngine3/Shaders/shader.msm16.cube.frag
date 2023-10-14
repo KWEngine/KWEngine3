@@ -18,7 +18,7 @@ const float offsetZero = 0.035955884801;
 
 void main()
 {
-	if(texture(uTextureAlbedo,gTexture).w < 0.5)
+	if(texture(uTextureAlbedo,gTexture).w <= 0.0)
 		discard;
 
     float lightDistance = length(gPosition.xyz - uLightPosition);

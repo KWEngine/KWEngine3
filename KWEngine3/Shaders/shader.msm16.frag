@@ -36,7 +36,7 @@ out vec4 map;
 
 void main()
 {
-	if(texture(uTextureAlbedo,vTexture).w < 0.5)
+	if(texture(uTextureAlbedo,vTexture).w <= 0)
 		discard;
 
 	float z = vZ;

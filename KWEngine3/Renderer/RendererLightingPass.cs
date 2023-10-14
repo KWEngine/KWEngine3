@@ -138,18 +138,53 @@ namespace KWEngine3.Renderer
             else
                 GL.Uniform3(UCameraPos, KWEngine.CurrentWorld._cameraEditor._stateRender._position);
 
-
+            // standard 2d background upload:
             GL.ActiveTexture(currentTextureUnit++);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? KWEngine.CurrentWorld._background._standardId : KWEngine.TextureBlack);
+            if(KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox && KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, KWEngine.CurrentWorld._background._skyboxId);
+            }
+            else if (KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, KWEngine.CurrentWorld._background._standardId);
+            }
+            else
+            {
+                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
+            }
             GL.Uniform1(UTextureBackground, currentTextureNumber++);
 
+            // cubemap background upload:
             GL.ActiveTexture(currentTextureUnit++);
-            GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox ? KWEngine.CurrentWorld._background._skyboxId : KWEngine.TextureCubemapEmpty);
+            if(KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox && KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular)
+            {
+                GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
+            }
+            else if (KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard)
+            {
+                GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
+            }
+            else
+            {
+                GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.CurrentWorld._background._skyboxId);
+            }
             GL.Uniform1(UTextureSkybox, currentTextureNumber++);
 
-            GL.Uniform3(UUseTextureReflection, new Vector3i(KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox ? 1 : KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? -1 : 0, KWEngine.CurrentWorld._background._mipMapLevels, (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000)));
-            GL.UniformMatrix3(UTextureSkyboxRotation, false, ref KWEngine.CurrentWorld._background._rotation);
-
+            Vector3i reflectionStats = new Vector3i(
+                KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox && KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular ? 2 :
+                KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox && KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.CubeMap ? 1 :
+                KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? -1 : 0,
+                KWEngine.CurrentWorld._background._mipMapLevels,
+                (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000));
+            GL.Uniform3(UUseTextureReflection, reflectionStats);
+            if (KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular && KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
+            {
+                GL.UniformMatrix3(UTextureSkyboxRotation, false, ref KWEngine.CurrentWorld._background._rotationReflection);
+            }
+            else
+            {
+                GL.UniformMatrix3(UTextureSkyboxRotation, false, ref KWEngine.CurrentWorld._background._rotation);
+            }
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             vp.Invert();
             GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vp);

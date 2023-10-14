@@ -20,6 +20,21 @@
     }
 
     /// <summary>
+    /// Modus der Skybox (Standard: CubeMap)
+    /// </summary>
+    public enum SkyboxType
+    {
+        /// <summary>
+        /// Skybox liegt als 'unified cube map' vor
+        /// </summary>
+        CubeMap,
+        /// <summary>
+        /// Skybox liegt Gleichwinkelbild vor
+        /// </summary>
+        Equirectangular
+    }
+
+    /// <summary>
     /// Art der Animationsbewegung
     /// </summary>
     public enum ExplosionAnimation
