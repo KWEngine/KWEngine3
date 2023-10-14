@@ -1,5 +1,6 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
+using KWEngine3TestProject.Worlds;
 using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -13,12 +14,14 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
     {
         private SawText _text = null;
         private int _health = 100;
+        private string _upgradeType = "GunFaster";
 
-        public Saw()
+        public Saw(int health)
         {
             SetModel("Hazard_Saw");
             SetColorEmissive(1, 1, 1, 0.25f);
             _text = new SawText();
+            _health = health;
             
             UpdateText();
             KWEngine.CurrentWorld.AddTextObject(_text);
@@ -27,7 +30,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         }
         public override void Act()
         {
-            //MoveOffset(0, 0, 0.01f);
+            MoveOffset(0, 0, 0.005f);
             AddRotationZ(1);
             _text.SetPosition(Position + new Vector3(0, 0, 0.25f));
             
@@ -49,6 +52,8 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
                 ParticleObject po = new ParticleObject(8, ParticleType.BurstTeleport1);
                 po.SetPosition(Position);
                 CurrentWorld.AddParticleObject(po);
+
+                (CurrentWorld as GameWorldTutorial).GetPlayer().DecreaseGunCooldownBy(0.5f);
             }
         }
     }

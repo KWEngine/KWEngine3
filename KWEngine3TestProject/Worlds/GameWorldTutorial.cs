@@ -1,4 +1,6 @@
 ﻿using KWEngine3;
+using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldTutorial;
 using OpenTK.Mathematics;
 using System;
@@ -8,9 +10,11 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldTutorial : World
     {
+        private Player _p;
+        
         public override void Act()
         {
-
+            
         }
 
         public override void Prepare()
@@ -36,9 +40,9 @@ namespace KWEngine3TestProject.Worlds
             f.IsCollisionObject = true;
             AddGameObject(f);
 
-            Player p = new Player();
-            AddGameObject(p);
-
+            _p = new Player();
+            AddGameObject(_p);
+            /*
             Saw testSaw = new Saw();
             testSaw.SetPosition(-5, 1.25f, 90);
             AddGameObject(testSaw);
@@ -46,6 +50,25 @@ namespace KWEngine3TestProject.Worlds
             PowerUp testPowerUp = new PowerUp("x5");
             testPowerUp.SetPosition(5, 0, 90);
             AddGameObject(testPowerUp);
+            */
+
+            AddWorldEvent(new WorldEvent(HelperRandom.GetRandomNumber(3f, 4f), "SpawnSaw", new SawSpawnInfo(10, "GunFaster")));
+        }
+
+        protected override void OnWorldEvent(WorldEvent e)
+        {
+            if(e.Description == "SpawnSaw")
+            {
+                SawSpawnInfo info = e.Tag as SawSpawnInfo;
+                Saw testSaw = new Saw(info.Health);
+                testSaw.SetPosition(-5, 1.25f, 90);
+                AddGameObject(testSaw);
+            }
+        }
+
+        public Player GetPlayer()
+        {
+            return _p;
         }
     }
 }
