@@ -10,16 +10,18 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
     {
         public int Health;
         public string UpgradeType;
+        public float X;
 
         private SawSpawnInfo()
         {
             Health = 100;
             UpgradeType = "GunFaster";
         }
-        public SawSpawnInfo(int h, string t)
+        public SawSpawnInfo(int h, string t, float x)
         {
             Health = h;
             UpgradeType = t;
+            X = x;
         }
     }
 }

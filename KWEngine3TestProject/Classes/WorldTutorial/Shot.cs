@@ -32,7 +32,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
                 if(i.Object is Saw)
                 {
                     Saw s = (Saw)i.Object;
-                    s.TakeDamage(2);
+                    s.TakeDamage(1);
                     CurrentWorld.RemoveGameObject(this);
                     CastExplosion();
                 }

@@ -10,7 +10,8 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         private float _speed = 0.015f;
         private float _timeLastShot = 0;
         private float _cooldown = 0.15f;
-        
+        private int _spreadCount = 1;
+        private float _spreadAngle = 10f;
 
         public Player()
         {
@@ -43,16 +44,45 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
                 MoveOffset(0, 0, +_speed);
             }
 
-            if(WorldTime - _timeLastShot >= _cooldown && (Mouse.IsButtonDown(MouseButton.Left) || Keyboard.IsKeyDown(Keys.Space)))
+            Shoot();
+            HandleCollisions();
+            UpdateCamera();
+        }
+
+        private void Shoot()
+        {
+            if (WorldTime - _timeLastShot >= _cooldown && (Mouse.IsButtonDown(MouseButton.Left) || Keyboard.IsKeyDown(Keys.Space)))
             {
                 _timeLastShot = WorldTime;
+                if (_spreadCount == 1)
+                {
+                    Shot s = new Shot();
+                    s.SetPosition(this.Center + this.LookAtVector * 0.5f + this.LookAtVectorLocalRight * HelperRandom.GetRandomNumber(-0.15f, 0.15f) + this.LookAtVectorLocalUp * HelperRandom.GetRandomNumber(-0.15f, 0.15f));
+                    s.SetRotation(this.Rotation);
+                    CurrentWorld.AddGameObject(s);
+                }
+                else
+                {
+                    float spread = -_spreadAngle / 2;
+                    float step = _spreadAngle / (_spreadCount - 1);
 
-                Shot s = new Shot();
-                s.SetPosition(this.Center + this.LookAtVector * 0.5f + this.LookAtVectorLocalRight * HelperRandom.GetRandomNumber(-0.15f, 0.15f) + this.LookAtVectorLocalUp * HelperRandom.GetRandomNumber(-0.15f, 0.15f));
-                s.SetRotation(this.Rotation);
-                CurrentWorld.AddGameObject(s);
+                    for(int i = 0; i < _spreadCount; i++)
+                    {
+                        Shot s = new Shot();
+                        s.SetPosition(this.Center + this.LookAtVector * 0.5f + this.LookAtVectorLocalRight * HelperRandom.GetRandomNumber(-0.15f, 0.15f) + this.LookAtVectorLocalUp * HelperRandom.GetRandomNumber(-0.15f, 0.15f));
+                        s.SetRotation(this.Rotation);
+                        s.AddRotationY(spread);
+                        spread += step;
+                        CurrentWorld.AddGameObject(s);
+                    }
+                }
             }
-            HandleCollisions();
+        }
+
+        private void UpdateCamera()
+        {
+            CurrentWorld.SetCameraPosition(0, 10, Position.Z + 10);
+            CurrentWorld.SetCameraTarget(0, 0, Position.Z - 5f);
         }
 
         private void HandleCollisions()
@@ -75,6 +105,11 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         public void DecreaseGunCooldownBy(float factor)
         {
             _cooldown *= factor;
+        }
+
+        public void IncreaseSpreadCountBy(int amount)
+        {
+            _spreadCount = Math.Min(amount + _spreadCount, 5);
         }
     }
 }

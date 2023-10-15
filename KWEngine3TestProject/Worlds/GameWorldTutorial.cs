@@ -52,7 +52,10 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(testPowerUp);
             */
 
-            AddWorldEvent(new WorldEvent(HelperRandom.GetRandomNumber(3f, 4f), "SpawnSaw", new SawSpawnInfo(10, "GunFaster")));
+            AddWorldEvent(new WorldEvent(HelperRandom.GetRandomNumber(1f, 2f), "SpawnSaw", new SawSpawnInfo(35, "GunFaster", -6)));
+            AddWorldEvent(new WorldEvent(HelperRandom.GetRandomNumber(1f, 1.1f), "SpawnSaw", new SawSpawnInfo(2, "GunSpread", 6)));
+            AddWorldEvent(new WorldEvent(HelperRandom.GetRandomNumber(3f, 5f), "SpawnSaw", new SawSpawnInfo(2, "GunSpread", 6)));
+            AddWorldEvent(new WorldEvent(HelperRandom.GetRandomNumber(5f, 7f), "SpawnSaw", new SawSpawnInfo(2, "GunSpread", 6)));
         }
 
         protected override void OnWorldEvent(WorldEvent e)
@@ -60,8 +63,8 @@ namespace KWEngine3TestProject.Worlds
             if(e.Description == "SpawnSaw")
             {
                 SawSpawnInfo info = e.Tag as SawSpawnInfo;
-                Saw testSaw = new Saw(info.Health);
-                testSaw.SetPosition(-5, 1.25f, 90);
+                Saw testSaw = new Saw(info.Health, info.UpgradeType);
+                testSaw.SetPosition(info.X, 1.25f, _p.Position.Z - 50);
                 AddGameObject(testSaw);
             }
         }
