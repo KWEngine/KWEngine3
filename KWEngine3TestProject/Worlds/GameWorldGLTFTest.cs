@@ -26,17 +26,20 @@ namespace KWEngine3TestProject.Worlds
             SetBackgroundBrightnessMultiplier(1.25f);
 
             KWEngine.LoadModel("Scooter", "./Models/GLTFTest/Scooter.glb");
-            KWEngine.LoadModel("Ninja", "./Models/GLTFTest/SwordNinjaAnimated.gltf");
-            KWEngine.LoadModel("Sword", "./Models/GLTFTest/Sword.glb");
+            //KWEngine.LoadModel("Ninja", "./Models/GLTFTest/SwordNinjaAnimated.gltf");
+            //KWEngine.LoadModel("Sword", "./Models/GLTFTest/Sword.glb");
+            /*
+            Immovable floor = new Immovable();
+            floor.SetScale(10, 1, 10);
+            floor.SetPosition(0, -0.5f, 0);
+            AddGameObject(floor);
+            */
 
             Immovable i02 = new Immovable();
             i02.SetModel("Scooter");
             AddGameObject(i02);
 
-            Immovable floor = new Immovable();
-            floor.SetScale(10, 1, 10);
-            floor.SetPosition(0, -0.5f, 0);
-            AddGameObject(floor);
+            
 
             /*
             Immovable i01 = new Immovable();
