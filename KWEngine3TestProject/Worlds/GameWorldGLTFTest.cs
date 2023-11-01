@@ -19,15 +19,26 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            SetCameraPosition(0, 25, 25);
-            SetCameraTarget(0, 10, 0);
+            SetCameraPosition(-2.5f, 2.5f, 5);
+            SetCameraTarget(0, 0.5f, 0);
             SetColorAmbient(0.75f, 0.75f, 0.75f);
             SetBackgroundSkybox("./Textures/skybox.dds", 0);
             SetBackgroundBrightnessMultiplier(1.25f);
 
+            KWEngine.LoadModel("Scooter", "./Models/GLTFTest/Scooter.glb");
             KWEngine.LoadModel("Ninja", "./Models/GLTFTest/SwordNinjaAnimated.gltf");
             KWEngine.LoadModel("Sword", "./Models/GLTFTest/Sword.glb");
 
+            Immovable i02 = new Immovable();
+            i02.SetModel("Scooter");
+            AddGameObject(i02);
+
+            Immovable floor = new Immovable();
+            floor.SetScale(10, 1, 10);
+            floor.SetPosition(0, -0.5f, 0);
+            AddGameObject(floor);
+
+            /*
             Immovable i01 = new Immovable();
             i01.Name = "Sword";
             i01.SetModel("Sword");
@@ -41,7 +52,9 @@ namespace KWEngine3TestProject.Worlds
             p.SetAnimationID(7);
             p.SetScale(10);
             AddGameObject(p);
+            */
 
+            /*
             p.AttachGameObjectToBone(i01, "mixamorig:RightHand");
             HelperGameObjectAttachment.SetScaleForAttachment(i01, 50, 50, 50);
             HelperGameObjectAttachment.SetPositionOffsetForAttachment(i01, 0, 0, 0);
@@ -54,6 +67,7 @@ namespace KWEngine3TestProject.Worlds
             {
                 Console.WriteLine( bone);
             }
+            */
         }
     }
 }
