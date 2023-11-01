@@ -1512,10 +1512,11 @@ namespace KWEngine3.GameObjects
                     if (hb._front > dimMax.Z) dimMax.Z = hb._front;
                 }
             }
-            _stateCurrent._center /= activeHitboxes;
+            
             _stateCurrent._dimensions.X = dimMax.X - dimMin.X;
             _stateCurrent._dimensions.Y = dimMax.Y - dimMin.Y;
             _stateCurrent._dimensions.Z = dimMax.Z - dimMin.Z;
+            _stateCurrent._center = (dimMax + dimMin) / 2f;
 
             LeftRightMost = new Vector2(_stateCurrent._center.X - _stateCurrent._dimensions.X / 2 - KWEngine.SweepAndPruneTolerance, _stateCurrent._center.X + _stateCurrent._dimensions.X / 2 + KWEngine.SweepAndPruneTolerance);
             BackFrontMost = new Vector2(_stateCurrent._center.Z - _stateCurrent._dimensions.Z / 2 - KWEngine.SweepAndPruneTolerance, _stateCurrent._center.Z + _stateCurrent._dimensions.Z / 2 + KWEngine.SweepAndPruneTolerance);
