@@ -19,7 +19,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            SetCameraPosition(-2.5f, 2.5f, 5);
+            SetCameraPosition(-2.5f, 2.5f, 2.5f);
             SetCameraTarget(0, 0.5f, 0);
             SetColorAmbient(0.75f, 0.75f, 0.75f);
             SetBackgroundSkybox("./Textures/skybox.dds", 0);
@@ -35,7 +35,7 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(floor);
             */
 
-            Immovable i02 = new Immovable();
+            GLTFScooter i02 = new GLTFScooter();
             i02.SetModel("Scooter");
             AddGameObject(i02);
 
