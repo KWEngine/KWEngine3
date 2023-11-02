@@ -26,6 +26,7 @@ namespace KWEngine3TestProject.Worlds
             SetBackgroundBrightnessMultiplier(1.25f);
 
             KWEngine.LoadModel("Scooter", "./Models/GLTFTest/Scooter.glb");
+            KWEngine.LoadModel("Pete", "./Models/GLTFTest/Pete_The_Builder.glb");
             //KWEngine.LoadModel("Ninja", "./Models/GLTFTest/SwordNinjaAnimated.gltf");
             //KWEngine.LoadModel("Sword", "./Models/GLTFTest/Sword.glb");
             /*
@@ -35,8 +36,8 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(floor);
             */
 
-            Immovable i02 = new Immovable();
-            i02.SetModel("Scooter");
+            GLTFPlayer i02 = new GLTFPlayer();
+            i02.SetModel("Pete");
             AddGameObject(i02);
 
             
