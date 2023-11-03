@@ -31,7 +31,7 @@ namespace KWEngine3
         internal List<Vector2> _mouseDeltas = new List<Vector2>(MOUSEDELTAMAXSAMPLECOUNT);
         internal const int DELTASFORMOVINGAVG = 4;
         internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
-
+        internal bool _breakSimulation = false;
 
         internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
         {
@@ -471,7 +471,7 @@ namespace KWEngine3
             KWEngine.WorldTime = 0;
             KWEngine.CurrentWorld.Prepare();
             _mouseDeltaToUse = Vector2.Zero;
-
+            _breakSimulation = true;
             HelperGeneral.FlushAndFinish();
         }
 
@@ -576,6 +576,11 @@ namespace KWEngine3
             elapsedUpdateTimeForCallInMS = 0.0;
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
+                if(_breakSimulation)
+                {
+                    _breakSimulation = false;
+                    break;
+                }
                 _stopwatch.Restart();
                 if (KWEngine.CurrentWorld != null && worldBeforeLoop == KWEngine.CurrentWorld)
                 {
@@ -645,6 +650,11 @@ namespace KWEngine3
                                 }
                             }
                             g.Act();
+                            if (_breakSimulation)
+                            {
+                                _breakSimulation = false;
+                                break;
+                            }
                             KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
                             KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                         }
@@ -654,6 +664,11 @@ namespace KWEngine3
                     foreach (GameObject g in postponedObjects)
                     {
                         g.Act();
+                        if (_breakSimulation)
+                        {
+                            _breakSimulation = false;
+                            break;
+                        }
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                     }
@@ -661,7 +676,14 @@ namespace KWEngine3
                     foreach (GameObject g in postponedObjectsAttachments)
                     {
                         if (!KWEngine.EditModeActive)
+                        {
                             g.Act();
+                            if (_breakSimulation)
+                            {
+                                _breakSimulation = false;
+                                break;
+                            }
+                        }
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                     }
@@ -672,7 +694,14 @@ namespace KWEngine3
                         if (tbo._done)
                             KWEngine.CurrentWorld._particleAndExplosionObjects.Remove(tbo);
                         else
+                        {
                             tbo.Act();
+                            if (_breakSimulation)
+                            {
+                                _breakSimulation = false;
+                                break;
+                            }
+                        }
                     }
 
                     foreach(TextObject t in KWEngine.CurrentWorld._textObjects)
@@ -681,13 +710,30 @@ namespace KWEngine3
                         if (!KWEngine.EditModeActive)
                         {
                             t.Act();
+                            if (_breakSimulation)
+                            {
+                                _breakSimulation = false;
+                                break;
+                            }
                         }
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
                     }
 
                     if (!KWEngine.EditModeActive)
+                    {
                         KWEngine.CurrentWorld.Act();
+                        if (_breakSimulation)
+                        {
+                            _breakSimulation = false;
+                            break;
+                        }
+                    }
 
+                    if (_breakSimulation)
+                    {
+                        _breakSimulation = false;
+                        break;
+                    }
                     KWEngine.CurrentWorld.ProcessWorldEventQueue();
 
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
@@ -703,7 +749,14 @@ namespace KWEngine3
                         foreach (GameObject attachment in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._gameObjectsAttached.Values)
                         {
                             if (!KWEngine.EditModeActive)
+                            {
                                 attachment.Act();
+                                if (_breakSimulation)
+                                {
+                                    _breakSimulation = false;
+                                    break;
+                                }
+                            }
                             KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(attachment);
                         }
 
