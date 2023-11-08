@@ -27,6 +27,16 @@ namespace KWEngine3.EngineCamera
 
         internal void UpdateViewMatrixAndLookAtVector()
         {
+            if(_position.Y == 100)
+            {
+
+            }
+            Vector3 tmp = Vector3.Normalize(_target - _position);
+            while (Math.Abs(tmp.X) == KWEngine.WorldUp.X && Math.Abs(tmp.Y) == KWEngine.WorldUp.Y && Math.Abs(tmp.Z) == KWEngine.WorldUp.Z)
+            {
+                _target.Z -= 0.000001f;
+                tmp = Vector3.Normalize(_target - _position);
+            }
             ViewMatrix = Matrix4.LookAt(
                 _position,
                 _target,

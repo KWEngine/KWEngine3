@@ -20,6 +20,29 @@
     }
 
     /// <summary>
+    /// Gibt die Blickrichtung des 2D-Sprites in der Bilddatei an
+    /// </summary>
+    public enum SpriteDirection
+    {
+        /// <summary>
+        /// Sprite guckt in der Bilddatei nach links
+        /// </summary>
+        Left,
+        /// <summary>
+        /// Sprite guckt in der Bilddatei nach rechts
+        /// </summary>
+        Right,
+        /// <summary>
+        /// Sprite guckt in der Bilddatei nach oben
+        /// </summary>
+        Top,
+        /// <summary>
+        /// Sprite guckt in der Bilddatei nach unten
+        /// </summary>
+        Down
+    }
+
+    /// <summary>
     /// Modus der Skybox (Standard: CubeMap)
     /// </summary>
     public enum SkyboxType

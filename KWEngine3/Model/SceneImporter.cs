@@ -1046,11 +1046,15 @@ namespace KWEngine3.Model
                     }
                 }
 
-                //meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, currentNodeName.ToLower().Contains("_fullhitbox") ? mesh : null);
                 if(currentMeshName == "KWQuad")
                 {
                     maxZ = 0.5f;
                     minZ = -0.5f;
+                }
+                else if(currentMeshName == "KWQuadTop")
+                {
+                    maxY = 0.5f;
+                    minY = -0.5f;
                 }
                 meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, uniqueNormalsForWholeMesh, uniqueVerticesForWholeMesh, facesForHitbox);
                 meshHitBox.Model = model;

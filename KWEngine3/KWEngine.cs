@@ -259,6 +259,7 @@ namespace KWEngine3
         {
             Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", true, SceneImporter.AssemblyMode.Internal));
             Models.Add("KWQuad", SceneImporter.LoadModel("kwquad.obj", true, SceneImporter.AssemblyMode.Internal));
+            Models.Add("KWQuadTop", SceneImporter.LoadModel("kwquad_top.obj", true, SceneImporter.AssemblyMode.Internal));
             Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.fbx", true, SceneImporter.AssemblyMode.Internal));
             Models.Add("KWPlatform", SceneImporter.LoadModel("kwplatform.obj", true, SceneImporter.AssemblyMode.Internal));
             KWStar = SceneImporter.LoadModel("star.obj", false, SceneImporter.AssemblyMode.Internal);

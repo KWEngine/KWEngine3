@@ -14,12 +14,11 @@ namespace KWEngine3TestProject.Models.WorldKWQuadTest
         public override void Act()
         {
             Vector3 mousePos3D = HelperIntersection.GetMouseIntersectionPointOnPlane(KWEngine3.Plane.XZ, 0);
-            TurnTowardsXZ(mousePos3D);
-            AddRotationX(-90);
+            TurnTowardsXZForKWQuad(mousePos3D);
 
             Console.WriteLine(HelperVector.GetScreenAngleBetween(this.Position, mousePos3D));
-
-
+            Console.WriteLine(this.LookAtVectorLocalRight);
+            Console.WriteLine(  "----");
             //AddRotationZ(-90);
         }
         

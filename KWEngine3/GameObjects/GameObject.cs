@@ -415,6 +415,30 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Verändert die Rotation der KWQuad-Instanz, so dass sie in Richtung der XZ-Koordinaten blickt. Vertikale Unterschiede werden ignoriert.
+        /// Diese Methode setzt voraus, dass die Kamera entlang der y-Achse nach unten auf die Szene blickt.
+        /// </summary>
+        /// <param name="target">Zielkoordinate, in deren Richtung sich die Instanz drehen soll</param>
+        /// <param name="direction">Standardblickrichtung der Spielfigur in der Bilddatei (Standard: rechts)</param>
+        public void TurnTowardsXZForKWQuad(Vector3 target, SpriteDirection direction = SpriteDirection.Right)
+        {
+            TurnTowardsXZ(target);
+            AddRotationX(-90);
+            if(direction == SpriteDirection.Left)
+            {
+                AddRotationZ(90);
+            }
+            else if(direction == SpriteDirection.Right)
+            {
+                AddRotationZ(-90);
+            }
+            else if(direction == SpriteDirection.Top)
+            {
+                AddRotationZ(180);
+            }
+        }
+
+        /// <summary>
         /// Erfragt, ob der Mauszeiger auf der Hitbox des Objekts liegt
         /// </summary>
         /// <returns>true, wenn sich der Mauszeiger innerhalb der Hitbox des Objekts befindet</returns>

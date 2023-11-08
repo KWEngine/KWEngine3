@@ -146,6 +146,8 @@ namespace KWEngine3.Editor
                     modelName = "KWSphere";
                 else if (modelName == "kwquad.obj")
                     modelName = "KWQuad";
+                else if (modelName == "kwquad_top.obj")
+                    modelName = "KWQuadTop";
                 else if (modelName == "kwplatform.obj")
                     modelName = "KWPlatform";
 
