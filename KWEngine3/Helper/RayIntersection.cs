@@ -6,7 +6,7 @@ namespace KWEngine3.Helper
     /// <summary>
     /// Wrapper-Klasse, die die Entfernung eines Objekts und den Schnittpunkt eines Strahls auf dem Objekt beinhaltet
     /// </summary>
-    public class RayIntersection : IComparable<RayIntersection>
+    public struct RayIntersection : IComparable<RayIntersection>
     {
         /// <summary>
         /// Das vom Strahl getroffene Objekt
@@ -25,6 +25,17 @@ namespace KWEngine3.Helper
         /// Der Ebenenvektor des Schnittpunkts
         /// </summary>
         public Vector3 SurfaceNormal { get; internal set; } = KWEngine.WorldUp;
+
+        /// <summary>
+        /// Standardkonstruktor für die Instanz
+        /// </summary>
+        public RayIntersection()
+        {
+            Object = null;
+            Distance = 0;
+            IntersectionPoint = Vector3.Zero;
+            SurfaceNormal = KWEngine.WorldUp;
+        }
 
         /// <summary>
         /// Vergleichsmethode, um zwei Objektdistanzen miteinander zu vergleichen

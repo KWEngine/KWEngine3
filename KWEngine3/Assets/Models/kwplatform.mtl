@@ -1,0 +1,32 @@
+# Blender 3.5.0 MTL File: 'KWPlatform_beforeBevelModifier.blend'
+# www.blender.org
+
+newmtl FrontBack
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd kwplatform_testimage.png
+
+newmtl LeftRight
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd kwplatform_testimage.png
+
+newmtl TopBottom
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd kwplatform_testimage.png

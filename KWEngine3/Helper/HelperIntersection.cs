@@ -216,6 +216,47 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Prüft, ob der angegebene Strahl (origin, direction) auf Objekte bestimmter Klassen trifft und gibt eine nach Entfernungen aufsteigend sortierte Liste der Strahlentreffer zurück
+        /// </summary>
+        /// <param name="origin">Ausgangspunkt des Strahls</param>
+        /// <param name="direction">Richtung des Strahls (muss normalisiert sein)</param>
+        /// <param name="maxDistance">maximale Länge des Strahls</param>
+        /// <param name="typelist">Klassen, deren Objekte geprüft werden sollen (mehrere möglich)</param>
+        /// <returns>Liste der Strahlentreffer</returns>
+        public static List<RayIntersection> CheckTypeInstancesInFrontOfViewVector(Vector3 origin, Vector3 direction, float maxDistance, params Type[] typelist) 
+        {
+            List<RayIntersection> list = new List<RayIntersection>();
+            if (maxDistance <= 0)
+            {
+                maxDistance = float.MaxValue;
+            }
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (typelist.Contains(g.GetType()))
+                {
+                    bool result = GetIntersectionPointOnObjectForRay(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
+                    if (result)
+                    {
+                        float currentDistance = (intersectionPoint - origin).LengthFast;
+                        if (maxDistance > 0 && currentDistance <= maxDistance)
+                        {
+                            RayIntersection gd = new RayIntersection()
+                            {
+                                Distance = currentDistance,
+                                IntersectionPoint = intersectionPoint,
+                                SurfaceNormal = normal,
+                                Object = g
+                            };
+                            list.Add(gd);
+                        }
+                    }
+                }
+                list.Sort();
+            }
+            return list;
+        }
+
+        /// <summary>
         /// Prüft, welche Objekte (bzw. deren Hitboxen) in der angegebenen Blickrichtung liegen und gibt diese als Liste zurück
         /// </summary>
         /// <param name="origin">Ursprung des Blicks</param>
