@@ -1,4 +1,5 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3
 {
@@ -14,6 +15,18 @@ namespace KWEngine3
             _firstSimFrame = firstSimulationFrame;
 
         }
+
+        /// <summary>
+        /// Gibt die aktuell gemessene Mauszeigerposition an
+        /// </summary>
+        public Vector2 Position 
+        { 
+            get
+            {
+                return KWEngine.Window.MouseState.Position;
+            }
+        }
+
         /// <summary>
         /// Prüft, ob die angegebene Taste gerade gedrückt wird
         /// </summary>
