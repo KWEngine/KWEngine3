@@ -10,16 +10,16 @@ namespace KWEngine3TestProject.Classes.WorldCollisionTest
     {
         public override void Act()
         {
-            if (Keyboard[Keys.R])
+            if (Keyboard.IsKeyDown(Keys.R))
             {
                 SetRotation(0, 0, 0);
             }
 
-            if(Keyboard[Keys.W])
+            if(Keyboard.IsKeyDown(Keys.W))
             {
                 MoveOffset(0, 0.01f, 0);
             }
-            if (Keyboard[Keys.S])
+            if (Keyboard.IsKeyDown(Keys.S))
             {
                 MoveOffset(0, -0.01f, 0);
             }

@@ -16,12 +16,12 @@ namespace KWEngine3TestProject.Worlds
         {
             if (WorldTime - _last > _cd)
             {
-                if (Keyboard[Keys.F1])
+                if (Keyboard.IsKeyDown(Keys.F1))
                 {
                     _loopId = Audio.PlaySound(@".\SFX\stage01_main.ogg", true, 0.5f);
                     _last = WorldTime;
                 }
-                else if (Keyboard[Keys.F2])
+                else if (Keyboard.IsKeyDown(Keys.F2))
                 {
                     Audio.StopSound(_loopId);
                     _last = WorldTime;

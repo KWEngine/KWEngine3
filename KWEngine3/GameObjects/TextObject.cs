@@ -327,6 +327,14 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public float Width { get { return _stateCurrent._width; } }
 
+        /// <summary>
+        /// Verweis auf Keyboardeingaben
+        /// </summary>
+        public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        /// <summary>
+        /// Verweis auf Mauseingaben
+        /// </summary>
+        public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
 
         #region internals
         internal TextObjectState _stateCurrent;

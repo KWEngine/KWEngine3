@@ -33,6 +33,9 @@ namespace KWEngine3
         internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
         internal bool _breakSimulation = false;
 
+        internal KeyboardExt _keyboard = new KeyboardExt();
+        internal MouseExt _mouse = new MouseExt();
+
         internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
         {
             if (KWEngine.CurrentWorld._startingFrameActive)
@@ -132,6 +135,15 @@ namespace KWEngine3
         public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
 
         /// <summary>
+        /// Verweis auf Keyboardeingaben
+        /// </summary>
+        public KeyboardExt Keyboard { get { return _keyboard; } }
+        /// <summary>
+        /// Verweis auf Mauseingaben
+        /// </summary>
+        public MouseExt Mouse { get { return _mouse; } }
+
+        /// <summary>
         /// Standard-Initialisierungen
         /// </summary>
         protected override void OnLoad()
@@ -204,6 +216,7 @@ namespace KWEngine3
 
             KWEngine.LastFrameTime = (float)e.Time * 1000;
 
+            // Start render process:
             if (!KWEngine.CurrentWorld._startingFrameActive)
             {
 
@@ -501,7 +514,8 @@ namespace KWEngine3
                     KWBuilderOverlay.UpdateLastUpdateTime(elapsedTimeForCall);
             }
 
-            // Start render calls:
+
+            // Start render preparation:
             _stopwatch.Restart();
             KWEngine.LastSimulationUpdateCycleCount = n;
             float alpha = (float)(KWEngine.DeltaTimeAccumulator / KWEngine.DeltaTimeCurrentNibbleSize);
@@ -573,15 +587,25 @@ namespace KWEngine3
         internal int UpdateCurrentWorldAndObjects(World worldBeforeLoop, out double elapsedUpdateTimeForCallInMS)
         {
             int n = 0;
+            float tmpTimeAdd = 0.0f;
+            float tmpTimeAddSum = 0.0f;
             elapsedUpdateTimeForCallInMS = 0.0;
+            bool first = true;
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
+                _keyboard.UpdateFirstFrameStatus(first);
+                _mouse.UpdateFirstFrameStatus(first);
+                first = false;
+
                 if(_breakSimulation)
                 {
                     _breakSimulation = false;
                     break;
                 }
                 _stopwatch.Restart();
+
+                
+
                 if (KWEngine.CurrentWorld != null && worldBeforeLoop == KWEngine.CurrentWorld)
                 {
                     KWEngine.CurrentWorld.ResetWorldDimensions();
@@ -765,15 +789,22 @@ namespace KWEngine3
                     double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;// * 1000.0;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
+                    tmpTimeAdd = (float)elapsedTimeForIterationInSeconds;
+                    tmpTimeAddSum += tmpTimeAdd;
+                    KWEngine.WorldTime += tmpTimeAdd;
                 }
                 else
                 {
                     double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;// * 1000.0;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
+                    tmpTimeAdd = (float)elapsedTimeForIterationInSeconds;
+                    tmpTimeAddSum += tmpTimeAdd;
+                    KWEngine.WorldTime += tmpTimeAdd;
                     break;
                 }
             }
+            KWEngine.WorldTime -= tmpTimeAddSum;
             return n;
         }
 

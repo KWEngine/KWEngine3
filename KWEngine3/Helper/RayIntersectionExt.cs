@@ -4,9 +4,9 @@ using OpenTK.Mathematics;
 namespace KWEngine3.Helper
 {
     /// <summary>
-    /// Wrapper-Klasse, die die Entfernung des vom Strahl getroffenen Objekts und einen Verweis auf das getroffene Objekt selbst beinhaltet
+    /// Wrapper-Klasse, die die Entfernung eines Objekts und den Schnittpunkt eines Strahls auf dem Objekt beinhaltet
     /// </summary>
-    public struct RayIntersection : IComparable<RayIntersection>
+    public struct RayIntersectionExt : IComparable<RayIntersection>
     {
         /// <summary>
         /// Das vom Strahl getroffene Objekt
@@ -16,14 +16,25 @@ namespace KWEngine3.Helper
         /// Die Distanz vom Aufrufer zum getroffenen Objekt
         /// </summary>
         public float Distance { get; internal set; } = float.MaxValue;
+        /// <summary>
+        /// Der genaue Schnittpunkt des Strahls auf dem Objekt
+        /// </summary>
+        public Vector3 IntersectionPoint { get; internal set; } = Vector3.Zero;
+
+        /// <summary>
+        /// Der Ebenenvektor des Schnittpunkts
+        /// </summary>
+        public Vector3 SurfaceNormal { get; internal set; } = KWEngine.WorldUp;
 
         /// <summary>
         /// Standardkonstruktor für die Instanz
         /// </summary>
-        public RayIntersection()
+        public RayIntersectionExt()
         {
             Object = null;
             Distance = 0;
+            IntersectionPoint = Vector3.Zero;
+            SurfaceNormal = KWEngine.WorldUp;
         }
 
         /// <summary>

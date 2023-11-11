@@ -1,13 +1,10 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3;
+using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Mathematics;
-using KWEngine3;
-using KWEngine3.Helper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine3TestProject.Classes.WorldPlatformerPack
 {
@@ -20,6 +17,14 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
 
         public override void Act()
         {
+            /*
+            if(Mouse.IsButtonPressed(MouseButton.Left))
+            {
+                Console.WriteLine("SPAWN!");
+                Spawn();
+            }
+            */
+
             // Movement:
             bool isMoving = false;
 
@@ -111,6 +116,38 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
             CurrentWorld.SetCameraPosition(Position + new Vector3(0, 10, 25));
             CurrentWorld.SetCameraTarget(Position);
 
+            /*
+            //Raytracing-Tests:
+
+            List<RayIntersection> results = HelperIntersection.RayTraceObjectsForViewVectorFast(this.Center, this.LookAtVector, this, 0, true, typeof(Obstacle), typeof(Weapon));
+            if (results.Count > 0)
+            {
+                foreach (RayIntersection result in results)
+                {
+                    Console.Write(result.Object.Name + ", ");
+                }
+                Console.WriteLine();
+            }
+            
+            GameObject gun = CurrentWorld.GetGameObjectByName("Gun");
+            if (gun != null)
+                Console.WriteLine(HelperIntersection.RaytraceObjectFast(gun, this.Center, this.LookAtVector));
+
+            Console.WriteLine(WorldTime);
+            */
+        }
+
+        private void Spawn()
+        {
+            float x = HelperRandom.GetRandomNumber(-5, 5);
+            float y = HelperRandom.GetRandomNumber(1, 5);
+            float z = HelperRandom.GetRandomNumber(-2, 2);
+
+            Obstacle o = new Obstacle();
+            o.SetPosition(x, y, z);
+            o.SetColor(1, 0, 1);
+            o.IsCollisionObject = true;
+            CurrentWorld.AddGameObject(o);
         }
     }
 }

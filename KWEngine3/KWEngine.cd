@@ -3,6 +3,9 @@
   <Class Name="KWEngine3.GLWindow">
     <Position X="3.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_breakSimulation" Hidden="true" />
+      <Field Name="_keyboard" Hidden="true" />
+      <Field Name="_mouse" Hidden="true" />
       <Field Name="_mouseDeltas" Hidden="true" />
       <Field Name="_mouseDeltaToUse" Hidden="true" />
       <Field Name="_ppQuality" Hidden="true" />
@@ -30,7 +33,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AACBBAAABQAAAQiAUAgAAEACAhIABCYAaAAAUAEKAgA=</HashCode>
+      <HashCode>AAiBBAAABQAAAQiAUAkAAEACAhIABCYAaAAgUAEOAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -97,7 +100,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.World">
-    <Position X="3.5" Y="3.25" Width="2.75" />
+    <Position X="3.5" Y="3.5" Width="2.75" />
     <Members>
       <Field Name="_availableGameObjectIDs" Hidden="true" />
       <Field Name="_availableLightObjectIDs" Hidden="true" />
@@ -158,7 +161,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAl0OK6ABDQCZAERzoGAhYgCTK5ZCaYUUaHCH/AMAnE=</HashCode>
+      <HashCode>SAl0OK6ABDQCZAERzoGAhYgCTK5ZCaYcUaHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -278,7 +281,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="3.5" Y="15.5" Width="2.75" />
+    <Position X="3.5" Y="16.25" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -342,6 +345,7 @@
       <Method Name="LinePlaneIntersection" Hidden="true" />
       <Method Name="Overlaps" Hidden="true" />
       <Field Name="pixelColor" Hidden="true" />
+      <Method Name="RayAABBIntersection" Hidden="true" />
       <Method Name="RayBoxIntersection" Hidden="true" />
       <Method Name="RayTerrainIntersection" Hidden="true" />
       <Method Name="RayTriangleIntersection" Hidden="true" />
@@ -351,12 +355,12 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQIQAhAAABACAgAAMIAAAACAAQAgBIgGAAGCABIJJAg=</HashCode>
+      <HashCode>BQIQAhQAABQCACAAsAAAAACAAAAgBIgGABGCABIJZAg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="9" Width="2.75" />
+    <Position X="12.5" Y="9.75" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -366,7 +370,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="12.5" Y="3.75" Width="2.75" />
+    <Position X="12.5" Y="4.5" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -385,7 +389,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="12.5" Y="6.5" Width="2.75" />
+    <Position X="12.5" Y="7.25" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
     </Members>
@@ -395,7 +399,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="12.5" Y="10.5" Width="2.75" />
+    <Position X="12.5" Y="11.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -406,7 +410,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="12.5" Y="13" Width="2.75" />
+    <Position X="12.5" Y="13.75" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -420,7 +424,7 @@
       <Method Name="UpdateWidth" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QABAMQAAABQAAAQgAIKAAUTAAABBCggIQIgAygBAANQ=</HashCode>
+      <HashCode>QAhAMQAAABQAAAQgQIKAAUTAAABBCggIQIgAygBAANQ=</HashCode>
       <FileName>GameObjects\TextObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

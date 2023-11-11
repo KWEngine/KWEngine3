@@ -172,6 +172,9 @@ namespace KWEngine3.Helper
         /// <summary>
         /// Prüft, ob der Mauszeiger über einem Objekt des angegebenen Typs liegt und gibt ggf. diese Instanz über den out-Parameter zurück
         /// </summary>
+        /// <remarks>
+        /// Achtung: Methode ist sehr präzise aber daher auch sehr langsam! Für schnellere Ergebnisse sollte die Methode IsMouseCursorOnAnyFast() verwendet werden
+        /// </remarks>
         /// <typeparam name="T">Beliebige Unterklasse von GameObject</typeparam>
         /// <param name="gameObject">Gefundene GameObject-Instanz (nur gefüllt, wenn der Rückgabewert true ist)</param>
         /// <param name="includeNonCollisionObjects">Sollen auch Objekte einbezogen werden, die nicht als Kollisionsobjekte markiert sind?</param>
@@ -212,19 +215,74 @@ namespace KWEngine3.Helper
                 return true;
             }
             return false;
-
         }
 
         /// <summary>
-        /// Prüft, ob der angegebene Strahl (origin, direction) auf Objekte bestimmter Klassen trifft und gibt eine nach Entfernungen aufsteigend sortierte Liste der Strahlentreffer zurück
+        /// Prüft, ob der Mauszeiger über der achsenparallelen Hitbox eines Objekts des angegebenen Typs liegt und gibt ggf. diese Instanz über den out-Parameter zurück
+        /// </summary>
+        /// <remarks>
+        /// Achtung: Methode ist sehr performant aber sehr ungenau! Für pixelgenaue Ergebnisse sollte stattdessen die Methode IsMouseCursorOnAny() verwendet werden.
+        /// </remarks>
+        /// <typeparam name="T">Beliebige Unterklasse von GameObject</typeparam>
+        /// <param name="gameObject">Gefundene GameObject-Instanz (nur gefüllt, wenn der Rückgabewert true ist)</param>
+        /// <param name="includeNonCollisionObjects">Sollen auch Objekte einbezogen werden, die nicht als Kollisionsobjekte markiert sind?</param>
+        /// <returns>true, wenn der Mauscursor auf einem Objekt der angegebenen Art ist</returns>
+        public static bool IsMouseCursorOnAnyFast<T>(out T gameObject, bool includeNonCollisionObjects = true) where T : GameObject
+        {
+            gameObject = null;
+            GameObject[] list;
+            if (includeNonCollisionObjects)
+                list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T).ToArray();
+            else
+                list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T && go.IsCollisionObject).ToArray();
+            if (list.Length == 0)
+                return false;
+
+
+            Vector3 rayDirection = GetMouseRay();
+            Vector3 rayOrigin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
+            float minDistance = float.MaxValue;
+            int minIndex = -1;
+            rayDirection.X = 1f / rayDirection.X;
+            rayDirection.Y = 1f / rayDirection.Y;
+            rayDirection.Z = 1f / rayDirection.Z;
+
+            for (int i = 0; i < list.Length; i++)
+            {
+                bool rayHitGameObject = RayAABBIntersection(rayOrigin, rayDirection, list[i]._stateCurrent._center, list[i]._stateCurrent._dimensions, out float currentDistance);
+                if (rayHitGameObject && currentDistance >= 0)
+                {
+                    if (currentDistance < minDistance)
+                    {
+                        minDistance = currentDistance;
+                        minIndex = i;
+                    }
+                }
+            }
+            if (minIndex >= 0)
+            {
+                gameObject = list[minIndex] as T;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Prüft, ob der angegebene Strahl (origin, direction) auf die achsenparallele Hitbox von Objekten bestimmter Klassen trifft
         /// </summary>
         /// <param name="origin">Ausgangspunkt des Strahls</param>
-        /// <param name="direction">Richtung des Strahls (muss normalisiert sein)</param>
+        /// <param name="direction">Richtung des Strahls (MUSS normalisiert sein)</param>
+        /// <param name="caller">Aufruferinstanz, damit die Instanz sich nicht selbst überprüft</param>
         /// <param name="maxDistance">maximale Länge des Strahls</param>
         /// <param name="typelist">Klassen, deren Objekte geprüft werden sollen (mehrere möglich)</param>
+        /// <param name="sort">Wenn true, wird die Ergebnisliste aufsteigend nach Objektentfernung sortiert</param>
         /// <returns>Liste der Strahlentreffer</returns>
-        public static List<RayIntersection> CheckTypeInstancesInFrontOfViewVector(Vector3 origin, Vector3 direction, float maxDistance, params Type[] typelist) 
+        public static List<RayIntersection> RayTraceObjectsForViewVectorFast(Vector3 origin, Vector3 direction, GameObject caller, float maxDistance, bool sort,  params Type[] typelist) 
         {
+            direction.X = 1f / direction.X;
+            direction.Y = 1f / direction.Y;
+            direction.Z = 1f / direction.Z;
+
             List<RayIntersection> list = new List<RayIntersection>();
             if (maxDistance <= 0)
             {
@@ -232,15 +290,67 @@ namespace KWEngine3.Helper
             }
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
+                if (g == caller)
+                    continue;
                 if (typelist.Contains(g.GetType()))
                 {
-                    bool result = GetIntersectionPointOnObjectForRay(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
+                    bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
+                    if (result == true && currentDistance >= 0)
+                    {
+                        if (maxDistance > 0 && currentDistance <= maxDistance)
+                        {
+                            RayIntersection gd = new RayIntersection()
+                            {
+                                Distance = currentDistance,
+                                Object = g
+                            };
+                            list.Add(gd);
+                        }
+                    }
+                }
+            }
+
+            if(sort)
+                list.Sort();
+
+            return list;
+        }
+
+        
+
+        /// <summary>
+        /// Prüft, welche Objekte (bzw. deren Hitboxen) in der angegebenen Blickrichtung liegen und gibt diese als Liste zurück
+        /// </summary>
+        /// <param name="origin">Ursprung des Strahls</param>
+        /// <param name="direction">Blickrichtung des Strahls (MUSS normalisiert sein!)</param>
+        /// <param name="maxDistance">Objekte weiter weg als dieser Wert werden ignoriert (Standard: 0 = unendliche Entfernung)</param>
+        /// <param name="sort">true, falls die Objekte ihrer Entfernung nach aufsteigend sortiert werden sollen</param>
+        /// <param name="caller">Aufrufendes Objekt, das bei Nennung ignoriert wird</param>
+        /// <param name="typelist">Liste der Klassen, die getestet werden sollen</param>
+        /// <returns>Liste der GameObjectDistance-Instanzen</returns>
+        public static List<RayIntersectionExt> RayTraceObjectsForViewVector(Vector3 origin, Vector3 direction, float maxDistance, bool sort, GameObject caller, params Type[] typelist)
+        {
+            List<RayIntersectionExt> list = new List<RayIntersectionExt>();
+            if (maxDistance <= 0)
+            {
+                maxDistance = float.MaxValue;
+            }
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (caller == g)
+                {
+                    continue;
+                }
+                else if(typelist.Contains(g.GetType())) 
+                {
+                    bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
                     if (result)
                     {
                         float currentDistance = (intersectionPoint - origin).LengthFast;
                         if (maxDistance > 0 && currentDistance <= maxDistance)
                         {
-                            RayIntersection gd = new RayIntersection()
+                            RayIntersectionExt gd = new RayIntersectionExt()
                             {
                                 Distance = currentDistance,
                                 IntersectionPoint = intersectionPoint,
@@ -251,54 +361,8 @@ namespace KWEngine3.Helper
                         }
                     }
                 }
-                list.Sort();
-            }
-            return list;
-        }
-
-        /// <summary>
-        /// Prüft, welche Objekte (bzw. deren Hitboxen) in der angegebenen Blickrichtung liegen und gibt diese als Liste zurück
-        /// </summary>
-        /// <param name="origin">Ursprung des Blicks</param>
-        /// <param name="direction">Blickrichtung</param>
-        /// <param name="maxDistance">Objekte weiter weg als dieser Wert werden ignoriert (Standard: 0 = unendliche Entfernung)</param>
-        /// <param name="sort">true, falls die Objekte ihrer Entfernung nach aufsteigend sortiert werden sollen</param>
-        /// <param name="caller">Aufrufendes Objekt, das bei Nennung ignoriert wird</param>
-        /// <returns>Liste der GameObjectDistance-Instanzen</returns>
-        public static List<RayIntersection> GetObjectDistancesInFrontOfViewVector<T>(Vector3 origin, Vector3 direction, float maxDistance = 0, bool sort = false, GameObject caller = null) where T : GameObject
-        {
-            List<RayIntersection> list = new List<RayIntersection>();
-            if (maxDistance == 0)
-            {
-                maxDistance = float.MaxValue;
             }
 
-            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
-            {
-                if (caller != null && (caller == g || g.IsCollisionObject == false))
-                {
-                    continue;
-                }
-                if ((g is T) == false)
-                    continue;
-
-                bool result = GetIntersectionPointOnObjectForRay(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
-                if (result)
-                {
-                    float currentDistance = (intersectionPoint - origin).LengthFast;
-                    if (maxDistance > 0 && currentDistance <= maxDistance)
-                    {
-                        RayIntersection gd = new RayIntersection()
-                        {
-                            Distance = currentDistance,
-                            IntersectionPoint = intersectionPoint,
-                            SurfaceNormal = normal,
-                            Object = g
-                        };
-                        list.Add(gd);
-                    }
-                }
-            }
             if (sort)
             {
                 list.Sort();
@@ -308,7 +372,7 @@ namespace KWEngine3.Helper
 
         internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint)
         {
-            return GetIntersectionPointOnObjectForRay(g, origin, worldRay, out intersectionPoint, out Vector3 normal, true);
+            return RaytraceObject(g, origin, worldRay, out intersectionPoint, out Vector3 normal, true);
         }
 
         /// <summary>
@@ -316,12 +380,12 @@ namespace KWEngine3.Helper
         /// </summary>
         /// <param name="g">zu prüfendes GameObject</param>
         /// <param name="rayOrigin">Ursprungsposition des Strahls</param>
-        /// <param name="rayDirection">Richtung des Strahls</param>
+        /// <param name="rayDirection">Richtung des Strahls (MUSS normalisiert sein!)</param>
         /// <param name="intersectionPoint">Schnittpunkt (Ausgabe)</param>
         /// <param name="faceNormal">Ebene des Schnittpunkts (Ausgabe)</param>
         /// <param name="includeNonCollisionObjects">Sollen Objekte berücksichtigt werden, die NICHT als Kollisionsobjekt markiert sind?</param>
         /// <returns>true, wenn der Strahl das GameObject getroffen hat</returns>
-        public static bool GetIntersectionPointOnObjectForRay(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal, bool includeNonCollisionObjects = true)
+        public static bool RaytraceObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal, bool includeNonCollisionObjects = true)
         {
             faceNormal = KWEngine.WorldUp;
             intersectionPoint = new Vector3();
@@ -367,7 +431,7 @@ namespace KWEngine3.Helper
                         float dot = Vector3.Dot(rayDirection, currentFaceNormal);
                         if (dot < 0)
                         {
-                            Vector3 currentContact = Vector3.Zero;
+                            Vector3 currentContact;
                             bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out currentContact);
                             if (!hit)
                             {
@@ -389,6 +453,31 @@ namespace KWEngine3.Helper
                 }
             }
             return resultSum > 0;
+        }
+
+        /// <summary>
+        /// Prüft, ob ein Strahl die achsenparallele Hitbox der angegebenen GameObject-Instanz trifft
+        /// </summary>
+        /// <remarks>
+        /// Diese Methode ist schnell aber sehr unpräzise, da sie die Rotation von Objekten nur näherungsweise einbezieht.
+        /// Es kann vermehrt zu falsch-positiven Rückmeldungen kommen.
+        /// </remarks>
+        /// <param name="g">zu prüfendes GameObject</param>
+        /// <param name="rayOrigin">Ursprungsposition des Strahls</param>
+        /// <param name="rayDirection">Richtung des Strahls (MUSS normalisiert sein!)</param>
+        /// <returns>true, wenn der Strahl das GameObject trifft</returns>
+        public static bool RaytraceObjectFast(GameObject g, Vector3 rayOrigin, Vector3 rayDirection)
+        {
+            rayDirection.X = 1f / rayDirection.X;
+            rayDirection.Y = 1f / rayDirection.Y;
+            rayDirection.Z = 1f / rayDirection.Z;
+
+            bool result = RayAABBIntersection(rayOrigin, rayDirection, g._stateCurrent._center, g._stateCurrent._dimensions, out float d);
+            if(result == true && d >= 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -456,12 +545,12 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Erfragt, ob der Mauszeiger auf dem Objekt liegt
+        /// Erfragt, ob der Mauszeiger auf dem Objekt liegt (langsam, da pixelgenaue Prüfung)
         /// </summary>
         /// <param name="g">Zu untersuchendes GameObject</param>
         /// <param name="includeNonCollisionObjects">Sollen das Objekt auch dann untersucht werden, wenn es kein Kollisionsobjekt ist?</param>
         /// <returns>true, wenn der Mauszeiger auf dem Objekt liegt</returns>
-        public static bool IsMouseCursorInsideGameObjectHitbox(GameObject g, bool includeNonCollisionObjects = true)
+        public static bool IsMouseCursorInsideHitbox(GameObject g, bool includeNonCollisionObjects = true)
         {
             if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
             {
@@ -510,6 +599,29 @@ namespace KWEngine3.Helper
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Erfragt, ob der Mauszeiger auf dem Objekt liegt (schnell, aber prüft dafür nur die achsenparallele Hitbox)
+        /// </summary>
+        /// <param name="g">Zu untersuchendes GameObject</param>
+        /// <param name="includeNonCollisionObjects">Sollen das Objekt auch dann untersucht werden, wenn es kein Kollisionsobjekt ist?</param>
+        /// <returns>true, wenn der Mauszeiger auf dem Objekt liegt</returns>
+        public static bool IsMouseCursorInsideHitboxFast(GameObject g, bool includeNonCollisionObjects = true)
+        {
+            if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
+            {
+                return false;
+            }
+
+            Vector3 rayDirection = GetMouseRay();
+            Vector3 rayOrigin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
+
+            rayDirection.X = 1f / rayDirection.X;
+            rayDirection.Y = 1f / rayDirection.Y;
+            rayDirection.Z = 1f / rayDirection.Z;
+            bool result = RayAABBIntersection(rayOrigin, rayDirection, g._stateCurrent._center, g._stateCurrent._dimensions, out float distance);
+            return result && distance >= 0;
         }
 
         #region Internals
@@ -1105,6 +1217,48 @@ namespace KWEngine3.Helper
             }
             else
                 return false;
+        }
+
+        internal static bool RayAABBIntersection(
+            Vector3 origin, 
+            Vector3 directionFrac, // =  1 / (direction normalized)
+            Vector3 center,       // center
+            Vector3 dimensions,      // aabb dimensions
+            out float distance)
+        {
+            // dirfrac.x = 1.0f / r.dir.x;
+            // dirfrac.y = 1.0f / r.dir.y;
+            // dirfrac.z = 1.0f / r.dir.z;
+
+            Vector3 aabbLow = new Vector3(center - dimensions * 0.5f);
+            Vector3 aabbHigh = new Vector3(center + dimensions * 0.5f);
+
+            float t1 = (aabbLow.X - origin.X) * directionFrac.X;
+            float t2 = (aabbHigh.X - origin.X) * directionFrac.X;
+            float t3 = (aabbLow.Y - origin.Y) * directionFrac.Y;
+            float t4 = (aabbHigh.Y - origin.Y) * directionFrac.Y;
+            float t5 = (aabbLow.Z - origin.Z) * directionFrac.Z;
+            float t6 = (aabbHigh.Z - origin.Z) * directionFrac.Z;
+
+            float tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
+            float tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
+
+            // if tmax < 0, schneidet der Strahl die AABB aber sie liegt hinter dem Ursprung des Strahls
+            if (tmax < 0)
+            {
+                distance = tmax;
+                return false;
+            }
+
+            // if tmin > tmax, schneidet der Strahl die AABB nicht
+            if (tmin > tmax)
+            {
+                distance = tmax;
+                return false;
+            }
+
+            distance = tmin; // Achtung: tmin kann negativ sein, wenn der Ursprung des Strahls innerhalb der AABB liegt
+            return true;
         }
         #endregion
     }

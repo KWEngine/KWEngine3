@@ -420,7 +420,7 @@ namespace KWEngine3.GameObjects
         /// <returns>true, wenn sich der Mauszeiger innerhalb der Hitbox des Objekts befindet</returns>
         public bool IsMouseCursorInsideMyHitbox()
         {
-            return HelperIntersection.IsMouseCursorInsideGameObjectHitbox(this, true);
+            return HelperIntersection.IsMouseCursorInsideHitbox(this, true);
         }
 
         /// <summary>
@@ -462,11 +462,11 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Verweis auf die Keyboard-Aktivitäten
         /// </summary>
-        public KeyboardState Keyboard { get { return KWEngine.Window.KeyboardState; } }
+        public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
         /// <summary>
         /// Verweis auf die Mausaktivitäten
         /// </summary>
-        public MouseState Mouse { get { return KWEngine.Window.MouseState; } }
+        public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
         /// <summary>
         /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
         /// </summary>

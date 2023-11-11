@@ -13,15 +13,15 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            if (Keyboard[Keys.F1])
+            if (Keyboard.IsKeyDown(Keys.F1))
             {
                 Window.SetWorld(new GameWorldJumpAndRunPhysics());
             }
-            else if (Keyboard[Keys.F2])
+            else if (Keyboard.IsKeyDown(Keys.F2))
             {
                 Window.SetWorld(new GameWorldLightAndShadow());
             }
-            else if (Keyboard[Keys.F3])
+            else if (Keyboard.IsKeyDown(Keys.F3))
             {
                 Window.SetWorld(new GameWorldPlatformerPack());
             }
@@ -67,6 +67,7 @@ namespace KWEngine3TestProject.Worlds
             fenceFront.Name = "FenceFront";
             fenceFront.SetModel("Fence_Middle64");
             fenceFront.SetPosition(0, 0, 32);
+            fenceFront.SetHitboxScale(1, 10, 1);
             fenceFront.IsCollisionObject = true;
             fenceFront.IsShadowCaster = true;
             AddGameObject(fenceFront);
@@ -75,6 +76,7 @@ namespace KWEngine3TestProject.Worlds
             fenceBack.Name = "FenceBack";
             fenceBack.SetModel("Fence_Middle64");
             fenceBack.SetPosition(0, 0, -32);
+            fenceBack.SetHitboxScale(1, 10, 1);
             fenceBack.IsCollisionObject = true;
             fenceBack.IsShadowCaster = true;
             AddGameObject(fenceBack);
@@ -103,6 +105,7 @@ namespace KWEngine3TestProject.Worlds
 
             Obstacle ramp01 = new Obstacle();
             ramp01.SetModel("Ramp01");
+            ramp01.Name = "Ramp";
             ramp01.SetPosition(10, 0, -10);
             ramp01.SetScale(4);
             ramp01.IsCollisionObject = true;
@@ -110,6 +113,7 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(ramp01);
 
             Obstacle plateau01 = new Obstacle();
+            plateau01.Name = "Plateau";
             plateau01.SetPosition(0, 2, -19);
             plateau01.SetScale(30, 4, 10);
             plateau01.IsCollisionObject = true;
@@ -129,9 +133,10 @@ namespace KWEngine3TestProject.Worlds
             Weapon w = new Weapon();
             w.SetModel("Gun");
             w.Name = "Gun";
-            w.SetScale(3);
+            w.SetScale(2.25f);
             w.IsCollisionObject = true;
-            w.SetPosition(15, 0.25f, 10);
+            w.SetPosition(15, 0.3f, 10);
+            w.SetHitboxScale(1, 2, 1);
             w.SetPivot(15, 0.25f, 10);
             AddGameObject(w);
 

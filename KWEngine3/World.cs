@@ -945,6 +945,30 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Durchsucht die Liste der HUDObject-Instanzen nach einem Textobjekt mit dem gegebenen Namen
+        /// </summary>
+        /// <param name="name">Name des gesuchten Objekts</param>
+        /// <returns>Gesuchtes Objekt oder null (falls nicht gefunden)</returns>
+        public HUDObjectText GetHUDObjectTextByName(string name)
+        {
+            name = name.Trim();
+            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectText && ho.Name == name);
+            return h as HUDObjectText;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der HUDObject-Instanzen nach einem Bildobjekt mit dem gegebenen Namen
+        /// </summary>
+        /// <param name="name">Name des gesuchten Objekts</param>
+        /// <returns>Gesuchtes Objekt oder null (falls nicht gefunden)</returns>
+        public HUDObjectImage GetHUDObjectImageByName(string name)
+        {
+            name = name.Trim();
+            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectImage && ho.Name == name);
+            return h as HUDObjectImage;
+        }
+
+        /// <summary>
         /// Zeit in Sekunden, die die Applikation bereits geöffnet ist
         /// </summary>
         public float ApplicationTime { get { return KWEngine.ApplicationTime; } }
@@ -967,11 +991,11 @@ namespace KWEngine3
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public KeyboardState Keyboard { get { return KWEngine.Window.KeyboardState; } }
+        public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public MouseState Mouse { get { return KWEngine.Window.MouseState; } }
+        public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
         /// <summary>
         /// Verweis auf das aktuelle Programmfenster
         /// </summary>
