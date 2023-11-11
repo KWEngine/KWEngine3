@@ -6,7 +6,7 @@ namespace KWEngine3.Helper
     /// <summary>
     /// Wrapper-Klasse, die die Entfernung eines Objekts und den Schnittpunkt eines Strahls auf dem Objekt beinhaltet
     /// </summary>
-    public struct RayIntersectionExt : IComparable<RayIntersection>
+    public struct RayIntersectionExt : IComparable<RayIntersectionExt>
     {
         /// <summary>
         /// Das vom Strahl getroffene Objekt
@@ -42,7 +42,7 @@ namespace KWEngine3.Helper
         /// </summary>
         /// <param name="other">Vergleichsobjekt</param>
         /// <returns>Sortierreihenfolge (-1 = näher, 0 = gleiche Entfernung, 1 = entfernter</returns>
-        public int CompareTo(RayIntersection other)
+        public int CompareTo(RayIntersectionExt other)
         {
             return this.Distance < other.Distance ? -1 : this.Distance == other.Distance ? 0 : 1;  
         }

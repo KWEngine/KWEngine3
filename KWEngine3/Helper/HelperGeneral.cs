@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
 using System.Runtime.InteropServices;
+using KWEngine3.GameObjects;
 
 namespace KWEngine3.Helper
 {
@@ -9,6 +10,17 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
+        internal static bool IsObjectClassOrSubclassOfTypes(Type[] typelist, GameObject g)
+        {
+            Type gt = g.GetType();
+            foreach(Type t in typelist)
+            {
+                if (t.IsAssignableFrom(gt))
+                    return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Prüft, ob der Dateiname darauf hindeutet, dass ein 3D-Modell in der Datei gespeichert ist
         /// </summary>

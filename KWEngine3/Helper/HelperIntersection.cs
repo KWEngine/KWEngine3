@@ -288,12 +288,14 @@ namespace KWEngine3.Helper
             {
                 maxDistance = float.MaxValue;
             }
+
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
                 if (g == caller)
                     continue;
-                if (typelist.Contains(g.GetType()))
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
+
                     bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
                     if (result == true && currentDistance >= 0)
                     {
@@ -338,11 +340,10 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
+
                 if (caller == g)
-                {
                     continue;
-                }
-                else if(typelist.Contains(g.GetType())) 
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
                     bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
                     if (result)
