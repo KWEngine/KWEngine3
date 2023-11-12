@@ -33,8 +33,8 @@ namespace KWEngine3
         internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
         internal bool _breakSimulation = false;
 
-        internal KeyboardExt _keyboard = new KeyboardExt();
-        internal MouseExt _mouse = new MouseExt();
+        //internal KeyboardExt _keyboard = new KeyboardExt();
+        //internal MouseExt _mouse = new MouseExt();
 
         internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
         {
@@ -137,11 +137,11 @@ namespace KWEngine3
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public KeyboardExt Keyboard { get { return _keyboard; } }
+        public KeyboardState Keyboard { get { return this.KeyboardState; } }// _keyboard; } }
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public MouseExt Mouse { get { return _mouse; } }
+        public MouseState Mouse { get { return this.MouseState; } }// _mouse; } }
 
         /// <summary>
         /// Standard-Initialisierungen
@@ -593,9 +593,9 @@ namespace KWEngine3
             bool first = true;
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
-                _keyboard.UpdateFirstFrameStatus(first);
-                _mouse.UpdateFirstFrameStatus(first);
-                first = false;
+                //_keyboard.UpdateFirstFrameStatus(first);
+                //_mouse.UpdateFirstFrameStatus(first);
+                
 
                 if(_breakSimulation)
                 {
@@ -603,8 +603,6 @@ namespace KWEngine3
                     break;
                 }
                 _stopwatch.Restart();
-
-                
 
                 if (KWEngine.CurrentWorld != null && worldBeforeLoop == KWEngine.CurrentWorld)
                 {
@@ -792,6 +790,8 @@ namespace KWEngine3
                     tmpTimeAdd = (float)elapsedTimeForIterationInSeconds;
                     tmpTimeAddSum += tmpTimeAdd;
                     KWEngine.WorldTime += tmpTimeAdd;
+
+                    NewInputFrame();
                 }
                 else
                 {

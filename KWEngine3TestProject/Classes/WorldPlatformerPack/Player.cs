@@ -17,13 +17,16 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
 
         public override void Act()
         {
-            /*
+            
             if(Mouse.IsButtonPressed(MouseButton.Left))
             {
-                Console.WriteLine("SPAWN!");
-                Spawn();
+                Console.WriteLine("MOUSE!");
             }
-            */
+            if(Keyboard.IsKeyPressed(Keys.F4))
+            {
+                Console.WriteLine("KEYBOARD!");
+            }
+            
 
             // Movement:
             bool isMoving = false;

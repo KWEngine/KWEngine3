@@ -991,11 +991,13 @@ namespace KWEngine3
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        //public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        public KeyboardState Keyboard { get { return KWEngine.Window.KeyboardState; } }
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
+        //public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
+        public MouseState Mouse { get { return KWEngine.Window.MouseState; } }
         /// <summary>
         /// Verweis auf das aktuelle Programmfenster
         /// </summary>

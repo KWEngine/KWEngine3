@@ -462,11 +462,13 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Verweis auf die Keyboard-Aktivitäten
         /// </summary>
-        public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        //public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        public KeyboardState Keyboard { get { return KWEngine.Window.KeyboardState; } }
         /// <summary>
         /// Verweis auf die Mausaktivitäten
         /// </summary>
-        public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
+        //public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
+        public MouseState Mouse { get { return KWEngine.Window.MouseState; } }
         /// <summary>
         /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
         /// </summary>
