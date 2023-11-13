@@ -7,13 +7,12 @@ namespace KWEngine3
     /// </summary>
     public class KeyboardExt
     {
-        internal bool _firstSimFrame = false;
-
-        internal void UpdateFirstFrameStatus(bool firstSimulationFrame)
+        internal Dictionary<Keys, float> _keysPressed = new Dictionary<Keys, float>();
+        internal void DeleteKeys()
         {
-            _firstSimFrame = firstSimulationFrame;
-
+            _keysPressed.Clear();
         }
+
         /// <summary>
         /// Prüft, ob die angegebene Taste gerade gedrückt wird
         /// </summary>
@@ -31,13 +30,28 @@ namespace KWEngine3
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
         public bool IsKeyPressed(Keys key)
         {
-            bool opentkPressed = KWEngine.Window.KeyboardState.IsKeyPressed(key);
-            if (opentkPressed && _firstSimFrame)
+            bool down = KWEngine.Window.KeyboardState.IsKeyDown(key);
+            if (down)
             {
-                return true;
+                bool result = _keysPressed.TryGetValue(key, out float t);
+                if (result)
+                {
+                    if (KWEngine.WorldTime > t)
+                        return false;
+                    else
+                        return true;
+                }
+                else
+                {
+                    _keysPressed.Add(key, KWEngine.WorldTime);
+                    return true;
+                }
             }
             else
             {
+                bool result = _keysPressed.TryGetValue(key, out float t);
+                if (result)
+                    _keysPressed.Remove(key);
                 return false;
             }
         }

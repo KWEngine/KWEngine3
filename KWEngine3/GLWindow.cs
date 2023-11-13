@@ -472,10 +472,14 @@ namespace KWEngine3
         /// <param name="w">zu setzende Welt</param>
         public void SetWorld(World w)
         {
-            if(KWEngine.CurrentWorld != null)
+            _keyboard.DeleteKeys();
+            _mouse.DeleteButtons();
+
+            if (KWEngine.CurrentWorld != null)
             {
                 KWEngine.CurrentWorld.Dispose();
             }
+
             KWEngine.CurrentWorld = w;
             CursorState = CursorState.Normal;
             KWEngine.CurrentWorld.Init();
@@ -485,6 +489,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.Prepare();
             _mouseDeltaToUse = Vector2.Zero;
             _breakSimulation = true;
+
             HelperGeneral.FlushAndFinish();
         }
 
@@ -590,21 +595,15 @@ namespace KWEngine3
             float tmpTimeAdd = 0.0f;
             float tmpTimeAddSum = 0.0f;
             elapsedUpdateTimeForCallInMS = 0.0;
-            bool first = true;
+
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
-                _keyboard.UpdateFirstFrameStatus(first);
-                _mouse.UpdateFirstFrameStatus(first);
-                first = false;
-
                 if(_breakSimulation)
                 {
                     _breakSimulation = false;
                     break;
                 }
                 _stopwatch.Restart();
-
-                
 
                 if (KWEngine.CurrentWorld != null && worldBeforeLoop == KWEngine.CurrentWorld)
                 {

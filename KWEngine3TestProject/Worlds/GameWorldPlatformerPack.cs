@@ -13,18 +13,29 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            if (Keyboard.IsKeyDown(Keys.F1))
+            if (Keyboard.IsKeyPressed(Keys.F1))
             {
                 Window.SetWorld(new GameWorldJumpAndRunPhysics());
             }
-            else if (Keyboard.IsKeyDown(Keys.F2))
+            else if (Keyboard.IsKeyPressed(Keys.F2))
             {
                 Window.SetWorld(new GameWorldLightAndShadow());
             }
-            else if (Keyboard.IsKeyDown(Keys.F3))
+            else if (Keyboard.IsKeyPressed(Keys.F3))
             {
                 Window.SetWorld(new GameWorldPlatformerPack());
             }
+            /*
+            else if (Keyboard.IsKeyPressed(Keys.F4))
+            {
+                Console.WriteLine("KEYBOARD: " + WorldTime);
+            }
+
+            if (Mouse.IsButtonPressed(MouseButton.Left))
+            {
+                Console.WriteLine("MOUSE   : " + WorldTime);
+            }
+            */
         }
 
         public override void Prepare()

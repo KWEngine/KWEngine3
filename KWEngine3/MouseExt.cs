@@ -1,34 +1,20 @@
-﻿using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3
 {
     /// <summary>
-    /// Keyboard-Klasse für Tastatureingaben (mit Engine-Anpassungen)
+    /// Mouse-Klasse für Mauseingaben (mit Engine-Anpassungen)
     /// </summary>
     public class MouseExt
     {
-        internal bool _firstSimFrame = false;
-
-        internal void UpdateFirstFrameStatus(bool firstSimulationFrame)
+        internal Dictionary<MouseButton, float> _buttonsPressed = new Dictionary<MouseButton, float>();
+        internal void DeleteButtons()
         {
-            _firstSimFrame = firstSimulationFrame;
-
+            _buttonsPressed.Clear();
         }
 
         /// <summary>
-        /// Gibt die aktuell gemessene Mauszeigerposition an
-        /// </summary>
-        public Vector2 Position 
-        { 
-            get
-            {
-                return KWEngine.Window.MouseState.Position;
-            }
-        }
-
-        /// <summary>
-        /// Prüft, ob die angegebene Taste gerade gedrückt wird
+        /// Prüft, ob die angegebene Maustaste gerade gedrückt wird
         /// </summary>
         /// <param name="button">zu prüfende Taste</param>
         /// <returns>true, wenn Taste gedrückt wird</returns>
@@ -38,19 +24,34 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Prüft, ob die angegebene Taste gerade gedrückt wird und im vorherigen Frame nicht gedrückt wurde
+        /// Prüft, ob die angegebene Maustaste gerade gedrückt wird und im vorherigen Frame nicht gedrückt wurde
         /// </summary>
         /// <param name="button">zu prüfende Taste</param>
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
         public bool IsButtonPressed(MouseButton button)
         {
-            bool opentkPressed = KWEngine.Window.MouseState.IsButtonPressed(button);
-            if (opentkPressed && _firstSimFrame)
+            bool down = KWEngine.Window.MouseState.IsButtonDown(button);
+            if (down)
             {
-                return true;
+                bool result = _buttonsPressed.TryGetValue(button, out float t);
+                if (result)
+                {
+                    if (KWEngine.WorldTime > t)
+                        return false;
+                    else
+                        return true;
+                }
+                else
+                {
+                    _buttonsPressed.Add(button, KWEngine.WorldTime);
+                    return true;
+                }
             }
             else
             {
+                bool result = _buttonsPressed.TryGetValue(button, out float t);
+                if (result)
+                    _buttonsPressed.Remove(button);
                 return false;
             }
         }
