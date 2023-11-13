@@ -1,4 +1,5 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3
 {
@@ -12,6 +13,11 @@ namespace KWEngine3
         {
             _buttonsPressed.Clear();
         }
+
+        /// <summary>
+        /// Gibt die aktuelle Mauscursorposition an
+        /// </summary>
+        public Vector2 Position { get { return KWEngine.Window.MouseState.Position; } }
 
         /// <summary>
         /// Prüft, ob die angegebene Maustaste gerade gedrückt wird
