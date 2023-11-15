@@ -417,8 +417,8 @@ namespace KWEngine3.Helper
                 bool texesAreEqual = false;
                 if(currentTex != null)
                 {
-                    string currentTexFileOnly = Path.GetFileNameWithoutExtension(currentTex).ToLower().Trim();
-                    string texnameFileOnly = Path.GetFileNameWithoutExtension(texname).ToLower().Trim();
+                    string currentTexFileOnly = Path.GetFileNameWithoutExtension(currentTex).Trim();
+                    string texnameFileOnly = Path.GetFileNameWithoutExtension(texname).Trim();
                     texesAreEqual = currentTexFileOnly == texnameFileOnly;
                 }
 

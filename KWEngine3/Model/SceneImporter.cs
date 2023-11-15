@@ -126,7 +126,7 @@ namespace KWEngine3.Model
                     return null;
                 }
 
-                GeoModel model = ProcessScene(scene, am == AssemblyMode.File ? filename.ToLower().Trim() : filename, am);
+                GeoModel model = ProcessScene(scene, am == AssemblyMode.File ? filename.Trim() : filename, am);
                 scene.Clear();
                 importer.Dispose();
                 
@@ -345,7 +345,7 @@ namespace KWEngine3.Model
             }
             else
             {
-                return path.Substring(0, index + 1).ToLower();
+                return path.Substring(0, index + 1);
             }
 
         }
@@ -380,7 +380,7 @@ namespace KWEngine3.Model
             }
             else
             {
-                return fileWithPath.Substring(index + 1).ToLower();
+                return fileWithPath.Substring(index + 1);
             }
         }
 
@@ -399,7 +399,7 @@ namespace KWEngine3.Model
 
             foreach (FileInfo fi in currentDir.GetFiles())
             {
-                if (fi.Name.ToLower() == StripPathFromFile(filename).ToLower())
+                if (fi.Name.Trim() == StripPathFromFile(filename).Trim())
                 {
                     // file found:
                     return fi.FullName;
@@ -884,7 +884,6 @@ namespace KWEngine3.Model
 
                         // Generate hitbox for the previous mesh:
                         meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, uniqueNormalsForWholeMesh, uniqueVerticesForWholeMesh, facesForHitbox);
-                        //meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, currentNodeName.ToLower().Contains("_fullhitbox") ? currentMesh : null);
                         meshHitBox.Model = model;
                         meshHitBox.Name = currentMeshName;
                         meshHitBox.Transform = currentNodeTransform;
@@ -1046,7 +1045,6 @@ namespace KWEngine3.Model
                     }
                 }
 
-                //meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, currentNodeName.ToLower().Contains("_fullhitbox") ? mesh : null);
                 if(currentMeshName == "KWQuad")
                 {
                     maxZ = 0.5f;

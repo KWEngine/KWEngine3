@@ -35,7 +35,7 @@ namespace KWEngine3.Model
                 return null;
             }
 
-            GeoModel model = ProcessScene(scene, filename.ToLower().Trim());
+            GeoModel model = ProcessScene(scene, filename.Trim());
             return model;
         }
 
@@ -329,7 +329,7 @@ namespace KWEngine3.Model
             }
             else
             {
-                return path.Substring(0, index + 1).ToLower();
+                return path.Substring(0, index + 1);
             }
 
         }
@@ -364,7 +364,7 @@ namespace KWEngine3.Model
             }
             else
             {
-                return fileWithPath.Substring(index + 1).ToLower();
+                return fileWithPath.Substring(index + 1);
             }
         }
 
@@ -383,7 +383,7 @@ namespace KWEngine3.Model
 
             foreach (FileInfo fi in currentDir.GetFiles())
             {
-                if (fi.Name.ToLower() == StripPathFromFile(filename).ToLower())
+                if (fi.Name == StripPathFromFile(filename))
                 {
                     // file found:
                     return fi.FullName;

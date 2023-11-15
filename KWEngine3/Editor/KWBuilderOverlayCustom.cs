@@ -324,7 +324,7 @@ namespace KWEngine3.Editor
                         if (FileNameEmpty(albedoFilename))
                             SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Albedo);
                         else if (File.Exists(albedoFilename))
-                            SelectedGameObject.SetTexture(albedoFilename.Trim().ToLower(), TextureType.Albedo);
+                            SelectedGameObject.SetTexture(albedoFilename.Trim(), TextureType.Albedo);
                     }
 
                     if (ImGui.InputText("Normal", ref normalFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
@@ -332,7 +332,7 @@ namespace KWEngine3.Editor
                         if (FileNameEmpty(normalFilename))
                             SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Normal);
                         else if (File.Exists(normalFilename))
-                            SelectedGameObject.SetTexture(normalFilename.Trim().ToLower(), TextureType.Normal);
+                            SelectedGameObject.SetTexture(normalFilename.Trim(), TextureType.Normal);
                     }
 
                     if (ImGui.InputText("Emissive", ref emissiveFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
@@ -340,7 +340,7 @@ namespace KWEngine3.Editor
                         if (FileNameEmpty(emissiveFilename))
                             SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Emissive);
                         else if (File.Exists(emissiveFilename))
-                            SelectedGameObject.SetTexture(emissiveFilename.Trim().ToLower(), TextureType.Emissive);
+                            SelectedGameObject.SetTexture(emissiveFilename.Trim(), TextureType.Emissive);
                     }
 
                     if (ImGui.InputText("Metallic", ref metallicFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
@@ -348,7 +348,7 @@ namespace KWEngine3.Editor
                         if (FileNameEmpty(metallicFilename))
                             SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Metallic);
                         else if (File.Exists(metallicFilename))
-                            SelectedGameObject.SetTexture(metallicFilename.Trim().ToLower(), TextureType.Metallic);
+                            SelectedGameObject.SetTexture(metallicFilename.Trim(), TextureType.Metallic);
                     }
 
                     if (ImGui.InputText("Roughness", ref roughnessFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
@@ -356,7 +356,7 @@ namespace KWEngine3.Editor
                         if (FileNameEmpty(roughnessFilename))
                             SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Roughness);
                         else if (File.Exists(roughnessFilename))
-                            SelectedGameObject.SetTexture(roughnessFilename.Trim().ToLower(), TextureType.Roughness);
+                            SelectedGameObject.SetTexture(roughnessFilename.Trim(), TextureType.Roughness);
                     }
 
                     if (SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet)
@@ -458,7 +458,7 @@ namespace KWEngine3.Editor
                             if (FileNameEmpty(albedo_t[i]))
                                 SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Albedo, i);
                             else if (File.Exists(albedo_t[i]))
-                                SelectedGameObject.SetTexture(albedo_t[i].Trim().ToLower(), TextureType.Albedo, i);
+                                SelectedGameObject.SetTexture(albedo_t[i].Trim(), TextureType.Albedo, i);
                             
 
                         }
@@ -468,7 +468,7 @@ namespace KWEngine3.Editor
                             if (FileNameEmpty(normal_t[i]))
                                 SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Normal, i);
                             else if (File.Exists(normal_t[i]))
-                                SelectedGameObject.SetTexture(normal_t[i].Trim().ToLower(), TextureType.Normal, i);
+                                SelectedGameObject.SetTexture(normal_t[i].Trim(), TextureType.Normal, i);
 
                         }
                         
@@ -477,7 +477,7 @@ namespace KWEngine3.Editor
                             if (FileNameEmpty(roughness_t[i]))
                                 SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Roughness, i);
                             else if (File.Exists(roughness_t[i]))
-                                SelectedGameObject.SetTexture(roughness_t[i].Trim().ToLower(), TextureType.Roughness, i);
+                                SelectedGameObject.SetTexture(roughness_t[i].Trim(), TextureType.Roughness, i);
 
 
                         }
@@ -487,7 +487,7 @@ namespace KWEngine3.Editor
                             if (FileNameEmpty(metallic_t[i]))
                                 SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Metallic, i);
                             else if (File.Exists(metallic_t[i]))
-                                SelectedGameObject.SetTexture(metallic_t[i].Trim().ToLower(), TextureType.Metallic, i);
+                                SelectedGameObject.SetTexture(metallic_t[i].Trim(), TextureType.Metallic, i);
 
                         }
                         
@@ -722,7 +722,7 @@ namespace KWEngine3.Editor
                     if (FileNameEmpty(albedoFilename))
                         SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Albedo);
                     else if (File.Exists(albedoFilename))
-                        SelectedTerrainObject.SetTexture(albedoFilename.Trim().ToLower(), TextureType.Albedo);
+                        SelectedTerrainObject.SetTexture(albedoFilename.Trim(), TextureType.Albedo);
                 }
 
                 if (ImGui.InputText("Normal", ref normalFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
@@ -730,7 +730,7 @@ namespace KWEngine3.Editor
                     if (FileNameEmpty(normalFilename))
                         SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Normal);
                     else if (File.Exists(normalFilename))
-                        SelectedTerrainObject.SetTexture(normalFilename.Trim().ToLower(), TextureType.Normal);
+                        SelectedTerrainObject.SetTexture(normalFilename.Trim(), TextureType.Normal);
                 }
 
                 if (ImGui.InputText("Emissive", ref emissiveFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
@@ -738,7 +738,7 @@ namespace KWEngine3.Editor
                     if (FileNameEmpty(emissiveFilename))
                         SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Emissive);
                     else if (File.Exists(emissiveFilename))
-                        SelectedTerrainObject.SetTexture(emissiveFilename.Trim().ToLower(), TextureType.Emissive);
+                        SelectedTerrainObject.SetTexture(emissiveFilename.Trim(), TextureType.Emissive);
                 }
 
                 if (ImGui.InputText("Metallic", ref metallicFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
@@ -746,7 +746,7 @@ namespace KWEngine3.Editor
                     if (FileNameEmpty(metallicFilename))
                         SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Metallic);
                     else if (File.Exists(metallicFilename))
-                        SelectedTerrainObject.SetTexture(metallicFilename.Trim().ToLower(), TextureType.Metallic);
+                        SelectedTerrainObject.SetTexture(metallicFilename.Trim(), TextureType.Metallic);
                 }
 
                 if (ImGui.InputText("Roughness", ref roughnessFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
@@ -754,7 +754,7 @@ namespace KWEngine3.Editor
                     if (FileNameEmpty(roughnessFilename))
                         SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Roughness);
                     else if (File.Exists(roughnessFilename))
-                        SelectedTerrainObject.SetTexture(roughnessFilename.Trim().ToLower(), TextureType.Roughness);
+                        SelectedTerrainObject.SetTexture(roughnessFilename.Trim(), TextureType.Roughness);
                 }
 
                 if (SelectedTerrainObject._gModel.Material[0].TextureAlbedo.IsTextureSet)

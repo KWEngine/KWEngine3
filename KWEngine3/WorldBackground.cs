@@ -24,9 +24,9 @@ namespace KWEngine3
         {
             filename = filename == null ? "" : filename.Trim();
             int texId;
-            if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename.ToLower()))
+            if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
             {
-                texId = KWEngine.CurrentWorld._customTextures[filename.ToLower()];
+                texId = KWEngine.CurrentWorld._customTextures[filename];
             }
             else
             {
@@ -35,7 +35,7 @@ namespace KWEngine3
                 else
                     texId = HelperTexture.LoadTextureSkyboxEquirectangular(filename, out _mipMapLevels, out int w, out int h);
                 if(texId > 0)
-                    KWEngine.CurrentWorld._customTextures.Add(filename.ToLower(), texId);
+                    KWEngine.CurrentWorld._customTextures.Add(filename, texId);
             }
             if(texId > 0)
             {
@@ -68,15 +68,15 @@ namespace KWEngine3
         {
             filename = filename == null ? "" : filename.Trim();
             int texId;
-            if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename.ToLower()))
+            if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
             {
-                texId = KWEngine.CurrentWorld._customTextures[filename.ToLower()];
+                texId = KWEngine.CurrentWorld._customTextures[filename];
             }
             else
             {
                 texId = HelperTexture.LoadTextureForBackgroundExternal(filename, out _mipMapLevels);
                 if (texId > 0)
-                    KWEngine.CurrentWorld._customTextures.Add(filename.ToLower(), texId);
+                    KWEngine.CurrentWorld._customTextures.Add(filename, texId);
             }
             if(texId > 0)
             {

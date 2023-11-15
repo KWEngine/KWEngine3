@@ -965,7 +965,7 @@ namespace KWEngine3.GameObjects
         {
             if (filename == null)
                 filename = "";
-            _gModel.SetTexture(filename.ToLower().Trim(), type, meshId);
+            _gModel.SetTexture(filename.Trim(), type, meshId);
         }
 
         /// <summary>
