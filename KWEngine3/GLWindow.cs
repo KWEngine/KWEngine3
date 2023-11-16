@@ -472,6 +472,10 @@ namespace KWEngine3
         /// <param name="w">zu setzende Welt</param>
         public void SetWorld(World w)
         {
+            KWEngine._uniformOffsetMultiplier = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 4 : 1;
+            KWEngine._folderDivider = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
+            KWEngine._folderDividerString = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\\" : "/";
+
             _keyboard.DeleteKeys();
             _mouse.DeleteButtons();
 
