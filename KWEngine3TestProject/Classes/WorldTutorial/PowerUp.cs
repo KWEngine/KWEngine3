@@ -12,7 +12,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
     internal class PowerUp : GameObject
     {
         private PowerUpText _text = null;
-        private string _type = "x5"; 
+        //private string _type = "x5"; 
 
         public PowerUp(string type)
         {

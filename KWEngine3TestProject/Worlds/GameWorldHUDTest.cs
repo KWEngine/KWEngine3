@@ -15,8 +15,8 @@ namespace KWEngine3TestProject.Worlds
         private HUDObjectText _h5;
         private HUDObjectText _h6;
         private HUDObjectImage _hCrosshair;
-        private float _h1Distance = 1;
-        private bool _h1DistanceGrow = true;
+        //private float _h1Distance = 1;
+        //private bool _h1DistanceGrow = true;
 
         public override void Act()
         {
