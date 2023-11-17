@@ -22,8 +22,8 @@ namespace KWEngine3
         internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
         internal const int MAXGAMEOBJECTID = 16777216;
         internal const int LIGHTINDEXDIVIDER = 17;
-        internal static char _folderDivider = '\\';
-        internal static string _folderDividerString = @"\\";
+        //internal static char _folderDivider = '\\';
+        //internal static string _folderDividerString = @"\\";
 
         /// <summary>
         /// Aktuelles Fenster

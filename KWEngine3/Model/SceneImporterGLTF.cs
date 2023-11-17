@@ -322,7 +322,7 @@ namespace KWEngine3.Model
 
         internal static string StripFileNameFromPath(string path)
         {
-            int index = path.LastIndexOf(KWEngine._folderDivider);
+            int index = path.LastIndexOf(Path.DirectorySeparatorChar);
             if (index < 0)
             {
                 return path;
@@ -357,7 +357,7 @@ namespace KWEngine3.Model
 
         internal static string StripPathFromFile(string fileWithPath)
         {
-            int index = fileWithPath.LastIndexOf(KWEngine._folderDivider);
+            int index = fileWithPath.LastIndexOf(Path.DirectorySeparatorChar);
             if (index < 0)
             {
                 return fileWithPath;
@@ -747,7 +747,7 @@ namespace KWEngine3.Model
                     }
                     else
                     {
-                        using (FileStream stream = File.Open(model.Path + KWEngine._folderDividerString + i.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        using (FileStream stream = File.Open(model.Path + Path.DirectorySeparatorChar + i.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
                         {
                             stream.Position = bufferViewOffset;
                             stream.Read(data, 0, bufferViewLength);
@@ -758,7 +758,7 @@ namespace KWEngine3.Model
             }
             else
             {
-                using (FileStream stream = File.Open(model.Path + KWEngine._folderDividerString + i.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (FileStream stream = File.Open(model.Path + Path.DirectorySeparatorChar + i.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     data = new byte[stream.Length];
                     stream.Position = 0;
@@ -817,7 +817,7 @@ namespace KWEngine3.Model
                 else
                 {
 
-                    using (FileStream stream = File.Open(model.Path + KWEngine._folderDividerString + buffer.Uri, FileMode.Open, FileAccess.Read))
+                    using (FileStream stream = File.Open(model.Path + Path.DirectorySeparatorChar + buffer.Uri, FileMode.Open, FileAccess.Read))
                     {
                         stream.Position = accessorOffset + bufferViewOffset;
                         if (bufferViewStride == 0)
@@ -1262,7 +1262,7 @@ namespace KWEngine3.Model
                     else
                     {
 
-                        using (FileStream file = File.Open(model.Path + KWEngine._folderDividerString + indicesBuffer.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        using (FileStream file = File.Open(model.Path + Path.DirectorySeparatorChar + indicesBuffer.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
                         {
                             file.Position = accessorOffset + bufferViewOffset;
                             file.Read(data, 0, bufferViewLength);

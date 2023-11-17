@@ -150,10 +150,6 @@ namespace KWEngine3
         {
             base.OnLoad();
 
-            KWEngine._uniformOffsetMultiplier = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 4 : 1;
-            KWEngine._folderDivider = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
-            KWEngine._folderDividerString = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\\" : "/";
-
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
             string version = fileVersionInfo.ProductVersion;
@@ -161,7 +157,13 @@ namespace KWEngine3
 
             if(Title == null || Title == "")
                 Title = "KWEngine " + version + " (" + date + ") | OpenGL Version: " + GL.GetString(StringName.Version);
-            
+
+            // Unter MacOS ist die OpenGL-Bibliothek so implementiert, dass Uniform Arrays mit Mehrkomponenten-Inhalten
+            // im Shader als einzelne Komponenten angesprochen werden:
+            // Windows: Vector4(0, 1, 2, 3) wird im Uniform Array als ein vec4-Eintrag [0] gesehen.
+            // MacOS:   Vector4(0, 1, 2, 3) wird im Uniform Array als vier separate floats gesehen [0][1][2][3].
+            KWEngine._uniformOffsetMultiplier = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 4 : 1;
+
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
             RenderManager.InitializeClearColor();
@@ -472,10 +474,6 @@ namespace KWEngine3
         /// <param name="w">zu setzende Welt</param>
         public void SetWorld(World w)
         {
-            KWEngine._uniformOffsetMultiplier = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 4 : 1;
-            KWEngine._folderDivider = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
-            KWEngine._folderDividerString = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\\" : "/";
-
             _keyboard.DeleteKeys();
             _mouse.DeleteButtons();
 

@@ -88,7 +88,7 @@ namespace KWEngine3.Audio
                 throw new Exception("Only 8bit mono and stereo wave (*.wav) sources are supported.");
             }
             
-            mName = audioFileName.Substring(audioFileName.LastIndexOf(KWEngine._folderDivider) + 1);
+            mName = audioFileName.Substring(audioFileName.LastIndexOf(Path.DirectorySeparatorChar) + 1);
 
             mPointerBuffer = AL.GenBuffer();
             pointerToAudioData = Marshal.AllocHGlobal(AudioData.Length);
