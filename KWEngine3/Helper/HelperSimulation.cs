@@ -99,7 +99,10 @@ namespace KWEngine3.Helper
             g._stateRender._opacity = g._statePrevious._opacity* alpha +g._stateCurrent._opacity * (1f - alpha);
             g._stateRender._colorTint = Vector3.Lerp(g._statePrevious._colorTint, g._stateCurrent._colorTint, alpha);
             g._stateRender._colorEmissive = Vector4.Lerp(g._statePrevious._colorEmissive, g._stateCurrent._colorEmissive, alpha);
-            g._stateRender._uvTransform = Vector4.Lerp(g._statePrevious._uvTransform, g._stateCurrent._uvTransform, alpha);
+            if(g.BlendTextureStates)
+                g._stateRender._uvTransform = Vector4.Lerp(g._statePrevious._uvTransform, g._stateCurrent._uvTransform, alpha);
+            else
+                g._stateRender._uvTransform = g._stateCurrent._uvTransform;
             g._stateRender._center = Vector3.Lerp(g._statePrevious._center, g._stateCurrent._center, alpha);
             g._stateRender._dimensions = Vector3.Lerp(g._statePrevious._dimensions, g._stateCurrent._dimensions, alpha);
 

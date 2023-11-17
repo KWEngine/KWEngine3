@@ -332,6 +332,7 @@ namespace KWEngine3.Helper
             g.IsCollisionObject = sg.IsCollisionObject;
             g.UpdateLast = sg.UpdateLast;
             g.Name = sg.Name;
+            g.BlendTextureStates = sg.BlendTextureStates;
             g._importedID = sg.ID;
 
             g.SetPosition(sg.Position[0], sg.Position[1], sg.Position[2]);

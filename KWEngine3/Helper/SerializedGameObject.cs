@@ -8,6 +8,7 @@ namespace KWEngine3.Helper
         // MISC. PROPERTIES
         public bool IsShadowCaster { get; set; }
         public bool IsCollisionObject { get; set; }
+        public bool BlendTextureStates { get; set; }
         public int ID { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
@@ -53,6 +54,7 @@ namespace KWEngine3.Helper
             sg.ModelPath = g._gModel.ModelOriginal.Filename;
             sg.Type = g.GetType().FullName;
             sg.UpdateLast = g.UpdateLast;
+            sg.BlendTextureStates = g.BlendTextureStates;
 
             sg.Position = new float[] { g._stateCurrent._position.X, g._stateCurrent._position.Y, g._stateCurrent._position.Z };
             sg.Rotation = new float[] { g._stateCurrent._rotation.X, g._stateCurrent._rotation.Y, g._stateCurrent._rotation.Z, g._stateCurrent._rotation.W };

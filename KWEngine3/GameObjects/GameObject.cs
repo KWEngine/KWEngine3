@@ -963,8 +963,7 @@ namespace KWEngine3.GameObjects
         /// <param name="meshId">ID des 3D-Modellanteils (Standard: 0)</param>
         public void SetTexture(string filename, TextureType type = TextureType.Albedo, int meshId = 0)
         {
-            if (filename == null)
-                filename = "";
+            filename = HelperGeneral.EqualizePathDividers(filename);
             _gModel.SetTexture(filename.Trim(), type, meshId);
         }
 
@@ -1303,6 +1302,12 @@ namespace KWEngine3.GameObjects
                 }
             }
         }
+
+        /// <summary>
+        /// Gibt an, ob Änderungen an TextureOffset-Werten für die Render-Phase interpoliert werden (Standard: true) 
+        /// (für 2D-Objekte mit Spritesheet-Animationen sollte dieser Wert auf 'false' gesetzt werden)
+        /// </summary>
+        public bool BlendTextureStates { get; set; } = true;
 
         #region Internals
         internal GameObjectState _statePrevious;

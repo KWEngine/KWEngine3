@@ -144,7 +144,7 @@ namespace KWEngine3.Model
                 FileInfo fi = new FileInfo(Filename);
                 if (fi.Exists)
                 {
-                    Path = fi.DirectoryName;
+                    Path = HelperGeneral.EqualizePathDividers(fi.DirectoryName);
                 }
                 else
                 {

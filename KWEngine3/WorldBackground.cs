@@ -22,7 +22,7 @@ namespace KWEngine3
 
         public void SetSkybox(string filename, float rotation = 0f, SkyboxType type = SkyboxType.CubeMap)
         {
-            filename = filename == null ? "" : filename.Trim();
+            filename = HelperGeneral.EqualizePathDividers(filename == null ? "" : filename.Trim());
             int texId;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
             {
@@ -66,7 +66,7 @@ namespace KWEngine3
 
         public void SetStandard(string filename)
         {
-            filename = filename == null ? "" : filename.Trim();
+            filename = HelperGeneral.EqualizePathDividers(filename == null ? "" : filename.Trim());
             int texId;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
             {

@@ -39,7 +39,10 @@ namespace KWEngine3.Model
 
         internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal)
         {
-            
+            if (filename == null)
+                filename = "";
+            filename = filename.Trim();
+
             FileType type = CheckFileEnding(filename);
             if(type == FileType.GLTF)
             {
@@ -95,6 +98,7 @@ namespace KWEngine3.Model
                 }
                 else
                 {
+                    filename = HelperGeneral.EqualizePathDividers(filename);
                     if (type != FileType.Invalid)
                     {
                         PostProcessSteps steps =
@@ -126,7 +130,7 @@ namespace KWEngine3.Model
                     return null;
                 }
 
-                GeoModel model = ProcessScene(scene, am == AssemblyMode.File ? filename.Trim() : filename, am);
+                GeoModel model = ProcessScene(scene, filename, am);
                 scene.Clear();
                 importer.Dispose();
                 
@@ -153,8 +157,6 @@ namespace KWEngine3.Model
                 }
                 else
                 {
-
-
                     string p = Assembly.GetExecutingAssembly().Location;
                     string pA = new DirectoryInfo(StripFileNameFromPath(p)).FullName;
                     if (!Path.IsPathRooted(filename))
@@ -337,7 +339,8 @@ namespace KWEngine3.Model
 
         internal static string StripFileNameFromPath(string path)
         {
-            int index = path.LastIndexOf(Path.DirectorySeparatorChar);
+            path = HelperGeneral.EqualizePathDividers(path);
+            int index = path.LastIndexOf(Path.AltDirectorySeparatorChar);
             int indexPoint = path.LastIndexOf('.');
             if (index < 0 || indexPoint < index)
             {
@@ -373,7 +376,8 @@ namespace KWEngine3.Model
 
         internal static string StripPathFromFile(string fileWithPath)
         {
-            int index = fileWithPath.LastIndexOf(Path.DirectorySeparatorChar);
+            fileWithPath = HelperGeneral.EqualizePathDividers(fileWithPath);
+            int index = fileWithPath.LastIndexOf(Path.AltDirectorySeparatorChar);
             if (index < 0)
             {
                 return fileWithPath;
@@ -386,6 +390,9 @@ namespace KWEngine3.Model
 
         internal static string FindTextureInSubs(string filename, string path = null)
         {
+            filename = HelperGeneral.EqualizePathDividers(filename);
+            if (path != null)
+                path = HelperGeneral.EqualizePathDividers(path);
             DirectoryInfo currentDir;
             if (path == null)
             {
@@ -545,7 +552,7 @@ namespace KWEngine3.Model
                     {
                         GeoTexture tex = new GeoTexture();
                         tex.UVTransform = new Vector4(1, 1, 0, 0);
-                        tex.Filename = slot.FilePath;
+                        tex.Filename = HelperGeneral.EqualizePathDividers(slot.FilePath);
                         tex.UVMapIndex = slot.UVIndex;
                         if (model.Textures.ContainsKey(tex.Filename))
                         {
@@ -629,7 +636,7 @@ namespace KWEngine3.Model
                 {
                     GeoTexture tex = new GeoTexture();
                     tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = material.TextureDiffuse.FilePath;
+                    tex.Filename = HelperGeneral.EqualizePathDividers(material.TextureDiffuse.FilePath);
                     tex.UVMapIndex = material.TextureDiffuse.UVIndex;
                     tex.Type = TextureType.Albedo;
                     if (model.Textures.ContainsKey(tex.Filename))
@@ -680,7 +687,7 @@ namespace KWEngine3.Model
                 {
                     GeoTexture tex = new GeoTexture();
                     tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = material.TextureNormal.FilePath;
+                    tex.Filename = HelperGeneral.EqualizePathDividers(material.TextureNormal.FilePath);
                     tex.UVMapIndex = material.TextureNormal.UVIndex;
                     tex.Type = TextureType.Normal;
                     if (model.Textures.ContainsKey(tex.Filename))
@@ -718,7 +725,7 @@ namespace KWEngine3.Model
                 {
                     GeoTexture tex = new GeoTexture();
                     tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = texturesOfMaterial[roughnessTextureIndex].FilePath;
+                    tex.Filename = HelperGeneral.EqualizePathDividers(texturesOfMaterial[roughnessTextureIndex].FilePath);
                     tex.UVMapIndex = texturesOfMaterial[roughnessTextureIndex].UVIndex;
                     tex.Type = TextureType.Roughness;
                     if (model.Textures.ContainsKey(tex.Filename))
@@ -765,7 +772,7 @@ namespace KWEngine3.Model
                     GeoTexture tex = new GeoTexture();
                     geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 0);
                     tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = material.TextureEmissive.FilePath;
+                    tex.Filename = HelperGeneral.EqualizePathDividers(material.TextureEmissive.FilePath);
                     tex.UVMapIndex = material.TextureEmissive.UVIndex;
                     tex.Type = TextureType.Emissive;
                     if (model.Textures.ContainsKey(tex.Filename))
@@ -809,6 +816,7 @@ namespace KWEngine3.Model
 
         private static bool CheckIfOtherModelsShareTexture(string texture, string path, out GeoTexture sharedTex)
         {
+            path = HelperGeneral.EqualizePathDividers(path);
             sharedTex = new GeoTexture();
             foreach(string key in KWEngine.Models.Keys)
             {
@@ -819,7 +827,6 @@ namespace KWEngine3.Model
                     {
                         if(texKey == texture)
                         {
-
                             sharedTex = m.Textures[texKey];
                             return true;
                         }

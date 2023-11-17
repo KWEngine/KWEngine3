@@ -1,4 +1,6 @@
-﻿namespace KWEngine3.Audio
+﻿using KWEngine3.Helper;
+
+namespace KWEngine3.Audio
 {
     /// <summary>
     /// Helfer-Klasse für Audioeffekte
@@ -14,6 +16,7 @@
         /// <returns>ID des verwendeten Audiokanals</returns>
         public static int PlaySound(string audiofile, bool playLooping = false, float volume = 1.0f)
         {
+            audiofile = HelperGeneral.EqualizePathDividers(audiofile);
             return GLAudioEngine.SoundPlay(audiofile, playLooping, volume);
         }
 
@@ -33,6 +36,7 @@
         /// <param name="audiofile">Audiodatei</param>
         public static void StopSound(string audiofile)
         {
+            audiofile = HelperGeneral.EqualizePathDividers(audiofile);
             GLAudioEngine.SoundStop(audiofile);
         }
 
@@ -42,6 +46,7 @@
         /// <param name="audiofile">Audiodatei</param>
         public static void PreloadSound(string audiofile)
         {
+            audiofile = HelperGeneral.EqualizePathDividers(audiofile);
             GLAudioEngine.SoundPreload(audiofile);
         }
 

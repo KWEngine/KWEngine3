@@ -9,6 +9,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.IO;
 using KWEngine3.Audio.OggDecoder;
+using KWEngine3.Helper;
 
 namespace KWEngine3.Audio
 {
@@ -42,6 +43,8 @@ namespace KWEngine3.Audio
             int sampleRate;
             if (!(audioFileName.ToLower().EndsWith("wav") || audioFileName.ToLower().EndsWith("ogg")))
                 throw new Exception("Only wav and ogg files are supported.");
+
+            HelperGeneral.EqualizePathDividers(audioFileName);
 
             if (audioFileName.ToLower().EndsWith("ogg"))
             {
@@ -88,7 +91,7 @@ namespace KWEngine3.Audio
                 throw new Exception("Only 8bit mono and stereo wave (*.wav) sources are supported.");
             }
             
-            mName = audioFileName.Substring(audioFileName.LastIndexOf(Path.DirectorySeparatorChar) + 1);
+            mName = audioFileName.Substring(audioFileName.LastIndexOf(Path.AltDirectorySeparatorChar) + 1);
 
             mPointerBuffer = AL.GenBuffer();
             pointerToAudioData = Marshal.AllocHGlobal(AudioData.Length);

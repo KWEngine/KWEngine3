@@ -10,6 +10,20 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
+        internal static string EqualizePathDividers(string s)
+        {
+            if (s != null)
+            {
+                s = s.Replace(@"\\", @"\");
+                s = s.Replace(@"\", "/");
+            }
+            else
+            {
+                s = "";
+            }
+            return s;
+        }
+
         internal static bool IsObjectClassOrSubclassOfTypes(Type[] typelist, GameObject g)
         {
             Type gt = g.GetType();

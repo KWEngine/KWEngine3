@@ -464,7 +464,7 @@ namespace KWEngine3
         {
             if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
             {
-                KWEngine.LogWriteLine("[Import] Models must be imported in Prepare()");
+                LogWriteLine("[Import] Models must be imported in Prepare()");
                 throw new KWEngine3.Exceptions.EngineException("[Import] Models must be imported in Prepare()");
             }
             GeoModel m = null;
