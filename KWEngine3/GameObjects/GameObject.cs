@@ -45,6 +45,7 @@ namespace KWEngine3.GameObjects
                 }
             } 
         }
+
         /// <summary>
         /// Gibt an, ob das Objekt Schatten werfen und empfangen kann
         /// </summary>
@@ -196,18 +197,20 @@ namespace KWEngine3.GameObjects
             //{
             //    return null;
             //}
-            List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//new List<GameObject>();
+            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//new List<GameObject>();
             //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
-
-            foreach (GameObjectHitbox hbother in potentialColliders)
+            lock (_collisionCandidates)
             {
-                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                foreach (GameObjectHitbox hbother in _collisionCandidates)
                 {
-                    if (!hbcaller.IsActive)
-                        continue;
-                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                    if (i != null)
-                        return i;
+                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                    {
+                        if (!hbcaller.IsActive)
+                            continue;
+                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                        if (i != null)
+                            return i;
+                    }
                 }
             }
             
@@ -230,23 +233,25 @@ namespace KWEngine3.GameObjects
             //{
             //    return null;
             //}
-            List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//; new List<GameObject>();
+            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//; new List<GameObject>();
             //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-
-            foreach (GameObjectHitbox hbother in potentialColliders)
+            lock (_collisionCandidates)
             {
-                if((hbother.Owner is T) == false)
+                foreach (GameObjectHitbox hbother in _collisionCandidates)
                 {
-                    continue;
-                }
-                foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                {
-                    if (!hbcaller.IsActive)
+                    if ((hbother.Owner is T) == false)
+                    {
                         continue;
-                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                    if (i != null)
-                        return i;
+                    }
+                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                    {
+                        if (!hbcaller.IsActive)
+                            continue;
+                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                        if (i != null)
+                            return i;
+                    }
                 }
             }
             return null;
@@ -268,19 +273,21 @@ namespace KWEngine3.GameObjects
             //{
             //    return intersections;
             //}
-            List<GameObjectHitbox> potentialColliders = this._collisionCandidates;// new List<GameObject>();
+            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;// new List<GameObject>();
             //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
 
-
-            foreach (GameObjectHitbox hbother in potentialColliders)
+            lock (_collisionCandidates)
             {
-                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                foreach (GameObjectHitbox hbother in _collisionCandidates)
                 {
-                    if (!hbcaller.IsActive)
-                        continue;
-                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                    if (i != null)
-                        intersections.Add(i);
+                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                    {
+                        if (!hbcaller.IsActive)
+                            continue;
+                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                        if (i != null)
+                            intersections.Add(i);
+                    }
                 }
             }
             
@@ -304,23 +311,25 @@ namespace KWEngine3.GameObjects
             //{
             //    return intersections;
             //}
-            List<GameObjectHitbox> potentialColliders = this._collisionCandidates;
+            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;
             //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-
-            foreach (GameObjectHitbox hbother in potentialColliders)
+            lock (_collisionCandidates)
             {
-                if((hbother.Owner is T) == false)
+                foreach (GameObjectHitbox hbother in _collisionCandidates)
                 {
-                    continue;
-                }
-                foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                {
-                    if (!hbcaller.IsActive)
+                    if ((hbother.Owner is T) == false)
+                    {
                         continue;
-                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                    if (i != null)
-                        intersections.Add(i);
+                    }
+                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                    {
+                        if (!hbcaller.IsActive)
+                            continue;
+                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                        if (i != null)
+                            intersections.Add(i);
+                    }
                 }
             }
             return intersections;
@@ -1324,10 +1333,6 @@ namespace KWEngine3.GameObjects
         internal bool _isCollisionObject = false;
         internal bool _isShadowCaster = false;
 
-        internal Vector2 LeftRightMost { get; set; } = new Vector2(0, 0);
-        internal Vector2 BackFrontMost { get; set; } = new Vector2(0, 0);
-        internal Vector2 BottomTopMost { get; set; } = new Vector2(0, 0);
-
         internal void SetScale(Vector3 s)
         {
             SetScale(s.X, s.Y, s.Z);
@@ -1522,24 +1527,10 @@ namespace KWEngine3.GameObjects
             _stateCurrent._dimensions.Y = dimMax.Y - dimMin.Y;
             _stateCurrent._dimensions.Z = dimMax.Z - dimMin.Z;
             _stateCurrent._center = (dimMax + dimMin) / 2f;
-
-            LeftRightMost = new Vector2(_stateCurrent._center.X - _stateCurrent._dimensions.X / 2 - KWEngine.SweepAndPruneTolerance, _stateCurrent._center.X + _stateCurrent._dimensions.X / 2 + KWEngine.SweepAndPruneTolerance);
-            BackFrontMost = new Vector2(_stateCurrent._center.Z - _stateCurrent._dimensions.Z / 2 - KWEngine.SweepAndPruneTolerance, _stateCurrent._center.Z + _stateCurrent._dimensions.Z / 2 + KWEngine.SweepAndPruneTolerance);
-            BottomTopMost = new Vector2(_stateCurrent._center.Y - _stateCurrent._dimensions.Y / 2 - KWEngine.SweepAndPruneTolerance, _stateCurrent._center.Y + _stateCurrent._dimensions.Y / 2 + KWEngine.SweepAndPruneTolerance);
-        }
-
-        internal Vector2 GetExtentsForAxis(int a)
-        {
-            if (a == 1)
-                return BottomTopMost;
-            else if (a == 2)
-                return BackFrontMost;
-            else
-                return LeftRightMost;
-
         }
 
         internal List<GameObjectHitbox> _collisionCandidates = new List<GameObjectHitbox>();
+        internal List<GameObjectHitbox> _collisionCandidatesTemp = new List<GameObjectHitbox>();
 
         internal void CollectPotentialCollidersFromParent<T>(List<GameObjectHitbox> colliders, OctreeNode node)
         {

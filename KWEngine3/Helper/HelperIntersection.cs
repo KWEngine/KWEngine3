@@ -12,6 +12,41 @@ namespace KWEngine3.Helper
     public static class HelperIntersection
     {
         /// <summary>
+        /// Gibt die aktuelle Anzahl potenzieller Kollisionskandidaten an, die sich in der Nähe des Objekts befinden
+        /// </summary>
+        /// <param name="g">zu prüfendes Objekt</param>
+        /// <returns>Anzahl potenzieller Kollisionskandidaten</returns>
+        public static int GetCollisionCandidateCountFor(GameObject g)
+        {
+            int c = 0;
+            lock (g._collisionCandidates)
+            {
+                c = g._collisionCandidates.Count;
+            }
+            return c;
+        }
+
+        /// <summary>
+        /// Gibt zu Testzwecken eine Zeichenkette mit den Namen aller für die Kollsionsbehandlung 
+        /// untersuchten GameObject-Instanzen zurück
+        /// </summary>
+        /// <param name="g">betroffenes GameObject</param>
+        /// <returns>Liste der Instanznamen</returns>
+        public static string GetCollisionCandidateNamesFor(GameObject g)
+        {
+            string result = "";
+            lock (g._collisionCandidates)
+            {
+                foreach (GameObjectHitbox hb in g._collisionCandidates)
+                {
+                    result += hb.Owner.Name + ", ";
+                }
+            }
+
+            return result.Substring(0, Math.Max(0, result.Length - 2));
+        }
+
+        /// <summary>
         /// Berechnet die Richtung von der Kameraposition zum Mauszeiger in 3D
         /// </summary>
         /// <returns>Blickrichtung der Kamera in Richtung des Mauszeigers</returns>

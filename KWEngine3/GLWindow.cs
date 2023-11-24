@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using KWEngine3.Audio;
@@ -466,7 +467,27 @@ namespace KWEngine3
             }
             Overlay.MouseScroll(e.Offset);
         }
- 
+
+        /// <summary>
+        /// Wird ausgelöst, wenn das aktuelle Fenster geschlossen wird
+        /// </summary>
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            HelperSweepAndPrune.StopThread();
+        }
+
+        /// <summary>
+        /// Event-Handler, der ausgelöst wird, wenn eine Taste im Fenster gedrückt wird
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            if(Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4))
+            {
+                HelperSweepAndPrune.StopThread();
+            }
+        }
 
         /// <summary>
         /// Setzt eine Welt für das Fenster zur Anzeige und initialisiert diese
@@ -479,6 +500,7 @@ namespace KWEngine3
 
             if (KWEngine.CurrentWorld != null)
             {
+                HelperSweepAndPrune.StopThread();
                 KWEngine.CurrentWorld.Dispose();
             }
 
@@ -493,6 +515,8 @@ namespace KWEngine3
             _breakSimulation = true;
 
             HelperGeneral.FlushAndFinish();
+
+            HelperSweepAndPrune.StartThread();
         }
 
         internal void UpdateDeltaTime(double t)
@@ -618,21 +642,7 @@ namespace KWEngine3
                     KWEngine.CurrentWorld.AddRemoveLightObjects();
                     KWEngine.CurrentWorld.AddRemoveHUDObjects();
                     KWEngine.CurrentWorld.AddRemoveTextObjects();
-                    HelperSweepAndPrune.SweepAndPrune();
-
-                    /*
-                    // Octree test:
-                    float dimX = KWEngine.CurrentWorld._xMinMax.Y - KWEngine.CurrentWorld._xMinMax.X;
-                    float dimY = KWEngine.CurrentWorld._yMinMax.Y - KWEngine.CurrentWorld._yMinMax.X;
-                    float dimZ = KWEngine.CurrentWorld._zMinMax.Y - KWEngine.CurrentWorld._zMinMax.X;
-                    float dimMax = Math.Max(Math.Max(dimX, dimY), dimZ);
-                    HelperOctree.Init(KWEngine.CurrentWorld._worldCenter, dimMax);
-
-                    foreach (GameObjectHitbox hb in KWEngine.CurrentWorld._gameObjectHitboxes)
-                    {
-                        HelperOctree.Add(hb);
-                    }
-                    */
+                    //HelperSweepAndPrune.SweepAndPrune();
 
                     n++;
 
