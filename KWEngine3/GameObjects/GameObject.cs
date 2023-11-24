@@ -2,6 +2,7 @@
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
+using System.Collections.Concurrent;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3.GameObjects
@@ -199,7 +200,7 @@ namespace KWEngine3.GameObjects
             //}
             //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//new List<GameObject>();
             //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
-            lock (_collisionCandidates)
+            //lock (_collisionCandidates)
             {
                 foreach (GameObjectHitbox hbother in _collisionCandidates)
                 {
@@ -236,7 +237,7 @@ namespace KWEngine3.GameObjects
             //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//; new List<GameObject>();
             //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-            lock (_collisionCandidates)
+            //lock (_collisionCandidates)
             {
                 foreach (GameObjectHitbox hbother in _collisionCandidates)
                 {
@@ -276,7 +277,7 @@ namespace KWEngine3.GameObjects
             //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;// new List<GameObject>();
             //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
 
-            lock (_collisionCandidates)
+            //lock (_collisionCandidates)
             {
                 foreach (GameObjectHitbox hbother in _collisionCandidates)
                 {
@@ -314,7 +315,7 @@ namespace KWEngine3.GameObjects
             //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;
             //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-            lock (_collisionCandidates)
+            //lock (_collisionCandidates)
             {
                 foreach (GameObjectHitbox hbother in _collisionCandidates)
                 {
@@ -1529,8 +1530,8 @@ namespace KWEngine3.GameObjects
             _stateCurrent._center = (dimMax + dimMin) / 2f;
         }
 
-        internal List<GameObjectHitbox> _collisionCandidates = new List<GameObjectHitbox>();
-        internal List<GameObjectHitbox> _collisionCandidatesTemp = new List<GameObjectHitbox>();
+        internal ConcurrentBag<GameObjectHitbox> _collisionCandidates = new ConcurrentBag<GameObjectHitbox>();
+        //internal ConcurrentBag<GameObjectHitbox> _collisionCandidatesTemp = new ConcurrentBag<GameObjectHitbox>();
 
         internal void CollectPotentialCollidersFromParent<T>(List<GameObjectHitbox> colliders, OctreeNode node)
         {

@@ -1,5 +1,6 @@
 ﻿using KWEngine3.GameObjects;
 using OpenTK.Mathematics;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
 namespace KWEngine3.Helper
@@ -68,15 +69,9 @@ namespace KWEngine3.Helper
             axisList.Sort(
                 (x, y) =>
                 {
-                    lock (x.Owner._collisionCandidatesTemp)
-                    {
-                        x.Owner._collisionCandidatesTemp.Clear();
-                    }
-                    lock (y.Owner._collisionCandidatesTemp)
-                    {
-                        y.Owner._collisionCandidatesTemp.Clear();
-                    }
-                    if(_sweepTestAxisIndex == 0)
+                    x.Owner._collisionCandidates.Clear();
+                    y.Owner._collisionCandidates.Clear();
+                    if (_sweepTestAxisIndex == 0)
                     {
                         return x._left < y._left ? -1 : 1;
                     }
@@ -93,7 +88,7 @@ namespace KWEngine3.Helper
 
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);
-            List<GameObject> ownersUnique = new List<GameObject>();
+            Dictionary<GameObject, List<GameObjectHitbox>> ownersUnique = new Dictionary<GameObject, List<GameObjectHitbox>>();
 
             for (int i = 0; i < axisList.Count(); i++)
             {
@@ -165,18 +160,12 @@ namespace KWEngine3.Helper
                         }
                     }
 
-
-                    lock (axisList[i].Owner._collisionCandidatesTemp)
-                    {
-                        lock (axisList[j].Owner._collisionCandidatesTemp)
-                        {
-                            ownersUnique.Add(axisList[i].Owner);
-                            axisList[i].Owner._collisionCandidatesTemp.Add(axisList[j]);
-                            axisList[j].Owner._collisionCandidatesTemp.Add(axisList[i]);
-                        }
-                    }
+                    //ownersUnique.Add(axisList[i].Owner);
+                    axisList[i].Owner._collisionCandidates.Add(axisList[j]);
+                    axisList[j].Owner._collisionCandidates.Add(axisList[i]);
                 }
             }
+
             centerSum /= axisList.Count;
             centerSqSum /= axisList.Count;
             Vector3 variance = centerSqSum - (centerSum * centerSum);
@@ -194,13 +183,14 @@ namespace KWEngine3.Helper
             }
 
             // Copy:
-            foreach(GameObject owner in ownersUnique)
+            //foreach(GameObject owner in ownersUnique)
             {
-                lock(owner._collisionCandidates)
+                //lock(owner)
                 {
-                    owner._collisionCandidates = new List<GameObjectHitbox>(owner._collisionCandidatesTemp);
+                    //owner._collisionCandidates.Clear();
+                    //owner._collisionCandidates = new ConcurrentBag<GameObjectHitbox>(owner._collisionCandidatesTemp);
+                    //owner._collisionCandidatesTemp.Clear();
                 }
-                
             }
         }
     }
