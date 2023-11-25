@@ -194,24 +194,16 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return null;
             }
-            //else if (_currentOctreeNode == null)
-            //{
-            //    return null;
-            //}
-            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//new List<GameObject>();
-            //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
-            //lock (_collisionCandidates)
+
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                foreach (GameObjectHitbox hbother in _collisionCandidates)
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
                 {
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                    {
-                        if (!hbcaller.IsActive)
-                            continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            return i;
-                    }
+                    if (!hbcaller.IsActive)
+                        continue;
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        return i;
                 }
             }
             
@@ -230,31 +222,23 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return null;
             }
-            //else if (_currentOctreeNode == null)
-            //{
-            //    return null;
-            //}
-            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//; new List<GameObject>();
-            //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
-
-            //lock (_collisionCandidates)
+            
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                foreach (GameObjectHitbox hbother in _collisionCandidates)
+                if ((hbother.Owner is T) == false)
                 {
-                    if ((hbother.Owner is T) == false)
-                    {
+                    continue;
+                }
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                {
+                    if (!hbcaller.IsActive)
                         continue;
-                    }
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                    {
-                        if (!hbcaller.IsActive)
-                            continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            return i;
-                    }
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        return i;
                 }
             }
+            
             return null;
         }
 
@@ -270,25 +254,16 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return intersections;
             }
-            //else if (_currentOctreeNode == null)
-            //{
-            //    return intersections;
-            //}
-            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;// new List<GameObject>();
-            //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
 
-            //lock (_collisionCandidates)
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                foreach (GameObjectHitbox hbother in _collisionCandidates)
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
                 {
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                    {
-                        if (!hbcaller.IsActive)
-                            continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            intersections.Add(i);
-                    }
+                    if (!hbcaller.IsActive)
+                        continue;
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        intersections.Add(i);
                 }
             }
             
@@ -308,31 +283,23 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return intersections;
             }
-            //else if (_currentOctreeNode == null)
-            //{
-            //    return intersections;
-            //}
-            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;
-            //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-            //lock (_collisionCandidates)
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                foreach (GameObjectHitbox hbother in _collisionCandidates)
+                if ((hbother.Owner is T) == false)
                 {
-                    if ((hbother.Owner is T) == false)
-                    {
+                    continue;
+                }
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                {
+                    if (!hbcaller.IsActive)
                         continue;
-                    }
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                    {
-                        if (!hbcaller.IsActive)
-                            continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            intersections.Add(i);
-                    }
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        intersections.Add(i);
                 }
             }
+            
             return intersections;
         }
 

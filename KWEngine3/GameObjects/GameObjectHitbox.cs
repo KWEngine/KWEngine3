@@ -18,6 +18,7 @@ namespace KWEngine3.GameObjects
         public float _front = 0;
         public float _averageDiameter = 0;
         public float _fullDiameter = 0;
+        public float _fullRadius = 0;
 
         public bool IsActive { get { return _mesh.IsActive; } }
         public Matrix4 _modelMatrixFinal = Matrix4.Identity;
@@ -129,6 +130,8 @@ namespace KWEngine3.GameObjects
                 _fullDiameter = yWidth;
             if (zWidth > _fullDiameter)
                 _fullDiameter = zWidth;
+
+            _fullRadius = _fullDiameter * 0.5f;
 
             _dimensions.X = xWidth;
             _dimensions.Y = yWidth;

@@ -41,7 +41,7 @@ namespace KWEngine3TestProject.Worlds
             p1.SetColor(1, 1, 0);
             p1.SetPosition(0, 2, 0);
             AddGameObject(p1);
-
+            
             for(int i = 0; i < 1000; i++)
             {
                 BroadphaseTest b = new BroadphaseTest();
@@ -54,6 +54,7 @@ namespace KWEngine3TestProject.Worlds
                     );
                 AddGameObject(b);
             }
+            
             /*
             for (int i = 0; i < 10; i++)
             {

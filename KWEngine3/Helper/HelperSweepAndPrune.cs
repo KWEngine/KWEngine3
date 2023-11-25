@@ -7,43 +7,17 @@ namespace KWEngine3.Helper
 {
     internal static class HelperSweepAndPrune
     {
-        internal static Thread BroadphaseThread;
-        internal static bool DoRun = true;
         internal static float WorldTimeLast = 0;
         internal static int _sweepTestAxisIndex = 0;
-
-        internal static void ThreadMethod()
-        {
-            while (DoRun)
-            {
-                if (KWEngine.WorldTime - WorldTimeLast > 0.016)
-                {
-                    SweepAndPrune();
-                    WorldTimeLast = KWEngine.WorldTime;
-                }
-                Thread.Sleep(0);
-            }
-        }
-
-        internal static void StartThread()
-        {
-            BroadphaseThread = new Thread(ThreadMethod);
-            DoRun = true;
-            WorldTimeLast = 0;
-            BroadphaseThread.Start();
-        }
-
-        internal static void StopThread()
-        {
-            DoRun = false;
-            if (BroadphaseThread != null)
-            {
-                BroadphaseThread.Join();
-            }
-        }
+        internal const float BROADPHASECOOLDOWN = 1f / 60f;
 
         internal static void SweepAndPrune()
         {
+            if (KWEngine.WorldTime - WorldTimeLast <= BROADPHASECOOLDOWN)
+            {
+                return;
+            }
+
             bool vsgObject = false;
             if (KWEngine.CurrentWorld._viewSpaceGameObject != null && KWEngine.CurrentWorld._viewSpaceGameObject.IsCollisionObject)
             {
@@ -88,8 +62,6 @@ namespace KWEngine3.Helper
 
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);
-            Dictionary<GameObject, List<GameObjectHitbox>> ownersUnique = new Dictionary<GameObject, List<GameObjectHitbox>>();
-
             for (int i = 0; i < axisList.Count(); i++)
             {
                 if (axisList[i].Owner.IsCollisionObject == false)
@@ -119,48 +91,13 @@ namespace KWEngine3.Helper
                         break;
                     }
 
-                    // check for second main axis:
-                    if(_sweepTestAxisIndex == 0) // wenn x main ist, dann prüfe y und z auch
+                    // check radii:
+                    float distance = (axisList[i]._center - axisList[j]._center).LengthFast - (KWEngine.SweepAndPruneTolerance * 2);
+                    if(distance > axisList[i]._fullRadius + axisList[j]._fullRadius)
                     {
-                        if (axisList[j]._low - KWEngine.SweepAndPruneTolerance > axisList[i]._high + KWEngine.SweepAndPruneTolerance 
-                            || axisList[j]._high + KWEngine.SweepAndPruneTolerance < axisList[i]._low - KWEngine.SweepAndPruneTolerance)
-                        {
-                            break;
-                        }
-                        if (axisList[j]._front + KWEngine.SweepAndPruneTolerance < axisList[i]._back - KWEngine.SweepAndPruneTolerance
-                            || axisList[j]._back - KWEngine.SweepAndPruneTolerance > axisList[i]._front + KWEngine.SweepAndPruneTolerance)
-                        {
-                            break;
-                        }
+                        continue;
                     }
-                    else if(_sweepTestAxisIndex == 1) // y
-                    {
-                        if (axisList[j]._left - KWEngine.SweepAndPruneTolerance > axisList[i]._right + KWEngine.SweepAndPruneTolerance
-                            || axisList[j]._right + KWEngine.SweepAndPruneTolerance < axisList[i]._left - KWEngine.SweepAndPruneTolerance)
-                        {
-                            break;
-                        }
-                        if (axisList[j]._front + KWEngine.SweepAndPruneTolerance < axisList[i]._back - KWEngine.SweepAndPruneTolerance
-                            || axisList[j]._back - KWEngine.SweepAndPruneTolerance > axisList[i]._front + KWEngine.SweepAndPruneTolerance)
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (axisList[j]._low - KWEngine.SweepAndPruneTolerance > axisList[i]._high + KWEngine.SweepAndPruneTolerance
-                            || axisList[j]._high + KWEngine.SweepAndPruneTolerance < axisList[i]._low - KWEngine.SweepAndPruneTolerance)
-                        {
-                            break;
-                        }
-                        if (axisList[j]._left - KWEngine.SweepAndPruneTolerance > axisList[i]._right + KWEngine.SweepAndPruneTolerance
-                            || axisList[j]._right + KWEngine.SweepAndPruneTolerance < axisList[i]._left - KWEngine.SweepAndPruneTolerance)
-                        {
-                            break;
-                        }
-                    }
-
-                    //ownersUnique.Add(axisList[i].Owner);
+                    
                     axisList[i].Owner._collisionCandidates.Add(axisList[j]);
                     axisList[j].Owner._collisionCandidates.Add(axisList[i]);
                 }
@@ -182,16 +119,7 @@ namespace KWEngine3.Helper
                 _sweepTestAxisIndex = 2;
             }
 
-            // Copy:
-            //foreach(GameObject owner in ownersUnique)
-            {
-                //lock(owner)
-                {
-                    //owner._collisionCandidates.Clear();
-                    //owner._collisionCandidates = new ConcurrentBag<GameObjectHitbox>(owner._collisionCandidatesTemp);
-                    //owner._collisionCandidatesTemp.Clear();
-                }
-            }
+            WorldTimeLast = KWEngine.WorldTime;
         }
     }
 }

@@ -153,7 +153,8 @@ namespace KWEngine3
 
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
-            string version = fileVersionInfo.ProductVersion;
+            string version = fileVersionInfo.ProductMajorPart + "." + fileVersionInfo.ProductMinorPart + "." + fileVersionInfo.ProductBuildPart + "." + fileVersionInfo.ProductPrivatePart;
+
             string date = fileVersionInfo.ProductName.Substring(fileVersionInfo.ProductName.IndexOf('2'), 10);
 
             if(Title == null || Title == "")
@@ -469,27 +470,6 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Wird ausgelöst, wenn das aktuelle Fenster geschlossen wird
-        /// </summary>
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            HelperSweepAndPrune.StopThread();
-        }
-
-        /// <summary>
-        /// Event-Handler, der ausgelöst wird, wenn eine Taste im Fenster gedrückt wird
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnKeyDown(KeyboardKeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            if(Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4))
-            {
-                HelperSweepAndPrune.StopThread();
-            }
-        }
-
-        /// <summary>
         /// Setzt eine Welt für das Fenster zur Anzeige und initialisiert diese
         /// </summary>
         /// <param name="w">zu setzende Welt</param>
@@ -500,7 +480,6 @@ namespace KWEngine3
 
             if (KWEngine.CurrentWorld != null)
             {
-                HelperSweepAndPrune.StopThread();
                 KWEngine.CurrentWorld.Dispose();
             }
 
@@ -515,8 +494,6 @@ namespace KWEngine3
             _breakSimulation = true;
 
             HelperGeneral.FlushAndFinish();
-
-            HelperSweepAndPrune.StartThread();
         }
 
         internal void UpdateDeltaTime(double t)
@@ -539,6 +516,8 @@ namespace KWEngine3
             int n = 0;
             if(KWEngine.CurrentWorld._startingFrameActive == false)
             {
+                HelperSweepAndPrune.SweepAndPrune();
+
                 World currentWorldForLoop = KWEngine.CurrentWorld;
                 n = UpdateCurrentWorldAndObjects(currentWorldForLoop, out double elapsedTimeForCall);
                 if (!KWEngine.EditModeActive)
