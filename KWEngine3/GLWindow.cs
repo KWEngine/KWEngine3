@@ -665,6 +665,18 @@ namespace KWEngine3
                         g._statePrevious = g._stateCurrent;
                         if (!KWEngine.EditModeActive)
                         {
+                            lock (HelperSweepAndPrune.ownersUnique)
+                            {
+                                bool gHasList = HelperSweepAndPrune.ownersUnique.TryGetValue(g, out List<GameObjectHitbox> collisions);
+                                if(gHasList)
+                                {
+                                    g._collisionCandidates = new List<GameObjectHitbox>(collisions);
+                                }
+                                else
+                                {
+                                    g._collisionCandidates = new List<GameObjectHitbox>();
+                                }
+                            }
                             if (g.UpdateLast)
                             {
                                 postponedObjects.Add(g);
@@ -693,7 +705,6 @@ namespace KWEngine3
                             KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
                             KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                         }
-
                     }
 
                     foreach (GameObject g in postponedObjects)

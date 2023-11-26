@@ -1530,8 +1530,7 @@ namespace KWEngine3.GameObjects
             _stateCurrent._center = (dimMax + dimMin) / 2f;
         }
 
-        internal ConcurrentBag<GameObjectHitbox> _collisionCandidates = new ConcurrentBag<GameObjectHitbox>();
-        //internal ConcurrentBag<GameObjectHitbox> _collisionCandidatesTemp = new ConcurrentBag<GameObjectHitbox>();
+        internal List<GameObjectHitbox> _collisionCandidates = new List<GameObjectHitbox>();
 
         internal void CollectPotentialCollidersFromParent<T>(List<GameObjectHitbox> colliders, OctreeNode node)
         {
