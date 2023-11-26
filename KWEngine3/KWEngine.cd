@@ -12,6 +12,7 @@
       <Field Name="_stopwatch" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUDNew" Hidden="true" />
+      <Field Name="_worldNew" Hidden="true" />
       <Property Name="AnisotropicFiltering" Hidden="true" />
       <Field Name="DELTASFORMOVINGAVG" Hidden="true" />
       <Property Name="FrameTotalCount" Hidden="true" />
@@ -30,12 +31,13 @@
       <Method Name="OnUpdateFrame" Hidden="true" />
       <Property Name="Overlay" Hidden="true" />
       <Method Name="RenderOverlay" Hidden="true" />
+      <Method Name="SetWorldInternal" Hidden="true" />
       <Method Name="UpdateCurrentWorldAndObjects" Hidden="true" />
       <Method Name="UpdateDeltaTime" Hidden="true" />
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiBBAAABQAAAQiAUAkAgEACAhIABCYAaAAgUAEOAgA=</HashCode>
+      <HashCode>AAiBBAAABQAAAQyAUAkAgEACAhIABCYAaAAgUAEuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>

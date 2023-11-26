@@ -209,6 +209,12 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            if(_worldNew != null)
+            {
+                SetWorldInternal(_worldNew);
+                return;
+            }
+
             UpdateDeltaTime(e.Time);
             _mouseDeltaToUse = GatherWeightedMovingAvg(MouseState.Delta, (float)(e.Time * 1000.0));
 
@@ -489,11 +495,8 @@ namespace KWEngine3
             }
         }
 
-        /// <summary>
-        /// Setzt eine Welt für das Fenster zur Anzeige und initialisiert diese
-        /// </summary>
-        /// <param name="w">zu setzende Welt</param>
-        public void SetWorld(World w)
+        internal World _worldNew = null;
+        internal void SetWorldInternal(World w)
         {
             _keyboard.DeleteKeys();
             _mouse.DeleteButtons();
@@ -517,6 +520,17 @@ namespace KWEngine3
             HelperGeneral.FlushAndFinish();
 
             HelperSweepAndPrune.StartThread();
+            _worldNew = null;
+        }
+
+        /// <summary>
+        /// Setzt eine Welt für das Fenster zur Anzeige und initialisiert diese
+        /// </summary>
+        /// <param name="w">zu setzende Welt</param>
+        public void SetWorld(World w)
+        {
+            if (w != null)
+                _worldNew = w;
         }
 
         internal void UpdateDeltaTime(double t)
@@ -665,9 +679,9 @@ namespace KWEngine3
                         g._statePrevious = g._stateCurrent;
                         if (!KWEngine.EditModeActive)
                         {
-                            lock (HelperSweepAndPrune.ownersUnique)
+                            lock (HelperSweepAndPrune.OwnersDict)
                             {
-                                bool gHasList = HelperSweepAndPrune.ownersUnique.TryGetValue(g, out List<GameObjectHitbox> collisions);
+                                bool gHasList = HelperSweepAndPrune.OwnersDict.TryGetValue(g, out List<GameObjectHitbox> collisions);
                                 if(gHasList)
                                 {
                                     g._collisionCandidates = new List<GameObjectHitbox>(collisions);
