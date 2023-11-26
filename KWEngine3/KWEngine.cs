@@ -75,9 +75,9 @@ namespace KWEngine3
         */
 
         internal static float _octreeSafetyZone = 1f;
-        internal static float _swpruneTolerance = 0.5f;
+        internal static float _swpruneTolerance = 1.0f;
         /// <summary>
-        /// Zusätzliches Padding für die Kollisionsvorhersage (Standard: 0.5f)
+        /// Zusätzliches Padding für die Kollisionsvorhersage (Standard: 1.0f)
         /// </summary>
         public static float SweepAndPruneTolerance { get { return _swpruneTolerance; } set { _swpruneTolerance = MathHelper.Max(0f, value); } }
 

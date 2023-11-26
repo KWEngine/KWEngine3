@@ -54,7 +54,7 @@ namespace KWEngine3.Helper
             List<GameObjectHitbox> axisList = new List<GameObjectHitbox>();
             lock (KWEngine.CurrentWorld._gameObjectHitboxes)
             {
-                 axisList = new List<GameObjectHitbox>(KWEngine.CurrentWorld._gameObjectHitboxes);
+                axisList = new List<GameObjectHitbox>(KWEngine.CurrentWorld._gameObjectHitboxes);
             }
             if (vsgObject)
             {
@@ -74,7 +74,7 @@ namespace KWEngine3.Helper
                     {
                         return x._left < y._left ? -1 : 1;
                     }
-                    else if(_sweepTestAxisIndex == 1)
+                    else if (_sweepTestAxisIndex == 1)
                     {
                         return x._low < y._low ? -1 : 1;
                     }
@@ -90,81 +90,86 @@ namespace KWEngine3.Helper
             lock (ownersUnique)
             {
                 ownersUnique.Clear();
-
-                for (int i = 0; i < axisList.Count(); i++)
+            }
+            for (int i = 0; i < axisList.Count(); i++)
+            {
+                if (axisList[i].Owner.IsCollisionObject == false)
                 {
-                    if (axisList[i].Owner.IsCollisionObject == false)
-                    {
-                        continue;
-                    }
+                    continue;
+                }
+                lock (ownersUnique)
+                {
                     if (ownersUnique.ContainsKey(axisList[i].Owner) == false)
                     {
                         ownersUnique.Add(axisList[i].Owner, new List<GameObjectHitbox>());
                     }
+                }
 
-                    Vector3 currentCenter = axisList[i]._center;
-                    centerSum += currentCenter;
-                    centerSqSum += (currentCenter * currentCenter);
-                    for (int j = i + 1; j < axisList.Count; j++)
+                Vector3 currentCenter = axisList[i]._center;
+                centerSum += currentCenter;
+                centerSqSum += (currentCenter * currentCenter);
+                for (int j = i + 1; j < axisList.Count; j++)
+                {
+                    if (axisList[j].Owner.IsCollisionObject == false)
                     {
-                        if (axisList[j].Owner.IsCollisionObject == false)
+                        continue;
+                    }
+                    float fromJExtendsX =
+                        _sweepTestAxisIndex == 0 ? axisList[j]._left - KWEngine.SweepAndPruneTolerance :
+                        _sweepTestAxisIndex == 1 ? axisList[j]._low - KWEngine.SweepAndPruneTolerance :
+                                                   axisList[j]._back - KWEngine.SweepAndPruneTolerance;  // side of neighbor 
+                    float fromIExtendsY =
+                        _sweepTestAxisIndex == 0 ? axisList[i]._right + KWEngine.SweepAndPruneTolerance :
+                        _sweepTestAxisIndex == 1 ? axisList[i]._high + KWEngine.SweepAndPruneTolerance :
+                                                   axisList[i]._front + KWEngine.SweepAndPruneTolerance; // right side of object
+                    if (fromJExtendsX > fromIExtendsY)
+                    {
+                        break;
+                    }
+
+                    // check for second main axis:
+                    if (_sweepTestAxisIndex == 0) // wenn x main ist, dann prüfe y und z auch
+                    {
+                        if (axisList[j]._low - KWEngine.SweepAndPruneTolerance > axisList[i]._high + KWEngine.SweepAndPruneTolerance
+                            || axisList[j]._high + KWEngine.SweepAndPruneTolerance < axisList[i]._low - KWEngine.SweepAndPruneTolerance)
                         {
                             continue;
                         }
-                        float fromJExtendsX =
-                            _sweepTestAxisIndex == 0 ? axisList[j]._left - KWEngine.SweepAndPruneTolerance :
-                            _sweepTestAxisIndex == 1 ? axisList[j]._low - KWEngine.SweepAndPruneTolerance :
-                                                       axisList[j]._back - KWEngine.SweepAndPruneTolerance;  // side of neighbor 
-                        float fromIExtendsY =
-                            _sweepTestAxisIndex == 0 ? axisList[i]._right + KWEngine.SweepAndPruneTolerance :
-                            _sweepTestAxisIndex == 1 ? axisList[i]._high + KWEngine.SweepAndPruneTolerance :
-                                                       axisList[i]._front + KWEngine.SweepAndPruneTolerance; // right side of object
-                        if (fromJExtendsX > fromIExtendsY)
+                        if (axisList[j]._front + KWEngine.SweepAndPruneTolerance < axisList[i]._back - KWEngine.SweepAndPruneTolerance
+                            || axisList[j]._back - KWEngine.SweepAndPruneTolerance > axisList[i]._front + KWEngine.SweepAndPruneTolerance)
                         {
-                            break;
+                            continue;
                         }
+                    }
+                    else if (_sweepTestAxisIndex == 1) // y
+                    {
+                        if (axisList[j]._left - KWEngine.SweepAndPruneTolerance > axisList[i]._right + KWEngine.SweepAndPruneTolerance
+                            || axisList[j]._right + KWEngine.SweepAndPruneTolerance < axisList[i]._left - KWEngine.SweepAndPruneTolerance)
+                        {
+                            continue;
+                        }
+                        if (axisList[j]._front + KWEngine.SweepAndPruneTolerance < axisList[i]._back - KWEngine.SweepAndPruneTolerance
+                            || axisList[j]._back - KWEngine.SweepAndPruneTolerance > axisList[i]._front + KWEngine.SweepAndPruneTolerance)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        if (axisList[j]._low - KWEngine.SweepAndPruneTolerance > axisList[i]._high + KWEngine.SweepAndPruneTolerance
+                            || axisList[j]._high + KWEngine.SweepAndPruneTolerance < axisList[i]._low - KWEngine.SweepAndPruneTolerance)
+                        {
+                            continue;
+                        }
+                        if (axisList[j]._left - KWEngine.SweepAndPruneTolerance > axisList[i]._right + KWEngine.SweepAndPruneTolerance
+                            || axisList[j]._right + KWEngine.SweepAndPruneTolerance < axisList[i]._left - KWEngine.SweepAndPruneTolerance)
+                        {
+                            continue;
+                        }
+                    }
 
-                        // check for second main axis:
-                        if (_sweepTestAxisIndex == 0) // wenn x main ist, dann prüfe y und z auch
-                        {
-                            if (axisList[j]._low - KWEngine.SweepAndPruneTolerance > axisList[i]._high + KWEngine.SweepAndPruneTolerance
-                                || axisList[j]._high + KWEngine.SweepAndPruneTolerance < axisList[i]._low - KWEngine.SweepAndPruneTolerance)
-                            {
-                                continue;
-                            }
-                            if (axisList[j]._front + KWEngine.SweepAndPruneTolerance < axisList[i]._back - KWEngine.SweepAndPruneTolerance
-                                || axisList[j]._back - KWEngine.SweepAndPruneTolerance > axisList[i]._front + KWEngine.SweepAndPruneTolerance)
-                            {
-                                continue;
-                            }
-                        }
-                        else if (_sweepTestAxisIndex == 1) // y
-                        {
-                            if (axisList[j]._left - KWEngine.SweepAndPruneTolerance > axisList[i]._right + KWEngine.SweepAndPruneTolerance
-                                || axisList[j]._right + KWEngine.SweepAndPruneTolerance < axisList[i]._left - KWEngine.SweepAndPruneTolerance)
-                            {
-                                continue;
-                            }
-                            if (axisList[j]._front + KWEngine.SweepAndPruneTolerance < axisList[i]._back - KWEngine.SweepAndPruneTolerance
-                                || axisList[j]._back - KWEngine.SweepAndPruneTolerance > axisList[i]._front + KWEngine.SweepAndPruneTolerance)
-                            {
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            if (axisList[j]._low - KWEngine.SweepAndPruneTolerance > axisList[i]._high + KWEngine.SweepAndPruneTolerance
-                                || axisList[j]._high + KWEngine.SweepAndPruneTolerance < axisList[i]._low - KWEngine.SweepAndPruneTolerance)
-                            {
-                                continue;
-                            }
-                            if (axisList[j]._left - KWEngine.SweepAndPruneTolerance > axisList[i]._right + KWEngine.SweepAndPruneTolerance
-                                || axisList[j]._right + KWEngine.SweepAndPruneTolerance < axisList[i]._left - KWEngine.SweepAndPruneTolerance)
-                            {
-                                continue;
-                            }
-                        }
-
+                    lock (ownersUnique)
+                    {
                         ownersUnique[axisList[i].Owner].Add(axisList[j]);
                         if (ownersUnique.ContainsKey(axisList[j].Owner))
                         {
@@ -175,11 +180,10 @@ namespace KWEngine3.Helper
                             ownersUnique.Add(axisList[j].Owner, new List<GameObjectHitbox>());
                             ownersUnique[axisList[j].Owner].Add(axisList[i]);
                         }
-                        //axisList[i].Owner._collisionCandidatesTemp.Add(axisList[j]);
-                        //axisList[j].Owner._collisionCandidatesTemp.Add(axisList[i]);
                     }
                 }
             }
+
 
             centerSum /= axisList.Count;
             centerSqSum /= axisList.Count;
@@ -195,17 +199,6 @@ namespace KWEngine3.Helper
             {
                 maxVar = Math.Abs(variance.Z);
                 _sweepTestAxisIndex = 2;
-            }
-
-            // Copy:
-            //foreach(GameObject owner in ownersUnique)
-            {
-                //lock(owner)
-                {
-                    //owner._collisionCandidates.Clear();
-                    //owner._collisionCandidates = new ConcurrentBag<GameObjectHitbox>(owner._collisionCandidatesTemp);
-                    //owner._collisionCandidatesTemp.Clear();
-                }
             }
         }
     }
