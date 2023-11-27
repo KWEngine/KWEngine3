@@ -515,12 +515,12 @@ namespace KWEngine3
             KWEngine.WorldTime = 0;
             KWEngine.CurrentWorld.Prepare();
             _mouseDeltaToUse = Vector2.Zero;
-            _breakSimulation = true;
 
             HelperGeneral.FlushAndFinish();
 
             HelperSweepAndPrune.StartThread();
             _worldNew = null;
+            _breakSimulation = false;
         }
 
         /// <summary>
@@ -530,7 +530,10 @@ namespace KWEngine3
         public void SetWorld(World w)
         {
             if (w != null)
+            {
                 _worldNew = w;
+                _breakSimulation = true;
+            }
         }
 
         internal void UpdateDeltaTime(double t)
