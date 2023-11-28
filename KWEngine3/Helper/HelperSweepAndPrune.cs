@@ -30,6 +30,10 @@ namespace KWEngine3.Helper
         {
             BroadphaseThread = new Thread(ThreadMethod);
             DoRun = true;
+            lock (OwnersDict)
+            {
+                OwnersDict.Clear();
+            }
             WorldTimeLast = 0;
             BroadphaseThread.Start();
         }
