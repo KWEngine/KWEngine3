@@ -30,18 +30,26 @@ namespace KWEngine3.GameObjects
                 _isCollisionObject = value;
                 if (valueBefore == true && value == false)
                 {
-                    foreach (GameObjectHitbox hb in _hitboxes)
-                    {
-                        if (hb.IsActive)
-                            KWEngine.CurrentWorld._gameObjectHitboxes.Remove(hb);
+                    lock (KWEngine.CurrentWorld._gameObjectHitboxes)
+                    { 
+                        foreach (GameObjectHitbox hb in _hitboxes)
+                        {
+                            if (hb.IsActive)
+                            {
+                                KWEngine.CurrentWorld._gameObjectHitboxes.Remove(hb);
+                            }
+                        }
                     }
                 }
                 else if(valueBefore == false && value == true)
                 {
-                    foreach (GameObjectHitbox hb in _hitboxes)
+                    lock (KWEngine.CurrentWorld._gameObjectHitboxes)
                     {
-                        if (hb.IsActive && !KWEngine.CurrentWorld._gameObjectHitboxes.Contains(hb))
-                            KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
+                        foreach (GameObjectHitbox hb in _hitboxes)
+                        {
+                            if (hb.IsActive && !KWEngine.CurrentWorld._gameObjectHitboxes.Contains(hb))
+                                KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
+                        }
                     }
                 }
             } 

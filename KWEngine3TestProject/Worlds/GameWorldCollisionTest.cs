@@ -1,11 +1,6 @@
 ﻿using KWEngine3;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldCollisionTest;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -21,7 +16,9 @@ namespace KWEngine3TestProject.Worlds
                 RemoveGameObject(bpts[0]);
                 bpts.RemoveAt(0);
 
-                Spawn(10000 + HelperRandom.GetRandomNumber(0, 10000));
+                int howmany = HelperRandom.GetRandomNumber(1, 5);
+                for(int i = 0; i < howmany; i++)
+                    Spawn(10000 + HelperRandom.GetRandomNumber(0, 10000) + i);
             }
 
         }
