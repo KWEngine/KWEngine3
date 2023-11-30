@@ -259,37 +259,40 @@ namespace KWEngine3
 
         internal void AddRemoveGameObjects()
         {
-            foreach (GameObject g in _gameObjectsToBeRemoved)
+            lock (_gameObjectHitboxes)
             {
-                _availableGameObjectIDs.Enqueue((ushort)g.ID);
-                g.ID = 0;
-
-                _gameObjects.Remove(g);
-                foreach(GameObjectHitbox hb in g._hitboxes)
+                foreach (GameObject g in _gameObjectsToBeRemoved)
                 {
-                    if(hb.IsActive)
-                    {
-                        _gameObjectHitboxes.Remove(hb);
-                    }
-                }
-            }
-            _gameObjectsToBeRemoved.Clear();
+                    _availableGameObjectIDs.Enqueue((ushort)g.ID);
+                    g.ID = 0;
 
-            foreach (GameObject g in _gameObjectsToBeAdded)
-            {
-                _gameObjects.Add(g);
-                if (g._isCollisionObject)
-                {
-                    foreach (GameObjectHitbox hb in g._hitboxes)
+                    _gameObjects.Remove(g);
+                    foreach(GameObjectHitbox hb in g._hitboxes)
                     {
-                        if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
+                        if(hb.IsActive)
                         {
-                            _gameObjectHitboxes.Add(hb);
+                            _gameObjectHitboxes.Remove(hb);
                         }
                     }
                 }
+                _gameObjectsToBeRemoved.Clear();
+
+                foreach (GameObject g in _gameObjectsToBeAdded)
+                {
+                    _gameObjects.Add(g);
+                    if (g._isCollisionObject)
+                    {
+                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        {
+                            if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
+                            {
+                                _gameObjectHitboxes.Add(hb);
+                            }
+                        }
+                    }
+                }
+                _gameObjectsToBeAdded.Clear();
             }
-            _gameObjectsToBeAdded.Clear();
         }
 
         internal void Dispose()

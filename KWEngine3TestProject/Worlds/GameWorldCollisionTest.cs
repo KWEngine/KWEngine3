@@ -11,9 +11,33 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldCollisionTest : World
     {
+        private List<BroadphaseTest> bpts = new List<BroadphaseTest>();
         public override void Act()
         {
-            
+            int r = HelperRandom.GetRandomNumber(1, 1000);
+            if (r <= 100)
+            {
+                //Console.WriteLine("Removing and creating object...");
+                RemoveGameObject(bpts[0]);
+                bpts.RemoveAt(0);
+
+                Spawn(10000 + HelperRandom.GetRandomNumber(0, 10000));
+            }
+
+        }
+
+        private void Spawn(int i)
+        {
+            BroadphaseTest b = new BroadphaseTest();
+            b.IsCollisionObject = true;
+            b.Name = "BPT #" + i;
+            b.SetPosition(
+                HelperRandom.GetRandomNumber(-25, 25),
+                HelperRandom.GetRandomNumber(-25, 25),
+                HelperRandom.GetRandomNumber(-25, 25)
+                );
+            bpts.Add(b);
+            AddGameObject(b);
         }
 
         public override void Prepare()
@@ -22,62 +46,17 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(100, 100, 100);
             SetCameraTarget(0, 0, 0);
 
-
-            /*
-            Immovable i01 = new Immovable();
-            i01.Name = "Floor";
-            i01.IsCollisionObject = true;
-            i01.SetPosition(0, -2, 0);
-            i01.SetScale(5, 2, 2);
-            i01.SetRotation(0, 0, -15);
-            i01.SetColor(1, 0, 0);
-            AddGameObject(i01);
-            */
-
             Player p1 = new Player();
             p1.Name = "Player #1";
             p1.IsCollisionObject = true;
-            //p1.SetHitboxScale(1, 1, 100);
             p1.SetColor(1, 1, 0);
             p1.SetPosition(0, 2, 0);
             AddGameObject(p1);
 
             for(int i = 0; i < 1000; i++)
             {
-                BroadphaseTest b = new BroadphaseTest();
-                b.IsCollisionObject = true;
-                b.Name = "BPT #" + i;
-                b.SetPosition(
-                    HelperRandom.GetRandomNumber(-25, 25),
-                    HelperRandom.GetRandomNumber(-25, 25),
-                    HelperRandom.GetRandomNumber(-25, 25)
-                    );
-                AddGameObject(b);
+                Spawn(i);
             }
-            /*
-            for (int i = 0; i < 10; i++)
-            {
-                BroadphaseTest b = new BroadphaseTest();
-                b.IsCollisionObject = true;
-                b.Name = "BPT #" + i;
-                b.SetPosition(
-                    HelperRandom.GetRandomNumber(-10, 10),
-                    HelperRandom.GetRandomNumber(-10, 10),
-                    HelperRandom.GetRandomNumber(-10, 10)
-                    );
-                AddGameObject(b);
-            }
-            */
-            /*
-            for (int i = -5; i < 20; i+=5)
-            {
-                BroadphaseTest b = new BroadphaseTest();
-                b.IsCollisionObject = true;
-                b.Name = "BPT #" + i;
-                b.SetPosition(0, 0, i);  
-                AddGameObject(b);
-            }
-            */
         }
     }
 }

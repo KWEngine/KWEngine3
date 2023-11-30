@@ -1,7 +1,6 @@
 ﻿using KWEngine3.GameObjects;
+using OpenTK.Core.Native;
 using OpenTK.Mathematics;
-using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 
 namespace KWEngine3.Helper
 {
@@ -12,12 +11,13 @@ namespace KWEngine3.Helper
         internal static float WorldTimeLast = 0;
         internal static int _sweepTestAxisIndex = 0;
         internal static Dictionary<GameObject, List<GameObjectHitbox>> OwnersDict = new Dictionary<GameObject, List<GameObjectHitbox>>();
+        internal const float SLOTTIME = 1f / 30f;
 
         internal static void ThreadMethod()
         {
             while (DoRun)
             {
-                if (KWEngine.WorldTime - WorldTimeLast > 0.016)
+                if (KWEngine.WorldTime - WorldTimeLast > SLOTTIME)
                 {
                     SweepAndPrune();
                     WorldTimeLast = KWEngine.WorldTime;
@@ -59,35 +59,37 @@ namespace KWEngine3.Helper
             lock (KWEngine.CurrentWorld._gameObjectHitboxes)
             {
                 axisList = new List<GameObjectHitbox>(KWEngine.CurrentWorld._gameObjectHitboxes);
-            }
-            if (vsgObject)
-            {
-                foreach (GameObjectHitbox vsgHitbox in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._hitboxes)
+            
+                if (vsgObject)
                 {
-                    if (vsgHitbox.IsActive)
+                    foreach (GameObjectHitbox vsgHitbox in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._hitboxes)
                     {
-                        axisList.Add(vsgHitbox);
+                        if (vsgHitbox.IsActive)
+                        {
+                            axisList.Add(vsgHitbox);
+                        }
                     }
                 }
+                
+                axisList.Sort(
+                    (x, y) =>
+                    {
+                        if (_sweepTestAxisIndex == 0)
+                        {
+                            return x._left < y._left ? -1 : 1;
+                        }
+                        else if (_sweepTestAxisIndex == 1)
+                        {
+                            return x._low < y._low ? -1 : 1;
+                        }
+                        else
+                        {
+                            return x._back < y._back ? -1 : 1;
+                        }
+                    }
+                );
+                
             }
-
-            axisList.Sort(
-                (x, y) =>
-                {
-                    if (_sweepTestAxisIndex == 0)
-                    {
-                        return x._left < y._left ? -1 : 1;
-                    }
-                    else if (_sweepTestAxisIndex == 1)
-                    {
-                        return x._low < y._low ? -1 : 1;
-                    }
-                    else
-                    {
-                        return x._back < y._back ? -1 : 1;
-                    }
-                }
-            );
 
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);
@@ -97,15 +99,11 @@ namespace KWEngine3.Helper
 
                 for (int i = 0; i < axisList.Count(); i++)
                 {
-                    if (axisList[i].Owner.IsCollisionObject == false)
-                    {
-                        continue;
-                    }
                     if (OwnersDict.ContainsKey(axisList[i].Owner) == false)
                     {
                         OwnersDict.Add(axisList[i].Owner, new List<GameObjectHitbox>());
                     }
-
+                    
                     Vector3 currentCenter = axisList[i]._center;
                     centerSum += currentCenter;
                     centerSqSum += (currentCenter * currentCenter);

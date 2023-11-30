@@ -47,13 +47,13 @@ namespace KWEngine3TestProject.Classes.WorldCollisionTest
                 this.SetRotationToMatchSurfaceNormal(i.ColliderSurfaceNormal);
             }
             */
-            Console.WriteLine(HelperIntersection.GetCollisionCandidateNamesFor(this));
+            //Console.WriteLine(HelperIntersection.GetCollisionCandidateNamesFor(this));
 
 
             List<Intersection> intersections = GetIntersections();
             foreach (Intersection intersection in intersections)
             {
-                Console.WriteLine("collision: " + intersection.Object.Name);
+               // Console.WriteLine("collision: " + intersection.Object.Name);
                 MoveOffset(intersection.MTV);
             }
 
