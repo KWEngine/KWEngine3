@@ -35,6 +35,7 @@ namespace KWEngine3.Helper
                 OwnersDict.Clear();
             }
             WorldTimeLast = 0;
+            SweepAndPrune();
             BroadphaseThread.Start();
         }
 

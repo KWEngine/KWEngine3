@@ -3,7 +3,6 @@
   <Class Name="KWEngine3.GLWindow">
     <Position X="3.5" Y="0.5" Width="2.75" />
     <Members>
-      <Field Name="_breakSimulation" Hidden="true" />
       <Field Name="_keyboard" Hidden="true" />
       <Field Name="_mouse" Hidden="true" />
       <Field Name="_mouseDeltas" Hidden="true" />
@@ -37,7 +36,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiBBAAABQAAAQyAUAkAgEACAhIABCYAaAAgUAEuAgA=</HashCode>
+      <HashCode>AAiBBAAABQAAAQyAUAkAgEACAhIABCYAaAAAUAEuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -115,6 +114,7 @@
       <Field Name="_eventQueue" Hidden="true" />
       <Field Name="_gameObjectHitboxes" Hidden="true" />
       <Field Name="_gameObjects" Hidden="true" />
+      <Field Name="_gameObjectsColliderChange" Hidden="true" />
       <Field Name="_gameObjectsToBeAdded" Hidden="true" />
       <Field Name="_gameObjectsToBeRemoved" Hidden="true" />
       <Field Name="_hudObjects" Hidden="true" />
@@ -177,6 +177,7 @@
   <Class Name="KWEngine3.GameObjects.GameObject">
     <Position X="6.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_addRemoveHitboxes" Hidden="true" />
       <Field Name="_attachBoneNodes" Hidden="true" />
       <Field Name="_attachedTo" Hidden="true" />
       <Field Name="_attachmentMatrix" Hidden="true" />
@@ -218,7 +219,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zykCOxoGGJyq0qTuwAqMIQZFASRzi1kJIIgAHkhaVNU=</HashCode>
+      <HashCode>zykCOxoGGJyq0qTuwAqMIQZFASRzi1kJIIgAH0haVNU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

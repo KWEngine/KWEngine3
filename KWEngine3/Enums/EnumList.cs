@@ -1,5 +1,12 @@
 ﻿namespace KWEngine3
 {
+    internal enum AddRemoveHitboxMode
+    {
+        None,
+        Add,
+        Remove
+    }
+
     /// <summary>
     /// Modues der Textanordnung in einem HUDObject
     /// </summary>

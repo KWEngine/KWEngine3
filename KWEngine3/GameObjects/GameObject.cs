@@ -1,9 +1,6 @@
-﻿using KWEngine3.Exceptions;
-using KWEngine3.Helper;
+﻿using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
-using System.Collections.Concurrent;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3.GameObjects
 {
@@ -28,28 +25,17 @@ namespace KWEngine3.GameObjects
             {
                 bool valueBefore = _isCollisionObject;
                 _isCollisionObject = value;
-                if (valueBefore == true && value == false)
+               
+                if(valueBefore != _isCollisionObject)
                 {
-                    lock (KWEngine.CurrentWorld._gameObjectHitboxes)
-                    { 
-                        foreach (GameObjectHitbox hb in _hitboxes)
-                        {
-                            if (hb.IsActive)
-                            {
-                                KWEngine.CurrentWorld._gameObjectHitboxes.Remove(hb);
-                            }
-                        }
-                    }
-                }
-                else if(valueBefore == false && value == true)
-                {
-                    lock (KWEngine.CurrentWorld._gameObjectHitboxes)
+                    KWEngine.CurrentWorld._gameObjectsColliderChange.Add(this);
+                    if(valueBefore == true)
                     {
-                        foreach (GameObjectHitbox hb in _hitboxes)
-                        {
-                            if (hb.IsActive && !KWEngine.CurrentWorld._gameObjectHitboxes.Contains(hb))
-                                KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
-                        }
+                        _addRemoveHitboxes = AddRemoveHitboxMode.Remove;
+                    }
+                    else
+                    {
+                        _addRemoveHitboxes = AddRemoveHitboxMode.Add;
                     }
                 }
             } 
@@ -202,22 +188,17 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return null;
             }
-            //else if (_currentOctreeNode == null)
-            //{
-            //    return null;
-            //}
-            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//new List<GameObject>();
-            //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
-            //lock (_collisionCandidates)
+
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                foreach (GameObjectHitbox hbother in _collisionCandidates)
+                if (hbother.Owner.ID > 0)
                 {
                     foreach (GameObjectHitbox hbcaller in this._hitboxes)
                     {
                         if (!hbcaller.IsActive)
                             continue;
                         Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
+                        if (i != null && i.Object.ID > 0)
                             return i;
                     }
                 }
@@ -238,31 +219,23 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return null;
             }
-            //else if (_currentOctreeNode == null)
-            //{
-            //    return null;
-            //}
-            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;//; new List<GameObject>();
-            //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-            //lock (_collisionCandidates)
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                foreach (GameObjectHitbox hbother in _collisionCandidates)
+                if ((hbother.Owner is T) == false || hbother.Owner.ID <= 0)
                 {
-                    if ((hbother.Owner is T) == false)
-                    {
+                    continue;
+                }
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                {
+                    if (!hbcaller.IsActive)
                         continue;
-                    }
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                    {
-                        if (!hbcaller.IsActive)
-                            continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            return i;
-                    }
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null)
+                        return i;
                 }
             }
+            
             return null;
         }
 
@@ -278,23 +251,17 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return intersections;
             }
-            //else if (_currentOctreeNode == null)
-            //{
-            //    return intersections;
-            //}
-            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;// new List<GameObject>();
-            //CollectPotentialIntersections<GameObject>(potentialColliders, _currentOctreeNode);
 
-            //lock (_collisionCandidates)
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                foreach (GameObjectHitbox hbother in _collisionCandidates)
+                if (hbother.Owner.ID > 0)
                 {
                     foreach (GameObjectHitbox hbcaller in this._hitboxes)
                     {
                         if (!hbcaller.IsActive)
                             continue;
                         Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
+                        if (i != null && i.Object.ID > 0)
                             intersections.Add(i);
                     }
                 }
@@ -316,31 +283,23 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return intersections;
             }
-            //else if (_currentOctreeNode == null)
-            //{
-            //    return intersections;
-            //}
-            //List<GameObjectHitbox> potentialColliders = this._collisionCandidates;
-            //CollectPotentialIntersections<T>(potentialColliders, _currentOctreeNode);
 
-            //lock (_collisionCandidates)
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                foreach (GameObjectHitbox hbother in _collisionCandidates)
+                if ((hbother.Owner is T) == false || hbother.Owner.ID <= 0)
                 {
-                    if ((hbother.Owner is T) == false)
-                    {
+                    continue;
+                }
+                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                {
+                    if (!hbcaller.IsActive)
                         continue;
-                    }
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
-                    {
-                        if (!hbcaller.IsActive)
-                            continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
-                        if (i != null)
-                            intersections.Add(i);
-                    }
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    if (i != null && i.Object.ID > 0)
+                        intersections.Add(i);
                 }
             }
+            
             return intersections;
         }
 
@@ -1596,6 +1555,7 @@ namespace KWEngine3.GameObjects
 
         internal string _modelNameInDB = "KWCube";
         internal int _importedID = -1;
+        internal AddRemoveHitboxMode _addRemoveHitboxes = AddRemoveHitboxMode.None;
         #endregion
     }
 }

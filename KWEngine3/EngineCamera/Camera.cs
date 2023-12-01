@@ -166,11 +166,6 @@ namespace KWEngine3.EngineCamera
                 true
                 );
             SetTarget(newCamPos);
-
-            Console.WriteLine(degX + " | " + degY);
-            Console.WriteLine(_stateCurrent._position);
-            Console.WriteLine(newCamPos);
-            Console.WriteLine("-----------");
         }
 
         internal void ArcBall(Vector2 deltaXY)

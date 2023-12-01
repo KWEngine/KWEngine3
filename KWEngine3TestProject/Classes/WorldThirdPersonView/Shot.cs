@@ -7,7 +7,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
 {
     public class Shot : GameObject
     {
-        private float _speed = 0.5f;
+        private float _speed = 0.4f;
         private float _distance = 0;
         private Vector3 _lastPos = Vector3.Zero;
         public override void Act()

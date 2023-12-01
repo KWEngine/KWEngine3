@@ -3,7 +3,6 @@ using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -22,6 +21,8 @@ namespace KWEngine3
         internal List<GameObject> _gameObjects = new List<GameObject>();
         internal List<GameObject> _gameObjectsToBeAdded = new List<GameObject>();
         internal List<GameObject> _gameObjectsToBeRemoved = new List<GameObject>();
+
+        internal List<GameObject> _gameObjectsColliderChange = new List<GameObject>();
 
         internal List<TerrainObject> _terrainObjects = new List<TerrainObject>();
         internal List<TerrainObject> _terrainObjectsToBeAdded = new List<TerrainObject>();
@@ -261,6 +262,33 @@ namespace KWEngine3
         {
             lock (_gameObjectHitboxes)
             {
+                foreach (GameObject g in _gameObjectsColliderChange)
+                {
+                    if (g._addRemoveHitboxes == AddRemoveHitboxMode.Add)
+                    {
+                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        {
+                            if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
+                            {
+                                _gameObjectHitboxes.Add(hb);
+                            }
+                        }
+                    }
+                    else if (g._addRemoveHitboxes == AddRemoveHitboxMode.Remove)
+                    {
+                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        {
+                            if (hb.IsActive)
+                            {
+                                bool result = _gameObjectHitboxes.Remove(hb);
+                            }
+                        }
+                    }
+
+                    g._addRemoveHitboxes = AddRemoveHitboxMode.None;
+                }
+                _gameObjectsColliderChange.Clear();
+
                 foreach (GameObject g in _gameObjectsToBeRemoved)
                 {
                     _availableGameObjectIDs.Enqueue((ushort)g.ID);
@@ -269,10 +297,7 @@ namespace KWEngine3
                     _gameObjects.Remove(g);
                     foreach(GameObjectHitbox hb in g._hitboxes)
                     {
-                        if(hb.IsActive)
-                        {
-                            _gameObjectHitboxes.Remove(hb);
-                        }
+                        _gameObjectHitboxes.Remove(hb);
                     }
                 }
                 _gameObjectsToBeRemoved.Clear();
@@ -1114,7 +1139,7 @@ namespace KWEngine3
         /// Vorbereitungsmethode der Welt
         /// </summary>
         public abstract void Prepare();
-        
+
         /// <summary>
         /// Act-Methode der Welt
         /// </summary>

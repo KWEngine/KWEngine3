@@ -41,10 +41,19 @@ namespace KWEngine3.Audio
             int numChannels;
             int bitsPerSample;
             int sampleRate;
+
+            if (audioFileName == null)
+                audioFileName = "";
+            
             if (!(audioFileName.ToLower().EndsWith("wav") || audioFileName.ToLower().EndsWith("ogg")))
                 throw new Exception("Only wav and ogg files are supported.");
 
             HelperGeneral.EqualizePathDividers(audioFileName);
+            if(File.Exists(audioFileName) == false)
+            {
+                KWEngine.LogWriteLine("[Audio] Cannot find file " + audioFileName);
+                return;
+            }
 
             if (audioFileName.ToLower().EndsWith("ogg"))
             {

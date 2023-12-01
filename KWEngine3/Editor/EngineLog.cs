@@ -13,9 +13,11 @@
                     _messages.Dequeue();
                 _messages.Enqueue(message);
 
+                ConsoleColor bak = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine(message);
+                Console.ForegroundColor = bak;
             }
-
         }
 
         public static void Clear()
