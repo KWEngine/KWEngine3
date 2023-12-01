@@ -16,7 +16,8 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt an, ob das Objekt ein Kollisionen erzeugen und überprüfen kann
         /// </summary>
-        public bool IsCollisionObject { 
+        public bool IsCollisionObject 
+        { 
             get 
             { 
                 return _isCollisionObject;
@@ -26,7 +27,7 @@ namespace KWEngine3.GameObjects
                 bool valueBefore = _isCollisionObject;
                 _isCollisionObject = value;
                
-                if(valueBefore != _isCollisionObject)
+                if(valueBefore != _isCollisionObject && this.ID > 0)
                 {
                     KWEngine.CurrentWorld._gameObjectsColliderChange.Add(this);
                     if(valueBefore == true)
@@ -1373,14 +1374,21 @@ namespace KWEngine3.GameObjects
 
         internal void InitHitboxes()
         {
-            RemoveHitboxesFromWorldHitboxList();
+            if (this.ID > 0)
+            {
+                RemoveHitboxesFromWorldHitboxList();
+            }
             _hitboxes.Clear();
             foreach(GeoMeshHitbox gmh in _gModel.ModelOriginal.MeshHitboxes)
             {
                 _hitboxes.Add(new GameObjectHitbox(this, gmh));
             }
-            UpdateWorldHitboxList();
+            if (this.ID > 0)
+            {
+                UpdateWorldHitboxList();
+            }
             UpdateModelMatrixAndHitboxes();
+            
         }
 
         internal void RemoveHitboxesFromWorldHitboxList()
