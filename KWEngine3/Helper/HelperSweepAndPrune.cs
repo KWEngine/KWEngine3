@@ -60,38 +60,40 @@ namespace KWEngine3.Helper
             lock (KWEngine.CurrentWorld._gameObjectHitboxes)
             {
                 axisList = new List<GameObjectHitbox>(KWEngine.CurrentWorld._gameObjectHitboxes);
-            
+
                 if (vsgObject)
                 {
-                    foreach (GameObjectHitbox vsgHitbox in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._hitboxes)
+                    lock (KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._hitboxes)
                     {
-                        if (vsgHitbox.IsActive)
+                        foreach (GameObjectHitbox vsgHitbox in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._hitboxes)
                         {
-                            axisList.Add(vsgHitbox);
+                            if (vsgHitbox.IsActive)
+                            {
+                                axisList.Add(vsgHitbox);
+                            }
                         }
                     }
                 }
-                
-                axisList.Sort(
-                    (x, y) =>
-                    {
-                        if (_sweepTestAxisIndex == 0)
-                        {
-                            return x._left < y._left ? -1 : 1;
-                        }
-                        else if (_sweepTestAxisIndex == 1)
-                        {
-                            return x._low < y._low ? -1 : 1;
-                        }
-                        else
-                        {
-                            return x._back < y._back ? -1 : 1;
-                        }
-                    }
-                );
-                
             }
 
+            axisList.Sort(
+                (x, y) =>
+                {
+                    if (_sweepTestAxisIndex == 0)
+                    {
+                        return x._left < y._left ? -1 : 1;
+                    }
+                    else if (_sweepTestAxisIndex == 1)
+                    {
+                        return x._low < y._low ? -1 : 1;
+                    }
+                    else
+                    {
+                        return x._back < y._back ? -1 : 1;
+                    }
+                }
+            );
+                
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);
             lock (OwnersDict)

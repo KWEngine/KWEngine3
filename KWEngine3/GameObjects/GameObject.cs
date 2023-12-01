@@ -1268,14 +1268,16 @@ namespace KWEngine3.GameObjects
 
                 Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.Center, 1.0f), meshTransform).Xyz;
                 Vector3 frontbottomleft = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.minX, _hitboxes[meshIndex]._mesh.minY, _hitboxes[meshIndex]._mesh.maxZ, 1f), meshTransform).Xyz;
-                Vector3 backtopright = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ, 1f), meshTransform).Xyz
-                    ;
-                bool wasRemoved = CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
-                if (wasRemoved)
+                Vector3 backtopright = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ, 1f), meshTransform).Xyz;
+                lock (CurrentWorld._gameObjectHitboxes)
                 {
-                    this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
-                    CurrentWorld._gameObjectHitboxes.Add(this._hitboxes[meshIndex]);
-                    UpdateModelMatrixAndHitboxes();
+                    bool wasRemoved = CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
+                    if (wasRemoved)
+                    {
+                        this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
+                        CurrentWorld._gameObjectHitboxes.Add(this._hitboxes[meshIndex]);
+                        UpdateModelMatrixAndHitboxes();
+                    }
                 }
             }
         }
@@ -1383,18 +1385,24 @@ namespace KWEngine3.GameObjects
 
         internal void RemoveHitboxesFromWorldHitboxList()
         {
-            foreach(GameObjectHitbox hb in _hitboxes)
+            lock (CurrentWorld._gameObjectHitboxes)
             {
-                CurrentWorld._gameObjectHitboxes.Remove(hb);
+                foreach (GameObjectHitbox hb in _hitboxes)
+                {
+                    CurrentWorld._gameObjectHitboxes.Remove(hb);
+                }
             }
         }
 
         internal void UpdateWorldHitboxList()
         {
-            foreach (GameObjectHitbox hb in _hitboxes)
+            lock (KWEngine.CurrentWorld._gameObjectHitboxes)
             {
-                if(hb.IsActive)
-                    KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
+                foreach (GameObjectHitbox hb in _hitboxes)
+                {
+                    if (hb.IsActive)
+                        KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
+                }
             }
         }
 
