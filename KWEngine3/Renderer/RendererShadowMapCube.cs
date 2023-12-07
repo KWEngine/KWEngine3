@@ -70,6 +70,7 @@ namespace KWEngine3.Renderer
 
         public static void RenderSceneForLight(LightObject l)
         {
+
             GL.Viewport(0, 0, l._shadowMapSize, l._shadowMapSize);
             for(int i = 0; i < 6; i++)
             {
@@ -80,7 +81,7 @@ namespace KWEngine3.Renderer
             GL.Uniform2(UNearFar, new Vector2(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y));
             foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjects())
             {
-                if(g.IsShadowCaster)
+                if(g.IsShadowCaster && g._stateRender._opacity > 0)
                     Draw(g);
             }
 

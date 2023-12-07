@@ -265,7 +265,7 @@ namespace KWEngine3
                     RendererShadowMap.Bind();
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
-                        if (l.ShadowCasterType != ShadowQuality.NoShadow)
+                        if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
                         {
                             if (l.Type == LightType.Point)
                             {

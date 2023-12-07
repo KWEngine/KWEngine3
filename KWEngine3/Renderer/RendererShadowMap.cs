@@ -63,7 +63,7 @@ namespace KWEngine3.Renderer
 
         public static void RenderSceneForLight(LightObject l)
         {
-            if (KWEngine.CurrentWorld != null && l.ShadowCasterType != ShadowQuality.NoShadow)
+            if (KWEngine.CurrentWorld != null && l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
             {
                 GL.Viewport(0, 0, l._shadowMapSize, l._shadowMapSize);
                 Matrix4 vp = l._stateRender._viewProjectionMatrix[0];
@@ -73,7 +73,7 @@ namespace KWEngine3.Renderer
                 GL.Uniform3(UNearFarSun, new Vector3(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y, l._stateRender._nearFarFOVType.W));
                 foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjects())
                 {
-                    if(g.IsShadowCaster)
+                    if(g.IsShadowCaster && g._stateRender._opacity > 0)
                         Draw(g);
                 }
 
@@ -87,10 +87,6 @@ namespace KWEngine3.Renderer
 
         public static void Draw(GameObject g)
         {
-            float o = g._stateRender._opacity;
-            if(o == 0f)
-                return;
-
             GeoMesh[] meshes = g._gModel.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)
             {
