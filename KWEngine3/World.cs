@@ -657,8 +657,30 @@ namespace KWEngine3
         /// <param name="g">Objekt</param>
         public void AddGameObject(GameObject g)
         {
+            if(IsPrepared == false)
+            {
+                if (!_gameObjects.Contains(g))
+                {
+                    g.ID = _availableGameObjectIDs.Dequeue();
+                    _gameObjects.Add(g);
+                    if (g._isCollisionObject)
+                    {
+                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        {
+                            if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
+                            {
+                                _gameObjectHitboxes.Add(hb);
+                            }
+                        }
+                    }
+                }
+                HelperSweepAndPrune.SweepAndPrune();
+                return;
+            }
+
             if (!_gameObjects.Contains(g) && !_gameObjectsToBeAdded.Contains(g))
             {
+                // TODO
                 g.ID = _availableGameObjectIDs.Dequeue();
                 _gameObjectsToBeAdded.Add(g);
             }
@@ -670,6 +692,22 @@ namespace KWEngine3
         /// <param name="g">Objekt</param>
         public void RemoveGameObject(GameObject g)
         {
+            // TODO
+            if(IsPrepared == false)
+            {
+                if(_gameObjects.Remove(g))
+                {
+                    _availableGameObjectIDs.Enqueue((ushort)g.ID);
+                    g.ID = 0;
+                    foreach (GameObjectHitbox hb in g._hitboxes)
+                    {
+                        _gameObjectHitboxes.Remove(hb);
+                    }
+                }
+                HelperSweepAndPrune.SweepAndPrune();
+                return;
+            }
+
             if (!_gameObjectsToBeRemoved.Contains(g))
                 _gameObjectsToBeRemoved.Add(g);
         }

@@ -1155,7 +1155,10 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                KWEngine.LogWriteLine("[GameObject] Unknown model or bone name or already in use");
+                if(modelToBeAttached == null)
+                    KWEngine.LogWriteLine("[GameObject] Unknown model - cannot use attachment feature");
+                else if(_gModel.ModelOriginal.BoneNames.IndexOf(boneName) < 0)
+                    KWEngine.LogWriteLine("[GameObject] Unknown bone name - cannot use attachment feature");
             }
         }
 

@@ -163,7 +163,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SAl0OK6ABDQCZAERzoGAhYgCTK5ZCaYcUaHCH/AMAnE=</HashCode>
+      <HashCode>SQl0OK6ABDQCZAERzoGAhYgCTK5ZCaYcUaHCH/AMAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -280,7 +280,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="3.5" Y="16.25" Width="2.75" />
+    <Position X="3.5" Y="16.5" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -354,7 +354,7 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQIQAhQAABQCgCAAsAAAAACAAAAgBJgGABGCABIJZAg=</HashCode>
+      <HashCode>BQIQAhQAABQCgCAAsAAAAACAAAAgBJgGABGCABILZAg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
