@@ -1,6 +1,7 @@
 ﻿using KWEngine3.GameObjects;
 using OpenTK.Core.Native;
 using OpenTK.Mathematics;
+using System.Diagnostics;
 
 namespace KWEngine3.Helper
 {
@@ -76,23 +77,31 @@ namespace KWEngine3.Helper
                 }
             }
 
-            axisList.Sort(
-                (x, y) =>
-                {
-                    if (_sweepTestAxisIndex == 0)
+            try
+            {
+                axisList.Sort(
+                    (x, y) =>
                     {
-                        return x._left < y._left ? -1 : 1;
+                        if (_sweepTestAxisIndex == 0)
+                        {
+                            return x._left < y._left ? -1 : 1;
+                        }
+                        else if (_sweepTestAxisIndex == 1)
+                        {
+                            return x._low < y._low ? -1 : 1;
+                        }
+                        else
+                        {
+                            return x._back < y._back ? -1 : 1;
+                        }
                     }
-                    else if (_sweepTestAxisIndex == 1)
-                    {
-                        return x._low < y._low ? -1 : 1;
-                    }
-                    else
-                    {
-                        return x._back < y._back ? -1 : 1;
-                    }
-                }
-            );
+                );
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine("[Sweep&Prune] Sorting failed due to bad comparer value (" + ex.Message + ")");
+                return;
+            }
                 
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);

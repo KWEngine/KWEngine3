@@ -513,6 +513,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.WorldTime = 0;
             KWEngine.CurrentWorld.Prepare();
+            KWEngine.CurrentWorld.IsPrepared = true;
             _mouseDeltaToUse = Vector2.Zero;
 
             HelperGeneral.FlushAndFinish();

@@ -3,6 +3,7 @@ using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using System.ComponentModel;
 
 namespace KWEngine3.Helper
 {
@@ -11,6 +12,100 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperIntersection
     {
+        /// <summary>
+        /// Prüft auf Kollisionen für ein Objekt g in Kombinationen mit allen (auch geplanten) anderen GameObject-Instanzen
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="gameObject">Instanz, für die auf Kollisionen geprüft werden soll</param>
+        /// <returns>Liste der Kollisionen</returns>
+        public static List<Intersection> GetIntersectionsForAllObjects<T>(GameObject gameObject) where T : GameObject
+        {
+            List<Intersection> intersections = new List<Intersection>();
+
+            foreach(GameObject g in KWEngine.CurrentWorld._gameObjectsToBeAdded)
+            {
+                if(g == gameObject)
+                    continue;
+                
+                foreach (GameObjectHitbox hbCaller in gameObject._hitboxes)
+                {
+                    if (!hbCaller.IsActive)
+                        continue;
+
+                    foreach(GameObjectHitbox hbother in g._hitboxes)
+                    {
+                        if(!hbother.IsActive)
+                            continue;
+
+                        Intersection i = TestIntersection(hbCaller, hbother);
+                        if (i != null)
+                            intersections.Add(i);
+                    }
+                }
+            }
+            return intersections;
+        }
+
+        /// <summary>
+        /// Prüft auf Kollisionen für ein Objekt g in Kombinationen mit allen (auch geplanten) anderen GameObject-Instanzen
+        /// </summary>
+        /// <param name="gameObject">Instanz, für die auf Kollisionen geprüft werden soll</param>
+        /// <param name="typelist">Auflistung der zu prüfenden Datentypen (müssen Unterklassen von GameObject sein)</param>
+        /// <returns>Liste der Kollisionen</returns>
+        public static List<Intersection> GetIntersectionsForAllObjects(GameObject gameObject, params Type[] typelist)
+        {
+            List<Intersection> intersections = new List<Intersection>();
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjectsToBeAdded)
+            {
+                if (g == gameObject)
+                    continue;
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                {
+                    foreach (GameObjectHitbox hbCaller in gameObject._hitboxes)
+                    {
+                        if (!hbCaller.IsActive)
+                            continue;
+
+                        foreach (GameObjectHitbox hbother in g._hitboxes)
+                        {
+                            if (!hbother.IsActive)
+                                continue;
+
+                            Intersection i = TestIntersection(hbCaller, hbother);
+                            if (i != null)
+                                intersections.Add(i);
+                        }
+                    }
+                }
+            }
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (g == gameObject)
+                    continue;
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                {
+                    foreach (GameObjectHitbox hbCaller in gameObject._hitboxes)
+                    {
+                        if (!hbCaller.IsActive)
+                            continue;
+
+                        foreach (GameObjectHitbox hbother in g._hitboxes)
+                        {
+                            if (!hbother.IsActive)
+                                continue;
+
+                            Intersection i = TestIntersection(hbCaller, hbother);
+                            if (i != null)
+                                intersections.Add(i);
+                        }
+                    }
+                }
+            }
+
+            return intersections;
+        }
+
         /// <summary>
         /// Gibt die aktuelle Anzahl potenzieller Kollisionskandidaten an, die sich in der Nähe des Objekts befinden
         /// </summary>

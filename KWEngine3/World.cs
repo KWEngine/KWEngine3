@@ -17,7 +17,7 @@ namespace KWEngine3
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
         internal List<WorldEvent> _eventQueue = new List<WorldEvent>();
-
+        
         internal List<GameObject> _gameObjects = new List<GameObject>();
         internal List<GameObject> _gameObjectsToBeAdded = new List<GameObject>();
         internal List<GameObject> _gameObjectsToBeRemoved = new List<GameObject>();
@@ -260,6 +260,15 @@ namespace KWEngine3
 
         internal void AddRemoveGameObjects()
         {
+            for(int i = _gameObjectsToBeRemoved.Count - 1; i>= 0; i--)
+            {
+                if (_gameObjectsToBeAdded.Contains(_gameObjectsToBeRemoved[i]))
+                {
+                    _gameObjectsToBeAdded.Remove(_gameObjectsToBeRemoved[i]);
+                    _gameObjectsToBeRemoved.RemoveAt(i);
+                }
+            }
+
             lock (_gameObjectHitboxes)
             {
                 foreach (GameObject g in _gameObjectsColliderChange)
@@ -456,6 +465,11 @@ namespace KWEngine3
             _lightObjectsToBeAdded.Clear();
         }
         #endregion
+
+        /// <summary>
+        /// Gibt an, ob die Welt bereits via Prepare()-Methode abschließend vorbereitet wurde
+        /// </summary>
+        public bool IsPrepared { get; internal set; } = false;
 
         /// <summary>
         /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
