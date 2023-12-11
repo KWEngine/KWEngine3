@@ -246,20 +246,17 @@
     <Members>
       <Field Name="_colliderSurfaceNormal" Hidden="true" />
       <Field Name="_hitboxCaller" Hidden="true" />
-      <Field Name="_hitboxCollider" Hidden="true" />
       <Field Name="_MTV" Hidden="true" />
-      <Field Name="_MTVUp" Hidden="true" />
-      <Field Name="_MTVUpToTop" Hidden="true" />
       <Method Name="IntersectionTerrain" Hidden="true" />
       <Field Name="UNIT" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CAAAAAABAAAEEACoAAAAAAAAgAAAAAAAAAAAABAAMEA=</HashCode>
+      <HashCode>CAAAAAABAAAEEAAoAAAAAAAAAAAAAAAAAAAAAAAAEEA=</HashCode>
       <FileName>GameObjects\IntersectionTerrain.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="9.5" Y="13.5" Width="2.75" />
+    <Position X="9.5" Y="13.25" Width="2.75" />
     <Members>
       <Field Name="_fbShadowMap" Hidden="true" />
       <Field Name="_shadowBias" Hidden="true" />
@@ -306,7 +303,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.TerrainObject">
-    <Position X="9.5" Y="8.75" Width="2.75" />
+    <Position X="9.5" Y="8.5" Width="2.75" />
     <Members>
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_hitboxes" Hidden="true" />
@@ -469,7 +466,7 @@
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
-    <Position X="9.5" Y="5.5" Width="2.75" />
+    <Position X="9.5" Y="5.25" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AgAAAAAAEAAAAABAiAgAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
       <FileName>GameObjects\IntersectionVolume.cs</FileName>

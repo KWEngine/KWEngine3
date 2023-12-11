@@ -988,7 +988,7 @@ namespace KWEngine3.Helper
         internal static IntersectionTerrain TestIntersectionTerrain(GameObjectHitbox caller, TerrainObjectHitbox collider)
         {
             GeoModel model = collider.Owner._gModel.ModelOriginal;
-            Vector3 untranslatedPosition = caller.Owner.Center - new Vector3(collider._center.X, 0, collider._center.Z);
+            Vector3 untranslatedPosition = caller._center - new Vector3(collider._center.X, 0, collider._center.Z);
             Sector s = model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
 
             if (s != null)
@@ -1051,15 +1051,12 @@ namespace KWEngine3.Helper
             if (rayHasContact)
             {
                 MTVTempUp.Y = contactPoint.Y - caller._low;
-                MTVTempUp.X = 0;
-                MTVTempUp.Z = 0;
-
                 if (MTVTempUp.Y > 0)
                 {
                     float dot = Vector3.Dot(MTVTempUp, triangle.Normal);
                     MTVTemp = triangle.Normal * dot;
 
-                    tempIntersection = new IntersectionTerrain(collider.Owner, caller, collider, MTVTemp, MTVTempUp, collider.Owner.Name, triangle.Normal, MTVTempUp);
+                    tempIntersection = new IntersectionTerrain(collider.Owner, caller, MTVTemp, MTVTempUp, collider.Owner.Name, triangle.Normal);
                     return tempIntersection;
                 }
 

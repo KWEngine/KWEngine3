@@ -164,16 +164,24 @@ namespace KWEngine3.GameObjects
         {
             foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
             {
+                GameObjectHitbox lowestHitbox = null;
+                float y = float.MaxValue;
                 foreach (GameObjectHitbox hbcaller in _hitboxes)
                 {
-                    //TODO: find largest hitbox and test only that one!
-                    IntersectionTerrain it = HelperIntersection.TestIntersectionTerrain(hbcaller, t._hitboxes[0]);
+                    if (hbcaller.IsActive && hbcaller._low < y)
+                    {
+                        y = hbcaller._low;
+                        lowestHitbox = hbcaller;
+                    }
+                }
+                if(lowestHitbox != null)
+                {
+                    IntersectionTerrain it = HelperIntersection.TestIntersectionTerrain(lowestHitbox, t._hitboxes[0]);
                     if (it != null)
                     {
                         return it;
                     }
                 }
-
             }
             return null;
         }
