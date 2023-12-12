@@ -1496,8 +1496,8 @@ namespace KWEngine3.GameObjects
         {
             _stateCurrent._modelMatrix = HelperMatrix.CreateModelMatrix(_stateCurrent);
             _stateCurrent._lookAtVector = Vector3.NormalizeFast(Vector3.TransformNormal(Vector3.UnitZ, _stateCurrent._modelMatrix));
-            _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.Cross(_stateCurrent._lookAtVector, KWEngine.WorldUp));
-            _stateCurrent._lookAtVectorUp = Vector3.NormalizeFast(Vector3.Cross(_stateCurrent._lookAtVectorRight, _stateCurrent._lookAtVector));
+            _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormal(Vector3.UnitX, _stateCurrent._modelMatrix));
+            _stateCurrent._lookAtVectorUp = Vector3.NormalizeFast(Vector3.TransformNormal(Vector3.UnitY, _stateCurrent._modelMatrix));
 
             _stateCurrent._center = Vector3.Zero;
             Vector3 dimMax = new Vector3(float.MinValue);

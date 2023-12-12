@@ -27,7 +27,7 @@ namespace KWEngine3.Renderer
         public static int UTextureRoughness { get; private set; } = -1;
         public static int UTextureEmissive { get; private set; } = -1;
         public static int UTextureTransform { get; private set; } = -1;
-        public static int UId { get; private set; } = -1;
+        public static int UIdShadowCaster { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;        
 
@@ -63,7 +63,7 @@ namespace KWEngine3.Renderer
                 UMetallicRoughness = GL.GetUniformLocation(ProgramID, "uMetallicRoughness");
                 UUseTexturesAlbedoNormalEmissive = GL.GetUniformLocation(ProgramID, "uUseTexturesAlbedoNormalEmissive");
                 UUseTexturesMetallicRoughness = GL.GetUniformLocation(ProgramID, "uUseTexturesMetallicRoughness");
-                UId = GL.GetUniformLocation(ProgramID, "uId");
+                UIdShadowCaster = GL.GetUniformLocation(ProgramID, "uIdShadowCaster");
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UNormalMatrix = GL.GetUniformLocation(ProgramID, "uNormalMatrix");
@@ -106,7 +106,7 @@ namespace KWEngine3.Renderer
         {
             GL.Uniform3(UColorTint, t._stateRender._colorTint);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
-            GL.Uniform1(UId, t.ID);
+            GL.Uniform2(UIdShadowCaster, new Vector2i(t.ID, t.IsShadowCaster ? 1 : 0));
             GL.Uniform3(UMetallicRoughness, new Vector3(t._gModel._metallicTerrain, t._gModel._roughnessTerrain, Convert.ToSingle((int)t._gModel._metallicType)));
 
             GeoMesh[] meshes = t._gModel.ModelOriginal.Meshes.Values.ToArray();

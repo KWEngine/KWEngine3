@@ -71,7 +71,7 @@ namespace KWEngine3.EngineCamera
         }
         public void SetTarget(Vector3 target)
         {
-            _stateCurrent._target = target + new Vector3(0, 0, 0.000001f);
+            _stateCurrent._target = target + new Vector3(0, 0, -0.000001f);
             _stateCurrent.UpdateViewMatrixAndLookAtVector();
             _stateCurrent.UpdateViewProjectionMatrix(_zNear, _zFar);
             _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);

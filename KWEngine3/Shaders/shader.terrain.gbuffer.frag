@@ -8,13 +8,13 @@ in mat3 vTBN;
 layout(location = 0) out vec3 albedo;
 layout(location = 1) out vec3 normal;
 layout(location = 2) out vec3 metallicRoughnessMetallicType;
-layout(location = 3) out float id;
+layout(location = 3) out ivec2 idShadowCaster;
 
 uniform vec3 uColorTint;
 uniform vec3 uColorMaterial;
 uniform vec4 uColorEmissive;
 uniform vec3 uMetallicRoughness;
-uniform int uId;
+uniform ivec2 uIdShadowCaster;
 uniform sampler2D uTextureAlbedo;
 uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureRoughness;
@@ -58,7 +58,7 @@ void main()
 		n = vNormal;
 	}
 	normal = vec3(normalize(n));
-	id = float(uId);
+	idShadowCaster = uIdShadowCaster;
 
 	//Metallic/Roughness
 	float metallic = uMetallicRoughness.x;

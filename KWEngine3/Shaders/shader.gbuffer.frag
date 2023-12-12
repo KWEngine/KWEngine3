@@ -8,13 +8,13 @@ in mat3 vTBN;
 layout(location = 0) out vec3 albedo;
 layout(location = 1) out vec3 normal;
 layout(location = 2) out vec3 metallicRoughnessMetallicType;
-layout(location = 3) out vec2i idShadowCaster;
+layout(location = 3) out ivec2 idShadowCaster;
 
 uniform vec3 uColorTint;
 uniform vec3 uColorMaterial;
 uniform vec4 uColorEmissive;
 uniform vec3 uMetallicRoughness;
-uniform vec2i uIdShadowCaster;
+uniform ivec2 uIdShadowCaster;
 uniform sampler2D uTextureAlbedo;
 uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureRoughness;

@@ -9,7 +9,7 @@ uniform sampler2D uTextureAlbedo;
 uniform sampler2D uTextureNormal;
 uniform sampler2D uTexturePBR; //x=metallic, y = roughness, z = metallic type
 uniform sampler2D uTextureDepth;
-uniform sampler2D uTextureId;
+uniform isampler2D uTextureId;
 
 uniform sampler2D uShadowMap[3];
 uniform samplerCube uShadowMapCube[3];
@@ -160,11 +160,9 @@ float DistributionGGX(vec3 N, vec3 H, float a)
     return nom / denom;
 }
 
-vec2i getIdShadowCaster()
+ivec2 getIdShadowCaster()
 {
-    vec2 sample = texture(uTextureId, vTexture).rg;
-    vec2i sampleInt = vec2i(int(round(sample.r)), int(round(sample.g)));
-    return sampleInt;
+    return texture(uTextureId, vTexture).rg;
 }
 
 vec3 getPBR()
@@ -231,14 +229,15 @@ vec3 getFragmentPosition()
 void main()
 {
     vec3 normal = getNormal();
-    vec2i idShadowCaster  = getIdShadowCaster();
+    ivec2 idShadowCaster  = getIdShadowCaster();
     if(idShadowCaster.r < 0)
     {
         color = vec4(texture(uTextureAlbedo, vTexture).xyz, 1.0);
         bloom = vec4(0.0, 0.0, 0.0, 1.0);
         return;
     }
-    else if(idShadowCaster.r == 0)
+
+    if(idShadowCaster.r == 0)
     {
         discard;
     }
