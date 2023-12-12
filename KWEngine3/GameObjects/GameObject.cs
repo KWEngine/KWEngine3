@@ -131,6 +131,10 @@ namespace KWEngine3.GameObjects
                     KWEngine.LogWriteLine("[GameObject] Cannot set a terrain model (" + modelname + ") as GameObject model.");
                 }
             }
+            else
+            {
+                KWEngine.LogWriteLine("[GameObject] Cannot find model '" + modelname + "'.");
+            }
             return modelFound;
         }
 
@@ -332,6 +336,7 @@ namespace KWEngine3.GameObjects
         /// <param name="target">Zielkoordinate</param>
         public void TurnTowardsXYZ(Vector3 target)
         {
+            if (target == _stateCurrent._position) return;
             SetRotation(GetRotationToTarget(target));
         }
 
@@ -350,6 +355,7 @@ namespace KWEngine3.GameObjects
         /// <param name="targetY">Y-Koordinate</param>
         public void TurnTowardsXY(float targetX, float targetY)
         {
+            if (targetX == _stateCurrent._position.X && targetY == _stateCurrent._position.Y) return;
             Vector3 target = new Vector3(targetX, targetY, 0);
             TurnTowardsXY(target);
         }
@@ -361,6 +367,7 @@ namespace KWEngine3.GameObjects
         /// <param name="target">Zielkoordinaten</param>
         public void TurnTowardsXY(Vector3 target)
         {
+            if (target == _stateCurrent._position) return;
             target.Z = Position.Z + 0.000001f;
             Matrix4 lookat = Matrix4.LookAt(target, Position, Vector3.UnitZ);
             lookat.Transpose();
@@ -379,6 +386,7 @@ namespace KWEngine3.GameObjects
         /// <param name="targetZ">Zielkoordinate der z-Achse</param>
         public void TurnTowardsXZ(float targetX, float targetZ)
         {
+            if (targetX == _stateCurrent._position.X && targetZ == _stateCurrent._position.Z) return;
             Vector3 target = new Vector3(targetX, 0, targetZ);
             TurnTowardsXZ(target);
         }
@@ -390,6 +398,7 @@ namespace KWEngine3.GameObjects
         /// <param name="target">Zielkoordinaten</param>
         public void TurnTowardsXZ(Vector3 target)
         {
+            if (target == _stateCurrent._position) return;
             target.Y = Position.Y + 0.000001f;
             Matrix4 lookat = Matrix4.LookAt(target, Position, Vector3.UnitY);
             lookat.Transpose();
@@ -1283,13 +1292,14 @@ namespace KWEngine3.GameObjects
                 Vector3 backtopright = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ, 1f), meshTransform).Xyz;
                 lock (CurrentWorld._gameObjectHitboxes)
                 {
-                    bool wasRemoved = CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
-                    if (wasRemoved)
+                    if (CurrentWorld._gameObjectHitboxes.Contains(this._hitboxes[meshIndex]))
                     {
-                        this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
-                        CurrentWorld._gameObjectHitboxes.Add(this._hitboxes[meshIndex]);
-                        UpdateModelMatrixAndHitboxes();
+                        CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
                     }
+                    this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
+                    CurrentWorld._gameObjectHitboxes.Add(this._hitboxes[meshIndex]);
+                    UpdateModelMatrixAndHitboxes();
+                    
                 }
             }
         }
@@ -1494,10 +1504,15 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateModelMatrixAndHitboxes()
         {
+            if (_stateCurrent._rotation == new Quaternion(0, 0, 0, 0))
+            {
+                return;
+            }
             _stateCurrent._modelMatrix = HelperMatrix.CreateModelMatrix(_stateCurrent);
-            _stateCurrent._lookAtVector = Vector3.NormalizeFast(Vector3.TransformNormal(Vector3.UnitZ, _stateCurrent._modelMatrix));
-            _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormal(Vector3.UnitX, _stateCurrent._modelMatrix));
-            _stateCurrent._lookAtVectorUp = Vector3.NormalizeFast(Vector3.TransformNormal(Vector3.UnitY, _stateCurrent._modelMatrix));
+            _stateCurrent._modelMatrixInverse = Matrix4.Invert(_stateCurrent._modelMatrix);
+            _stateCurrent._lookAtVector = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitZ, _stateCurrent._modelMatrixInverse));
+            _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitX, _stateCurrent._modelMatrixInverse));
+            _stateCurrent._lookAtVectorUp = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitY, _stateCurrent._modelMatrixInverse));
 
             _stateCurrent._center = Vector3.Zero;
             Vector3 dimMax = new Vector3(float.MinValue);

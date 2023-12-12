@@ -14,6 +14,7 @@ namespace KWEngine3.GameObjects
         internal float _opacity = 1f;
         internal GameObject gameObject = null;
         internal Matrix4 _modelMatrix = Matrix4.Identity;
+        internal Matrix4 _modelMatrixInverse = Matrix4.Identity;
         internal Vector4 _colorEmissive = new Vector4(0, 0, 0, 0);
         internal Vector3 _colorTint = Vector3.One;
         internal Vector3 _lookAtVector = Vector3.UnitZ;
@@ -31,6 +32,10 @@ namespace KWEngine3.GameObjects
 
         public GameObjectState():this(null)
         {
+            _rotation = Quaternion.Identity;
+            _scale = Vector3.One;
+            _scaleHitbox = Vector3.One;
+            _position = Vector3.Zero;
         }
 
         public GameObjectState(GameObject gameObject)

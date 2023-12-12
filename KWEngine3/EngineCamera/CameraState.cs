@@ -31,6 +31,14 @@ namespace KWEngine3.EngineCamera
                 _position,
                 _target,
                 KWEngine.WorldUp);
+            while (float.IsNaN(ViewMatrix.M11))
+            {
+                _target.Z -= 0.000001f;
+                ViewMatrix = Matrix4.LookAt(
+                _position,
+                _target,
+                KWEngine.WorldUp);
+            }
             LookAtVector = Vector3.NormalizeFast(_target - _position);
             LookAtVectorLocalRight = Vector3.NormalizeFast(Vector3.Cross(LookAtVector, KWEngine.WorldUp));
             LookAtVectorLocalUp = Vector3.NormalizeFast(Vector3.Cross(LookAtVectorLocalRight, LookAtVector));

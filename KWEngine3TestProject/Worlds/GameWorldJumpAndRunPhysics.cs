@@ -52,6 +52,7 @@ namespace KWEngine3TestProject.Worlds
             p.SetRotation(0, 90, 0);
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
+            p.SetHitboxToCapsuleForMesh(0);
             AddGameObject(p);
 
             Floor f01 = new Floor();

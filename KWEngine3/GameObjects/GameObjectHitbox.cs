@@ -70,11 +70,11 @@ namespace KWEngine3.GameObjects
             if (Owner._stateCurrent._scaleHitbox != Vector3.One)
             {
                 Matrix4.Mult(meshPreTransform, Matrix4.CreateScale(Owner._stateCurrent._scaleHitbox), out Matrix4 tempMatrix);
-                Matrix4.Mult(tempMatrix, HelperMatrix.CreateModelMatrix(Owner._stateCurrent), out _modelMatrixFinal);
+                Matrix4.Mult(tempMatrix, Owner._stateCurrent._modelMatrix, out _modelMatrixFinal);
             }
             else
             {
-                Matrix4.Mult(meshPreTransform, HelperMatrix.CreateModelMatrix(Owner._stateCurrent), out _modelMatrixFinal);
+                Matrix4.Mult(meshPreTransform, Owner._stateCurrent._modelMatrix, out _modelMatrixFinal);
             }
             
 
