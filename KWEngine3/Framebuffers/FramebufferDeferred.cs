@@ -16,7 +16,7 @@ namespace KWEngine3.Framebuffers
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 0));   // Albedo
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 1));   // Normal
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2));     // Metallic, Roughness, MetallicType attachment
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R32F, width, height, 3));     // ID
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG32I, width, height, 3));     // ID, ShadowCaster
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4)); // Depth
             
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
@@ -30,7 +30,7 @@ namespace KWEngine3.Framebuffers
             ClearColorValues.Add(0, new float[] { 0, 0, 0 });
             ClearColorValues.Add(1, new float[] { 0, 0, 0 });
             ClearColorValues.Add(2, new float[] { 0, 1, 0 });
-            ClearColorValues.Add(3, new float[] { 0 });
+            ClearColorValues.Add(3, new float[] { 0, 0 });
 
             ClearDepthValues.Add(0, new float[] { 0, 0, 0, 0 });
         }

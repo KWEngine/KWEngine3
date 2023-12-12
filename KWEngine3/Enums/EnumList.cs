@@ -556,6 +556,7 @@
         RGBA16F,
         RGBA32F,
         RG8,
+        RG32I,
         DEPTH32F,
         DEPTH16F
     }

@@ -40,6 +40,7 @@ namespace KWEngine3.Renderer
         public static int UTextureBackground { get; private set; } = -1;
         public static int UUseTextureReflection { get; private set; } = -1;
         public static int UTextureSkyboxRotation { get; private set; } = -1;
+        public static int UShadowCaster { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;        
 
@@ -104,6 +105,8 @@ namespace KWEngine3.Renderer
                 UTextureBackground = GL.GetUniformLocation(ProgramID, "uTextureBackground");
                 UUseTextureReflection = GL.GetUniformLocation(ProgramID, "uUseTextureReflection");
                 UTextureSkyboxRotation = GL.GetUniformLocation(ProgramID, "uTextureSkyboxRotation");
+
+                UShadowCaster = GL.GetUniformLocation(ProgramID, "uShadowCaster");
             }
         }
 
@@ -242,6 +245,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
             //GL.Uniform2(UMetallicRoughness, new Vector2(g._gModel._metallic, g._gModel._roughness));
             GL.Uniform1(UMetallicType, (int)g._gModel._metallicType);
+            GL.Uniform1(UShadowCaster, g.IsShadowCaster ? 1 : 0);
 
             GeoMesh[] meshes = g._gModel.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)

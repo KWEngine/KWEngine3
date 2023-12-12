@@ -36,6 +36,7 @@ uniform vec4 uColorEmissive;
 uniform vec4 uColorMaterial;
 uniform vec4 uColorTint;
 uniform int uMetallicType;
+uniform int uShadowCaster;
 
 const float PI = 3.141593;
 const float PI2 = 0.5 / PI;
@@ -339,27 +340,30 @@ void main()
 
         // shadow map check:
         float darkeningCurrentLight = 1.0;
-        if(shadowMapIndex > 0) // directional or sun light
+        if(uShadowCaster > 0)
         {
-            // if the light is directional, we first have to linearize the depth values:
-			vec3 projCoordsForTextureLookup = (vShadowCoord[shadowMapIndex - 1].xyz / vShadowCoord[shadowMapIndex - 1].w) * 0.5 + 0.5;
-			vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
-            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
-            if(currentLightType > 0.0)
+            if(shadowMapIndex > 0) // directional or sun light
             {
-                fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
+                // if the light is directional, we first have to linearize the depth values:
+			    vec3 projCoordsForTextureLookup = (vShadowCoord[shadowMapIndex - 1].xyz / vShadowCoord[shadowMapIndex - 1].w) * 0.5 + 0.5;
+			    vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
+                float fragmentDepthLinearized = projCoordsForTextureLookup.z;
+                if(currentLightType > 0.0)
+                {
+                    fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
+                }
+			    darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
             }
-			darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
-        }
-        else if(shadowMapIndex < 0) // point light
-        {
-            darkeningCurrentLight = calculateShadowCube(
-                abs(shadowMapIndex) - 1, 
-                currentLightPos.xyz, 
-                fragPositionDepth.xyz, 
-                vec2(currentLightNear, currentLightFar), 
-                currentLightBias, 
-                currentLightHardness);
+            else if(shadowMapIndex < 0) // point light
+            {
+                darkeningCurrentLight = calculateShadowCube(
+                    abs(shadowMapIndex) - 1, 
+                    currentLightPos.xyz, 
+                    fragPositionDepth.xyz, 
+                    vec2(currentLightNear, currentLightFar), 
+                    currentLightBias, 
+                    currentLightHardness);
+            }
         }
 
         Lo += (kD * albedo.xyz / PI + specular) * radiance * NdotL * darkeningCurrentLight;

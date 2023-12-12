@@ -28,7 +28,7 @@ namespace KWEngine3.Renderer
         public static int UTextureTransform { get; private set; } = -1;
         public static int UUseAnimations { get; private set; } = -1;
         public static int UBoneTransforms { get; private set; } = -1;
-        public static int UId { get; private set; } = -1;
+        public static int UIdShadowCaster { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;        
 
@@ -64,7 +64,7 @@ namespace KWEngine3.Renderer
                 UMetallicRoughness = GL.GetUniformLocation(ProgramID, "uMetallicRoughness");
                 UUseTexturesAlbedoNormalEmissive = GL.GetUniformLocation(ProgramID, "uUseTexturesAlbedoNormalEmissive");
                 UUseTexturesMetallicRoughness = GL.GetUniformLocation(ProgramID, "uUseTexturesMetallicRoughness");
-                UId = GL.GetUniformLocation(ProgramID, "uId");
+                UIdShadowCaster = GL.GetUniformLocation(ProgramID, "uIdShadowCaster");
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UNormalMatrix = GL.GetUniformLocation(ProgramID, "uNormalMatrix");
@@ -117,9 +117,7 @@ namespace KWEngine3.Renderer
         public static void Draw(GameObject g)
         {
             GL.Uniform3(UColorTint, g._stateRender._colorTint);
-            
-            GL.Uniform1(UId, g.ID);
-            
+            GL.Uniform2(UIdShadowCaster, new Vector2i(g.ID, g.IsShadowCaster ? 1 : 0));
 
             GeoMesh[] meshes = g._gModel.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)
