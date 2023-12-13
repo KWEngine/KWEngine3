@@ -6,10 +6,7 @@ namespace KWEngine3TestProject.Classes
     {
         public override void Act()
         {
-            Console.WriteLine(LookAtVector);
-            Console.WriteLine(LookAtVectorLocalRight);
-            Console.WriteLine(LookAtVectorLocalUp);
-            Console.WriteLine(  "-----");
+            
         }
     }
 }

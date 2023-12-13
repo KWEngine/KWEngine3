@@ -52,6 +52,11 @@ namespace KWEngine3.EngineCamera
         }
         public void SetPosition(Vector3 position)
         {
+            if (IsCameraLookAtPossiblyNaN(position, _stateCurrent._target, out Vector3 tNew))
+            {
+                _stateCurrent._target = tNew;
+            }
+
             _stateCurrent._position = position;
             _stateCurrent.UpdateViewMatrixAndLookAtVector();
             _stateCurrent.UpdateViewProjectionMatrix(_zNear, _zFar);
@@ -71,10 +76,43 @@ namespace KWEngine3.EngineCamera
         }
         public void SetTarget(Vector3 target)
         {
-            _stateCurrent._target = target;
+            if(IsCameraLookAtPossiblyNaN(_stateCurrent._position, target, out Vector3 tNew))
+            {
+                _stateCurrent._target = tNew;
+            }
+            else
+            {
+                _stateCurrent._target = target;
+            }
+
             _stateCurrent.UpdateViewMatrixAndLookAtVector();
             _stateCurrent.UpdateViewProjectionMatrix(_zNear, _zFar);
             _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
+        }
+
+        private bool IsCameraLookAtPossiblyNaN(Vector3 position, Vector3 target, out Vector3 targetNew)
+        {
+            targetNew = target;
+            Matrix4 test = Matrix4.LookAt(
+                0, 500, 0, 
+                0, 0, -0.0001f, 
+                0, 1, 0);
+            /*
+            Vector3 camDir = Vector3.Normalize(target - position);
+            float dot = Math.Abs(Vector3.Dot(camDir, KWEngine.WorldUp));
+            bool wasCorrected = false;
+            do
+            {
+                if(dot > 0.999f)
+                {
+                    targetNew.Z -= 0.0001f;
+                    test = Matrix4.LookAt(position, targetNew, KWEngine.WorldUp);
+                }
+               
+                }
+            
+            */
+            return false;
         }
 
         public void YawAndPitch(float yaw, float pitch)
