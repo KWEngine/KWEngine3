@@ -90,29 +90,27 @@ namespace KWEngine3.EngineCamera
             _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
         }
 
+        
         private bool IsCameraLookAtPossiblyNaN(Vector3 position, Vector3 target, out Vector3 targetNew)
         {
             targetNew = target;
-            Matrix4 test = Matrix4.LookAt(
-                0, 500, 0, 
-                0, 0, -0.0001f, 
-                0, 1, 0);
-
-
-            //Vector3 camDir = Vector3.Normalize(target - position);
-            Vector3 camDir = Vector3.Normalize(new Vector3(0, 0, -0.0001f) - new Vector3(0, 200, 0));
-            float dot = Math.Abs(Vector3.Dot(camDir, KWEngine.WorldUp));
             bool wasCorrected = false;
-            do
+
+            Vector3 delta = targetNew - position;
+            if(Math.Abs(delta.X) < NANDEVIATION && Math.Abs(delta.Z) < NANDEVIATION)
             {
-                if (dot == 1f)
+                if(Math.Abs(delta.Y) >= NANDEVIATION)
                 {
-                    targetNew.Z -= 0.0001f;
-                    //test = Matrix4.LookAt(position, targetNew, KWEngine.WorldUp);
+                    targetNew.Z -= (float)((NANDEVIATION * 0.1) * (double)delta.LengthFast);
                 }
+                else
+                {
+                    targetNew.Y -= NANDEVIATION;
+                    targetNew.Z -= (float)((NANDEVIATION * 0.1) * (double)delta.LengthFast);
+                }
+                wasCorrected = true;
             }
-            while (dot == 1f);
-            
+
             return wasCorrected;
         }
 
@@ -252,5 +250,7 @@ namespace KWEngine3.EngineCamera
             Vector3 ray_world3 = Vector3.Normalize(ray_world.Xyz);
             return ray_world3;
         }
+
+        internal const float NANDEVIATION = 0.00001f;
     }
 }

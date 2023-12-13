@@ -18,7 +18,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            SetCameraPosition(0, 20, 0);
+            SetCameraPosition(0, 500, 0);
             SetCameraTarget(0, 0, 0);
             SetColorAmbient(0.1f, 0.1f, 0.1f);
             KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", "./Textures/Grass_01_512.png", 10, 0.1f, 10);
