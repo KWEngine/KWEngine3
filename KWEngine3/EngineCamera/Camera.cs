@@ -97,22 +97,23 @@ namespace KWEngine3.EngineCamera
                 0, 500, 0, 
                 0, 0, -0.0001f, 
                 0, 1, 0);
-            /*
-            Vector3 camDir = Vector3.Normalize(target - position);
+
+
+            //Vector3 camDir = Vector3.Normalize(target - position);
+            Vector3 camDir = Vector3.Normalize(new Vector3(0, 0, -0.0001f) - new Vector3(0, 200, 0));
             float dot = Math.Abs(Vector3.Dot(camDir, KWEngine.WorldUp));
             bool wasCorrected = false;
             do
             {
-                if(dot > 0.999f)
+                if (dot == 1f)
                 {
                     targetNew.Z -= 0.0001f;
-                    test = Matrix4.LookAt(position, targetNew, KWEngine.WorldUp);
+                    //test = Matrix4.LookAt(position, targetNew, KWEngine.WorldUp);
                 }
-               
-                }
+            }
+            while (dot == 1f);
             
-            */
-            return false;
+            return wasCorrected;
         }
 
         public void YawAndPitch(float yaw, float pitch)
