@@ -1,6 +1,7 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
 using KWEngine3TestProject.Classes;
+using KWEngine3TestProject.Classes.WorldShadowCasterTest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,13 +19,13 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            SetCameraPosition(0, 500, 0);
+            SetCameraPosition(10, 10, 10);
             SetCameraTarget(0, 0, 0);
             SetColorAmbient(0.1f, 0.1f, 0.1f);
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", "./Textures/Grass_01_512.png", 10, 0.1f, 10);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", "./Textures/Grass_01_512.png", 10, 2f, 20);
 
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
-            sun.SetPosition(25, 25, 25);
+            sun.SetPosition(-25, 25, -25);
             sun.SetTarget(0, 1, 0);
             sun.SetNearFar(20, 60);
             sun.SetFOV(20);
@@ -50,7 +51,7 @@ namespace KWEngine3TestProject.Worlds
             platform.IsShadowCaster = true;
             AddGameObject(platform);
             */
-
+            
             Immovable quadTest = new Immovable();
             quadTest.SetModel("KWQuad");
             quadTest.SetScale(1);
@@ -70,6 +71,11 @@ namespace KWEngine3TestProject.Worlds
             quadTest2.HasTransparencyTexture = false;
             AddGameObject(quadTest2);
             */
+
+            TerrainPlayer p = new TerrainPlayer();
+            p.SetPosition(4, 1, 0);
+            AddGameObject(p);
+
         }
     }
 }

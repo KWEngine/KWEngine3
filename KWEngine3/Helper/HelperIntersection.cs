@@ -4,6 +4,7 @@ using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.ComponentModel;
+using System.Diagnostics;
 
 namespace KWEngine3.Helper
 {
@@ -12,6 +13,38 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperIntersection
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="position">Position für die getestet werden soll.</param>
+        /// <param name="offsetY">(optionale) Verschiebung auf der Y-Achse - kann i.d.R. 0 betragen</param>
+        /// <param name="intersectionPosition">gemessener Schnittpunkt mit dem Terrain</param>
+        /// <returns>true, wenn gerade ein Terrain unter der angegebenen Position liegt</returns>
+        public static bool GetPositionOnTerrainUnderneath(Vector3 position, float offsetY, out Vector3 intersectionPosition)
+        {
+            intersectionPosition = Vector3.Zero;
+            foreach(TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
+            {
+                Vector3 untranslatedPosition = position - new Vector3(t._hitboxes[0]._center.X, 0, t._hitboxes[0]._center.Z);
+                untranslatedPosition.Y += offsetY;
+                Sector s = t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
+                if (s != null)
+                {
+                    GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                    if (tris.HasValue)
+                    {
+                        bool rayHasContact = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -KWEngine.WorldUp, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                        if(rayHasContact)
+                        {
+                            intersectionPosition = contactPoint;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         /// <summary>
         /// Prüft auf Kollisionen für ein Objekt g in Kombinationen mit allen (auch geplanten) anderen GameObject-Instanzen
         /// </summary>
