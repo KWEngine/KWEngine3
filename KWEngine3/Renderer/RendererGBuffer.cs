@@ -103,7 +103,7 @@ namespace KWEngine3.Renderer
                 {
                     if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || !g.IsInsideScreenSpace))
                         continue;
-                    if (g.IsTransparent)
+                    if (g.IsTransparent || g.IsDepthTesting == false)
                     {
                         forwardObjects.Add(g);
                         continue;

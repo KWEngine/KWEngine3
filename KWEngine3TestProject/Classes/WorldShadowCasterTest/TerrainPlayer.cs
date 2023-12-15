@@ -36,7 +36,7 @@ namespace KWEngine3TestProject.Classes.WorldShadowCasterTest
             }
             else
             {
-                Console.WriteLine("no collision");
+                //Console.WriteLine("no collision");
             }
         }
     }

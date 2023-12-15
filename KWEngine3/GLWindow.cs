@@ -46,12 +46,9 @@ namespace KWEngine3
             {
                 _mouseDeltas.RemoveAt(0);
             }
-            int samplesToLookAt = (int)Math.Ceiling(DELTASFORMOVINGAVG * Math.Pow(1f / dt_ms, 4.0));
-            samplesToLookAt = Math.Min(samplesToLookAt + (DELTASFORMOVINGAVG - samplesToLookAt % DELTASFORMOVINGAVG), MOUSEDELTAMAXSAMPLECOUNT - 1);
-
-            
-            float sampleWeightStep = 1.0f / (samplesToLookAt - 1);
-            int thresholdForNextWeightStep = samplesToLookAt / DELTASFORMOVINGAVG;
+            int samplesToLookAt = Math.Clamp((int)Math.Ceiling((1f / dt_ms) * 10f), 1, MOUSEDELTAMAXSAMPLECOUNT - 1);
+            float sampleWeightStep = 1.0f / Math.Max(samplesToLookAt - 1, 1);
+            int thresholdForNextWeightStep = Math.Max(samplesToLookAt / DELTASFORMOVINGAVG, DELTASFORMOVINGAVG);
             float currentSampleWeight = sampleWeightStep;
             Vector2 movingAvg = Vector2.Zero;
             

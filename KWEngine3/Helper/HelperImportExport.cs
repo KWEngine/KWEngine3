@@ -328,6 +328,8 @@ namespace KWEngine3.Helper
         {
             GameObject g = (GameObject)Assembly.GetEntryAssembly().CreateInstance(sg.Type);
             g.SetModel(sg.ModelName);
+            g.SetOpacity(sg.Opacity);
+            g.IsDepthTesting = sg.IsDepthTesting;
             g.IsShadowCaster = sg.IsShadowCaster;
             g.IsCollisionObject = sg.IsCollisionObject;
             g.UpdateLast = sg.UpdateLast;

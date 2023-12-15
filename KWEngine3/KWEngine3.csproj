@@ -10,10 +10,10 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<Product>KWEngine3 (updated: 2023-12-15)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.1.7</Version>
-		<AssemblyVersion>3.0.1.7</AssemblyVersion>
-		<FileVersion>3.0.1.7</FileVersion>
-		<ProductVersion>3.0.1.7</ProductVersion>
+		<Version>3.0.1.8</Version>
+		<AssemblyVersion>3.0.1.8</AssemblyVersion>
+		<FileVersion>3.0.1.8</FileVersion>
+		<ProductVersion>3.0.1.8</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 

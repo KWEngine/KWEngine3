@@ -295,7 +295,10 @@ namespace KWEngine3.Renderer
                 {
                     GL.Disable(EnableCap.CullFace);
                 }
-
+                if(g.IsDepthTesting == false)
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                }
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
                 GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
@@ -305,6 +308,10 @@ namespace KWEngine3.Renderer
                 if (material.RenderBackFace && g.DisableBackfaceCulling)
                 {
                     GL.Disable(EnableCap.CullFace);
+                }
+                if (g.IsDepthTesting == false)
+                {
+                    GL.Enable(EnableCap.DepthTest);
                 }
             }
         }

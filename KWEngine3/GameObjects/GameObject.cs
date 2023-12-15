@@ -64,6 +64,11 @@ namespace KWEngine3.GameObjects
         public string Name { get { return _name; } set { if (value != null && value.Length > 0) _name = value; } }
 
         /// <summary>
+        /// Setzt bzw. gibt an, ob das Objekt von anderen Objekten aufgrund der Entfernung zur Kamera verdeckt werden kann (Standard: true)
+        /// </summary>
+        public bool IsDepthTesting { get; set; } = true;
+
+        /// <summary>
         /// Gibt an, ob für das Objekt auch die der Kamera abgewandten Seiten gerendet werden sollen. Dies kann helfen, einseitige Meshes korrekt zu rendern.
         /// </summary>
         public bool DisableBackfaceCulling { get; set; } = false;

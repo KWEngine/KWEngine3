@@ -15,6 +15,8 @@ namespace KWEngine3.Helper
         public string ModelName { get; set; }
         public string ModelPath { get; set; }
         public bool UpdateLast { get; set; }
+        public bool IsDepthTesting { get; set; } = true;
+        public float Opacity { get; set; } = 1;
 
         // POSITION, ROTATION, SCALE
         public float[] Position { get; set; }
@@ -47,6 +49,8 @@ namespace KWEngine3.Helper
         {
             SerializedGameObject sg = new SerializedGameObject();
             sg.ID = g.ID;
+            sg.Opacity = g._stateCurrent._opacity;
+            sg.IsDepthTesting = g.IsDepthTesting;
             sg.IsShadowCaster = g.IsShadowCaster;
             sg.IsCollisionObject = g.IsCollisionObject;
             sg.Name = g.Name;

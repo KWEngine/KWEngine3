@@ -19,11 +19,12 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            KWEngine.LoadModel("Dan", "./Models/GLTFTest/FanplasticDan.glb");
             SetCameraPosition(10, 10, 10);
             SetCameraTarget(0, 0, 0);
             SetColorAmbient(0.1f, 0.1f, 0.1f);
             KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", "./Textures/Grass_01_512.png", 10, 2f, 20);
-
+            /*
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(-25, 25, -25);
             sun.SetTarget(0, 1, 0);
@@ -31,11 +32,13 @@ namespace KWEngine3TestProject.Worlds
             sun.SetFOV(20);
             sun.SetColor(1, 1, 1, 2);
             AddLightObject(sun);
-
+            */
+            /*
             TerrainObject t = new TerrainObject("Terrain");
             t.IsShadowCaster = true;
             t.IsCollisionObject = true;
             AddTerrainObject(t);
+            */
             /*
             Immovable floor = new Immovable();
             floor.SetScale(10, 1, 10);
@@ -73,7 +76,9 @@ namespace KWEngine3TestProject.Worlds
             */
 
             TerrainPlayer p = new TerrainPlayer();
-            p.SetPosition(4, 1, 0);
+            p.SetModel("Dan");
+            p.SetPosition(4, 0, 0);
+            
             AddGameObject(p);
 
         }
