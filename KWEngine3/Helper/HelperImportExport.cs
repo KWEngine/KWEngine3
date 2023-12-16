@@ -253,6 +253,8 @@ namespace KWEngine3.Helper
             t.SetText(st.Text);
             t.Name = st.Name;
             t.SetScale(st.Scale);
+            t.IsShadowCaster = st.IsShadowCaster;
+            t.IsAffectedByLight = st.IsAffectedByLight;
             t.SetCharacterDistanceFactor(st.Spread);
             t.SetText(st.Text);
 
@@ -329,6 +331,7 @@ namespace KWEngine3.Helper
             GameObject g = (GameObject)Assembly.GetEntryAssembly().CreateInstance(sg.Type);
             g.SetModel(sg.ModelName);
             g.SetOpacity(sg.Opacity);
+            g.IsAffectedByLight = sg.IsAffectedByLight;
             g.IsDepthTesting = sg.IsDepthTesting;
             g.IsShadowCaster = sg.IsShadowCaster;
             g.IsCollisionObject = sg.IsCollisionObject;

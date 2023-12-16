@@ -117,7 +117,10 @@ namespace KWEngine3.Renderer
         public static void Draw(GameObject g)
         {
             GL.Uniform3(UColorTint, g._stateRender._colorTint);
-            GL.Uniform2(UIdShadowCaster, new Vector2i(g.ID, g.IsShadowCaster ? 1 : 0));
+
+            int val = g.IsShadowCaster ? 1 : -1;
+            val *= g.IsAffectedByLight ? 1 : 10;
+            GL.Uniform2(UIdShadowCaster, new Vector2i(g.ID, val));
 
             GeoMesh[] meshes = g._gModel.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)

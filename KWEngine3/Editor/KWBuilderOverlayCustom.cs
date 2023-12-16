@@ -199,12 +199,14 @@ namespace KWEngine3.Editor
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Misc. properties:");
                 bool isCollObj = SelectedGameObject._isCollisionObject;
-                if (ImGui.Checkbox("Is collision object?", ref isCollObj))
+                if (ImGui.Checkbox("Collider?", ref isCollObj))
                 {
                     SelectedGameObject.IsCollisionObject = isCollObj;
                 }
                 ImGui.SameLine();
-                ImGui.Checkbox("Is shadow caster?", ref SelectedGameObject._isShadowCaster);
+                ImGui.Checkbox("Shadows?", ref SelectedGameObject._isShadowCaster);
+                ImGui.SameLine();
+                ImGui.Checkbox("Lights?", ref SelectedGameObject._isAffectedByLight);
                 ImGui.SameLine();
                 ImGui.Text("On screen: " + (SelectedGameObject.IsInsideScreenSpace ? "YES" : "NO"));
 
@@ -361,7 +363,7 @@ namespace KWEngine3.Editor
 
                     if (SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet)
                     {
-                        if (ImGui.InputFloat2("Texture transform", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
+                        if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
                         {
                             SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
                         }

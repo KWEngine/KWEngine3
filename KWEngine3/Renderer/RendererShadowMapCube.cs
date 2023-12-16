@@ -81,7 +81,7 @@ namespace KWEngine3.Renderer
             GL.Uniform2(UNearFar, new Vector2(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y));
             foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjects())
             {
-                if(g.IsShadowCaster && g._stateRender._opacity > 0)
+                if(g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
                     Draw(g);
             }
 

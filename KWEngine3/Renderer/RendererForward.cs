@@ -243,9 +243,11 @@ namespace KWEngine3.Renderer
         {
             GL.Uniform4(UColorTint, new Vector4(g._stateRender._colorTint, g._stateRender._opacity));
             GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
-            //GL.Uniform2(UMetallicRoughness, new Vector2(g._gModel._metallic, g._gModel._roughness));
             GL.Uniform1(UMetallicType, (int)g._gModel._metallicType);
-            GL.Uniform1(UShadowCaster, g.IsShadowCaster ? 1 : 0);
+
+            int val = g.IsShadowCaster ? 1 : -1;
+            val *= g.IsAffectedByLight ? 1 : 10;
+            GL.Uniform1(UShadowCaster, val);
 
             GeoMesh[] meshes = g._gModel.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)

@@ -55,6 +55,15 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Gibt an, ob das Objekt Schatten werfen und empfangen kann (Standard: false)
+        /// </summary>
+        public bool IsShadowCaster { get; set; } = false;
+        /// <summary>
+        /// Gibt an, ob das Objekt von Lichtquellen und dem Ambient Light beeinflusst wird (Standard: true)
+        /// </summary>
+        public bool IsAffectedByLight { get; set; } = true;
+
+        /// <summary>
         /// Setzt den anzuzeigenden Text der Instanz
         /// </summary>
         /// <param name="text">Anzuzeigender Text</param>

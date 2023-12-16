@@ -186,6 +186,7 @@
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_hitboxes" Hidden="true" />
       <Field Name="_importedID" Hidden="true" />
+      <Field Name="_isAffectedByLight" Hidden="true" />
       <Field Name="_isCollisionObject" Hidden="true" />
       <Field Name="_isShadowCaster" Hidden="true" />
       <Field Name="_modelNameInDB" Hidden="true" />
@@ -219,7 +220,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zykCOxoGGJyq0qTuwAqMIQZFASRzi1kJIIgAH0haVNU=</HashCode>
+      <HashCode>zykCOxoGGJyq0qTuwAqMoQZFASRzi1kJIIgEH0haVdU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -356,7 +357,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="10.25" Width="2.75" />
+    <Position X="12.5" Y="10.5" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -366,7 +367,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="12.5" Y="5" Width="2.75" />
+    <Position X="12.5" Y="5.25" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -385,7 +386,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="12.5" Y="7.75" Width="2.75" />
+    <Position X="12.5" Y="8" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
     </Members>
@@ -395,7 +396,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="6.5" Y="18" Width="2.75" />
+    <Position X="6.5" Y="18.5" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -406,7 +407,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="12.5" Y="11.75" Width="2.75" />
+    <Position X="12.5" Y="12" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -420,7 +421,7 @@
       <Method Name="UpdateWidth" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QAhAMQAAABQAAAQgQIKAAUTAAABBCggIQIgAygBAANQ=</HashCode>
+      <HashCode>QAhAMQAAABQAEAQgQIKAAUTAAABBCggIQIgAygBAAdQ=</HashCode>
       <FileName>GameObjects\TextObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

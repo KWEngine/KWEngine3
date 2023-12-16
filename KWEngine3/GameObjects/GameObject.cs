@@ -43,9 +43,13 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Gibt an, ob das Objekt Schatten werfen und empfangen kann
+        /// Gibt an, ob das Objekt Schatten werfen und empfangen kann (Standard: false)
         /// </summary>
         public bool IsShadowCaster { get { return _isShadowCaster; } set { _isShadowCaster = value; } }
+        /// <summary>
+        /// Gibt an, ob das Objekt von Lichtquellen und dem Ambient Light beeinflusst wird (Standard: true)
+        /// </summary>
+        public bool IsAffectedByLight { get { return _isAffectedByLight; } set { _isAffectedByLight = value; } }
         /// <summary>
         /// Gibt an, ob sich das Objekt gerade auf dem Bildschirm befindet
         /// </summary>
@@ -1329,6 +1333,7 @@ namespace KWEngine3.GameObjects
         internal Dictionary<GeoNode, GameObject> _gameObjectsAttached = new Dictionary<GeoNode, GameObject>();
         internal bool _isCollisionObject = false;
         internal bool _isShadowCaster = false;
+        internal bool _isAffectedByLight = true;
 
         internal void SetScale(Vector3 s)
         {

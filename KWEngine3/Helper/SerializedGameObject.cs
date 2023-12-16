@@ -16,6 +16,7 @@ namespace KWEngine3.Helper
         public string ModelPath { get; set; }
         public bool UpdateLast { get; set; }
         public bool IsDepthTesting { get; set; } = true;
+        public bool IsAffectedByLight { get; set; } = true;
         public float Opacity { get; set; } = 1;
 
         // POSITION, ROTATION, SCALE
@@ -49,6 +50,7 @@ namespace KWEngine3.Helper
         {
             SerializedGameObject sg = new SerializedGameObject();
             sg.ID = g.ID;
+            sg.IsAffectedByLight = g.IsAffectedByLight;
             sg.Opacity = g._stateCurrent._opacity;
             sg.IsDepthTesting = g.IsDepthTesting;
             sg.IsShadowCaster = g.IsShadowCaster;

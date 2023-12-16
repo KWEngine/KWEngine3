@@ -287,97 +287,105 @@ void main()
     vec3 F0 = getF0(uMetallicType);
     F0 = mix(F0, albedo.xyz, pbr.y);
 
-    vec3 Lo = vec3(0.0);
-    for(int i = 0; i < uLightCount * 17; i += 17)
+    vec3 colorTemp = vec3(0.0);
+    if(abs(uShadowCaster) > 1)
     {
-        vec3 currentLightPos = vec3(uLights[i + 0], uLights[i + 1], uLights[i + 2]);
-        vec3 currentLightLAV = vec3(uLights[i + 4], uLights[i + 5], uLights[i + 6]);
-        vec4 currentLightClr = vec4(uLights[i + 7], uLights[i + 8], uLights[i + 9], uLights[i + 10]);
-        float currentLightNear = uLights[i + 11];
-        float currentLightFar = uLights[i + 12];
-        float currentLightFOV = uLights[i + 13];
-        int currentLightType = int(uLights[i + 14]); //  0 = point,  -1 = sun,       1 = directional
-        int shadowMapIndex = int(uLights[i + 3]); // -1 = cubemap, 0 = no shadow, 1 = texture2D
-        float currentLightBias = uLights[i + 15];
-        float currentLightHardness = uLights[i + 16];
-
-        // calculate per-light radiance
-        vec3 L = normalize(currentLightPos - fragPositionDepth.xyz);
-        vec3 H = normalize(V + L);
-        float dist    = length(currentLightPos - fragPositionDepth.xyz);
-
-        float differenceLightDirectionAndFragmentDirection = 1.0;
-		if(currentLightType > 0)
-		{
-			float theta     = dot(L, -currentLightLAV);
-            float spotInnerCutOff = 0.99;
-            float spotOuterCutOff = 1.0 - (currentLightFOV * currentLightFOV) / (179.0 * 179.0 * 4.0);
-			float epsilon   = max(spotInnerCutOff - spotOuterCutOff, 0.000001);
-			differenceLightDirectionAndFragmentDirection = clamp((theta - spotOuterCutOff) / epsilon, 0.0, 1.0);    
-		}
-
-        //float attenuation = currentLightFar / (dist * dist);
-        float theDistanceClamped = clamp(dist, 0.0, currentLightFar);
-        float attenuation = currentLightClr.w * (currentLightType < 0 ? 1.0 : cos(ninetydegrees / currentLightFar * theDistanceClamped));
-        vec3 radiance     = currentLightClr.xyz * attenuation * differenceLightDirectionAndFragmentDirection; 
-
-
-        // cook-torrance brdf
-        float NDF = DistributionGGX(N, H, pbr.z); //z = roughness
-        float G   = GeometrySmith(N, V, L, pbr.z);      
-        vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
-
-        vec3 kS = F;
-        vec3 kD = vec3(1.0) - kS;
-        kD *= 1.0 - pbr.y;	 
-
-        vec3 numerator    = NDF * G * F;
-        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-        vec3 specular     = numerator / denominator;  
-
-        // add to outgoing radiance Lo
-        float NdotL = max(dot(N, L), 0.0);                
-
-        // shadow map check:
-        float darkeningCurrentLight = 1.0;
-        if(uShadowCaster > 0)
-        {
-            if(shadowMapIndex > 0) // directional or sun light
-            {
-                // if the light is directional, we first have to linearize the depth values:
-			    vec3 projCoordsForTextureLookup = (vShadowCoord[shadowMapIndex - 1].xyz / vShadowCoord[shadowMapIndex - 1].w) * 0.5 + 0.5;
-			    vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
-                float fragmentDepthLinearized = projCoordsForTextureLookup.z;
-                if(currentLightType > 0.0)
-                {
-                    fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
-                }
-			    darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
-            }
-            else if(shadowMapIndex < 0) // point light
-            {
-                darkeningCurrentLight = calculateShadowCube(
-                    abs(shadowMapIndex) - 1, 
-                    currentLightPos.xyz, 
-                    fragPositionDepth.xyz, 
-                    vec2(currentLightNear, currentLightFar), 
-                    currentLightBias, 
-                    currentLightHardness);
-            }
-        }
-
-        Lo += (kD * albedo.xyz / PI + specular) * radiance * NdotL * darkeningCurrentLight;
-        //Lo += (kD + specular) * radiance * NdotL * darkeningCurrentLight;
+        colorTemp = normalize(uColorAmbient * albedo.xyz) + emissive * emissive4.w;
+        color = vec4(colorTemp, albedo.w);
     }
+    else
+    {
+        vec3 Lo = vec3(0.0);
+        for(int i = 0; i < uLightCount * 17; i += 17)
+        {
+            vec3 currentLightPos = vec3(uLights[i + 0], uLights[i + 1], uLights[i + 2]);
+            vec3 currentLightLAV = vec3(uLights[i + 4], uLights[i + 5], uLights[i + 6]);
+            vec4 currentLightClr = vec4(uLights[i + 7], uLights[i + 8], uLights[i + 9], uLights[i + 10]);
+            float currentLightNear = uLights[i + 11];
+            float currentLightFar = uLights[i + 12];
+            float currentLightFOV = uLights[i + 13];
+            int currentLightType = int(uLights[i + 14]); //  0 = point,  -1 = sun,       1 = directional
+            int shadowMapIndex = int(uLights[i + 3]); // -1 = cubemap, 0 = no shadow, 1 = texture2D
+            float currentLightBias = uLights[i + 15];
+            float currentLightHardness = uLights[i + 16];
 
-    vec3 reflectionColor = getReflectionColor(V, N, pbr.z, fragPositionDepth.xyz);// z = roughness
-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.z); // z = roughness
-    vec3 kDW = 1.0 - F;
-    kDW *= (1.0 - pbr.y); // y = metallic	
-    vec3 specularW = reflectionColor * F * uColorAmbient; 
-    vec3 ambient = uColorAmbient * kDW * albedo.xyz + specularW + emissive * emissive4.w;
-    vec3 colorTemp = ambient + Lo;
-    color = vec4(colorTemp, albedo.w);
+            // calculate per-light radiance
+            vec3 L = normalize(currentLightPos - fragPositionDepth.xyz);
+            vec3 H = normalize(V + L);
+            float dist    = length(currentLightPos - fragPositionDepth.xyz);
+
+            float differenceLightDirectionAndFragmentDirection = 1.0;
+		    if(currentLightType > 0)
+		    {
+			    float theta     = dot(L, -currentLightLAV);
+                float spotInnerCutOff = 0.99;
+                float spotOuterCutOff = 1.0 - (currentLightFOV * currentLightFOV) / (179.0 * 179.0 * 4.0);
+			    float epsilon   = max(spotInnerCutOff - spotOuterCutOff, 0.000001);
+			    differenceLightDirectionAndFragmentDirection = clamp((theta - spotOuterCutOff) / epsilon, 0.0, 1.0);    
+		    }
+
+            //float attenuation = currentLightFar / (dist * dist);
+            float theDistanceClamped = clamp(dist, 0.0, currentLightFar);
+            float attenuation = currentLightClr.w * (currentLightType < 0 ? 1.0 : cos(ninetydegrees / currentLightFar * theDistanceClamped));
+            vec3 radiance     = currentLightClr.xyz * attenuation * differenceLightDirectionAndFragmentDirection; 
+
+
+            // cook-torrance brdf
+            float NDF = DistributionGGX(N, H, pbr.z); //z = roughness
+            float G   = GeometrySmith(N, V, L, pbr.z);      
+            vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
+
+            vec3 kS = F;
+            vec3 kD = vec3(1.0) - kS;
+            kD *= 1.0 - pbr.y;	 
+
+            vec3 numerator    = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+            vec3 specular     = numerator / denominator;  
+
+            // add to outgoing radiance Lo
+            float NdotL = max(dot(N, L), 0.0);                
+
+            // shadow map check:
+            float darkeningCurrentLight = 1.0;
+            if(uShadowCaster > 0)
+            {
+                if(shadowMapIndex > 0) // directional or sun light
+                {
+                    // if the light is directional, we first have to linearize the depth values:
+			        vec3 projCoordsForTextureLookup = (vShadowCoord[shadowMapIndex - 1].xyz / vShadowCoord[shadowMapIndex - 1].w) * 0.5 + 0.5;
+			        vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
+                    float fragmentDepthLinearized = projCoordsForTextureLookup.z;
+                    if(currentLightType > 0.0)
+                    {
+                        fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
+                    }
+			        darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                }
+                else if(shadowMapIndex < 0) // point light
+                {
+                    darkeningCurrentLight = calculateShadowCube(
+                        abs(shadowMapIndex) - 1, 
+                        currentLightPos.xyz, 
+                        fragPositionDepth.xyz, 
+                        vec2(currentLightNear, currentLightFar), 
+                        currentLightBias, 
+                        currentLightHardness);
+                }
+            }
+
+            Lo += (kD * albedo.xyz / PI + specular) * radiance * NdotL * darkeningCurrentLight;
+            //Lo += (kD + specular) * radiance * NdotL * darkeningCurrentLight;
+        }
+        vec3 reflectionColor = getReflectionColor(V, N, pbr.z, fragPositionDepth.xyz);// z = roughness
+        vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.z); // z = roughness
+        vec3 kDW = 1.0 - F;
+        kDW *= (1.0 - pbr.y); // y = metallic	
+        vec3 specularW = reflectionColor * F * uColorAmbient; 
+        vec3 ambient = uColorAmbient * kDW * albedo.xyz + specularW + emissive * emissive4.w;
+        colorTemp = ambient + Lo;
+        color = vec4(colorTemp, albedo.w);
+    }
 
     float bloomR = 0.0;
     float bloomG = 0.0;

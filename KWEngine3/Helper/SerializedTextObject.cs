@@ -16,6 +16,8 @@ namespace KWEngine3.Helper
         public float[] Position { get; set; }
         public FontFace Font { get; set; }
         public float Spread { get; set; } 
+        public bool IsShadowCaster { get; set; }
+        public bool IsAffectedByLight { get; set; }
 
 
         public static SerializedTextObject GenerateSerializedTextObject(TextObject t)
@@ -23,6 +25,8 @@ namespace KWEngine3.Helper
             SerializedTextObject st = new SerializedTextObject();
             st.Type = t.GetType().FullName;
             st.Name = t.Name;
+            st.IsShadowCaster = t.IsShadowCaster;
+            st.IsAffectedByLight = t.IsAffectedByLight;
 
             st.Color = new float[] { t.Color.X, t.Color.Y, t.Color.Z, t.Opacity };
             st.ColorEmissive = new float[] { t.ColorEmissive.X, t.ColorEmissive.Y, t.ColorEmissive.Z, t.ColorEmissive.W };

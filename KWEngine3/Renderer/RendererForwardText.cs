@@ -25,6 +25,7 @@ namespace KWEngine3.Renderer
         public static int UCharacterOffsets { get; private set; } = -1;
         public static int UTextOffset { get; private set; } = -1;
         public static int USpread { get; private set; } = -1;
+        public static int UShadowCaster { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;        
 
@@ -68,6 +69,7 @@ namespace KWEngine3.Renderer
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
 
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
+                UShadowCaster = GL.GetUniformLocation(ProgramID, "uShadowCaster");
 
                 UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
                 UShadowMap = GL.GetUniformLocation(ProgramID, "uShadowMap");
@@ -172,6 +174,10 @@ namespace KWEngine3.Renderer
             GL.Uniform1(USpread, t._stateRender._spreadFactor);
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             
+            int val = t.IsShadowCaster ? 1 : -1;
+            val *= t.IsAffectedByLight ? 1 : 10;
+            GL.Uniform1(UShadowCaster, val);
+
             UploadTextures(t);
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
