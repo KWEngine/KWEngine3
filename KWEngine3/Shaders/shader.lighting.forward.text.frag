@@ -127,7 +127,7 @@ vec4 getFragmentPositionAndDepth()
 
 vec4 getAlbedo()
 {
-    vec4 albedo = texture(uTextureAlbedo, vTexture);
+    vec4 albedo = texture(uTextureAlbedo, vTexture) * vec4(uColorTint.xyz, 1.0);
     albedo.w *= uColorTint.w;
     return albedo;
 }
@@ -193,7 +193,7 @@ void main()
     vec3 colorTemp = vec3(0.0);
     if(abs(uShadowCaster) > 1)
     {
-        colorTemp = normalize(uColorAmbient * albedo.xyz) + emissive * emissive4.w;
+        colorTemp = albedo.xyz * albedo.w + emissive * emissive4.w;
         color = vec4(colorTemp, albedo.w);
     }
     else

@@ -26,7 +26,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", "./Textures/Grass_01_512.png", 10, 2f, 20);
             
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
-            sun.SetPosition(-10, 25, -10);
+            sun.SetPosition(-10, 25, 10);
             sun.SetTarget(0, 1, 0);
             sun.SetNearFar(20, 60);
             sun.SetFOV(20);
@@ -73,7 +73,17 @@ namespace KWEngine3TestProject.Worlds
             quadTest2.SetTexture("./Textures/fx_boom.png");
             quadTest2.HasTransparencyTexture = false;
             AddGameObject(quadTest2);
-            
+
+            TextObject tx = new TextObject("Hello World!");
+            //tx.IsAffectedByLight = false;
+            tx.IsShadowCaster = true;
+            tx.SetCharacterDistanceFactor(0.75f);
+            tx.SetScale(0.5f);
+            tx.SetPosition(2, 1, -2);
+            tx.SetColor(0, 1, 0);
+            tx.SetColorEmissive(1, 0, 0, 2);
+            AddTextObject(tx);
+
             /*
             TerrainPlayer p = new TerrainPlayer();
             p.SetModel("Dan");

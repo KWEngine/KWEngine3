@@ -258,7 +258,7 @@ void main()
     vec3 colorTemp = vec3(0.0);
     if(abs(idShadowCaster.g) > 1)
     {
-        colorTemp = normalize(uColorAmbient * albedo) + emissive;
+        colorTemp = albedo + emissive;
         color = vec4(colorTemp, 1.0);
     }
     else
