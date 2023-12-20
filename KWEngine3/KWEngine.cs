@@ -22,8 +22,9 @@ namespace KWEngine3
         internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
         internal const int MAXGAMEOBJECTID = 16777216;
         internal const int LIGHTINDEXDIVIDER = 17;
-        //internal static char _folderDivider = '\\';
-        //internal static string _folderDividerString = @"\\";
+        internal const float RAYTRACE_EPSILON = 0.0000001f;
+        internal const float RAYTRACE_SAFETY = 0.1f;
+        internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
 
         /// <summary>
         /// Aktuelles Fenster

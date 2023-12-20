@@ -82,6 +82,9 @@
       <Property Name="Models" Hidden="true" />
       <Field Name="ParticleDictionary" Hidden="true" />
       <Property Name="RayIntersectionErrorMarginFactor" Hidden="true" />
+      <Field Name="RAYTRACE_EPSILON" Hidden="true" />
+      <Field Name="RAYTRACE_SAFETY" Hidden="true" />
+      <Field Name="RAYTRACE_SAFETY_SQ" Hidden="true" />
       <Field Name="SIMULATIONMAXACCUMULATOR" Hidden="true" />
       <Field Name="SIMULATIONNIBBLESIZE" Hidden="true" />
       <Field Name="TextureAlpha" Hidden="true" />
@@ -96,7 +99,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgARLABAISJAKAFpghqARAAQCAAAgIQjGmWStVCEIE=</HashCode>
+      <HashCode>BYgARLABAISJAKAFpghqARAARCAAAgoQjHmWStVCEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -220,7 +223,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>zykCOxoGGJyq0qTuwAqMoQZFASRzi1kJIIgEH0haVdU=</HashCode>
+      <HashCode>zykCO1oOGJyq0qTuwAqMoQZFASTzi1kJIIiEH0haVdU=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -345,6 +348,8 @@
       <Method Name="RayAABBIntersection" Hidden="true" />
       <Method Name="RayBoxIntersection" Hidden="true" />
       <Method Name="RayTerrainIntersection" Hidden="true" />
+      <Method Name="RayTraceObjectsBelowPosition" Hidden="true" />
+      <Method Name="RayTraceObjectsBelowPositionFast" Hidden="true" />
       <Method Name="RayTriangleIntersection" Hidden="true" />
       <Method Name="SatTest" Hidden="true" />
       <Method Name="TestIntersection" Hidden="true" />
@@ -352,12 +357,12 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQIQAhQAABQCgCAAsAAAAACAAAAgBJgGABGCABILZAg=</HashCode>
+      <HashCode>BQIQAhQAADUCgCQAsAAAAACAAAAgBLhGABGCABILZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="10.5" Width="2.75" />
+    <Position X="12.5" Y="11" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -367,7 +372,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="12.5" Y="5.25" Width="2.75" />
+    <Position X="12.5" Y="5.75" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -386,17 +391,18 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="12.5" Y="8" Width="2.75" />
+    <Position X="12.5" Y="8.5" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
+      <Field Name="VectorZero" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAEAAAAAAAAAAAAAEAAAACAAABCCAAgAAAAAAAAAAEA=</HashCode>
+      <HashCode>AAEAEAAAAAAAAAAAEAAAACAAABCCAAgAAAAAAAAAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="6.5" Y="18.5" Width="2.75" />
+    <Position X="0.5" Y="18.5" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -407,7 +413,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="12.5" Y="12" Width="2.75" />
+    <Position X="12.5" Y="12.5" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />

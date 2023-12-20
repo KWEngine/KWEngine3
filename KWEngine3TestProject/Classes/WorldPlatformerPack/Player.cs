@@ -56,37 +56,31 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
                 SetAnimationPercentageAdvance(0.001f);
             }
 
-            if (_state == 0)
-            {
-                MoveOffset(0, -_gravity, 0);
-            }
-            else
+            if (_state == 1)
             {
                 MoveOffset(0, _velocity, 0);
                 _velocity -= _gravity;
             }
 
             // Collision detection:
-            List<Intersection> intersections = GetIntersections();
             bool upCorrection = false;
+            List<Intersection> floorIntersections = HelperIntersection.GetIntersectionsForObjectWithOffset(this, 0, -0.01f, 0);
+            foreach(Intersection i in floorIntersections)
+            {
+                if(i.MTV.Y > 0)
+                {
+                    upCorrection = true;
+                }
+            }
+
+            
             bool obstacleCorrection = false;
-            foreach(Intersection i in intersections)
+            List<Intersection> intersections = GetIntersections();
+            foreach (Intersection i in intersections)
             {
                 if (i.Object is Obstacle || i.Object is Floor)
                 {
-                    
-                    if (i.MTV.Y > 0)
-                        upCorrection = true;
-
-                    if (i.Object.GetModelName() == "Ramp01")
-                    {
-                        MoveOffset(i.MTV);
-                    }
-                    else
-                    {
-                        MoveOffset(i.MTV);
-                    }
-                    
+                    MoveOffset(i.MTV);
                     obstacleCorrection = true;
                 }
                 else if (i.Object is Weapon)
@@ -98,7 +92,7 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
                     HelperGameObjectAttachment.SetScaleForAttachment(i.Object, 1.25f, 1.25f, 1.25f);
                 }
             }
-            
+
             if(obstacleCorrection && !upCorrection)
             {
                 _state = 1; // set state to 'fall'

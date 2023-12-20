@@ -38,6 +38,11 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Gibt an, ob die Messung gültig und somit verwendbar ist
+        /// </summary>
+        public bool IsValid { get { return Object != null; } }
+
+        /// <summary>
         /// Vergleichsmethode, um zwei Objektdistanzen miteinander zu vergleichen
         /// </summary>
         /// <param name="other">Vergleichsobjekt</param>

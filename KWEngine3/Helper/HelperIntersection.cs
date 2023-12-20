@@ -14,13 +14,102 @@ namespace KWEngine3.Helper
     public static class HelperIntersection
     {
         /// <summary>
-        /// 
+        /// Schießt einen Strahl von der angegebene Position nach unten und prüft, ob ein die achsenparallele Hitbox eines Objekts des angegebenen Typs geschnitten wird
         /// </summary>
-        /// <param name="position">Position für die getestet werden soll.</param>
+        /// <remarks>Diese Variante prüft nur grobe Hitbox-Werte und eignet sich, wenn ein ungenaues Ergebnis ausreicht oder die zu prüfenden Objekte allesamt achsenparallel ausgerichtet sind</remarks>
+        /// <param name="position">Startposition des Strahls</param>
+        /// <param name="rayLength">Positive Maximallänge des Teststrahls (0 = unendlich)</param>
+        /// <param name="rayIntersection">Falls ein Objekt gefunden wurde, enthält dieser Parameter die Distanz zwischen Startposition und diesem Objekt</param>
+        /// <param name="typelist">Typen für die getestet werden soll [z.B. typeof(GameObject) oder typeof(Floor)]</param>
+        /// <returns>true, wenn der Strahl ein Objekt des angegebenen Typs getroffenen hat</returns>
+        public static bool IsAnyObjectBelowPositionFast(Vector3 position, float rayLength, out RayIntersection rayIntersection, params Type[] typelist)
+        {
+            List<RayIntersection> list = RayTraceObjectsBelowPositionFast(position, rayLength, true, typelist);
+            if(list.Count > 0)
+            {
+                rayIntersection = list[0];
+                return true;
+            }
+            else
+            {
+                rayIntersection = new RayIntersection();
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Schießt einen Strahl von der angegebene Position nach unten und prüft, ob ein Objekt des angegebenen Typs geschnitten wird
+        /// </summary>
+        /// <param name="position">Startposition des Strahls</param>
+        /// <param name="rayLength">Positive Maximallänge des Teststrahls (0 = unendlich)</param>
+        /// <param name="rayIntersection">Falls ein Objekt gefunden wurde, enthält dieser Parameter die Distanz zwischen Startposition und diesem Objekt</param>
+        /// <param name="typelist">Typen für die getestet werden soll [z.B. typeof(GameObject) oder typeof(Floor)]</param>
+        /// <returns>true, wenn der Strahl ein Objekt des angegebenen Typs getroffenen hat</returns>
+        public static bool IsAnyObjectBelowPosition(Vector3 position, float rayLength, out RayIntersectionExt rayIntersection, params Type[] typelist)
+        {
+            List<RayIntersectionExt> list = RayTraceObjectsBelowPosition(position, rayLength, true, typelist);
+            if (list.Count > 0)
+            {
+                rayIntersection = list[0];
+                return true;
+            }
+            else
+            {
+                rayIntersection = new RayIntersectionExt();
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Prüft auf Kollisionen des übergebenen Objekts mit anderen Objekten unter Berücksichtigung einer Verschiebung (offset)
+        /// </summary>
+        /// <param name="caller">Das Objekt für das auf Kollisionen geprüft werden soll</param>
+        /// <param name="offsetX">Verschiebung entlang der globalen X-Achse</param>
+        /// <param name="offsetY">Verschiebung entlang der globalen Y-Achse</param>
+        /// <param name="offsetZ">Verschiebung entlang der globalen Z-Achse</param>
+        /// <returns>Liste mit Kollisionsobjekten</returns>
+        public static List<Intersection> GetIntersectionsForObjectWithOffset(GameObject caller, float offsetX, float offsetY, float offsetZ)
+        {
+            return GetIntersectionsForObjectWithOffset(caller, new Vector3(offsetX, offsetY, offsetZ));
+        }
+
+        /// <summary>
+        /// Prüft auf Kollisionen des übergebenen Objekts mit anderen Objekten unter Berücksichtigung einer Verschiebung (offset)
+        /// </summary>
+        /// <param name="caller">Das Objekt für das auf Kollisionen geprüft werden soll</param>
+        /// <param name="offset">Verschiebung entlang der globalen XYZ-Achse</param>
+        /// <returns>Liste mit Kollisionsobjekten</returns>
+        public static List<Intersection> GetIntersectionsForObjectWithOffset(GameObject caller, Vector3 offset)
+        {
+            List<Intersection> intersections = new List<Intersection>();
+            foreach(GameObjectHitbox hbCaller in caller._hitboxes)
+            {
+                if(hbCaller.IsActive)
+                {
+                    foreach(GameObjectHitbox hbOther in caller._collisionCandidates)
+                    {
+                        if(hbOther.IsActive)
+                        {
+                            Intersection i = TestIntersection(hbCaller, hbOther, offset);
+                            if(i != null)
+                            {
+                                intersections.Add(i);
+                            }
+                        }
+                    }
+                }
+            }
+            return intersections;
+        }
+
+        /// <summary>
+        /// Prüft die Position eines Terrain-Objekts unterhalb der angegebenen Position
+        /// </summary>
+        /// <param name="position">Position für die getestet werden soll</param>
         /// <param name="offsetY">(optionale) Verschiebung auf der Y-Achse - kann i.d.R. 0 betragen</param>
         /// <param name="intersectionPosition">gemessener Schnittpunkt mit dem Terrain</param>
-        /// <returns>true, wenn gerade ein Terrain unter der angegebenen Position liegt</returns>
-        public static bool GetPositionOnTerrainUnderneath(Vector3 position, float offsetY, out Vector3 intersectionPosition)
+        /// <returns>true, wenn gerade ein Terrain unter der angegebenen Position liegt, andernfalls false</returns>
+        public static bool GetPositionOnTerrainBelow(Vector3 position, float offsetY, out Vector3 intersectionPosition)
         {
             intersectionPosition = Vector3.Zero;
             foreach(TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
@@ -70,7 +159,7 @@ namespace KWEngine3.Helper
                         if(!hbother.IsActive)
                             continue;
 
-                        Intersection i = TestIntersection(hbCaller, hbother);
+                        Intersection i = TestIntersection(hbCaller, hbother, HelperVector.VectorZero);
                         if (i != null)
                             intersections.Add(i);
                     }
@@ -104,7 +193,7 @@ namespace KWEngine3.Helper
                             if (!hbother.IsActive)
                                 continue;
 
-                            Intersection i = TestIntersection(hbCaller, hbother);
+                            Intersection i = TestIntersection(hbCaller, hbother, HelperVector.VectorZero);
                             if (i != null)
                                 intersections.Add(i);
                         }
@@ -128,7 +217,7 @@ namespace KWEngine3.Helper
                             if (!hbother.IsActive)
                                 continue;
 
-                            Intersection i = TestIntersection(hbCaller, hbother);
+                            Intersection i = TestIntersection(hbCaller, hbother, HelperVector.VectorZero);
                             if (i != null)
                                 intersections.Add(i);
                         }
@@ -481,8 +570,6 @@ namespace KWEngine3.Helper
             return list;
         }
 
-        
-
         /// <summary>
         /// Prüft, welche Objekte (bzw. deren Hitboxen) in der angegebenen Blickrichtung liegen und gibt diese als Liste zurück
         /// </summary>
@@ -565,6 +652,8 @@ namespace KWEngine3.Helper
             for (int i = 0; i < g._hitboxes.Count; i++)
             {
                 GameObjectHitbox currentHitbox = g._hitboxes[i];
+                if (!currentHitbox.IsActive)
+                    continue;
 
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
@@ -1097,7 +1186,7 @@ namespace KWEngine3.Helper
             return null;
         }
 
-        internal static Intersection TestIntersection(GameObjectHitbox caller, GameObjectHitbox collider)
+        internal static Intersection TestIntersection(GameObjectHitbox caller, GameObjectHitbox collider, Vector3 offset)
         {
             float mtvDistance = float.MaxValue;
             float mtvDirection = 1;
@@ -1110,8 +1199,8 @@ namespace KWEngine3.Helper
             for (int i = 0; i < caller._normals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
-                SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max);
-                SatTest(ref caller._normals[i], ref collider._vertices, out shape2Min, out shape2Max);
+                SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref caller._normals[i], ref collider._vertices, out shape2Min, out shape2Max, ref offset);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
                     return null;
@@ -1119,7 +1208,7 @@ namespace KWEngine3.Helper
                 else
                 {
                     bool m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center);
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset);
                     if (m)
                         collisionNormalIndex = i;
                 }
@@ -1128,8 +1217,8 @@ namespace KWEngine3.Helper
             for (int i = 0; i < collider._normals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
-                SatTest(ref collider._normals[i], ref caller._vertices, out shape1Min, out shape1Max);
-                SatTest(ref collider._normals[i], ref collider._vertices, out shape2Min, out shape2Max);
+                SatTest(ref collider._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref collider._normals[i], ref collider._vertices, out shape2Min, out shape2Max, ref offset);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
                     return null;
@@ -1137,7 +1226,7 @@ namespace KWEngine3.Helper
                 else
                 {
                     bool m = CalculateOverlap(ref collider._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center);
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset);
                     if (m)
                         collisionNormalIndex = caller._normals.Length + i;
                 }
@@ -1205,7 +1294,7 @@ namespace KWEngine3.Helper
         }
 
         private static bool CalculateOverlap(ref Vector3 axis, ref float shape1Min, ref float shape1Max, ref float shape2Min, ref float shape2Max,
-            ref float mtvDistance, ref float mtvDistanceUp, ref Vector3 mtv, ref Vector3 mtvUp, ref float mtvDirection, ref float mtvDirectionUp, ref Vector3 posA, ref Vector3 posB)
+            ref float mtvDistance, ref float mtvDistanceUp, ref Vector3 mtv, ref Vector3 mtvUp, ref float mtvDirection, ref float mtvDirectionUp, ref Vector3 posA, ref Vector3 posB, ref Vector3 offset)
         {
             float intersectionDepthScaled;
             if (shape1Min < shape2Min)
@@ -1259,7 +1348,7 @@ namespace KWEngine3.Helper
             {
                 mtvDistanceUp = intersectionDepthSquared;
                 mtvUp = axis * (intersectionDepthScaled / axisLengthSquared);
-                float notSameDirection = Vector3.Dot(posA - posB, mtvUp);
+                float notSameDirection = Vector3.Dot(posA + offset - posB, mtvUp);
                 mtvDirectionUp = notSameDirection < 0 ? -1.0f : 1.0f;
                 mtvUp = mtvUp * mtvDirectionUp;
             }
@@ -1267,7 +1356,7 @@ namespace KWEngine3.Helper
             {
                 mtvDistance = intersectionDepthSquared;
                 mtv = axis * (intersectionDepthScaled / axisLengthSquared);
-                float notSameDirection = Vector3.Dot(posA - posB, mtv);
+                float notSameDirection = Vector3.Dot(posA + offset - posB, mtv);
                 mtvDirection = notSameDirection < 0 ? -1.0f : 1.0f;
                 mtv = mtv * mtvDirection;
 
@@ -1286,13 +1375,13 @@ namespace KWEngine3.Helper
             return lowerBound <= val && val <= upperBound;
         }
 
-        private static void SatTest(ref Vector3 axis, ref Vector3[] ptSet, out float minAlong, out float maxAlong)
+        private static void SatTest(ref Vector3 axis, ref Vector3[] ptSet, out float minAlong, out float maxAlong, ref Vector3 offset)
         {
             minAlong = float.MaxValue;
             maxAlong = float.MinValue;
             for (int i = 0; i < ptSet.Length; i++)
             {
-                float dotVal = Vector3.Dot(ptSet[i], axis);
+                float dotVal = Vector3.Dot(ptSet[i] + offset, axis);
                 if (dotVal < minAlong) minAlong = dotVal;
                 if (dotVal > maxAlong) maxAlong = dotVal;
             }
@@ -1350,7 +1439,7 @@ namespace KWEngine3.Helper
         }
         internal static bool RayTriangleIntersection(Vector3 rayStart, Vector3 rayDirection, Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, out Vector3 contactPoint)
         {
-            const float EPSILON = 0.0000001f;
+            
             contactPoint = Vector3.Zero;
             Vector3 edge1, edge2, h, s, q;
             float a, f, u, v;
@@ -1358,7 +1447,7 @@ namespace KWEngine3.Helper
             edge2 = vertex2 - vertex0;
             h = Vector3.Cross(rayDirection, edge2);
             a = Vector3.Dot(edge1, h);
-            if (a > -EPSILON && a < EPSILON)
+            if (a > -KWEngine.RAYTRACE_EPSILON && a < KWEngine.RAYTRACE_EPSILON)
                 return false;    // ray is parallel to triangle
             f = 1.0f / a;
             s = rayStart - vertex0;
@@ -1371,7 +1460,7 @@ namespace KWEngine3.Helper
             if (v < 0.0 || u + v > 1.0)
                 return false;
             float t = f * Vector3.Dot(edge2, q);
-            if (t > EPSILON) // ray intersection
+            if (t > KWEngine.RAYTRACE_EPSILON) // ray intersection
             {
                 contactPoint = rayStart + rayDirection * t;
                 return true;
@@ -1420,6 +1509,102 @@ namespace KWEngine3.Helper
 
             distance = tmin; // Achtung: tmin kann negativ sein, wenn der Ursprung des Strahls innerhalb der AABB liegt
             return true;
+        }
+
+        internal static List<RayIntersection> RayTraceObjectsBelowPositionFast(Vector3 origin, float maxDistance, bool sort, params Type[] typelist)
+        {
+            Vector3 direction = new Vector3(float.PositiveInfinity, -1, float.PositiveInfinity);
+
+            List<RayIntersection> list = new List<RayIntersection>();
+            if (maxDistance <= 0)
+            {
+                maxDistance = float.MaxValue;
+            }
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                {
+                    float left = g._stateCurrent._center.X - g._stateCurrent._dimensions.X * 0.5f;
+                    float right = g._stateCurrent._center.X + g._stateCurrent._dimensions.X * 0.5f;
+                    float back = g._stateCurrent._center.Z - g._stateCurrent._dimensions.Z * 0.5f;
+                    float front = g._stateCurrent._center.Z + g._stateCurrent._dimensions.Z * 0.5f;
+
+                    if (origin.X >= left && origin.X <= right && origin.Z >= back && origin.Z <= front)
+                    {
+                        bool result = RayAABBIntersection(origin + new Vector3(0, KWEngine.RAYTRACE_SAFETY, 0), direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
+
+                        if (result == true && currentDistance >= 0)
+                        {
+                            if (maxDistance > 0 && currentDistance - KWEngine.RAYTRACE_SAFETY <= maxDistance)
+                            {
+                                RayIntersection gd = new RayIntersection()
+                                {
+                                    Distance = Math.Max(0,currentDistance - KWEngine.RAYTRACE_SAFETY),
+                                    Object = g
+                                };
+                                list.Add(gd);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (sort)
+                list.Sort();
+
+            return list;
+        }
+
+        internal static List<RayIntersectionExt> RayTraceObjectsBelowPosition(Vector3 origin, float maxDistance, bool sort, params Type[] typelist)
+        {
+            Vector3 direction = new Vector3(0, -1, 0);
+
+            List<RayIntersectionExt> list = new List<RayIntersectionExt>();
+            if (maxDistance == 0)
+                maxDistance = float.MaxValue;
+            else
+                maxDistance = maxDistance * maxDistance;
+
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                {
+                    float left = g._stateCurrent._center.X - g._stateCurrent._dimensions.X * 0.5f;
+                    float right = g._stateCurrent._center.X + g._stateCurrent._dimensions.X * 0.5f;
+                    float back = g._stateCurrent._center.Z - g._stateCurrent._dimensions.Z * 0.5f;
+                    float front = g._stateCurrent._center.Z + g._stateCurrent._dimensions.Z * 0.5f;
+
+                    if (origin.X >= left && origin.X <= right && origin.Z >= back && origin.Z <= front)
+                    {
+                        bool result = RaytraceObject(g, origin + new Vector3(0, KWEngine.RAYTRACE_SAFETY, 0), direction, out Vector3 intersectionPoint, out Vector3 faceNormal, false);
+                        
+                        if (result == true)
+                        {
+                            if (maxDistance > 0 && (origin - intersectionPoint).LengthSquared - KWEngine.RAYTRACE_SAFETY_SQ <= maxDistance)
+                            {
+                                Vector3 delta = origin - intersectionPoint;
+                                if (delta.Y < 0)
+                                    delta.Y = 0;
+                                RayIntersectionExt gd = new RayIntersectionExt()
+                                {
+                                    Distance = delta.LengthFast,
+                                    IntersectionPoint = intersectionPoint,
+                                    Object = g,
+                                    SurfaceNormal = faceNormal
+                                };
+                                list.Add(gd);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (sort)
+                list.Sort();
+
+            return list;
         }
         #endregion
     }

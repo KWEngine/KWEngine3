@@ -219,7 +219,7 @@ namespace KWEngine3.GameObjects
                     {
                         if (!hbcaller.IsActive)
                             continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother, HelperVector.VectorZero);
                         if (i != null && i.Object.ID > 0)
                             return i;
                     }
@@ -252,7 +252,7 @@ namespace KWEngine3.GameObjects
                 {
                     if (!hbcaller.IsActive)
                         continue;
-                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother, HelperVector.VectorZero);
                     if (i != null)
                         return i;
                 }
@@ -282,7 +282,7 @@ namespace KWEngine3.GameObjects
                     {
                         if (!hbcaller.IsActive)
                             continue;
-                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother, HelperVector.VectorZero);
                         if (i != null && i.Object.ID > 0)
                             intersections.Add(i);
                     }
@@ -316,7 +316,7 @@ namespace KWEngine3.GameObjects
                 {
                     if (!hbcaller.IsActive)
                         continue;
-                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother);
+                    Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother, HelperVector.VectorZero);
                     if (i != null && i.Object.ID > 0)
                         intersections.Add(i);
                 }
@@ -529,6 +529,37 @@ namespace KWEngine3.GameObjects
         /// Maße des Objekts (jeweils maximal)
         /// </summary>
         public Vector3 Dimensions { get { return _stateCurrent._dimensions; } }
+
+        /// <summary>
+        /// Erfragt die auf der Y-Achse niedrigste Position des Objekts
+        /// </summary>
+        public float AABBLow { get { return _stateCurrent._center.Y - _stateCurrent._dimensions.Y * 0.5f; } }
+
+        /// <summary>
+        /// Erfragt die auf der X-Achse linkste Position des Objekts
+        /// </summary>
+        public float AABBLeft { get { return _stateCurrent._center.X - _stateCurrent._dimensions.X * 0.5f; } }
+
+        /// <summary>
+        /// Erfragt die auf der X-Achse rechteste Position des Objekts
+        /// </summary>
+        public float AABBRight { get { return _stateCurrent._center.X + _stateCurrent._dimensions.X * 0.5f; } }
+
+        /// <summary>
+        /// Erfragt die auf der Y-Achse höchste Position des Objekts
+        /// </summary>
+        public float AABBHigh { get { return _stateCurrent._center.Y + _stateCurrent._dimensions.Y * 0.5f; } }
+
+        /// <summary>
+        /// Erfragt die auf der Z-Achse hinterste Position des Objekts
+        /// </summary>
+        public float AABBBack { get { return _stateCurrent._center.Z - _stateCurrent._dimensions.Z * 0.5f; } }
+
+        /// <summary>
+        /// Erfragt die auf der Z-Achse vorderste Position des Objekts
+        /// </summary>
+        public float AABBFront { get { return _stateCurrent._center.Z + _stateCurrent._dimensions.Z * 0.5f; } }
+        
 
         /// <summary>
         /// Position des Objekts

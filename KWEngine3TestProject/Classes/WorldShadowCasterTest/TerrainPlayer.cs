@@ -30,7 +30,7 @@ namespace KWEngine3TestProject.Classes.WorldShadowCasterTest
             {
                 MoveOffset(+0.01f, 0, 0);
             }
-            if(HelperIntersection.GetPositionOnTerrainUnderneath(this.Center, 2, out Vector3 collision))
+            if(HelperIntersection.GetPositionOnTerrainBelow(this.Center, 2, out Vector3 collision))
             {
                 Console.WriteLine(collision);
             }

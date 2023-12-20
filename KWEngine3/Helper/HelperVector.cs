@@ -157,6 +157,8 @@ namespace KWEngine3.Helper
             return screenCoordinates;
         }
 
+        internal static Vector3 VectorZero = Vector3.Zero;
+
         internal static Quaternion LookRotation(Vector3 forward, Vector3 up)
         {
             forward.NormalizeFast();
