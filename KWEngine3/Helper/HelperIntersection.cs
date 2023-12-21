@@ -1511,6 +1511,65 @@ namespace KWEngine3.Helper
             return true;
         }
 
+        internal static bool RayOBBIntersection(
+            Vector3 origin,
+            Vector3 raydirection, // direction normalized
+            Vector3 aabb_min,      // aabb dimensions
+            Vector3 aabb_max,      // aabb dimensions
+            Vector3 centerWorldSpace,
+            ref Matrix4 modelMatrix,
+            out float distance)
+        {
+            // Intersection method from Real-Time Rendering and Essential Mathematics for Games
+            distance = 0;
+            float tMin = 0.0f;
+            float tMax = float.MaxValue;
+            Vector3 delta = centerWorldSpace - origin;
+
+            // Test intersection with the 2 planes perpendicular to the OBB's X axis
+            {
+                Vector3 xaxis = new Vector3(modelMatrix.Row0.X, modelMatrix.Row0.Z, modelMatrix.Row0.Z);
+                float e = Vector3.Dot(xaxis, delta);
+                float f = Vector3.Dot(raydirection, xaxis);
+
+                if (Math.Abs(f) > 0.001f)
+                { // Standard case
+
+                    float t1 = (e + aabb_min.X) / f; // Intersection with the "left" plane
+                    float t2 = (e + aabb_max.X) / f; // Intersection with the "right" plane
+                                                     // t1 and t2 now contain distances betwen ray origin and ray-plane intersections
+
+                    // We want t1 to represent the nearest intersection, 
+                    // so if it's not the case, invert t1 and t2
+                    if (t1 > t2)
+                    {
+                        float w = t1; t1 = t2; t2 = w; // swap t1 and t2
+                    }
+
+                    // tMax is the nearest "far" intersection (amongst the X,Y and Z planes pairs)
+                    if (t2 < tMax)
+                        tMax = t2;
+                    // tMin is the farthest "near" intersection (amongst the X,Y and Z planes pairs)
+                    if (t1 > tMin)
+                        tMin = t1;
+
+                    // And here's the trick :
+                    // If "far" is closer than "near", then there is NO intersection.
+                    // See the images in the tutorials for the visual explanation.
+                    if (tMax < tMin)
+                        return false;
+
+                }
+                else
+                { // Rare case : the ray is almost parallel to the planes, so they don't have any "intersection"
+                    if (-e + aabb_min.X > 0.0f || -e + aabb_max.X < 0.0f)
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
         internal static List<RayIntersection> RayTraceObjectsBelowPositionFast(Vector3 origin, float maxDistance, bool sort, params Type[] typelist)
         {
             Vector3 direction = new Vector3(float.PositiveInfinity, -1, float.PositiveInfinity);
