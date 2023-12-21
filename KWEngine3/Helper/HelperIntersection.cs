@@ -529,7 +529,62 @@ namespace KWEngine3.Helper
         /// <param name="typelist">Klassen, deren Objekte geprüft werden sollen (mehrere möglich)</param>
         /// <param name="sort">Wenn true, wird die Ergebnisliste aufsteigend nach Objektentfernung sortiert</param>
         /// <returns>Liste der Strahlentreffer</returns>
-        public static List<RayIntersection> RayTraceObjectsForViewVectorFast(Vector3 origin, Vector3 direction, GameObject caller, float maxDistance, bool sort,  params Type[] typelist) 
+        public static List<RayIntersection> RayTraceObjectsForViewVectorFast(Vector3 origin, Vector3 direction, GameObject caller, float maxDistance, bool sort, params Type[] typelist)
+        {
+            List<RayIntersection> list = new List<RayIntersection>();
+            if (maxDistance <= 0)
+            {
+                maxDistance = float.MaxValue;
+            }
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (g == caller)
+                    continue;
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                {
+                    foreach(GameObjectHitbox hb in g._hitboxes)
+                    {
+                        if(hb.IsActive)
+                        {
+                            Vector3 aabb_min = new Vector3(hb._mesh.Center.X - hb._mesh.width * 0.5f, hb._mesh.Center.Y - hb._mesh.height * 0.5f, hb._mesh.Center.Z - hb._mesh.depth * 0.5f);
+                            Vector3 aabb_max = new Vector3(hb._mesh.Center.X + hb._mesh.width * 0.5f, hb._mesh.Center.Y + hb._mesh.height * 0.5f, hb._mesh.Center.Z + hb._mesh.depth * 0.5f);
+                            bool result = RayOBBIntersection(origin, direction, aabb_min, aabb_max, ref hb._modelMatrixFinal, out float currentDistance);
+                            if (result == true && currentDistance >= 0)
+                            {
+                                if (maxDistance > 0 && currentDistance <= maxDistance)
+                                {
+                                    RayIntersection gd = new RayIntersection()
+                                    {
+                                        Distance = currentDistance,
+                                        Object = g
+                                    };
+                                    list.Add(gd);
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+            }
+
+            if (sort)
+                list.Sort();
+
+            return list;
+        }
+
+        /// <summary>
+        /// Prüft, ob der angegebene Strahl (origin, direction) auf die achsenparallele Hitbox von Objekten bestimmter Klassen trifft
+        /// </summary>
+        /// <param name="origin">Ausgangspunkt des Strahls</param>
+        /// <param name="direction">Richtung des Strahls (MUSS normalisiert sein)</param>
+        /// <param name="caller">Aufruferinstanz, damit die Instanz sich nicht selbst überprüft</param>
+        /// <param name="maxDistance">maximale Länge des Strahls</param>
+        /// <param name="typelist">Klassen, deren Objekte geprüft werden sollen (mehrere möglich)</param>
+        /// <param name="sort">Wenn true, wird die Ergebnisliste aufsteigend nach Objektentfernung sortiert</param>
+        /// <returns>Liste der Strahlentreffer</returns>
+        public static List<RayIntersection> RayTraceObjectsForViewVectorFastest(Vector3 origin, Vector3 direction, GameObject caller, float maxDistance, bool sort,  params Type[] typelist) 
         {
             direction.X = 1f / direction.X;
             direction.Y = 1f / direction.Y;
@@ -1516,7 +1571,6 @@ namespace KWEngine3.Helper
             Vector3 raydirection, // direction normalized
             Vector3 aabb_min,      // aabb dimensions
             Vector3 aabb_max,      // aabb dimensions
-            Vector3 centerWorldSpace,
             ref Matrix4 modelMatrix,
             out float distance)
         {
@@ -1524,11 +1578,12 @@ namespace KWEngine3.Helper
             distance = 0;
             float tMin = 0.0f;
             float tMax = float.MaxValue;
-            Vector3 delta = centerWorldSpace - origin;
+            Vector3 center = modelMatrix.Row3.Xyz;
+            Vector3 delta = center - origin;
 
             // Test intersection with the 2 planes perpendicular to the OBB's X axis
             {
-                Vector3 xaxis = new Vector3(modelMatrix.Row0.X, modelMatrix.Row0.Z, modelMatrix.Row0.Z);
+                Vector3 xaxis = new Vector3(modelMatrix.Row0.X, modelMatrix.Row0.Y, modelMatrix.Row0.Z);
                 float e = Vector3.Dot(xaxis, delta);
                 float f = Vector3.Dot(raydirection, xaxis);
 
@@ -1566,6 +1621,67 @@ namespace KWEngine3.Helper
                         return false;
                 }
             }
+
+            // Test intersection with the 2 planes perpendicular to the OBB's Y axis
+            {
+                Vector3 yaxis = new Vector3(modelMatrix.Row1.X, modelMatrix.Row1.Y, modelMatrix.Row1.Z);
+                float e = Vector3.Dot(yaxis, delta);
+                float f = Vector3.Dot(raydirection, yaxis);
+
+                if (Math.Abs(f) > 0.001f)
+                {
+
+                    float t1 = (e + aabb_min.Y) / f;
+                    float t2 = (e + aabb_max.Y) / f;
+
+                    if (t1 > t2) { float w = t1; t1 = t2; t2 = w; }
+
+                    if (t2 < tMax)
+                        tMax = t2;
+                    if (t1 > tMin)
+                        tMin = t1;
+                    if (tMin > tMax)
+                        return false;
+
+                }
+                else
+                {
+                    if (-e + aabb_min.Y > 0.0f || -e + aabb_max.Y < 0.0f)
+                        return false;
+                }
+            }
+
+
+            // Test intersection with the 2 planes perpendicular to the OBB's Z axis
+            {
+                Vector3 zaxis = new Vector3(modelMatrix.Row2.X, modelMatrix.Row2.Y, modelMatrix.Row2.Z);
+                float e = Vector3.Dot(zaxis, delta);
+                float f = Vector3.Dot(raydirection, zaxis);
+
+                if (Math.Abs(f) > 0.001f)
+                {
+
+                    float t1 = (e + aabb_min.Z) / f;
+                    float t2 = (e + aabb_max.Z) / f;
+
+                    if (t1 > t2) { float w = t1; t1 = t2; t2 = w; }
+
+                    if (t2 < tMax)
+                        tMax = t2;
+                    if (t1 > tMin)
+                        tMin = t1;
+                    if (tMin > tMax)
+                        return false;
+
+                }
+                else
+                {
+                    if (-e + aabb_min.Z > 0.0f || -e + aabb_max.Z < 0.0f)
+                        return false;
+                }
+            }
+
+            distance = tMin;
 
             return true;
         }
