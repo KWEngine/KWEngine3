@@ -22,13 +22,18 @@ namespace KWEngine3TestProject.Worlds
             if(hits.Count == 0)
             {
                 _sphere.SetOpacity(0);
+                //Console.WriteLine("no ray intersection");
             }
             else
             {
                 float d = hits[0].Distance;
+                Console.WriteLine("ray intersection: " + hits[0].IntersectionPoint + " (distance: " + d + ")");
                 _sphere.SetOpacity(1);
-                _sphere.SetPosition(_rayStart + (-Vector3.UnitY) * d);
+                _sphere.SetPosition(hits[0].IntersectionPoint);
             }
+            _floor.AddRotationZ(0.01f);
+            _floor.AddRotationX(0.01f);
+
         }
 
         public override void Prepare()
@@ -46,6 +51,9 @@ namespace KWEngine3TestProject.Worlds
             _floor = new Immovable();
             _floor.SetScale(20, 2, 10);
             _floor.SetColor(1, 1, 1);
+            _floor.SetTexture("./Textures/Tile_01_512.png");
+            _floor.SetTextureRepeat(10, 5);
+            _floor.SetRotation(0, 0, 45 );
             AddGameObject(_floor);
 
         }

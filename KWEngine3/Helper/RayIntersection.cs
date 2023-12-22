@@ -16,6 +16,10 @@ namespace KWEngine3.Helper
         /// Die Distanz vom Aufrufer zum getroffenen Objekt
         /// </summary>
         public float Distance { get; internal set; } = float.MaxValue;
+        /// <summary>
+        /// Punkt an dem der Strahl auf das Objekt trifft
+        /// </summary>
+        public Vector3 IntersectionPoint;
 
         /// <summary>
         /// Standardkonstruktor für die Instanz
@@ -24,6 +28,7 @@ namespace KWEngine3.Helper
         {
             Object = null;
             Distance = 0;
+            IntersectionPoint = Vector3.Zero;
         }
 
         /// <summary>

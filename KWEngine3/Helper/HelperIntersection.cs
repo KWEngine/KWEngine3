@@ -3,8 +3,6 @@ using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using System.ComponentModel;
-using System.Diagnostics;
 
 namespace KWEngine3.Helper
 {
@@ -14,7 +12,7 @@ namespace KWEngine3.Helper
     public static class HelperIntersection
     {
         /// <summary>
-        /// Schießt einen Strahl von der angegebene Position nach unten und prüft, ob ein die achsenparallele Hitbox eines Objekts des angegebenen Typs geschnitten wird
+        /// Schießt einen Strahl von der angegebene Position nach unten und prüft, ob die quaderförmige Hitbox eines Objekts des angegebenen Typs geschnitten wird
         /// </summary>
         /// <remarks>Diese Variante prüft nur grobe Hitbox-Werte und eignet sich, wenn ein ungenaues Ergebnis ausreicht oder die zu prüfenden Objekte allesamt achsenparallel ausgerichtet sind</remarks>
         /// <param name="position">Startposition des Strahls</param>
@@ -122,7 +120,7 @@ namespace KWEngine3.Helper
                     GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
                     if (tris.HasValue)
                     {
-                        bool rayHasContact = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -KWEngine.WorldUp, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                        bool rayHasContact = RayTriangleIntersection(untranslatedPosition, -KWEngine.WorldUp, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
                         if(rayHasContact)
                         {
                             intersectionPosition = contactPoint;
@@ -520,7 +518,7 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Prüft, ob der angegebene Strahl (origin, direction) auf die achsenparallele Hitbox von Objekten bestimmter Klassen trifft
+        /// Prüft, ob der angegebene Strahl (origin, direction) auf die Hitbox von Objekten bestimmter Klassen trifft
         /// </summary>
         /// <param name="origin">Ausgangspunkt des Strahls</param>
         /// <param name="direction">Richtung des Strahls (MUSS normalisiert sein)</param>
@@ -539,32 +537,32 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g == caller)
-                    continue;
-                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
-                    foreach(GameObjectHitbox hb in g._hitboxes)
+                    ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
+                    Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
+
+                    foreach (GameObjectHitbox hb in g._hitboxes)
                     {
                         if(hb.IsActive)
                         {
-                            Vector3 aabb_min = new Vector3(hb._mesh.Center.X - hb._mesh.width * 0.5f, hb._mesh.Center.Y - hb._mesh.height * 0.5f, hb._mesh.Center.Z - hb._mesh.depth * 0.5f);
-                            Vector3 aabb_max = new Vector3(hb._mesh.Center.X + hb._mesh.width * 0.5f, hb._mesh.Center.Y + hb._mesh.height * 0.5f, hb._mesh.Center.Z + hb._mesh.depth * 0.5f);
-                            bool result = RayOBBIntersection(origin, direction, aabb_min, aabb_max, ref hb._modelMatrixFinal, out float currentDistance);
-                            if (result == true && currentDistance >= 0)
+                            bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
+                            if (result == true)
                             {
-                                if (maxDistance > 0 && currentDistance <= maxDistance)
+                                ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref g._stateCurrent._modelMatrix, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                                if (distanceWorldspace >= 0 && distanceWorldspace <= maxDistance)
                                 {
                                     RayIntersection gd = new RayIntersection()
                                     {
-                                        Distance = currentDistance,
-                                        Object = g
+                                        Distance = (intersectionPoint - origin).LengthFast,
+                                        Object = g,
+                                        IntersectionPoint = intersectionPoint
                                     };
                                     list.Add(gd);
                                 }
                             }
                         }
                     }
-                    
                 }
             }
 
@@ -764,6 +762,35 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Prüft, ob ein Strahl die Hitbox der angegebenen GameObject-Instanz trifft
+        /// </summary>
+        /// <remarks>
+        /// Diese Methode ist schnell aber unpräzise, da sie sich an der quaderförmigen Hitbox des Objekts orientiert.
+        /// </remarks>
+        /// <param name="g">zu prüfendes GameObject</param>
+        /// <param name="rayOrigin">Ursprungsposition des Strahls</param>
+        /// <param name="rayDirection">Richtung des Strahls (MUSS normalisiert sein!)</param>
+        /// <returns>true, wenn der Strahl das GameObject trifft</returns>
+        public static bool RaytraceObjectFast(GameObject g, Vector3 rayOrigin, Vector3 rayDirection)
+        {
+            ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
+            Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
+
+            foreach (GameObjectHitbox hb in g._hitboxes)
+            {
+                if (hb.IsActive)
+                {
+                    bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
+                    if(result == true)
+                    {
+                        return result;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Prüft, ob ein Strahl die achsenparallele Hitbox der angegebenen GameObject-Instanz trifft
         /// </summary>
         /// <remarks>
@@ -774,14 +801,14 @@ namespace KWEngine3.Helper
         /// <param name="rayOrigin">Ursprungsposition des Strahls</param>
         /// <param name="rayDirection">Richtung des Strahls (MUSS normalisiert sein!)</param>
         /// <returns>true, wenn der Strahl das GameObject trifft</returns>
-        public static bool RaytraceObjectFast(GameObject g, Vector3 rayOrigin, Vector3 rayDirection)
+        public static bool RaytraceObjectFastest(GameObject g, Vector3 rayOrigin, Vector3 rayDirection)
         {
             rayDirection.X = 1f / rayDirection.X;
             rayDirection.Y = 1f / rayDirection.Y;
             rayDirection.Z = 1f / rayDirection.Z;
 
             bool result = RayAABBIntersection(rayOrigin, rayDirection, g._stateCurrent._center, g._stateCurrent._dimensions, out float d);
-            if(result == true && d >= 0)
+            if (result == true && d >= 0)
             {
                 return true;
             }
@@ -1571,6 +1598,7 @@ namespace KWEngine3.Helper
             Vector3 raydirection, // direction normalized
             Vector3 aabb_min,      // aabb dimensions
             Vector3 aabb_max,      // aabb dimensions
+            Vector3 centerWorldspace,
             ref Matrix4 modelMatrix,
             out float distance)
         {
@@ -1578,7 +1606,7 @@ namespace KWEngine3.Helper
             distance = 0;
             float tMin = 0.0f;
             float tMax = float.MaxValue;
-            Vector3 center = modelMatrix.Row3.Xyz;
+            Vector3 center = centerWorldspace;
             Vector3 delta = center - origin;
 
             // Test intersection with the 2 planes perpendicular to the OBB's X axis
@@ -1688,7 +1716,7 @@ namespace KWEngine3.Helper
 
         internal static List<RayIntersection> RayTraceObjectsBelowPositionFast(Vector3 origin, float maxDistance, bool sort, params Type[] typelist)
         {
-            Vector3 direction = new Vector3(float.PositiveInfinity, -1, float.PositiveInfinity);
+            Vector3 direction = -Vector3.UnitY;
 
             List<RayIntersection> list = new List<RayIntersection>();
             if (maxDistance <= 0)
@@ -1707,18 +1735,29 @@ namespace KWEngine3.Helper
 
                     if (origin.X >= left && origin.X <= right && origin.Z >= back && origin.Z <= front)
                     {
-                        bool result = RayAABBIntersection(origin + new Vector3(0, KWEngine.RAYTRACE_SAFETY, 0), direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
-
-                        if (result == true && currentDistance >= 0)
+                        foreach (GameObjectHitbox hb in g._hitboxes)
                         {
-                            if (maxDistance > 0 && currentDistance - KWEngine.RAYTRACE_SAFETY <= maxDistance)
+                            if (hb.IsActive)
                             {
-                                RayIntersection gd = new RayIntersection()
+                                ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
+                                Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
+
+                                bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
+                                if (result == true)
                                 {
-                                    Distance = Math.Max(0,currentDistance - KWEngine.RAYTRACE_SAFETY),
-                                    Object = g
-                                };
-                                list.Add(gd);
+                                    ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref g._stateCurrent._modelMatrix, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
+
+                                    if (distanceWorldspace <= maxDistance)
+                                    {
+                                        RayIntersection gd = new RayIntersection()
+                                        {
+                                            Distance = Math.Max(0, currentDistance),
+                                            Object = g,
+                                            IntersectionPoint = intersectionPoint
+                                        };
+                                        list.Add(gd);
+                                    }
+                                }
                             }
                         }
                     }
@@ -1780,6 +1819,17 @@ namespace KWEngine3.Helper
                 list.Sort();
 
             return list;
+        }
+
+        internal static void ConvertRayToMeshSpaceForAABBTest(ref Vector3 origin, ref Vector3 direction, ref Matrix4 matInv, out Vector3 originTransformed, out Vector3 directionTransformed)
+        {
+            originTransformed = Vector4.TransformRow(new Vector4(origin, 1.0f), matInv).Xyz;
+            directionTransformed = Vector3.NormalizeFast(Vector4.TransformRow(new Vector4(direction, 0.0f), matInv).Xyz);
+        }
+        internal static void ConvertRayToWorldSpaceAfterAABBTest(ref Vector3 originTransformed, ref Vector3 dirctnTransformedNormalized, float currentDistance, ref Matrix4 mat, ref Vector3 originWorldspace, out Vector3 intersectionPoint, out float distanceWorldspace)
+        {
+            intersectionPoint = Vector4.TransformRow(new Vector4(originTransformed + dirctnTransformedNormalized * currentDistance, 1.0f), mat).Xyz;
+            distanceWorldspace = (originWorldspace - intersectionPoint).LengthFast;
         }
         #endregion
     }
