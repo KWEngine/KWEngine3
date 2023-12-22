@@ -1350,6 +1350,59 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public bool BlendTextureStates { get; set; } = true;
 
+
+        /// <summary>
+        /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft
+        /// </summary
+        /// <remarks>Es werden nur Objekte in der Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// <param name="rayOrigin">Startpunkt des Strahls</param>
+        /// <param name="rayDirectionNormalized">Normalisierter Richtungsvektor des Strahls (z.B. -Vector3.UnitY für einen Strahl nach unten)</param>
+        /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
+        /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
+        public List<RayIntersection> RaytraceObjectsNearby(Vector3 rayOrigin, Vector3 rayDirectionNormalized, params Type[] typelist)
+        {
+            List<RayIntersection> list = new List<RayIntersection>();
+
+            foreach (GameObjectHitbox hb in _collisionCandidates)
+            {
+                if (hb.IsActive && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
+                {
+                    HelperIntersection.ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirectionNormalized, ref hb.Owner._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
+                    Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
+
+                    bool result = HelperIntersection.RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
+                    if (result == true)
+                    {
+                        HelperIntersection.ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref hb.Owner._stateCurrent._modelMatrix, ref rayOrigin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                        if (distanceWorldspace >= 0)
+                        {
+                            RayIntersection gd = new RayIntersection()
+                            {
+                                Distance = (intersectionPoint - rayOrigin).LengthFast,
+                                Object = hb.Owner,
+                                IntersectionPoint = intersectionPoint
+                            };
+                            list.Add(gd);
+                        }
+                    }
+                }
+            }
+            list.Sort();
+            return list;
+        }
+
+        /// <summary>
+        /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekt trifft
+        /// </summary>
+        /// <remarks>Es werden nur Objekte in der Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// <param name="rayOrigin">Startpunkt des Strahls</param>
+        /// <param name="rayDirectionNormalized">Normalisierter Richtungsvektor des Strahls (z.B. -Vector3.UnitY für einen Strahl nach unten)</param>
+        /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
+        public List<RayIntersection> RaytraceObjectsNearby(Vector3 rayOrigin, Vector3 rayDirectionNormalized)
+        {
+            return RaytraceObjectsNearby(rayOrigin, rayDirectionNormalized, typeof(GameObject));
+        }
+
         #region Internals
         internal GameObjectState _statePrevious;
         internal GameObjectState _stateCurrent;
