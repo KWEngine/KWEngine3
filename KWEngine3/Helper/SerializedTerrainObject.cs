@@ -12,15 +12,13 @@ namespace KWEngine3.Helper
         public string Name { get; set; }
         public bool IsShadowCaster { get; set; }
         public bool IsCollisionObject { get; set; }
+        public bool IsVisible { get; set; } = true;
         public string ModelName { get; set; }
         public string ModelPath { get; set; }
         public float Width { get; set; }
         public float Height { get; set; }
         public float Depth { get; set; }
-
         public float[] Position { get; set; }
-
-
         public float[] Color { get; set; }
         public float[] ColorEmissive { get; set; }
         public float Metallic { get; set; }
@@ -42,6 +40,7 @@ namespace KWEngine3.Helper
 
             st.IsShadowCaster = t.IsShadowCaster;
             st.IsCollisionObject = t.IsCollisionObject;
+            st.IsVisible = t.IsVisible;
             st.Name = t.Name;
             st.ModelName = t._gModel.ModelOriginal.Name;
             st.ModelPath = t._gModel.ModelOriginal.Filename;

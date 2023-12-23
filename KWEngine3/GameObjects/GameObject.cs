@@ -1350,16 +1350,99 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public bool BlendTextureStates { get; set; } = true;
 
-
         /// <summary>
-        /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft
-        /// </summary
-        /// <remarks>Es werden nur Objekte in der Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft (Präzise, aber langsam!)
+        /// </summary>
+        /// <remarks>Es werden nur Objekte in unmittelbarer Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// <example>
+        /// <code>
+        /// List&lt;RayIntersectionExt&gt; results = RaytraceObjectsNearby(new Vector3(0, 2, 0), -Vector3.UnitY, typeof(Floor), typeof(Wall));
+        /// </code>
+        /// </example>
         /// <param name="rayOrigin">Startpunkt des Strahls</param>
         /// <param name="rayDirectionNormalized">Normalisierter Richtungsvektor des Strahls (z.B. -Vector3.UnitY für einen Strahl nach unten)</param>
         /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
         /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
-        public List<RayIntersection> RaytraceObjectsNearby(Vector3 rayOrigin, Vector3 rayDirectionNormalized, params Type[] typelist)
+        public List<RayIntersectionExt> RaytraceObjectsNearby(Vector3 rayOrigin, Vector3 rayDirectionNormalized, params Type[] typelist)
+        {
+            List<RayIntersectionExt> list = new List<RayIntersectionExt>();
+
+            foreach (GameObjectHitbox hb in _collisionCandidates)
+            {
+                if (hb.IsActive && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
+                {
+                    bool result = HelperIntersection.RaytraceHitbox(hb, rayOrigin, rayDirectionNormalized, out Vector3 intersectionPoint, out Vector3 faceNormal);
+                    if (result == true)
+                    {
+                        RayIntersectionExt gd = new RayIntersectionExt()
+                        {
+                            Distance = (intersectionPoint - rayOrigin).LengthFast,
+                            Object = hb.Owner,
+                            IntersectionPoint = intersectionPoint,
+                            SurfaceNormal = faceNormal
+                        };
+                        list.Add(gd);
+                    }
+                }
+            }
+            list.Sort();
+            return list;
+        }
+
+        /// <summary>
+        /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft (Präzise, aber langsam!)
+        /// </summary>
+        /// <remarks>Es werden nur Objekte in unmittelbarer Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// <example>
+        /// <code>
+        /// List&lt;RayIntersectionExt&gt; results = RaytraceObjectsNearby(0, 2, 0, -Vector3.UnitY, typeof(Floor), typeof(Wall));
+        /// </code>
+        /// </example>
+        /// <param name="rayPositionX">X-Komponente des Strahlstartpunkts</param>
+        /// <param name="rayPositionY">Y-Komponente des Strahlstartpunkts</param>
+        /// <param name="rayPositionZ">Z-Komponente des Strahlstartpunkts</param>    
+        /// <param name="rayDirectionNormalized">Normalisierter Richtungsvektor des Strahls (z.B. -Vector3.UnitY für einen Strahl nach unten)</param>
+        /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
+        /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
+        public List<RayIntersectionExt> RaytraceObjectsNearby(float rayPositionX, float rayPositionY, float rayPositionZ, Vector3 rayDirectionNormalized, params Type[] typelist)
+        {
+            return RaytraceObjectsNearby(new Vector3(rayPositionX, rayPositionY, rayPositionZ), rayDirectionNormalized, typelist);
+        }
+
+        /// <summary>
+        /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft
+        /// </summary>
+        /// <remarks>Es werden nur Objekte in der Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// <example>
+        /// <code>
+        /// List&lt;RayIntersection&gt; results = RaytraceObjectsNearbyFast(0, 2, 0, -Vector3.UnitY, typeof(Floor), typeof(Wall));
+        /// </code>
+        /// </example>
+        /// <param name="rayPositionX">X-Komponente des Strahlstartpunkts</param>
+        /// <param name="rayPositionY">Y-Komponente des Strahlstartpunkts</param>
+        /// <param name="rayPositionZ">Z-Komponente des Strahlstartpunkts</param>        
+        /// <param name="rayDirectionNormalized">Normalisierter Richtungsvektor des Strahls (z.B. -Vector3.UnitY für einen Strahl nach unten)</param>
+        /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
+        /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
+        public List<RayIntersection> RaytraceObjectsNearbyFast(float rayPositionX, float rayPositionY, float rayPositionZ, Vector3 rayDirectionNormalized, params Type[] typelist)
+        {
+            return RaytraceObjectsNearbyFast(new Vector3(rayPositionX, rayPositionY, rayPositionZ), rayDirectionNormalized, typelist);
+        }
+
+        /// <summary>
+        /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft
+        /// </summary>
+        /// <remarks>Es werden nur Objekte in der Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// <example>
+        /// <code>
+        /// List&lt;RayIntersection&gt; results = RaytraceObjectsNearbyFast(new Vector3(0, 2, 0), -Vector3.UnitY, typeof(Floor), typeof(Wall));
+        /// </code>
+        /// </example>
+        /// <param name="rayOrigin">Startpunkt des Strahls</param>
+        /// <param name="rayDirectionNormalized">Normalisierter Richtungsvektor des Strahls (z.B. -Vector3.UnitY für einen Strahl nach unten)</param>
+        /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
+        /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
+        public List<RayIntersection> RaytraceObjectsNearbyFast(Vector3 rayOrigin, Vector3 rayDirectionNormalized, params Type[] typelist)
         {
             List<RayIntersection> list = new List<RayIntersection>();
 
@@ -1395,12 +1478,36 @@ namespace KWEngine3.GameObjects
         /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekt trifft
         /// </summary>
         /// <remarks>Es werden nur Objekte in der Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// <example>
+        /// <code>
+        /// List&lt;RayIntersection&gt; results = RaytraceObjectsNearbyFast(new Vector3(0, 2, 0), -Vector3.UnitY);
+        /// </code>
+        /// </example>
         /// <param name="rayOrigin">Startpunkt des Strahls</param>
         /// <param name="rayDirectionNormalized">Normalisierter Richtungsvektor des Strahls (z.B. -Vector3.UnitY für einen Strahl nach unten)</param>
         /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
-        public List<RayIntersection> RaytraceObjectsNearby(Vector3 rayOrigin, Vector3 rayDirectionNormalized)
+        public List<RayIntersection> RaytraceObjectsNearbyFast(Vector3 rayOrigin, Vector3 rayDirectionNormalized)
         {
-            return RaytraceObjectsNearby(rayOrigin, rayDirectionNormalized, typeof(GameObject));
+            return RaytraceObjectsNearbyFast(rayOrigin, rayDirectionNormalized, typeof(GameObject));
+        }
+
+        /// <summary>
+        /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekt trifft
+        /// </summary>
+        /// <remarks>Es werden nur Objekte in unmittelbarer Nähe betrachtet. Die Strahlenlänge hängt von dem globalen Wert KWEngine.SweepAndPruneTolerance ab</remarks>
+        /// <example>
+        /// <code>
+        /// List&lt;RayIntersection&gt; results = RaytraceObjectsNearbyFast(0, 2, 0, -Vector3.UnitY);
+        /// </code>
+        /// </example>
+        /// <param name="rayPositionX">X-Komponente des Strahlstartpunkts</param>
+        /// <param name="rayPositionY">Y-Komponente des Strahlstartpunkts</param>
+        /// <param name="rayPositionZ">Z-Komponente des Strahlstartpunkts</param>
+        /// <param name="rayDirectionNormalized">Normalisierter Richtungsvektor des Strahls (z.B. -Vector3.UnitY für einen Strahl nach unten)</param>
+        /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
+        public List<RayIntersection> RaytraceObjectsNearbyFast(float rayPositionX, float rayPositionY, float rayPositionZ, Vector3 rayDirectionNormalized)
+        {
+            return RaytraceObjectsNearbyFast(new Vector3(rayPositionX, rayPositionY, rayPositionZ), rayDirectionNormalized, typeof(GameObject));
         }
 
         #region Internals

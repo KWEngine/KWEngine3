@@ -96,7 +96,7 @@ namespace KWEngine3.Renderer
                 SetGlobals();
                 foreach (TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
                 {
-                    if(t.IsInsideScreenSpace)
+                    if(t.IsInsideScreenSpace && t.IsVisible)
                         Draw(t);
                 }
             }

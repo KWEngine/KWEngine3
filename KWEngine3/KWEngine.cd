@@ -350,6 +350,7 @@
       <Method Name="RayAABBIntersection" Hidden="true" />
       <Method Name="RayBoxIntersection" Hidden="true" />
       <Method Name="RayTerrainIntersection" Hidden="true" />
+      <Method Name="RaytraceHitbox" Hidden="true" />
       <Method Name="RayTraceObjectsBelowPosition" Hidden="true" />
       <Method Name="RayTraceObjectsBelowPositionFast" Hidden="true" />
       <Method Name="RayTriangleIntersection" Hidden="true" />
@@ -359,7 +360,7 @@
       <Method Name="TestIntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQKQAhQAADUCgCQAsAAAAECAAAAgBLhGABGCABYLZIg=</HashCode>
+      <HashCode>BQKQAhQAADUCgCQAsAAAAEKAAAAgBLhGABGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>

@@ -26,6 +26,11 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public bool IsCollisionObject { get { return _isCollisionObject; } set { _isCollisionObject = value; } }
 
+        /// <summary>
+        /// Gibt an oder setzt fest, ob die Instanz sichtbar ist (Standard: true)
+        /// </summary>
+        public bool IsVisible { get; set; } = true;
+
         internal TerrainObject()
             : this(null)
         {

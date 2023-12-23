@@ -278,6 +278,7 @@ namespace KWEngine3.Helper
             t.Name = st.Name;
             t.IsShadowCaster = st.IsShadowCaster;
             t.IsCollisionObject = st.IsCollisionObject;
+            t.IsVisible = st.IsVisible;
 
             t.SetPosition(st.Position[0], st.Position[1], st.Position[2]);
             t.SetColor(st.Color[0], st.Color[1], st.Color[2]);

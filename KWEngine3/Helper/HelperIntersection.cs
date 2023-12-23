@@ -104,16 +104,16 @@ namespace KWEngine3.Helper
         /// Prüft die Position eines Terrain-Objekts unterhalb der angegebenen Position
         /// </summary>
         /// <param name="position">Position für die getestet werden soll</param>
-        /// <param name="offsetY">(optionale) Verschiebung auf der Y-Achse - kann i.d.R. 0 betragen</param>
-        /// <param name="intersectionPosition">gemessener Schnittpunkt mit dem Terrain</param>
+        /// <param name="intersectionPoint">gemessener Schnittpunkt mit dem Terrain</param>
+        /// <param name="distance">Distanz von der angegebenen Position zum Schnittpunkt</param>
         /// <returns>true, wenn gerade ein Terrain unter der angegebenen Position liegt, andernfalls false</returns>
-        public static bool GetPositionOnTerrainBelow(Vector3 position, float offsetY, out Vector3 intersectionPosition)
+        public static bool GetPositionOnTerrainBelow(Vector3 position, out Vector3 intersectionPoint, out float distance)
         {
-            intersectionPosition = Vector3.Zero;
+            intersectionPoint = Vector3.Zero;
+            distance = -1;
             foreach(TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
             {
                 Vector3 untranslatedPosition = position - new Vector3(t._hitboxes[0]._center.X, 0, t._hitboxes[0]._center.Z);
-                untranslatedPosition.Y += offsetY;
                 Sector s = t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
                 if (s != null)
                 {
@@ -123,13 +123,28 @@ namespace KWEngine3.Helper
                         bool rayHasContact = RayTriangleIntersection(untranslatedPosition, -KWEngine.WorldUp, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
                         if(rayHasContact)
                         {
-                            intersectionPosition = contactPoint;
+                            intersectionPoint = contactPoint;
+                            distance = (intersectionPoint - position).LengthFast;
                             return true;
                         }
                     }
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Prüft die Position eines Terrain-Objekts unterhalb der angegebenen Position
+        /// </summary>
+        /// <param name="positionX">X-Komponente der Position für die getestet werden soll</param>
+        /// <param name="positionY">Y-Komponente der Position für die getestet werden soll</param>
+        /// <param name="positionZ">Z-Komponente der Position für die getestet werden soll</param>
+        /// <param name="intersectionPoint">gemessener Schnittpunkt mit dem Terrain</param>
+        /// <param name="distance">Distanz von der angegebenen Position zum Schnittpunkt</param>
+        /// <returns>true, wenn gerade ein Terrain unter der angegebenen Position liegt, andernfalls false</returns>
+        public static bool GetPositionOnTerrainBelow(float positionX, float positionY, float positionZ, out Vector3 intersectionPoint, out float distance)
+        {
+            return GetPositionOnTerrainBelow(new Vector3(positionX, positionY, positionZ), out intersectionPoint, out distance);
         }
 
         /// <summary>
@@ -677,6 +692,51 @@ namespace KWEngine3.Helper
         internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint)
         {
             return RaytraceObject(g, origin, worldRay, out intersectionPoint, out Vector3 normal, true);
+        }
+
+        internal static bool RaytraceHitbox(GameObjectHitbox hb, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal)
+        {
+            intersectionPoint = Vector3.Zero;
+            faceNormal = Vector3.Zero;
+            for (int j = 0; j < hb._mesh.Faces.Length; j++)
+            { 
+                if (hb.IsExtended)
+                {
+                    hb.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
+                    float dot = Vector3.Dot(rayDirection, currentFaceNormal);
+                    if (dot < 0)
+                    {
+                        bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
+                        if (hit)
+                        {
+                            faceNormal = currentFaceNormal;
+                            intersectionPoint = currentContact;
+                            return true;
+                        }
+                    }
+                }
+                else
+                {
+                    hb.GetVerticesForCubeFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 currentFaceNormal);
+                    float dot = Vector3.Dot(rayDirection, currentFaceNormal);
+                    if (dot < 0)
+                    {
+                        Vector3 currentContact;
+                        bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out currentContact);
+                        if (!hit)
+                        {
+                            hit = RayTriangleIntersection(rayOrigin, rayDirection, v4, v5, v6, out currentContact);
+                        }
+                        if (hit)
+                        {
+                            faceNormal = currentFaceNormal;
+                            intersectionPoint = currentContact;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>
