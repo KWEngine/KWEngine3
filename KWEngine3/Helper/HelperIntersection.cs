@@ -1342,7 +1342,7 @@ namespace KWEngine3.Helper
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
                 SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                SatTest(ref caller._normals[i], ref collider._vertices, out shape2Min, out shape2Max, ref offset);
+                SatTest(ref caller._normals[i], ref collider._vertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
                     return null;
@@ -1360,7 +1360,7 @@ namespace KWEngine3.Helper
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
                 SatTest(ref collider._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                SatTest(ref collider._normals[i], ref collider._vertices, out shape2Min, out shape2Max, ref offset);
+                SatTest(ref collider._normals[i], ref collider._vertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
                     return null;
