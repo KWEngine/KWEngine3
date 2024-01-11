@@ -551,8 +551,7 @@ namespace KWEngine3
             int n = 0;
             if(KWEngine.CurrentWorld._startingFrameActive == false)
             {
-                World currentWorldForLoop = KWEngine.CurrentWorld;
-                n = UpdateCurrentWorldAndObjects(currentWorldForLoop, out double elapsedTimeForCall);
+                n = UpdateCurrentWorldAndObjects(out double elapsedTimeForCall);
                 if (!KWEngine.EditModeActive)
                     KWBuilderOverlay.UpdateLastUpdateTime(elapsedTimeForCall);
             }
@@ -626,7 +625,7 @@ namespace KWEngine3
         /// </summary>
         public Vector2 Center { get { return ClientRectangle.HalfSize; } }
 
-        internal int UpdateCurrentWorldAndObjects(World worldBeforeLoop, out double elapsedUpdateTimeForCallInMS)
+        internal int UpdateCurrentWorldAndObjects(out double elapsedUpdateTimeForCallInMS)
         {
             int n = 0;
             float tmpTimeAdd = 0.0f;
@@ -637,7 +636,7 @@ namespace KWEngine3
             {
                 _stopwatch.Restart();
 
-                if (KWEngine.CurrentWorld != null && worldBeforeLoop == KWEngine.CurrentWorld)
+                if (KWEngine.CurrentWorld != null && _worldNew == null)
                 {
                     KWEngine.CurrentWorld.ResetWorldDimensions();
                     List<GameObject> postponedObjects = new List<GameObject>();
@@ -788,7 +787,7 @@ namespace KWEngine3
 
                     }
 
-                    double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;// * 1000.0;
+                    double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
                     tmpTimeAdd = (float)elapsedTimeForIterationInSeconds;
@@ -797,7 +796,7 @@ namespace KWEngine3
                 }
                 else
                 {
-                    double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;// * 1000.0;
+                    double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
                     tmpTimeAdd = (float)elapsedTimeForIterationInSeconds;
