@@ -11,12 +11,8 @@ namespace KWEngine3TestProject.Classes.WorldCollisionTest
     {
         public override void Act()
         {
-            if (Keyboard.IsKeyDown(Keys.R))
-            {
-                SetRotation(0, 0, 0);
-            }
 
-            if(Keyboard.IsKeyDown(Keys.W))
+            if(Keyboard.IsKeyDown(Keys.E))
             {
                 MoveOffset(0, 0.01f, 0);
             }
@@ -28,15 +24,15 @@ namespace KWEngine3TestProject.Classes.WorldCollisionTest
             {
                 MoveOffset(0.01f, 0, 0);
             }
-            if (Keyboard.IsKeyDown(Keys.S))
+            if (Keyboard.IsKeyDown(Keys.Q))
             {
                 MoveOffset(0, -0.01f, 0);
             }
-            if (Keyboard.IsKeyDown(Keys.Q))
+            if (Keyboard.IsKeyDown(Keys.W))
             {
                 MoveOffset(0, 0, -0.01f);
             }
-            if (Keyboard.IsKeyDown(Keys.E))
+            if (Keyboard.IsKeyDown(Keys.S))
             {
                 MoveOffset(0, 0, +0.01f);
             }
@@ -53,11 +49,11 @@ namespace KWEngine3TestProject.Classes.WorldCollisionTest
             List<Intersection> intersections = GetIntersections();
             foreach (Intersection intersection in intersections)
             {
-               // Console.WriteLine("collision: " + intersection.Object.Name);
                 MoveOffset(intersection.MTV);
+                Console.WriteLine(intersection.ColliderSurfaceNormal);
             }
 
-            CurrentWorld.SetCameraPosition(Position + new Vector3(5, 10, 10));
+            CurrentWorld.SetCameraPosition(Position + new Vector3(0, 15, 10));
             CurrentWorld.SetCameraTarget(Center);
         }
     }

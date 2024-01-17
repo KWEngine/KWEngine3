@@ -494,8 +494,21 @@ namespace KWEngine3
         internal World _worldNew = null;
         internal void SetWorldInternal(World w)
         {
-            _keyboard.DeleteKeys();
-            _mouse.DeleteButtons();
+            foreach(MouseButton b in _mouse._buttonsPressed.Keys)
+            {
+                if(_mouse._buttonsPressed.Keys.Contains(b))
+                {
+                    _mouse.ChangeToOldWorld(b);
+                }
+            }
+
+            foreach (Keys k in _keyboard._keysPressed.Keys)
+            {
+                if (_keyboard._keysPressed.Keys.Contains(k))
+                {
+                    _keyboard.ChangeToOldWorld(k);
+                }
+            }
 
             if (KWEngine.CurrentWorld != null)
             {

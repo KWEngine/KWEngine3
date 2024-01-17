@@ -1338,6 +1338,9 @@ namespace KWEngine3.Helper
             Vector3 MTVTemp = Vector3.Zero;
             Vector3 MTVTempUp = Vector3.Zero;
             int collisionNormalIndex = 0;
+            bool collisionNormalIndexFlip = false;
+            bool collisionNormalFromCaller = false;
+
             for (int i = 0; i < caller._normals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
@@ -1349,10 +1352,14 @@ namespace KWEngine3.Helper
                 }
                 else
                 {
-                    bool m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset);
-                    if (m)
+                    OverlapResult m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, true, caller);
+                    if (m.IsBetterResult)
+                    {
                         collisionNormalIndex = i;
+                        collisionNormalIndexFlip = m.NotSameDirection && caller.IsExtended == false;
+                        collisionNormalFromCaller = true;
+                    }
                 }
             }
 
@@ -1367,10 +1374,14 @@ namespace KWEngine3.Helper
                 }
                 else
                 {
-                    bool m = CalculateOverlap(ref collider._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset);
-                    if (m)
-                        collisionNormalIndex = caller._normals.Length + i;
+                    OverlapResult m = CalculateOverlap(ref collider._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, false, collider);
+                    if (m.IsBetterResult)
+                    {
+                        collisionNormalIndex = i;
+                        collisionNormalIndexFlip = m.NotSameDirection && collider.IsExtended == false;
+                        collisionNormalFromCaller = false;
+                    }
                 }
             }
 
@@ -1378,13 +1389,13 @@ namespace KWEngine3.Helper
                 return null;
 
             Vector3 collisionSurfaceNormal;
-            if (collisionNormalIndex < caller._normals.Length)
+            if (collisionNormalFromCaller)
             {
-                collisionSurfaceNormal = caller._normals[collisionNormalIndex];
+                collisionSurfaceNormal = caller._normals[collisionNormalIndex] * (collisionNormalIndexFlip ? -1 : 1);
             }
             else
             {
-                collisionSurfaceNormal = collider._normals[collisionNormalIndex - caller._normals.Length];
+                collisionSurfaceNormal = collider._normals[collisionNormalIndex] * (collisionNormalIndexFlip ? -1 : 1);
             }
 
             Vector3 cross = Vector3.NormalizeFast(Vector3.Cross(Vector3.Cross(MTVTemp, KWEngine.WorldUp), MTVTemp));
@@ -1435,8 +1446,8 @@ namespace KWEngine3.Helper
             return o;
         }
 
-        private static bool CalculateOverlap(ref Vector3 axis, ref float shape1Min, ref float shape1Max, ref float shape2Min, ref float shape2Max,
-            ref float mtvDistance, ref float mtvDistanceUp, ref Vector3 mtv, ref Vector3 mtvUp, ref float mtvDirection, ref float mtvDirectionUp, ref Vector3 posA, ref Vector3 posB, ref Vector3 offset)
+        private static OverlapResult CalculateOverlap(ref Vector3 axis, ref float shape1Min, ref float shape1Max, ref float shape2Min, ref float shape2Max,
+            ref float mtvDistance, ref float mtvDistanceUp, ref Vector3 mtv, ref Vector3 mtvUp, ref float mtvDirection, ref float mtvDirectionUp, ref Vector3 posA, ref Vector3 posB, ref Vector3 offset, bool isCaller,  GameObjectHitbox hb)
         {
             float intersectionDepthScaled;
             if (shape1Min < shape2Min)
@@ -1480,7 +1491,6 @@ namespace KWEngine3.Helper
                 {
                     intersectionDepthScaled = shape1Min - shape2Max; // default
                 }
-
             }
 
             float axisLengthSquared = Vector3.Dot(axis, axis);
@@ -1502,9 +1512,12 @@ namespace KWEngine3.Helper
                 mtvDirection = notSameDirection < 0 ? -1.0f : 1.0f;
                 mtv = mtv * mtvDirection;
 
-                return true;
+                bool flipSurfaceNormal = false;
+                
+
+                return new OverlapResult() { IsBetterResult = true, NotSameDirection = flipSurfaceNormal};
             }
-            return false;
+            return new OverlapResult() { IsBetterResult = false, NotSameDirection = false};
         }
 
         private static bool Overlaps(float min1, float max1, float min2, float max2)

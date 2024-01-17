@@ -7,7 +7,7 @@ namespace KWEngine3
     /// </summary>
     public class KeyboardExt
     {
-        internal Dictionary<Keys, float> _keysPressed = new Dictionary<Keys, float>();
+        internal Dictionary<Keys, KeyboardExtState> _keysPressed = new Dictionary<Keys, KeyboardExtState>();
         internal void DeleteKeys()
         {
             _keysPressed.Clear();
@@ -33,27 +33,32 @@ namespace KWEngine3
             bool down = KWEngine.Window.KeyboardState.IsKeyDown(key);
             if (down)
             {
-                bool result = _keysPressed.TryGetValue(key, out float t);
+                bool result = _keysPressed.TryGetValue(key, out KeyboardExtState t);
                 if (result)
                 {
-                    if (KWEngine.WorldTime > t)
+                    if (KWEngine.WorldTime > t.Time || t.OldWorld)
                         return false;
                     else
                         return true;
                 }
                 else
                 {
-                    _keysPressed.Add(key, KWEngine.WorldTime);
+                    _keysPressed.Add(key, new KeyboardExtState() { Time = KWEngine.WorldTime, OldWorld = false });
                     return true;
                 }
             }
             else
             {
-                bool result = _keysPressed.TryGetValue(key, out float t);
+                bool result = _keysPressed.TryGetValue(key, out KeyboardExtState t);
                 if (result)
                     _keysPressed.Remove(key);
                 return false;
             }
+        }
+
+        internal void ChangeToOldWorld(Keys k)
+        {
+            _keysPressed[k].SwitchToOldWorld();
         }
     }
 }

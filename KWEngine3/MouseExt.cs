@@ -8,7 +8,7 @@ namespace KWEngine3
     /// </summary>
     public class MouseExt
     {
-        internal Dictionary<MouseButton, float> _buttonsPressed = new Dictionary<MouseButton, float>();
+        internal Dictionary<MouseButton, MouseExtState> _buttonsPressed = new Dictionary<MouseButton, MouseExtState>();
         internal void DeleteButtons()
         {
             _buttonsPressed.Clear();
@@ -39,27 +39,37 @@ namespace KWEngine3
             bool down = KWEngine.Window.MouseState.IsButtonDown(button);
             if (down)
             {
-                bool result = _buttonsPressed.TryGetValue(button, out float t);
+                bool result = _buttonsPressed.TryGetValue(button, out MouseExtState t);
                 if (result)
                 {
-                    if (KWEngine.WorldTime > t)
+                    if (KWEngine.WorldTime > t.Time || t.OldWorld)
+                    {
                         return false;
+                    }
                     else
+                    {
                         return true;
+                    }
                 }
                 else
                 {
-                    _buttonsPressed.Add(button, KWEngine.WorldTime);
+                    MouseExtState s = new MouseExtState() { Time = KWEngine.WorldTime, OldWorld = false };
+                    _buttonsPressed.Add(button, s);
                     return true;
                 }
             }
             else
             {
-                bool result = _buttonsPressed.TryGetValue(button, out float t);
+                bool result = _buttonsPressed.TryGetValue(button, out MouseExtState t);
                 if (result)
                     _buttonsPressed.Remove(button);
                 return false;
             }
+        }
+
+        internal void ChangeToOldWorld(MouseButton b)
+        {
+            _buttonsPressed[b].SwitchToOldWorld();
         }
     }
 }
