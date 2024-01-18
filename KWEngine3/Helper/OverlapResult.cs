@@ -9,6 +9,6 @@ namespace KWEngine3.Helper
     internal struct OverlapResult
     {
         public bool IsBetterResult { get; set; }
-        public bool NotSameDirection { get; set; }
+        public bool FlipNormal { get; set; }
     }
 }

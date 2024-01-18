@@ -405,7 +405,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="18.5" Width="2.75" />
+    <Position X="9.5" Y="18.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>

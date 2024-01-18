@@ -1357,7 +1357,7 @@ namespace KWEngine3.Helper
                     if (m.IsBetterResult)
                     {
                         collisionNormalIndex = i;
-                        collisionNormalIndexFlip = m.NotSameDirection && caller.IsExtended == false;
+                        collisionNormalIndexFlip = m.FlipNormal;
                         collisionNormalFromCaller = true;
                     }
                 }
@@ -1379,7 +1379,7 @@ namespace KWEngine3.Helper
                     if (m.IsBetterResult)
                     {
                         collisionNormalIndex = i;
-                        collisionNormalIndexFlip = m.NotSameDirection && collider.IsExtended == false;
+                        collisionNormalIndexFlip = m.FlipNormal;
                         collisionNormalFromCaller = false;
                     }
                 }
@@ -1512,12 +1512,9 @@ namespace KWEngine3.Helper
                 mtvDirection = notSameDirection < 0 ? -1.0f : 1.0f;
                 mtv = mtv * mtvDirection;
 
-                bool flipSurfaceNormal = false;
-                
-
-                return new OverlapResult() { IsBetterResult = true, NotSameDirection = flipSurfaceNormal};
+                return new OverlapResult() { IsBetterResult = true, FlipNormal = Vector3.Dot(axis, mtv) < 0};
             }
-            return new OverlapResult() { IsBetterResult = false, NotSameDirection = false};
+            return new OverlapResult() { IsBetterResult = false, FlipNormal = false};
         }
 
         private static bool Overlaps(float min1, float max1, float min2, float max2)
