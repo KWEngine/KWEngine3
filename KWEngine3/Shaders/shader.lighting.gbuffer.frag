@@ -278,6 +278,10 @@ void main()
             float currentLightHardness = uLights[i + 16];
 
             // calculate per-light radiance
+            if(currentLightType < 0)
+            {
+                currentLightPos = fragPosition - currentLightLAV;
+            }
             vec3 L = normalize(currentLightPos - fragPosition);
             vec3 H = normalize(V + L);
             float dist    = length(currentLightPos - fragPosition);

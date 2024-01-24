@@ -205,7 +205,24 @@ namespace KWEngine3.EngineCamera
             SetTarget(newCamPos);
         }
 
-        internal void ArcBall(Vector2 deltaXY)
+        internal GameObject GetObjectOnScreenCenter()
+        {
+            GameObject mostCenteredObject = null;
+            float min = float.MaxValue;
+            foreach(GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                Vector2 ndc = HelperVector.GetScreenCoordinatesNormalizedFor(g);
+                float tmpLength = ndc.LengthSquared;
+                if (tmpLength < min)
+                {
+                    min = tmpLength;
+                    mostCenteredObject = g;
+                }
+            }
+            return mostCenteredObject;
+        }
+
+        internal void ArcBallEditor(Vector2 deltaXY, GameObject g)
         {
             degX = (degX + deltaXY.X * 0.25f) % 360f;
             degY += deltaXY.Y * 0.25f;
@@ -214,14 +231,30 @@ namespace KWEngine3.EngineCamera
             else if (degY < -89.9f)
                 degY = -89.9f;
 
-            Vector3 newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
-                _stateCurrent._target,
-                (_stateCurrent._target - _stateCurrent._position).LengthFast, 
-                degX, 
-                degY, 
-                true, 
+            Vector3 newCamPos;
+            if(g != null)
+            {
+                _stateCurrent._target = g.Center;
+                newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
+                g.Center,
+                (g.Center - _stateCurrent._position).LengthFast,
+                degX,
+                degY,
+                true,
                 true
                 );
+            }
+            else
+            {
+                newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
+                _stateCurrent._target,
+                (_stateCurrent._target - _stateCurrent._position).LengthFast,
+                degX,
+                degY,
+                true,
+                true
+                );
+            }
             SetPosition(newCamPos);
         }
 

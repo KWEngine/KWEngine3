@@ -114,6 +114,16 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Berechnet die normalisierten 2D-Bildschirmkoordinaten für die übergebene GameObject-Instanz.
+        /// </summary>
+        /// <param name="g">GameObject-Instanz</param>
+        /// <returns>2D-Bildschirmkoordinaten als Vector2-Instanz</returns>
+        public static Vector2 GetScreenCoordinatesNormalizedFor(GameObject g)
+        {
+            return GetScreenCoordinatesNormalizedFor(g.Center);
+        }
+
+        /// <summary>
         /// Berechnet den Winkel (in Grad), der zwischen zwei 3D-Objekten auf dem Bildschirm existiert.
         /// Die Gradzahlen beginnen bei 0° (oben) und gehen im Uhrzeigersinn bis 359.9°.
         /// </summary>
@@ -153,6 +163,25 @@ namespace KWEngine3.Helper
 
             screenCoordinates.X = (int)((posClipSpace.X * 0.5f + 0.5f) * KWEngine.Window.ClientSize.X);
             screenCoordinates.Y = KWEngine.Window.ClientSize.Y - (int)((posClipSpace.Y * 0.5f + 0.5f) * KWEngine.Window.ClientSize.Y);
+
+            return screenCoordinates;
+        }
+
+        /// <summary>
+        /// Berechnet die 2D-Bildschirmkoordinaten für die übergebene 3D-Position.
+        /// </summary>
+        /// <param name="position">Positionsangabe in 3D</param>
+        /// <returns>Normalisierte 2D-Bildschirmkoordinaten als Vector2-Instanz</returns>
+        public static Vector2 GetScreenCoordinatesNormalizedFor(Vector3 position)
+        {
+            Vector2 screenCoordinates = new Vector2();
+
+            Vector4 posClipSpace = Vector4.TransformRow(new Vector4(position, 1f), KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrix);
+            posClipSpace.X /= posClipSpace.W;
+            posClipSpace.Y /= posClipSpace.W;
+
+            screenCoordinates.X = posClipSpace.X;
+            screenCoordinates.Y = posClipSpace.Y;
 
             return screenCoordinates;
         }
