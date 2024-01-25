@@ -7,7 +7,7 @@ namespace KWEngine3.GameObjects
     /// <summary>
     /// GameObject-Klasse
     /// </summary>
-    public abstract class GameObject : IComparable<GameObject>
+    public abstract class GameObject : EngineObject, IComparable<GameObject>
     {
         /// <summary>
         /// Abstrakte Methode die von jeder erbenden Klasse implementiert werden muss
