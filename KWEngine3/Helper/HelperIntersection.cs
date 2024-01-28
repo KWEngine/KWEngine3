@@ -1089,7 +1089,7 @@ namespace KWEngine3.Helper
         internal static void GetArmatureTransformForDefaultAnimation(GameObject g, GeoNode node, ref Matrix4 transform, ref bool found)
         {
             GeoNodeAnimationChannel nac;
-            bool nacFound = g._gModel.ModelOriginal.Animations[0].AnimationChannels.TryGetValue(node.Name, out nac);
+            bool nacFound = g._model.ModelOriginal.Animations[0].AnimationChannels.TryGetValue(node.Name, out nac);
             transform = node.Transform * transform;
 
             if (!nacFound)
@@ -1104,12 +1104,12 @@ namespace KWEngine3.Helper
             else
             {
 
-                foreach (GeoMesh mesh in g._gModel.ModelOriginal.Meshes.Values)
+                foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
                 {
                     int index = mesh.BoneNames.IndexOf(node.Name);
                     if (index >= 0)
                     {
-                        transform = mesh.BoneOffset[index] * transform * g._gModel.ModelOriginal.TransformGlobalInverse;
+                        transform = mesh.BoneOffset[index] * transform * g._model.ModelOriginal.TransformGlobalInverse;
                         break;
                     }
                 }
@@ -1128,7 +1128,7 @@ namespace KWEngine3.Helper
                 if (g.HasArmatureAndAnimations)
                 {
                     bool found = false;
-                    GetArmatureTransformForDefaultAnimation(g, g._gModel.ModelOriginal.Armature, ref meshTransform, ref found);
+                    GetArmatureTransformForDefaultAnimation(g, g._model.ModelOriginal.Armature, ref meshTransform, ref found);
                 }
                 else
                 {

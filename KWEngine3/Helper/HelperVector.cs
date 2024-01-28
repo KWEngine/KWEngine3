@@ -59,9 +59,8 @@ namespace KWEngine3.Helper
         /// <returns>rotierter Vektor</returns>
         public static Vector3 RotateVectorByQuaternion(Vector3 source, Quaternion rotation)
         {
-            Quaternion qri;
-            Quaternion.Invert(rotation, out qri);
-            Quaternion sourceQ = new Quaternion(source, 0);
+            Quaternion.Invert(rotation, out Quaternion qri);
+            Quaternion sourceQ = new(source, 0);
             return (rotation * sourceQ * qri).Xyz;
         }
 
@@ -155,7 +154,7 @@ namespace KWEngine3.Helper
         /// <returns>2D-Bildschirmkoordinaten als Vector2i-Instanz</returns>
         public static Vector2i GetScreenCoordinatesFor(Vector3 position)
         {
-            Vector2i screenCoordinates = new Vector2i();
+            Vector2i screenCoordinates = new();
 
             Vector4 posClipSpace = Vector4.TransformRow(new Vector4(position, 1f), KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrix);
             posClipSpace.X /= posClipSpace.W;
@@ -174,9 +173,9 @@ namespace KWEngine3.Helper
         /// <returns>Normalisierte 2D-Bildschirmkoordinaten als Vector2-Instanz</returns>
         public static Vector2 GetScreenCoordinatesNormalizedFor(Vector3 position)
         {
-            Vector2 screenCoordinates = new Vector2();
+            Vector2 screenCoordinates = new();
 
-            Vector4 posClipSpace = Vector4.TransformRow(new Vector4(position, 1f), KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrix);
+            Vector4 posClipSpace = Vector4.TransformRow(new(position, 1f), KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrix);
             posClipSpace.X /= posClipSpace.W;
             posClipSpace.Y /= posClipSpace.W;
 

@@ -18,11 +18,15 @@ namespace KWEngine3
     {
         internal const float SIMULATIONNIBBLESIZE = 1f / 240f;
         internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
-        internal const int MAXGAMEOBJECTID = 16777216;
         internal const int LIGHTINDEXDIVIDER = 17;
         internal const float RAYTRACE_EPSILON = 0.0000001f;
         internal const float RAYTRACE_SAFETY = 0.1f;
         internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
+
+        /// <summary>
+        /// Gibt die maximale Anzahl der Instanzen für RenderObjects an
+        /// </summary>
+        public const int MAXADDITIONALINSTANCECOUNT = 1024 - 1; // -1 because the main instance does not count here
 
         /// <summary>
         /// Aktuelles Fenster
@@ -35,7 +39,7 @@ namespace KWEngine3
         //internal static Dictionary<World, Dictionary<string, int>> CustomTextures { get; set; } = new Dictionary<World, Dictionary<string, int>>();
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
 
-        internal static void DeleteCustomModelsAndTextures(World w)
+        internal static void DeleteCustomModelsAndTexturesFromCurrentWorld()
         {
             for(int i = KWEngine.CurrentWorld._customTextures.Count - 1; i >= 0; i--)
             {
@@ -206,7 +210,7 @@ namespace KWEngine3
         
         internal static float TimeElapsed = 0;
 
-        internal static Vector3 DefaultCameraPosition = new Vector3(0, 0, 10);
+        internal static Vector3 DefaultCameraPosition = new(0, 0, 10);
 
         /// <summary>
         /// Welt-Vektor, der angibt, wo 'oben' ist
@@ -275,7 +279,7 @@ namespace KWEngine3
             
         }
 
-        internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new Dictionary<ParticleType, ParticleInfo>();
+        internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new();
         internal static void InitializeParticles()
         {
             int tex;
@@ -363,33 +367,43 @@ namespace KWEngine3
                 KWEngine.LogWriteLine("[Terrain] Model name already used");
                 return;
             }
-            GeoModel terrainModel = new GeoModel();
-            terrainModel.Name = name;
-            terrainModel.Meshes = new Dictionary<string, GeoMesh>();
-            terrainModel.IsValid = true;
+            GeoModel terrainModel = new()
+            {
+                Name = name,
+                Meshes = new Dictionary<string, GeoMesh>(),
+                IsValid = true
+            };
 
-            GeoMeshHitbox meshHitBox = new GeoMeshHitbox(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null);
-            meshHitBox.Model = terrainModel;
-            meshHitBox.Name = name;
+            GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null)
+            {
+                Model = terrainModel,
+                Name = name
+            };
 
-            terrainModel.MeshHitboxes = new List<GeoMeshHitbox>();
-            terrainModel.MeshHitboxes.Add(meshHitBox);
+            terrainModel.MeshHitboxes = new()
+            {
+                meshHitBox
+            };
 
-            GeoTerrain t = new GeoTerrain();
+            GeoTerrain t = new();
             GeoMesh terrainMesh = t.BuildTerrain2(heightmap, width, height, depth, out GeoMesh sideMeshes, 1, 1, true);
             terrainMesh.Terrain = t;
-            GeoMaterial mat = new GeoMaterial();
-            mat.BlendMode = BlendingFactor.OneMinusSrcAlpha;
-            mat.ColorAlbedo = new Vector4(1, 1, 1, 1);
-            mat.ColorEmissive = new Vector4(0, 0, 0, 0);
-            mat.Metallic = 0;
-            mat.Roughness = 1;
+            GeoMaterial mat = new()
+            {
+                BlendMode = BlendingFactor.OneMinusSrcAlpha,
+                ColorAlbedo = new Vector4(1, 1, 1, 1),
+                ColorEmissive = new Vector4(0, 0, 0, 0),
+                Metallic = 0,
+                Roughness = 1
+            };
 
-            GeoTexture texDiffuse = new GeoTexture();
-            texDiffuse.Filename = texture;
-            texDiffuse.Type = TextureType.Albedo;
-            texDiffuse.UVMapIndex = 0;
-            texDiffuse.UVTransform = new Vector4(1, 1, 0, 0);
+            GeoTexture texDiffuse = new()
+            {
+                Filename = texture,
+                Type = TextureType.Albedo,
+                UVMapIndex = 0,
+                UVTransform = new Vector4(1, 1, 0, 0)
+            };
 
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(texture))
             {
@@ -416,34 +430,44 @@ namespace KWEngine3
 
         internal static GeoModel BuildDefaultTerrainModel(string name, float width, float height, float depth)
         {
-            GeoModel terrainModel = new GeoModel();
-            terrainModel.Name = name;
-            terrainModel.Meshes = new Dictionary<string, GeoMesh>();
-            terrainModel.IsValid = true;
+            GeoModel terrainModel = new()
+            {
+                Name = name,
+                Meshes = new(),
+                IsValid = true
+            };
 
-            GeoMeshHitbox meshHitBox = new GeoMeshHitbox(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null);
-            meshHitBox.Model = terrainModel;
-            meshHitBox.Name = name;
+            GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null)
+            {
+                Model = terrainModel,
+                Name = name
+            };
 
-            terrainModel.MeshHitboxes = new List<GeoMeshHitbox>();
-            terrainModel.MeshHitboxes.Add(meshHitBox);
+            terrainModel.MeshHitboxes = new()
+            {
+                meshHitBox
+            };
 
-            GeoTerrain t = new GeoTerrain();
+            GeoTerrain t = new();
             GeoMesh terrainMesh = t.BuildTerrain2(null, width, height, depth, out GeoMesh sideMeshes, 1f, 1f, false);
             terrainMesh.Terrain = t;
-            GeoMaterial mat = new GeoMaterial();
-            mat.BlendMode = BlendingFactor.OneMinusSrcAlpha;
-            mat.ColorAlbedo = new Vector4(1, 1, 1, 1);
-            mat.ColorEmissive = new Vector4(0, 0, 0, 0);
-            mat.Metallic = 0;
-            mat.Roughness = 1;
+            GeoMaterial mat = new()
+            {
+                BlendMode = BlendingFactor.OneMinusSrcAlpha,
+                ColorAlbedo = new(1, 1, 1, 1),
+                ColorEmissive = new(0, 0, 0, 0),
+                Metallic = 0,
+                Roughness = 1
+            };
 
-            GeoTexture texDiffuse = new GeoTexture();
-            texDiffuse.Filename = "Default terrain texture";
-            texDiffuse.Type = TextureType.Albedo;
-            texDiffuse.UVMapIndex = 0;
-            texDiffuse.UVTransform = new Vector4(1f, 1f, 0f, 0f);
-            texDiffuse.OpenGLID = KWEngine.TextureWhite;
+            GeoTexture texDiffuse = new()
+            {
+                Filename = "Default terrain texture",
+                Type = TextureType.Albedo,
+                UVMapIndex = 0,
+                UVTransform = new Vector4(1f, 1f, 0f, 0f),
+                OpenGLID = KWEngine.TextureWhite
+            };
             mat.TextureAlbedo = texDiffuse;
 
             terrainMesh.Material = mat;
@@ -466,7 +490,7 @@ namespace KWEngine3
                 LogWriteLine("[Import] Models must be imported in Prepare()");
                 throw new KWEngine3.Exceptions.EngineException("[Import] Models must be imported in Prepare()");
             }
-            GeoModel m = null;
+            GeoModel m;
             if (Models.ContainsKey(name.Trim()))
             {
                 if (callerName != "BuildWorld")
@@ -504,7 +528,7 @@ namespace KWEngine3
         public static List<string> GetModelBoneNames(string modelname)
         {
             bool result = Models.TryGetValue(modelname, out GeoModel model);
-            List<string> resultList = new List<string>();
+            List<string> resultList = new();
             if (result)
             {
                 resultList.AddRange(model.BoneNames);

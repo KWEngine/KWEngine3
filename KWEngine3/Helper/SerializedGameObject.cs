@@ -57,7 +57,7 @@ namespace KWEngine3.Helper
             sg.IsCollisionObject = g.IsCollisionObject;
             sg.Name = g.Name;
             sg.ModelName = g._modelNameInDB;
-            sg.ModelPath = g._gModel.ModelOriginal.Filename;
+            sg.ModelPath = g._model.ModelOriginal.Filename;
             sg.Type = g.GetType().FullName;
             sg.UpdateLast = g.UpdateLast;
             sg.BlendTextureStates = g.BlendTextureStates;
@@ -70,22 +70,22 @@ namespace KWEngine3.Helper
             sg.Color = new float[] { g._stateCurrent._colorTint.X, g._stateCurrent._colorTint.Y, g._stateCurrent._colorTint.Z };
             sg.ColorEmissive = new float[] { g._stateCurrent._colorEmissive.X, g._stateCurrent._colorEmissive.Y, g._stateCurrent._colorEmissive.Z, g._stateCurrent._colorEmissive.W };
             
-            sg.MetallicType = g._gModel._metallicType;
+            sg.MetallicType = g._model._metallicType;
 
             // Export/import repeat for all materials...
             sg.TextureOffset = new List<float[]>();
             sg.TextureRepeat = new List<float[]>();
             sg.Metallic = new List<float>();
             sg.Roughness = new List<float>();
-            sg.TextureAlbedo = new string[g._gModel.Material.Length];
-            sg.TextureNormal = new string[g._gModel.Material.Length];
-            sg.TextureRoughness = new string[g._gModel.Material.Length];
-            sg.TextureMetallic = new string[g._gModel.Material.Length];
-            sg.TextureEmissive = new string[g._gModel.Material.Length];
-            sg.TextureRoughnessInMetallic = new bool[g._gModel.Material.Length];
+            sg.TextureAlbedo = new string[g._model.Material.Length];
+            sg.TextureNormal = new string[g._model.Material.Length];
+            sg.TextureRoughness = new string[g._model.Material.Length];
+            sg.TextureMetallic = new string[g._model.Material.Length];
+            sg.TextureEmissive = new string[g._model.Material.Length];
+            sg.TextureRoughnessInMetallic = new bool[g._model.Material.Length];
 
             int i = 0;
-            foreach (GeoMaterial mat in g._gModel.Material)
+            foreach (GeoMaterial mat in g._model.Material)
             {
                 sg.TextureRepeat.Add(new float[] { mat.TextureAlbedo.UVTransform.X, mat.TextureAlbedo.UVTransform.Y });
                 sg.TextureOffset.Add(new float[] { mat.TextureAlbedo.UVTransform.Z, mat.TextureAlbedo.UVTransform.W });

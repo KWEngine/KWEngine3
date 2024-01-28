@@ -17,6 +17,7 @@ namespace KWEngine3.Editor
         public static int UModelMatrix { get; private set; } = -1;
         public static int UColorTint { get; private set; } = -1;
         public static int UId { get; private set; } = -1;
+        public static int UCamLAV { get; private set; } = -1;
 
         public static void Init()
         {
@@ -46,6 +47,7 @@ namespace KWEngine3.Editor
 
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UId = GL.GetUniformLocation(ProgramID, "uId");
+                UCamLAV = GL.GetUniformLocation(ProgramID, "uCamLAV");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
             }
@@ -67,10 +69,12 @@ namespace KWEngine3.Editor
             GeoMesh m = KWEngine.KWLightBulb.Meshes.Values.ElementAt(0);
             GL.BindVertexArray(m.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
-            GL.Uniform3(UColorTint, Vector3.One);
+            
             foreach (LightObject l in lights)
             {
                 GL.Uniform1(UId, l.ID);
+                GL.Uniform4(UColorTint, l.Color);
+                GL.Uniform3(UCamLAV, l._stateCurrent._lookAtVector);
                 float s = (l._stateRender._position - KWEngine.CurrentWorld._cameraEditor._stateRender._position).LengthFast / 30f;
                 Matrix4 mm = Matrix4.CreateScale(s) * Matrix4.CreateTranslation(l._stateRender._position);
                 GL.UniformMatrix4(UModelMatrix, false, ref mm);
@@ -78,6 +82,7 @@ namespace KWEngine3.Editor
             }
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
+            HelperGeneral.CheckGLErrors();
         }
     }
 }

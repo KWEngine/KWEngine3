@@ -16,48 +16,52 @@ namespace KWEngine3
         #region Internals
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
-        internal List<WorldEvent> _eventQueue = new List<WorldEvent>();
+        internal List<WorldEvent> _eventQueue = new();
         
-        internal List<GameObject> _gameObjects = new List<GameObject>();
-        internal List<GameObject> _gameObjectsToBeAdded = new List<GameObject>();
-        internal List<GameObject> _gameObjectsToBeRemoved = new List<GameObject>();
+        internal List<GameObject> _gameObjects = new();
+        internal List<GameObject> _gameObjectsToBeAdded = new();
+        internal List<GameObject> _gameObjectsToBeRemoved = new();
 
-        internal List<GameObject> _gameObjectsColliderChange = new List<GameObject>();
+        internal List<RenderObject> _renderObjects = new();
+        internal List<RenderObject> _renderObjectsToBeAdded = new();
+        internal List<RenderObject> _renderObjectsToBeRemoved = new();
 
-        internal List<TerrainObject> _terrainObjects = new List<TerrainObject>();
-        internal List<TerrainObject> _terrainObjectsToBeAdded = new List<TerrainObject>();
-        internal List<TerrainObject> _terrainObjectsToBeRemoved = new List<TerrainObject>();
+        internal List<GameObject> _gameObjectsColliderChange = new();
 
-        internal List<LightObject> _lightObjects = new List<LightObject>();
-        internal List<LightObject> _lightObjectsToBeAdded = new List<LightObject>();
-        internal List<LightObject> _lightObjectsToBeRemoved = new List<LightObject>();
+        internal List<TerrainObject> _terrainObjects = new();
+        internal List<TerrainObject> _terrainObjectsToBeAdded = new();
+        internal List<TerrainObject> _terrainObjectsToBeRemoved = new();
 
-        internal List<HUDObject> _hudObjects = new List<HUDObject>();
-        internal List<HUDObject> _hudObjectsToBeAdded = new List<HUDObject>();
-        internal List<HUDObject> _hudObjectsToBeRemoved = new List<HUDObject>();
+        internal List<LightObject> _lightObjects = new();
+        internal List<LightObject> _lightObjectsToBeAdded = new();
+        internal List<LightObject> _lightObjectsToBeRemoved = new();
 
-        internal List<TextObject> _textObjects = new List<TextObject>();
-        internal List<TextObject> _textObjectsToBeAdded = new List<TextObject>();
-        internal List<TextObject> _textObjectsToBeRemoved = new List<TextObject>();
+        internal List<HUDObject> _hudObjects = new();
+        internal List<HUDObject> _hudObjectsToBeAdded = new();
+        internal List<HUDObject> _hudObjectsToBeRemoved = new();
 
-        internal List<TimeBasedObject> _particleAndExplosionObjects = new List<TimeBasedObject>();
+        internal List<TextObject> _textObjects = new();
+        internal List<TextObject> _textObjectsToBeAdded = new();
+        internal List<TextObject> _textObjectsToBeRemoved = new();
 
-        internal Queue<ushort> _availableGameObjectIDs = new Queue<ushort>();
-        internal Queue<ushort> _availableLightObjectIDs = new Queue<ushort>();
+        internal List<TimeBasedObject> _particleAndExplosionObjects = new();
 
-        internal Dictionary<string, int> _customTextures = new Dictionary<string, int>();
+        internal Queue<ushort> _availableGameObjectIDs = new();
+        internal Queue<ushort> _availableLightObjectIDs = new();
+
+        internal Dictionary<string, int> _customTextures = new();
 
         internal Camera _cameraGame;
         internal Camera _cameraEditor;
         internal bool _startingFrameActive = false;
 
-        internal Vector2 _xMinMax = new Vector2(float.MaxValue, float.MinValue);
-        internal Vector2 _yMinMax = new Vector2(float.MaxValue, float.MinValue);
-        internal Vector2 _zMinMax = new Vector2(float.MaxValue, float.MinValue);
-        internal Vector3 _worldCenter = new Vector3(0);
+        internal Vector2 _xMinMax = new(float.MaxValue, float.MinValue);
+        internal Vector2 _yMinMax = new(float.MaxValue, float.MinValue);
+        internal Vector2 _zMinMax = new(float.MaxValue, float.MinValue);
+        internal Vector3 _worldCenter = new(0);
 
-        internal Vector3 _colorAmbient = new Vector3(0.75f, 0.75f, 0.75f);
-        internal WorldBackground _background = new WorldBackground();
+        internal Vector3 _colorAmbient = new(0.75f, 0.75f, 0.75f);
+        internal WorldBackground _background = new();
 
         internal IReadOnlyCollection<GameObject> GetGameObjectsSortedByType()
         {
@@ -124,9 +128,9 @@ namespace KWEngine3
             _zMinMax = new Vector2(float.MaxValue, float.MinValue);
         }
 
-        internal List<GameObjectHitbox> _gameObjectHitboxes = new List<GameObjectHitbox>();
+        internal List<GameObjectHitbox> _gameObjectHitboxes = new();
 
-        internal GameObject BuildAndAddDefaultGameObject(string classname)
+        internal GameObject BuildAndAddDefaultGameObjectForEditor(string classname)
         {
             GameObject g = (GameObject)Assembly.GetEntryAssembly().CreateInstance(classname);
             AddGameObject(g);
@@ -157,12 +161,11 @@ namespace KWEngine3
         {
             _availableGameObjectIDs.Clear();
             _availableLightObjectIDs.Clear();
-            for (ushort i = 1; i < ushort.MaxValue; i++)
+            for (ushort i = 1; i < ushort.MaxValue - 1; i++)
             {
                 _availableLightObjectIDs.Enqueue(i);
                 _availableGameObjectIDs.Enqueue(i);
             }
-            //Window.MousePosition = Window.ClientSize / 2;
             _cameraGame = new Camera();
             _cameraEditor = _cameraGame;
         }
@@ -170,11 +173,11 @@ namespace KWEngine3
 
         internal int _preparedLightsCount = 0;
         internal float[] _preparedLightsArray = new float[KWEngine.MAX_LIGHTS * KWEngine.LIGHTINDEXDIVIDER];
-        internal List<int> _preparedTex2DIndices = new List<int>();
-        internal List<int> _preparedCubeMapIndices = new List<int>();
-        internal List<LightObject> _currentShadowLights = new List<LightObject>();
+        internal List<int> _preparedTex2DIndices = new();
+        internal List<int> _preparedCubeMapIndices = new();
+        internal List<LightObject> _currentShadowLights = new();
 
-        internal void Export()
+        internal static void Export()
         {
             if(KWEngine.CurrentWorld != null)
             {
@@ -205,7 +208,7 @@ namespace KWEngine3
             return _terrainObjects;
         }
 
-        internal LightObject BuildAndAddDefaultLightObject(string lightType, ShadowQuality quality)
+        internal LightObject BuildAndAddDefaultLightObjectForEditor(string lightType, ShadowQuality quality)
         {
             //"Point light", "Directional light", "Sun light"
             LightType t;
@@ -221,7 +224,7 @@ namespace KWEngine3
             {
                 t = LightType.Sun;
             }
-            LightObject l = new LightObject(t, quality);
+            LightObject l = new(t, quality);
             l.SetPosition(0, 0, 0);
             l.SetTarget(0, -1, 0);
             AddLightObject(l);
@@ -256,6 +259,30 @@ namespace KWEngine3
                 _textObjects.Add(t);
             }
             _textObjectsToBeAdded.Clear();
+        }
+
+        internal void AddRemoveRenderObjects()
+        {
+            for (int i = _renderObjectsToBeRemoved.Count - 1; i >= 0; i--)
+            {
+                if (_renderObjectsToBeAdded.Contains(_renderObjectsToBeRemoved[i]))
+                {
+                    _renderObjectsToBeAdded.Remove(_renderObjectsToBeRemoved[i]);
+                    _renderObjectsToBeRemoved.RemoveAt(i);
+                }
+            }
+
+            foreach (RenderObject r in _renderObjectsToBeRemoved)
+            {
+                _renderObjects.Remove(r);
+            }
+            _gameObjectsToBeRemoved.Clear();
+
+            foreach (RenderObject r in _renderObjectsToBeAdded)
+            {
+                _renderObjects.Add(r);
+            }
+            _renderObjectsToBeAdded.Clear();
         }
 
         internal void AddRemoveGameObjects()
@@ -350,7 +377,13 @@ namespace KWEngine3
             }
             AddRemoveGameObjects();
 
-            foreach(TerrainObject t in _terrainObjects)
+            foreach (RenderObject r in _renderObjects)
+            {
+                RemoveRenderObject(r);
+            }
+            AddRemoveRenderObjects();
+
+            foreach (TerrainObject t in _terrainObjects)
             {
                 RemoveTerrainObject(t);
             }
@@ -368,14 +401,14 @@ namespace KWEngine3
             }
             AddRemoveTextObjects();
 
-            KWEngine.DeleteCustomModelsAndTextures(this);
+            KWEngine.DeleteCustomModelsAndTexturesFromCurrentWorld();
 
             _eventQueue.Clear();
         }
 
-        internal List<GameObject> GetTransparentGameObjects()
+        internal List<GameObject> GetTransparentGameObjectsForEditor()
         {
-            List<GameObject> list = new List<GameObject>();
+            List<GameObject> list = new();
             foreach (GameObject g in _gameObjects)
             {
                 if (g.IsTransparent)
@@ -474,7 +507,7 @@ namespace KWEngine3
         /// <summary>
         /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
         /// </summary>
-        public Vector2 MouseMovement
+        public static Vector2 MouseMovement
         {
             get
             {
@@ -674,6 +707,11 @@ namespace KWEngine3
                         }
                     }
                 }
+                else
+                {
+                    KWEngine.LogWriteLine("[GameObject] Object " + g.Name + " already in world.");
+                }
+
                 HelperSweepAndPrune.SweepAndPrune();
                 return;
             }
@@ -684,6 +722,11 @@ namespace KWEngine3
                 g.ID = _availableGameObjectIDs.Dequeue();
                 _gameObjectsToBeAdded.Add(g);
             }
+            else
+            {
+                KWEngine.LogWriteLine("[GameObject] Object " + g.Name + " already in world.");
+            }
+
         }
 
         /// <summary>
@@ -692,7 +735,6 @@ namespace KWEngine3
         /// <param name="g">Objekt</param>
         public void RemoveGameObject(GameObject g)
         {
-            // TODO
             if(IsPrepared == false)
             {
                 if(_gameObjects.Remove(g))
@@ -710,6 +752,60 @@ namespace KWEngine3
 
             if (!_gameObjectsToBeRemoved.Contains(g))
                 _gameObjectsToBeRemoved.Add(g);
+        }
+
+        /// <summary>
+        /// Löscht das angegebene Objekt aus der Welt
+        /// </summary>
+        /// <param name="r">Hinzuzufügendes Objekt</param>
+        public void AddRenderObject(RenderObject r)
+        {
+            if(r.IsConfigured == false)
+            {
+                KWEngine.LogWriteLine("[World] RenderObject instance '" + r.Name + "' incomplete. Set additional instance count first.");
+            }
+
+            if (IsPrepared == false)
+            {
+                if (!_renderObjects.Contains(r))
+                {
+                    _renderObjects.Add(r);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[RenderObject] Object " + r.Name + " already in world.");
+                }
+            }
+            else
+            {
+                if (!_renderObjects.Contains(r) && !_renderObjectsToBeAdded.Contains(r))
+                {
+                    _renderObjectsToBeAdded.Add(r);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[RenderObject] Object " + r.Name + " already in world.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Löscht das angegebene Objekt aus der Welt
+        /// </summary>
+        /// <param name="r">Zu löschendes Objekt</param>
+        public void RemoveRenderObject(RenderObject r)
+        {
+            if (IsPrepared == false)
+            {
+                _renderObjects.Remove(r);
+            }
+            else
+            {
+                if (!_renderObjectsToBeRemoved.Contains(r))
+                {
+                    _renderObjectsToBeRemoved.Add(r);
+                }
+            }
         }
 
         /// <summary>
@@ -937,7 +1033,7 @@ namespace KWEngine3
         public List<T> GetGameObjectsByName<T>(string name) where T : class
         {
             name = name.Trim();
-            List<T> os = new List<T>();
+            List<T> os = new();
             var list = _gameObjects.FindAll(go => go is T && go.Name == name);
             if (list.Count > 0)
             {
@@ -956,7 +1052,7 @@ namespace KWEngine3
         /// <returns>Liste der gefundenen Objekte</returns>
         public List<T> GetGameObjectsByType<T>()
         {
-            List<T> os = new List<T>();
+            List<T> os = new();
             var list = _gameObjects.FindAll(go => go is T);
             if (list.Count > 0)
             {
@@ -1071,15 +1167,15 @@ namespace KWEngine3
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        public static KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
+        public static MouseExt Mouse { get { return KWEngine.Window._mouse; } }
         /// <summary>
         /// Verweis auf das aktuelle Programmfenster
         /// </summary>
-        public GLWindow Window { get { return KWEngine.Window; } }
+        public static GLWindow Window { get { return KWEngine.Window; } }
 
         /// <summary>
         /// Blickrichtung der Kamera

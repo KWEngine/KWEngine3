@@ -49,7 +49,7 @@ namespace KWEngine3.GameObjects
         /// <param name="type">Texturtyp</param>
         public void SetTextureForPrimitiveModel(string file, TextureType type = TextureType.Albedo)
         {
-            if(_gameObject._gModel.ModelOriginal.IsPrimitive)
+            if(_gameObject._model.ModelOriginal.IsPrimitive)
             {
                 _gameObject.SetTexture(file, type);
             }
@@ -208,8 +208,8 @@ namespace KWEngine3.GameObjects
         /// <param name="id">Animations-ID (>= 0)</param>
         public void SetAnimationID(int id)
         {
-            if (IsValid && _gameObject._gModel.ModelOriginal.Animations != null)
-                _gameObject._stateCurrent._animationID = MathHelper.Clamp(id, -1, _gameObject._gModel.ModelOriginal.Animations.Count - 1);
+            if (IsValid && _gameObject._model.ModelOriginal.Animations != null)
+                _gameObject._stateCurrent._animationID = MathHelper.Clamp(id, -1, _gameObject._model.ModelOriginal.Animations.Count - 1);
             else
             {
                 if(IsValid)

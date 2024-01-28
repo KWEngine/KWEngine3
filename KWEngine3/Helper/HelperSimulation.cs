@@ -70,7 +70,7 @@ namespace KWEngine3.Helper
             t._stateRender._width = Vector3.Lerp(new Vector3(t._statePrevious._width), new Vector3(t._stateCurrent._width), alpha).X;
             t._stateRender._spreadFactor = t._statePrevious._spreadFactor * (1f - alpha) + t._stateCurrent._spreadFactor * alpha;
 
-            Vector3 tmpScale = new Vector3(t._stateRender._scale);
+            Vector3 tmpScale = new(t._stateRender._scale);
             t._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref tmpScale, ref t._stateRender._rotation, ref t._stateRender._position);
         }
         public static void BlendTerrainObjectStates(TerrainObject t, float alpha)
@@ -110,21 +110,43 @@ namespace KWEngine3.Helper
             UpdateModelMatricesForRenderPass(g);
         }
 
-        private static void UpdateModelMatricesForRenderPass(GameObject g)
+        public static void BlendRenderObjectStates(RenderObject g, float alpha)
         {
-            for (int index = 0; index < g._gModel.ModelOriginal.Meshes.Count; index++)
+            g._stateRender._scale = Vector3.Lerp(g._statePrevious._scale, g._stateCurrent._scale, alpha);
+            g._stateRender._position = Vector3.Lerp(g._statePrevious._position, g._stateCurrent._position, alpha);
+            g._stateRender._rotation = Quaternion.Slerp(g._statePrevious._rotation, g._stateCurrent._rotation, alpha);
+            g._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(g._stateRender);
+            g._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrix));
+            g._stateRender._lookAtVector = Vector3.Lerp(g._statePrevious._lookAtVector, g._stateCurrent._lookAtVector, alpha);
+
+            g._stateRender._animationID = g._stateCurrent._animationID; //TODO current?
+            g._stateRender._animationPercentage = g._statePrevious._animationPercentage * alpha + g._stateCurrent._animationPercentage * (1f - alpha);
+            g._stateRender._opacity = g._statePrevious._opacity * alpha + g._stateCurrent._opacity * (1f - alpha);
+            g._stateRender._colorTint = Vector3.Lerp(g._statePrevious._colorTint, g._stateCurrent._colorTint, alpha);
+            g._stateRender._colorEmissive = Vector4.Lerp(g._statePrevious._colorEmissive, g._stateCurrent._colorEmissive, alpha);
+            g._stateRender._uvTransform = Vector4.Lerp(g._statePrevious._uvTransform, g._stateCurrent._uvTransform, alpha);
+            g._stateRender._center = Vector3.Lerp(g._statePrevious._center, g._stateCurrent._center, alpha);
+            g._stateRender._dimensions = Vector3.Lerp(g._statePrevious._dimensions, g._stateCurrent._dimensions, alpha);
+
+            UpdateModelMatricesForRenderPass(g);
+        }
+
+
+        private static void UpdateModelMatricesForRenderPass(EngineObject g)
+        {
+            for (int index = 0; index < g._model.ModelOriginal.Meshes.Count; index++)
             {
-                GeoMesh mesh = g._gModel.ModelOriginal.Meshes.Values.ElementAt(index);
-                bool useMeshTransform = mesh.BoneNames.Count == 0 || !(g._stateRender._animationID >= 0 && g._gModel.ModelOriginal.Animations != null && g._gModel.ModelOriginal.Animations.Count > 0);
+                GeoMesh mesh = g._model.ModelOriginal.Meshes.Values.ElementAt(index);
+                bool useMeshTransform = mesh.BoneNames.Count == 0 || !(g._stateRender._animationID >= 0 && g._model.ModelOriginal.Animations != null && g._model.ModelOriginal.Animations.Count > 0);
                 if (useMeshTransform)
                 {
-                    Matrix4.Mult(mesh.Transform, g._stateRender._modelMatrix, out g._stateRender._modelMatrices[g._gModel.ModelOriginal.IsKWCube6 ? 0 : index]);
-                    g._stateRender._normalMatrices[g._gModel.ModelOriginal.IsKWCube6 ? 0 : index] = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrices[g._gModel.ModelOriginal.IsKWCube6 ? 0 : index]));
+                    Matrix4.Mult(mesh.Transform, g._stateRender._modelMatrix, out g._stateRender._modelMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index]);
+                    g._stateRender._normalMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index] = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index]));
                 }
                 else
                 {
-                    g._stateRender._modelMatrices[g._gModel.ModelOriginal.IsKWCube6 ? 0 : index] = g._stateRender._modelMatrix;
-                    g._stateRender._normalMatrices[g._gModel.ModelOriginal.IsKWCube6 ? 0 : index] = g._stateRender._normalMatrix;
+                    g._stateRender._modelMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index] = g._stateRender._modelMatrix;
+                    g._stateRender._normalMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index] = g._stateRender._normalMatrix;
                 }
             }
         }
@@ -150,7 +172,7 @@ namespace KWEngine3.Helper
         {
             if (vsg._gameObject.IsAnimated)
             {
-                GeoAnimation a = vsg._gameObject._gModel.ModelOriginal.Animations[vsg._gameObject._stateCurrent._animationID];
+                GeoAnimation a = vsg._gameObject._model.ModelOriginal.Animations[vsg._gameObject._stateCurrent._animationID];
                 Matrix4 identity = Matrix4.Identity;
                 vsg._gameObject._attachBoneNodes.Clear();
                 for (int i = 0; i < vsg._gameObject._gameObjectsAttached.Keys.Count; i++)
@@ -158,7 +180,7 @@ namespace KWEngine3.Helper
                     GeoNode boneNode = vsg._gameObject._gameObjectsAttached.Keys.ElementAt(i);
                     vsg._gameObject._attachBoneNodes.Add(boneNode);
                 }
-                ReadNodeHierarchy(vsg._gameObject, a.DurationInTicks * vsg._gameObject._stateCurrent._animationPercentage, ref a, vsg._gameObject._gModel.ModelOriginal.Root, ref identity, vsg._gameObject._attachBoneNodes, true);
+                ReadNodeHierarchy(vsg._gameObject, a.DurationInTicks * vsg._gameObject._stateCurrent._animationPercentage, ref a, vsg._gameObject._model.ModelOriginal.Root, ref identity, vsg._gameObject._attachBoneNodes, true);
             }
         }
 
@@ -166,7 +188,7 @@ namespace KWEngine3.Helper
         {
             if (g.IsAnimated)
             {
-                GeoAnimation a = g._gModel.ModelOriginal.Animations[g._stateRender._animationID];
+                GeoAnimation a = g._model.ModelOriginal.Animations[g._stateRender._animationID];
                 Matrix4 identity = Matrix4.Identity;
                 g._attachBoneNodes.Clear();
                 for (int i = 0; i < g._gameObjectsAttached.Keys.Count; i++)
@@ -174,7 +196,7 @@ namespace KWEngine3.Helper
                     GeoNode boneNode = g._gameObjectsAttached.Keys.ElementAt(i);
                     g._attachBoneNodes.Add(boneNode);
                 }
-                ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._gModel.ModelOriginal.Root, ref identity, g._attachBoneNodes);
+                ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, g._attachBoneNodes);
             }
         }
 
@@ -194,12 +216,12 @@ namespace KWEngine3.Helper
 
             if (channel != null)
             {
-                foreach (GeoMesh mesh in g._gModel.ModelOriginal.Meshes.Values)
+                foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
                 {
                     int index = mesh.BoneNames.IndexOf(node.Name);
                     if (index >= 0)
                     {
-                        Matrix4 boneMatrix = mesh.BoneOffset[index] * globalTransform * g._gModel.ModelOriginal.TransformGlobalInverse;
+                        Matrix4 boneMatrix = mesh.BoneOffset[index] * globalTransform * g._model.ModelOriginal.TransformGlobalInverse;
                         g._stateRender._boneTranslationMatrices[mesh.Name][index] = boneMatrix;
                         int tempIndex = attachBones.IndexOf(node);
                         if (tempIndex >= 0)

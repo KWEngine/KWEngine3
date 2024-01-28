@@ -29,6 +29,7 @@ namespace KWEngine3.Helper
 
         // GAMEOBJECTS
         public List<SerializedGameObject> GameObjects { get; set; }
+        public List<SerializedRenderObject> RenderObjects { get; set; }
         public List<SerializedLightObject> LightObjects { get; set; }
         public List<SerializedTerrainObject> TerrainObjects { get; set; }
         public List<SerializedHUDObject> HUDObjects { get; set; }
@@ -60,6 +61,7 @@ namespace KWEngine3.Helper
             wj.Background2DRepeat = new float[] { w._background.Scale.X, w._background.Scale.Y };
 
             wj.GameObjects = GenerateGameObjects(w);
+            wj.RenderObjects = GenerateRenderObjects(w);
             wj.TerrainObjects = GenerateTerrainObjects(w);
             wj.LightObjects = GenerateLightObjects(w);
             wj.HUDObjects = GenerateHUDObjects(w);
@@ -76,7 +78,7 @@ namespace KWEngine3.Helper
             svsg.ID = w._viewSpaceGameObject._gameObject.ID.ToString();
             svsg.Type = w._viewSpaceGameObject.GetType().FullName;
             svsg.ModelName = w._viewSpaceGameObject._gameObject._modelNameInDB;
-            svsg.ModelPath = w._viewSpaceGameObject._gameObject._gModel.ModelOriginal.Filename;
+            svsg.ModelPath = w._viewSpaceGameObject._gameObject._model.ModelOriginal.Filename;
             svsg.Position = new float[]{w._viewSpaceGameObject._offset.X, -w._viewSpaceGameObject._offset.Y, w._viewSpaceGameObject._offset.Z};
             svsg.Rotation = new float[] { w._viewSpaceGameObject._rotation.X, w._viewSpaceGameObject._rotation.Y, w._viewSpaceGameObject._rotation.Z, w._viewSpaceGameObject._rotation.W };
             svsg.Scale = new float[] { w._viewSpaceGameObject._gameObject.Scale.X, w._viewSpaceGameObject._gameObject.Scale.Y, w._viewSpaceGameObject._gameObject.Scale.Z };
@@ -112,6 +114,17 @@ namespace KWEngine3.Helper
             }
             return gameObjects;
         }
+
+        public static List<SerializedRenderObject> GenerateRenderObjects(World w)
+        {
+            List<SerializedRenderObject> renderObjects = new List<SerializedRenderObject>();
+            foreach (RenderObject r in w._renderObjects)
+            {
+                renderObjects.Add(SerializedRenderObject.GenerateSerializedRenderObject(r, w));
+            }
+            return renderObjects;
+        }
+
         public static List<SerializedLightObject> GenerateLightObjects(World w)
         {
             List<SerializedLightObject> lightObjects = new List<SerializedLightObject>();

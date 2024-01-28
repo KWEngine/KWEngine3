@@ -18,12 +18,12 @@ namespace KWEngine3.Editor
         private const int ROUNDDIGITCOUNT = 2;
         private const float KEYBOARDCOOLDOWN = 0.05f;
         private const float POSITIONSTEP = 0.05f;
-        private static Queue<float> _frameTimes = new Queue<float>(MAXFRAMETIMES);
+        private static readonly Queue<float> _frameTimes = new(MAXFRAMETIMES);
         private static float _frameTimeSum = 0f;
         private static int _fpsCounter = 0;
         private static int _fpsValue = 0;
         private static float _lastKeyboardTimeInSeconds = 0;
-        private static Dictionary<MouseButton, KWMouseButtonState> _mouseButtonsActive = new Dictionary<MouseButton, KWMouseButtonState>() {
+        private static readonly Dictionary<MouseButton, KWMouseButtonState> _mouseButtonsActive = new() {
             { MouseButton.Left, new KWMouseButtonState() },
             { MouseButton.Right, new KWMouseButtonState() },
             { MouseButton.Middle, new KWMouseButtonState() },
@@ -125,21 +125,21 @@ namespace KWEngine3.Editor
 
         private static bool rWorldSpace = true;
         private static string _modelNameNew = null;
-        private static string[] _metallicTypes = new string[] { "Default", "Plastic or glass (low)", "Plastic or glass (high)", "Diamond", "Iron", "Copper", "Gold", "Aluminium", "Silver" };
+        private static readonly string[] _metallicTypes = new string[] { "Default", "Plastic or glass (low)", "Plastic or glass (high)", "Diamond", "Iron", "Copper", "Gold", "Aluminium", "Silver" };
         private static int _metallicTypesIndex = 0;
 
         private static void DrawObjectDetails()
         {
             if (SelectedGameObject != null)
             {
-                System.Numerics.Vector3 pNew = new System.Numerics.Vector3(SelectedGameObject.Position.X, SelectedGameObject.Position.Y, SelectedGameObject.Position.Z);
-                System.Numerics.Vector3 sNew = new System.Numerics.Vector3(SelectedGameObject.Scale.X, SelectedGameObject.Scale.Y, SelectedGameObject.Scale.Z);
-                System.Numerics.Vector3 rNew = new System.Numerics.Vector3();
-                System.Numerics.Vector3 colorTintNew = new System.Numerics.Vector3(SelectedGameObject._stateCurrent._colorTint.X, SelectedGameObject._stateCurrent._colorTint.Y, SelectedGameObject._stateCurrent._colorTint.Z);
-                System.Numerics.Vector3 colorEmissiveNew = new System.Numerics.Vector3(SelectedGameObject._stateCurrent._colorEmissive.X, SelectedGameObject._stateCurrent._colorEmissive.Y, SelectedGameObject._stateCurrent._colorEmissive.Z);
+                System.Numerics.Vector3 pNew = new(SelectedGameObject.Position.X, SelectedGameObject.Position.Y, SelectedGameObject.Position.Z);
+                System.Numerics.Vector3 sNew = new(SelectedGameObject.Scale.X, SelectedGameObject.Scale.Y, SelectedGameObject.Scale.Z);
+                System.Numerics.Vector3 rNew = new();
+                System.Numerics.Vector3 colorTintNew = new(SelectedGameObject._stateCurrent._colorTint.X, SelectedGameObject._stateCurrent._colorTint.Y, SelectedGameObject._stateCurrent._colorTint.Z);
+                System.Numerics.Vector3 colorEmissiveNew = new(SelectedGameObject._stateCurrent._colorEmissive.X, SelectedGameObject._stateCurrent._colorEmissive.Y, SelectedGameObject._stateCurrent._colorEmissive.Z);
                 float colorEmissiveIntensityNew = SelectedGameObject._stateCurrent._colorEmissive.W;
                 string gName = SelectedGameObject.Name;
-                string modelName = SelectedGameObject._gModel.ModelOriginal.Name;
+                string modelName = SelectedGameObject._model.ModelOriginal.Name;
                 if (modelName == "kwcube.obj")
                     modelName = "KWCube";
                 else if (modelName == "kwsphere.fbx")
@@ -284,18 +284,18 @@ namespace KWEngine3.Editor
 
                 ImGui.Separator();
 
-                if (SelectedGameObject._gModel.ModelOriginal.IsPrimitive)
+                if (SelectedGameObject._model.ModelOriginal.IsPrimitive)
                 {
-                    float roughness = SelectedGameObject._gModel.Material[0].Roughness;
-                    float metallic = SelectedGameObject._gModel.Material[0].Metallic;
-                    if (SelectedGameObject._gModel.Material[0].TextureRoughness.IsTextureSet == false)
+                    float roughness = SelectedGameObject._model.Material[0].Roughness;
+                    float metallic = SelectedGameObject._model.Material[0].Metallic;
+                    if (SelectedGameObject._model.Material[0].TextureRoughness.IsTextureSet == false)
                     {
                         if (ImGui.SliderFloat("Global roughness", ref roughness, 0f, 1f))
                         {
                             SelectedGameObject.SetRoughness(roughness);
                         }
                     }
-                    if (SelectedGameObject._gModel.Material[0].TextureMetallic.IsTextureSet == false)
+                    if (SelectedGameObject._model.Material[0].TextureMetallic.IsTextureSet == false)
                     {
                         if (ImGui.SliderFloat("Global metallic", ref metallic, 0f, 1f))
                         {
@@ -303,7 +303,7 @@ namespace KWEngine3.Editor
                         }
                     }
 
-                    _metallicTypesIndex = (int)SelectedGameObject._gModel._metallicType;
+                    _metallicTypesIndex = (int)SelectedGameObject._model._metallicType;
                     if (ImGui.Combo("Metallic type", ref _metallicTypesIndex, _metallicTypes, _metallicTypes.Length))
                     {
                         SelectedGameObject.SetMetallicType(_metallicTypesIndex);
@@ -311,20 +311,20 @@ namespace KWEngine3.Editor
 
 
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Textures:");
-                    string albedoFilename = SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.Filename : "";
-                    string normalFilename = SelectedGameObject._gModel.Material[0].TextureNormal.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureNormal.Filename : "";
-                    string emissiveFilename = SelectedGameObject._gModel.Material[0].TextureEmissive.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureEmissive.Filename : "";
-                    string roughnessFilename = SelectedGameObject._gModel.Material[0].TextureRoughness.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureRoughness.Filename : "";
-                    string metallicFilename = SelectedGameObject._gModel.Material[0].TextureMetallic.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureMetallic.Filename : "";
+                    string albedoFilename = SelectedGameObject._model.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._model.Material[0].TextureAlbedo.Filename : "";
+                    string normalFilename = SelectedGameObject._model.Material[0].TextureNormal.IsTextureSet ? SelectedGameObject._model.Material[0].TextureNormal.Filename : "";
+                    string emissiveFilename = SelectedGameObject._model.Material[0].TextureEmissive.IsTextureSet ? SelectedGameObject._model.Material[0].TextureEmissive.Filename : "";
+                    string roughnessFilename = SelectedGameObject._model.Material[0].TextureRoughness.IsTextureSet ? SelectedGameObject._model.Material[0].TextureRoughness.Filename : "";
+                    string metallicFilename = SelectedGameObject._model.Material[0].TextureMetallic.IsTextureSet ? SelectedGameObject._model.Material[0].TextureMetallic.Filename : "";
 
                     float uvX = SelectedGameObject._stateCurrent._uvTransform.X; // SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.UVTransform.X : 1f;
                     float uvY = SelectedGameObject._stateCurrent._uvTransform.Y; // SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.UVTransform.Y : 1f;
-                    System.Numerics.Vector2 uvTransform = new System.Numerics.Vector2(uvX, uvY);
+                    System.Numerics.Vector2 uvTransform = new(uvX, uvY);
 
                     if (ImGui.InputText("Albedo", ref albedoFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                     {
                         if (FileNameEmpty(albedoFilename))
-                            SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Albedo);
+                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Albedo);
                         else if (File.Exists(albedoFilename))
                             SelectedGameObject.SetTexture(albedoFilename.Trim(), TextureType.Albedo);
                     }
@@ -332,7 +332,7 @@ namespace KWEngine3.Editor
                     if (ImGui.InputText("Normal", ref normalFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
                     {
                         if (FileNameEmpty(normalFilename))
-                            SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Normal);
+                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Normal);
                         else if (File.Exists(normalFilename))
                             SelectedGameObject.SetTexture(normalFilename.Trim(), TextureType.Normal);
                     }
@@ -340,7 +340,7 @@ namespace KWEngine3.Editor
                     if (ImGui.InputText("Emissive", ref emissiveFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
                     {
                         if (FileNameEmpty(emissiveFilename))
-                            SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Emissive);
+                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Emissive);
                         else if (File.Exists(emissiveFilename))
                             SelectedGameObject.SetTexture(emissiveFilename.Trim(), TextureType.Emissive);
                     }
@@ -348,7 +348,7 @@ namespace KWEngine3.Editor
                     if (ImGui.InputText("Metallic", ref metallicFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
                     {
                         if (FileNameEmpty(metallicFilename))
-                            SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Metallic);
+                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Metallic);
                         else if (File.Exists(metallicFilename))
                             SelectedGameObject.SetTexture(metallicFilename.Trim(), TextureType.Metallic);
                     }
@@ -356,12 +356,12 @@ namespace KWEngine3.Editor
                     if (ImGui.InputText("Roughness", ref roughnessFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
                     {
                         if (FileNameEmpty(roughnessFilename))
-                            SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Roughness);
+                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Roughness);
                         else if (File.Exists(roughnessFilename))
                             SelectedGameObject.SetTexture(roughnessFilename.Trim(), TextureType.Roughness);
                     }
 
-                    if (SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet)
+                    if (SelectedGameObject._model.Material[0].TextureAlbedo.IsTextureSet)
                     {
                         if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
                         {
@@ -373,18 +373,18 @@ namespace KWEngine3.Editor
                 }
                 else if(SelectedGameObject._modelNameInDB == "KWPlatform")
                 {
-                    float[] roughness = new float[SelectedGameObject._gModel.Material.Length];
-                    float[] metallic = new float[SelectedGameObject._gModel.Material.Length];
+                    float[] roughness = new float[SelectedGameObject._model.Material.Length];
+                    float[] metallic = new float[SelectedGameObject._model.Material.Length];
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Metallic/Roughness:");
                     ImGui.PushItemWidth(100);
-                    for (int i = 0; i < SelectedGameObject._gModel.Material.Length; i++)
+                    for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
-                        if (SelectedGameObject._gModel.Material[i].ColorAlbedo.W <= 0)
+                        if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
                             continue;
                         if(i > 0)
                             ImGui.SameLine();
-                        roughness[i] = SelectedGameObject._gModel.Material[i].Roughness;
-                        if (SelectedGameObject._gModel.Material[i].TextureRoughness.IsTextureSet == false)
+                        roughness[i] = SelectedGameObject._model.Material[i].Roughness;
+                        if (SelectedGameObject._model.Material[i].TextureRoughness.IsTextureSet == false)
                         {
                             if (ImGui.SliderFloat("R #" + i, ref roughness[i], 0f, 1f))
                             {
@@ -400,15 +400,15 @@ namespace KWEngine3.Editor
                         
                     }
                     
-                    for (int i = 0; i < SelectedGameObject._gModel.Material.Length; i++)
+                    for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
-                        if (SelectedGameObject._gModel.Material[i].ColorAlbedo.W <= 0)
+                        if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
                             continue;
                         if (i > 0 )
                             ImGui.SameLine();
-                        metallic[i] = SelectedGameObject._gModel.Material[i].Metallic;
+                        metallic[i] = SelectedGameObject._model.Material[i].Metallic;
 
-                        if (SelectedGameObject._gModel.Material[i].TextureMetallic.IsTextureSet == false)
+                        if (SelectedGameObject._model.Material[i].TextureMetallic.IsTextureSet == false)
                         {
                             if (ImGui.SliderFloat("M #" + i, ref metallic[i], 0f, 1f))
                             {
@@ -424,7 +424,7 @@ namespace KWEngine3.Editor
                     }
                     ImGui.PopItemWidth();
 
-                    _metallicTypesIndex = (int)SelectedGameObject._gModel._metallicType;
+                    _metallicTypesIndex = (int)SelectedGameObject._model._metallicType;
                     if (ImGui.Combo("Metallic type", ref _metallicTypesIndex, _metallicTypes, _metallicTypes.Length))
                     {
                         SelectedGameObject.SetMetallicType(_metallicTypesIndex);
@@ -432,33 +432,33 @@ namespace KWEngine3.Editor
 
                     ImGui.Separator();
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Textures (0=Top/Bottom, 1=Left/Right, 2=Front/Back):");
-                    string[] albedo_t = new string[SelectedGameObject._gModel.Material.Length];
-                    string[] normal_t = new string[SelectedGameObject._gModel.Material.Length];
-                    string[] metallic_t = new string[SelectedGameObject._gModel.Material.Length];
-                    string[] roughness_t = new string[SelectedGameObject._gModel.Material.Length];
-                    string[] emissive_t = new string[SelectedGameObject._gModel.Material.Length];
+                    string[] albedo_t = new string[SelectedGameObject._model.Material.Length];
+                    string[] normal_t = new string[SelectedGameObject._model.Material.Length];
+                    string[] metallic_t = new string[SelectedGameObject._model.Material.Length];
+                    string[] roughness_t = new string[SelectedGameObject._model.Material.Length];
+                    string[] emissive_t = new string[SelectedGameObject._model.Material.Length];
 
                     ImGui.PushItemWidth(150);
-                    for (int i = 0; i < SelectedGameObject._gModel.Material.Length; i++)
+                    for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
-                        if (SelectedGameObject._gModel.Material[i].ColorAlbedo.W <= 0)
+                        if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
                             continue;
 
                         if(i > 0)
                             ImGui.Separator();
 
-                        albedo_t[i] = SelectedGameObject._gModel.Material[i].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureAlbedo.Filename : "";
-                        normal_t[i] = SelectedGameObject._gModel.Material[i].TextureNormal.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureNormal.Filename : "";
-                        metallic_t[i] = SelectedGameObject._gModel.Material[i].TextureMetallic.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureMetallic.Filename : "";
-                        roughness_t[i] = SelectedGameObject._gModel.Material[i].TextureRoughness.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureRoughness.Filename : "";
-                        emissive_t[i] = SelectedGameObject._gModel.Material[i].TextureEmissive.IsTextureSet ? SelectedGameObject._gModel.Material[i].TextureEmissive.Filename : "";
+                        albedo_t[i] = SelectedGameObject._model.Material[i].TextureAlbedo.IsTextureSet ? SelectedGameObject._model.Material[i].TextureAlbedo.Filename : "";
+                        normal_t[i] = SelectedGameObject._model.Material[i].TextureNormal.IsTextureSet ? SelectedGameObject._model.Material[i].TextureNormal.Filename : "";
+                        metallic_t[i] = SelectedGameObject._model.Material[i].TextureMetallic.IsTextureSet ? SelectedGameObject._model.Material[i].TextureMetallic.Filename : "";
+                        roughness_t[i] = SelectedGameObject._model.Material[i].TextureRoughness.IsTextureSet ? SelectedGameObject._model.Material[i].TextureRoughness.Filename : "";
+                        emissive_t[i] = SelectedGameObject._model.Material[i].TextureEmissive.IsTextureSet ? SelectedGameObject._model.Material[i].TextureEmissive.Filename : "";
 
                         
 
                         if (ImGui.InputText("Albedo " + i, ref albedo_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                         {
                             if (FileNameEmpty(albedo_t[i]))
-                                SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Albedo, i);
+                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Albedo, i);
                             else if (File.Exists(albedo_t[i]))
                                 SelectedGameObject.SetTexture(albedo_t[i].Trim(), TextureType.Albedo, i);
                             
@@ -468,7 +468,7 @@ namespace KWEngine3.Editor
                         if (ImGui.InputText("Normal " + i, ref normal_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                         {
                             if (FileNameEmpty(normal_t[i]))
-                                SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Normal, i);
+                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Normal, i);
                             else if (File.Exists(normal_t[i]))
                                 SelectedGameObject.SetTexture(normal_t[i].Trim(), TextureType.Normal, i);
 
@@ -477,7 +477,7 @@ namespace KWEngine3.Editor
                         if (ImGui.InputText("Roughn." + i, ref roughness_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                         {
                             if (FileNameEmpty(roughness_t[i]))
-                                SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Roughness, i);
+                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Roughness, i);
                             else if (File.Exists(roughness_t[i]))
                                 SelectedGameObject.SetTexture(roughness_t[i].Trim(), TextureType.Roughness, i);
 
@@ -487,7 +487,7 @@ namespace KWEngine3.Editor
                         if (ImGui.InputText("Metal  " + i, ref metallic_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                         {
                             if (FileNameEmpty(metallic_t[i]))
-                                SelectedGameObject._gModel.UnsetTextureForPrimitive(TextureType.Metallic, i);
+                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Metallic, i);
                             else if (File.Exists(metallic_t[i]))
                                 SelectedGameObject.SetTexture(metallic_t[i].Trim(), TextureType.Metallic, i);
 
@@ -499,11 +499,11 @@ namespace KWEngine3.Editor
                     // Texture transform:
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "UV transform:");
                     ImGui.PushItemWidth(96);
-                    for (int i = 0; i < SelectedGameObject._gModel.Material.Length; i++)
+                    for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
-                        if(SelectedGameObject._gModel.Material[i].TextureAlbedo.IsTextureSet)
+                        if(SelectedGameObject._model.Material[i].TextureAlbedo.IsTextureSet)
                         {
-                            System.Numerics.Vector2 uvTransform = new System.Numerics.Vector2(SelectedGameObject._gModel.Material[i].TextureAlbedo.UVTransform.X, SelectedGameObject._gModel.Material[i].TextureAlbedo.UVTransform.Y);
+                            System.Numerics.Vector2 uvTransform = new(SelectedGameObject._model.Material[i].TextureAlbedo.UVTransform.X, SelectedGameObject._model.Material[i].TextureAlbedo.UVTransform.Y);
                             if (ImGui.InputFloat2("XY #" + i, ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
                             {
                                 SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y, i);
@@ -517,10 +517,10 @@ namespace KWEngine3.Editor
                 }
                 else if(SelectedGameObject.HasArmatureAndAnimations)
                 {
-                    string[] animations = new string[SelectedGameObject._gModel.ModelOriginal.Animations.Count + 1];
+                    string[] animations = new string[SelectedGameObject._model.ModelOriginal.Animations.Count + 1];
                     int selectedId = SelectedGameObject._stateCurrent._animationID + 1;
                     animations[0] = "no animation";
-                    for(int i = 0; i < SelectedGameObject._gModel.ModelOriginal.Animations.Count; i++)
+                    for(int i = 0; i < SelectedGameObject._model.ModelOriginal.Animations.Count; i++)
                     {
                         animations[i + 1] = "#" + i.ToString().PadLeft(3, '0');
                     }
@@ -539,18 +539,18 @@ namespace KWEngine3.Editor
             else if (SelectedLightObject != null)
             {
                 string lName = SelectedLightObject.Name;
-                System.Numerics.Vector3 pNew = new System.Numerics.Vector3(
+                System.Numerics.Vector3 pNew = new(
                     SelectedLightObject._stateCurrent._position.X,
                     SelectedLightObject._stateCurrent._position.Y,
                     SelectedLightObject._stateCurrent._position.Z);
-                System.Numerics.Vector3 tNew = new System.Numerics.Vector3(
+                System.Numerics.Vector3 tNew = new(
                    SelectedLightObject._stateCurrent._target.X,
                    SelectedLightObject._stateCurrent._target.Y,
                    SelectedLightObject._stateCurrent._target.Z);
                 float nearNew = SelectedLightObject._stateCurrent._nearFarFOVType.X;
                 float farNew = SelectedLightObject._stateCurrent._nearFarFOVType.Y;
                 float fovNew = SelectedLightObject._stateCurrent._nearFarFOVType.Z;
-                System.Numerics.Vector3 colorNew = new System.Numerics.Vector3(
+                System.Numerics.Vector3 colorNew = new(
                     SelectedLightObject._stateCurrent._color.X,
                     SelectedLightObject._stateCurrent._color.Y,
                     SelectedLightObject._stateCurrent._color.Z
@@ -633,12 +633,11 @@ namespace KWEngine3.Editor
             }
             else if(SelectedTerrainObject != null)
             {
-                System.Numerics.Vector3 pNew = new System.Numerics.Vector3(SelectedTerrainObject._stateCurrent._position.X, SelectedTerrainObject._stateCurrent._position.Y, SelectedTerrainObject._stateCurrent._position.Z);
-                System.Numerics.Vector3 colorTintNew = new System.Numerics.Vector3(SelectedTerrainObject._stateCurrent._colorTint.X, SelectedTerrainObject._stateCurrent._colorTint.Y, SelectedTerrainObject._stateCurrent._colorTint.Z);
-                System.Numerics.Vector3 colorEmissiveNew = new System.Numerics.Vector3(SelectedTerrainObject._stateCurrent._colorEmissive.X, SelectedTerrainObject._stateCurrent._colorEmissive.Y, SelectedTerrainObject._stateCurrent._colorEmissive.Z);
+                System.Numerics.Vector3 pNew = new(SelectedTerrainObject._stateCurrent._position.X, SelectedTerrainObject._stateCurrent._position.Y, SelectedTerrainObject._stateCurrent._position.Z);
+                System.Numerics.Vector3 colorTintNew = new(SelectedTerrainObject._stateCurrent._colorTint.X, SelectedTerrainObject._stateCurrent._colorTint.Y, SelectedTerrainObject._stateCurrent._colorTint.Z);
+                System.Numerics.Vector3 colorEmissiveNew = new(SelectedTerrainObject._stateCurrent._colorEmissive.X, SelectedTerrainObject._stateCurrent._colorEmissive.Y, SelectedTerrainObject._stateCurrent._colorEmissive.Z);
                 float colorEmissiveIntensityNew = SelectedTerrainObject._stateCurrent._colorEmissive.W;
                 string gName = SelectedTerrainObject.Name;
-                string modelName = SelectedTerrainObject._gModel.ModelOriginal.Name;
 
                 ImGui.Begin("TerrainObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
                 ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 600), ImGuiCond.Once);
@@ -717,7 +716,7 @@ namespace KWEngine3.Editor
 
                 float uvX = SelectedTerrainObject._stateCurrent._uvTransform.X;
                 float uvY = SelectedTerrainObject._stateCurrent._uvTransform.Y;
-                System.Numerics.Vector2 uvTransform = new System.Numerics.Vector2(uvX, uvY);
+                System.Numerics.Vector2 uvTransform = new(uvX, uvY);
 
                 if (ImGui.InputText("Albedo", ref albedoFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                 {
@@ -858,7 +857,7 @@ namespace KWEngine3.Editor
             }
             if(_worldMenuActive)
             {
-                System.Numerics.Vector3 colorAmbientNew = new System.Numerics.Vector3(KWEngine.CurrentWorld._colorAmbient.X, KWEngine.CurrentWorld._colorAmbient.Y, KWEngine.CurrentWorld._colorAmbient.Z);
+                System.Numerics.Vector3 colorAmbientNew = new(KWEngine.CurrentWorld._colorAmbient.X, KWEngine.CurrentWorld._colorAmbient.Y, KWEngine.CurrentWorld._colorAmbient.Z);
                 string bgTexture = GetBackgroundTextureName();
                 float fov = KWEngine.CurrentWorld._cameraEditor._stateCurrent._fov * 2;
                 
@@ -930,7 +929,7 @@ namespace KWEngine3.Editor
                 ImGui.NewLine();
                 if(ImGui.Button("Export world & objects"))
                 {
-                    KWEngine.CurrentWorld.Export();
+                    World.Export();
                 }
                 ImGui.SameLine();
                 ImGui.Indent(440);
@@ -979,7 +978,7 @@ namespace KWEngine3.Editor
                         if (_classNamesIndex >= 0)
                         {
                             SelectedLightObject = null;
-                            SelectedGameObject = KWEngine.CurrentWorld.BuildAndAddDefaultGameObject(_classNames[_classNamesIndex]);
+                            SelectedGameObject = KWEngine.CurrentWorld.BuildAndAddDefaultGameObjectForEditor(_classNames[_classNamesIndex]);
                             _addMenuActive = EditorAddObjectType.None;
                         }
                     }
@@ -1000,7 +999,7 @@ namespace KWEngine3.Editor
                         if (_lightTypeIndex >= 0)
                         {
                             SelectedGameObject = null;
-                            SelectedLightObject = KWEngine.CurrentWorld.BuildAndAddDefaultLightObject(_lightTypes[_lightTypeIndex], _newLightShadowCasterQuality);
+                            SelectedLightObject = KWEngine.CurrentWorld.BuildAndAddDefaultLightObjectForEditor(_lightTypes[_lightTypeIndex], _newLightShadowCasterQuality);
                             _addMenuActive = EditorAddObjectType.None;
                             _newLightShadowCasterQuality = ShadowQuality.NoShadow;
                             _newLightShadowCasterQualityIndex = 0;
@@ -1255,7 +1254,7 @@ namespace KWEngine3.Editor
         public static void HandleMouseSelection(Vector2 mousePosition)
         {
             // scan for transparent objects first:
-            List<GameObject> transparentObjects = KWEngine.CurrentWorld.GetTransparentGameObjects();
+            List<GameObject> transparentObjects = KWEngine.CurrentWorld.GetTransparentGameObjectsForEditor();
             Vector3 origin = KWEngine.CurrentWorld._cameraEditor._stateCurrent._position;
             Vector3 lav = KWEngine.CurrentWorld._cameraEditor.Get3DMouseCoords();
             foreach (GameObject g in transparentObjects)
@@ -1375,9 +1374,9 @@ namespace KWEngine3.Editor
             return null;
         }
 
-        private static string[] _classNames = GetClassNamesForExecutingAssembly();
+        private static readonly string[] _classNames = GetClassNamesForExecutingAssembly();
         private static string[] _modelNames;
-        private static string[] _lightTypes = new string[] { "Point light", "Directional light", "Sun light" };
+        private static readonly string[] _lightTypes = new string[] { "Point light", "Directional light", "Sun light" };
         private static int _classNamesIndex = -1;
         private static int _lightTypeIndex = 0;
         private static int _modelNamesIndex = 0;
@@ -1388,7 +1387,7 @@ namespace KWEngine3.Editor
         }
         private static string[] GetModelNamesForCurrentWorld()
         {
-            List<string> names = new List<string>();
+            List<string> names = new();
             if (KWEngine.CurrentWorld != null)
             {
                 foreach (string model in KWEngine.Models.Keys)
@@ -1401,7 +1400,7 @@ namespace KWEngine3.Editor
         }
         private static string[] GetClassNamesForExecutingAssembly()
         {
-            List<string> names = new List<string>();
+            List<string> names = new();
             Assembly a = Assembly.GetEntryAssembly();
             if (a != null)
             {

@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal static class RendererGBuffer
+    internal static class RendererGBufferInstanced
     {
         public static int ProgramID { get; private set; } = -1;
         public static int UViewProjectionMatrix { get; private set; } = -1;
@@ -30,7 +30,9 @@ namespace KWEngine3.Renderer
         public static int UBoneTransforms { get; private set; } = -1;
         public static int UIdShadowCaster { get; private set; } = -1;
 
-        private const int TEXTUREOFFSET = 0;        
+        public static int UBlockIndex { get; private set; } = -1;
+
+        private const int TEXTUREOFFSET = 0;
 
         public static void Init()
         {
@@ -38,8 +40,8 @@ namespace KWEngine3.Renderer
             {
                 ProgramID = GL.CreateProgram();
 
-                string resourceNameVertexShader = "KWEngine3.Shaders.shader.gbuffer.vert";
-                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.gbuffer.frag";
+                string resourceNameVertexShader = "KWEngine3.Shaders.shader.gbufferinstanced.vert";
+                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.gbufferinstanced.frag";
 
                 int vertexShader;
                 int fragmentShader;
@@ -57,6 +59,8 @@ namespace KWEngine3.Renderer
                 GL.LinkProgram(ProgramID);
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
+                UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");
+                GL.UniformBlockBinding(ProgramID, UBlockIndex, 0);
 
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UColorMaterial = GL.GetUniformLocation(ProgramID, "uColorMaterial");
@@ -91,76 +95,64 @@ namespace KWEngine3.Renderer
         {
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
+            
         }
 
-        public static List<GameObject> RenderScene()
+        public static List<RenderObject> RenderScene()
         {
-            List<GameObject> forwardObjects = new();
+            List<RenderObject> forwardObjects = new();
             if (KWEngine.CurrentWorld != null)
             {
                 SetGlobals();
-                foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+                foreach (RenderObject r in KWEngine.CurrentWorld._renderObjects)
                 {
-                    if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || !g.IsInsideScreenSpace))
+                    if (KWEngine.Mode != EngineMode.Edit && (r.SkipRender || !r.IsInsideScreenSpace))
                         continue;
-                    if (g.IsTransparent || g.IsDepthTesting == false)
+                    if (r.IsTransparent || r.IsDepthTesting == false)
                     {
-                        forwardObjects.Add(g);
+                        forwardObjects.Add(r);
                         continue;
                     }
-                    Draw(g);
+                    Draw(r);
                 }
             }
             return forwardObjects;
         }
 
-        public static void Draw(GameObject g)
+        public static void Draw(RenderObject r)
         {
-            GL.Uniform3(UColorTint, g._stateRender._colorTint);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
+            GL.Uniform3(UColorTint, r._stateRender._colorTint);
 
-            int val = g.IsShadowCaster ? 1 : -1;
-            val *= g.IsAffectedByLight ? 1 : 10;
-            GL.Uniform2(UIdShadowCaster, new Vector2i(g.ID, val));
+            int val = r.IsShadowCaster ? 1 : -1;
+            val *= r.IsAffectedByLight ? 1 : 10;
+            GL.Uniform2(UIdShadowCaster, new Vector2i(ushort.MaxValue, val));
 
-            GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = r._model.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];
-                GeoMaterial material = g._model.Material[i];
+                GeoMaterial material = r._model.Material[i];
 
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
-                GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, Convert.ToSingle((int)g._model._metallicType)));
+                GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, Convert.ToSingle((int)r._model._metallicType)));
 
                 if (material.TextureEmissive.IsTextureSet)
                     GL.Uniform4(UColorEmissive, Vector4.Zero);
                 else
-                    GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
+                    GL.Uniform4(UColorEmissive, r._stateRender._colorEmissive);
 
-                if (g.IsAnimated)
-                {
-                    GL.Uniform1(UUseAnimations, 1);
-                    int boneMatrixCount = g._stateRender._boneTranslationMatrices[mesh.Name].Length;
-                    
-                    for (int j = 0; j < boneMatrixCount; j++)
-                    {
-                        Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
-                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
-                    }
-                }
-                else
-                {
-                    GL.Uniform1(UUseAnimations, 0);
-                }
+                GL.Uniform1(UUseAnimations, 0);
 
-                GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);
-                GL.UniformMatrix4(UNormalMatrix, false, ref g._stateRender._normalMatrices[i]);
+                GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
+                GL.UniformMatrix4(UNormalMatrix, false, ref r._stateRender._normalMatrices[i]);
                 GL.Uniform4(UTextureTransform, new Vector4(
-                material.TextureAlbedo.UVTransform.X * g._stateRender._uvTransform.X,
-                material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y,
-                material.TextureAlbedo.UVTransform.Z + g._stateRender._uvTransform.Z,
-                material.TextureAlbedo.UVTransform.W + g._stateRender._uvTransform.W));
+                material.TextureAlbedo.UVTransform.X * r._stateRender._uvTransform.X,
+                material.TextureAlbedo.UVTransform.Y * r._stateRender._uvTransform.Y,
+                material.TextureAlbedo.UVTransform.Z + r._stateRender._uvTransform.Z,
+                material.TextureAlbedo.UVTransform.W + r._stateRender._uvTransform.W));
 
                 GL.Uniform3(UColorMaterial, material.ColorAlbedo.Xyz);
 
@@ -172,32 +164,33 @@ namespace KWEngine3.Renderer
                 Vector3i useTexturesMetallicRoughness = new(
                     material.TextureMetallic.IsTextureSet ? 1 : 0,
                     material.TextureRoughness.IsTextureSet ? 1 : 0,
-                    g.IsTransparent ? 1 : 0 // TODO: opacity < 1? but this is not used in shader yet!
+                    r.IsTransparent ? 1 : 0 // TODO: opacity < 1? but this is not used in shader yet!
                     );
                 GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
                 GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
                 
-                UploadTextures(ref material, g);
+                UploadTextures(ref material, r);
 
-                if(material.RenderBackFace && g.DisableBackfaceCulling)
+                if(material.RenderBackFace && r.DisableBackfaceCulling)
                 {
                     GL.Disable(EnableCap.CullFace);
                 }
 
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, r.InstanceCount);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
 
-                if (material.RenderBackFace && g.DisableBackfaceCulling)
+                if (material.RenderBackFace && r.DisableBackfaceCulling)
                 {
                     GL.Enable(EnableCap.CullFace);
                 }
+                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
             }
         }
 
-        private static void UploadTextures(ref GeoMaterial material, GameObject g)
+        private static void UploadTextures(ref GeoMaterial material, RenderObject g)
         {
             // Albedo
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);

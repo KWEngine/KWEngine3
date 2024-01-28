@@ -1,0 +1,474 @@
+{
+  "CamPosition": [
+    0,
+    10,
+    10
+  ],
+  "CamTarget": [
+    0,
+    0,
+    0
+  ],
+  "CamFOV": 90,
+  "Type": "KWEngine3TestProject.Worlds.GameWorldRenderObjectTest",
+  "ColorAmbient": [
+    0.75,
+    0.75,
+    0.75
+  ],
+  "ColorBackgroundBoost": 1,
+  "BackgroundSkyBox": "",
+  "BackgroundSkyboxRotation": 0,
+  "Background2D": "",
+  "Background2DRepeat": [
+    1,
+    1
+  ],
+  "Background2DOffset": [
+    0,
+    0
+  ],
+  "Background2DClip": [
+    1,
+    1
+  ],
+  "GameObjects": [],
+  "RenderObjects": [
+    {
+      "IsShadowCaster": true,
+      "IsCollisionObject": false,
+      "BlendTextureStates": false,
+      "ID": 0,
+      "Name": "(no name)",
+      "Type": "KWEngine3TestProject.Classes.WorldRenderObjectTest.StaticObject",
+      "ModelName": "KWCube",
+      "ModelPath": "kwcube.obj",
+      "UpdateLast": false,
+      "IsDepthTesting": true,
+      "IsAffectedByLight": true,
+      "Opacity": 1,
+      "Position": [
+        0,
+        -0.5,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "Scale": [
+        50,
+        1,
+        50
+      ],
+      "PositionOffset": null,
+      "RotationOffset": null,
+      "ScaleOffset": null,
+      "AttachedToID": 0,
+      "AttachedToParentBone": null,
+      "ScaleHitbox": [
+        1,
+        1,
+        1
+      ],
+      "Color": [
+        0,
+        1,
+        0
+      ],
+      "ColorEmissive": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Metallic": [
+        0
+      ],
+      "Roughness": [
+        1
+      ],
+      "MetallicType": 0,
+      "TextureOffset": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureRepeat": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureAlbedo": [
+        null
+      ],
+      "TextureNormal": [
+        null
+      ],
+      "TextureRoughness": [
+        null
+      ],
+      "TextureMetallic": [
+        null
+      ],
+      "TextureEmissive": [
+        null
+      ],
+      "TextureRoughnessInMetallic": [
+        false
+      ],
+      "TextureTransform": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "InstanceCount": 1,
+      "InstanceMatrices": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "IsShadowCaster": true,
+      "IsCollisionObject": false,
+      "BlendTextureStates": false,
+      "ID": 0,
+      "Name": "(no name)",
+      "Type": "KWEngine3TestProject.Classes.WorldRenderObjectTest.StaticObject",
+      "ModelName": "KWCube",
+      "ModelPath": "kwcube.obj",
+      "UpdateLast": false,
+      "IsDepthTesting": true,
+      "IsAffectedByLight": true,
+      "Opacity": 1,
+      "Position": [
+        3,
+        2.5,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "Scale": [
+        1,
+        1,
+        1
+      ],
+      "PositionOffset": null,
+      "RotationOffset": null,
+      "ScaleOffset": null,
+      "AttachedToID": 0,
+      "AttachedToParentBone": null,
+      "ScaleHitbox": [
+        1,
+        1,
+        1
+      ],
+      "Color": [
+        1,
+        1,
+        1
+      ],
+      "ColorEmissive": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Metallic": [
+        0
+      ],
+      "Roughness": [
+        1
+      ],
+      "MetallicType": 0,
+      "TextureOffset": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureRepeat": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureAlbedo": [
+        null
+      ],
+      "TextureNormal": [
+        null
+      ],
+      "TextureRoughness": [
+        null
+      ],
+      "TextureMetallic": [
+        null
+      ],
+      "TextureEmissive": [
+        null
+      ],
+      "TextureRoughnessInMetallic": [
+        false
+      ],
+      "TextureTransform": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "InstanceCount": 3,
+      "InstanceMatrices": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        2,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -2,
+        0,
+        1
+      ]
+    },
+    {
+      "IsShadowCaster": true,
+      "IsCollisionObject": false,
+      "BlendTextureStates": false,
+      "ID": 0,
+      "Name": "(no name)",
+      "Type": "KWEngine3TestProject.Classes.WorldRenderObjectTest.StaticObject",
+      "ModelName": "KWCube",
+      "ModelPath": "kwcube.obj",
+      "UpdateLast": false,
+      "IsDepthTesting": true,
+      "IsAffectedByLight": true,
+      "Opacity": 0.5,
+      "Position": [
+        -3,
+        2.5,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "Scale": [
+        1,
+        1,
+        1
+      ],
+      "PositionOffset": null,
+      "RotationOffset": null,
+      "ScaleOffset": null,
+      "AttachedToID": 0,
+      "AttachedToParentBone": null,
+      "ScaleHitbox": [
+        1,
+        1,
+        1
+      ],
+      "Color": [
+        1,
+        1,
+        1
+      ],
+      "ColorEmissive": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Metallic": [
+        0
+      ],
+      "Roughness": [
+        1
+      ],
+      "MetallicType": 0,
+      "TextureOffset": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureRepeat": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureAlbedo": [
+        null
+      ],
+      "TextureNormal": [
+        null
+      ],
+      "TextureRoughness": [
+        null
+      ],
+      "TextureMetallic": [
+        null
+      ],
+      "TextureEmissive": [
+        null
+      ],
+      "TextureRoughnessInMetallic": [
+        false
+      ],
+      "TextureTransform": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "InstanceCount": 3,
+      "InstanceMatrices": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        2,
+        0,
+        1,
+
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -2,
+        0,
+        1
+      ]
+    }
+  ],
+  "LightObjects": [
+    {
+      "Name": "(no name)",
+      "ShadowCasterType": 2048,
+      "LightType": 2,
+      "ShadowBias": 6E-05,
+      "Position": [
+        -25,
+        25,
+        25
+      ],
+      "Target": [
+        0,
+        -1E-06,
+        0.0001
+      ],
+      "Far": 100,
+      "Near": 1,
+      "FOV": 90,
+      "Color": [
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "TerrainObjects": [],
+  "HUDObjects": [],
+  "TextObjects": [],
+  "ViewSpaceGameObject": null
+}

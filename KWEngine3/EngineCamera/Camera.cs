@@ -13,11 +13,11 @@ namespace KWEngine3.EngineCamera
         internal float degX = 0f;
         internal float degY = 0f;
 
-        internal CameraState _statePrevious = new CameraState();
-        internal CameraState _stateCurrent = new CameraState();
-        internal CameraState _stateRender = new CameraState();
+        internal CameraState _statePrevious = new();
+        internal CameraState _stateCurrent = new();
+        internal CameraState _stateRender = new();
 
-        internal Frustum _frustum = new Frustum();
+        internal Frustum _frustum = new();
 
         internal void BackupCameraState()
         {
@@ -91,7 +91,7 @@ namespace KWEngine3.EngineCamera
         }
 
         
-        private bool IsCameraLookAtPossiblyNaN(Vector3 position, Vector3 target, out Vector3 targetNew)
+        private static bool IsCameraLookAtPossiblyNaN(Vector3 position, Vector3 target, out Vector3 targetNew)
         {
             targetNew = target;
             bool wasCorrected = false;
@@ -205,7 +205,7 @@ namespace KWEngine3.EngineCamera
             SetTarget(newCamPos);
         }
 
-        internal GameObject GetObjectOnScreenCenter()
+        internal static GameObject GetObjectOnScreenCenter()
         {
             GameObject mostCenteredObject = null;
             float min = float.MaxValue;
@@ -265,7 +265,7 @@ namespace KWEngine3.EngineCamera
             SetPositionAndTarget(new Vector3(0, 25, 25), Vector3.Zero);
         }
 
-        internal Vector3 Get3DMouseCoords()
+        internal readonly Vector3 Get3DMouseCoords()
         {
             float x = KWEngine.Window.MousePosition.X;
             float y = KWEngine.Window.MousePosition.Y;
@@ -273,7 +273,7 @@ namespace KWEngine3.EngineCamera
             x = (2.0f * x) / KWEngine.Window.Size.X - 1.0f;
             y = 1.0f - (2.0f * y) / KWEngine.Window.Size.Y;
 
-            Vector4 ray_clip = new Vector4(x, y, -1, 1);
+            Vector4 ray_clip = new(x, y, -1, 1);
             Matrix4 viewInv = Matrix4.Invert(_stateCurrent.ViewMatrix);
 
             Vector4.TransformRow(ray_clip, Matrix4.Invert(_stateCurrent.ProjectionMatrix), out Vector4 ray_eye);

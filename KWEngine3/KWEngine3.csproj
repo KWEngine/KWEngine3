@@ -8,7 +8,7 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2024-01-24)</Product>
+		<Product>KWEngine3 (updated: 2024-01-28)</Product>
 		<PackageId>KWEngine3</PackageId>
 		<Version>3.0.2.0</Version>
 		<AssemblyVersion>3.0.2.0</AssemblyVersion>
@@ -96,6 +96,8 @@
 		<None Remove="Shaders\shader.forward.particle.vert" />
 		<None Remove="Shaders\shader.gbuffer.frag" />
 		<None Remove="Shaders\shader.gbuffer.vert" />
+		<None Remove="Shaders\shader.gbufferinstanced.frag" />
+		<None Remove="Shaders\shader.gbufferinstanced.vert" />
 		<None Remove="Shaders\shader.grid.frag" />
 		<None Remove="Shaders\shader.grid.geom" />
 		<None Remove="Shaders\shader.grid.vert" />
@@ -105,6 +107,8 @@
 		<None Remove="Shaders\shader.lighting.forward.text.frag" />
 		<None Remove="Shaders\shader.lighting.forward.text.vert" />
 		<None Remove="Shaders\shader.lighting.forward.vert" />
+		<None Remove="Shaders\shader.lighting.forwardinstanced.frag" />
+		<None Remove="Shaders\shader.lighting.forwardinstanced.vert" />
 		<None Remove="Shaders\shader.lighting.gbuffer.frag" />
 		<None Remove="Shaders\shader.lighting.gbuffer.vert" />
 		<None Remove="Shaders\shader.msm16.blur.frag" />
@@ -112,8 +116,13 @@
 		<None Remove="Shaders\shader.msm16.cube.frag" />
 		<None Remove="Shaders\shader.msm16.cube.geom" />
 		<None Remove="Shaders\shader.msm16.cube.vert" />
+		<None Remove="Shaders\shader.msm16.cubeinstanced.frag" />
+		<None Remove="Shaders\shader.msm16.cubeinstanced.geom" />
+		<None Remove="Shaders\shader.msm16.cubeinstanced.vert" />
 		<None Remove="Shaders\shader.msm16.frag" />
 		<None Remove="Shaders\shader.msm16.vert" />
+		<None Remove="Shaders\shader.msm16instanced.frag" />
+		<None Remove="Shaders\shader.msm16instanced.vert" />
 		<None Remove="Shaders\shader.octree.frag" />
 		<None Remove="Shaders\shader.octree.geom" />
 		<None Remove="Shaders\shader.octree.vert" />
@@ -167,6 +176,23 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.geom" />
+		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16instanced.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16instanced.vert" />
+		<EmbeddedResource Include="Shaders\shader.lighting.forwardinstanced.frag">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.lighting.forwardinstanced.vert">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.gbufferinstanced.frag">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.gbufferinstanced.vert">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.lighting.forward.text.vert">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

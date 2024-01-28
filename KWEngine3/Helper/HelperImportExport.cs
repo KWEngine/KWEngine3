@@ -153,6 +153,17 @@ namespace KWEngine3.Helper
                 }
             }
 
+            // Build and add render object instances:
+            foreach (SerializedRenderObject sr in sw.RenderObjects)
+            {
+                if (!IsBuiltInModel(sr.ModelName))
+                {
+                    KWEngine.LoadModel(sr.ModelName, sr.ModelPath);
+                }
+                w.AddRenderObject(BuildRenderObject(sr));
+            }
+            KWEngine.CurrentWorld.AddRemoveGameObjects();
+
             // Build and add light object instances:
             foreach (SerializedLightObject sl in sw.LightObjects)
             {
@@ -357,19 +368,19 @@ namespace KWEngine3.Helper
 
             for(int i = 0; i < sg.TextureAlbedo.Length; i++)
             {
-                if (IsTextureSet(sg.TextureAlbedo[i], g._gModel.Material[i].TextureAlbedo.Filename))
+                if (IsTextureSet(sg.TextureAlbedo[i], g._model.Material[i].TextureAlbedo.Filename))
                     g.SetTexture(sg.TextureAlbedo[i], TextureType.Albedo, i);
 
-                if (IsTextureSet(sg.TextureNormal[i], g._gModel.Material[i].TextureNormal.Filename))
+                if (IsTextureSet(sg.TextureNormal[i], g._model.Material[i].TextureNormal.Filename))
                     g.SetTexture(sg.TextureNormal[i], TextureType.Normal, i);
 
-                if (IsTextureSet(sg.TextureRoughness[i], g._gModel.Material[i].TextureRoughness.Filename))
+                if (IsTextureSet(sg.TextureRoughness[i], g._model.Material[i].TextureRoughness.Filename))
                     g.SetTexture(sg.TextureRoughness[i], TextureType.Roughness, i);
 
-                if (IsTextureSet(sg.TextureMetallic[i], g._gModel.Material[i].TextureMetallic.Filename))
+                if (IsTextureSet(sg.TextureMetallic[i], g._model.Material[i].TextureMetallic.Filename))
                     g.SetTexture(sg.TextureMetallic[i], TextureType.Metallic, i);
 
-                if (IsTextureSet(sg.TextureEmissive[i], g._gModel.Material[i].TextureEmissive.Filename))
+                if (IsTextureSet(sg.TextureEmissive[i], g._model.Material[i].TextureEmissive.Filename))
                     g.SetTexture(sg.TextureEmissive[i], TextureType.Emissive, i);
 
             }
@@ -384,7 +395,7 @@ namespace KWEngine3.Helper
 
             for(int i = 0; i < sg.TextureRoughnessInMetallic.Length; i++)
             {
-                g._gModel.Material[i].TextureRoughnessInMetallic = sg.TextureRoughnessInMetallic[i];
+                g._model.Material[i].TextureRoughnessInMetallic = sg.TextureRoughnessInMetallic[i];
             }
 
             g.SetTextureRepeat(sg.TextureTransform[0], sg.TextureTransform[1]);
@@ -409,6 +420,98 @@ namespace KWEngine3.Helper
             }
 
             return g;
+        }
+
+        private static RenderObject BuildRenderObject(SerializedRenderObject sr)
+        {
+            RenderObject r = (RenderObject)Assembly.GetEntryAssembly().CreateInstance(sr.Type);
+            r.SetModel(sr.ModelName);
+            r.SetOpacity(sr.Opacity);
+            r.IsAffectedByLight = sr.IsAffectedByLight;
+            r.IsDepthTesting = sr.IsDepthTesting;
+            r.IsShadowCaster = sr.IsShadowCaster;
+            r.Name = sr.Name;
+            r._importedID = sr.ID;
+
+            r.SetPosition(sr.Position[0], sr.Position[1], sr.Position[2]);
+            r.SetScale(sr.Scale[0], sr.Scale[1], sr.Scale[2]);
+            r.SetRotation(new Quaternion(sr.Rotation[0], sr.Rotation[1], sr.Rotation[2], sr.Rotation[3]));
+
+            r.SetColor(sr.Color[0], sr.Color[1], sr.Color[2]);
+            r.SetColorEmissive(sr.ColorEmissive[0], sr.ColorEmissive[1], sr.ColorEmissive[2], sr.ColorEmissive[3]);
+            for (int i = 0; i < sr.Metallic.Count; i++)
+            {
+                r.SetMetallic(sr.Metallic[i], i);
+                r.SetRoughness(sr.Roughness[i], i);
+            }
+            r.SetMetallicType(sr.MetallicType);
+
+            for (int i = 0; i < sr.TextureAlbedo.Length; i++)
+            {
+                if (IsTextureSet(sr.TextureAlbedo[i], r._model.Material[i].TextureAlbedo.Filename))
+                    r.SetTexture(sr.TextureAlbedo[i], TextureType.Albedo, i);
+
+                if (IsTextureSet(sr.TextureNormal[i], r._model.Material[i].TextureNormal.Filename))
+                    r.SetTexture(sr.TextureNormal[i], TextureType.Normal, i);
+
+                if (IsTextureSet(sr.TextureRoughness[i], r._model.Material[i].TextureRoughness.Filename))
+                    r.SetTexture(sr.TextureRoughness[i], TextureType.Roughness, i);
+
+                if (IsTextureSet(sr.TextureMetallic[i], r._model.Material[i].TextureMetallic.Filename))
+                    r.SetTexture(sr.TextureMetallic[i], TextureType.Metallic, i);
+
+                if (IsTextureSet(sr.TextureEmissive[i], r._model.Material[i].TextureEmissive.Filename))
+                    r.SetTexture(sr.TextureEmissive[i], TextureType.Emissive, i);
+
+            }
+
+            for (int i = 0; i < sr.TextureRepeat.Count; i++)
+            {
+                float[] repeat = sr.TextureRepeat[i];
+                float[] offset = sr.TextureOffset[i];
+                r.SetTextureRepeat(repeat[0], repeat[1], i);
+                r.SetTextureOffset(offset[0], offset[1], i);
+            }
+
+            for (int i = 0; i < sr.TextureRoughnessInMetallic.Length; i++)
+            {
+                r._model.Material[i].TextureRoughnessInMetallic = sr.TextureRoughnessInMetallic[i];
+            }
+
+            r.SetTextureRepeat(sr.TextureTransform[0], sr.TextureTransform[1]);
+            if (sr.TextureTransform.Length == 4)
+                r.SetTextureOffset(sr.TextureTransform[2], sr.TextureTransform[3]);
+
+            r.SetAdditionalInstanceCount(sr.InstanceCount - 1);
+            for(int i = 16; i < sr.InstanceMatrices.Length; i += 16)
+            {
+                Matrix4 modelMatrix = new Matrix4(
+                    sr.InstanceMatrices[i + 0],
+                    sr.InstanceMatrices[i + 1],
+                    sr.InstanceMatrices[i + 2],
+                    sr.InstanceMatrices[i + 3],
+                    sr.InstanceMatrices[i + 4],
+                    sr.InstanceMatrices[i + 5],
+                    sr.InstanceMatrices[i + 6],
+                    sr.InstanceMatrices[i + 7],
+                    sr.InstanceMatrices[i + 8],
+                    sr.InstanceMatrices[i + 9],
+                    sr.InstanceMatrices[i + 10],
+                    sr.InstanceMatrices[i + 11],
+                    sr.InstanceMatrices[i + 12],
+                    sr.InstanceMatrices[i + 13],
+                    sr.InstanceMatrices[i + 14],
+                    sr.InstanceMatrices[i + 15]
+                    );
+
+                Quaternion rotation = modelMatrix.ExtractRotation();
+                Vector3 position = modelMatrix.ExtractTranslation();
+                Vector3 scale = modelMatrix.ExtractScale();
+
+                r.SetPositionRotationScaleForInstance(i / 16, position, rotation, scale);
+            }
+
+            return r;
         }
 
         private static bool IsBuiltInModel(string name)

@@ -5,19 +5,45 @@ using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
 {
-    internal class GameObjectModel
+    internal class EngineObjectModel
     {
         public GeoModel ModelOriginal { get; set; } = null;
         public GeoMaterial[] Material { get; set; }
         internal float _metallicTerrain = 0f;
         internal float _roughnessTerrain = 1f;
         internal MetallicType _metallicType = MetallicType.Default;
+        public Vector4 Center { get; internal set; } = new Vector4(0, 0, 0, 1);
+        public Vector4 DimensionsMin { get; internal set; } = new Vector4(0, 0, 0, 1);
+        public Vector4 DimensionsMax { get; internal set; } = new Vector4(0, 0, 0, 1);
 
-        public GameObjectModel(GeoModel mOrg)
+
+        public EngineObjectModel(GeoModel mOrg)
         {
             ModelOriginal = mOrg;
             Material = new GeoMaterial[ModelOriginal.Meshes.Count];
+
+            float minX = float.MaxValue;
+            float maxX = float.MinValue;
+            float minY = float.MaxValue;
+            float maxY = float.MinValue;
+            float minZ = float.MaxValue;
+            float maxZ = float.MinValue;
+            foreach (GeoMeshHitbox mhb in ModelOriginal.MeshHitboxes)
+            {
+                if (mhb.minX < minX) minX = mhb.minX;
+                if (mhb.maxX > maxX) maxX = mhb.maxX;
+
+                if (mhb.minY < minY) minY = mhb.minY;
+                if (mhb.maxY > maxY) maxY = mhb.maxY;
+
+                if (mhb.minZ < minZ) minZ = mhb.minZ;
+                if (mhb.maxZ > maxZ) maxZ = mhb.maxZ;
+            }
+            DimensionsMax = new(maxX, maxY, maxZ, 1f);
+            DimensionsMin = new(minX, minY, minZ, 1f);
+            Center = new ((DimensionsMax.Xyz + DimensionsMin.Xyz) / 2f, 1f);
         }
+    
 
         public void SetTexture(string filename, TextureType type, int meshId)
         {

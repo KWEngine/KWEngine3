@@ -26,15 +26,15 @@ namespace KWEngine3
         internal Matrix4 _viewProjectionMatrixHUD;
         internal Matrix4 _viewProjectionMatrixHUDNew;
         internal KWBuilderOverlay Overlay { get; set; }
-        internal Stopwatch _stopwatch = new Stopwatch();
+        internal Stopwatch _stopwatch = new();
         internal int AnisotropicFiltering { get; set; } = 4;
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
-        internal List<Vector2> _mouseDeltas = new List<Vector2>(MOUSEDELTAMAXSAMPLECOUNT);
+        internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
         internal const int DELTASFORMOVINGAVG = 4;
         internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
 
-        internal KeyboardExt _keyboard = new KeyboardExt();
-        internal MouseExt _mouse = new MouseExt();
+        internal KeyboardExt _keyboard = new();
+        internal MouseExt _mouse = new();
 
         internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
         {
@@ -216,19 +216,27 @@ namespace KWEngine3
 
             UpdateScene();
 
-            List<LightObject> pointLights = new List<LightObject>();
-            List<GameObject> gameObjectsForForwardRendering = new List<GameObject>();
+            List<LightObject> pointLights = new();
+            List<GameObject> gameObjectsForForwardRendering = new();
+            List<RenderObject> renderObjectsForForwardRendering = new();
 
             KWEngine.LastFrameTime = (float)e.Time * 1000;
 
             // Start render process:
             if (!KWEngine.CurrentWorld._startingFrameActive)
             {
-
-                // Render to G-Buffer:
                 RenderManager.FramebufferDeferred.Bind();
+
+                // Render GameObject instances to G-Buffer:
                 RendererGBuffer.Bind();
                 gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene());
+
+                // Render RenderObject instances to G-Buffer:
+                if (KWEngine.CurrentWorld._renderObjects.Count > 0)
+                {
+                    RendererGBufferInstanced.Bind();
+                    renderObjectsForForwardRendering.AddRange(RendererGBufferInstanced.RenderScene());
+                }
 
                 // Render terrain objects to G-Buffer:
                 if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
@@ -273,6 +281,20 @@ namespace KWEngine3
                             RendererShadowMap.RenderSceneForLight(l);
                         }
                     }
+                    if(KWEngine.CurrentWorld._renderObjects.Count > 0)
+                    {
+                        RendererShadowMapInstanced.Bind();
+                        foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
+                        {
+                            if (l.Type == LightType.Point)
+                            {
+                                continue;
+                            }
+                            l._fbShadowMap.Bind();
+                            RendererShadowMapInstanced.RenderSceneForLight(l);
+                        }
+                    }
+
                     if (pointLights.Count > 0)
                     {
                         RendererShadowMapCube.Bind();
@@ -280,6 +302,16 @@ namespace KWEngine3
                         {
                             l._fbShadowMap.Bind();
                             RendererShadowMapCube.RenderSceneForLight(l);
+                        }
+
+                        if (KWEngine.CurrentWorld._renderObjects.Count > 0)
+                        {
+                            RendererShadowMapCubeInstanced.Bind();
+                            foreach (LightObject l in pointLights)
+                            {
+                                l._fbShadowMap.Bind();
+                                RendererShadowMapCubeInstanced.RenderSceneForLight(l);
+                            }
                         }
                     }
 
@@ -333,7 +365,14 @@ namespace KWEngine3
                         RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
                 }
 
-                if(KWEngine.CurrentWorld._textObjects.Count > 0)
+                if (renderObjectsForForwardRendering.Count > 0)
+                {
+                    RendererForwardInstanced.Bind();
+                    RendererForwardInstanced.SetGlobals();
+                    RendererForwardInstanced.RenderScene(renderObjectsForForwardRendering);
+                }
+
+                if (KWEngine.CurrentWorld._textObjects.Count > 0)
                 {
                     RendererForwardText.Bind();
                     RendererForwardText.SetGlobals();
@@ -496,7 +535,7 @@ namespace KWEngine3
         {
             foreach(MouseButton b in _mouse._buttonsPressed.Keys)
             {
-                if(_mouse._buttonsPressed.Keys.Contains(b))
+                if(_mouse._buttonsPressed.ContainsKey(b))
                 {
                     _mouse.ChangeToOldWorld(b);
                 }
@@ -504,7 +543,7 @@ namespace KWEngine3
 
             foreach (Keys k in _keyboard._keysPressed.Keys)
             {
-                if (_keyboard._keysPressed.Keys.Contains(k))
+                if (_keyboard._keysPressed.ContainsKey(k))
                 {
                     _keyboard.ChangeToOldWorld(k);
                 }
@@ -544,7 +583,7 @@ namespace KWEngine3
             }
         }
 
-        internal void UpdateDeltaTime(double t)
+        internal static void UpdateDeltaTime(double t)
         {
             float tf = (float)t;
             KWEngine.ApplicationTime += tf;
@@ -556,7 +595,7 @@ namespace KWEngine3
         internal void UpdateScene()
         {
             
-            List<GameObject> postponedViewSpaceAttachments = new List<GameObject>();
+            List<GameObject> postponedViewSpaceAttachments = new();
             if(KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
             {
                 KWEngine.CurrentWorld._startingFrameActive = false;
@@ -589,7 +628,12 @@ namespace KWEngine3
                 }
             }
 
-            foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)
+            foreach (RenderObject r in KWEngine.CurrentWorld._renderObjects)
+            {
+                HelperSimulation.BlendRenderObjectStates(r, alpha);
+            }
+
+            foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
             {
                 HelperSimulation.BlendLightObjectStates(l, alpha);
             }
@@ -641,7 +685,7 @@ namespace KWEngine3
         internal int UpdateCurrentWorldAndObjects(out double elapsedUpdateTimeForCallInMS)
         {
             int n = 0;
-            float tmpTimeAdd = 0.0f;
+            float tmpTimeAdd;
             float tmpTimeAddSum = 0.0f;
             elapsedUpdateTimeForCallInMS = 0.0;
 
@@ -652,10 +696,11 @@ namespace KWEngine3
                 if (KWEngine.CurrentWorld != null && _worldNew == null)
                 {
                     KWEngine.CurrentWorld.ResetWorldDimensions();
-                    List<GameObject> postponedObjects = new List<GameObject>();
-                    List<GameObject> postponedObjectsAttachments = new List<GameObject>();
+                    List<GameObject> postponedObjects = new();
+                    List<GameObject> postponedObjectsAttachments = new();
 
                     KWEngine.CurrentWorld.AddRemoveGameObjects();
+                    KWEngine.CurrentWorld.AddRemoveRenderObjects();
                     KWEngine.CurrentWorld.AddRemoveTerrainObjects();
                     KWEngine.CurrentWorld.AddRemoveLightObjects();
                     KWEngine.CurrentWorld.AddRemoveHUDObjects();
@@ -755,6 +800,16 @@ namespace KWEngine3
                             t.Act();
                         }
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
+                    }
+
+                    foreach(RenderObject r in KWEngine.CurrentWorld._renderObjects)
+                    {
+                        r._statePrevious = r._stateCurrent;
+                        if (!KWEngine.EditModeActive)
+                        {
+                            r.Act();
+                        }
+                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(r);
                     }
 
                     if (!KWEngine.EditModeActive)

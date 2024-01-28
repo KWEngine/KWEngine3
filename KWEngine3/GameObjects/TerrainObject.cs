@@ -61,7 +61,7 @@ namespace KWEngine3.GameObjects
         {
             if (modelname == null || modelname.Length == 0)
             {
-                _gModel = new GameObjectModel(KWEngine.KWTerrainDefault);
+                _gModel = new EngineObjectModel(KWEngine.KWTerrainDefault);
                 for (int i = 0; i < _gModel.Material.Length; i++)
                 {
                     _gModel.Material[i] = KWEngine.KWTerrainDefault.Meshes.Values.ToArray()[i].Material;
@@ -76,7 +76,7 @@ namespace KWEngine3.GameObjects
             bool modelFound = KWEngine.Models.TryGetValue(modelname, out GeoModel model);
             if (modelFound)
             {
-                _gModel = new GameObjectModel(model);
+                _gModel = new EngineObjectModel(model);
                 for (int i = 0; i < _gModel.Material.Length; i++)
                 {
                     _gModel.Material[i] = model.Meshes.Values.ToArray()[i].Material;
@@ -188,7 +188,7 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public string Name { get { return _name; } set { if (value != null && value.Length > 0) _name = value; } }
 
-        internal GameObjectModel _gModel;
+        internal EngineObjectModel _gModel;
         internal TerrainObjectState _statePrevious;
         internal TerrainObjectState _stateCurrent;
         internal TerrainObjectState _stateRender;

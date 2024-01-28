@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal static class RendererShadowMap
+    internal static class RendererShadowMapInstanced
     {
         public static int ProgramID { get; private set; } = -1;
         public static int UViewProjectionMatrix { get; private set; } = -1;
@@ -18,6 +18,7 @@ namespace KWEngine3.Renderer
         public static int UTextureTransformOpacity { get; private set; } = -1;
         public static int UTextureOffset { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
+        public static int UBlockIndex { get; private set; } = -1;
 
         public static void Init()
         {
@@ -25,8 +26,8 @@ namespace KWEngine3.Renderer
             {
                 ProgramID = GL.CreateProgram();
 
-                string resourceNameVertexShader = "KWEngine3.Shaders.shader.msm16.vert";
-                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.msm16.frag";
+                string resourceNameVertexShader = "KWEngine3.Shaders.shader.msm16instanced.vert";
+                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.msm16instanced.frag";
 
                 int vertexShader;
                 int fragmentShader;
@@ -44,6 +45,8 @@ namespace KWEngine3.Renderer
                 GL.LinkProgram(ProgramID);
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
+                UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");
+                GL.UniformBlockBinding(ProgramID, UBlockIndex, 0);
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
@@ -71,16 +74,11 @@ namespace KWEngine3.Renderer
 
                 //_nearFarFOVType = new Vector4(NEARDEFAULT, FARDEFAULT, FOVDEFAULT, type == LightType.Point ? 0 : type == LightType.Sun ? -1 : 1);
                 GL.Uniform3(UNearFarSun, new Vector3(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y, l._stateRender._nearFarFOVType.W));
-                foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjects())
-                {
-                    if(g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
-                        Draw(g);
-                }
 
-                foreach(TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+                foreach (RenderObject r in KWEngine.CurrentWorld._renderObjects)
                 {
-                    if (t.IsShadowCaster)
-                        Draw(t);
+                    if (r.IsShadowCaster && r._stateRender._opacity > 0 && r.IsAffectedByLight)
+                        Draw(r);
                 }
             }
         }
@@ -122,6 +120,35 @@ namespace KWEngine3.Renderer
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
             }
+        }
+
+        public static void Draw(RenderObject r)
+        {
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
+
+            GeoMesh[] meshes = r._model.ModelOriginal.Meshes.Values.ToArray();
+            for (int i = 0; i < meshes.Length; i++)
+            {
+                GeoMesh mesh = meshes[i];
+                GeoMaterial material = r._model.Material[i];
+
+                if (material.ColorAlbedo.W == 0)
+                    continue;
+
+                GL.Uniform1(UUseAnimations, 0);
+                GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
+                GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * r._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * r._stateRender._uvTransform.Y, material.ColorAlbedo.W * r._stateRender._opacity));
+                GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * r._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * r._stateRender._uvTransform.W));
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
+                GL.Uniform1(UTextureAlbedo, 0);
+                GL.BindVertexArray(mesh.VAO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, r.InstanceCount);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                GL.BindVertexArray(0);
+            }
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
         }
 
         public static void Draw(TerrainObject t)

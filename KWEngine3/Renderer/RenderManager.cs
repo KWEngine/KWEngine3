@@ -65,9 +65,11 @@ namespace KWEngine3.Renderer
             PrimitivePoint.Init();
 
             RendererGBuffer.Init();
+            RendererGBufferInstanced.Init();
             RendererTerrainGBuffer.Init();
             RendererLightingPass.Init();
             RendererForward.Init();
+            RendererForwardInstanced.Init();
             RendererCopy.Init();
             RendererBackgroundSkybox.Init();
             RendererBackgroundStandard.Init();
@@ -76,7 +78,9 @@ namespace KWEngine3.Renderer
             RendererForwardText.Init();
 
             RendererShadowMap.Init();
+            RendererShadowMapInstanced.Init();
             RendererShadowMapCube.Init();
+            RendererShadowMapCubeInstanced.Init();
             RendererShadowMapBlur.Init();
 
             RendererEditor.Init();

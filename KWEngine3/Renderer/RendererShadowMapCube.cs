@@ -94,11 +94,11 @@ namespace KWEngine3.Renderer
 
         public static void Draw(GameObject g)
         {
-            GeoMesh[] meshes = g._gModel.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];
-                GeoMaterial material = g._gModel.Material[i];
+                GeoMaterial material = g._model.Material[i];
 
                 if(material.ColorAlbedo.W == 0)
                     continue;
