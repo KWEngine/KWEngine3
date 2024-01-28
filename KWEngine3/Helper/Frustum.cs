@@ -23,7 +23,14 @@ namespace KWEngine3.Helper
         }
         internal void UpdateScreenSpaceStatus(EngineObject e)
         {
-            e.IsInsideScreenSpace = VolumeVsFrustum(e.Center, e._stateCurrent._dimensions.X / 2, e._stateCurrent._dimensions.Y / 2, e._stateCurrent._dimensions.Z / 2);
+            if (e is GameObject)
+            {
+                e.IsInsideScreenSpace = VolumeVsFrustum(e.Center, e._stateCurrent._dimensions.X / 2, e._stateCurrent._dimensions.Y / 2, e._stateCurrent._dimensions.Z / 2);
+            }
+            else if(e is RenderObject)
+            {
+                e.IsInsideScreenSpace = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast);
+            }
         }
         internal void UpdateScreenSpaceStatus(TerrainObject t)
         {

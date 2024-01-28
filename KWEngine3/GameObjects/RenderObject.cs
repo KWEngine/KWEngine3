@@ -40,8 +40,8 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("[RenderObject] Cannot set " + (modelname == null ? "" : modelname.Trim()));
             }
 
-            InitStates();
             SetAdditionalInstanceCount(0);
+            InitStates();
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace KWEngine3.GameObjects
         {
             if(instanceCount > KWEngine.MAXADDITIONALINSTANCECOUNT)
             {
-                KWEngine.LogWriteLine("[RenderObject] Maximum instance count per object is 1024");
+                KWEngine.LogWriteLine("[RenderObject] Max. additional instance count per object is " + KWEngine.MAXADDITIONALINSTANCECOUNT);
             }
             instanceCount = Math.Clamp(instanceCount, 0, KWEngine.MAXADDITIONALINSTANCECOUNT);
             InstanceCount = instanceCount + 1;
@@ -159,6 +159,8 @@ namespace KWEngine3.GameObjects
             IntPtr ptr = IntPtr.Add(IntPtr.Zero, instanceIndex * BYTESPERINSTANCE);
             GL.BufferSubData(BufferTarget.UniformBuffer, ptr, BYTESPERINSTANCE, _uboData);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+
+            UpdateModelMatrixAndHitboxes();
         }
 
         #region internals
@@ -230,8 +232,48 @@ namespace KWEngine3.GameObjects
             _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitX, _stateCurrent._modelMatrixInverse));
             _stateCurrent._lookAtVectorUp = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitY, _stateCurrent._modelMatrixInverse));
 
-            Vector4 dimMinTransformed = Vector4.TransformRow(_model.DimensionsMin, _stateCurrent._modelMatrix);
-            Vector4 dimMaxTransformed = Vector4.TransformRow(_model.DimensionsMax, _stateCurrent._modelMatrix);
+            Vector3 dimsMax = new Vector3(float.MinValue);
+            Vector3 dimsMin = new Vector3(float.MaxValue);
+
+            if (InstanceCount > 1)
+            {
+                // loop through all instances to get an estimate of the outer dimensions:
+                GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
+                float[] tmp = new float[InstanceCount * 16];
+                GL.GetBufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, InstanceCount * BYTESPERINSTANCE, tmp);
+                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+
+                for (int i = 16; i < tmp.Length; i += 16)
+                {
+                    // get translation part for rough estimation of final screen space size:
+                    float tX = tmp[i + 12];
+                    float tY = tmp[i + 13];
+                    float tZ = tmp[i + 14];
+
+                    if (tX > dimsMax.X)
+                        dimsMax.X = tX;
+                    if (tX < dimsMin.X)
+                        dimsMin.X = tX;
+
+                    if (tY > dimsMax.Y)
+                        dimsMax.Y = tY;
+                    if (tY < dimsMin.Y)
+                        dimsMin.Y = tY;
+
+                    if (tZ > dimsMax.Z)
+                        dimsMax.Z = tZ;
+                    if (tZ < dimsMin.Z)
+                        dimsMin.Z = tZ;
+                }
+            }
+            else
+            {
+                dimsMin.X = 0; dimsMin.Y = 0; dimsMin.Z = 0;
+                dimsMax.X = 0; dimsMax.Y = 0; dimsMax.Z = 0;
+            }
+
+            Vector4 dimMinTransformed = Vector4.TransformRow(_model.DimensionsMin + new Vector4(dimsMin, 0f), _stateCurrent._modelMatrix);
+            Vector4 dimMaxTransformed = Vector4.TransformRow(_model.DimensionsMax + new Vector4(dimsMax, 0f), _stateCurrent._modelMatrix);
 
             _stateCurrent._dimensions.X = dimMaxTransformed.X - dimMinTransformed.X;
             _stateCurrent._dimensions.Y = dimMaxTransformed.Y - dimMinTransformed.Y;
