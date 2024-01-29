@@ -27,6 +27,11 @@ namespace KWEngine3TestProject.Classes.WorldRenderObjectTest
             if (Keyboard.IsKeyDown(Keys.D))
                 strafe++;
 
+            if (Keyboard.IsKeyDown(Keys.E))
+                MoveAlongVector(CurrentWorld.CameraLookAtVectorLocalUp, _speed);
+            if (Keyboard.IsKeyDown(Keys.Q))
+                MoveAlongVector(-CurrentWorld.CameraLookAtVectorLocalUp, _speed);
+
             if (move != 0 || strafe != 0)
             {
                 MoveAndStrafeAlongCamera(move, strafe, _speed);

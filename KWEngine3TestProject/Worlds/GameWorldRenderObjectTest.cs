@@ -48,12 +48,14 @@ namespace KWEngine3TestProject.Worlds
 
             StaticObject r2 = new StaticObject();
             r2.Name = "Würfelpack -3X";
-            r2.SetPosition(-3, 2.5f, 0);
+            r2.SetPosition(-3, 3.5f, 0);
+            r2.SetRotation(45, 45, 0);
+            r2.SetScale(1);
             r2.SetOpacity(0.5f);
             r2.IsShadowCaster = true;
             r2.SetAdditionalInstanceCount(2);
-            r2.SetPositionRotationScaleForInstance(1, new Vector3(-10, 2, 0), Quaternion.Identity, Vector3.One);
-            r2.SetPositionRotationScaleForInstance(2, new Vector3(0, -2, 0), Quaternion.Identity, Vector3.One);
+            r2.SetPositionRotationScaleForInstance(1, new Vector3(-3, 6, 0), Quaternion.Identity, Vector3.One);
+            r2.SetPositionRotationScaleForInstance(2, new Vector3(-3, 0.5f, 0), Quaternion.Identity, Vector3.One);
             AddRenderObject(r2);
 
             /*

@@ -133,6 +133,7 @@ namespace KWEngine3.GameObjects
             }
 
             Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref scale, ref rotation, ref position);
+            tmp = _stateCurrent._modelMatrixInverse * tmp;
 
             // MODEL MATRIX
             _uboData[00] = tmp.M11;
