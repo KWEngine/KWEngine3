@@ -1019,6 +1019,32 @@ namespace KWEngine3.Helper
             return result && distance >= 0;
         }
 
+        /// <summary>
+        /// Prüft auf eine Strahlenkollision mit einem Terrain-Objekt direkt unterhalb der angegebenen Position
+        /// </summary>
+        /// <param name="position">Startposition des nach unten gerichteten Teststrahls</param>
+        /// <returns>Ergebnis der Strahlenkollisionsmessung</returns>
+        public static RayTerrainIntersection RaytraceTerrainBelowPosition(Vector3 position)
+        {
+            RayTerrainIntersection i = new RayTerrainIntersection();
+
+            foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+            {
+                bool result = HelperIntersection.TestIntersectionTerrainBelowForRay(position, t, out Vector3 intersectionPoint, out Vector3 surfaceNormal);
+                float distanceToIntersection = (position - intersectionPoint).Length;
+                if (result == true)
+                {
+                    i.Object = t;
+                    i.Distance = distanceToIntersection;
+                    i.IntersectionPoint = intersectionPoint;
+                    i.SurfaceNormal = surfaceNormal;
+
+                    break;
+                }
+            }
+            return i;
+        }
+
         #region Internals
 
         internal static bool IsMouseCursorOnGameObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, bool includeNonCollisionObjects)
@@ -1249,6 +1275,18 @@ namespace KWEngine3.Helper
             return clippedVertex;
         }
 
+        internal static bool TestIntersectionTerrainBelowForRay(Vector3 rayStart, TerrainObject collider, out Vector3 contactPoint, out Vector3 surfaceNormal)
+        {
+            if(RayTerrainIntersection(collider, rayStart, out contactPoint, out surfaceNormal))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         internal static IntersectionTerrain TestIntersectionTerrain(GameObjectHitbox caller, TerrainObjectHitbox collider)
         {
             GeoModel model = collider.Owner._gModel.ModelOriginal;
@@ -1303,6 +1341,39 @@ namespace KWEngine3.Helper
             }
             return false;
         }
+
+        internal static bool RayTerrainIntersection(TerrainObject t, Vector3 rayOrigin, out Vector3 contactPoint, out Vector3 surfaceNormal)
+        {
+            contactPoint = Vector3.Zero;
+            surfaceNormal = Vector3.UnitY;
+            GeoModel model = t._gModel.ModelOriginal;
+            Vector3 untranslatedPosition = rayOrigin - new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
+            Sector s = model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
+            if (s != null)
+            {
+                GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                if (tris.HasValue)
+                {
+                    bool hit = RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out contactPoint);
+                    if (hit)
+                    {
+                        surfaceNormal = tris.Value.Normal;
+                        contactPoint += new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                return false;
+            }
+            return false;
+        }
+
 
         private static IntersectionTerrain TestIntersectionForTerrain(GeoTerrainTriangle triangle, GameObjectHitbox caller, TerrainObjectHitbox collider)
         {

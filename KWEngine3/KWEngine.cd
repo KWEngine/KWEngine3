@@ -206,7 +206,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jggCGAAGGAQKwiTAwIAMAABFAQQyAUEBAAAAFQgCFIE=</HashCode>
+      <HashCode>jggCGAAGGAQKwiTAwIAMEABFAQQyAUEBAAAAFQgCFIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -341,14 +341,15 @@
       <Method Name="TestIntersection" Hidden="true" />
       <Method Name="TestIntersectionForTerrain" Hidden="true" />
       <Method Name="TestIntersectionTerrain" Hidden="true" />
+      <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQKQAhQAADUCgCQAsAAAAEKAAAAgBLhGABGCABYLZIg=</HashCode>
+      <HashCode>BQKQAhQAADUCgCQAsAAAEEKAQAAgBLhGABGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="11.75" Width="2.75" />
+    <Position X="12.5" Y="12" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -358,7 +359,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="12.5" Y="6.25" Width="2.75" />
+    <Position X="12.5" Y="6.5" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -377,7 +378,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="12.5" Y="9" Width="2.75" />
+    <Position X="12.5" Y="9.25" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
@@ -399,7 +400,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="12.5" Y="13.25" Width="2.75" />
+    <Position X="12.5" Y="13.5" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -488,7 +489,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="6.5" Y="21.75" Width="2.75" />
+    <Position X="6.5" Y="22" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />

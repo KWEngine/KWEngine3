@@ -810,6 +810,16 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Prüft auf eine Strahlenkollision mit einem Terrain-Objekt direkt unterhalb der angegebenen Position
+        /// </summary>
+        /// <param name="position">Startposition des nach unten gerichteten Teststrahls</param>
+        /// <returns>Ergebnis der Strahlenkollisionsmessung</returns>
+        public static RayTerrainIntersection RaytraceTerrainBelowPosition(Vector3 position)
+        {
+            return HelperIntersection.RaytraceTerrainBelowPosition(position);
+        }
+
+        /// <summary>
         /// Setzt das 3D-Modell des Objekts
         /// </summary>
         /// <param name="modelname">Name des 3D-Modells</param>
