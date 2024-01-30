@@ -209,12 +209,6 @@ namespace KWEngine3.GameObjects
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
 
-        internal override void InitRenderStateMatrices()
-        {
-            _stateRender._modelMatrices = new Matrix4[_model.ModelOriginal.Meshes.Count];
-            _stateRender._normalMatrices = new Matrix4[_model.ModelOriginal.Meshes.Count];
-        }
-
         internal override void InitHitboxes()
         {
             UpdateModelMatrixAndHitboxes();

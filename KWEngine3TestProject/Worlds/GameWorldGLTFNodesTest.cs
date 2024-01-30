@@ -18,12 +18,12 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("Erika_Archer", "./Models/GLTFTest/Erika_Archer.glb");
+            KWEngine.LoadModel("ModelImport", "./Models/GLTFTest/_antiquecamera.glb");
             SetCameraPosition(10, 10, 10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
             
-            Grass g = new Grass();
-            //g.SetModel("Erika_Archer");
+            ModelTestClass g = new ModelTestClass();
+            g.SetModel("ModelImport");
             g.IsShadowCaster = true;
             //g.HasTransparencyTexture = false;
             //g.DisableBackfaceCulling = false;
@@ -47,7 +47,7 @@ namespace KWEngine3TestProject.Worlds
             f.IsShadowCaster = true;
             AddGameObject(f);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.Name = "Sonne";
             sun.SetPosition(-50, 50, 50);
             sun.SetColor(1, 1, 1, 2);

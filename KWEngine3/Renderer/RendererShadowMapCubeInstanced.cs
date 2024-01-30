@@ -90,45 +90,6 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Draw(GameObject g)
-        {
-            GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
-            for (int i = 0; i < meshes.Length; i++)
-            {
-                GeoMesh mesh = meshes[i];
-                GeoMaterial material = g._model.Material[i];
-
-                if(material.ColorAlbedo.W == 0)
-                    continue;
-
-                if (g.IsAnimated)
-                {
-                    GL.Uniform1(UUseAnimations, 1);
-                    for (int j = 0; j < g._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
-                    {
-                        Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
-                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
-                    }
-                }
-                else
-                {
-                    GL.Uniform1(UUseAnimations, 0);
-                }
-
-                GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);
-                GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * g._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y, material.ColorAlbedo.W * g._stateRender._opacity));
-                GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * g._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * g._stateRender._uvTransform.W));
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
-                GL.Uniform1(UTextureAlbedo, 0);
-                GL.BindVertexArray(mesh.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                GL.BindVertexArray(0);
-            }
-        }
-
         public static void Draw(RenderObject r)
         {
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
@@ -142,7 +103,19 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
-                GL.Uniform1(UUseAnimations, 0);
+                if (r.IsAnimated)
+                {
+                    GL.Uniform1(UUseAnimations, 1);
+                    for (int j = 0; j < r._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
+                    {
+                        Matrix4 tmp = r._stateRender._boneTranslationMatrices[mesh.Name][j];
+                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
+                    }
+                }
+                else
+                {
+                    GL.Uniform1(UUseAnimations, 0);
+                }
 
                 GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * r._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * r._stateRender._uvTransform.Y, material.ColorAlbedo.W * r._stateRender._opacity));

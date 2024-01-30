@@ -144,7 +144,21 @@ namespace KWEngine3.Renderer
                 else
                     GL.Uniform4(UColorEmissive, r._stateRender._colorEmissive);
 
-                GL.Uniform1(UUseAnimations, 0);
+                if (r.IsAnimated)
+                {
+                    GL.Uniform1(UUseAnimations, 1);
+                    int boneMatrixCount = r._stateRender._boneTranslationMatrices[mesh.Name].Length;
+
+                    for (int j = 0; j < boneMatrixCount; j++)
+                    {
+                        Matrix4 tmp = r._stateRender._boneTranslationMatrices[mesh.Name][j];
+                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
+                    }
+                }
+                else
+                {
+                    GL.Uniform1(UUseAnimations, 0);
+                }
 
                 GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
                 GL.UniformMatrix4(UNormalMatrix, false, ref r._stateRender._normalMatrices[i]);
