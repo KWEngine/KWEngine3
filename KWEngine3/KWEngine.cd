@@ -169,7 +169,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDQCZAERzoGAhagCTK5ZD6YcUaGCH/AcAnE=</HashCode>
+      <HashCode>SQl0OI6AJDQCZAERzoGghagCTK5ZDqYcUaGCH/AcAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -201,12 +201,11 @@
       <Property Name="IsAttachedToViewSpaceGameObject" Hidden="true" />
       <Method Name="RemoveHitboxesFromWorldHitboxList" Hidden="true" />
       <Method Name="ResetBoneAttachments" Hidden="true" />
-      <Method Name="SetScaleRotationAndTranslation" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jggCGAAGGAQKwiTAwIAMEABFAQQyAUEBAAAAFQgCFIE=</HashCode>
+      <HashCode>iggCGAAGGAQKwiTAwIAMEABFAQQyAUEBAAAAFQgCFIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
