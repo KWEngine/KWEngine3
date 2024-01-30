@@ -1,9 +1,11 @@
-﻿using KWEngine3;
+﻿using OpenTK;
+using OpenTK.Mathematics;
+using KWEngine3;
 using KWEngine3.GameObjects;
 using KWEngine3TestProject.Classes.WorldGLTFNodesTest;
 using System;
 using System.Collections.Generic;
-
+using KWEngine3.Helper;
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -16,16 +18,28 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("Grass1", "./Models/GLTFTest/grass/grass1.gltf");
+            KWEngine.LoadModel("Erika_Archer", "./Models/GLTFTest/Erika_Archer.glb");
             SetCameraPosition(10, 10, 10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
-
+            
             Grass g = new Grass();
-            g.SetModel("Grass1");
+            //g.SetModel("Erika_Archer");
             g.IsShadowCaster = true;
-            g.HasTransparencyTexture = true;
-            g.DisableBackfaceCulling = true;
+            //g.HasTransparencyTexture = false;
+            //g.DisableBackfaceCulling = false;
+
+            int instanceCount = 0;
+            g.SetAdditionalInstanceCount(instanceCount);
+            
+            for(int i = 1; i < instanceCount + 1; i++)
+            {
+                float x = HelperRandom.GetRandomNumber(-24, 24);
+                float z = HelperRandom.GetRandomNumber(-24, 24);
+                g.SetPositionRotationScaleForInstance(i, new Vector3(x, 0, z), Quaternion.Identity, Vector3.One);
+            }
+            
             AddRenderObject(g);
+            
 
             Floor f = new Floor();
             f.SetPosition(0, -0.5f, 0);
@@ -33,7 +47,8 @@ namespace KWEngine3TestProject.Worlds
             f.IsShadowCaster = true;
             AddGameObject(f);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
+            sun.Name = "Sonne";
             sun.SetPosition(-50, 50, 50);
             sun.SetColor(1, 1, 1, 2);
             sun.SetNearFar(10, 200);
