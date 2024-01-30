@@ -904,6 +904,20 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Ändert die Renderdistanz der Kamera (Standard: 500, Maximal 10000)
+        /// </summary>
+        /// <param name="renderDistance">neue Renderdistanz (muss größer oder gleich 1 sein)</param>
+        public void SetCameraRenderDistance(float renderDistance)
+        {
+            if (renderDistance <= 0.1f)
+            {
+                KWEngine.LogWriteLine("[World] Camera render distance adjusted to be at least 1f.");
+                renderDistance  = 1f;
+            }
+            _cameraGame.SetNearFarBound(0.1f, Math.Clamp(renderDistance, 1, 10000));
+        }
+
+        /// <summary>
         /// Setzt die Kameraposition
         /// </summary>
         /// <param name="x">x</param>
