@@ -2,6 +2,8 @@
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
+using KWEngine3.Renderer;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -61,6 +63,7 @@ namespace KWEngine3
         internal Vector3 _worldCenter = new(0);
 
         internal Vector3 _colorAmbient = new(0.75f, 0.75f, 0.75f);
+        internal Vector3 _colorFill = new(0.0f, 0.0f, 0.0f);
         internal WorldBackground _background = new();
 
         internal IReadOnlyCollection<GameObject> GetGameObjectsSortedByType()
@@ -588,6 +591,28 @@ namespace KWEngine3
             }
             KWEngine.LogWriteLine("[World] No view space game object found");
             return Vector3.Zero;
+        }
+
+        /// <summary>
+        /// Setzt die Hintergrundfarbe der Feld
+        /// </summary>
+        /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
+        /// <param name="g">Rotanteil (zwischen 0 und 1)</param>
+        /// <param name="b">Rotanteil (zwischen 0 und 1)</param>
+        public void SetBackgroundFillColor(float r, float g, float b)
+        {
+            SetBackgroundFillColor(new Vector3(r, g, b));
+        }
+
+        /// <summary>
+        /// Setzt die Hintergrundfarbe der Feld
+        /// </summary>
+        /// <param name="color">Farbwerte (RGB, jeweils zwischen 0 und 1)</param>
+        public void SetBackgroundFillColor(Vector3 color)
+        {
+            _colorFill = new(Math.Clamp(color.X, 0f, 1f), Math.Clamp(color.Y, 0f, 1f), Math.Clamp(color.Z, 0f, 1f));
+
+            RenderManager.UpdateFramebufferClearColor(_colorFill);
         }
 
         /// <summary>

@@ -26,8 +26,8 @@ namespace KWEngine3.Framebuffers
             GL.DrawBuffers(Attachments.Count, dbe);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            ClearColorValues.Add(0, new float[] { 0, 0, 0, 1 });
-            ClearColorValues.Add(1, new float[] { 0, 0, 0, 1 });
+            ClearColorValues.Add(0, new float[] { 0, 0, 0, 0 });
+            ClearColorValues.Add(1, new float[] { 0, 0, 0, 0 });
         }
 
         public override void Clear(bool keepDepth = false)

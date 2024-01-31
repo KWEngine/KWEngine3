@@ -16,6 +16,17 @@ namespace KWEngine3.Renderer
         public const int LQPENALTY_W = 160;
         public const int LQPENALTY_H = 96;
 
+        public static void UpdateFramebufferClearColor(Vector3 newFillColor)
+        {
+            FramebufferDeferred.ClearColorValues[0][0] = newFillColor.X;
+            FramebufferDeferred.ClearColorValues[0][1] = newFillColor.Y;
+            FramebufferDeferred.ClearColorValues[0][2] = newFillColor.Z;
+
+            FramebufferLightingPass.ClearColorValues[0][0] = newFillColor.X;
+            FramebufferLightingPass.ClearColorValues[0][1] = newFillColor.Y;
+            FramebufferLightingPass.ClearColorValues[0][2] = newFillColor.Z;
+        }
+
         public static void BindScreen(bool clear = true)
         {
             GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);

@@ -222,6 +222,8 @@ namespace KWEngine3
 
             KWEngine.LastFrameTime = (float)e.Time * 1000;
 
+            
+
             // Start render process:
             if (!KWEngine.CurrentWorld._startingFrameActive)
             {

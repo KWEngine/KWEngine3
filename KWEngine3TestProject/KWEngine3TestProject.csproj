@@ -1096,6 +1096,9 @@
     <None Update="Textures\Tire_Treads_512.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Textures\Trauersmiley.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Textures\Trunk_512.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

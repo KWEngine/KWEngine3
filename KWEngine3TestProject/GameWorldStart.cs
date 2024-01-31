@@ -17,7 +17,8 @@ namespace KWEngine3TestProject
 
         public override void Prepare()
         {
-            
+            SetBackground2D("./Textures/Trauersmiley.png");
+            SetBackgroundFillColor(1, 0, 0);
         }
     }
 }

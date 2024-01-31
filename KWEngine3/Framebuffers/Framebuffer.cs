@@ -1,6 +1,7 @@
 ﻿using KWEngine3.Exceptions;
 using KWEngine3.Helper;
 using OpenTK.Graphics.OpenGL4;
+using System.Numerics;
 
 namespace KWEngine3.Framebuffers
 {
@@ -10,6 +11,7 @@ namespace KWEngine3.Framebuffers
         public int ID { get; set; } = -1;
         public LightType _lightType = LightType.Point;
         public bool _isLight = false;
+        public Vector3 _clearColor = Vector3.Zero;
 
         public static int ShadowMapCount { get { return _fbShadowMapCounter; } }
         public List<FramebufferTexture> Attachments { get; set; } = new List<FramebufferTexture>();
