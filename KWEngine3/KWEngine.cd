@@ -169,7 +169,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDQCZAERzoGghagCTK5ZDqYcUaGCH/AcAnE=</HashCode>
+      <HashCode>SQl0OI6AJDQCZAERzoGghagCTK5ZD6YcUaGCH/AcAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -181,7 +181,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.GameObject">
-    <Position X="6.5" Y="13.75" Width="2.75" />
+    <Position X="6.5" Y="14.75" Width="2.75" />
     <Members>
       <Field Name="_addRemoveHitboxes" Hidden="true" />
       <Field Name="_attachBoneNodes" Hidden="true" />
@@ -194,9 +194,7 @@
       <Field Name="_rotationOffsetForAttachment" Hidden="true" />
       <Field Name="_scaleOffsetForAttachment" Hidden="true" />
       <Method Name="GetBoneNameForAttachedGameObject" Hidden="true" />
-      <Property Name="HasArmatureAndAnimations" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
-      <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Property Name="IsAttachedToGameObject" Hidden="true" />
       <Property Name="IsAttachedToViewSpaceGameObject" Hidden="true" />
       <Method Name="RemoveHitboxesFromWorldHitboxList" Hidden="true" />
@@ -205,7 +203,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>iggCGAAGGAQKwiTAwIAMEABFAQQyAUEBAAAAFQgCFIE=</HashCode>
+      <HashCode>jAgAGAACGAQKwiSAwIAMEABEAQQyAUEBAAAABQgCEIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -474,6 +472,7 @@
       <Method Name="AddRotationXFromEditor" Hidden="true" />
       <Method Name="AddRotationYFromEditor" Hidden="true" />
       <Method Name="AddRotationZFromEditor" Hidden="true" />
+      <Property Name="HasArmatureAndAnimations" Hidden="true" />
       <Property Name="HasEmissiveTexture" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
@@ -483,24 +482,23 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QSEAI1oKGJygUIAuAgqAoQYAACTBixgJIIiEGkBYQVQ=</HashCode>
+      <HashCode>QyECI1oOGJygUIBuAgqAoQYBACTBixgJIIiEGkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="6.5" Y="22" Width="2.75" />
+    <Position X="6.5" Y="22.25" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
       <Field Name="BYTESPERINSTANCE" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
-      <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitUBO" Hidden="true" />
       <Property Name="IsConfigured" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAACAAAAARAABAABAAAAAgABQABAAAAEEAgCAA=</HashCode>
+      <HashCode>AAAAAAAACAAAAARAABAABAAAAAgABQABAAAAAEAgCAA=</HashCode>
       <FileName>GameObjects\RenderObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
