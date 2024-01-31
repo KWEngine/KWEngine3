@@ -18,7 +18,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("ModelImport", "./Models/GLTFTest/_antiquecamera.glb");
+            KWEngine.LoadModel("ModelImport", "./Models/GLTFTest/cube_notangents.glb");
             SetCameraPosition(10, 10, 10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
             
@@ -40,13 +40,13 @@ namespace KWEngine3TestProject.Worlds
             
             AddRenderObject(g);
             
-
-            Floor f = new Floor();
-            f.SetPosition(0, -0.5f, 0);
-            f.SetScale(50, 1, 50);
-            f.IsShadowCaster = true;
-            AddGameObject(f);
-
+            
+            //Floor f = new Floor();
+            //f.SetPosition(0, -0.5f, 0);
+            //f.SetScale(50, 1, 50);
+            //f.IsShadowCaster = true;
+            //AddGameObject(f);
+            
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.Name = "Sonne";
             sun.SetPosition(-50, 50, 50);
@@ -54,6 +54,7 @@ namespace KWEngine3TestProject.Worlds
             sun.SetNearFar(10, 200);
             sun.SetFOV(100);
             AddLightObject(sun);
+            
         }
     }
 }

@@ -200,8 +200,8 @@ namespace KWEngine3.Renderer
                 {
                     GL.Enable(EnableCap.CullFace);
                 }
-                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
             }
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
         }
 
         private static void UploadTextures(ref GeoMaterial material, RenderObject g)
