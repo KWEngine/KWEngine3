@@ -72,28 +72,6 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Gibt an, ob das Objekt gerade eine Animation ausgewählt hat
-        /// </summary>
-        public bool IsAnimated
-        {
-            get
-            {
-                return _model.ModelOriginal.HasBones && _statePrevious._animationID >= 0;
-            }
-        }
-
-        /// <summary>
-        /// Gibt an, ob das Objekt über Animationen verfügt
-        /// </summary>
-        public bool HasAnimations
-        {
-            get
-            {
-                return _model.ModelOriginal.HasBones && _model.ModelOriginal.Animations != null && _model.ModelOriginal.Animations.Count > 0;
-            }
-        }
-
-        /// <summary>
         /// Prüft auf eine Kollision mit einem Terrain-Objekt
         /// </summary>
         /// <returns>Kollisionsobjekt mit weiteren Details</returns>
@@ -370,49 +348,6 @@ namespace KWEngine3.GameObjects
             Vector3 lavForward = Vector3.NormalizeFast(lav) * move;
             Vector3 movement = Vector3.NormalizeFast(lavForward + lavStrafe);
             MoveOffset(movement * units);
-        }
-
-        /// <summary>
-        /// Setzt die Animationsnummer des Objekts (muss >= 0 sein)
-        /// </summary>
-        /// <param name="id">ID</param>
-        public void SetAnimationID(int id)
-        {
-            if (_model.ModelOriginal.Animations != null)
-                _stateCurrent._animationID = MathHelper.Clamp(id, -1, _model.ModelOriginal.Animations.Count - 1);
-            else
-                _stateCurrent._animationID = -1;
-        }
-
-        /// <summary>
-        /// Setzt den Stand der Animation zwischen 0% und 100% (0 bis 1)
-        /// </summary>
-        /// <param name="p">Stand (Werte zwischen 0 und 1)</param>
-        public void SetAnimationPercentage(float p)
-        {
-            if (Math.Abs(p - _stateCurrent._animationPercentage) > 0.25f)
-            {
-                _stateCurrent._animationPercentage = MathHelper.Clamp(p, 0f, 1f);
-                _statePrevious._animationPercentage = _stateCurrent._animationPercentage;
-            }
-            else
-            {
-                _stateCurrent._animationPercentage = MathHelper.Clamp(p, 0f, 1f);
-            }
-        }
-
-        /// <summary>
-        /// Führt die Animation um einen gegebenen Teil fort
-        /// </summary>
-        /// <param name="p">relativer Fortschritt der Animation</param>
-        public void SetAnimationPercentageAdvance(float p)
-        {
-            _stateCurrent._animationPercentage += p;
-            if (_stateCurrent._animationPercentage > 1f)
-            {
-                _stateCurrent._animationPercentage--;
-                _statePrevious._animationPercentage = _stateCurrent._animationPercentage;
-            }
         }
 
         /// <summary>
@@ -869,14 +804,6 @@ namespace KWEngine3.GameObjects
         internal bool IsAttachedToViewSpaceGameObject { get { return _attachedTo != null && KWEngine.CurrentWorld._viewSpaceGameObject != null && _attachedTo == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject; } }
         internal AddRemoveHitboxMode _addRemoveHitboxes = AddRemoveHitboxMode.None;
 
-        internal bool HasArmatureAndAnimations
-        {
-            get
-            {
-                return _model.ModelOriginal.HasBones && _model.ModelOriginal.Animations != null && _model.ModelOriginal.Animations.Count > 0;
-            }
-        }
-
         internal string GetBoneNameForAttachedGameObject(GameObject g)
         {
             foreach(GeoNode node in _gameObjectsAttached.Keys)
@@ -954,23 +881,6 @@ namespace KWEngine3.GameObjects
                 DetachGameObjectFromBone(attachment);
             }
             _gameObjectsAttached.Clear();
-        }
-
-        internal override void InitRenderStateMatrices()
-        {
-            _stateRender._modelMatrices = new Matrix4[_model.ModelOriginal.Meshes.Count];
-            _stateRender._normalMatrices = new Matrix4[_model.ModelOriginal.Meshes.Count];
-
-            if (HasArmatureAndAnimations)
-            {
-                _stateRender._boneTranslationMatrices = new Dictionary<string, Matrix4[]>();
-                foreach (GeoMesh mesh in _model.ModelOriginal.Meshes.Values)
-                {
-                    _stateRender._boneTranslationMatrices[mesh.Name] = new Matrix4[mesh.BoneIndices.Count];
-                    for (int i = 0; i < mesh.BoneIndices.Count; i++)
-                        _stateRender._boneTranslationMatrices[mesh.Name][i] = Matrix4.Identity;
-                }
-            }
         }
 
         internal override void UpdateModelMatrixAndHitboxes()

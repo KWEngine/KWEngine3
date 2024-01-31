@@ -230,25 +230,6 @@ namespace KWEngine3.Renderer
             transparentObjects.Sort();
         }
 
-        public static void RenderScene(List<GameObject> transparentObjects)
-        {
-            if (KWEngine.CurrentWorld != null)
-            {
-                SortByZ(transparentObjects);
-                GL.Enable(EnableCap.Blend);
-                foreach (GameObject g in transparentObjects)
-                {
-                    if(KWEngine.Mode == EngineMode.Edit)
-                    {
-                        Draw(g);
-                    }
-                    else if(!g.SkipRender && g.IsInsideScreenSpace)
-                        Draw(g);
-                }
-                GL.Disable(EnableCap.Blend);
-            }
-        }
-
         public static void RenderScene(List<RenderObject> transparentObjects)
         {
             if (KWEngine.CurrentWorld != null)
@@ -261,85 +242,6 @@ namespace KWEngine3.Renderer
                         Draw(r);
                 }
                 GL.Disable(EnableCap.Blend);
-            }
-        }
-
-        public static void Draw(GameObject g)
-        {
-            GL.Uniform4(UColorTint, new Vector4(g._stateRender._colorTint, g._stateRender._opacity));
-            GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
-            GL.Uniform1(UMetallicType, (int)g._model._metallicType);
-
-            int val = g.IsShadowCaster ? 1 : -1;
-            val *= g.IsAffectedByLight ? 1 : 10;
-            GL.Uniform1(UShadowCaster, val);
-
-            GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
-            for (int i = 0; i < meshes.Length; i++)
-            {
-                GeoMesh mesh = meshes[i];
-                GeoMaterial material = g._model.Material[i];
-                if (material.ColorAlbedo.W <= 0)
-                    continue;
-
-                GL.Uniform2(UMetallicRoughness, new Vector2(material.Metallic, material.Roughness));
-
-                if (g.IsAnimated)
-                {
-                    GL.Uniform1(UUseAnimations, 1);
-                    for (int j = 0; j < g._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
-                    {
-                        Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
-                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
-                    }
-                }
-                else
-                {
-                    GL.Uniform1(UUseAnimations, 0);
-                }
-
-                GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);
-                GL.UniformMatrix4(UNormalMatrix, false, ref g._stateRender._normalMatrices[i]);
-
-                GL.Uniform4(UColorMaterial, material.ColorAlbedo);
-
-                Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(
-                    material.TextureAlbedo.IsTextureSet ? 1 : 0,
-                    material.TextureNormal.IsTextureSet ? 1 : 0,
-                    material.TextureEmissive.IsTextureSet ? 1 : 0
-                    );
-                Vector3i useTexturesMetallicRoughness = new Vector3i(
-                    material.TextureMetallic.IsTextureSet ? 1 : 0,
-                    material.TextureRoughness.IsTextureSet ? 1 : 0,
-                    0 // open slot
-                    );
-                GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
-                GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
-                
-                UploadTextures(ref material, g);
-
-                if (material.RenderBackFace && g.DisableBackfaceCulling)
-                {
-                    GL.Disable(EnableCap.CullFace);
-                }
-                if(g.IsDepthTesting == false)
-                {
-                    GL.Disable(EnableCap.DepthTest);
-                }
-                GL.BindVertexArray(mesh.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                GL.BindVertexArray(0);
-
-                if (material.RenderBackFace && g.DisableBackfaceCulling)
-                {
-                    GL.Disable(EnableCap.CullFace);
-                }
-                if (g.IsDepthTesting == false)
-                {
-                    GL.Enable(EnableCap.DepthTest);
-                }
             }
         }
 
@@ -363,8 +265,21 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W <= 0)
                     continue;
 
-                
-                GL.Uniform1(UUseAnimations, 0);
+
+                if (r.IsAnimated)
+                {
+                    GL.Uniform1(UUseAnimations, 1);
+                    for (int j = 0; j < r._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
+                    {
+                        Matrix4 tmp = r._stateRender._boneTranslationMatrices[mesh.Name][j];
+                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
+                    }
+                }
+                else
+                {
+                    GL.Uniform1(UUseAnimations, 0);
+                }
+
                 GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
                 GL.UniformMatrix4(UNormalMatrix, false, ref r._stateRender._normalMatrices[i]);
 

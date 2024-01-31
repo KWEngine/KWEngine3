@@ -110,25 +110,26 @@ namespace KWEngine3.Helper
             UpdateModelMatricesForRenderPass(g);
         }
 
-        public static void BlendRenderObjectStates(RenderObject g, float alpha)
+        public static void BlendRenderObjectStates(RenderObject r, float alpha)
         {
-            g._stateRender._scale = Vector3.Lerp(g._statePrevious._scale, g._stateCurrent._scale, alpha);
-            g._stateRender._position = Vector3.Lerp(g._statePrevious._position, g._stateCurrent._position, alpha);
-            g._stateRender._rotation = Quaternion.Slerp(g._statePrevious._rotation, g._stateCurrent._rotation, alpha);
-            g._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(g._stateRender);
-            g._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrix));
-            g._stateRender._lookAtVector = Vector3.Lerp(g._statePrevious._lookAtVector, g._stateCurrent._lookAtVector, alpha);
+            r._stateRender._scale = Vector3.Lerp(r._statePrevious._scale, r._stateCurrent._scale, alpha);
+            r._stateRender._position = Vector3.Lerp(r._statePrevious._position, r._stateCurrent._position, alpha);
+            r._stateRender._rotation = Quaternion.Slerp(r._statePrevious._rotation, r._stateCurrent._rotation, alpha);
+            r._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(r._stateRender);
+            r._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(r._stateRender._modelMatrix));
+            r._stateRender._lookAtVector = Vector3.Lerp(r._statePrevious._lookAtVector, r._stateCurrent._lookAtVector, alpha);
 
-            g._stateRender._animationID = g._stateCurrent._animationID; //TODO current?
-            g._stateRender._animationPercentage = g._statePrevious._animationPercentage * alpha + g._stateCurrent._animationPercentage * (1f - alpha);
-            g._stateRender._opacity = g._statePrevious._opacity * alpha + g._stateCurrent._opacity * (1f - alpha);
-            g._stateRender._colorTint = Vector3.Lerp(g._statePrevious._colorTint, g._stateCurrent._colorTint, alpha);
-            g._stateRender._colorEmissive = Vector4.Lerp(g._statePrevious._colorEmissive, g._stateCurrent._colorEmissive, alpha);
-            g._stateRender._uvTransform = Vector4.Lerp(g._statePrevious._uvTransform, g._stateCurrent._uvTransform, alpha);
-            g._stateRender._center = Vector3.Lerp(g._statePrevious._center, g._stateCurrent._center, alpha);
-            g._stateRender._dimensions = Vector3.Lerp(g._statePrevious._dimensions, g._stateCurrent._dimensions, alpha);
+            r._stateRender._animationID = r._stateCurrent._animationID; //TODO current?
+            r._stateRender._animationPercentage = r._statePrevious._animationPercentage * alpha + r._stateCurrent._animationPercentage * (1f - alpha);
+            r._stateRender._opacity = r._statePrevious._opacity * alpha + r._stateCurrent._opacity * (1f - alpha);
+            r._stateRender._colorTint = Vector3.Lerp(r._statePrevious._colorTint, r._stateCurrent._colorTint, alpha);
+            r._stateRender._colorEmissive = Vector4.Lerp(r._statePrevious._colorEmissive, r._stateCurrent._colorEmissive, alpha);
+            r._stateRender._uvTransform = Vector4.Lerp(r._statePrevious._uvTransform, r._stateCurrent._uvTransform, alpha);
+            r._stateRender._center = Vector3.Lerp(r._statePrevious._center, r._stateCurrent._center, alpha);
+            r._stateRender._dimensions = Vector3.Lerp(r._statePrevious._dimensions, r._stateCurrent._dimensions, alpha);
 
-            UpdateModelMatricesForRenderPass(g);
+            UpdateBoneTransforms(r);
+            UpdateModelMatricesForRenderPass(r);
         }
 
 
@@ -184,23 +185,31 @@ namespace KWEngine3.Helper
             }
         }
 
-        internal static void UpdateBoneTransforms(GameObject g)
+        internal static void UpdateBoneTransforms(EngineObject g)
         {
             if (g.IsAnimated)
             {
                 GeoAnimation a = g._model.ModelOriginal.Animations[g._stateRender._animationID];
                 Matrix4 identity = Matrix4.Identity;
-                g._attachBoneNodes.Clear();
-                for (int i = 0; i < g._gameObjectsAttached.Keys.Count; i++)
+                if (g is GameObject)
                 {
-                    GeoNode boneNode = g._gameObjectsAttached.Keys.ElementAt(i);
-                    g._attachBoneNodes.Add(boneNode);
+                    GameObject go = g as GameObject;
+                    go._attachBoneNodes.Clear();
+                    for (int i = 0; i < go._gameObjectsAttached.Keys.Count; i++)
+                    {
+                        GeoNode boneNode = go._gameObjectsAttached.Keys.ElementAt(i);
+                        go._attachBoneNodes.Add(boneNode);
+                    }
+                    ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, go._attachBoneNodes);
                 }
-                ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, g._attachBoneNodes);
+                else
+                {
+                    ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, null);
+                }
             }
         }
 
-        private static void ReadNodeHierarchy(GameObject g, float timestamp, ref GeoAnimation animation, GeoNode node, ref Matrix4 parentTransform, List<GeoNode> attachBones, bool isVSG = false)
+        private static void ReadNodeHierarchy(EngineObject g, float timestamp, ref GeoAnimation animation, GeoNode node, ref Matrix4 parentTransform, List<GeoNode> attachBones, bool isVSG = false)
         {
             animation.AnimationChannels.TryGetValue(node.Name, out GeoNodeAnimationChannel channel);
             Matrix4 nodeTransformation = node.Transform;
@@ -223,30 +232,33 @@ namespace KWEngine3.Helper
                     {
                         Matrix4 boneMatrix = mesh.BoneOffset[index] * globalTransform * g._model.ModelOriginal.TransformGlobalInverse;
                         g._stateRender._boneTranslationMatrices[mesh.Name][index] = boneMatrix;
-                        int tempIndex = attachBones.IndexOf(node);
+                        int tempIndex = attachBones != null ? attachBones.IndexOf(node) : -1;
                         if (tempIndex >= 0)
                         {
-                            GameObject attachedObject = g._gameObjectsAttached[node];
-                            if (attachedObject != null)
+                            if(g is GameObject)
                             {
-                                Matrix4 attachmentMatrix;
-                                if(isVSG)
+                                GameObject attachedObject = (g as GameObject)._gameObjectsAttached[node];
+                                if (attachedObject != null)
                                 {
-                                    attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
+                                    Matrix4 attachmentMatrix;
+                                    if (isVSG)
+                                    {
+                                        attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
+                                    }
+                                    else
+                                    {
+                                        attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                                    }
+
+                                    Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
+                                    Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
+                                    Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
+                                    attachedObject.SetScaleRotationAndTranslation(
+                                        attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
+                                        attachmentMatrix.ExtractRotation(false) * attachedObject._rotationOffsetForAttachment,
+                                        attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward
+                                        );
                                 }
-                                else
-                                {
-                                    attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
-                                }
-                                
-                                Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
-                                Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
-                                Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
-                                attachedObject.SetScaleRotationAndTranslation(
-                                    attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
-                                    attachmentMatrix.ExtractRotation(false) * attachedObject._rotationOffsetForAttachment,
-                                    attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward
-                                    );
                             }
                         }
                     }

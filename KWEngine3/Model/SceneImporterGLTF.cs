@@ -458,6 +458,10 @@ namespace KWEngine3.Model
                         {
                             texFoundInSameFile = glbTextures.TryGetValue(i.Name, out glTexIdTemp);
                         }
+                        else
+                        {
+                            i.Name = "GLTF-albmat-" + materialId;
+                        }
                         GeoTexture tex = new GeoTexture();
                         bool duplicateFound = CheckIfOtherModelsShareTexture(i.Uri, model.Path, out tex);
                         if (!duplicateFound)
@@ -502,6 +506,10 @@ namespace KWEngine3.Model
                     {
                         texFoundInSameFile = glbTextures.TryGetValue(i.Name, out glTexIdTemp);
                     }
+                    else
+                    {
+                        i.Name = "GLTF-nrmmat-" + materialId;
+                    }
                     GeoTexture tex = new GeoTexture();
                     bool duplicateFound = CheckIfOtherModelsShareTexture(i.Uri, model.Path, out tex);
                     if (!duplicateFound)
@@ -542,7 +550,11 @@ namespace KWEngine3.Model
                         {
                             texFoundInSameFile = glbTextures.TryGetValue(i.Name, out glTexIdTemp);
                         }
-                        
+                        else
+                        {
+                            i.Name = "GLTF-pbrmat-" + materialId;
+                        }
+
                         bool duplicateFound = CheckIfOtherModelsShareTexture(i.Uri, model.Path, out GeoTexture tex);
                         if (!duplicateFound)
                         {
@@ -581,6 +593,10 @@ namespace KWEngine3.Model
                     {
                         texFoundInSameFile = glbTextures.TryGetValue(i.Name, out glTexIdTemp);
                     }
+                    else
+                    {
+                        i.Name = "GLTF-emimat-" + materialId;
+                    }
                     GeoTexture tex = new GeoTexture();
                     bool duplicateFound = CheckIfOtherModelsShareTexture(i.Uri, model.Path, out tex);
                     if (!duplicateFound)
@@ -613,16 +629,16 @@ namespace KWEngine3.Model
         {
             if (dict != null && dict.ContainsKey("KHR_texture_transform"))
             {
-                Newtonsoft.Json.Linq.JObject transforms = (Newtonsoft.Json.Linq.JObject)dict["KHR_texture_transform"];
+                JObject transforms = (JObject)dict["KHR_texture_transform"];
                 if (transforms.HasValues)
                 {
-                    foreach (Newtonsoft.Json.Linq.JToken child in transforms.Children())
+                    foreach (JToken child in transforms.Children())
                     {
                         if (child.Path == "scale")
                         {
                             try
                             {
-                                var uv = child.Value<Newtonsoft.Json.Linq.JProperty>().First;
+                                var uv = child.Value<JProperty>().First;
                                 var x = uv.First;
                                 var y = uv.Last;
                                 float xf = x.Value<float>();
@@ -1385,6 +1401,12 @@ namespace KWEngine3.Model
 
                     float[] uvs2 = GetUVDataForMeshPrimitive(scene, mprim, ref model, 1);
 
+                    if(tangents == null || tangents.Length == 0)
+                    {
+                        KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Adding them.");
+                        tangents = GenerateTangentsFrom(geoMesh.Vertices, normals, uvs, indices);
+                    }
+
                     if (xmin < minX)
                         minX = xmin;
                     if (xmax > maxX)
@@ -1397,8 +1419,6 @@ namespace KWEngine3.Model
                         minZ = zmin;
                     if (zmax > maxZ)
                         maxZ = zmax;
-
-
 
                     geoMesh.Transform = nodeTransform;
                     geoMesh.Terrain = null;
@@ -1414,7 +1434,6 @@ namespace KWEngine3.Model
                     {
                         geoMesh.BoneTranslationMatrixCount = boneIds.Count;
                         ProcessMeshBones(scene, currentNode, ref model, ref geoMesh, boneIds);
-
                     }
 
                     geoMesh.VAOGenerateAndBind();
@@ -1697,6 +1716,51 @@ namespace KWEngine3.Model
                     model.Animations.Add(ga);
                 }
             }
+        }
+        private static float[] GenerateTangentsFrom(GeoVertex[] vertices, float[] normals, float[] uvs, uint[] indices)
+        {
+            float[] tangents = new float[normals.Length];
+
+            for (int indexCounter = 0; indexCounter < indices.Length; indexCounter += 3)
+            {
+                Vector3 v0 = new(vertices[indices[indexCounter + 0]].X, vertices[indices[indexCounter + 0]].Y, vertices[indices[indexCounter + 0]].Z);
+                Vector3 v1 = new(vertices[indices[indexCounter + 1]].X, vertices[indices[indexCounter + 1]].Y, vertices[indices[indexCounter + 1]].Z);
+                Vector3 v2 = new(vertices[indices[indexCounter + 2]].X, vertices[indices[indexCounter + 2]].Y, vertices[indices[indexCounter + 2]].Z);
+
+                Vector3 n0 = new(normals[indices[indexCounter + 0] * 3 + 0], normals[indices[indexCounter + 0] * 3 + 1], normals[indices[indexCounter + 0] * 3 + 2]);
+                Vector3 n1 = new(normals[indices[indexCounter + 1] * 3 + 0], normals[indices[indexCounter + 1] * 3 + 1], normals[indices[indexCounter + 1] * 3 + 2]);
+                Vector3 n2 = new(normals[indices[indexCounter + 2] * 3 + 0], normals[indices[indexCounter + 2] * 3 + 1], normals[indices[indexCounter + 2] * 3 + 2]);
+
+                Vector2 uv0 = new(uvs[indices[indexCounter + 0] * 2 + 0], uvs[indices[indexCounter + 0] * 2 + 1]);
+                Vector2 uv1 = new(uvs[indices[indexCounter + 1] * 2 + 0], uvs[indices[indexCounter + 1] * 2 + 1]);
+                Vector2 uv2 = new(uvs[indices[indexCounter + 2] * 2 + 0], uvs[indices[indexCounter + 2] * 2 + 1]);
+
+                // Edges of the triangle : position delta
+                Vector3 deltaPos1 = v1 - v0;
+                Vector3 deltaPos2 = v2 - v0;
+
+                // UV delta
+                Vector2 deltaUV1 = uv1 - uv0;
+                Vector2 deltaUV2 = uv2 - uv0;
+
+                float r = 1.0f / (deltaUV1.X * deltaUV2.Y - deltaUV1.Y * deltaUV2.X);
+                Vector3 tangent = (deltaPos1 * deltaUV2.Y - deltaPos2 * deltaUV1.Y) * r;
+                tangent.Normalize();
+
+                tangents[indices[indexCounter + 0] * 3 + 0] = tangent.X;
+                tangents[indices[indexCounter + 0] * 3 + 1] = tangent.Y;
+                tangents[indices[indexCounter + 0] * 3 + 2] = tangent.Z;
+
+                tangents[indices[indexCounter + 1] * 3 + 0] = tangent.X;
+                tangents[indices[indexCounter + 1] * 3 + 1] = tangent.Y;
+                tangents[indices[indexCounter + 1] * 3 + 2] = tangent.Z;
+
+                tangents[indices[indexCounter + 2] * 3 + 0] = tangent.X;
+                tangents[indices[indexCounter + 2] * 3 + 1] = tangent.Y;
+                tangents[indices[indexCounter + 2] * 3 + 2] = tangent.Z;
+            }
+
+            return tangents;
         }
     }
 }
