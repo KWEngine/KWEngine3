@@ -1401,10 +1401,17 @@ namespace KWEngine3.Model
 
                     float[] uvs2 = GetUVDataForMeshPrimitive(scene, mprim, ref model, 1);
 
-                    if(tangents == null || tangents.Length == 0)
+                    if ((tangents == null || tangents.Length == 0))
                     {
-                        KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Adding them.");
-                        tangents = GenerateTangentsFrom(geoMesh.Vertices, normals, uvs, indices);
+                        if (uvs != null && normals != null && indices != null)
+                        {
+                            KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Adding them.");
+                            tangents = GenerateTangentsFrom(geoMesh.Vertices, normals, uvs, indices);
+                        }
+                        else
+                        {
+                            KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Normal maps not working.");
+                        }
                     }
 
                     if (xmin < minX)
@@ -1726,10 +1733,6 @@ namespace KWEngine3.Model
                 Vector3 v0 = new(vertices[indices[indexCounter + 0]].X, vertices[indices[indexCounter + 0]].Y, vertices[indices[indexCounter + 0]].Z);
                 Vector3 v1 = new(vertices[indices[indexCounter + 1]].X, vertices[indices[indexCounter + 1]].Y, vertices[indices[indexCounter + 1]].Z);
                 Vector3 v2 = new(vertices[indices[indexCounter + 2]].X, vertices[indices[indexCounter + 2]].Y, vertices[indices[indexCounter + 2]].Z);
-
-                Vector3 n0 = new(normals[indices[indexCounter + 0] * 3 + 0], normals[indices[indexCounter + 0] * 3 + 1], normals[indices[indexCounter + 0] * 3 + 2]);
-                Vector3 n1 = new(normals[indices[indexCounter + 1] * 3 + 0], normals[indices[indexCounter + 1] * 3 + 1], normals[indices[indexCounter + 1] * 3 + 2]);
-                Vector3 n2 = new(normals[indices[indexCounter + 2] * 3 + 0], normals[indices[indexCounter + 2] * 3 + 1], normals[indices[indexCounter + 2] * 3 + 2]);
 
                 Vector2 uv0 = new(uvs[indices[indexCounter + 0] * 2 + 0], uvs[indices[indexCounter + 0] * 2 + 1]);
                 Vector2 uv1 = new(uvs[indices[indexCounter + 1] * 2 + 0], uvs[indices[indexCounter + 1] * 2 + 1]);

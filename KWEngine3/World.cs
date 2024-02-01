@@ -63,7 +63,7 @@ namespace KWEngine3
         internal Vector3 _worldCenter = new(0);
 
         internal Vector3 _colorAmbient = new(0.75f, 0.75f, 0.75f);
-        internal Vector3 _colorFill = new(0.0f, 0.0f, 0.0f);
+        internal Vector3 _backgroundFillColor = new(0.0f, 0.0f, 0.0f);
         internal WorldBackground _background = new();
 
         internal IReadOnlyCollection<GameObject> GetGameObjectsSortedByType()
@@ -519,6 +519,16 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Gibt Auskunft über das aktuell gewählte Umgebungslicht
+        /// </summary>
+        public Vector3 ColorAmbient { get { return  _colorAmbient; } }
+
+        /// <summary>
+        /// Gibt Auskunft über die aktuell gewählte Hintergrundfarbe
+        /// </summary>
+        public Vector3 ColorBackground { get { return _backgroundFillColor; } }
+
+        /// <summary>
         /// Setzt die Farbe des Umgebungslichts (dort wo kein Licht scheint)
         /// </summary>
         /// <param name="r">Rotanteil (0 bis 1)</param>
@@ -594,25 +604,25 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Setzt die Hintergrundfarbe der Feld
+        /// Setzt die Hintergrundfarbe der Welt
         /// </summary>
         /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
-        /// <param name="g">Rotanteil (zwischen 0 und 1)</param>
-        /// <param name="b">Rotanteil (zwischen 0 und 1)</param>
+        /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
+        /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
         public void SetBackgroundFillColor(float r, float g, float b)
         {
             SetBackgroundFillColor(new Vector3(r, g, b));
         }
 
         /// <summary>
-        /// Setzt die Hintergrundfarbe der Feld
+        /// Setzt die Hintergrundfarbe der Welt
         /// </summary>
         /// <param name="color">Farbwerte (RGB, jeweils zwischen 0 und 1)</param>
         public void SetBackgroundFillColor(Vector3 color)
         {
-            _colorFill = new(Math.Clamp(color.X, 0f, 1f), Math.Clamp(color.Y, 0f, 1f), Math.Clamp(color.Z, 0f, 1f));
+            _backgroundFillColor = new(Math.Clamp(color.X, 0f, 1f), Math.Clamp(color.Y, 0f, 1f), Math.Clamp(color.Z, 0f, 1f));
 
-            RenderManager.UpdateFramebufferClearColor(_colorFill);
+            RenderManager.UpdateFramebufferClearColor(_backgroundFillColor);
         }
 
         /// <summary>
@@ -1272,7 +1282,7 @@ namespace KWEngine3
         /// Setze den Blickwinkel der Kamera
         /// </summary>
         /// <param name="fov">Blickwinkel in Grad (zwischen 10 und 180)</param>
-        public void SetCameraFOV(int fov)
+        public void SetCameraFOV(float fov)
         {
             _cameraGame.SetFOVForPerspectiveProjection(fov);
         }

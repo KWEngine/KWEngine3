@@ -108,6 +108,7 @@
       <Field Name="_availableGameObjectIDs" Hidden="true" />
       <Field Name="_availableLightObjectIDs" Hidden="true" />
       <Field Name="_background" Hidden="true" />
+      <Field Name="_backgroundFillColor" Hidden="true" />
       <Field Name="_cameraEditor" Hidden="true" />
       <Field Name="_cameraGame" Hidden="true" />
       <Field Name="_colorAmbient" Hidden="true" />
@@ -169,7 +170,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDQCZAERzoGghagCTK5ZD6YcUaGCH/AcAnE=</HashCode>
+      <HashCode>SQl0OI6AJDQKZAURzoGghahCTK5ZD6YcUaGCH/AcAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -261,7 +262,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="3.5" Y="17" Width="2.75" />
+    <Position X="3.5" Y="17.5" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />

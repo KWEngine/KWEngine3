@@ -859,7 +859,7 @@ namespace KWEngine3.Editor
             {
                 System.Numerics.Vector3 colorAmbientNew = new(KWEngine.CurrentWorld._colorAmbient.X, KWEngine.CurrentWorld._colorAmbient.Y, KWEngine.CurrentWorld._colorAmbient.Z);
                 string bgTexture = GetBackgroundTextureName();
-                float fov = KWEngine.CurrentWorld._cameraEditor._stateCurrent._fov * 2;
+                float fov = (float)Math.Round(KWEngine.CurrentWorld._cameraEditor._stateCurrent._fov * 2);
                 
                 ImGui.Begin("World settings", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
                 ImGui.SetWindowSize(new System.Numerics.Vector2(512, 256));

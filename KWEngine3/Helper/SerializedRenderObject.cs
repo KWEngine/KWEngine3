@@ -47,6 +47,7 @@ namespace KWEngine3.Helper
         public bool[] TextureRoughnessInMetallic { get; set; }
         public float[] TextureTransform { get; set; }
         public int InstanceCount { get; set; }
+        public InstanceMode Mode { get; set; }
         public float[] InstanceMatrices { get; set; }
 
         public static SerializedRenderObject GenerateSerializedRenderObject(RenderObject r, World w)
@@ -104,6 +105,7 @@ namespace KWEngine3.Helper
 
             // Instancing
             rg.InstanceCount = r.InstanceCount;
+            rg.Mode = r.Mode;
             rg.InstanceMatrices = new float[r.InstanceCount * 16];
             
             GL.BindBuffer(BufferTarget.UniformBuffer, r._ubo);

@@ -8,7 +8,22 @@
     }
 
     /// <summary>
-    /// Modues der Textanordnung in einem HUDObject
+    /// Modus der Instanzplatzierung für RenderObject-Instanzen
+    /// </summary>
+    public enum InstanceMode
+    {
+        /// <summary>
+        /// Jede zusätzliche Instanz hat eine unabhängige Position/Rotation/Skalierung
+        /// </summary>
+        Absolute,
+        /// <summary>
+        /// Jede zusätzliche hat eine vom Hauptinstanzelement abhängige Position/Rotation/Skalierung
+        /// </summary>
+        Relative
+    }
+
+    /// <summary>
+    /// Modus der Textanordnung in einem HUDObject
     /// </summary>
     public enum TextAlignMode
     {

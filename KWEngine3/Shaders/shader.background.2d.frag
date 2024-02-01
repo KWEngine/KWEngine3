@@ -11,6 +11,5 @@ layout(location = 1) out vec4 bloom;
 void main()
 {
     color = texture(uTexture, vTexture) * vec4(uColorAmbient, 1.0);
-    color.w = 1.0;
     bloom = vec4(0);
 }

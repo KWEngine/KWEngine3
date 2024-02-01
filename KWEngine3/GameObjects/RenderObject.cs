@@ -16,9 +16,9 @@ namespace KWEngine3.GameObjects
         public int InstanceCount { get; internal set; } = -1;
 
         /// <summary>
-        /// Gibt an, ob die Instanz vollständig konfiguriert wurde
+        /// Gibt an, ob jede zusätzliche Instanz absolut oder relativ zur Hauptinstanz positioniert wird
         /// </summary>
-        public bool IsConfigured { get { return InstanceCount >= 0; } }
+        public InstanceMode Mode { get; internal set; }
 
         /// <summary>
         /// Standardkonstruktor (erzeugt mit einem Würfel als 3D-Modell)
@@ -49,12 +49,14 @@ namespace KWEngine3.GameObjects
         /// Es sind maximal 1023 zusätzliche Instanzen möglich.
         /// </summary>
         /// <param name="instanceCount">Anzahl zusätzlich zu erstellender Instanzen (0 für keine zusätzlichen Instanzen)</param>
-        public void SetAdditionalInstanceCount(int instanceCount)
+        /// <param name="mode">Legt fest, ob jede zusätzliche Instanz absolut oder relativ zur Hauptinstanz positioniert wird (Standard: absolut)</param>
+        public void SetAdditionalInstanceCount(int instanceCount, InstanceMode mode = InstanceMode.Absolute)
         {
             if(instanceCount > KWEngine.MAXADDITIONALINSTANCECOUNT)
             {
                 KWEngine.LogWriteLine("[RenderObject] Max. additional instance count per object is " + KWEngine.MAXADDITIONALINSTANCECOUNT);
             }
+            Mode = mode;
             instanceCount = Math.Clamp(instanceCount, 0, KWEngine.MAXADDITIONALINSTANCECOUNT);
             InstanceCount = instanceCount + 1;
             InitUBO();
@@ -133,7 +135,8 @@ namespace KWEngine3.GameObjects
             }
 
             Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref scale, ref rotation, ref position);
-            tmp = _stateCurrent._modelMatrixInverse * tmp;
+            if(Mode == InstanceMode.Absolute)
+                tmp = _stateCurrent._modelMatrixInverse * tmp;
 
             // MODEL MATRIX
             _uboData[00] = tmp.M11;
@@ -208,6 +211,8 @@ namespace KWEngine3.GameObjects
             }
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
+
+        internal bool IsConfigured { get { return InstanceCount >= 0; } }
 
         internal override void InitHitboxes()
         {

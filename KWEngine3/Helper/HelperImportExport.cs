@@ -90,6 +90,7 @@ namespace KWEngine3.Helper
             {
                 w.SetBackgroundSkybox(sw.BackgroundSkyBox, sw.BackgroundSkyboxRotation);
             }
+            w.SetBackgroundFillColor(sw.BackgroundFillColor[0], sw.BackgroundFillColor[1], sw.BackgroundFillColor[2]);
 
             // Build and add game object instances:
             List<string[]> attachmentList = new List<string[]>();
@@ -482,7 +483,7 @@ namespace KWEngine3.Helper
             if (sr.TextureTransform.Length == 4)
                 r.SetTextureOffset(sr.TextureTransform[2], sr.TextureTransform[3]);
 
-            r.SetAdditionalInstanceCount(sr.InstanceCount - 1);
+            r.SetAdditionalInstanceCount(sr.InstanceCount - 1, sr.Mode);
             for(int i = 16; i < sr.InstanceMatrices.Length; i += 16)
             {
                 Matrix4 modelMatrix = new Matrix4(
