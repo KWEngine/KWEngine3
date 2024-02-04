@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2024-02-01)</Product>
+		<Product>KWEngine3 (updated: 2024-02-04)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.2.0</Version>
-		<AssemblyVersion>3.0.2.0</AssemblyVersion>
-		<FileVersion>3.0.2.0</FileVersion>
-		<ProductVersion>3.0.2.0</ProductVersion>
+		<Version>3.0.2.1</Version>
+		<AssemblyVersion>3.0.2.1</AssemblyVersion>
+		<FileVersion>3.0.2.1</FileVersion>
+		<ProductVersion>3.0.2.1</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -96,6 +96,8 @@
 		<None Remove="Shaders\shader.forward.particle.vert" />
 		<None Remove="Shaders\shader.gbuffer.frag" />
 		<None Remove="Shaders\shader.gbuffer.vert" />
+		<None Remove="Shaders\shader.gbufferfoliage.frag" />
+		<None Remove="Shaders\shader.gbufferfoliage.vert" />
 		<None Remove="Shaders\shader.gbufferinstanced.frag" />
 		<None Remove="Shaders\shader.gbufferinstanced.vert" />
 		<None Remove="Shaders\shader.grid.frag" />
@@ -176,6 +178,12 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.gbufferfoliage.frag">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.gbufferfoliage.vert">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.geom" />
 		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.frag" />

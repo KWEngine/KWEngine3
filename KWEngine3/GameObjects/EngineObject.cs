@@ -73,13 +73,13 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                if (HasTransparencyTexture)
+                if (HasTransparencyTexture && _stateCurrent._opacity > 0f)
                     return true;
-                if (_stateCurrent._opacity < 1f)
+                if (_stateCurrent._opacity < 1f && _stateCurrent._opacity > 0f)
                     return true;
                 foreach (GeoMaterial mat in _model.Material)
                 {
-                    if (mat.ColorAlbedo.W < 1f && mat.ColorAlbedo.W > 0)
+                    if (mat.ColorAlbedo.W < 1f && mat.ColorAlbedo.W > 0f)
                     {
                         return true;
                     }

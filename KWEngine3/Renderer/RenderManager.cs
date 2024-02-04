@@ -88,6 +88,8 @@ namespace KWEngine3.Renderer
             RendererParticle.Init();
             RendererForwardText.Init();
 
+            RendererGBufferFoliage.Init();
+
             RendererShadowMap.Init();
             RendererShadowMapInstanced.Init();
             RendererShadowMapCube.Init();

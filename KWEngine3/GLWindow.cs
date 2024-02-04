@@ -170,7 +170,6 @@ namespace KWEngine3
             GL.DepthFunc(DepthFunction.Less);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             //GL.LineWidth(2f); // not available on core profile
-            HelperGeneral.CheckGLErrors();
             
             KWBuilderOverlay.InitFrameTimeQueue();
          }
@@ -232,12 +231,17 @@ namespace KWEngine3
                 // Render GameObject instances to G-Buffer:
                 RendererGBuffer.Bind();
                 gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene());
-
                 // Render RenderObject instances to G-Buffer:
                 if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                 {
                     RendererGBufferInstanced.Bind();
                     renderObjectsForForwardRendering.AddRange(RendererGBufferInstanced.RenderScene());
+                }
+
+                if (KWEngine.CurrentWorld._foliageObjects.Count > 0)
+                {
+                    RendererGBufferFoliage.Bind();
+                    RendererGBufferFoliage.RenderScene();
                 }
 
                 // Render terrain objects to G-Buffer:
@@ -263,7 +267,6 @@ namespace KWEngine3
                     RendererLightOverlay.Draw(KWEngine.CurrentWorld._lightObjects);
                     GL.Enable(EnableCap.DepthTest);
                 }
-
 
                 // Shadow map pass:
                 KWEngine.CurrentWorld.PrepareLightObjectsForRenderPass();
@@ -366,27 +369,24 @@ namespace KWEngine3
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                         RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
                 }
-
+                
                 if (renderObjectsForForwardRendering.Count > 0)
                 {
                     RendererForwardInstanced.Bind();
                     RendererForwardInstanced.SetGlobals();
                     RendererForwardInstanced.RenderScene(renderObjectsForForwardRendering);
                 }
-
                 if (KWEngine.CurrentWorld._textObjects.Count > 0)
                 {
                     RendererForwardText.Bind();
                     RendererForwardText.SetGlobals();
                     RendererForwardText.RenderScene();
                 }
-
                 if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
                 {
                     RendererParticle.Bind();
                     RendererParticle.RenderParticles(KWEngine.CurrentWorld._particleAndExplosionObjects);
                 }
-
                 // HUD objects pass:
                 RendererHUD.Bind();
                 RendererHUD.SetGlobals();
@@ -414,7 +414,9 @@ namespace KWEngine3
                     //GL.Enable(EnableCap.DepthTest);
                 }
                 */
-
+#if DEBUG
+                HelperGeneral.CheckGLErrors();
+#endif
                 // unbind last render program:
                 GL.UseProgram(0);
             }
@@ -703,6 +705,7 @@ namespace KWEngine3
 
                     KWEngine.CurrentWorld.AddRemoveGameObjects();
                     KWEngine.CurrentWorld.AddRemoveRenderObjects();
+                    KWEngine.CurrentWorld.AddRemoveFoliageObjects();
                     KWEngine.CurrentWorld.AddRemoveTerrainObjects();
                     KWEngine.CurrentWorld.AddRemoveLightObjects();
                     KWEngine.CurrentWorld.AddRemoveHUDObjects();
@@ -722,6 +725,11 @@ namespace KWEngine3
                     {
                         t._statePrevious = t._stateCurrent;
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
+                    }
+
+                    foreach (FoliageObject f in KWEngine.CurrentWorld._foliageObjects)
+                    {
+                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(f);
                     }
 
                     foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)

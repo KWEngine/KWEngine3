@@ -7,6 +7,7 @@ using KWEngine3.Editor;
 using KWEngine3.Model;
 using KWEngine3.GameObjects;
 using OpenTK.Windowing.Common;
+using KWEngine3.Assets;
 
 
 namespace KWEngine3
@@ -271,6 +272,8 @@ namespace KWEngine3
             KWLightBulb = SceneImporter.LoadModel("lightbulb.obj", false, SceneImporter.AssemblyMode.Internal);
             KWCapsule = SceneImporter.LoadModel("capsulehitbox.obj", false, SceneImporter.AssemblyMode.Internal);
             KWTerrainDefault = KWEngine.BuildDefaultTerrainModel("TerrainDefault", 10, 0, 10);
+
+            KWFoliageGrass.Init();
 
             for (int i = 0; i < ExplosionObject.Axes.Length; i++)
             {

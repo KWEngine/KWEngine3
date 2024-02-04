@@ -116,6 +116,9 @@ namespace KWEngine3.Renderer
 
         public static void Draw(GameObject g)
         {
+            if (g._stateCurrent._opacity <= 0f)
+                return;
+
             GL.Uniform3(UColorTint, g._stateRender._colorTint);
 
             int val = g.IsShadowCaster ? 1 : -1;

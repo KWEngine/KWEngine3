@@ -164,6 +164,10 @@ namespace KWEngine3.Renderer
             {
                 GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
             }
+            else if(KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.None)
+            {
+                GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
+            }
             else
             {
                 GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.CurrentWorld._background._skyboxId);
@@ -196,7 +200,6 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[4].ID);
             GL.Uniform1(UTextureDepth, 0);
-
             // albedo:
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);

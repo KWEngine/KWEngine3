@@ -16,9 +16,9 @@ namespace KWEngine3.GameObjects
         public int InstanceCount { get; internal set; } = -1;
 
         /// <summary>
-        /// Gibt an, ob jede zusätzliche Instanz absolut oder relativ zur Hauptinstanz positioniert wird
+        /// Gibt an, ob jede zusätzliche Instanz absolut oder relativ zur Hauptinstanz positioniert wird (Standard: absolut)
         /// </summary>
-        public InstanceMode Mode { get; internal set; }
+        public InstanceMode Mode { get; internal set; } = InstanceMode.Absolute;
 
         /// <summary>
         /// Standardkonstruktor (erzeugt mit einem Würfel als 3D-Modell)
@@ -114,9 +114,31 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Position/Rotation/Skalierung für eine bestimmte Instanz. Alle Angaben sind in Relation zur Position/Rotation/Skalierung der Hauptinstanz zu verstehen.
+        /// Setzt die Position für eine bestimmte Instanz. Die Rotation und Skalierung der angegebenen Instanz werden zurück auf die Standardwerte gesetzt.
         /// </summary>
-        /// <param name="instanceIndex">Index der Instanz</param>
+        /// <param name="instanceIndex">Index der Instanz (muss zwischen 1 und 1023 liegen)</param>
+        /// <param name="position">Position der Instanz</param>
+        public void SetPositionForInstance(int instanceIndex, Vector3 position)
+        {
+            SetPositionRotationScaleForInstance(instanceIndex, position, Quaternion.Identity, Vector3.One);
+        }
+
+        /// <summary>
+        /// Setzt die Position für eine bestimmte Instanz. Die Rotation und Skalierung der angegebenen Instanz werden zurück auf die Standardwerte gesetzt.
+        /// </summary>
+        /// <param name="instanceIndex">Index der Instanz (muss zwischen 1 und 1023 liegen)</param>
+        /// <param name="x">X-Position der Instanz</param>
+        /// <param name="y">Y-Position der Instanz</param>
+        /// <param name="z">Z-Position der Instanz</param>
+        public void SetPositionForInstance(int instanceIndex, float x, float y, float z)
+        {
+            SetPositionRotationScaleForInstance(instanceIndex, new Vector3(x, y, z), Quaternion.Identity, Vector3.One);
+        }
+
+        /// <summary>
+        /// Setzt die Position/Rotation/Skalierung für eine bestimmte Instanz.
+        /// </summary>
+        /// <param name="instanceIndex">Index der Instanz (muss zwischen 1 und 1023 liegen)</param>
         /// <param name="position">Position der Instanz</param>
         /// <param name="rotation">Rotation der Instanz</param>
         /// <param name="scale">Skalierung der Instanz</param>

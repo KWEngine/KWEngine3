@@ -3,7 +3,6 @@ using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Renderer;
-using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -19,7 +18,11 @@ namespace KWEngine3
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
         internal List<WorldEvent> _eventQueue = new();
-        
+
+        internal List<FoliageObject> _foliageObjects = new();
+        internal List<FoliageObject> _foliageObjectsToBeAdded = new();
+        internal List<FoliageObject> _foliageObjectsToBeRemoved = new();
+
         internal List<GameObject> _gameObjects = new();
         internal List<GameObject> _gameObjectsToBeAdded = new();
         internal List<GameObject> _gameObjectsToBeRemoved = new();
@@ -29,6 +32,7 @@ namespace KWEngine3
         internal List<RenderObject> _renderObjectsToBeRemoved = new();
 
         internal List<GameObject> _gameObjectsColliderChange = new();
+        internal List<GameObjectHitbox> _gameObjectHitboxes = new();
 
         internal List<TerrainObject> _terrainObjects = new();
         internal List<TerrainObject> _terrainObjectsToBeAdded = new();
@@ -131,7 +135,6 @@ namespace KWEngine3
             _zMinMax = new Vector2(float.MaxValue, float.MinValue);
         }
 
-        internal List<GameObjectHitbox> _gameObjectHitboxes = new();
 
         internal GameObject BuildAndAddDefaultGameObjectForEditor(string classname)
         {
@@ -264,6 +267,30 @@ namespace KWEngine3
             _textObjectsToBeAdded.Clear();
         }
 
+        internal void AddRemoveFoliageObjects()
+        {
+            for (int i = _foliageObjectsToBeRemoved.Count - 1; i >= 0; i--)
+            {
+                if (_foliageObjectsToBeAdded.Contains(_foliageObjectsToBeRemoved[i]))
+                {
+                    _foliageObjectsToBeAdded.Remove(_foliageObjectsToBeRemoved[i]);
+                    _foliageObjectsToBeRemoved.RemoveAt(i);
+                }
+            }
+
+            foreach (FoliageObject f in _foliageObjectsToBeRemoved)
+            {
+                _foliageObjects.Remove(f);
+            }
+            _foliageObjectsToBeRemoved.Clear();
+
+            foreach (FoliageObject f in _foliageObjectsToBeAdded)
+            {
+                _foliageObjects.Add(f);
+            }
+            _foliageObjectsToBeAdded.Clear();
+        }
+
         internal void AddRemoveRenderObjects()
         {
             for (int i = _renderObjectsToBeRemoved.Count - 1; i >= 0; i--)
@@ -379,6 +406,12 @@ namespace KWEngine3
                 RemoveGameObject(g);
             }
             AddRemoveGameObjects();
+
+            foreach (FoliageObject f in _foliageObjects)
+            {
+                RemoveFoliageObject(f);
+            }
+            AddRemoveFoliageObjects();
 
             foreach (RenderObject r in _renderObjects)
             {
@@ -716,6 +749,55 @@ namespace KWEngine3
             {
                 po._starttime = WorldTime;
                 _particleAndExplosionObjects.Add(po);
+            }
+        }
+
+        /// <summary>
+        /// Fügt ein Gewächsobjekt (z.B. Gras) hinzu
+        /// </summary>
+        /// <param name="f">hinzuzufügendes Objekt</param>
+        internal void AddFoliageObject(FoliageObject f)
+        {
+            if (IsPrepared == false)
+            {
+                if (!_foliageObjects.Contains(f))
+                {
+                    _foliageObjects.Add(f);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[FoliageObject] Object " + f.Name + " already in world.");
+                }
+            }
+            else
+            {
+                if (!_foliageObjects.Contains(f) && !_foliageObjectsToBeAdded.Contains(f))
+                {
+                    _foliageObjectsToBeAdded.Add(f);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[FoliageObject] Object " + f.Name + " already in world.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Löscht ein Gewächsobjekt (z.B. Gras) aus der Welt
+        /// </summary>
+        /// <param name="f">zu entfernendes Objekt</param>
+        internal void RemoveFoliageObject(FoliageObject f)
+        {
+            if (IsPrepared == false)
+            {
+                _foliageObjects.Remove(f);
+            }
+            else
+            {
+                if (!_foliageObjectsToBeRemoved.Contains(f))
+                {
+                    _foliageObjectsToBeRemoved.Add(f);
+                }
             }
         }
 

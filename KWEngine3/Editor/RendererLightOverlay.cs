@@ -82,7 +82,6 @@ namespace KWEngine3.Editor
             }
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
-            HelperGeneral.CheckGLErrors();
         }
     }
 }

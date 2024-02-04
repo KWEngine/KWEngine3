@@ -192,6 +192,10 @@ namespace KWEngine3.Renderer
             {
                 GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
             }
+            else if(KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.None)
+            {
+                GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
+            }
             else
             {
                 GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.CurrentWorld._background._skyboxId);

@@ -8,6 +8,17 @@
     }
 
     /// <summary>
+    /// Art des Bodengewächses
+    /// </summary>
+    public enum FoliageType
+    {
+        /// <summary>
+        /// Gras
+        /// </summary>
+        Grass
+    }
+
+    /// <summary>
     /// Modus der Instanzplatzierung für RenderObject-Instanzen
     /// </summary>
     public enum InstanceMode

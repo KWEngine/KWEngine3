@@ -36,6 +36,12 @@ namespace KWEngine3.Helper
         {
             t.IsInsideScreenSpace = VolumeVsFrustum(t._stateCurrent._center, t._stateCurrent._dimensions.X / 2, t._stateCurrent._dimensions.Y / 2, t._stateCurrent._dimensions.Z / 2);
         }
+
+        internal void UpdateScreenSpaceStatus(FoliageObject f)
+        {
+            f.IsInsideScreenSpace = VolumeVsFrustum(f._position + new Vector3(f._scale.Y * 0.5f), f._patchSize.X, f._scale.Y, f._patchSize.Y);
+        }
+
         internal void UpdateScreenSpaceStatus(LightObject l)
         {
             l.GetVolume(out Vector3 center, out Vector3 dimensions);
