@@ -5,7 +5,6 @@ layout(location = 1) in vec2 aTexture;
 layout(location = 2) in vec3 aNormal;
 layout(location = 3) in	vec3 aTangent;
 layout(location = 4) in	vec3 aBiTangent;
-layout(location = 5) in vec3 aColor;
 
 uniform mat4 uViewProjectionMatrix;
 uniform vec4 uPlayerPosShadowCaster;
@@ -21,7 +20,6 @@ out vec4 vPosition;
 out vec2 vTexture;
 out vec3 vNormal;
 out mat3 vTBN;
-out vec3 vColor;
 
 #define M_PIHALF 3.141592 / 2.0
 #define M_PI 3.141592
@@ -51,9 +49,9 @@ void main()
 	//positionRandomized += vec3(randVertexOffset.x, 0.0, randVertexOffset.y) * (aPosition.y / 100) * swayFactor;
 
 	vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
-	vec4 totalNormal = vec4(aNormal, 0.0);
-	vec4 totalTangent = vec4(aTangent, 0.0);
-	vec4 totalBiTangent = vec4(aBiTangent, 0.0);
+	vec4 totalNormal = vec4(rotMat * aNormal, 0.0);
+	vec4 totalTangent = vec4(rotMat * aTangent, 0.0);
+	vec4 totalBiTangent = vec4(rotMat * aBiTangent, 0.0);
 	
 	gl_Position = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
 	vPosition = uModelMatrix * totalLocalPos;
@@ -61,6 +59,4 @@ void main()
 	vec3 tangent = normalize((uNormalMatrix * totalTangent).xyz);
 	vec3 biTangent = normalize((uNormalMatrix * totalBiTangent).xyz);
 	vTBN = mat3(tangent.xyz, biTangent.xyz, vNormal.xyz);
-
-	vColor = aColor;
 }

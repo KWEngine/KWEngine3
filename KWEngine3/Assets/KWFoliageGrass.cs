@@ -39,6 +39,7 @@ namespace KWEngine3.Assets
 
         public static void Init()
         {
+            /*
             _colors = new float[]
             {
                 // Front
@@ -104,7 +105,7 @@ namespace KWEngine3.Assets
                 0.05f, 1.00f, 0.05f,
                 0.05f, 1.00f, 0.05f,
             };
-
+            */
             _vertices = new float[]
             {
                 // Front
@@ -356,6 +357,7 @@ namespace KWEngine3.Assets
             GL.EnableVertexAttribArray(4);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
+            /*
             // colors
             int vbo_color = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_color);
@@ -363,7 +365,7 @@ namespace KWEngine3.Assets
             GL.VertexAttribPointer(5, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(5);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
+            */
 
             GL.BindVertexArray(0);
         }

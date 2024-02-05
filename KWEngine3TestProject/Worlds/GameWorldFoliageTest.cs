@@ -4,6 +4,7 @@ using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldFoliageTest;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             
-            FoliageObject tf1 = new FoliageObject(256);
+            FoliageObject tf1 = new FoliageObject(1024);
             tf1.SetPosition(0, 0, 0);
             tf1.SetScale(1, 1, 1);
             tf1.SetPatchSize(4, 8);
@@ -53,7 +54,18 @@ namespace KWEngine3TestProject.Worlds
             floor.SetPosition(0, -0.5f, 0);
             floor.SetTextureRepeat(2, 4);
             AddGameObject(floor);
-            
+
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
+            sun.SetPosition(25, 25, 25);
+            sun.SetColor(1, 0, 0.0f, 3);
+            AddLightObject(sun);
+
+            LightObject sun2 = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
+            sun2.SetPosition(-25, 25, -25);
+            sun2.SetColor(0, 0, 1.0f, 3);
+            AddLightObject(sun2);
+
+            SetBackgroundFillColor(1, 1, 1);
         }
     }
 }
