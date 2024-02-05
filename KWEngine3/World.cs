@@ -756,7 +756,7 @@ namespace KWEngine3
         /// Fügt ein Gewächsobjekt (z.B. Gras) hinzu
         /// </summary>
         /// <param name="f">hinzuzufügendes Objekt</param>
-        internal void AddFoliageObject(FoliageObject f)
+        public void AddFoliageObject(FoliageObject f)
         {
             if (IsPrepared == false)
             {
@@ -786,7 +786,7 @@ namespace KWEngine3
         /// Löscht ein Gewächsobjekt (z.B. Gras) aus der Welt
         /// </summary>
         /// <param name="f">zu entfernendes Objekt</param>
-        internal void RemoveFoliageObject(FoliageObject f)
+        public void RemoveFoliageObject(FoliageObject f)
         {
             if (IsPrepared == false)
             {

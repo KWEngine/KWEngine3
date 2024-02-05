@@ -6,7 +6,7 @@ namespace KWEngine3.GameObjects
     /// <summary>
     /// Klasse für Bodengewächse (z.B. Gras)
     /// </summary>
-    internal sealed class FoliageObject
+    public sealed class FoliageObject
     {
         /// <summary>
         /// Konstruktormethode für das Bodengewächs mit einer Instanz

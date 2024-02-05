@@ -19,13 +19,13 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            /*
+            
             FoliageObject tf1 = new FoliageObject(256);
             tf1.SetPosition(0, 0, 0);
             tf1.SetScale(1, 1, 1);
             tf1.SetPatchSize(4, 8);
             AddFoliageObject(tf1);
-            */
+            
             
             PlayerFoliageTest player = new PlayerFoliageTest();
             player.SetRotation(0, 180, 0);
@@ -34,7 +34,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraToFirstPersonGameObject(player, 0f);
             MouseCursorGrab();
             AddGameObject(player);
-
+            /*
             Immovable center = new Immovable();
             center.SetColor(1, 1, 0);
             center.SetScale(0.1f);
@@ -46,6 +46,13 @@ namespace KWEngine3TestProject.Worlds
             radius.SetScale(4, 1, 8);
             radius.SetOpacity(0.25f);
             AddGameObject(radius);
+            */
+            Immovable floor = new Immovable();
+            floor.SetTexture("./Textures/Grass_01_512.png");
+            floor.SetScale(4, 1, 8);
+            floor.SetPosition(0, -0.5f, 0);
+            floor.SetTextureRepeat(2, 4);
+            AddGameObject(floor);
             
         }
     }
