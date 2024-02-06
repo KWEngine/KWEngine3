@@ -174,7 +174,7 @@ namespace KWEngine3.GameObjects
         }
 
         #region internals
-        internal Vector4 _color = new(1, 1, 1, 0);
+        internal Vector4 _color = new(1, 1, 1, 1);
         internal Vector3 _position = new();
         internal Vector3 _scale = Vector3.One;
         internal Quaternion _rotation = Quaternion.Identity;

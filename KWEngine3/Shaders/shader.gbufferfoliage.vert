@@ -19,9 +19,9 @@ uniform vec2 uNoise[256];
 out vec4 vPosition;
 out vec2 vTexture;
 out vec3 vNormal;
-out mat3 vTBN;
 
 #define M_PIHALF 3.141592 / 2.0
+#define M_PIOCT 3.141592 / 8.0
 #define M_PI 3.141592
 
 mat3 rotationMatrix(vec3 axis, float angle) 
@@ -38,25 +38,21 @@ mat3 rotationMatrix(vec3 axis, float angle)
 
 void main()
 {
-	vec3 axis = normalize(vec3(((gl_InstanceID % 256) - 128) / 768.0, 1.0, (((gl_InstanceID + 128) % 256)) - 128)/ 768.0);
-	float swayFactor = sin(gl_InstanceID + uPatchSizeTime.z);
-	mat3 rotMat = rotationMatrix(axis, swayFactor * (aPosition.y / 10.0));
+	vec3 axis = normalize(vec3(((gl_InstanceID % 256) - 128) / 768.0, 2.0, (((gl_InstanceID + 128) % 256)) - 128)/ 768.0);
+	float swayFactor = (sin(gl_InstanceID + uPatchSizeTime.z) + 1) * 0.5;
+	mat3 rotMat = rotationMatrix(axis, swayFactor * (aPosition.y * M_PIOCT));
 
 	vec3 offsetXZ = vec3(uDXDZ.x * (gl_InstanceID % uNXNZ.x) + uNoise[gl_InstanceID % 256].x, 0.0, uDXDZ.y * int(gl_InstanceID / uNXNZ.x) + uNoise[gl_InstanceID % 256].y);
 	vec3 center = vec3(-uDXDZ.x * (uNXNZ.x - 1) / 2.0, 0, -uDXDZ.y * (uNXNZ.y - 1) / 2.0);
 
 	vec3 positionRandomized = rotMat * aPosition;
-	//positionRandomized += vec3(randVertexOffset.x, 0.0, randVertexOffset.y) * (aPosition.y / 100) * swayFactor;
 
 	vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
-	vec4 totalNormal = vec4(rotMat * aNormal, 0.0);
-	vec4 totalTangent = vec4(rotMat * aTangent, 0.0);
-	vec4 totalBiTangent = vec4(rotMat * aBiTangent, 0.0);
+	vec4 totalNormal = vec4(normalize(rotMat * aNormal), 0.0);
+	vec4 totalTangent = vec4(normalize(rotMat * aTangent), 0.0);
+	vec4 totalBiTangent = vec4(normalize(rotMat * aBiTangent), 0.0);
 	
 	gl_Position = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
 	vPosition = uModelMatrix * totalLocalPos;
 	vNormal = normalize((uNormalMatrix * totalNormal).xyz);
-	vec3 tangent = normalize((uNormalMatrix * totalTangent).xyz);
-	vec3 biTangent = normalize((uNormalMatrix * totalBiTangent).xyz);
-	vTBN = mat3(tangent.xyz, biTangent.xyz, vNormal.xyz);
 }
