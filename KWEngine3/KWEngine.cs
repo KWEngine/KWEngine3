@@ -208,7 +208,10 @@ namespace KWEngine3
         internal static int TextureCubemapEmpty = -1;
         internal static int TextureDepthEmpty = -1;
         internal static int TextureDepthCubeMapEmpty = -1;
-        
+        internal static int TextureFoliageGrass1 = -1;
+        internal static int TextureFoliageGrass2 = -1;
+        internal static int TextureFoliageGrass3 = -1;
+
         internal static float TimeElapsed = 0;
 
         internal static Vector3 DefaultCameraPosition = new(0, 0, 10);
@@ -233,6 +236,11 @@ namespace KWEngine3
             TextureWhite = HelperTexture.LoadTextureInternal("white.png");
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
             TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
+
+            int mipMaps;
+            TextureFoliageGrass1 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_01.dds", out mipMaps);
+            TextureFoliageGrass2 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_02.dds", out mipMaps);
+            TextureFoliageGrass3 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_03.dds", out mipMaps);
 
             TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
             TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();

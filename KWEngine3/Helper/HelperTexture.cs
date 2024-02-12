@@ -253,6 +253,8 @@ namespace KWEngine3.Helper
                 throw new Exception("Unsupported compressed texture format: only DXT1, DXT3 and DXT5 are supported.");
             return texID;
         }
+
+
         public static int LoadTextureCompressedNoMipMap(string fileName)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
@@ -270,6 +272,42 @@ namespace KWEngine3.Helper
                         GL.BindTexture(TextureTarget.Texture2D, texID);
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 0);
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                        GL.CompressedTexImage2D(TextureTarget.Texture2D, 0, dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT1 ? InternalFormat.CompressedRgbaS3tcDxt1Ext : dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT3 ? InternalFormat.CompressedRgbaS3tcDxt3Ext : InternalFormat.CompressedRgbaS3tcDxt5Ext, dds.BitmapImage.Width, dds.BitmapImage.Height, 0, dds.Data.Length, dds.Data);
+
+                        GL.BindTexture(TextureTarget.Texture2D, 0);
+                    }
+                    else
+                    {
+                        error = true;
+                    }
+                }
+                if (error)
+                    throw new Exception("Unsupported compressed texture format: only DXT1, DXT3 and DXT5 are supported.");
+            }
+            return texID;
+        }
+
+        public static int LoadTextureCompressedWithMipMapInternal(string fileName)
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string resourceName = "KWEngine3.Assets.Textures." + fileName;
+
+            int texID = -1;
+            bool error = false;
+            using (Stream s = assembly.GetManifestResourceStream(resourceName))
+            {
+                using (HelperDDS dds = new HelperDDS(s))
+                {
+                    if (dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT1 || dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT3 || dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT5)
+                    {
+                        texID = GL.GenTexture();
+                        GL.BindTexture(TextureTarget.Texture2D, texID);
+                        //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
+                        //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 0);
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
                         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
@@ -576,6 +614,70 @@ namespace KWEngine3.Helper
             catch (Exception)
             {
                 KWEngine.LogWriteLine("[Texture] GLB model file invalid");
+                return -1;
+            }
+            return texID;
+        }
+
+        public static int LoadTextureForModelInternalExecutingAssembly(string filename, out int mipMaps)
+        {
+            Assembly a = Assembly.GetExecutingAssembly();
+            int texID;
+            mipMaps = 0;
+            if (filename.EndsWith("dds"))
+            {
+                string assPath = a.GetName().Name + ".Assets.Textures." + filename;
+                using (Stream s = a.GetManifestResourceStream(assPath))
+                    texID = LoadTextureCompressedWithMipMaps(s);
+
+                return texID;
+            }
+
+            try
+            {
+                string assPath = a.GetName().Name + "." + filename;
+                using (Stream s = a.GetManifestResourceStream(assPath))
+                {
+                    SKBitmap image = SKBitmap.Decode(s);
+                    if (image == null)
+                    {
+                        KWEngine.LogWriteLine("[Texture] File " + (filename == null ? "" : filename.Trim()) + " invalid");
+                        return -1;
+                    }
+                    texID = GL.GenTexture();
+                    GL.BindTexture(TextureTarget.Texture2D, texID);
+                    byte[] data;
+                    if (image.ColorType == SKColorType.Rgba8888)
+                    {
+                        data = image.Bytes;
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
+                         PixelFormat.Rgba, PixelType.UnsignedByte, data);
+                    }
+                    else
+                    {
+                        data = image.Bytes;
+                        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 0,
+                         PixelFormat.Rgb, PixelType.UnsignedByte, data);
+                    }
+
+                    GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFiltering);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                    int mipMapCount = GetMaxMipMapLevels(image.Width, image.Height);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapCount - 2));
+                    mipMaps = Math.Max(0, mipMapCount - 2);
+                    image.Dispose();
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+
+                }
+            }
+            catch (Exception)
+            {
+                KWEngine.LogWriteLine("[Texture] File " + (filename == null ? "" : filename.Trim()) + " invalid");
                 return -1;
             }
             return texID;

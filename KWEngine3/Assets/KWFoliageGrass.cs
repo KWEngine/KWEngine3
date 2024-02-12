@@ -109,21 +109,21 @@ namespace KWEngine3.Assets
             _vertices = new float[]
             {
                 // Front
-                XL * +1f, YL * 1f, ZL * +1f, // 0
-                XM * -1f, YM * 1f, ZM * +1f, // 2
-                XL * -1f, YL * 1f, ZL * +1f, // 1
+                XL * +1f, YL * 1f, ZL * +1f, // 0 right  low front
+                XM * -1f, YM * 1f, ZM * +1f, // 2 left   mid front
+                XL * -1f, YL * 1f, ZL * +1f, // 1 left   low front 
 
-                XM * -1f, YM * 1f, ZM * +1f, // 2
-                XL * +1f, YL * 1f, ZL * +1f, // 0
-                XM * +1f, YM * 1f, ZM * +1f, // 3
+                XM * -1f, YM * 1f, ZM * +1f, // 2 left   mid
+                XL * +1f, YL * 1f, ZL * +1f, // 0 right  low
+                XM * +1f, YM * 1f, ZM * +1f, // 3 right  mid
 
-                XM * -1f, YM * 1f, ZM * +1f, // 2
-                XM * +1f, YM * 1f, ZM * +1f, // 3
-                XH * -1f, YH * 1f, ZH * +1f, // 4
+                XM * -1f, YM * 1f, ZM * +1f, // 2 left   mid
+                XM * +1f, YM * 1f, ZM * +1f, // 3 right  mid
+                XH * -1f, YH * 1f, ZH * +1f, // 4 left   high
 
-                XH * -1f, YH * 1f, ZH * +1f, // 4
-                XM * +1f, YM * 1f, ZM * +1f, // 3
-                XH * +1f, YH * 1f, ZH * +1f, // 5
+                XH * -1f, YH * 1f, ZH * +1f, // 4 left   high
+                XM * +1f, YM * 1f, ZM * +1f, // 3 right  mid
+                XH * +1f, YH * 1f, ZH * +1f, // 5 right  high
 
                 XH * -1f, YH * 1f, ZH * +1f, // 4
                 XH * +1f, YH * 1f, ZH * +1f, // 5
@@ -190,7 +190,7 @@ namespace KWEngine3.Assets
 
                 0, YH * 1,  // 4
                 1, YM * 1,  // 3
-                5, YH * 1,  // 5
+                1, YH * 1,  // 5
 
                 0.0f, YH * 1,  // 4
                 1.0f, YH * 1,  // 5
@@ -230,13 +230,13 @@ namespace KWEngine3.Assets
                 1.0f, YM * 1,  // 2
                 0.5f, YL * 1,  // 9
                 
-                0.5f, YL * 1,  // 9
-                1.0f, YM * 1,  // 2
-                1.0f, YL * 1,  // 4
+                0.5f, YH * 1,  // 9
+                0.0f, YM * 1,  // 2
+                0.0f, YH * 1,  // 4
                 
-                0.5f, YL * 1,  // 9
-                1.0f, YL * 1,  // 4
-                0.5f, 1  * 1,  // 6
+                0.5f, YH * 1,  // 9
+                1.0f, YH * 1,  // 4
+                0.5f, 1  * 1   // 6
             };
 
             _normals = new float[]

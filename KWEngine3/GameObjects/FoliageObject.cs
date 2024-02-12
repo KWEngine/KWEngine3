@@ -11,8 +11,9 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Konstruktormethode für das Bodengewächs mit einer Instanz
         /// </summary>
-        public FoliageObject()
-            : this(1)
+        /// <param name="type">Art des Gewächses</param>
+        public FoliageObject(FoliageType type = FoliageType.Grass1)
+            : this(type, 1)
         {
 
         }
@@ -20,16 +21,35 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Konstruktormethode für das Bodengewächs mit mehreren Instanzen
         /// </summary>
-        /// <param name="instanceCount">Anzahl der Instanzen</param>
-        public FoliageObject(int instanceCount)
+        /// <param name="type">Art des Gewächses</param>
+        /// <param name="instanceCount">Anzahl der Instanzen (Werte zwischen 1 und 262144)</param>
+        public FoliageObject(FoliageType type, int instanceCount)
         {
-            _instanceCount = instanceCount;
+            _instanceCount = Math.Clamp(instanceCount, 1, 262144);
+            Type = type;
+            if(type == FoliageType.Grass1)
+            {
+                _textureId = KWEngine.TextureFoliageGrass1;
+            }
+            else if(type == FoliageType.Grass2)
+            {
+                _textureId = KWEngine.TextureFoliageGrass2;
+            }
+            else if(type == FoliageType.Grass3)
+            {
+                _textureId = KWEngine.TextureFoliageGrass3;
+            }
         }
 
         /// <summary>
         /// Name des Objekts
         /// </summary>
         public string Name { get { return _name; } set { _name = value == null ? "(no name)" : value; } }
+
+        /// <summary>
+        /// Art des Bodengewächses
+        /// </summary>
+        public FoliageType Type { get; internal set; } = FoliageType.Grass1;
 
         /// <summary>
         /// Gibt an, ob sich das Objekt im Sichtbereich der Kamera befindet
@@ -69,6 +89,15 @@ namespace KWEngine3.GameObjects
         {
             _instanceCount = instanceCount;
             UpdateInstanceCountForPatchSize();
+        }
+
+        /// <summary>
+        /// Gibt an, wie stark das Gras sich im Wind wiegt
+        /// </summary>
+        /// <param name="swayFactor">Verstärkungsfaktor (Werte zwischen 0 und 1, Standard: 0.125f)</param>
+        public void SetSwayFactor(float swayFactor)
+        {
+            _swayFactor = Math.Clamp(swayFactor, 0f, 1f);
         }
 
         /// <summary>
@@ -186,6 +215,8 @@ namespace KWEngine3.GameObjects
         internal Vector2i _nXZ = Vector2i.One;
         internal Vector2 _dXZ = Vector2.Zero;
         internal float[] _noise;
+        internal int _textureId = -1;
+        internal float _swayFactor = 0.125f;
         
 
         internal void UpdateModelMatrix()
@@ -207,16 +238,30 @@ namespace KWEngine3.GameObjects
             _nXZ.X = (int)Math.Round(nxtmp);
             _nXZ.Y = (int)Math.Round(_instanceCount / nxtmp);
 
-            _dXZ.X = _patchSize.X / (_nXZ.X - 1);
-            _dXZ.Y = _patchSize.Y / (_nXZ.Y - 1);
-
+            _noise = new float[512];
             _instanceCount = _nXZ.X * _nXZ.Y;
 
-            _noise = new float[512];
-            for (int i = 0; i < _noise.Length; i+=2)
+            if(_instanceCount <= 1)
             {
-                _noise[i + 0] = HelperRandom.GetRandomNumber(-_dXZ.X / 2.25f, _dXZ.X / 2.25f);
-                _noise[i + 1] = HelperRandom.GetRandomNumber(-_dXZ.Y / 2.25f, _dXZ.Y / 2.25f);
+                _dXZ.X = _patchSize.X;
+                _dXZ.Y = _patchSize.Y;
+                
+                for (int i = 0; i < _noise.Length; i += 2)
+                {
+                    _noise[i + 0] = 0;
+                    _noise[i + 1] = 0;
+                }
+            }
+            else
+            {
+                _dXZ.X = _patchSize.X / (_nXZ.X - 1);
+                _dXZ.Y = _patchSize.Y / (_nXZ.Y - 1);
+
+                for (int i = 0; i < _noise.Length; i += 2)
+                {
+                    _noise[i + 0] = HelperRandom.GetRandomNumber(-_dXZ.X / 2.25f, _dXZ.X / 2.25f);
+                    _noise[i + 1] = HelperRandom.GetRandomNumber(-_dXZ.Y / 2.25f, _dXZ.Y / 2.25f);
+                }
             }
         }
         #endregion

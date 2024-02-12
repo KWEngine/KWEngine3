@@ -13,9 +13,17 @@
     public enum FoliageType
     {
         /// <summary>
-        /// Gras
+        /// Gras (Variante 1)
         /// </summary>
-        Grass
+        Grass1,
+        /// <summary>
+        /// Gras (Variante 2)
+        /// </summary>
+        Grass2,
+        /// <summary>
+        /// Gras (Variante 3)
+        /// </summary>
+        Grass3
     }
 
     /// <summary>

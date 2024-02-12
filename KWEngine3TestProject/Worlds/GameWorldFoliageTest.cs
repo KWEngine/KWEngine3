@@ -21,10 +21,12 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             
-            FoliageObject tf1 = new FoliageObject(1024);
+            FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 100000);
             tf1.SetPosition(0, 0, 0);
             tf1.SetScale(1, 1, 1);
-            tf1.SetPatchSize(4, 8);
+            tf1.SetPatchSize(40, 80);
+            //tf1.SetScale(0.5f, 0.25f, 0.5f);
+            //tf1.SetSwayFactor(1);
             AddFoliageObject(tf1);
             
             
@@ -50,11 +52,11 @@ namespace KWEngine3TestProject.Worlds
             */
             Immovable floor = new Immovable();
             floor.SetTexture("./Textures/Grass_01_512.png");
-            floor.SetScale(4, 1, 8);
+            floor.SetScale(40, 1, 80);
             floor.SetPosition(0, -0.5f, 0);
-            floor.SetTextureRepeat(2, 4);
+            floor.SetTextureRepeat(20, 40);
             AddGameObject(floor);
-
+            
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
             sun.SetPosition(25, 25, 25);
             sun.SetColor(1, 0, 0.0f, 3);
@@ -64,6 +66,8 @@ namespace KWEngine3TestProject.Worlds
             sun2.SetPosition(-25, 25, -25);
             sun2.SetColor(0, 0, 1.0f, 3);
             AddLightObject(sun2);
+
+            SetColorAmbient(0.25f, 0.25f, 0.25f);
 
             SetBackgroundFillColor(1, 1, 1);
         }

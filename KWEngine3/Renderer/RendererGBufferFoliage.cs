@@ -62,7 +62,7 @@ namespace KWEngine3.Renderer
                 UPatchSizeTime = GL.GetUniformLocation(ProgramID, "uPatchSizeTime");
                 UInstanceCount = GL.GetUniformLocation(ProgramID, "uInstanceCount");
                 UNXNZ = GL.GetUniformLocation(ProgramID, "uNXNZ");
-                UDXDZ = GL.GetUniformLocation(ProgramID, "uDXDZ");
+                UDXDZ = GL.GetUniformLocation(ProgramID, "uDXDZSway");
 
                 UNoise = GL.GetUniformLocation(ProgramID, "uNoise");
             }
@@ -104,13 +104,13 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UPatchSizeTime, new Vector3(f._patchSize.X, f._patchSize.Y, KWEngine.CurrentWorld.WorldTime));
             GL.Uniform1(UInstanceCount, (float)f._instanceCount);
             GL.Uniform2(UNXNZ, f._nXZ);
-            GL.Uniform2(UDXDZ, f._dXZ);
-            HelperGeneral.CheckGLErrors();
+            GL.Uniform3(UDXDZ, f._dXZ.X, f._dXZ.Y, f._swayFactor);
+
             GL.Uniform2(UNoise, f._noise.Length, f._noise);
-            HelperGeneral.CheckGLErrors();
+
             // Bind textures
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
+            GL.BindTexture(TextureTarget.Texture2D, f._textureId != -1 ? f._textureId : KWEngine.TextureWhite);
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
@@ -122,7 +122,8 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(KWFoliageGrass.VAO);
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, KWFoliageGrass._vertices.Length / 3, (int)f._instanceCount);
             GL.BindVertexArray(0);
-            HelperGeneral.CheckGLErrors();
+
+            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
     }
 }
