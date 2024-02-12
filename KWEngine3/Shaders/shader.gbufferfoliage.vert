@@ -44,8 +44,6 @@ void main()
 	float swayFactor = (sin(gl_InstanceID + uPatchSizeTime.z + uNoise[gl_InstanceID % 512].x) + 1) * 0.5;
 	mat3 rotMat = rotationMatrix(axis, swayFactor * (aPosition.y * M_PIHALF * uDXDZSway.z));
 
-	
-
 	vec3 offsetXZ = vec3(uDXDZSway.x * (gl_InstanceID % uNXNZ.x) + uNoise[gl_InstanceID % 256].x, 0.0, uDXDZSway.y * int(gl_InstanceID / uNXNZ.x) + uNoise[gl_InstanceID % 256].y);
 	vec3 center = vec3(-uDXDZSway.x * (uNXNZ.x - 1) / 2.0, 0, -uDXDZSway.y * (uNXNZ.y - 1) / 2.0);
 
@@ -60,5 +58,5 @@ void main()
 	vPosition = uModelMatrix * totalLocalPos;
 	vTexture = vec2(aTexture.x, 1.0 - aTexture.y);
 	vNormal = normalize((uNormalMatrix * totalNormal).xyz);
-	vColor = min((pow(1.0 - aPosition.y, 3.0) * (-1.0) + 1.9) * vec3(1.0), vec3(1.0));
+	vColor = vec3(1.0); //min((pow(1.0 - aPosition.y, 3.0) * (-1.0) + 1.9) * vec3(1.0), vec3(1.0));
 }

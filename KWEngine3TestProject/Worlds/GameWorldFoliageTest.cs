@@ -23,7 +23,7 @@ namespace KWEngine3TestProject.Worlds
             
             FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 100000);
             tf1.SetPosition(0, 0, 0);
-            tf1.SetScale(1, 1, 1);
+            tf1.SetScale(2, 1, 2);
             tf1.SetPatchSize(40, 80);
             //tf1.SetScale(0.5f, 0.25f, 0.5f);
             //tf1.SetSwayFactor(1);
@@ -58,18 +58,22 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(floor);
             
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
-            sun.SetPosition(25, 25, 25);
-            sun.SetColor(1, 0, 0.0f, 3);
+            sun.SetPosition(250, 250, 250);
+            sun.SetColor(1, 1, 0.0f, 3);
             AddLightObject(sun);
 
+            /*
             LightObject sun2 = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
             sun2.SetPosition(-25, 25, -25);
             sun2.SetColor(0, 0, 1.0f, 3);
             AddLightObject(sun2);
+            */
 
             SetColorAmbient(0.25f, 0.25f, 0.25f);
 
-            SetBackgroundFillColor(1, 1, 1);
+            //SetBackgroundFillColor(1, 1, 1);
+            SetBackgroundSkybox("./Textures/skybox.dds");
+            SetBackgroundBrightnessMultiplier(4);
         }
     }
 }

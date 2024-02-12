@@ -94,7 +94,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt an, wie stark das Gras sich im Wind wiegt
         /// </summary>
-        /// <param name="swayFactor">Verstärkungsfaktor (Werte zwischen 0 und 1, Standard: 0.125f)</param>
+        /// <param name="swayFactor">Verstärkungsfaktor (Werte zwischen 0 und 1, Standard: 0.05f)</param>
         public void SetSwayFactor(float swayFactor)
         {
             _swayFactor = Math.Clamp(swayFactor, 0f, 1f);
@@ -216,7 +216,7 @@ namespace KWEngine3.GameObjects
         internal Vector2 _dXZ = Vector2.Zero;
         internal float[] _noise;
         internal int _textureId = -1;
-        internal float _swayFactor = 0.125f;
+        internal float _swayFactor = 0.05f;
         
 
         internal void UpdateModelMatrix()
