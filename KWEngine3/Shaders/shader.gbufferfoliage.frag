@@ -1,6 +1,5 @@
 ﻿#version 400 core
 
-in vec4 vPosition;
 in vec2 vTexture;
 in vec3 vNormal;
 in vec3 vColor;
@@ -19,7 +18,8 @@ uniform sampler2D uTextureNormal;
 void main()
 {
 	albedo = vColor * texture(uTextureAlbedo, vTexture).xyz * uColorTintEmissive.xyz * uColorTintEmissive.w;
-	normal = vNormal;
+	//normal = normalize(vNormal);
+	normal = normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0));
 	metallicRoughnessMetallicType = vec3(0.0, 0.5, 0.0);
 	idShadowCaster = ivec2(65535, 0);
 }

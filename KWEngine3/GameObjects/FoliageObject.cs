@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Helper;
+using OpenTK.Graphics.ES20;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -257,12 +258,39 @@ namespace KWEngine3.GameObjects
                 _dXZ.X = _patchSize.X / (_nXZ.X - 1);
                 _dXZ.Y = _patchSize.Y / (_nXZ.Y - 1);
 
+                /*
+                for(int i = 0; i < _instanceCount; i++)
+                {
+                    //vec3(uDXDZSway.x * (gl_InstanceID % uNXNZ.x), // + uNoise[gl_InstanceID % 512].x, 
+                    //                            0.0,
+                    //uDXDZSway.y * (gl_InstanceID / uNXNZ.x) // + uNoise[gl_InstanceID % 512].y
+                    //);
+                    Console.WriteLine(_dXZ.X * (i % _nXZ.X) + "|" + (_dXZ.Y * (i / _nXZ.X)));
+                }*/
+
                 for (int i = 0; i < _noise.Length; i += 2)
                 {
                     _noise[i + 0] = HelperRandom.GetRandomNumber(-_dXZ.X / 2.25f, _dXZ.X / 2.25f);
                     _noise[i + 1] = HelperRandom.GetRandomNumber(-_dXZ.Y / 2.25f, _dXZ.Y / 2.25f);
                 }
             }
+            /*
+            Vector3 front = new Vector3(0, 0, 1);
+            Vector3 left = HelperVector.RotateVector(front, -50, Axis.Y);
+            Vector3 right = HelperVector.RotateVector(front, +50, Axis.Y);
+
+            left *= 127;
+            right *= 127;
+
+            left.X += 127;
+            left.Y += 127;
+            left.Z += 127;
+
+            right.X += 127;
+            right.Y += 127;
+            right.Z += 127;
+            */
+
         }
         #endregion
     }

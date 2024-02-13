@@ -114,9 +114,8 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNormalEmpty);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureFoliageGrassNormal);
             GL.Uniform1(UTextureNormal, 1);
-
 
             // Draw calls...
             GL.BindVertexArray(KWFoliageGrass.VAO);

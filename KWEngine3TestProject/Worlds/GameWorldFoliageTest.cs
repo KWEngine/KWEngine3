@@ -21,28 +21,28 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             
-            FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 100000);
+            FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 1000);
             tf1.SetPosition(0, 0, 0);
-            tf1.SetScale(2, 1, 2);
+            //tf1.SetScale(2, 1, 2);
             tf1.SetPatchSize(40, 80);
-            //tf1.SetScale(0.5f, 0.25f, 0.5f);
-            //tf1.SetSwayFactor(1);
+            tf1.SetScale(3f, 1f, 3f);
+            tf1.SetSwayFactor(0.2f);
             AddFoliageObject(tf1);
             
             
             PlayerFoliageTest player = new PlayerFoliageTest();
             player.SetRotation(0, 180, 0);
-            player.SetPosition(0, 5f, 10);
+            player.SetPosition(-10, 10f, 10);
             player.SetOpacity(0);
             SetCameraToFirstPersonGameObject(player, 0f);
             MouseCursorGrab();
             AddGameObject(player);
-            /*
+            
             Immovable center = new Immovable();
-            center.SetColor(1, 1, 0);
-            center.SetScale(0.1f);
+            center.SetColor(1, 1, 1);
+            center.SetScale(5);
             AddGameObject(center);
-
+            /*
             Immovable radius = new Immovable();
             radius.SetColor(1, 0, 0);
             radius.SetPosition(0, 0.5f, 0);
@@ -58,8 +58,8 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(floor);
             
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
-            sun.SetPosition(250, 250, 250);
-            sun.SetColor(1, 1, 0.0f, 3);
+            sun.SetPosition(25, 25, 25);
+            sun.SetColor(1, 1, 1f, 3);
             AddLightObject(sun);
 
             /*
@@ -69,7 +69,7 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(sun2);
             */
 
-            SetColorAmbient(0.25f, 0.25f, 0.25f);
+            SetColorAmbient(0.45f, 0.45f, 0.45f);
 
             //SetBackgroundFillColor(1, 1, 1);
             SetBackgroundSkybox("./Textures/skybox.dds");
