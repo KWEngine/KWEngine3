@@ -242,7 +242,7 @@ namespace KWEngine3
             TextureFoliageGrass1 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_01.dds", out mipMaps);
             TextureFoliageGrass2 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_02.dds", out mipMaps);
             TextureFoliageGrass3 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_03.dds", out mipMaps);
-            TextureFoliageGrassNormal = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_normal.dds", out mipMaps);
+            TextureFoliageGrassNormal = HelperTexture.LoadTextureInternal("foliage_grassblade_normal.png");
 
             TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
             TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();

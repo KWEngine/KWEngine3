@@ -1,11 +1,5 @@
-﻿using KWEngine3.Helper;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine3.Assets
 {
@@ -39,73 +33,6 @@ namespace KWEngine3.Assets
 
         public static void Init()
         {
-            /*
-            _colors = new float[]
-            {
-                // Front
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                // Back left:
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                // Back right:
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-                0.05f, 1.00f, 0.05f,
-            };
-            */
             _vertices = new float[]
             {
                 // Front
@@ -241,6 +168,25 @@ namespace KWEngine3.Assets
 
             _normals = new float[]
             {
+                0,0,1,
+                0,0,1,
+                0,0,1,
+
+                0,0,1,
+                0,0,1,
+                0,0,1,
+
+                0,0,1,
+                0,0,1,
+                0,0,1,
+
+                0,0,1,
+                0,0,1,
+                0,0,1,
+
+                0,0,1,
+                0,0,1,
+                /*
                 NXFront * +1f, NYFront, NZFront * +1f,  // 0
                 NXFront * -1f, NYFront, NZFront * +1f,  // 2
                 NXFront * -1f, NYFront, NZFront * +1f,  // 1
@@ -259,10 +205,53 @@ namespace KWEngine3.Assets
                 
                 NXFront * -1f, NYFront, NZFront * +1f,  // 4
                 NXFront * -1f, NYFront, NZFront * +1f,  // 5
+                */
                 0f, 1f, 0f,                             // 6
 
-
+                
                 // BACK LEFT:
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                // BACK RIGHT:
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+
+                /*
                 NXFront * -1f, NYFront, NZFront * -1f, // 0
                 NXFront * -1f, NYFront, NZFront * -1f, // 7
                 NXFront * -1f, NYFront, NZFront * -1f, // 3
@@ -303,20 +292,14 @@ namespace KWEngine3.Assets
                 NXFront * +1f, NYFront, NZFront * -1f,// 9
                 NXFront * +1f, NYFront, NZFront * -1f,// 4
                 NXFront * +1f, NYFront, NZFront * -1f// 6
+                */
             };
 
             _tangents = GenerateTangentsFromNormals(out _bitangents);
 
             VAO = GL.GenVertexArray();
             GL.BindVertexArray(VAO);
-            /*
-                layout(location = 0) in vec3 aPosition;
-                layout(location = 1) in vec2 aTexture;
-                layout(location = 2) in vec3 aNormal;
-                layout(location = 3) in	vec3 aTangent;
-                layout(location = 4) in	vec3 aBiTangent;
-                layout(location = 5) in vec3 aColor;
-             */
+
             // position
             int vbo_vertices = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_vertices);
@@ -356,16 +339,6 @@ namespace KWEngine3.Assets
             GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(4);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-            /*
-            // colors
-            int vbo_color = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_color);
-            GL.BufferData(BufferTarget.ArrayBuffer, _colors.Length * 4, _colors, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(5, 3, VertexAttribPointerType.Float, false, 0, 0);
-            GL.EnableVertexAttribArray(5);
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            */
 
             GL.BindVertexArray(0);
         }
@@ -418,7 +391,7 @@ namespace KWEngine3.Assets
                 tangents[i + 7] = tangent.Y;
                 tangents[i + 8] = tangent.Z;
 
-                Vector3 bt = Vector3.Cross(new Vector3(_normals[i + 0], _normals[i + 0], _normals[i + 0]), tangent);
+                Vector3 bt = Vector3.Cross(new Vector3(_normals[i + 0], _normals[i + 1], _normals[i + 2]), tangent);
                 bitangents[i + 0] = bt.X;
                 bitangents[i + 1] = bt.Y;
                 bitangents[i + 2] = bt.Z;

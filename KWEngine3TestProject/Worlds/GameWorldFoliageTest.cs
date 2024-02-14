@@ -21,18 +21,19 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             
-            FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 1000);
+            FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 100000);
             tf1.SetPosition(0, 0, 0);
-            //tf1.SetScale(2, 1, 2);
             tf1.SetPatchSize(40, 80);
             tf1.SetScale(3f, 1f, 3f);
-            tf1.SetSwayFactor(0.2f);
+            tf1.SetRotation(0, 135, 0);
+            tf1.SetSwayFactor(0.1f);
+            tf1.IsShadowReceiver = true;
             AddFoliageObject(tf1);
             
             
             PlayerFoliageTest player = new PlayerFoliageTest();
             player.SetRotation(0, 180, 0);
-            player.SetPosition(-10, 10f, 10);
+            player.SetPosition(-5, 1f, 0);
             player.SetOpacity(0);
             SetCameraToFirstPersonGameObject(player, 0f);
             MouseCursorGrab();
@@ -41,6 +42,7 @@ namespace KWEngine3TestProject.Worlds
             Immovable center = new Immovable();
             center.SetColor(1, 1, 1);
             center.SetScale(5);
+            center.IsShadowCaster = true;
             AddGameObject(center);
             /*
             Immovable radius = new Immovable();
@@ -55,11 +57,14 @@ namespace KWEngine3TestProject.Worlds
             floor.SetScale(40, 1, 80);
             floor.SetPosition(0, -0.5f, 0);
             floor.SetTextureRepeat(20, 40);
+            floor.IsShadowCaster = true;
             AddGameObject(floor);
             
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
-            sun.SetPosition(25, 25, 25);
-            sun.SetColor(1, 1, 1f, 3);
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            sun.SetPosition(100, 100, 100);
+            sun.SetNearFar(20, 400);
+            sun.SetFOV(100);
+            sun.SetColor(1, 0.75f, 0.5f, 3);
             AddLightObject(sun);
 
             /*
@@ -67,13 +72,12 @@ namespace KWEngine3TestProject.Worlds
             sun2.SetPosition(-25, 25, -25);
             sun2.SetColor(0, 0, 1.0f, 3);
             AddLightObject(sun2);
+            
             */
-
-            SetColorAmbient(0.45f, 0.45f, 0.45f);
-
-            //SetBackgroundFillColor(1, 1, 1);
+            SetColorAmbient(0.5f, 0.5f, 0.5f);
+            SetBackgroundBrightnessMultiplier(2);
+            
             SetBackgroundSkybox("./Textures/skybox.dds");
-            SetBackgroundBrightnessMultiplier(4);
         }
     }
 }

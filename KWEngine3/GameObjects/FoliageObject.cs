@@ -83,6 +83,16 @@ namespace KWEngine3.GameObjects
         public Quaternion Rotation { get { return _rotation; } }
 
         /// <summary>
+        /// Gibt an, ob Schatten auf das Objekt geworfen werden können (Standard: true)
+        /// </summary>
+        public bool IsShadowReceiver { get; set; } = true;
+
+        /// <summary>
+        /// Gibt an, ob dieses Objekt auf Licht reagiert (Standard: true)
+        /// </summary>
+        public bool IsAffectedByLight { get; set; } = true;
+
+        /// <summary>
         /// Setzt die (ungefähre) Anzahl an benötigten Instanzen für das Gewächs
         /// </summary>
         /// <param name="instanceCount">Anzahl der gewünschten Instanzen</param>
@@ -274,23 +284,6 @@ namespace KWEngine3.GameObjects
                     _noise[i + 1] = HelperRandom.GetRandomNumber(-_dXZ.Y / 2.25f, _dXZ.Y / 2.25f);
                 }
             }
-            /*
-            Vector3 front = new Vector3(0, 0, 1);
-            Vector3 left = HelperVector.RotateVector(front, -50, Axis.Y);
-            Vector3 right = HelperVector.RotateVector(front, +50, Axis.Y);
-
-            left *= 127;
-            right *= 127;
-
-            left.X += 127;
-            left.Y += 127;
-            left.Z += 127;
-
-            right.X += 127;
-            right.Y += 127;
-            right.Z += 127;
-            */
-
         }
         #endregion
     }

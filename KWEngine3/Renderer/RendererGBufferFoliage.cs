@@ -24,6 +24,8 @@ namespace KWEngine3.Renderer
         public static int UDXDZ { get; private set; } = -1;
         public static int UNoise { get; private set; } = -1;
 
+        public static int ULightConfig { get; private set; } = -1;
+
         public static void Init()
         {
             if (ProgramID < 0)
@@ -65,6 +67,7 @@ namespace KWEngine3.Renderer
                 UDXDZ = GL.GetUniformLocation(ProgramID, "uDXDZSway");
 
                 UNoise = GL.GetUniformLocation(ProgramID, "uNoise");
+                ULightConfig = GL.GetUniformLocation(ProgramID, "uLightConfig");
             }
         }
 
@@ -105,8 +108,11 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UInstanceCount, (float)f._instanceCount);
             GL.Uniform2(UNXNZ, f._nXZ);
             GL.Uniform3(UDXDZ, f._dXZ.X, f._dXZ.Y, f._swayFactor);
-
             GL.Uniform2(UNoise, f._noise.Length, f._noise);
+
+            int val = f.IsShadowReceiver ? 1 : -1;
+            val *= f.IsAffectedByLight ? 1 : 10;
+            GL.Uniform1(ULightConfig, val);
 
             // Bind textures
             GL.ActiveTexture(TextureUnit.Texture0);
