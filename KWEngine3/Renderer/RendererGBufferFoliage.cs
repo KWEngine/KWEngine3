@@ -10,7 +10,7 @@ namespace KWEngine3.Renderer
     internal static class RendererGBufferFoliage
     {
         public static int ProgramID { get; private set; } = -1;
-        public static int UPlayerPosShadowCaster { get; private set; } = -1;
+        //public static int UPlayerPosShadowCaster { get; private set; } = -1;
         public static int UViewProjectionMatrix { get; private set; } = -1;
         public static int UModelMatrix { get; private set; } = -1;
         public static int UNormalMatrix { get; private set; } = -1;
@@ -52,7 +52,7 @@ namespace KWEngine3.Renderer
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UColorTintAndEmissive = GL.GetUniformLocation(ProgramID, "uColorTintEmissive");
-                UPlayerPosShadowCaster = GL.GetUniformLocation(ProgramID, "uPlayerPosShadowCaster");
+                //UPlayerPosShadowCaster = GL.GetUniformLocation(ProgramID, "uPlayerPosShadowCaster");
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UNormalMatrix = GL.GetUniformLocation(ProgramID, "uNormalMatrix");
@@ -103,7 +103,7 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UModelMatrix, false, ref f._modelMatrix);
             GL.UniformMatrix4(UNormalMatrix, false, ref f._normalMatrix);
             GL.Uniform4(UColorTintAndEmissive, f._color);
-            GL.Uniform4(UPlayerPosShadowCaster, 0f, 0f, 0f, 0f);
+            //GL.Uniform4(UPlayerPosShadowCaster, 0f, 0f, 0f, 0f);
             GL.Uniform3(UPatchSizeTime, new Vector3(f._patchSize.X, f._patchSize.Y, KWEngine.CurrentWorld.WorldTime));
             GL.Uniform1(UInstanceCount, (float)f._instanceCount);
             GL.Uniform2(UNXNZ, f._nXZ);

@@ -19,7 +19,6 @@ uniform int uLightConfig;
 void main()
 {
 	albedo = vColor * texture(uTextureAlbedo, vTexture).xyz * uColorTintEmissive.xyz * uColorTintEmissive.w;
-	//normal = normalize(vNormal);
 	normal = normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0));
 	metallicRoughnessMetallicType = vec3(0.0, 1.0, 0.0);
 	idShadowCaster = ivec2(65535, uLightConfig);

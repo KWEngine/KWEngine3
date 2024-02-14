@@ -21,9 +21,9 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             
-            FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 100000);
-            tf1.SetPosition(0, 0, 0);
-            tf1.SetPatchSize(40, 80);
+            FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 2*2*2*2*2*2*2*2*2);
+            tf1.SetPosition(-10, 0, 0);
+            tf1.SetPatchSize(4, 8);
             tf1.SetScale(3f, 1f, 3f);
             tf1.SetRotation(0, 135, 0);
             tf1.SetSwayFactor(0.1f);
@@ -33,7 +33,7 @@ namespace KWEngine3TestProject.Worlds
             
             PlayerFoliageTest player = new PlayerFoliageTest();
             player.SetRotation(0, 180, 0);
-            player.SetPosition(-5, 1f, 0);
+            player.SetPosition(-10, 0.5f, 2f);
             player.SetOpacity(0);
             SetCameraToFirstPersonGameObject(player, 0f);
             MouseCursorGrab();
@@ -60,7 +60,7 @@ namespace KWEngine3TestProject.Worlds
             floor.IsShadowCaster = true;
             AddGameObject(floor);
             
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
             sun.SetPosition(100, 100, 100);
             sun.SetNearFar(20, 400);
             sun.SetFOV(100);

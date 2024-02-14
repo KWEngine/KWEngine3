@@ -7,7 +7,6 @@ layout(location = 3) in	vec3 aTangent;
 layout(location = 4) in	vec3 aBiTangent;
 
 uniform mat4 uViewProjectionMatrix;
-uniform vec4 uPlayerPosShadowCaster;
 uniform mat4 uModelMatrix;
 uniform mat4 uNormalMatrix;
 uniform vec3 uPatchSizeTime;
@@ -27,20 +26,15 @@ out mat3 vTBN;
 #define M_PI32 3.141592 / 32.0
 #define M_PI 3.141592
 
-mat3 rotationMatrix(vec3 axis, float angle, float h) 
+mat3 rotationMatrix(vec3 axis, float angle) 
 {
     float s = sin(angle);
     float c = cos(angle);
     float oc = 1.0 - c;
-    /*
+    
     return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
                 oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
                 oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c        
-                );
-	*/
-	return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
-                oc * axis.x * axis.y + axis.z * s * h,  oc * axis.y * axis.y + c * h,           oc * axis.y * axis.z - axis.x * s * h,
-                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c      
                 );
 }
 
@@ -57,12 +51,17 @@ void main()
 							uDXDZSway.y * (gl_InstanceID / uNXNZ.x) + uNoise[gl_InstanceID % 256].y  + uDXDZSway.y * noise_2.y
 							);
 	vec3 center = vec3(-uDXDZSway.x * (uNXNZ.x - 1) / 2.0, 0.0, -uDXDZSway.y * (uNXNZ.y - 1) / 2.0);
-	//float sizeFactor = length(offsetXZ - center) / (length(vec2(uPatchSizeTime.x, uPatchSizeTime.y)));
+	vec4 centerOfPatch = vec4(-uDXDZSway.x * (uNXNZ.x - 1), 0.0, -uDXDZSway.y * (uNXNZ.y - 1), 1.0);
+	centerOfPatch = uModelMatrix * centerOfPatch;
 
-	mat3 rotMat = rotationMatrix(axis, swayFactor * ((aPosition.y * M_PIHALF * uDXDZSway.z)), 1.0);
+	mat3 rotMat = rotationMatrix(axis, swayFactor * ((aPosition.y * M_PIHALF * uDXDZSway.z)));
 	vec3 positionRandomized = (uModelMatrix * mat4(rotMat) * vec4(aPosition, 1.0)).xyz;
 	
 	vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
+
+	float heightFactor = 1.0 / length(totalLocalPos.xyz - (positionRandomized));
+	totalLocalPos.y *= clamp(heightFactor * heightFactor, 0.25, 1.0);
+
 	vec3 totalNormal = (uNormalMatrix * mat4(rotMat) * vec4(aNormal, 0.0)).xyz;
 	vec3 totalTangent = (uNormalMatrix * mat4(rotMat) * vec4(aTangent, 0.0)).xyz;
 	vec3 totalBiTangent = (uNormalMatrix * mat4(rotMat) * vec4(aBiTangent, 0.0)).xyz;
