@@ -24,6 +24,7 @@ namespace KWEngine3.Model
         private int mSectorSize = -1;
         private float mSectorWidth;
         private float mSectorDepth;
+        internal int _texHeight = -1;
 
         internal int _texBlend = KWEngine.TextureBlack;
         internal int _texR = KWEngine.TextureAlpha;
@@ -51,10 +52,41 @@ namespace KWEngine3.Model
             return mDepth;
         }
 
-        internal GeoMesh BuildTerrain2(string heightMap, float width, float height, float depth, out GeoMesh sideMeshes, float texRepeatX = 1, float texRepeatY = 1, bool isFile = true)
+        internal GeoMesh BuildTerrain(string heightMap, float width, float height, float depth, out GeoMesh sideMeshes, float texRepeatX = 1, float texRepeatY = 1, bool isFile = true)
         {
+            
+
             GeoMesh mmp;
             sideMeshes = new GeoMesh();
+            if (isFile)
+            {
+                if (!File.Exists(heightMap))
+                {
+                    KWEngine.LogWriteLine("[Terrain] Height map invalid.");
+                    return null;
+                }
+                else
+                {
+                    if(!heightMap.Trim().ToLower().EndsWith("png") && !heightMap.Trim().ToLower().EndsWith("jpg") && !heightMap.Trim().ToLower().EndsWith("jpeg"))
+                    {
+                        KWEngine.LogWriteLine("[Terrain] Height map may be of type PNG or JPG only.");
+                        return null;
+                    }
+                    else
+                    {
+                        if(KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
+                        {
+                            _texHeight = KWEngine.CurrentWorld._customTextures[heightMap];
+                        }
+                        else
+                        {
+                            _texHeight = HelperTexture.LoadTextureForModelExternal(heightMap, out int tmpMips);
+                            KWEngine.CurrentWorld._customTextures.Add(heightMap, _texHeight);
+                        }
+                    }
+                }
+            }
+
             try
             {
                 Assembly a;
@@ -71,6 +103,11 @@ namespace KWEngine3.Model
                 string assemblyname = a.GetName().Name;
                 using (Stream s = isFile ? File.Open(heightMap, FileMode.Open) : a.GetManifestResourceStream(assemblyname + "." + heightMap))
                 {
+                    if(!isFile)
+                    {
+                        _texHeight = KWEngine.TextureBlack;
+                    }
+
                     using (SKBitmap image = SKBitmap.Decode(s))
                     {
 
@@ -85,6 +122,7 @@ namespace KWEngine3.Model
                         if (image.Width < 4 || image.Height < 4 || image.Height > 256 || image.Width > 256)
                         {
                             KWEngine.LogWriteLine("[Terrain] Height map too small or too big (4-256px)");
+                            DeleteOpenGLHeightMap(heightMap);
                             return null;
                         }
 
@@ -553,6 +591,7 @@ namespace KWEngine3.Model
             catch (Exception)
             {
                 KWEngine.LogWriteLine("[Terrain] Terrain source material invalid");
+                DeleteOpenGLHeightMap(heightMap);
                 return null;
             }
             mmp.Primitive = PrimitiveType.Triangles;
@@ -732,6 +771,20 @@ namespace KWEngine3.Model
                 }
             }
             mSectorMap = null;
+        }
+
+        internal void DeleteOpenGLHeightMap(string entry)
+        {
+            if(_texHeight > 0 && _texHeight != KWEngine.TextureBlack)
+            {
+                GL.DeleteTextures(1, new int[] { _texHeight });
+                _texHeight = -1;
+            }
+
+            if(KWEngine.CurrentWorld._customTextures.ContainsKey(entry))
+            {
+                KWEngine.CurrentWorld._customTextures.Remove(entry);
+            }
         }
     }
 }

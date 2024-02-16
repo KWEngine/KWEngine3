@@ -199,6 +199,13 @@ namespace KWEngine3
                 g.ID = 0;
 
                 _terrainObjects.Remove(g);
+                foreach (FoliageObject f in _foliageObjects)
+                {
+                    if (f._terrainObject == g)
+                    {
+                        f.DetachFromTerrain();
+                    }
+                }
             }
             _terrainObjectsToBeRemoved.Clear();
 
@@ -963,10 +970,21 @@ namespace KWEngine3
         /// <param name="t">Objekt</param>
         public void AddTerrainObject(TerrainObject t)
         {
-            if (!_terrainObjects.Contains(t) && !_terrainObjectsToBeAdded.Contains(t))
+            if (IsPrepared == false)
             {
-                t.ID = _availableGameObjectIDs.Dequeue();
-                _terrainObjectsToBeAdded.Add(t);
+                if (!_terrainObjects.Contains(t))
+                {
+                    t.ID = _availableGameObjectIDs.Dequeue();
+                    _terrainObjects.Add(t);
+                }
+            }
+            else
+            {
+                if (!_terrainObjects.Contains(t) && !_terrainObjectsToBeAdded.Contains(t))
+                {
+                    t.ID = _availableGameObjectIDs.Dequeue();
+                    _terrainObjectsToBeAdded.Add(t);
+                }
             }
         }
 
@@ -976,8 +994,22 @@ namespace KWEngine3
         /// <param name="t">Objekt</param>
         public void RemoveTerrainObject(TerrainObject t)
         {
-            if (!_terrainObjectsToBeRemoved.Contains(t))
-                _terrainObjectsToBeRemoved.Add(t);
+            if (IsPrepared == false)
+            {
+                _terrainObjects.Remove(t);
+                foreach(FoliageObject f in _foliageObjects)
+                {
+                    if(f._terrainObject == t)
+                    {
+                        f.DetachFromTerrain();
+                    }
+                }
+            }
+            else
+            {
+                if (!_terrainObjectsToBeRemoved.Contains(t))
+                    _terrainObjectsToBeRemoved.Add(t);
+            }
         }
 
         /// <summary>
@@ -1132,10 +1164,21 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Durchsucht alle TerrainObject-Instanzen und gibt das erste Suchergebnis zum angegebenen Namen zurück
+        /// </summary>
+        /// <param name="name">gesuchter Name</param>
+        /// <returns>gefundenes Objekt (oder null)</returns>
+        public TerrainObject GetTerrainObjectByName(string name)
+        {
+            TerrainObject t = _terrainObjects.Find(to => to.Name == name);
+            return t;
+        }
+
+        /// <summary>
         /// Durchsucht alle TextObject-Instanzen und gibt das erste Suchergebnis zum angegebenen Namen zurück
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        /// <param name="name">gesuchter Name</param>
+        /// <returns>gefundenes Objekt (oder null)</returns>
         public TextObject GetTextObjectByName(string name)
         {
             name = name.Trim();

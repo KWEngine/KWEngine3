@@ -15,25 +15,39 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            
+            if(Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.R))
+            {
+                TerrainObject t = GetTerrainObjectByName("TestTerrain");
+                if(t != null)
+                {
+                    RemoveTerrainObject(t);
+                }
+            }
         }
 
         public override void Prepare()
         {
-            
+            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap.png", "./Textures/Dirt_01_512.png", 100, 0, 100);
+
+            TerrainObject t = new TerrainObject("T1");
+            t.Name = "TestTerrain";
+            t.SetPosition(10, 2, 0);
+            AddTerrainObject(t);
+
             FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 2*2*2*2*2*2*2*2*2);
             tf1.SetPosition(-10, 0, 0);
             tf1.SetPatchSize(4, 8);
             tf1.SetScale(3f, 1f, 3f);
-            tf1.SetRotation(0, 135, 0);
             tf1.SetSwayFactor(0.1f);
+            tf1.AttachToTerrain(t);
             tf1.IsShadowReceiver = true;
+            tf1.IsSizeReducedAtCorners = false;
             AddFoliageObject(tf1);
             
             
             PlayerFoliageTest player = new PlayerFoliageTest();
             player.SetRotation(0, 180, 0);
-            player.SetPosition(-10, 0.5f, 2f);
+            player.SetPosition(-10, 10f, 10f);
             player.SetOpacity(0);
             SetCameraToFirstPersonGameObject(player, 0f);
             MouseCursorGrab();

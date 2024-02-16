@@ -93,6 +93,11 @@ namespace KWEngine3.GameObjects
         public bool IsAffectedByLight { get; set; } = true;
 
         /// <summary>
+        /// Gibt an, ob die Gewächsbestandteile zum Rand der Gewächsfläche in ihrer Größe verringert werden (Standard: true)
+        /// </summary>
+        public bool IsSizeReducedAtCorners { get; set; } = true;
+
+        /// <summary>
         /// Setzt die (ungefähre) Anzahl an benötigten Instanzen für das Gewächs
         /// </summary>
         /// <param name="instanceCount">Anzahl der gewünschten Instanzen</param>
@@ -183,7 +188,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt die Größe je Gewächsteil (Standardwert: 1)
         /// </summary>
-        /// <param name="s">Skalierung (jede Vektorkomponente muss positiv sein)</param>
+        /// <param name="s">Skalierung (jede Vektorkomponente muss positiv sein, Maximalwert: 4096)</param>
         public void SetScale(Vector3 s)
         {
             _scale.X = Math.Clamp(s.X, 0.001f, 4096f);
@@ -193,25 +198,25 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Rotation des Gewächsfeldes (in Grad, Rotationsreihenfolge: Z -> Y -> X)
+        /// Richtet das Gewächs bzgl. seiner Höhe am übergebenen Terrain aus
         /// </summary>
-        /// <param name="x">x-Rotation (in Grad)</param>
-        /// <param name="y">y-Rotation (in Grad)</param>
-        /// <param name="z">z-Rotation (in Grad)</param>
-        public void SetRotation(float x, float y, float z)
+        /// <param name="t">Terrain-Objekt, an dem sich das Gewächs orientieren soll</param>
+        public void AttachToTerrain(TerrainObject t)
         {
-            SetRotation(HelperRotation.GetQuaternionForEulerDegrees(x, y, z));
+            if(t != null && t.ID > 0)
+            {
+                _terrainObject = t;
+            }
         }
 
         /// <summary>
-        /// Setzt die Rotation des Gewächsfeldes
+        /// Löst die Bindung zum aktuell festgelegten Terrain-Objekt
         /// </summary>
-        /// <param name="r">Rotation als Quaternion</param>
-        public void SetRotation(Quaternion r)
+        public void DetachFromTerrain()
         {
-            _rotation = r;
-            UpdateModelMatrix();
+            _terrainObject = null;
         }
+
 
         #region internals
         internal Vector4 _color = new(1, 1, 1, 1);
@@ -228,6 +233,7 @@ namespace KWEngine3.GameObjects
         internal float[] _noise;
         internal int _textureId = -1;
         internal float _swayFactor = 0.05f;
+        internal TerrainObject _terrainObject = null;
         
 
         internal void UpdateModelMatrix()
@@ -267,16 +273,6 @@ namespace KWEngine3.GameObjects
             {
                 _dXZ.X = _patchSize.X / (_nXZ.X - 1);
                 _dXZ.Y = _patchSize.Y / (_nXZ.Y - 1);
-
-                /*
-                for(int i = 0; i < _instanceCount; i++)
-                {
-                    //vec3(uDXDZSway.x * (gl_InstanceID % uNXNZ.x), // + uNoise[gl_InstanceID % 512].x, 
-                    //                            0.0,
-                    //uDXDZSway.y * (gl_InstanceID / uNXNZ.x) // + uNoise[gl_InstanceID % 512].y
-                    //);
-                    Console.WriteLine(_dXZ.X * (i % _nXZ.X) + "|" + (_dXZ.Y * (i / _nXZ.X)));
-                }*/
 
                 for (int i = 0; i < _noise.Length; i += 2)
                 {

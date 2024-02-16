@@ -1,6 +1,7 @@
 ﻿using KWEngine3.Assets;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
+using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
@@ -21,8 +22,12 @@ namespace KWEngine3.Renderer
         public static int UPatchSizeTime { get; private set; } = -1;
         public static int UInstanceCount { get; private set; } = -1;
         public static int UNXNZ { get; private set; } = -1;
-        public static int UDXDZ { get; private set; } = -1;
+        public static int UDXDZSwayRound { get; private set; } = -1;
         public static int UNoise { get; private set; } = -1;
+
+        public static int UTerrainPosition { get; private set; } = -1;
+        public static int UTerrainScale { get; private set; } = -1;
+        public static int UTerrainHeightMap { get; private set; } = -1;
 
         public static int ULightConfig { get; private set; } = -1;
 
@@ -64,10 +69,13 @@ namespace KWEngine3.Renderer
                 UPatchSizeTime = GL.GetUniformLocation(ProgramID, "uPatchSizeTime");
                 UInstanceCount = GL.GetUniformLocation(ProgramID, "uInstanceCount");
                 UNXNZ = GL.GetUniformLocation(ProgramID, "uNXNZ");
-                UDXDZ = GL.GetUniformLocation(ProgramID, "uDXDZSway");
+                UDXDZSwayRound = GL.GetUniformLocation(ProgramID, "uDXDZSwayRound");
 
                 UNoise = GL.GetUniformLocation(ProgramID, "uNoise");
                 ULightConfig = GL.GetUniformLocation(ProgramID, "uLightConfig");
+                UTerrainPosition = GL.GetUniformLocation(ProgramID, "uTerrainPosition");
+                UTerrainScale = GL.GetUniformLocation(ProgramID, "uTerrainScale");
+                UTerrainHeightMap = GL.GetUniformLocation(ProgramID, "uTerrainHeightMap");
             }
         }
 
@@ -103,11 +111,10 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UModelMatrix, false, ref f._modelMatrix);
             GL.UniformMatrix4(UNormalMatrix, false, ref f._normalMatrix);
             GL.Uniform4(UColorTintAndEmissive, f._color);
-            //GL.Uniform4(UPlayerPosShadowCaster, 0f, 0f, 0f, 0f);
             GL.Uniform3(UPatchSizeTime, new Vector3(f._patchSize.X, f._patchSize.Y, KWEngine.CurrentWorld.WorldTime));
             GL.Uniform1(UInstanceCount, (float)f._instanceCount);
             GL.Uniform2(UNXNZ, f._nXZ);
-            GL.Uniform3(UDXDZ, f._dXZ.X, f._dXZ.Y, f._swayFactor);
+            GL.Uniform4(UDXDZSwayRound, f._dXZ.X, f._dXZ.Y, f._swayFactor, f.IsSizeReducedAtCorners ? 0.05f : 1.0f);
             GL.Uniform2(UNoise, f._noise.Length, f._noise);
 
             int val = f.IsShadowReceiver ? 1 : -1;
@@ -123,9 +130,27 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureFoliageGrassNormal);
             GL.Uniform1(UTextureNormal, 1);
 
+            if (f._terrainObject != null && f._terrainObject.ID != 0)
+            {
+                GeoTerrain m = f._terrainObject._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                GL.Uniform3(UTerrainScale, m.GetWidth(), m.GetScaleFactor(), m.GetDepth());
+                GL.Uniform3(UTerrainPosition, f._terrainObject._stateRender._position);
+                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.BindTexture(TextureTarget.Texture2D, m._texHeight);
+                GL.Uniform1(UTerrainHeightMap, 2);
+            }
+            else
+            {
+                GL.Uniform3(UTerrainScale, 0f, 0f, 0f);
+                GL.Uniform3(UTerrainPosition, 0f, 0f, 0f);
+                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
+                GL.Uniform1(UTerrainHeightMap, 2);
+            }
+
             // Draw calls...
             GL.BindVertexArray(KWFoliageGrass.VAO);
-            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, KWFoliageGrass._vertices.Length / 3, (int)f._instanceCount);
+            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, KWFoliageGrass._vertices.Length / 3, f._instanceCount);
             GL.BindVertexArray(0);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);

@@ -399,7 +399,7 @@ namespace KWEngine3
             };
 
             GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain2(heightmap, width, height, depth, out GeoMesh sideMeshes, 1, 1, true);
+            GeoMesh terrainMesh = t.BuildTerrain(heightmap, width, height, depth, out GeoMesh sideMeshes, 1, 1, true);
             terrainMesh.Terrain = t;
             GeoMaterial mat = new()
             {
@@ -462,7 +462,7 @@ namespace KWEngine3
             };
 
             GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain2(null, width, height, depth, out GeoMesh sideMeshes, 1f, 1f, false);
+            GeoMesh terrainMesh = t.BuildTerrain(null, width, height, depth, out GeoMesh sideMeshes, 1f, 1f, false);
             terrainMesh.Terrain = t;
             GeoMaterial mat = new()
             {

@@ -256,6 +256,7 @@ namespace KWEngine3.GameObjects
 
         internal bool _isCollisionObject = false;
         internal bool _isShadowCaster = false;
+        internal int _heightMap = -1;
 
         internal void UpdateModelMatrixAndHitboxes()
         {

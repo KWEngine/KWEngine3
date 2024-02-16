@@ -10,7 +10,6 @@ namespace KWEngine3.Assets
         public static float[] _tangents;
         public static float[] _bitangents;
         public static float[] _uvs;
-        public static float[] _colors;
 
         public static int VAO;
 
