@@ -39,6 +39,7 @@
 		<None Remove="Assets\Models\kwcube.obj" />
 		<None Remove="Assets\Models\kwcube6.mtl" />
 		<None Remove="Assets\Models\kwcube6.obj" />
+		<None Remove="Assets\Models\kwgrass_minecraft.obj" />
 		<None Remove="Assets\Models\kwplatform.mtl" />
 		<None Remove="Assets\Models\kwplatform.obj" />
 		<None Remove="Assets\Models\kwquad.obj" />
@@ -62,6 +63,7 @@
 		<None Remove="Assets\Textures\foliage_grassblade_03.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_normal.png" />
 		<None Remove="Assets\Textures\heightmap.png" />
+		<None Remove="Assets\Textures\noise.png" />
 		<None Remove="Assets\Textures\normalmap.png" />
 		<None Remove="Assets\Textures\particleburst_bubbles.dds" />
 		<None Remove="Assets\Textures\particleburst_bubbles_unicolor.dds" />
@@ -149,6 +151,7 @@
 		<EmbeddedResource Include="Assets\Models\kwcube.obj" />
 		<EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
 		<EmbeddedResource Include="Assets\Models\kwcube6.obj" />
+		<EmbeddedResource Include="Assets\Models\kwgrass_minecraft.obj" />
 		<EmbeddedResource Include="Assets\Models\kwplatform.mtl" />
 		<EmbeddedResource Include="Assets\Models\kwplatform.obj" />
 		<EmbeddedResource Include="Assets\Models\kwquad.obj" />
@@ -172,6 +175,7 @@
 		<EmbeddedResource Include="Assets\Textures\foliage_grassblade_normal.png">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
+		<EmbeddedResource Include="Assets\Textures\noise.png" />
 		<EmbeddedResource Include="Assets\Textures\normalmap.png" />
 		<EmbeddedResource Include="Assets\Textures\black.png" />
 		<EmbeddedResource Include="Assets\Textures\checkerboard.png" />

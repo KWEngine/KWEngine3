@@ -15,15 +15,19 @@
         /// <summary>
         /// Gras (Variante 1)
         /// </summary>
-        Grass1,
+        GrassFresh,
         /// <summary>
         /// Gras (Variante 2)
         /// </summary>
-        Grass2,
+        GrassDry,
         /// <summary>
         /// Gras (Variante 3)
         /// </summary>
-        Grass3
+        GrassDesert,
+        /// <summary>
+        /// Gras (Variante 4)
+        /// </summary>
+        GrassMinecraft
     }
 
     /// <summary>

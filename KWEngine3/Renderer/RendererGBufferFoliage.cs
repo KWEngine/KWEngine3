@@ -18,6 +18,7 @@ namespace KWEngine3.Renderer
         public static int UColorTintAndEmissive { get; private set; } = -1;
         public static int UColorMaterial { get; private set; } = -1;
         public static int UTextureNormal { get; private set; } = -1;
+        public static int UTextureNoise { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
         public static int UPatchSizeTime { get; private set; } = -1;
         public static int UInstanceCount { get; private set; } = -1;
@@ -30,6 +31,7 @@ namespace KWEngine3.Renderer
         public static int UTerrainHeightMap { get; private set; } = -1;
 
         public static int ULightConfig { get; private set; } = -1;
+        public static int URoughnessMetallic { get; private set; } = -1;
 
         public static void Init()
         {
@@ -57,7 +59,6 @@ namespace KWEngine3.Renderer
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UColorTintAndEmissive = GL.GetUniformLocation(ProgramID, "uColorTintEmissive");
-                //UPlayerPosShadowCaster = GL.GetUniformLocation(ProgramID, "uPlayerPosShadowCaster");
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UNormalMatrix = GL.GetUniformLocation(ProgramID, "uNormalMatrix");
@@ -76,6 +77,10 @@ namespace KWEngine3.Renderer
                 UTerrainPosition = GL.GetUniformLocation(ProgramID, "uTerrainPosition");
                 UTerrainScale = GL.GetUniformLocation(ProgramID, "uTerrainScale");
                 UTerrainHeightMap = GL.GetUniformLocation(ProgramID, "uTerrainHeightMap");
+
+                UTerrainHeightMap = GL.GetUniformLocation(ProgramID, "uNoiseMap");
+
+                URoughnessMetallic = GL.GetUniformLocation(ProgramID, "uRoughnessMetallic");
             }
         }
 
@@ -117,6 +122,8 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UDXDZSwayRound, f._dXZ.X, f._dXZ.Y, f._swayFactor, f.IsSizeReducedAtCorners ? 0.05f : 1.0f);
             GL.Uniform2(UNoise, f._noise.Length, f._noise);
 
+            GL.Uniform2(URoughnessMetallic, f._roughness, 0.0f);
+
             int val = f.IsShadowReceiver ? 1 : -1;
             val *= f.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(ULightConfig, val);
@@ -130,28 +137,45 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureFoliageGrassNormal);
             GL.Uniform1(UTextureNormal, 1);
 
+            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNoise);
+            GL.Uniform1(UTextureNoise, 2);
+
             if (f._terrainObject != null && f._terrainObject.ID != 0)
             {
                 GeoTerrain m = f._terrainObject._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
                 GL.Uniform3(UTerrainScale, m.GetWidth(), m.GetScaleFactor(), m.GetDepth());
                 GL.Uniform3(UTerrainPosition, f._terrainObject._stateRender._position);
-                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.ActiveTexture(TextureUnit.Texture3);
                 GL.BindTexture(TextureTarget.Texture2D, m._texHeight);
-                GL.Uniform1(UTerrainHeightMap, 2);
+                GL.Uniform1(UTerrainHeightMap, 3);
             }
             else
             {
                 GL.Uniform3(UTerrainScale, 0f, 0f, 0f);
                 GL.Uniform3(UTerrainPosition, 0f, 0f, 0f);
-                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.ActiveTexture(TextureUnit.Texture3);
                 GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
-                GL.Uniform1(UTerrainHeightMap, 2);
+                GL.Uniform1(UTerrainHeightMap, 3);
             }
 
             // Draw calls...
-            GL.BindVertexArray(KWFoliageGrass.VAO);
-            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, KWFoliageGrass._vertices.Length / 3, f._instanceCount);
-            GL.BindVertexArray(0);
+            if(f.Type == FoliageType.GrassMinecraft)
+            {
+                GeoMesh m = KWEngine.KWFoliageMinecraft.Meshes.ElementAt(0).Value;
+                GL.BindVertexArray(m.VAO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
+                GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                GL.BindVertexArray(0);
+            }
+            else
+            {
+                GL.BindVertexArray(KWFoliageGrass.VAO);
+                GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, KWFoliageGrass._vertices.Length / 3, f._instanceCount);
+                GL.BindVertexArray(0);
+            }
+            
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }

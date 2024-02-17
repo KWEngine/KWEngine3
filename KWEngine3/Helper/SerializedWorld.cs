@@ -35,6 +35,7 @@ namespace KWEngine3.Helper
         public List<SerializedTerrainObject> TerrainObjects { get; set; }
         public List<SerializedHUDObject> HUDObjects { get; set; }
         public List<SerializedTextObject> TextObjects { get; set; }
+        public List<SerializedFoliageObject> FoliageObjects { get; set; }
         public SerializedViewSpaceGameObject ViewSpaceGameObject { get; set; }
 
         public static SerializedWorld GenerateWorldExportFor(World w)
@@ -65,6 +66,7 @@ namespace KWEngine3.Helper
             wj.GameObjects = GenerateGameObjects(w);
             wj.RenderObjects = GenerateRenderObjects(w);
             wj.TerrainObjects = GenerateTerrainObjects(w);
+            wj.FoliageObjects = GenerateFoliageObjects(w);
             wj.LightObjects = GenerateLightObjects(w);
             wj.HUDObjects = GenerateHUDObjects(w);
             wj.TextObjects = GenerateTextObjects(w);
@@ -115,6 +117,16 @@ namespace KWEngine3.Helper
                 gameObjects.Add(SerializedGameObject.GenerateSerializedGameObject(g, w));
             }
             return gameObjects;
+        }
+
+        public static List<SerializedFoliageObject> GenerateFoliageObjects(World w)
+        {
+            List<SerializedFoliageObject> foliageObjects = new List<SerializedFoliageObject>();
+            foreach (FoliageObject f in w._foliageObjects)
+            {
+                foliageObjects.Add(SerializedFoliageObject.GenerateSerializedFoliageObject(f, w));
+            }
+            return foliageObjects;
         }
 
         public static List<SerializedRenderObject> GenerateRenderObjects(World w)

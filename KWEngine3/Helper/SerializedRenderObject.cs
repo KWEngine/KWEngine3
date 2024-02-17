@@ -8,14 +8,11 @@ namespace KWEngine3.Helper
     {
         // MISC. PROPERTIES
         public bool IsShadowCaster { get; set; }
-        public bool IsCollisionObject { get; set; }
-        public bool BlendTextureStates { get; set; }
         public int ID { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
         public string ModelName { get; set; }
         public string ModelPath { get; set; }
-        public bool UpdateLast { get; set; }
         public bool IsDepthTesting { get; set; } = true;
         public bool IsAffectedByLight { get; set; } = true;
         public float Opacity { get; set; } = 1;
@@ -24,11 +21,6 @@ namespace KWEngine3.Helper
         public float[] Position { get; set; }
         public float[] Rotation { get; set; }
         public float[] Scale { get; set; }
-        public float[] PositionOffset { get; set; }
-        public float[] RotationOffset { get; set; }
-        public float[] ScaleOffset { get; set; }
-        public int AttachedToID { get; set; }
-        public string AttachedToParentBone { get; set; }
         public float[] ScaleHitbox { get; set; }
 
         // COLOR

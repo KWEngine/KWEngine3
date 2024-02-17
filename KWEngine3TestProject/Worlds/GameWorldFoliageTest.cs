@@ -34,14 +34,14 @@ namespace KWEngine3TestProject.Worlds
             t.SetPosition(10, 2, 0);
             AddTerrainObject(t);
 
-            FoliageObject tf1 = new FoliageObject(FoliageType.Grass1, 2*2*2*2*2*2*2*2*2);
+            FoliageObject tf1 = new FoliageObject(FoliageType.GrassMinecraft, 100000);
             tf1.SetPosition(-10, 0, 0);
-            tf1.SetPatchSize(4, 8);
-            tf1.SetScale(3f, 1f, 3f);
+            tf1.SetPatchSize(40, 80);
+            tf1.SetScale(1f, 1f, 1f);
             tf1.SetSwayFactor(0.1f);
             tf1.AttachToTerrain(t);
             tf1.IsShadowReceiver = true;
-            tf1.IsSizeReducedAtCorners = false;
+            tf1.IsSizeReducedAtCorners = true;
             AddFoliageObject(tf1);
             
             

@@ -9,6 +9,7 @@ namespace KWEngine3.Helper
 {
     internal class SerializedTerrainObject
     {
+        public int ID { get; set; }
         public string Name { get; set; }
         public bool IsShadowCaster { get; set; }
         public bool IsCollisionObject { get; set; }
@@ -38,6 +39,7 @@ namespace KWEngine3.Helper
         {
             SerializedTerrainObject st = new SerializedTerrainObject();
 
+            st.ID = t.ID;
             st.IsShadowCaster = t.IsShadowCaster;
             st.IsCollisionObject = t.IsCollisionObject;
             st.IsVisible = t.IsVisible;

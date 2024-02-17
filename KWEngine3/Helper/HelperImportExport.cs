@@ -187,9 +187,16 @@ namespace KWEngine3.Helper
             {
                 w.AddTerrainObject(BuildTerrainObject(st));
             }
-            
+
+            // Build and add foliage object instances:
+            foreach (SerializedFoliageObject sf in sw.FoliageObjects)
+            {
+                w.AddFoliageObject(BuildFoliageObject(sf));
+            }
+
+
             // Build and add hud object instances:
-            foreach(SerializedHUDObject sh in sw.HUDObjects)
+            foreach (SerializedHUDObject sh in sw.HUDObjects)
             {
                 w.AddHUDObject(BuildHUDObject(sh));
             }
@@ -283,10 +290,41 @@ namespace KWEngine3.Helper
             return t;
         }
 
+        private static FoliageObject BuildFoliageObject(SerializedFoliageObject sf)
+        {
+            FoliageObject f = new FoliageObject(sf.FoliageType);
+            f.IsAffectedByLight = sf.IsAffectedByLight;
+            f.IsShadowReceiver = sf.IsShadowReceiver;
+            f.IsSizeReducedAtCorners = sf.IsSizeReducedAtCorners;
+
+            f.Name = sf.Name;
+            f.SetColor(sf.Color[0], sf.Color[1], sf.Color[2], sf.Color[3]);
+            f.SetInstanceCount(sf.InstanceCount);
+            f.SetPatchSize(sf.PatchSize[0], sf.PatchSize[1]);
+            f.SetPosition(sf.Position[0], sf.Position[1], sf.Position[2]);
+            f.SetScale(sf.Scale[0], sf.Scale[1], sf.Scale[2]);
+            f.SetSwayFactor(sf.SwayFactor);
+            f.SetRoughness(sf.Roughness);
+
+            if(sf.AttachedToID > 0)
+            {
+                foreach(TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+                {
+                    if(t._idFromImport == sf.AttachedToID)
+                    {
+                        f.AttachToTerrain(t);
+                        break;
+                    }
+                }
+            }
+
+            return f;
+        }
+
         private static TerrainObject BuildTerrainObject(SerializedTerrainObject st)
         {
             TerrainObject t = new TerrainObject(st.ModelName);
-
+            t._idFromImport = st.ID;
             t.Name = st.Name;
             t.IsShadowCaster = st.IsShadowCaster;
             t.IsCollisionObject = st.IsCollisionObject;

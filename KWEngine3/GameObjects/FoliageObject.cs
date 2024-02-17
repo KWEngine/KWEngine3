@@ -13,7 +13,7 @@ namespace KWEngine3.GameObjects
         /// Konstruktormethode für das Bodengewächs mit einer Instanz
         /// </summary>
         /// <param name="type">Art des Gewächses</param>
-        public FoliageObject(FoliageType type = FoliageType.Grass1)
+        public FoliageObject(FoliageType type = FoliageType.GrassFresh)
             : this(type, 1)
         {
 
@@ -28,17 +28,21 @@ namespace KWEngine3.GameObjects
         {
             _instanceCount = Math.Clamp(instanceCount, 1, 262144);
             Type = type;
-            if(type == FoliageType.Grass1)
+            if(type == FoliageType.GrassFresh)
             {
                 _textureId = KWEngine.TextureFoliageGrass1;
             }
-            else if(type == FoliageType.Grass2)
+            else if(type == FoliageType.GrassDry)
             {
                 _textureId = KWEngine.TextureFoliageGrass2;
             }
-            else if(type == FoliageType.Grass3)
+            else if(type == FoliageType.GrassDesert)
             {
                 _textureId = KWEngine.TextureFoliageGrass3;
+            }
+            else if(type == FoliageType.GrassMinecraft)
+            {
+                _textureId = KWEngine.TextureFoliageGrass1;
             }
         }
 
@@ -50,7 +54,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Art des Bodengewächses
         /// </summary>
-        public FoliageType Type { get; internal set; } = FoliageType.Grass1;
+        public FoliageType Type { get; internal set; } = FoliageType.GrassFresh;
 
         /// <summary>
         /// Gibt an, ob sich das Objekt im Sichtbereich der Kamera befindet
@@ -68,6 +72,11 @@ namespace KWEngine3.GameObjects
         public Vector3 Position { get { return _position; } }
 
         /// <summary>
+        /// Gibt die aktuelle Rauheit der Gewächsoberfläche an
+        /// </summary>
+        public float Roughness { get { return _roughness; } }
+
+        /// <summary>
         /// Gibt die Ausweitung des Gewächses an
         /// </summary>
         public Vector2 PatchSize { get { return _patchSize; } }
@@ -77,11 +86,6 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public int FoliageCount { get { return _instanceCount; } }
         
-        /// <summary>
-        /// Gibt die aktuelle Rotation als Quaternion an
-        /// </summary>
-        public Quaternion Rotation { get { return _rotation; } }
-
         /// <summary>
         /// Gibt an, ob Schatten auf das Objekt geworfen werden können (Standard: true)
         /// </summary>
@@ -114,6 +118,15 @@ namespace KWEngine3.GameObjects
         public void SetSwayFactor(float swayFactor)
         {
             _swayFactor = Math.Clamp(swayFactor, 0f, 1f);
+        }
+
+        /// <summary>
+        /// Gibt an, wie rau die Oberfläche des Gewächses ist (0f = glatt, 1f = rau)
+        /// </summary>
+        /// <param name="r">Grad der Rauheit</param>
+        public void SetRoughness(float r)
+        {
+            _roughness = MathHelper.Clamp(r, 0.01f, 1.0f);
         }
 
         /// <summary>
@@ -222,6 +235,7 @@ namespace KWEngine3.GameObjects
         internal Vector4 _color = new(1, 1, 1, 1);
         internal Vector3 _position = new();
         internal Vector3 _scale = Vector3.One;
+        internal float _roughness = 1.0f;
         internal Quaternion _rotation = Quaternion.Identity;
         internal Vector2 _patchSize = Vector2.One;
         internal int _instanceCount;
@@ -276,8 +290,8 @@ namespace KWEngine3.GameObjects
 
                 for (int i = 0; i < _noise.Length; i += 2)
                 {
-                    _noise[i + 0] = HelperRandom.GetRandomNumber(-_dXZ.X / 2.25f, _dXZ.X / 2.25f);
-                    _noise[i + 1] = HelperRandom.GetRandomNumber(-_dXZ.Y / 2.25f, _dXZ.Y / 2.25f);
+                    _noise[i + 0] = HelperRandom.GetRandomNumber(-1f, 1f);
+                    _noise[i + 1] = HelperRandom.GetRandomNumber(-1f, 1f);
                 }
             }
         }

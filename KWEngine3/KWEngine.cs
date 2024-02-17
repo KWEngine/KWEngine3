@@ -205,6 +205,7 @@ namespace KWEngine3
         internal static int TextureWhite = -1;
         internal static int TextureAlpha = -1;
         internal static int TextureNormalEmpty = -1;
+        internal static int TextureNoise = -1;
         internal static int TextureCubemapEmpty = -1;
         internal static int TextureDepthEmpty = -1;
         internal static int TextureDepthCubeMapEmpty = -1;
@@ -237,6 +238,7 @@ namespace KWEngine3
             TextureWhite = HelperTexture.LoadTextureInternal("white.png");
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
             TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
+            TextureNoise = HelperTexture.LoadTextureInternal("noise.png");
 
             int mipMaps;
             TextureFoliageGrass1 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_01.dds", out mipMaps);
@@ -268,6 +270,7 @@ namespace KWEngine3
         internal static GeoModel KWLightBulb;
         internal static GeoModel KWTerrainDefault;
         internal static GeoModel KWCapsule;
+        internal static GeoModel KWFoliageMinecraft;
 
         internal static void InitializeModels()
         {
@@ -282,7 +285,7 @@ namespace KWEngine3
             KWLightBulb = SceneImporter.LoadModel("lightbulb.obj", false, SceneImporter.AssemblyMode.Internal);
             KWCapsule = SceneImporter.LoadModel("capsulehitbox.obj", false, SceneImporter.AssemblyMode.Internal);
             KWTerrainDefault = KWEngine.BuildDefaultTerrainModel("TerrainDefault", 10, 0, 10);
-
+            KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
             KWFoliageGrass.Init();
 
             for (int i = 0; i < ExplosionObject.Axes.Length; i++)
