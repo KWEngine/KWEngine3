@@ -30,7 +30,6 @@ out mat3 vTBN;
 #define M_PI32 3.141592 / 32.0
 #define M_PI 3.141592
 
-
 float rand(vec2 co)
 {
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
@@ -65,7 +64,7 @@ mat4 scaleMatrix(float scaleFactor)
 		);
 }
 
-float getHeightFromTexture(vec4 vertexPos)
+float getHeightFromTexture(vec3 vertexPos)
 {
 	float height;
 	if(uTerrainScale.x == 0.0)
@@ -74,8 +73,8 @@ float getHeightFromTexture(vec4 vertexPos)
 	}
 	else
 	{
-		float uvX = clamp((vertexPos.x - uTerrainPosition.x + (uTerrainScale.x) * 0.5) / uTerrainScale.x, 0.0, 1.0);
-		float uvZ = clamp((vertexPos.z - uTerrainPosition.z + (uTerrainScale.z) * 0.5) / uTerrainScale.z, 0.0, 1.0);
+		float uvX = clamp((vertexPos.x - uTerrainPosition.x + (uTerrainScale.x + 1.0) * 0.5) / (uTerrainScale.x + 1.0), 0.0, 1.0);
+		float uvZ = clamp((vertexPos.z - uTerrainPosition.z + (uTerrainScale.z + 1.0) * 0.5) / (uTerrainScale.z + 1.0), 0.0, 1.0);
 
 		vec4 texColor = texture(uTerrainHeightMap, vec2(uvX, uvZ));
 		height = ((texColor.r + texColor.g + texColor.b) / 3.0) * uTerrainScale.y + uTerrainPosition.y;
@@ -105,9 +104,9 @@ void main()
 	mat3 rotMat = rotationMatrix(axis, swayFactor * ((aPosition.y * M_PIHALF * uDXDZSwayRound.z)));
 	vec3 positionRandomized = (uModelMatrix * mat4(rotMat) * sMatrix * vec4(aPosition, 1.0)).xyz;
 	vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
-
-	float heightFromTerrain = getHeightFromTexture(totalLocalPos);
+	float heightFromTerrain = getHeightFromTexture(totalLocalPos.xyz);
 	totalLocalPos.y += heightFromTerrain;
+
 	vec3 totalNormal = (uNormalMatrix * mat4(rotMat) * vec4(aNormal, 0.0)).xyz;
 	vec3 totalTangent = (uNormalMatrix * mat4(rotMat) * vec4(aTangent, 0.0)).xyz;
 	vec3 totalBiTangent = (uNormalMatrix * mat4(rotMat) * vec4(aBiTangent, 0.0)).xyz;

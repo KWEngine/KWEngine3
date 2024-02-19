@@ -11,7 +11,6 @@ namespace KWEngine3.Renderer
     internal static class RendererGBufferFoliage
     {
         public static int ProgramID { get; private set; } = -1;
-        //public static int UPlayerPosShadowCaster { get; private set; } = -1;
         public static int UViewProjectionMatrix { get; private set; } = -1;
         public static int UModelMatrix { get; private set; } = -1;
         public static int UNormalMatrix { get; private set; } = -1;
@@ -25,11 +24,9 @@ namespace KWEngine3.Renderer
         public static int UNXNZ { get; private set; } = -1;
         public static int UDXDZSwayRound { get; private set; } = -1;
         public static int UNoise { get; private set; } = -1;
-
         public static int UTerrainPosition { get; private set; } = -1;
         public static int UTerrainScale { get; private set; } = -1;
         public static int UTerrainHeightMap { get; private set; } = -1;
-
         public static int ULightConfig { get; private set; } = -1;
         public static int URoughnessMetallic { get; private set; } = -1;
 
@@ -78,7 +75,7 @@ namespace KWEngine3.Renderer
                 UTerrainScale = GL.GetUniformLocation(ProgramID, "uTerrainScale");
                 UTerrainHeightMap = GL.GetUniformLocation(ProgramID, "uTerrainHeightMap");
 
-                UTerrainHeightMap = GL.GetUniformLocation(ProgramID, "uNoiseMap");
+                UTextureNoise = GL.GetUniformLocation(ProgramID, "uNoiseMap");
 
                 URoughnessMetallic = GL.GetUniformLocation(ProgramID, "uRoughnessMetallic");
             }
