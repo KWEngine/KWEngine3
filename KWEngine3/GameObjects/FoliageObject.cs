@@ -191,7 +191,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Gibt die Größe je Gewächsteil (Standardwert: 1)
+        /// Gibt die Größe je Gewächsteil an(Standardwert: 1)
         /// </summary>
         /// <param name="width">Breite eines einzelnes Gewächsteils (muss positiv sein)</param>
         /// <param name="height">Höhe eines einzelnes Gewächsteils (muss positiv sein)</param>
@@ -201,9 +201,18 @@ namespace KWEngine3.GameObjects
             SetScale(new Vector3(width, height, depth));
         }
 
+        /// <summary>
+        /// Gibt die Größe je Gewächsteil an (Standardwert: 1)
+        /// </summary>
+        /// <param name="s">Skalierungsfaktor</param>
+        public void SetScale(float s)
+        {
+            SetScale(new Vector3(s));
+        }
+
 
         /// <summary>
-        /// Gibt die Größe je Gewächsteil (Standardwert: 1)
+        /// Gibt die Größe je Gewächsteil an (Standardwert: 1)
         /// </summary>
         /// <param name="s">Skalierung (jede Vektorkomponente muss positiv sein, Maximalwert: 4096)</param>
         public void SetScale(Vector3 s)

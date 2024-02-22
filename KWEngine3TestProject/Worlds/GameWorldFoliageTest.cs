@@ -31,20 +31,30 @@ namespace KWEngine3TestProject.Worlds
 
             TerrainObject t = new TerrainObject("T1");
             t.Name = "TestTerrain";
-            t.SetPosition(-1, -2, 0);
+            t.SetPosition(0, 0, 0);
             AddTerrainObject(t);
 
-            FoliageObject tf1 = new FoliageObject(FoliageType.GrassMinecraft, 10000);
-            tf1.SetPosition(20, 0, -20);
-            tf1.SetPatchSize(20, 40);
+            FoliageObject tf1 = new FoliageObject(FoliageType.Fern, 2000);
+            tf1.SetPosition(0, 0, 0);
+            tf1.SetPatchSize(40, 80);
             tf1.SetScale(1f, 1f, 1f);
             tf1.SetSwayFactor(0.01f);
             tf1.AttachToTerrain(t);
             tf1.IsShadowReceiver = true;
             tf1.IsSizeReducedAtCorners = true;
             AddFoliageObject(tf1);
-            
-            
+
+            FoliageObject tf2 = new FoliageObject(FoliageType.GrassFresh, 50000);
+            tf2.SetPosition(0, 0, 0);
+            tf2.SetPatchSize(40, 80);
+            tf2.SetScale(3f, 0.75f, 3f);
+            tf2.SetSwayFactor(0.1f);
+            tf2.AttachToTerrain(t);
+            tf2.IsShadowReceiver = true;
+            tf2.IsSizeReducedAtCorners = true;
+            AddFoliageObject(tf2);
+
+
             PlayerFoliageTest player = new PlayerFoliageTest();
             player.SetRotation(0, 180, 0);
             player.SetPosition(15, 2f, -20f);

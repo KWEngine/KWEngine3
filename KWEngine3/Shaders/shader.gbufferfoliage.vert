@@ -84,11 +84,12 @@ float getHeightFromTexture(vec3 vertexPos)
 
 void main()
 {
-	float randomFromTexture = (texture(uNoiseMap, vec2(gl_InstanceID % 512 / 512.0, gl_InstanceID % 512 / 512.0)).r - 0.5) * 2.0;
+	float randomFromTextureOrg = texture(uNoiseMap, vec2(gl_InstanceID % 512 / 512.0, gl_InstanceID % 512 / 512.0)).r;
+	float randomFromTexture = (randomFromTextureOrg - 0.5) * 2.0;
 	vec3 noiseNormalized = normalize(vec3(uNoise[gl_InstanceID % 256].x, 0.01, uNoise[gl_InstanceID % 256].y));
 	
 	vec3 axis = normalize(vec3(randomFromTexture * noiseNormalized.x, 0.001, randomFromTexture * noiseNormalized.z));
-	float swayFactor = (sin(cos(uPatchSizeTime.z) * randomFromTexture * noiseNormalized.x * noiseNormalized.z) + 1) * 0.5;
+	float swayFactor = (sin((uPatchSizeTime.z + gl_InstanceID) * randomFromTexture * noiseNormalized.x * noiseNormalized.z) + 1) * 0.5;
 	float heightFactor2 = sqrt(sin(rand(noiseNormalized.xz) * noiseNormalized.x - noiseNormalized.y) + 1.5) * 0.6667;
 	
 	int n = int((randomFromTexture + 1.0) * 77);
@@ -101,7 +102,7 @@ void main()
 	float heightFactor = clamp(sqrt(1.0 - (length(offsetXZ + center) / length(-center - vec3((uPatchSizeTime.x + uPatchSizeTime.y) * 0.5, 0.0, (uPatchSizeTime.x + uPatchSizeTime.y) * 0.5)))), 0.0, 1.0);
 	mat4 sMatrix = scaleMatrix(max(heightFactor, uDXDZSwayRound.w) * heightFactor2);
 
-	mat3 rotMat = rotationMatrix(axis, swayFactor * ((aPosition.y * M_PIHALF * uDXDZSwayRound.z)));
+	mat3 rotMat = rotationMatrix(vec3(0, 1, 0), randomFromTextureOrg * M_PI) * rotationMatrix(axis, swayFactor * ((aPosition.y * M_PIHALF * uDXDZSwayRound.z)));
 	vec3 positionRandomized = (uModelMatrix * mat4(rotMat) * sMatrix * vec4(aPosition, 1.0)).xyz;
 	vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
 	float heightFromTerrain = getHeightFromTexture(totalLocalPos.xyz);
