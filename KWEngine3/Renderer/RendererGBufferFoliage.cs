@@ -131,7 +131,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureFoliageGrassNormal);
+            GL.BindTexture(TextureTarget.Texture2D, f.Type == FoliageType.GrassMinecraft ? KWEngine.TextureNormalEmpty : KWEngine.TextureFoliageGrassNormal);
             GL.Uniform1(UTextureNormal, 1);
 
             GL.ActiveTexture(TextureUnit.Texture2);

@@ -42,7 +42,7 @@ namespace KWEngine3.GameObjects
             }
             else if(type == FoliageType.GrassMinecraft)
             {
-                _textureId = KWEngine.TextureFoliageGrass1;
+                _textureId = KWEngine.TextureFoliageGrassMinecraft;
             }
         }
 

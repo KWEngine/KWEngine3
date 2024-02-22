@@ -8,7 +8,7 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2024-02-19)</Product>
+		<Product>KWEngine3 (updated: 2024-02-22)</Product>
 		<PackageId>KWEngine3</PackageId>
 		<Version>3.0.2.1</Version>
 		<AssemblyVersion>3.0.2.1</AssemblyVersion>
@@ -61,6 +61,7 @@
 		<None Remove="Assets\Textures\foliage_grassblade_01.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_02.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_03.dds" />
+		<None Remove="Assets\Textures\foliage_grassblade_minecraft.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_normal.png" />
 		<None Remove="Assets\Textures\heightmap.png" />
 		<None Remove="Assets\Textures\noise.png" />
@@ -175,6 +176,7 @@
 		<EmbeddedResource Include="Assets\Textures\foliage_grassblade_normal.png">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
+		<EmbeddedResource Include="Assets\Textures\foliage_grassblade_minecraft.dds" />
 		<EmbeddedResource Include="Assets\Textures\noise.png" />
 		<EmbeddedResource Include="Assets\Textures\normalmap.png" />
 		<EmbeddedResource Include="Assets\Textures\black.png" />
