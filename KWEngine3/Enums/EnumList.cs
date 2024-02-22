@@ -27,7 +27,11 @@
         /// <summary>
         /// Gras (Variante 4)
         /// </summary>
-        GrassMinecraft
+        GrassMinecraft,
+        /// <summary>
+        /// Strauch
+        /// </summary>
+        Fern
     }
 
     /// <summary>

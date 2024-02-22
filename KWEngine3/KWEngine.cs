@@ -213,6 +213,7 @@ namespace KWEngine3
         internal static int TextureFoliageGrass2 = -1;
         internal static int TextureFoliageGrass3 = -1;
         internal static int TextureFoliageGrassMinecraft = -1;
+        internal static int TextureFoliageFern = -1;
         internal static int TextureFoliageGrassNormal = -1;
 
         internal static float TimeElapsed = 0;
@@ -246,6 +247,7 @@ namespace KWEngine3
             TextureFoliageGrass2 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_02.dds", out mipMaps);
             TextureFoliageGrass3 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_03.dds", out mipMaps);
             TextureFoliageGrassMinecraft = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_minecraft.dds", out mipMaps);
+            TextureFoliageFern = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_fern.dds", out mipMaps);
             TextureFoliageGrassNormal = HelperTexture.LoadTextureInternal("foliage_grassblade_normal.png");
 
             TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
@@ -273,6 +275,7 @@ namespace KWEngine3
         internal static GeoModel KWTerrainDefault;
         internal static GeoModel KWCapsule;
         internal static GeoModel KWFoliageMinecraft;
+        internal static GeoModel KWFoliageFern;
 
         internal static void InitializeModels()
         {
@@ -288,6 +291,7 @@ namespace KWEngine3
             KWCapsule = SceneImporter.LoadModel("capsulehitbox.obj", false, SceneImporter.AssemblyMode.Internal);
             KWTerrainDefault = KWEngine.BuildDefaultTerrainModel("TerrainDefault", 10, 0, 10);
             KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
+            KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
             KWFoliageGrass.Init();
 
             for (int i = 0; i < ExplosionObject.Axes.Length; i++)

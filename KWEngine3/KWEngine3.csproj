@@ -39,6 +39,7 @@
 		<None Remove="Assets\Models\kwcube.obj" />
 		<None Remove="Assets\Models\kwcube6.mtl" />
 		<None Remove="Assets\Models\kwcube6.obj" />
+		<None Remove="Assets\Models\kwgrass_fern.obj" />
 		<None Remove="Assets\Models\kwgrass_minecraft.obj" />
 		<None Remove="Assets\Models\kwplatform.mtl" />
 		<None Remove="Assets\Models\kwplatform.obj" />
@@ -58,6 +59,7 @@
 		<None Remove="Assets\Textures\fire02.dds" />
 		<None Remove="Assets\Textures\fire03.dds" />
 		<None Remove="Assets\Textures\fire04.dds" />
+		<None Remove="Assets\Textures\foliage_fern.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_01.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_02.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_03.dds" />
@@ -152,6 +154,7 @@
 		<EmbeddedResource Include="Assets\Models\kwcube.obj" />
 		<EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
 		<EmbeddedResource Include="Assets\Models\kwcube6.obj" />
+		<EmbeddedResource Include="Assets\Models\kwgrass_fern.obj" />
 		<EmbeddedResource Include="Assets\Models\kwgrass_minecraft.obj" />
 		<EmbeddedResource Include="Assets\Models\kwplatform.mtl" />
 		<EmbeddedResource Include="Assets\Models\kwplatform.obj" />
@@ -164,6 +167,7 @@
 		<EmbeddedResource Include="Assets\Models\star.mtl" />
 		<EmbeddedResource Include="Assets\Models\star.obj" />
 		<EmbeddedResource Include="Assets\Textures\alpha.png" />
+		<EmbeddedResource Include="Assets\Textures\foliage_fern.dds" />
 		<EmbeddedResource Include="Assets\Textures\foliage_grassblade_01.dds">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

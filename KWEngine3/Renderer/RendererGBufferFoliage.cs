@@ -131,7 +131,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, f.Type == FoliageType.GrassMinecraft ? KWEngine.TextureNormalEmpty : KWEngine.TextureFoliageGrassNormal);
+            GL.BindTexture(TextureTarget.Texture2D, f.Type == FoliageType.GrassMinecraft || f.Type == FoliageType.Fern ? KWEngine.TextureNormalEmpty : KWEngine.TextureFoliageGrassNormal);
             GL.Uniform1(UTextureNormal, 1);
 
             GL.ActiveTexture(TextureUnit.Texture2);
@@ -160,6 +160,15 @@ namespace KWEngine3.Renderer
             if(f.Type == FoliageType.GrassMinecraft)
             {
                 GeoMesh m = KWEngine.KWFoliageMinecraft.Meshes.ElementAt(0).Value;
+                GL.BindVertexArray(m.VAO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
+                GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                GL.BindVertexArray(0);
+            }
+            else if(f.Type == FoliageType.Fern)
+            {
+                GeoMesh m = KWEngine.KWFoliageFern.Meshes.ElementAt(0).Value;
                 GL.BindVertexArray(m.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
                 GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
