@@ -41,7 +41,7 @@ namespace KWEngine3.Helper
         {
             if(f._terrainObject != null)
             {
-                f.IsInsideScreenSpace = VolumeVsFrustum(f._terrainObject._stateCurrent._center, f._terrainObject._stateCurrent._dimensions.X / 2, f._terrainObject._stateCurrent._dimensions.Y / 2, f._terrainObject._stateCurrent._dimensions.Z / 2);
+                f.IsInsideScreenSpace = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f, f._patchSize.Y * 0.5f);
             }
             else
             {

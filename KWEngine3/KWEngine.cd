@@ -68,6 +68,8 @@
       <Method Name="InitializeParticles" Hidden="true" />
       <Field Name="KWCapsule" Hidden="true" />
       <Field Name="KWDollar" Hidden="true" />
+      <Field Name="KWFoliageFern" Hidden="true" />
+      <Field Name="KWFoliageMinecraft" Hidden="true" />
       <Field Name="KWHeart" Hidden="true" />
       <Field Name="KWLightBulb" Hidden="true" />
       <Field Name="KWSkull" Hidden="true" />
@@ -92,13 +94,20 @@
       <Field Name="TextureDefault" Hidden="true" />
       <Field Name="TextureDepthCubeMapEmpty" Hidden="true" />
       <Field Name="TextureDepthEmpty" Hidden="true" />
+      <Field Name="TextureFoliageFern" Hidden="true" />
+      <Field Name="TextureFoliageGrass1" Hidden="true" />
+      <Field Name="TextureFoliageGrass2" Hidden="true" />
+      <Field Name="TextureFoliageGrass3" Hidden="true" />
+      <Field Name="TextureFoliageGrassMinecraft" Hidden="true" />
+      <Field Name="TextureFoliageGrassNormal" Hidden="true" />
+      <Field Name="TextureNoise" Hidden="true" />
       <Field Name="TextureNormalEmpty" Hidden="true" />
       <Field Name="TextureWhite" Hidden="true" />
       <Field Name="TimeElapsed" Hidden="true" />
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgARLBBAISJAKAFpAhqARAARCAAQgoQjHmWStUCEIE=</HashCode>
+      <HashCode>BYgARLBBAoSJALAFpAhqARAARCAAQioQjHm2SvUKEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -115,6 +124,9 @@
       <Field Name="_currentShadowLights" Hidden="true" />
       <Field Name="_customTextures" Hidden="true" />
       <Field Name="_eventQueue" Hidden="true" />
+      <Field Name="_foliageObjects" Hidden="true" />
+      <Field Name="_foliageObjectsToBeAdded" Hidden="true" />
+      <Field Name="_foliageObjectsToBeRemoved" Hidden="true" />
       <Field Name="_gameObjectHitboxes" Hidden="true" />
       <Field Name="_gameObjects" Hidden="true" />
       <Field Name="_gameObjectsColliderChange" Hidden="true" />
@@ -146,6 +158,7 @@
       <Field Name="_xMinMax" Hidden="true" />
       <Field Name="_yMinMax" Hidden="true" />
       <Field Name="_zMinMax" Hidden="true" />
+      <Method Name="AddRemoveFoliageObjects" Hidden="true" />
       <Method Name="AddRemoveGameObjects" Hidden="true" />
       <Method Name="AddRemoveHUDObjects" Hidden="true" />
       <Method Name="AddRemoveLightObjects" Hidden="true" />
@@ -170,7 +183,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDQKZBUVzoGghahCTK5ZD6YcUaGCH/AeAnE=</HashCode>
+      <HashCode>SQl0OI6AJDQKZBUVzoGghalCTK5ZD6YcUaGCH/AeAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -263,7 +276,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="3.5" Y="19" Width="2.75" />
+    <Position X="9.5" Y="20.75" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -292,7 +305,9 @@
     <Position X="9.5" Y="8.5" Width="2.75" />
     <Members>
       <Field Name="_gModel" Hidden="true" />
+      <Field Name="_heightMap" Hidden="true" />
       <Field Name="_hitboxes" Hidden="true" />
+      <Field Name="_idFromImport" Hidden="true" />
       <Field Name="_isCollisionObject" Hidden="true" />
       <Field Name="_isShadowCaster" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -305,7 +320,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QCAAIQACCAQgkAAIAACAIAQEACBAAxABAAgAEABAQIQ=</HashCode>
+      <HashCode>QCAAIQACCAQgkAAIQCCAIAQEACBAAxABAAgAEABAQIQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -399,7 +414,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="12.5" Y="13.5" Width="2.75" />
+    <Position X="3.5" Y="18.25" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -504,6 +519,33 @@
       <FileName>GameObjects\RenderObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KWEngine3.GameObjects.FoliageObject">
+    <Position X="0.5" Y="19" Width="2.75" />
+    <Members>
+      <Field Name="_color" Hidden="true" />
+      <Field Name="_dXZ" Hidden="true" />
+      <Field Name="_instanceCount" Hidden="true" />
+      <Field Name="_modelMatrix" Hidden="true" />
+      <Field Name="_name" Hidden="true" />
+      <Field Name="_noise" Hidden="true" />
+      <Field Name="_normalMatrix" Hidden="true" />
+      <Field Name="_nXZ" Hidden="true" />
+      <Field Name="_patchSize" Hidden="true" />
+      <Field Name="_position" Hidden="true" />
+      <Field Name="_rotation" Hidden="true" />
+      <Field Name="_roughness" Hidden="true" />
+      <Field Name="_scale" Hidden="true" />
+      <Field Name="_swayFactor" Hidden="true" />
+      <Field Name="_terrainObject" Hidden="true" />
+      <Field Name="_textureId" Hidden="true" />
+      <Method Name="UpdateInstanceCountForPatchSize" Hidden="true" />
+      <Method Name="UpdateModelMatrix" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>QABAIAAwAAAIACAxAgAADCQKAEAAAkgIAQgIogBCbSQ=</HashCode>
+      <FileName>GameObjects\FoliageObject.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
     <Position X="9.5" Y="5.25" Width="2.75" />

@@ -101,7 +101,10 @@ namespace KWEngine3.Renderer
                 foreach (FoliageObject f in KWEngine.CurrentWorld._foliageObjects)
                 {
                     if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpace)
+                    {
+                        Console.WriteLine(  "skipping");
                         continue;
+                    }
                     Draw(f);
                 }
             }

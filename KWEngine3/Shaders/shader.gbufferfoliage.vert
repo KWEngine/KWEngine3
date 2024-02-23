@@ -102,7 +102,7 @@ void main()
 	float heightFactor = clamp(sqrt(1.0 - (length(offsetXZ + center) / length(-center - vec3((uPatchSizeTime.x + uPatchSizeTime.y) * 0.5, 0.0, (uPatchSizeTime.x + uPatchSizeTime.y) * 0.5)))), 0.0, 1.0);
 	mat4 sMatrix = scaleMatrix(max(heightFactor, uDXDZSwayRound.w) * heightFactor2);
 
-	mat3 rotMat = rotationMatrix(vec3(0, 1, 0), randomFromTextureOrg * M_PI) * rotationMatrix(axis, swayFactor * ((aPosition.y * M_PIHALF * uDXDZSwayRound.z)));
+	mat3 rotMat = rotationMatrix(vec3(0, 1, 0), randomFromTextureOrg * (M_PI * 2)) * rotationMatrix(axis, swayFactor * ((aPosition.y * M_PIHALF * uDXDZSwayRound.z)));
 	vec3 positionRandomized = (uModelMatrix * mat4(rotMat) * sMatrix * vec4(aPosition, 1.0)).xyz;
 	vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
 	float heightFromTerrain = getHeightFromTexture(totalLocalPos.xyz);

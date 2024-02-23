@@ -27,13 +27,13 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap2.png", "./Textures/Dirt_01_512.png", 40, 5, 80);
+            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap2.png", "./Textures/Dirt_01_512.png", 40, 1, 80);
 
             TerrainObject t = new TerrainObject("T1");
             t.Name = "TestTerrain";
             t.SetPosition(0, 0, 0);
             AddTerrainObject(t);
-
+            /*
             FoliageObject tf1 = new FoliageObject(FoliageType.Fern, 2000);
             tf1.SetPosition(0, 0, 0);
             tf1.SetPatchSize(40, 80);
@@ -43,10 +43,11 @@ namespace KWEngine3TestProject.Worlds
             tf1.IsShadowReceiver = true;
             tf1.IsSizeReducedAtCorners = true;
             AddFoliageObject(tf1);
+            */
 
             FoliageObject tf2 = new FoliageObject(FoliageType.GrassFresh, 50000);
             tf2.SetPosition(0, 0, 0);
-            tf2.SetPatchSize(40, 80);
+            tf2.SetPatchSize(20, 40);
             tf2.SetScale(3f, 0.75f, 3f);
             tf2.SetSwayFactor(0.1f);
             tf2.AttachToTerrain(t);
