@@ -21,7 +21,7 @@ namespace KWEngine3TestProject.Classes.WorldFlowFieldTest
                 if (_right)
                 {
                     MoveOffset(0.005f, 0, 0);
-                    if (Position.X > 3)
+                    if (Position.X > 2)
                     {
                         _right = false;
                     }
@@ -29,7 +29,7 @@ namespace KWEngine3TestProject.Classes.WorldFlowFieldTest
                 else
                 {
                     MoveOffset(-0.005f, 0, 0);
-                    if (Position.X < -3)
+                    if (Position.X < -2)
                     {
                         _right = true;
                     }

@@ -68,7 +68,7 @@ namespace KWEngine3TestProject.Worlds
             Immovable floor = new Immovable();
             floor.SetScale(20, 1, 16);
             floor.SetPosition(0, -0.5f, 0);
-            floor.SetColor(0, 1, 1);
+            floor.SetColor(0.25f, 0.5f, 0);
             AddGameObject(floor);
 
             FlowField f = new FlowField(0, 0, 0, 6, 4, 1.0f, 1, typeof(Impassable));

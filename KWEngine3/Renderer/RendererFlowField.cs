@@ -90,19 +90,12 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(VAO);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
             GL.Uniform2(URadius, f.CellRadius, f.GridCellCount.Y * 0.5f);
+            
             for (int x = 0; x < f.Grid.GetLength(0); x++)
             {
                 for (int z = 0; z < f.Grid.GetLength(1); z++)
                 {
-                    if (f.Grid[x, z] == f.Destination)
-                    {
-                        GL.Uniform3(UColor, new Vector3(1, 1, 0));
-                    }
-                    else
-                    {
-                        GL.Uniform3(UColor, f.Grid[x, z].Cost > 1 ? new Vector3(1, 0, 0) : new Vector3(0, 1, 0));
-                    }
-                    
+                    GL.Uniform3(UColor, new Vector3(f.Grid[x,z].Cost / 255f, 0f, 1 - f.Grid[x, z].Cost / 255f));
                     GL.Uniform3(UCenter, f.Grid[x, z].WorldPos); 
                     GL.DrawArrays(PrimitiveType.Points, 0, 1); 
                 }

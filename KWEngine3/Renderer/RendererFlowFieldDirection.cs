@@ -98,31 +98,31 @@ namespace KWEngine3.Renderer
             {
                 for (int z = 0; z < f.Grid.GetLength(1); z++)
                 {
-                    GL.Uniform3(UColor, new Vector3(0, 0, 1));
                     GL.Uniform3(UCenter, f.Grid[x, z].WorldPos);
 
                     Matrix4 rm = Matrix4.CreateRotationX((float)(Math.PI / 2));
-
-
-
-                    
-
                     GL.ActiveTexture(TextureUnit.Texture0);
                     if (f.Grid[x, z]._gridIndex == f.Destination._gridIndex)
                     {
+                        GL.Uniform3(UColor, new Vector3(0, 1, 0));
                         GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureFlowFieldCross);
                     }
                     else
                     {
+                        if(f.Grid[x, z].Cost == byte.MaxValue)
+                        {
+                            GL.Uniform3(UColor, new Vector3(1, 0, 0));
+                        }
+                        else
+                        {
+                            GL.Uniform3(UColor, new Vector3(0, 0, 1));
+                        }
                         rm *= GetRotationMatrixForDirection(f.Grid[x,z].WorldPos, f.Grid[x, z].BestDirection);
-
                         GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureFlowFieldArrow);
                     }
                     GL.Uniform1(UTexture, 0);
 
-
                     GL.UniformMatrix4(URotationMatrix, false, ref rm);
-
                     GL.DrawElements(PrimitiveType.Triangles, _indexCount, DrawElementsType.UnsignedInt, 0);
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                 }

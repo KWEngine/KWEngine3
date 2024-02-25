@@ -11,7 +11,7 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            /*
+            
             if(Mouse.IsButtonPressed(MouseButton.Left))
             {
                 Vector3 cursorPosWorld = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 0);
@@ -19,7 +19,7 @@ namespace KWEngine3TestProject.Worlds
                 if(f != null)
                     f.SetTarget(cursorPosWorld);
             }
-            */
+            
             if(Keyboard.IsKeyPressed(Keys.F1))
             {
                 Window.SetWorld(new GameWorldFlowFieldTest());

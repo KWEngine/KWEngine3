@@ -202,12 +202,32 @@ namespace KWEngine3.Helper
         {
             if (Destination != null)
             {
-                lock (Destination)
+                FlowFieldCell result = GetCellFromWorldPosition(position);
+                if(result != Destination)
                 {
-                    return GetCellFromWorldPosition(position).BestDirection;
+                    return result.BestDirection;
                 }
+                else
+                {
+                    return Vector3.Zero;
+                }                  
             }
             return Vector3.Zero;
+        }
+
+        /// <summary>
+        /// Gibt an, ob die übergebene Position in der Zielzelle liegt (falls festgelegt)
+        /// </summary>
+        /// <param name="position">Zu prüfende Position</param>
+        /// <returns>true, wenn die Position in der Zielzelle liegt</returns>
+        public bool IsPositionInsideDestinationCell(Vector3 position)
+        {
+            if (Destination != null)
+            {
+                FlowFieldCell result = GetCellFromWorldPosition(position);
+                return result == Destination;
+            }
+            return false;
         }
 
         /// <summary>

@@ -12,6 +12,8 @@ namespace KWEngine3TestProject.Classes.WorldFlowFieldTest
     internal class Player : GameObject
     {
         private float _speed = 0.02f;
+        private bool _autoUpdate = false;
+
         public override void Act()
         {
             if(Keyboard.IsKeyDown(Keys.A))
@@ -40,17 +42,19 @@ namespace KWEngine3TestProject.Classes.WorldFlowFieldTest
                 MoveOffset(0, +_speed, 0);
             }
 
-
-            FlowField f = CurrentWorld.GetFlowField();
-            if(f != null)
+            if (_autoUpdate)
             {
-                if(f.Contains(this))
+                FlowField f = CurrentWorld.GetFlowField();
+                if (f != null)
                 {
-                    f.SetTarget(this.Position);
-                }
-                else
-                {
-                    f.UnsetTarget();
+                    if (f.Contains(this))
+                    {
+                        f.SetTarget(this.Position);
+                    }
+                    else
+                    {
+                        f.UnsetTarget();
+                    }
                 }
             }
         }

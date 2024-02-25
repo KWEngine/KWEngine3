@@ -405,10 +405,6 @@ namespace KWEngine3
                 if (KWEngine.CurrentWorld._flowField != null && KWEngine.CurrentWorld._flowField.IsVisible)
                 {
                     GL.Disable(EnableCap.DepthTest);
-                    RendererFlowField.Bind();
-                    Matrix4 vp = KWEngine.Mode != EngineMode.Edit ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-                    RendererFlowField.Draw(KWEngine.CurrentWorld._flowField, ref vp);
-
                     if (KWEngine.CurrentWorld._flowField.Destination != null)
                     {
                         GL.Enable(EnableCap.Blend);
@@ -418,7 +414,9 @@ namespace KWEngine3
                         RendererFlowFieldDirection.UnsetGlobals();
                         GL.Disable(EnableCap.Blend);
                     }
-
+                    RendererFlowField.Bind();
+                    Matrix4 vp = KWEngine.Mode != EngineMode.Edit ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
+                    RendererFlowField.Draw(KWEngine.CurrentWorld._flowField, ref vp);
                     GL.Enable(EnableCap.DepthTest);
                 }
 #if DEBUG

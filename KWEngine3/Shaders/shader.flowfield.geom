@@ -6,7 +6,7 @@ layout(line_strip, max_vertices = 20) out;
 uniform vec2 uRadius;
 uniform mat4 uViewProjectionMatrix;
 
-const float f = 0.9;
+const float f = 0.975;
 
 void main()
 {
