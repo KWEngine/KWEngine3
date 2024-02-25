@@ -834,8 +834,7 @@ namespace KWEngine3.Helper
         public static bool RaytraceObjectFast(GameObject g, Vector3 rayOrigin, Vector3 rayDirection)
         {
             ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
-            Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
-
+            Vector3 directionTransformedInv = new Vector3(1f / (directionTransformed.X == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.X), 1f / (directionTransformed.Y == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Y), 1f / (directionTransformed.Z == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Z));
             foreach (GameObjectHitbox hb in g._hitboxes)
             {
                 if (hb.IsActive)
@@ -1713,8 +1712,8 @@ namespace KWEngine3.Helper
             float t5 = (aabbLow.Z - origin.Z) * directionFrac.Z;
             float t6 = (aabbHigh.Z - origin.Z) * directionFrac.Z;
 
-            float tmin = Math.Max(Math.Max(Math.Min(t1, t2), Math.Min(t3, t4)), Math.Min(t5, t6));
-            float tmax = Math.Min(Math.Min(Math.Max(t1, t2), Math.Max(t3, t4)), Math.Max(t5, t6));
+            float tmin = Max(Max(Min(t1, t2), Min(t3, t4)), Min(t5, t6));
+            float tmax = Min(Min(Max(t1, t2), Max(t3, t4)), Max(t5, t6));
 
             // if tmax < 0, schneidet der Strahl die AABB aber sie liegt hinter dem Ursprung des Strahls
             if (tmax < 0)
@@ -1732,6 +1731,15 @@ namespace KWEngine3.Helper
 
             distance = tmin; // Achtung: tmin kann negativ sein, wenn der Ursprung des Strahls innerhalb der AABB liegt
             return true;
+        }
+
+        internal static float Min(float x, float y)
+        {
+            return Math.Min(x, Math.Min(y, float.PositiveInfinity));
+        }
+        internal static float Max(float x, float y)
+        {
+            return Math.Max(x, Math.Max(y, float.NegativeInfinity));
         }
 
         internal static List<RayIntersection> RayTraceObjectsBelowPositionFast(Vector3 origin, float maxDistance, bool sort, params Type[] typelist)

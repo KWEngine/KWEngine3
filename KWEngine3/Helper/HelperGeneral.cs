@@ -35,6 +35,12 @@ namespace KWEngine3.Helper
             return false;
         }
 
+        internal static bool IsTypeClassOrSubclassOfGameObject(Type t)
+        {
+            Type src = typeof(GameObject);
+            return !(t.IsAssignableFrom(src));
+        }
+
         /// <summary>
         /// Prüft, ob der Dateiname darauf hindeutet, dass ein 3D-Modell in der Datei gespeichert ist
         /// </summary>

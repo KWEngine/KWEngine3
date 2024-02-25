@@ -261,7 +261,6 @@ namespace KWEngine3
                 if (KWEngine.Mode == EngineMode.Edit)
                 {
                     GL.Disable(EnableCap.DepthTest);
-
                     RendererLightOverlay.Bind();
                     RendererLightOverlay.SetGlobals();
                     RendererLightOverlay.Draw(KWEngine.CurrentWorld._lightObjects);
@@ -403,17 +402,25 @@ namespace KWEngine3
                 RendererCopy.Bind();
                 RendererCopy.Draw(RenderManager.FramebufferLightingPass, _ppQuality == PostProcessingQuality.Disabled ? null : RenderManager.FramebuffersBloomTemp[0]);
 
-                //if (KWEngine.Mode == EngineMode.Edit && HelperOctree._rootNode != null)
-                /*
-                if (HelperOctree._rootNode != null)
+                if (KWEngine.CurrentWorld._flowField != null && KWEngine.CurrentWorld._flowField.IsVisible)
                 {
-                    //GL.Disable(EnableCap.DepthTest);
-                    RendererOctreeNodes.Bind();
-                    Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-                    RendererOctreeNodes.Draw(HelperOctree._rootNode, ref vp);
-                    //GL.Enable(EnableCap.DepthTest);
+                    GL.Disable(EnableCap.DepthTest);
+                    RendererFlowField.Bind();
+                    Matrix4 vp = KWEngine.Mode != EngineMode.Edit ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
+                    RendererFlowField.Draw(KWEngine.CurrentWorld._flowField, ref vp);
+
+                    if (KWEngine.CurrentWorld._flowField.Destination != null)
+                    {
+                        GL.Enable(EnableCap.Blend);
+                        RendererFlowFieldDirection.Bind();
+                        RendererFlowFieldDirection.SetGlobals();
+                        RendererFlowFieldDirection.Draw(KWEngine.CurrentWorld._flowField);
+                        RendererFlowFieldDirection.UnsetGlobals();
+                        GL.Disable(EnableCap.Blend);
+                    }
+
+                    GL.Enable(EnableCap.DepthTest);
                 }
-                */
 #if DEBUG
                 HelperGeneral.CheckGLErrors();
 #endif
@@ -519,6 +526,7 @@ namespace KWEngine3
         protected override void OnClosing(CancelEventArgs e)
         {
             HelperSweepAndPrune.StopThread();
+            HelperFlowField.StopThread();
         }
 
         /// <summary>
@@ -531,6 +539,7 @@ namespace KWEngine3
             if(Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4))
             {
                 HelperSweepAndPrune.StopThread();
+                HelperFlowField.StopThread();
             }
         }
 
@@ -556,6 +565,7 @@ namespace KWEngine3
             if (KWEngine.CurrentWorld != null)
             {
                 HelperSweepAndPrune.StopThread();
+                HelperFlowField.StopThread();
                 KWEngine.CurrentWorld.Dispose();
             }
 
@@ -572,6 +582,7 @@ namespace KWEngine3
             HelperGeneral.FlushAndFinish();
 
             HelperSweepAndPrune.StartThread();
+            HelperFlowField.StartThread();
             _worldNew = null;
         }
 

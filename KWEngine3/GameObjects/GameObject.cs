@@ -15,6 +15,24 @@ namespace KWEngine3.GameObjects
         public int ID { get; internal set; } = -1;
 
         /// <summary>
+        /// Gibt die Kosten dieser Instanz auf einem (optionalen) Flowfield an (1 = kein Hindernis, 255 = unüberwindbares Hindernis; Standardwert: 1)
+        /// </summary>
+        public byte FlowFieldCost {
+            get
+            {
+                return _flowfieldcost;
+            }
+            set
+            {
+                if (value == 0)
+                    value = 1;
+                else if (value > 255)
+                    value = 255;
+                _flowfieldcost = value;
+            }
+        }
+
+        /// <summary>
         /// Gibt an, ob das Objekt ein Kollisionen erzeugen und überprüfen kann
         /// </summary>
         public bool IsCollisionObject 
@@ -927,6 +945,8 @@ namespace KWEngine3.GameObjects
             _stateCurrent._position = t;
             UpdateModelMatrixAndHitboxes();
         }
+
+        internal byte _flowfieldcost = 1;
         #endregion
     }
 }

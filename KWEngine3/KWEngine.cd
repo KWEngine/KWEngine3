@@ -94,6 +94,8 @@
       <Field Name="TextureDefault" Hidden="true" />
       <Field Name="TextureDepthCubeMapEmpty" Hidden="true" />
       <Field Name="TextureDepthEmpty" Hidden="true" />
+      <Field Name="TextureFlowFieldArrow" Hidden="true" />
+      <Field Name="TextureFlowFieldCross" Hidden="true" />
       <Field Name="TextureFoliageFern" Hidden="true" />
       <Field Name="TextureFoliageGrass1" Hidden="true" />
       <Field Name="TextureFoliageGrass2" Hidden="true" />
@@ -107,7 +109,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgARLBBAoSJALAFpAhqARAARCAAQioQjHm2SvUKEIE=</HashCode>
+      <HashCode>BYgARLBBAoSJALAFpAhqARAARCgAQioQjHm2SvUKEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -124,6 +126,7 @@
       <Field Name="_currentShadowLights" Hidden="true" />
       <Field Name="_customTextures" Hidden="true" />
       <Field Name="_eventQueue" Hidden="true" />
+      <Field Name="_flowField" Hidden="true" />
       <Field Name="_foliageObjects" Hidden="true" />
       <Field Name="_foliageObjectsToBeAdded" Hidden="true" />
       <Field Name="_foliageObjectsToBeRemoved" Hidden="true" />
@@ -183,7 +186,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDQKZBUVzoGghalCTK5ZD6YcUaGCH/AeAnE=</HashCode>
+      <HashCode>SQl0OI6AJDQKdBUVzoGghalCTK5ZD6YcUaGCH/EeAnE=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -202,6 +205,7 @@
       <Field Name="_attachedTo" Hidden="true" />
       <Field Name="_attachmentMatrix" Hidden="true" />
       <Field Name="_collisionCandidates" Hidden="true" />
+      <Field Name="_flowfieldcost" Hidden="true" />
       <Field Name="_gameObjectsAttached" Hidden="true" />
       <Field Name="_isCollisionObject" Hidden="true" />
       <Field Name="_positionOffsetForAttachment" Hidden="true" />
@@ -218,7 +222,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAgAGAACGAQKwiSAwIAMEABEAQQyAUEBAAAABQgCEIE=</HashCode>
+      <HashCode>jAiAGAACGAQKwiSAwIAMEABEAQQyAUEBAAAABQwCEIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -342,6 +346,8 @@
       <Method Name="IsMouseCursorOnGameObject" Hidden="true" />
       <Method Name="IsPointOnTrianglePlane" Hidden="true" />
       <Method Name="LinePlaneIntersection" Hidden="true" />
+      <Method Name="Max" Hidden="true" />
+      <Method Name="Min" Hidden="true" />
       <Method Name="Overlaps" Hidden="true" />
       <Field Name="pixelColor" Hidden="true" />
       <Method Name="RayAABBIntersection" Hidden="true" />
@@ -414,7 +420,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="3.5" Y="18.25" Width="2.75" />
+    <Position X="3.5" Y="18.75" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -504,7 +510,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="6.5" Y="22" Width="2.75" />
+    <Position X="6.5" Y="22.25" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
@@ -545,6 +551,35 @@
     <TypeIdentifier>
       <HashCode>QABAIAAwAAAIACAxAgAADCQKAEAAAkgIAQgIogBCbSQ=</HashCode>
       <FileName>GameObjects\FoliageObject.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Helper.FlowField">
+    <Position X="9.5" Y="23.5" Width="2.75" />
+    <Members>
+      <Field Name="_cellDiametre" Hidden="true" />
+      <Field Name="_ffback" Hidden="true" />
+      <Field Name="_ffbottom" Hidden="true" />
+      <Field Name="_fffront" Hidden="true" />
+      <Field Name="_ffleft" Hidden="true" />
+      <Field Name="_ffright" Hidden="true" />
+      <Field Name="_fftop" Hidden="true" />
+      <Field Name="_target" Hidden="true" />
+      <Field Name="_targetIsUpdated" Hidden="true" />
+      <Field Name="_types" Hidden="true" />
+      <Field Name="_updateCostField" Hidden="true" />
+      <Method Name="CreateFlowField" Hidden="true" />
+      <Method Name="CreateGrid" Hidden="true" />
+      <Property Name="Destination" Hidden="true" />
+      <Method Name="GetCellAtRelativePos" Hidden="true" />
+      <Method Name="GetCellFromWorldPosition" Hidden="true" />
+      <Method Name="GetNeighbourCells" Hidden="true" />
+      <Property Name="Grid" Hidden="true" />
+      <Method Name="UpdateCostField" Hidden="true" />
+      <Method Name="UpdateFlowField" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AUQEAhCAAEAEFBQIAAMACgAAQAgADBgECAAAAEAYAAI=</HashCode>
+      <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">

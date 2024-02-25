@@ -50,6 +50,8 @@ namespace KWEngine3
         internal List<TextObject> _textObjectsToBeAdded = new();
         internal List<TextObject> _textObjectsToBeRemoved = new();
 
+        internal FlowField _flowField = null;
+
         internal List<TimeBasedObject> _particleAndExplosionObjects = new();
 
         internal Queue<ushort> _availableGameObjectIDs = new();
@@ -731,6 +733,24 @@ namespace KWEngine3
         public void SetBackground2DClip(float x, float y)
         {
             _background.SetClip(x, y);
+        }
+
+        /// <summary>
+        /// Setzt das FlowField-Objekt (es kann aktuell immer nur ein FlowField pro Welt existieren)
+        /// </summary>
+        /// <param name="f">FlowField-Objekt</param>
+        public void SetFlowField(FlowField f)
+        {
+            _flowField = f;
+        }
+
+        /// <summary>
+        /// Erfragt die Referenz auf das aktuelle FlowField
+        /// </summary>
+        /// <returns>Referenz auf das FlowField - wenn keines vorhanden ist: null</returns>
+        public FlowField GetFlowField()
+        {
+            return _flowField;
         }
 
         /// <summary>

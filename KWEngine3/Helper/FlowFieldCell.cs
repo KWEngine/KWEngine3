@@ -1,20 +1,69 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
 
 namespace KWEngine3.Helper
 {
-    public class FlowFieldCell
+    internal class FlowFieldCell
     {
-        private Vector3 _worldPos;
-        private Vector2i _gridIndex;
+        internal Vector2i _gridIndex;
 
-        public FlowFieldCell(Vector3 worldpos, Vector2i gridIndex)
+        public Vector3 WorldPos { get; private set; }
+        public Vector3 BestDirection { get; internal set; }
+        public byte Cost
         {
-            _worldPos = worldpos;
+            get
+            {
+                if (Parent.Destination != null && _gridIndex == Parent.Destination._gridIndex)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return _cost;
+                }
+            }
+            set
+            {
+                _cost = value;
+            }
+        }
+        public uint BestCost
+        {
+            get
+            {
+                if (Parent.Destination != null && _gridIndex == Parent.Destination._gridIndex)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return _bestCost;
+                }
+            }
+            set
+            {
+                _bestCost = value;
+            }
+        }
+        public FlowField Parent { get; internal set; }
+
+        internal byte _cost;
+        internal uint _bestCost;
+
+        internal FlowFieldCell(Vector3 worldpos, Vector2i gridIndex, FlowField parent)
+        {
+            Parent = parent;
+            WorldPos = worldpos;
             _gridIndex = gridIndex;
+            Cost = 1;
+            //CostForFlowField = 1;
+            BestCost = uint.MaxValue;
+            BestDirection = Vector3.Zero;
         }
 
+        internal void SetCostTo(byte cost)
+        {
+            Cost = cost;            
+        }
 
     }
 }

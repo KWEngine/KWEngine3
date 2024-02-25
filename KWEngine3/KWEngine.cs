@@ -24,6 +24,7 @@ namespace KWEngine3
         internal const float RAYTRACE_SAFETY = 0.1f;
         internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
 
+
         /// <summary>
         /// Gibt die maximale Anzahl der Instanzen für RenderObjects an
         /// </summary>
@@ -209,6 +210,10 @@ namespace KWEngine3
         internal static int TextureCubemapEmpty = -1;
         internal static int TextureDepthEmpty = -1;
         internal static int TextureDepthCubeMapEmpty = -1;
+
+        internal static int TextureFlowFieldArrow = -1;
+        internal static int TextureFlowFieldCross = -1;
+
         internal static int TextureFoliageGrass1 = -1;
         internal static int TextureFoliageGrass2 = -1;
         internal static int TextureFoliageGrass3 = -1;
@@ -241,6 +246,9 @@ namespace KWEngine3
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
             TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
             TextureNoise = HelperTexture.LoadTextureInternal("noise.png");
+
+            TextureFlowFieldArrow = HelperTexture.LoadTextureInternal("arrow.png");
+            TextureFlowFieldCross = HelperTexture.LoadTextureInternal("cross.png");
 
             int mipMaps;
             TextureFoliageGrass1 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_01.dds", out mipMaps);
