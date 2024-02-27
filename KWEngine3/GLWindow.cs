@@ -911,6 +911,16 @@ namespace KWEngine3
                 Overlay.Render();
             }
         }
+
+        public void SetCursorImage(string cursorName)
+        {
+
+        }
+
+        public void ImportCursorImage(string name, string filename)
+        {
+            HelperCursor.Import(name, filename);
+        }
  
     }
 }
