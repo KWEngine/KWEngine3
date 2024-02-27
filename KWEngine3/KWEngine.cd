@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="3.5" Y="0.5" Width="2.75" />
+    <Position X="0.5" Y="6.5" Width="2.75" />
     <Members>
       <Field Name="_keyboard" Hidden="true" />
       <Field Name="_mouse" Hidden="true" />
@@ -36,7 +36,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiBBAAABQAAAQyAUAkAgEACAhIABCYAaAAAUAEuAgA=</HashCode>
+      <HashCode>AAiBBAAABQAAAQyAUAkBgEACAhIABCYAaAEAUAEuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -114,7 +114,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.World">
-    <Position X="3.5" Y="3.5" Width="2.75" />
+    <Position X="3.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_availableGameObjectIDs" Hidden="true" />
       <Field Name="_availableLightObjectIDs" Hidden="true" />
@@ -191,14 +191,14 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="6.5" Width="2.75" />
+    <Position X="0.5" Y="12.75" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.GameObject">
-    <Position X="6.5" Y="14.75" Width="2.75" />
+    <Position X="9.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_addRemoveHitboxes" Hidden="true" />
       <Field Name="_attachBoneNodes" Hidden="true" />
@@ -228,7 +228,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.Intersection">
-    <Position X="9.5" Y="0.5" Width="2.75" />
+    <Position X="18.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_colliderSurfaceNormal" Hidden="true" />
       <Field Name="_hitboxCaller" Hidden="true" />
@@ -245,7 +245,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.IntersectionTerrain">
-    <Position X="9.5" Y="3.25" Width="2.75" />
+    <Position X="18.5" Y="3.25" Width="2.75" />
     <Members>
       <Field Name="_colliderSurfaceNormal" Hidden="true" />
       <Field Name="_hitboxCaller" Hidden="true" />
@@ -259,7 +259,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="9.5" Y="13.25" Width="2.75" />
+    <Position X="12.5" Y="6" Width="2.75" />
     <Members>
       <Field Name="_fbShadowMap" Hidden="true" />
       <Field Name="_shadowBias" Hidden="true" />
@@ -280,7 +280,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="20.75" Width="2.75" />
+    <Position X="15.5" Y="10.5" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -306,7 +306,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.TerrainObject">
-    <Position X="9.5" Y="8.5" Width="2.75" />
+    <Position X="12.5" Y="11" Width="2.75" />
     <Members>
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_heightMap" Hidden="true" />
@@ -329,7 +329,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperIntersection">
-    <Position X="12.5" Y="0.5" Width="2.75" />
+    <Position X="21.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="bounds" Hidden="true" />
       <Method Name="CalculateMeshTransformForGameObject" Hidden="true" />
@@ -369,7 +369,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="12.5" Y="12" Width="2.75" />
+    <Position X="21.5" Y="12" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -379,7 +379,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="12.5" Y="6.5" Width="2.75" />
+    <Position X="21.5" Y="6.5" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -398,7 +398,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="12.5" Y="9.25" Width="2.75" />
+    <Position X="21.5" Y="9.25" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
@@ -409,7 +409,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="9.5" Y="18.25" Width="2.75" />
+    <Position X="0.5" Y="10.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -420,7 +420,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="3.5" Y="18.75" Width="2.75" />
+    <Position X="9.5" Y="11.25" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -440,7 +440,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectImage">
-    <Position X="0.5" Y="17" Width="2.75" />
+    <Position X="15.5" Y="8.5" Width="2.75" />
     <Members>
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
@@ -451,7 +451,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectText">
-    <Position X="0.5" Y="13.5" Width="2.75" />
+    <Position X="15.5" Y="5" Width="2.75" />
     <Members>
       <Field Name="_offsets" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
@@ -465,7 +465,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObject">
-    <Position X="0.5" Y="8.75" Width="2.75" />
+    <Position X="15.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_glow" Hidden="true" />
       <Field Name="_modelMatrix" Hidden="true" />
@@ -510,7 +510,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="6.5" Y="22.25" Width="2.75" />
+    <Position X="9.5" Y="8" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
@@ -527,7 +527,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.FoliageObject">
-    <Position X="0.5" Y="19" Width="2.75" />
+    <Position X="12.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_color" Hidden="true" />
       <Field Name="_dXZ" Hidden="true" />
@@ -554,7 +554,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowField">
-    <Position X="9.5" Y="23.5" Width="2.75" />
+    <Position X="18.5" Y="8.5" Width="2.75" />
     <Members>
       <Field Name="_cellDiametre" Hidden="true" />
       <Field Name="_ffback" Hidden="true" />
@@ -578,12 +578,12 @@
       <Method Name="UpdateFlowField" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQEAhCAAEAEFBQIAAMACgAAQAgADBgECAAAAEAYAAI=</HashCode>
+      <HashCode>AUQEAhCAAEAEFBQIAAMACgAAQAgADBgGCAAAAEAYAAI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
-    <Position X="9.5" Y="5.25" Width="2.75" />
+    <Position X="18.5" Y="5.25" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AgAAAAAAEAAAAABAiAgAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
       <FileName>GameObjects\IntersectionVolume.cs</FileName>

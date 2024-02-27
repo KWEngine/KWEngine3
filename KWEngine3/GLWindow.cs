@@ -11,6 +11,7 @@ using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -912,14 +913,36 @@ namespace KWEngine3
             }
         }
 
-        public void SetCursorImage(string cursorName)
+        /// <summary>
+        /// Ersetzt den aktuellen Mauscursor durch den angegebenen Cursor
+        /// </summary>
+        /// <param name="cursorName">Name, unter dem der Cursor importiert wurde (wenn dieser Wert null ist, wird der Standardcursor geladen)</param>
+        public void SetCursor(string cursorName)
         {
-
+            MouseCursor c = HelperCursor.GetCursor(cursorName);
+            if (c != null)
+            {
+                this.Cursor = c;
+            }
+            else
+            {
+                this.Cursor = MouseCursor.Default;
+            }
         }
 
-        public void ImportCursorImage(string name, string filename)
+        /// <summary>
+        /// Importiert eine eigene Mauscursorgrafik und legt die Grafik unter dem angegebenen Namen in der Engine-Datenbank ab (gültige Dateiformate: PNG, CUR)
+        /// </summary>
+        /// <param name="name">Name der Grafik</param>
+        /// <param name="filename">Relativer Pfad zu der zu importierenden Datei</param>
+        /// <param name="tipX">Relative X-Position der Cursorspitze (von 0 bis 1, Standardwert: 0.5f)</param>
+        /// <param name="tipY">Relative Y-Position der Cursorspitze (von 0 bis 1, Standardwert: 0.5f)</param>
+        public void LoadCursorImage(string name, string filename, float tipX = 0.5f, float tipY = 0.5f)
         {
-            HelperCursor.Import(name, filename);
+            if(!HelperCursor.Import(name, filename, tipX, tipY))
+            {
+                KWEngine.LogWriteLine("[Cursor] Import of " + filename + " failed: File missing or not of type PNG/CUR");
+            }
         }
  
     }
