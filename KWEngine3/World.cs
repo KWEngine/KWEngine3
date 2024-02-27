@@ -668,6 +668,32 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Erfragt die Auflösung der aktuell gewählten Hintergrundtextur
+        /// </summary>
+        /// <returns>Auflösung der Hintergrundtextur in Pixeln</returns>
+        /// <remarks>Wenn kein Hintergrundbild festgelegt wurde, wird der Nullvektor (0|0) zurückgegeben</remarks>
+        public Vector2 GetBackgroundImageSize()
+        {
+            if(_background.Type != BackgroundType.None)
+            {
+                if(_background.Type == BackgroundType.Standard)
+                {
+                    HelperTexture.GetTextureDimensionsAlbedo(_background._standardId, out int width, out int height);
+                    return new Vector2(width, height);
+                }
+                else
+                {
+                    HelperTexture.GetTextureDimensionsAlbedo(_background._skyboxId, out int width, out int height);
+                    return new Vector2(width, height);
+                }
+            }
+            else
+            {
+                return Vector2.Zero;
+            }
+        }
+
+        /// <summary>
         /// Setzt die Skybox für den 3D-Hintergrund
         /// </summary>
         /// <param name="filename">Dateiname inkl. relativem Pfad</param>

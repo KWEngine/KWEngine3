@@ -120,7 +120,8 @@ namespace KWEngine3
         internal void DeleteStandard()
         {
             if (_standardId > 0)
-            { 
+            {
+                KWEngine.CurrentWorld._customTextures.Remove(_filename);
                 GL.DeleteTextures(1, new int[] { _standardId });
                 _standardId = -1;
             }
@@ -130,6 +131,7 @@ namespace KWEngine3
         {
             if (_skyboxId > 0)
             {
+                KWEngine.CurrentWorld._customTextures.Remove(_filename);
                 GL.DeleteTextures(1, new int[] { _skyboxId });
                 _skyboxId = -1;
             }
