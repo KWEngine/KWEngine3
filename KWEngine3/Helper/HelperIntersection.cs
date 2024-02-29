@@ -12,6 +12,51 @@ namespace KWEngine3.Helper
     public static class HelperIntersection
     {
         /// <summary>
+        /// Ermittelt für die angegebenen Bildschirmkoordinaten, wo diese Koordinaten in der 3D-Welt liegen
+        /// </summary>
+        /// <param name="screenposX">X-Bildschirmkoordinate (relativ zum Anwendungsfenster, in Pixeln)</param>
+        /// <param name="screenposY">Y-Bildschirmkoordinate (relativ zum Anwendungsfenster, in Pixeln)</param>
+        /// <param name="planeNormal">Gibt an, wie die Fläche ausgerichtet ist, auf die die Bildschirmkoordinate projeziert wird</param>
+        /// <param name="planeHeight">Gibt die Höhe der Fläche an, auf die die Bildschirmkoordinate projeziert wird</param>
+        /// <returns>Schnittpunkt in 3D-Weltkoordinaten</returns>
+        public static Vector3 GetIntersectionPointOnPlaneFromScreenSpace(int screenposX, int screenposY, Plane planeNormal = Plane.Camera, float planeHeight = 0f)
+        {
+            Vector3 normal;
+            if (planeNormal == Plane.XZ)
+                normal = new Vector3(0, 1, 0.0000001f);
+            else if (planeNormal == Plane.YZ)
+                normal = new Vector3(1, 0, 0);
+            else if (planeNormal == Plane.XY)
+                normal = new Vector3(0, 0.0000001f, 1);
+            else
+            {
+                if (KWEngine.CurrentWorld != null)
+                {
+                    normal = -KWEngine.CurrentWorld._cameraGame._stateCurrent.LookAtVector;
+                }
+                else
+                {
+                    normal = new Vector3(0, 1, 0.000001f);
+                }
+            }
+
+
+            screenposX = MathHelper.Clamp(screenposX, 0, KWEngine.Window.Width - 1);
+            screenposY = MathHelper.Clamp(screenposY, 0, KWEngine.Window.Height - 1);
+            Vector3 worldRay = HelperGeneral.Get3DMouseCoords(new Vector2(screenposX, screenposY));
+            bool result;
+            Vector3 intersection;
+            result = LinePlaneIntersection(out intersection, worldRay, KWEngine.CurrentWorld._cameraGame._stateCurrent._position, normal, normal * planeHeight);
+
+            if (result)
+            {
+                return intersection;
+            }
+            else
+                return normal * planeHeight;
+        }
+
+        /// <summary>
         /// Schießt einen Strahl von der angegebene Position nach unten und prüft, ob die quaderförmige Hitbox eines Objekts des angegebenen Typs geschnitten wird
         /// </summary>
         /// <remarks>Diese Variante prüft nur grobe Hitbox-Werte und eignet sich, wenn ein ungenaues Ergebnis ausreicht oder die zu prüfenden Objekte allesamt achsenparallel ausgerichtet sind</remarks>

@@ -186,7 +186,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDQKdBUVzoGghalCTK5ZD6YcUaGCH/EeAnk=</HashCode>
+      <HashCode>SQl0OI6AJDQKdBUVzoGghalCTK5ZDqYcUaGCH/EeAnk=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -364,12 +364,12 @@
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQKQAhQAADUCgCQAsAAAEEKAQAAgBLhGABGCABYLZIg=</HashCode>
+      <HashCode>BQKQAhQAADUCgCQAsAQAEEKAQAAgBLhGABGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="12" Width="2.75" />
+    <Position X="21.5" Y="12.25" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -379,7 +379,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="21.5" Y="6.5" Width="2.75" />
+    <Position X="21.5" Y="6.75" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -398,7 +398,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="9.25" Width="2.75" />
+    <Position X="21.5" Y="9.5" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
