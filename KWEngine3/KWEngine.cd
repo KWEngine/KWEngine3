@@ -186,7 +186,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDQKdBUVzoGghalCTK5ZDqYcUaGCH/EeAnk=</HashCode>
+      <HashCode>SQl0OI6AJDQKdBUVzoGghalCTK5ZD6YcUaGCH/EeAnk=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -369,7 +369,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="12.25" Width="2.75" />
+    <Position X="21.5" Y="12.5" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
     </Members>
@@ -393,12 +393,12 @@
       <Field Name="zeroVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEEAAQgAIAAgAAAAEAAAAQBAAIDAAA0AAAAAQAACgAA=</HashCode>
+      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFAAIDAAA0AAAAAQAACgAA=</HashCode>
       <FileName>Helper\HelperRotation.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="9.5" Width="2.75" />
+    <Position X="21.5" Y="9.75" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />

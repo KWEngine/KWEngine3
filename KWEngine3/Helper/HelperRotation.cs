@@ -16,7 +16,23 @@ namespace KWEngine3.Helper
         private static Matrix4 spinMatrix = Matrix4.Identity;
         private static Vector3 finalTranslationPoint = Vector3.Zero;
         private static Vector3 zeroVector = Vector3.Zero;
-        //private static Quaternion Turn180 = Quaternion.FromAxisAngle(KWEngine.WorldUp, (float)Math.PI);
+
+
+        /// <summary>
+        /// Ermittelt die Rotation, die angenommen werden müsste, um sich entsprechend der durch slopeStart und slopeEnd beschriebenen Schräge auszurichten
+        /// </summary>
+        /// <param name="slopeStart">Anfangshöhe der Schräge</param>
+        /// <param name="slopeEnd">Endhöhe der Schräge</param>
+        /// <param name="currentLAV">Aktueller Look-At-Vektor des Objekts</param>
+        /// <returns>Berechnete Rotation als Quaternion</returns>
+        public static Quaternion GetRotationForSlope(Vector3 slopeStart, Vector3 slopeEnd, Vector3 currentLAV)
+        {
+            Vector3 slope = slopeEnd - slopeStart;
+            Vector3 perp1 = Vector3.Cross(slope, KWEngine.WorldUp);
+            Vector3 surfaceNormal = Vector3.NormalizeFast(Vector3.Cross(perp1, slope));
+            Quaternion slopeRotation = HelperVector.GetRotationToMatchSurfaceNormal(currentLAV, surfaceNormal);
+            return slopeRotation;
+        }
 
         /// <summary>
         /// Berechnet den Vektor, der entsteht, wenn der übergebene Vektor um die angegebenen Grad rotiert wird

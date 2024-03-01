@@ -488,6 +488,15 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Fügt die übergebene Rotation der bestehenden hinzu
+        /// </summary>
+        /// <param name="additionalRotation">hinzuzufügende Rotatation</param>
+        public void AddRotation(Quaternion additionalRotation)
+        {
+            _stateCurrent._rotation *= additionalRotation;
+        }
+
+        /// <summary>
         /// Erhöht die Rotation um die x-Achse
         /// </summary>
         /// <param name="r">Grad</param>

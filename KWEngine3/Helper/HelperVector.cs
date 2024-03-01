@@ -25,11 +25,11 @@ namespace KWEngine3.Helper
         /// auf dem durch den Ebenenvektor (surface normal) definierten Boden gerade zu stehen
         /// </summary>
         /// <param name="lav">Aktueller Look-At-Vektor</param>
-        /// <param name="surfaceNormal">Ebenenvektor</param>
+        /// <param name="surfaceNormal">Ebenenvektor (muss normalisiert sein!)</param>
         /// <returns>Neue zur Ebene passende Rotation (als Quaternion)</returns>
         public static Quaternion GetRotationToMatchSurfaceNormal(Vector3 lav, Vector3 surfaceNormal)
         {
-            Vector3 playerRight = Vector3.NormalizeFast(Vector3.Cross(-lav, KWEngine.WorldUp));
+            Vector3 playerRight = Vector3.Cross(-lav, KWEngine.WorldUp);
             Vector3 cross = Vector3.NormalizeFast(Vector3.Cross(playerRight, surfaceNormal));
             if(Vector3.Dot(lav, cross) < 0)
             {
@@ -189,8 +189,6 @@ namespace KWEngine3.Helper
 
         internal static Quaternion LookRotation(Vector3 forward, Vector3 up)
         {
-            forward.NormalizeFast();
-
             Vector3 vector = Vector3.NormalizeFast(forward);
             Vector3 vector2 = Vector3.NormalizeFast(Vector3.Cross(up, vector));
             Vector3 vector3 = Vector3.Cross(vector, vector2);
