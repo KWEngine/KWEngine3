@@ -9,6 +9,105 @@ namespace KWEngine3.Helper
     public static class HelperVector
     {
         /// <summary>
+        /// Berechnet den Vektor, der vom angegebenen Startpunkt zum angegebenen Endpunkt zeigt
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Delta-Vektor</returns>
+        public static Vector3 GetDeltaBetweenVectors( Vector3 start, Vector3 end )
+        {
+            return end - start;
+        }
+
+        /// <summary>
+        /// Berechnet den Vektor auf XZ-Ebene, der vom angegebenen Startpunkt zum angegebenen Endpunkt zeigt
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Delta-Vektor</returns>
+        public static Vector3 GetDeltaBetweenVectorsXZ(Vector3 start, Vector3 end)
+        {
+            return new Vector3(end.X, 0f, end.Z) - new Vector3(start.X, 0f, start.Z);
+        }
+
+        /// <summary>
+        /// Berechnet den Vektor auf XY-Ebene, der vom angegebenen Startpunkt zum angegebenen Endpunkt zeigt
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Delta-Vektor</returns>
+        public static Vector3 GetDeltaBetweenVectorsXY(Vector3 start, Vector3 end)
+        {
+            return new Vector3(end.X, end.Y, 0f) - new Vector3(start.X, start.Y, 0f);
+        }
+
+        /// <summary>
+        /// Berechnet die Distanz zwischen zwei Vektoren
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Distanz</returns>
+        public static float GetDistanceBetweenVectors( Vector3 start, Vector3 end )
+        {
+            return GetDeltaBetweenVectors(start, end).LengthFast;
+        }
+
+        /// <summary>
+        /// Berechnet die Distanz zwischen zwei Vektoren auf der XZ-Ebene
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Distanz</returns>
+        public static float GetDistanceBetweenVectorsXZ(Vector3 start, Vector3 end)
+        {
+            return GetDeltaBetweenVectorsXZ(start, end).LengthFast;
+        }
+
+        /// <summary>
+        /// Berechnet die Distanz zwischen zwei Vektoren auf der XY-Ebene
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Distanz</returns>
+        public static float GetDistanceBetweenVectorsXY(Vector3 start, Vector3 end)
+        {
+            return GetDeltaBetweenVectorsXY(start, end).LengthFast;
+        }
+
+        /// <summary>
+        /// Berechnet den normalisierten Richtungsvektor, der vom Startpunkt zum Endpunkt führt
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Richtungsvektor (normalisiert)</returns>
+        public static Vector3 GetDirectionFromVectorToVector( Vector3 start, Vector3 end )
+        {
+            return Vector3.NormalizeFast(GetDeltaBetweenVectors(start, end));
+        }
+
+        /// <summary>
+        /// Berechnet den normalisierten Richtungsvektor, der auf XZ-Ebene vom Startpunkt zum Endpunkt führt
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Richtungsvektor (normalisiert)</returns>
+        public static Vector3 GetDirectionFromVectorToVectorXZ(Vector3 start, Vector3 end)
+        {
+            return Vector3.NormalizeFast(GetDeltaBetweenVectorsXZ(start, end));
+        }
+
+        /// <summary>
+        /// Berechnet den normalisierten Richtungsvektor, der auf XY-Ebene vom Startpunkt zum Endpunkt führt
+        /// </summary>
+        /// <param name="start">Startpunkt</param>
+        /// <param name="end">Endpunkt</param>
+        /// <returns>Richtungsvektor (normalisiert)</returns>
+        public static Vector3 GetDirectionFromVectorToVectorXY(Vector3 start, Vector3 end)
+        {
+            return Vector3.NormalizeFast(GetDeltaBetweenVectorsXY(start, end));
+        }
+
+        /// <summary>
         /// Reflektiert den eingehenden Vektor 'directionIn' am Ebenenvektor 'surfaceNormal'
         /// </summary>
         /// <param name="directionIn">Eingehender Vektor</param>

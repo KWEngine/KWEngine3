@@ -35,6 +35,22 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Erfragt den Steigungswinkel für die angegebenen beiden Punkte der Steigung
+        /// </summary>
+        /// <param name="slopeStart">Startpunkt der Steigung</param>
+        /// <param name="slopeEnd">Endpunkt der Steigung</param>
+        /// <returns>Steigungswinkel (in Grad)</returns>
+        public static float GetAngleForSlope(Vector3 slopeStart, Vector3 slopeEnd)
+        {
+            Vector3 slope = slopeEnd - slopeStart;
+            float nominator = Vector3.Dot(slope, KWEngine.WorldUp);
+            float denominator = slope.Length;
+            float angle = (float)Math.Acos(nominator / denominator);
+            float degrees = 90f - MathHelper.RadiansToDegrees(angle);
+            return degrees;
+        }
+
+        /// <summary>
         /// Berechnet den Vektor, der entsteht, wenn der übergebene Vektor um die angegebenen Grad rotiert wird
         /// </summary>
         /// <param name="vector">zu rotierender Vektor</param>

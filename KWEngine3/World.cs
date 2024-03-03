@@ -1402,6 +1402,10 @@ namespace KWEngine3
         /// </summary>
         public Vector3 CameraLookAtVector { get { return _cameraGame._stateCurrent.LookAtVector; } }
         /// <summary>
+        /// Blickrichtung der Kamera ohne die Y-Achse zu berücksichtigen
+        /// </summary>
+        public Vector3 CameraLookAtVectorXZ { get { return Vector3.NormalizeFast(new Vector3(_cameraGame._stateCurrent.LookAtVector.X, 0f, _cameraGame._stateCurrent.LookAtVector.Z)); } }
+        /// <summary>
         /// Blickrichtung der Kamera nach oben
         /// </summary>
         public Vector3 CameraLookAtVectorLocalUp { get { return _cameraGame._stateCurrent.LookAtVectorLocalUp; } }

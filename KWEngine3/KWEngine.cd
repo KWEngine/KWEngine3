@@ -393,18 +393,18 @@
       <Field Name="zeroVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFAAIDAAA0AAAAAQAACgAA=</HashCode>
+      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFAAIDAAg0AAAAAQAACgAA=</HashCode>
       <FileName>Helper\HelperRotation.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="9.75" Width="2.75" />
+    <Position X="21.5" Y="10" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAEAEAAAAAAAAAAAECAAACAAABCCAAgAAAAAAAAAAEA=</HashCode>
+      <HashCode>EAEAEABAAAQAAAAAFiAAAGAAABCCAAgAAACAAAAAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
