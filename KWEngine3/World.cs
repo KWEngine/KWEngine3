@@ -1404,11 +1404,19 @@ namespace KWEngine3
         /// <summary>
         /// Blickrichtung der Kamera ohne die Y-Achse zu berücksichtigen
         /// </summary>
-        public Vector3 CameraLookAtVectorXZ { get { return Vector3.NormalizeFast(new Vector3(_cameraGame._stateCurrent.LookAtVector.X, 0f, _cameraGame._stateCurrent.LookAtVector.Z)); } }
+        public Vector3 CameraLookAtVectorXZ { get { return Vector3.NormalizeFast(new Vector3(_cameraGame._stateCurrent.LookAtVector.X, 0.0000001f, _cameraGame._stateCurrent.LookAtVector.Z)); } }
+        /// <summary>
+        /// Blickrichtung der Kamera nach oben ohne die Y-Achse zu berücksichtigen
+        /// </summary>
+        public Vector3 CameraLookAtVectorLocalUpXZ { get { return Vector3.NormalizeFast(new Vector3(_cameraGame._stateCurrent.LookAtVectorLocalUp.X, 0.0000001f, _cameraGame._stateCurrent.LookAtVectorLocalUp.Z)); } }
         /// <summary>
         /// Blickrichtung der Kamera nach oben
         /// </summary>
         public Vector3 CameraLookAtVectorLocalUp { get { return _cameraGame._stateCurrent.LookAtVectorLocalUp; } }
+        /// <summary>
+        /// Blickrichtung der Kamera nach rechts ohne die Y-Achse zu berücksichtigen
+        /// </summary>
+        public Vector3 CameraLookAtVectorLocalRightXZ { get { return Vector3.NormalizeFast(new Vector3(_cameraGame._stateCurrent.LookAtVectorLocalRight.X, 0.0000001f, _cameraGame._stateCurrent.LookAtVectorLocalRight.Z)); } }
         /// <summary>
         /// Blickrichtung der Kamera nach rechts
         /// </summary>
