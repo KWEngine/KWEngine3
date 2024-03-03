@@ -32,6 +32,11 @@ namespace KWEngine3.Helper
         public bool IsVisible { get; set; }
 
         /// <summary>
+        /// Gibt die letztbekannte Zielposition innerhalb des Feldes an
+        /// </summary>
+        public Vector3 TargetPosition { get { return _target; } }
+
+        /// <summary>
         /// Erzeugt ein FlowField für die angegebenen GameObject-Typen
         /// </summary>
         /// <param name="positionX">X-Koordinate des Mittelpunkts</param>
