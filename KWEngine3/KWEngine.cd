@@ -563,6 +563,7 @@
       <Field Name="_ffleft" Hidden="true" />
       <Field Name="_ffright" Hidden="true" />
       <Field Name="_fftop" Hidden="true" />
+      <Field Name="_hitbox" Hidden="true" />
       <Field Name="_target" Hidden="true" />
       <Field Name="_targetIsUpdated" Hidden="true" />
       <Field Name="_types" Hidden="true" />
@@ -578,7 +579,7 @@
       <Method Name="UpdateFlowField" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQEAhCAAEAEFBQIAAMACgAAQAgADBgWCAAAAEAYAAI=</HashCode>
+      <HashCode>AUQEAhCAAMAEFBQIAgMACgAAQAgADBgWCAAAAEAYAAI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>

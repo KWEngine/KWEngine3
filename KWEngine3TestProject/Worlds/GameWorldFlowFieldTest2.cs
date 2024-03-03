@@ -67,7 +67,7 @@ namespace KWEngine3TestProject.Worlds
             floor.SetColor(0, 1, 1);
             AddGameObject(floor);
 
-            FlowField f = new FlowField(0, 0, 0, 10, 8, 0.5f, 1, typeof(Impassable));
+            FlowField f = new FlowField(0, 0, 0, 10, 8, 0.5f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f.IsVisible = true;
             SetFlowField(f);
         }

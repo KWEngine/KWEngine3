@@ -37,6 +37,11 @@ namespace KWEngine3.Helper
         public Vector3 TargetPosition { get { return _target; } }
 
         /// <summary>
+        /// Messmodus für die Erstellung der Streckenkosten (Simple oder Box)
+        /// </summary>
+        public FlowFieldMode Mode { get; private set; }
+
+        /// <summary>
         /// Erzeugt ein FlowField für die angegebenen GameObject-Typen
         /// </summary>
         /// <param name="positionX">X-Koordinate des Mittelpunkts</param>
@@ -46,9 +51,10 @@ namespace KWEngine3.Helper
         /// <param name="cellCountZ">Anzahl Zellen in Z-Richtung</param>
         /// <param name="cellRadius">Radius je Zelle</param>
         /// <param name="fieldHeight">Höhe des Felds</param>
+        /// <param name="mode">Genauigkeit bei der Messung der Hindernisse (Simple oder Box)</param>
         /// <param name="types">Liste der Klassen, die das FlowField scannen soll</param>
-        public FlowField(float positionX, float positionY, float positionZ, int cellCountX, int cellCountZ, float cellRadius, int fieldHeight, params Type[] types)
-            : this(new Vector3(positionX, positionY, positionZ), cellCountX, cellCountZ, cellRadius, fieldHeight, types)
+        public FlowField(float positionX, float positionY, float positionZ, int cellCountX, int cellCountZ, float cellRadius, int fieldHeight, FlowFieldMode mode, params Type[] types)
+            : this(new Vector3(positionX, positionY, positionZ), cellCountX, cellCountZ, cellRadius, fieldHeight, mode, types)
         {
 
         }
@@ -61,10 +67,12 @@ namespace KWEngine3.Helper
         /// <param name="cellCountZ">Anzahl Zellen in Z-Richtung</param>
         /// <param name="cellRadius">Radius je Zelle</param>
         /// <param name="fieldHeight">Höhe des Felds</param>
+        /// <param name="mode">Genauigkeit bei der Messung der Hindernisse (Simple oder Box)</param>
         /// <param name="types">Liste der Klassen, die das FlowField scannen soll</param>
         /// <exception cref="Exception">Eine genannte Klasse erbt nicht von GameObject</exception>
-        public FlowField(Vector3 center, int cellCountX, int cellCountZ, float cellRadius, int fieldHeight, params Type[] types)
+        public FlowField(Vector3 center, int cellCountX, int cellCountZ, float cellRadius, int fieldHeight, FlowFieldMode mode, params Type[] types)
         {
+            Mode = mode;
             IsVisible = false;
             Center = center;
             GridCellCount = new Vector3i(MathHelper.Max(Math.Abs(cellCountX), 4), MathHelper.Max(Math.Abs(fieldHeight), 1), MathHelper.Max(Math.Abs(cellCountZ), 4));
@@ -96,6 +104,8 @@ namespace KWEngine3.Helper
             _fffront = Center.Z + GridCellCount.Z * CellRadius;
             _fftop   = Center.Y + GridCellCount.Y * 0.5f;
             _ffbottom= Center.Y - GridCellCount.Y * 0.5f;
+
+            _hitbox = new FlowFieldHitbox(CellRadius, GridCellCount.Y * 0.5f);
 
             CreateGrid();
             Update();
@@ -172,10 +182,8 @@ namespace KWEngine3.Helper
         /// </remarks>
         public void Update()
         {
-            _updateCostField = true;
+            _updateCostField = Mode == FlowFieldMode.Simple ? 1 : 2;
         }
-
-       
 
         /// <summary>
         /// Berechnet die Richungsanweisungen im gesamten FlowField für die neue Zielposition
@@ -269,7 +277,7 @@ namespace KWEngine3.Helper
         #region Internals
         internal void UpdateCostField()
         {
-            if (_updateCostField)
+            if (_updateCostField > 0)
             {
                 List<GameObject> checkObjects = new List<GameObject>();
                 lock (KWEngine.CurrentWorld._gameObjects)
@@ -293,18 +301,38 @@ namespace KWEngine3.Helper
 
                     foreach (GameObject g in checkObjects)
                     {
-                        Vector3 rayStart = new Vector3(cell.WorldPos.X, cell.WorldPos.Y + GridCellCount.Y * 0.5f + KWEngine.RAYTRACE_SAFETY_SQ, cell.WorldPos.Z);
-                        if (HelperIntersection.RaytraceObjectFast(g, rayStart, -Vector3.UnitY))
+                        if (_updateCostField == 1)
                         {
-                            if (!hasIncreasedCost)
+                            Vector3 rayStart = new Vector3(cell.WorldPos.X, cell.WorldPos.Y + GridCellCount.Y * 0.5f + KWEngine.RAYTRACE_SAFETY_SQ, cell.WorldPos.Z);
+                            if (HelperIntersection.RaytraceObjectFast(g, rayStart, -Vector3.UnitY))
                             {
-                                cell.SetCostTo(g.FlowFieldCost);
-                                hasIncreasedCost = true;
+                                if (!hasIncreasedCost)
+                                {
+                                    cell.SetCostTo(g.FlowFieldCost);
+                                    hasIncreasedCost = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _hitbox.Update(cell.WorldPos.X, cell.WorldPos.Z);
+
+                            foreach(GameObjectHitbox ghb in g._hitboxes)
+                            {
+                                if(ghb.IsActive)
+                                {
+                                    if(HelperIntersection.TestIntersection(_hitbox, ghb))
+                                    {
+                                        cell.SetCostTo(g.FlowFieldCost);
+                                        hasIncreasedCost = true;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                _updateCostField = false;
+                _updateCostField = 0;
             }
         }
 
@@ -426,11 +454,12 @@ namespace KWEngine3.Helper
             }
         }
 
+        internal FlowFieldHitbox _hitbox;
         internal FlowFieldCell[,] Grid { get; private set; }
         internal FlowFieldCell Destination { get; private set; }
         internal Vector3 _target = Vector3.Zero;
         internal bool _targetIsUpdated = false;
-        internal bool _updateCostField = false;
+        internal int _updateCostField = 0;
         internal Type[] _types;
         internal float _cellDiametre;
         internal float _ffleft;  

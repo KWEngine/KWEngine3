@@ -8,6 +8,21 @@
     }
 
     /// <summary>
+    /// Modus, der bestimmt, wie genau das FlowField Hindernisse erkennt (Standard: Simple)
+    /// </summary>
+    public enum FlowFieldMode
+    {
+        /// <summary>
+        /// Pro Zelle wird ein Strahl in der Zellenmitte verwendet, um Hindernisse zu finden (ungenau, aber schneller)
+        /// </summary>
+        Simple = 1,
+        /// <summary>
+        /// Pro Zelle wird die gesamte Zelle als Hitbox mit den Hitboxen anderer Objekte verglichen (genauer, aber langsamer)
+        /// </summary>
+        Box = 2
+    }
+
+    /// <summary>
     /// Art des Bodengewächses
     /// </summary>
     public enum FoliageType

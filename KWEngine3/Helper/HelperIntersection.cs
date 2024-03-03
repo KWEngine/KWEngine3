@@ -1443,6 +1443,32 @@ namespace KWEngine3.Helper
             return null;
         }
 
+        internal static bool TestIntersection(FlowFieldHitbox ffhb, GameObjectHitbox collider)
+        {
+            for (int i = 0; i < ffhb._normals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref ffhb._normals[i], ref ffhb._vertices, out shape1Min, out shape1Max, ref HelperVector.VectorZero);
+                SatTest(ref ffhb._normals[i], ref collider._vertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                {
+                    return false;
+                }
+            }
+
+            for (int i = 0; i < collider._normals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref collider._normals[i], ref ffhb._vertices, out shape1Min, out shape1Max, ref HelperVector.VectorZero);
+                SatTest(ref collider._normals[i], ref collider._vertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         internal static Intersection TestIntersection(GameObjectHitbox caller, GameObjectHitbox collider, Vector3 offset)
         {
             float mtvDistance = float.MaxValue;
