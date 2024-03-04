@@ -112,7 +112,29 @@ namespace KWEngine3.GameObjects
                 Vector3 delta = this.Position - new Vector3(Position.X, AABBLow, Position.Z);
                 base.SetPosition(x + delta.X, y + delta.Y, z + delta.Z);
             }
+        }
 
+        /// <summary>
+        /// Setzt die y-Position der Instanz auf den gegebenen Wert
+        /// </summary>
+        /// <param name="y">Position auf y-Achse</param>
+        /// <param name="mode">Bestimmt, auf welchen Fixpunkt des Objekts sich die Positionsangaben beziehen sollen</param>
+        public void SetPositionY(float y, PositionMode mode = PositionMode.Position)
+        {
+            if (mode == PositionMode.Position)
+            {
+                base.SetPositionY(y);
+            }
+            else if (mode == PositionMode.CenterOfHitbox)
+            {
+                float delta = this.Position.Y - this.Center.Y;
+                base.SetPositionY(y + delta);
+            }
+            else
+            {
+                float delta = this.Position.Y - AABBLow;
+                base.SetPositionY(y + delta);
+            }
         }
 
         /// <summary>

@@ -420,7 +420,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="9.5" Y="11.5" Width="2.75" />
+    <Position X="9.5" Y="11.75" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -510,7 +510,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="8.25" Width="2.75" />
+    <Position X="9.5" Y="8.5" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
