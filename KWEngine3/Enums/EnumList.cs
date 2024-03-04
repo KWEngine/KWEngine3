@@ -1,5 +1,24 @@
 ﻿namespace KWEngine3
 {
+    /// <summary>
+    /// Gibt an, auf welchen Fixpunkt sich die SetPosition()-Methode bezieht, wenn sie aufgerufen wird (Standardwert: Position)
+    /// </summary>
+    public enum PositionMode
+    {
+        /// <summary>
+        /// Bezieht sich auf die tatsächliche Position des Objekts (Standard)
+        /// </summary>
+        Position,
+        /// <summary>
+        /// Bezieht sich auf den Mittelpunkt der Hitbox
+        /// </summary>
+        CenterOfHitbox,
+        /// <summary>
+        /// Bezieht sich auf die unterste Kante der achsenparallelen Hitbox (z.B. für 2D-Platformer)
+        /// </summary>
+        BottomOfAABBHitbox
+    }
+
     internal enum AddRemoveHitboxMode
     {
         None,

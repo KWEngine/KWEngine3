@@ -16,6 +16,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            KWEngine.LoadModel("Robot", "./Models/PlatformerPack/Toon.glb");
+
             SetCameraFOV(10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
             //SetBackgroundFillColor(1, 1, 1);
@@ -29,6 +31,12 @@ namespace KWEngine3TestProject.Worlds
             p.IsShadowCaster = true;
             p.HasTransparencyTexture = true;
             AddGameObject(p);
+
+            Robot r = new Robot();
+            r.SetModel("KWCube");
+            r.SetColor(1, 0, 0);
+            r.SetPosition(0, 0, 0, PositionMode.BottomOfAABBHitbox);
+            AddGameObject(r);
 
             Immovable bg = new Immovable();
             bg.SetScale(20, 20, 1);

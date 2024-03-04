@@ -90,6 +90,32 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="x">Position auf x-Achse</param>
+        /// <param name="y">Position auf y-Achse</param>
+        /// <param name="z">Position auf z-Achse</param>
+        /// <param name="mode">Bestimmt, auf welchen Fixpunkt des Objekts sich die Positionsangaben beziehen sollen</param>
+        public void SetPosition(float x, float y, float z, PositionMode mode = PositionMode.Position)
+        {
+            if(mode == PositionMode.Position)
+            {
+                base.SetPosition(x, y, z);
+            }
+            else if(mode == PositionMode.CenterOfHitbox)
+            {
+                Vector3 delta = this.Position - this.Center;
+                base.SetPosition(x + delta.X, y + delta.Y, z + delta.Z);
+            }
+            else
+            {
+                Vector3 delta = this.Position - new Vector3(Position.X, AABBLow, Position.Z);
+                base.SetPosition(x + delta.X, y + delta.Y, z + delta.Z);
+            }
+
+        }
+
+        /// <summary>
         /// Prüft auf eine Kollision mit einem Terrain-Objekt
         /// </summary>
         /// <returns>Kollisionsobjekt mit weiteren Details</returns>
