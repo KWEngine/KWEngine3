@@ -23,7 +23,8 @@ namespace KWEngine3.GameObjects
         internal float _animationPercentage = 0f;
         internal int _animationID = -1;
         internal Vector4 _uvTransform = new(1, 1, 0, 0);
-        
+        internal Vector2 _uvClip = new Vector2(0, 0);
+
         internal Vector3 _scaleHitbox;
         internal Vector3 _position;
         internal Quaternion _rotation;

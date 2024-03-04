@@ -41,6 +41,7 @@ namespace KWEngine3.Renderer
         public static int UUseTextureReflection { get; private set; } = -1;
         public static int UTextureSkyboxRotation { get; private set; } = -1;
         public static int UShadowCaster { get; private set; } = -1;
+        public static int UTextureClip { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;        
 
@@ -107,6 +108,7 @@ namespace KWEngine3.Renderer
                 UTextureSkyboxRotation = GL.GetUniformLocation(ProgramID, "uTextureSkyboxRotation");
 
                 UShadowCaster = GL.GetUniformLocation(ProgramID, "uShadowCaster");
+                UTextureClip = GL.GetUniformLocation(ProgramID, "uTextureClip");
             }
         }
 
@@ -279,8 +281,14 @@ namespace KWEngine3.Renderer
 
                 GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);
                 GL.UniformMatrix4(UNormalMatrix, false, ref g._stateRender._normalMatrices[i]);
-
                 GL.Uniform4(UColorMaterial, material.ColorAlbedo);
+
+                GL.Uniform4(UTextureTransform, new Vector4(
+                material.TextureAlbedo.UVTransform.X * g._stateRender._uvTransform.X,
+                material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y,
+                material.TextureAlbedo.UVTransform.Z + g._stateRender._uvTransform.Z,
+                material.TextureAlbedo.UVTransform.W + g._stateRender._uvTransform.W));
+                GL.Uniform2(UTextureClip, g._stateRender._uvClip);
 
                 Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(
                     material.TextureAlbedo.IsTextureSet ? 1 : 0,

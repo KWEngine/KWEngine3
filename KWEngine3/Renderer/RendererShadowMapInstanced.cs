@@ -19,6 +19,7 @@ namespace KWEngine3.Renderer
         public static int UTextureOffset { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
         public static int UBlockIndex { get; private set; } = -1;
+        public static int UTextureClip { get; private set; } = -1;
 
         public static void Init()
         {
@@ -56,6 +57,7 @@ namespace KWEngine3.Renderer
                 UTextureTransformOpacity = GL.GetUniformLocation(ProgramID, "uTextureTransformOpacity");
                 UTextureOffset = GL.GetUniformLocation(ProgramID, "uTextureOffset");
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
+                UTextureClip = GL.GetUniformLocation(ProgramID, "uTextureClip");
             }
         }
 
@@ -112,6 +114,7 @@ namespace KWEngine3.Renderer
                 GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * r._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * r._stateRender._uvTransform.Y, material.ColorAlbedo.W * r._stateRender._opacity));
                 GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * r._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * r._stateRender._uvTransform.W));
+                GL.Uniform2(UTextureClip, r._stateRender._uvClip);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureAlbedo, 0);

@@ -10,6 +10,7 @@ uniform mat4 uModelMatrix;
 uniform mat4 uBoneTransforms[128];
 uniform vec3 uTextureTransformOpacity;
 uniform vec2 uTextureOffset;
+uniform vec2 uTextureClip;
 
 layout (std140) uniform uInstanceBlock
 {
@@ -36,5 +37,8 @@ void main()
 	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
 
 	vTexture = aTexture * uTextureTransformOpacity.xy + uTextureOffset;
+	vec2 uvCenter = uTextureOffset * uTextureTransformOpacity.xy + uTextureTransformOpacity.xy * 0.5;
+	vec2 delta = vTexture - uvCenter;
+	vTexture = vTexture + delta * uTextureClip;
 	gl_Position = instanceModelMatrix[gl_InstanceID] * uModelMatrix * totalLocalPos;
 }

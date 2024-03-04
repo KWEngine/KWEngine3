@@ -29,7 +29,7 @@ namespace KWEngine3.Renderer
         public static int UUseAnimations { get; private set; } = -1;
         public static int UBoneTransforms { get; private set; } = -1;
         public static int UIdShadowCaster { get; private set; } = -1;
-
+        public static int UTextureClip { get; private set; } = -1;
         public static int UBlockIndex { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;
@@ -83,6 +83,7 @@ namespace KWEngine3.Renderer
                 UTextureMetallicRoughnessCombined = GL.GetUniformLocation(ProgramID, "uTextureIsMetallicRoughnessCombined");
                 UUseAnimations = GL.GetUniformLocation(ProgramID, "uUseAnimations");
                 UBoneTransforms = GL.GetUniformLocation(ProgramID, "uBoneTransforms");
+                UTextureClip = GL.GetUniformLocation(ProgramID, "uTextureClip");
             }
         }
 
@@ -167,6 +168,7 @@ namespace KWEngine3.Renderer
                 material.TextureAlbedo.UVTransform.Y * r._stateRender._uvTransform.Y,
                 material.TextureAlbedo.UVTransform.Z + r._stateRender._uvTransform.Z,
                 material.TextureAlbedo.UVTransform.W + r._stateRender._uvTransform.W));
+                GL.Uniform2(UTextureClip, r._stateRender._uvClip);
 
                 GL.Uniform3(UColorMaterial, material.ColorAlbedo.Xyz);
 

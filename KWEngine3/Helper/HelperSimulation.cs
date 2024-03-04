@@ -103,6 +103,7 @@ namespace KWEngine3.Helper
                 g._stateRender._uvTransform = Vector4.Lerp(g._statePrevious._uvTransform, g._stateCurrent._uvTransform, alpha);
             else
                 g._stateRender._uvTransform = g._stateCurrent._uvTransform;
+            g._stateRender._uvClip = Vector2.Lerp(g._statePrevious._uvClip, g._stateCurrent._uvClip, alpha);
             g._stateRender._center = Vector3.Lerp(g._statePrevious._center, g._stateCurrent._center, alpha);
             g._stateRender._dimensions = Vector3.Lerp(g._statePrevious._dimensions, g._stateCurrent._dimensions, alpha);
 
@@ -125,6 +126,7 @@ namespace KWEngine3.Helper
             r._stateRender._colorTint = Vector3.Lerp(r._statePrevious._colorTint, r._stateCurrent._colorTint, alpha);
             r._stateRender._colorEmissive = Vector4.Lerp(r._statePrevious._colorEmissive, r._stateCurrent._colorEmissive, alpha);
             r._stateRender._uvTransform = Vector4.Lerp(r._statePrevious._uvTransform, r._stateCurrent._uvTransform, alpha);
+            r._stateRender._uvClip = Vector2.Lerp(r._statePrevious._uvClip, r._stateCurrent._uvClip, alpha);
             r._stateRender._center = Vector3.Lerp(r._statePrevious._center, r._stateCurrent._center, alpha);
             r._stateRender._dimensions = Vector3.Lerp(r._statePrevious._dimensions, r._stateCurrent._dimensions, alpha);
 

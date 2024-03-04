@@ -299,6 +299,16 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Beschneidet den durch SetTextureRepeat() und SetTextureOffset() gewählten Texturteil weiter (für den Fall, dass z.B. Spritesheets einen zu großen Rand pro Zelle haben) 
+        /// </summary>
+        /// <param name="x">Beschneidung auf x-Achse (positiver Wert = Beschnitt nach innen, negativer Wert = Beschnitt nach außen)</param>
+        /// <param name="y">Beschneidung auf y-Achse (positiver Wert = Beschnitt nach innen, negativer Wert = Beschnitt nach außen)</param>
+        public void SetTextureClip(float x, float y)
+        {
+            _stateCurrent._uvClip = new Vector2(MathHelper.Clamp(-x, -1.0f, 1.0f), MathHelper.Clamp(-y, -1.0f, 1.0f));
+        }
+
+        /// <summary>
         /// Setzt die Texturwiederholung auf dem Objekt (Standard: 1)
         /// </summary>
         /// <param name="x">x</param>

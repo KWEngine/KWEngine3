@@ -16,6 +16,7 @@ namespace KWEngine3.GameObjects
         internal Vector3 _lookAtVectorUp = Vector3.UnitY;
         internal Vector3 _lookAtVectorRight = Vector3.UnitX;
         internal Vector4 _uvTransform = new(1, 1, 0, 0); //zw = offset.xy
+        internal Vector2 _uvClip = new Vector2(0, 0);
         internal float _animationPercentage = 0f;
         internal int _animationID = -1;
         

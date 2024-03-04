@@ -12,6 +12,7 @@ uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uNormalMatrix;
 uniform vec4 uTextureTransform;
+uniform vec2 uTextureClip;
 uniform int uUseAnimations;
 uniform mat4 uBoneTransforms[128];
 uniform mat4 uViewProjectionMatrixShadowMap[3];
@@ -66,6 +67,9 @@ void main()
 	vNormal = normalize((instanceNormalMatrix * uNormalMatrix * totalNormal).xyz);
 	vTangent = normalize((instanceNormalMatrix * uNormalMatrix * totalTangent).xyz);
 	vBiTangent = normalize((instanceNormalMatrix * uNormalMatrix * totalBiTangent).xyz);
-	vTexture = (aTexture + uTextureTransform.zw) * uTextureTransform.xy;
+	vTexture = (aTexture + uTextureTransform.zw) * uTextureTransform.xy - uTextureClip;
+	vec2 uvCenter = uTextureTransform.zw * uTextureTransform.xy + uTextureTransform.xy * 0.5;
+	vec2 delta = vTexture - uvCenter;
+	vTexture = vTexture + delta * uTextureClip;
 	vTBN = mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz);
 }
