@@ -26,6 +26,7 @@ namespace KWEngine3.Renderer
         public static int UTextureRoughness { get; private set; } = -1;
         public static int UTextureEmissive { get; private set; } = -1;
         public static int UTextureTransform { get; private set; } = -1;
+        public static int UTextureClip { get; private set; } = -1;
         public static int UUseAnimations { get; private set; } = -1;
         public static int UBoneTransforms { get; private set; } = -1;
         public static int UIdShadowCaster { get; private set; } = -1;
@@ -76,6 +77,7 @@ namespace KWEngine3.Renderer
                 UTextureRoughness = GL.GetUniformLocation(ProgramID, "uTextureRoughness");
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
+                UTextureClip = GL.GetUniformLocation(ProgramID, "uTextureClip");
                 UTextureMetallicRoughnessCombined = GL.GetUniformLocation(ProgramID, "uTextureIsMetallicRoughnessCombined");
                 UUseAnimations = GL.GetUniformLocation(ProgramID, "uUseAnimations");
                 UBoneTransforms = GL.GetUniformLocation(ProgramID, "uBoneTransforms");
