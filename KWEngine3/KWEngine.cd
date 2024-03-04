@@ -505,7 +505,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyECI1oOGJygUIBuAgqAoQYBACTBixgJIIiEGkBYRVQ=</HashCode>
+      <HashCode>QyMCI1oOGJygUIBuAgqAoQYBACTBixgJIIiEGkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
