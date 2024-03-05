@@ -2,6 +2,8 @@
 using OpenTK.Graphics.OpenGL4;
 using System.Runtime.InteropServices;
 using KWEngine3.GameObjects;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace KWEngine3.Helper
 {
@@ -10,6 +12,19 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
+        internal static bool IsAssemblyDebugBuild(Assembly assembly)
+        {
+            foreach (var attribute in assembly.GetCustomAttributes(false))
+            {
+                var debuggableAttribute = attribute as DebuggableAttribute;
+                if (debuggableAttribute != null)
+                {
+                    return debuggableAttribute.IsJITTrackingEnabled;
+                }
+            }
+            return false;
+        }
+
         internal static string EqualizePathDividers(string s)
         {
             if (s != null)

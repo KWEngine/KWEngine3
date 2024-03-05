@@ -330,6 +330,28 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Erfragt die aktuellen Werte für die Texturwiederholung
+        /// </summary>
+        public Vector2 TextureRepeat
+        {
+            get
+            {
+                return this._stateCurrent._uvTransform.Xy;
+            }
+        }
+
+        /// <summary>
+        /// Erfragt die aktuellen Werte für die Texturverschiebung
+        /// </summary>
+        public Vector2 TextureOffset
+        {
+            get
+            {
+                return this._stateCurrent._uvTransform.Zw;
+            }
+        }
+
+        /// <summary>
         /// Setzt die Größenskalierung des Objekts (muss > 0 sein)
         /// </summary>
         /// <param name="s">Skalierung</param>

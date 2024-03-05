@@ -53,9 +53,8 @@ void main()
 	vNormal = normalize((uNormalMatrix * totalNormal).xyz);
 	vTangent = normalize((uNormalMatrix * totalTangent).xyz);
 	vBiTangent = normalize((uNormalMatrix * totalBiTangent).xyz);
-
-	vTexture = (aTexture + uTextureTransform.zw) * uTextureTransform.xy;
-	vec2 uvCenter = uTextureTransform.zw * uTextureTransform.xy + uTextureTransform.xy * 0.5;
+	vTexture = (vec2(uTextureTransform.x < 0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransform.y < 0 ? 1.0 - aTexture.y : aTexture.y) + uTextureTransform.zw) * abs(uTextureTransform.xy);
+	vec2 uvCenter = uTextureTransform.zw * abs(uTextureTransform.xy) + abs(uTextureTransform.xy) * 0.5;
 	vec2 delta = vTexture - uvCenter;
 	vTexture = vTexture + delta * uTextureClip;
 	vTBN = mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz);

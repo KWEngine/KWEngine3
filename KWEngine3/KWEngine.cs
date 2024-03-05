@@ -96,19 +96,22 @@ namespace KWEngine3
         internal static CursorState _stateCameraGameBeforeToggle = CursorState.Normal;
         internal static void ToggleEditMode()
         {
-            Mode = Mode == EngineMode.Play ? EngineMode.Edit : EngineMode.Play;
-            if(EditModeActive)
+            if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
             {
-                CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
-                CurrentWorld._cameraEditor.UpdatePitchYaw(true);
-                _stateCameraGameBeforeToggle = Window.CursorState;
-                CurrentWorld.MouseCursorReset();
-            }
-            else
-            {
-                CurrentWorld._cameraGame._frustum.UpdateFrustum(CurrentWorld._cameraGame._stateCurrent.ProjectionMatrix, CurrentWorld._cameraGame._stateCurrent.ViewMatrix);
-                Window.CursorState = _stateCameraGameBeforeToggle;
-                DeselectAll();
+                Mode = Mode == EngineMode.Play ? EngineMode.Edit : EngineMode.Play;
+                if (EditModeActive)
+                {
+                    CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
+                    CurrentWorld._cameraEditor.UpdatePitchYaw(true);
+                    _stateCameraGameBeforeToggle = Window.CursorState;
+                    CurrentWorld.MouseCursorReset();
+                }
+                else
+                {
+                    CurrentWorld._cameraGame._frustum.UpdateFrustum(CurrentWorld._cameraGame._stateCurrent.ProjectionMatrix, CurrentWorld._cameraGame._stateCurrent.ViewMatrix);
+                    Window.CursorState = _stateCameraGameBeforeToggle;
+                    DeselectAll();
+                }
             }
         }
         

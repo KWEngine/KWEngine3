@@ -27,12 +27,12 @@ void main()
 	{
 		BoneTransform = mat4(1.0);
 	}
-
 	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
 
-	vTexture = aTexture * uTextureTransformOpacity.xy + uTextureOffset;
-	vec2 uvCenter = uTextureOffset * uTextureTransformOpacity.xy + uTextureTransformOpacity.xy * 0.5;
+	vTexture = vec2(uTextureTransformOpacity.x < 0.0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransformOpacity.y < 0.0 ? 1.0 - aTexture.y : aTexture.y) * abs(uTextureTransformOpacity.xy) + uTextureOffset;
+	vec2 uvCenter = uTextureOffset * abs(uTextureTransformOpacity.xy) + abs(uTextureTransformOpacity.xy) * 0.5;
 	vec2 delta = vTexture - uvCenter;
 	vTexture = vTexture + delta * uTextureClip;
+
 	gl_Position = uModelMatrix * totalLocalPos;
 }
