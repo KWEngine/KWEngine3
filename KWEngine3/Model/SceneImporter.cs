@@ -1052,7 +1052,7 @@ namespace KWEngine3.Model
                     }
                 }
 
-                if(currentMeshName == "KWQuad")
+                if(currentMeshName.StartsWith("KWQuad"))
                 {
                     maxZ = 0.5f;
                     minZ = -0.5f;

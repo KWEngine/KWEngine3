@@ -15,7 +15,7 @@ namespace KWEngine3.Model
 
         internal bool IsKWCube6 { get; set; } = false;
 
-        internal bool IsPrimitive { get { return Name == "kwcube.obj" || Name == "kwsphere.fbx" || Name == "kwquad.obj"; } }
+        internal bool IsPrimitive { get { return Name == "kwcube.obj" || Name == "kwsphere.fbx" || Name.StartsWith("kwquad"); } }
 
         /// <summary>
         /// Wurzelknoten

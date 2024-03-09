@@ -43,7 +43,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Textur, falls das Modell des Objekts KWCube, KWSphere oder KWQuad ist
+        /// Setzt die Textur, falls das Modell des Objekts KWCube, KWSphere oder KWQuad(2D) ist
         /// </summary>
         /// <param name="file">Texturdatei (inkl. relativem Pfad)</param>
         /// <param name="type">Texturtyp</param>

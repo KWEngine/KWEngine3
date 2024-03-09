@@ -555,7 +555,7 @@ namespace KWEngine3.Helper
 
         private static bool IsBuiltInModel(string name)
         {
-            return name == "KWCube" || name == "KWSphere" || name == "KWQuad" || name == "KWPlatform";
+            return name == "KWCube" || name == "KWSphere" || name == "KWQuad" || name == "KWQuad2D" || name == "KWPlatform";
         }
 
         

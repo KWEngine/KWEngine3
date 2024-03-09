@@ -13,10 +13,10 @@ namespace KWEngine3TestProject.Classes.WorldGLTFTest
     {
         public override void Act()
         {
-            if (IsAnimated)
+            if (HasAnimations)
             {
-                SetAnimationID(0);
-                SetAnimationPercentageAdvance(0.005f);
+                SetAnimationID(10);
+                SetAnimationPercentage(1);
             }
         }
     }
