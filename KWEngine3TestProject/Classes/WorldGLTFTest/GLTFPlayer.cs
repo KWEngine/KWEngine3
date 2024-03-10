@@ -15,8 +15,7 @@ namespace KWEngine3TestProject.Classes.WorldGLTFTest
         {
             if (HasAnimations)
             {
-                SetAnimationID(10);
-                SetAnimationPercentage(1);
+                SetAnimationPercentageAdvance(0.001f);
             }
         }
     }

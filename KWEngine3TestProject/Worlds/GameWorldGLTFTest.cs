@@ -25,8 +25,8 @@ namespace KWEngine3TestProject.Worlds
             SetBackgroundSkybox("./Textures/skybox.dds", 0);
             SetBackgroundBrightnessMultiplier(1.25f);
 
-            KWEngine.LoadModel("Scooter", "./Models/GLTFTest/Scooter.glb");
-            KWEngine.LoadModel("Pete", "./Models/GLTFTest/Pete_The_Builder.glb");
+            KWEngine.LoadModel("Scooter", "./Models/GLTFTest/Megan.gltf");
+            //KWEngine.LoadModel("Pete", "./Models/GLTFTest/Pete_The_Builder.glb");
             //KWEngine.LoadModel("Ninja", "./Models/GLTFTest/SwordNinjaAnimated.gltf");
             //KWEngine.LoadModel("Sword", "./Models/GLTFTest/Sword.glb");
             /*
@@ -37,7 +37,7 @@ namespace KWEngine3TestProject.Worlds
             */
 
             GLTFPlayer i02 = new GLTFPlayer();
-            i02.SetModel("Pete");
+            i02.SetModel("Scooter");
             AddGameObject(i02);
 
             
