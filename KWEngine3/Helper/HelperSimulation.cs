@@ -107,6 +107,23 @@ namespace KWEngine3.Helper
             g._stateRender._center = Vector3.Lerp(g._statePrevious._center, g._stateCurrent._center, alpha);
             g._stateRender._dimensions = Vector3.Lerp(g._statePrevious._dimensions, g._stateCurrent._dimensions, alpha);
 
+            foreach(int meshId in g._stateCurrent._rotationPre.Keys)
+            {
+                Vector3 lerped;
+                if(g._statePrevious._rotationPre.ContainsKey(meshId))
+                {
+                    lerped = Vector3.Lerp(g._statePrevious._rotationPre[meshId], g._stateCurrent._rotationPre[meshId], alpha);
+                }
+                else
+                {
+                    lerped = g._stateCurrent._rotationPre[meshId];
+                }
+                
+                lerped = new Vector3(MathHelper.DegreesToRadians(lerped.X), MathHelper.DegreesToRadians(lerped.Y), MathHelper.DegreesToRadians(lerped.Z));
+                Quaternion q = Quaternion.FromAxisAngle(Vector3.UnitY, lerped.Y) * Quaternion.FromAxisAngle(Vector3.UnitZ, lerped.Z) * Quaternion.FromAxisAngle(Vector3.UnitX, lerped.X);
+                g._stateRender._rotationPre[meshId] = q;
+            }
+
             UpdateBoneTransforms(g);
             UpdateModelMatricesForRenderPass(g);
         }
@@ -130,6 +147,23 @@ namespace KWEngine3.Helper
             r._stateRender._center = Vector3.Lerp(r._statePrevious._center, r._stateCurrent._center, alpha);
             r._stateRender._dimensions = Vector3.Lerp(r._statePrevious._dimensions, r._stateCurrent._dimensions, alpha);
 
+            foreach (int meshId in r._stateRender._rotationPre.Keys)
+            {
+                Vector3 lerped;
+                if (r._statePrevious._rotationPre.ContainsKey(meshId))
+                {
+                    lerped = Vector3.Lerp(r._statePrevious._rotationPre[meshId], r._stateCurrent._rotationPre[meshId], alpha);
+                }
+                else
+                {
+                    lerped = r._stateCurrent._rotationPre[meshId];
+                }
+                lerped = new Vector3(MathHelper.DegreesToRadians(lerped.X), MathHelper.DegreesToRadians(lerped.Y), MathHelper.DegreesToRadians(lerped.Z));
+
+                Quaternion q = Quaternion.FromAxisAngle(Vector3.UnitY, lerped.Y) * Quaternion.FromAxisAngle(Vector3.UnitZ, lerped.Z) * Quaternion.FromAxisAngle(Vector3.UnitX, lerped.X);
+                r._stateRender._rotationPre[meshId] = q;
+            }
+
             UpdateBoneTransforms(r);
             UpdateModelMatricesForRenderPass(r);
         }
@@ -143,7 +177,12 @@ namespace KWEngine3.Helper
                 bool useMeshTransform = mesh.BoneNames.Count == 0 || !(g._stateRender._animationID >= 0 && g._model.ModelOriginal.Animations != null && g._model.ModelOriginal.Animations.Count > 0);
                 if (useMeshTransform)
                 {
-                    Matrix4.Mult(mesh.Transform, g._stateRender._modelMatrix, out g._stateRender._modelMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index]);
+                    Matrix4 meshTransform = mesh.Transform;
+                    if(g._stateRender._rotationPre.ContainsKey(index))
+                    {
+                        meshTransform = Matrix4.CreateFromQuaternion(g._stateRender._rotationPre[index]) * meshTransform;
+                    }
+                    Matrix4.Mult(meshTransform, g._stateRender._modelMatrix, out g._stateRender._modelMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index]);
                     g._stateRender._normalMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index] = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrices[g._model.ModelOriginal.IsKWCube6 ? 0 : index]));
                 }
                 else

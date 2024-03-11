@@ -799,9 +799,9 @@ namespace KWEngine3.GameObjects
 
         internal void InitPreRotationQuaternions()
         {
-            _statePrevious._rotationPre = new Dictionary<int, Quaternion>();
-            _stateCurrent._rotationPre = new Dictionary<int, Quaternion>();
-            _stateRender._rotationPre = new Dictionary<int, Quaternion>();
+            _statePrevious._rotationPre = new();
+            _stateCurrent._rotationPre = new();
+            _stateRender._rotationPre = new();
         }
 
         internal void InitRenderStateMatrices()
@@ -811,7 +811,7 @@ namespace KWEngine3.GameObjects
 
             if (HasArmatureAndAnimations)
             {
-                _stateRender._boneTranslationMatrices = new Dictionary<string, Matrix4[]>();
+                _stateRender._boneTranslationMatrices = new();
                 foreach (GeoMesh mesh in _model.ModelOriginal.Meshes.Values)
                 {
                     _stateRender._boneTranslationMatrices[mesh.Name] = new Matrix4[mesh.BoneIndices.Count];

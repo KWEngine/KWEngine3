@@ -19,15 +19,41 @@ namespace KWEngine3.Helper
         private static Vector3 zeroVector = Vector3.Zero;
 
 
+        /// <summary>
+        /// Setzt die Vorab-Rotation eines Objekts für ein bestimmten Objektteil (Mesh) auf die angegebenen Gradzahlen (funktioniert nur für Objekte ohne Animationen)
+        /// </summary>
+        /// <remarks>Die Rotation wird in der Reihenfolge Y-&gt;Z-&gt;X durchgeführt</remarks>
+        /// <param name="g">Betroffenes Objekt</param>
+        /// <param name="meshId">Mesh-ID des 3D-Modells (beginnend bei 0)</param>
+        /// <param name="rotX">Rotation um die X-Achse (in Grad)</param>
+        /// <param name="rotY">Rotation um die Y-Achse (in Grad)</param>
+        /// <param name="rotZ">Rotation um die Z-Achse (in Grad)</param>
         public static void SetMeshPreRotationYZX(GameObject g, int meshId, float rotX, float rotY, float rotZ)
         {
             if (g != null && meshId >= 0 && g._model.ModelOriginal.Meshes.Count > meshId)
             {
                 if (g._stateCurrent._rotationPre.ContainsKey(meshId))
+                {
                     g._stateCurrent._rotationPre[meshId] = new Vector3(rotX, rotY, rotZ);
+                }
+                else
+                {
+                    g._stateCurrent._rotationPre.Add(meshId, new Vector3(rotX, rotY, rotZ));
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[HelperRotation] Cannot set pre-rotation values for " + g.Name + "(" + g.ID + "). Aborting.");
             }
         }
 
+        /// <summary>
+        /// Fügt einem bestimmten Mesh eines Objekts eine Rotation um die X-Achse zusätzlich zur bestehenden Rotation hinzu (funktioniert nur für Objekte ohne Animationen)
+        /// </summary>
+        /// <remarks>Die Rotation wird in der Reihenfolge Y-&gt;Z-&gt;X durchgeführt</remarks>
+        /// <param name="g">Betroffenes GameObject</param>
+        /// <param name="meshId">Mesh-ID des 3D-Modells (beginnend bei 0 für den ersten Mesh)</param>
+        /// <param name="degrees">Hinzufügende Grad für die Achse</param>
         public static void AddMeshPreRotationX(GameObject g, int meshId, float degrees)
         {
             if (g != null && meshId >= 0 && g._model.ModelOriginal.Meshes.Count > meshId)
@@ -42,6 +68,66 @@ namespace KWEngine3.Helper
                 {
                     g._stateCurrent._rotationPre.Add(meshId, new Vector3(degrees, 0, 0));
                 }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[HelperRotation] Cannot set pre-rotation values for " + g.Name + "(" + g.ID + "). Aborting.");
+            }
+        }
+
+        /// <summary>
+        /// Fügt einem bestimmten Mesh eines Objekts eine Rotation um die Y-Achse zusätzlich zur bestehenden Rotation hinzu (funktioniert nur für Objekte ohne Animationen)
+        /// </summary>
+        /// <remarks>Die Rotation wird in der Reihenfolge Y-&gt;Z-&gt;X durchgeführt</remarks>
+        /// <param name="g">Betroffenes GameObject</param>
+        /// <param name="meshId">Mesh-ID des 3D-Modells (beginnend bei 0 für den ersten Mesh)</param>
+        /// <param name="degrees">Hinzufügende Grad für die Achse</param>
+        public static void AddMeshPreRotationY(GameObject g, int meshId, float degrees)
+        {
+            if (g != null && meshId >= 0 && g._model.ModelOriginal.Meshes.Count > meshId)
+            {
+                if (g._stateCurrent._rotationPre.ContainsKey(meshId))
+                {
+                    Vector3 current = g._stateCurrent._rotationPre[meshId];
+                    current += new Vector3(0, degrees, 0);
+                    g._stateCurrent._rotationPre[meshId] = current;
+                }
+                else
+                {
+                    g._stateCurrent._rotationPre.Add(meshId, new Vector3(0, degrees, 0));
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[HelperRotation] Cannot set pre-rotation values for " + g.Name + "(" + g.ID + "). Aborting.");
+            }
+        }
+
+        /// <summary>
+        /// Fügt einem bestimmten Mesh eines Objekts eine Rotation um die Z-Achse zusätzlich zur bestehenden Rotation hinzu (funktioniert nur für Objekte ohne Animationen)
+        /// </summary>
+        /// <remarks>Die Rotation wird in der Reihenfolge Y-&gt;Z-&gt;X durchgeführt</remarks>
+        /// <param name="g">Betroffenes GameObject</param>
+        /// <param name="meshId">Mesh-ID des 3D-Modells (beginnend bei 0 für den ersten Mesh)</param>
+        /// <param name="degrees">Hinzufügende Grad für die Achse</param>
+        public static void AddMeshPreRotationZ(GameObject g, int meshId, float degrees)
+        {
+            if (g != null && meshId >= 0 && g._model.ModelOriginal.Meshes.Count > meshId)
+            {
+                if (g._stateCurrent._rotationPre.ContainsKey(meshId))
+                {
+                    Vector3 current = g._stateCurrent._rotationPre[meshId];
+                    current += new Vector3(0, 0, degrees);
+                    g._stateCurrent._rotationPre[meshId] = current;
+                }
+                else
+                {
+                    g._stateCurrent._rotationPre.Add(meshId, new Vector3(0, 0, degrees));
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[HelperRotation] Cannot set pre-rotation values for " + g.Name + "(" + g.ID + "). Aborting.");
             }
         }
 

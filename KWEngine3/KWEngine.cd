@@ -393,12 +393,12 @@
       <Field Name="zeroVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFAAIDAAg0AAAAAQAACgAA=</HashCode>
+      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFLAIDAAg0AAAAAQAACggA=</HashCode>
       <FileName>Helper\HelperRotation.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="10" Width="2.75" />
+    <Position X="21.5" Y="10.75" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
@@ -505,7 +505,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyMCI1oOGJygUIBuAgqAoQYBACTByxgJIIiEGkBYRVQ=</HashCode>
+      <HashCode>QyMCJ1oOGJygUIBuAgqAoQYBACTByxgJIIiEGkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>

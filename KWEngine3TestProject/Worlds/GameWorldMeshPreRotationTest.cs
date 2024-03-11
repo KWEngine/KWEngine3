@@ -20,12 +20,12 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            SetCameraPosition(10f, 1f, 10f);
+            SetCameraPosition(2f, 1f, 2f);
             SetCameraTarget(0f, 0f, 0f);
             SetColorAmbient(0.75f, 0.75f, 0.75f);
             SetBackgroundFillColor(1f, 1f, 1f);
 
-            KWEngine.LoadModel("Scooter", "./Models/ScooterKAR.obj");
+            KWEngine.LoadModel("Scooter", "./Models/GLTFTest/ScooterKAR.glb");
 
             Scooter s = new Scooter();
             s.SetModel("Scooter");
@@ -37,7 +37,15 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            
+            HelperRotation.AddMeshPreRotationX(this, 2, 0.5f);
+            if(Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.F1))
+            {
+                SetModel("KWCube");
+            }
+            if (Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.F2))
+            {
+                SetModel("Scooter");
+            }
         }
     }
 }
