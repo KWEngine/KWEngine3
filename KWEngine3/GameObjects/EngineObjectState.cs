@@ -25,7 +25,7 @@ namespace KWEngine3.GameObjects
         internal Quaternion _rotation;
         internal Vector3 _scale;
 
-        internal Dictionary<int, Quaternion> _rotationPre;
+        internal Dictionary<int, Vector3> _rotationPre;
 
 
         public EngineObjectState():this(null)

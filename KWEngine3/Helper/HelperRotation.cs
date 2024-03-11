@@ -23,11 +23,25 @@ namespace KWEngine3.Helper
         {
             if (g != null && meshId >= 0 && g._model.ModelOriginal.Meshes.Count > meshId)
             {
-                rotX = MathHelper.DegreesToRadians(rotX);
-                rotY = MathHelper.DegreesToRadians(rotY);
-                rotZ = MathHelper.DegreesToRadians(rotZ);
+                if (g._stateCurrent._rotationPre.ContainsKey(meshId))
+                    g._stateCurrent._rotationPre[meshId] = new Vector3(rotX, rotY, rotZ);
+            }
+        }
 
-
+        public static void AddMeshPreRotationX(GameObject g, int meshId, float degrees)
+        {
+            if (g != null && meshId >= 0 && g._model.ModelOriginal.Meshes.Count > meshId)
+            {
+                if(g._stateCurrent._rotationPre.ContainsKey(meshId))
+                {
+                    Vector3 current = g._stateCurrent._rotationPre[meshId];
+                    current += new Vector3(degrees, 0, 0);
+                    g._stateCurrent._rotationPre[meshId] = current;
+                }
+                else
+                {
+                    g._stateCurrent._rotationPre.Add(meshId, new Vector3(degrees, 0, 0));
+                }
             }
         }
 
