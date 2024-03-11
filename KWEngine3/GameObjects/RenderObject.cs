@@ -100,6 +100,7 @@ namespace KWEngine3.GameObjects
                     }
                     InitHitboxes();
                     InitRenderStateMatrices();
+                    InitPreRotationQuaternions();
                 }
                 else
                 {

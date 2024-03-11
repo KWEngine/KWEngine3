@@ -19,12 +19,14 @@ namespace KWEngine3.GameObjects
         internal Vector2 _uvClip = new Vector2(0, 0);
         internal float _animationPercentage = 0f;
         internal int _animationID = -1;
-        
+
         internal Vector3 _scaleHitbox;
         internal Vector3 _position;
         internal Quaternion _rotation;
         internal Vector3 _scale;
-        
+
+        internal Dictionary<int, Quaternion> _rotationPre;
+
 
         public EngineObjectState():this(null)
         {
@@ -36,12 +38,13 @@ namespace KWEngine3.GameObjects
 
         public EngineObjectState(EngineObject gameObject)
         {
+            this._engineObject = gameObject ?? throw new ArgumentNullException("Invalid EngineObject instance.");
+
+            _rotationPre = new();
             _rotation = Quaternion.Identity;
             _scale = Vector3.One;
             _scaleHitbox = Vector3.One;
             _position = Vector3.Zero;
-
-            this._engineObject = gameObject ?? throw new ArgumentNullException("Invalid EngineObject instance.");
         }
     }
 }

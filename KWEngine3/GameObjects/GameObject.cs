@@ -845,6 +845,7 @@ namespace KWEngine3.GameObjects
                     InitHitboxes();
                     InitRenderStateMatrices();
                     ResetBoneAttachments();
+                    InitPreRotationQuaternions();
                 }
                 else
                 {
@@ -869,6 +870,8 @@ namespace KWEngine3.GameObjects
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
         internal bool IsAttachedToViewSpaceGameObject { get { return _attachedTo != null && KWEngine.CurrentWorld._viewSpaceGameObject != null && _attachedTo == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject; } }
         internal AddRemoveHitboxMode _addRemoveHitboxes = AddRemoveHitboxMode.None;
+
+        
 
         internal string GetBoneNameForAttachedGameObject(GameObject g)
         {

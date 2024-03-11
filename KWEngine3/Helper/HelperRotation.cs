@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using KWEngine3;
 using KWEngine3.Helper;
+using KWEngine3.GameObjects;
 
 namespace KWEngine3.Helper
 {
@@ -17,6 +18,18 @@ namespace KWEngine3.Helper
         private static Vector3 finalTranslationPoint = Vector3.Zero;
         private static Vector3 zeroVector = Vector3.Zero;
 
+
+        public static void SetMeshPreRotationYZX(GameObject g, int meshId, float rotX, float rotY, float rotZ)
+        {
+            if (g != null && meshId >= 0 && g._model.ModelOriginal.Meshes.Count > meshId)
+            {
+                rotX = MathHelper.DegreesToRadians(rotX);
+                rotY = MathHelper.DegreesToRadians(rotY);
+                rotZ = MathHelper.DegreesToRadians(rotZ);
+
+
+            }
+        }
 
         /// <summary>
         /// Ermittelt die Rotation, die angenommen werden müsste, um sich entsprechend der durch slopeStart und slopeEnd beschriebenen Schräge auszurichten

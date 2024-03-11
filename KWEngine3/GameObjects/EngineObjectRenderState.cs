@@ -29,6 +29,7 @@ namespace KWEngine3.GameObjects
         internal Vector3 _position;
         internal Quaternion _rotation;
         internal Vector3 _scale;
+        internal Dictionary<int, Quaternion> _rotationPre;
 
         internal Dictionary<string, Matrix4[]> _boneTranslationMatrices;
 
@@ -38,6 +39,7 @@ namespace KWEngine3.GameObjects
 
         public EngineObjectRenderState(EngineObject engineObject)
         {
+            _rotationPre = new();
             _rotation = Quaternion.Identity;
             _scale = Vector3.One;
             _scaleHitbox = Vector3.One;

@@ -797,6 +797,13 @@ namespace KWEngine3.GameObjects
         internal string _modelNameInDB = "KWCube";
         internal int _importedID = -1;
 
+        internal void InitPreRotationQuaternions()
+        {
+            _statePrevious._rotationPre = new Dictionary<int, Quaternion>();
+            _stateCurrent._rotationPre = new Dictionary<int, Quaternion>();
+            _stateRender._rotationPre = new Dictionary<int, Quaternion>();
+        }
+
         internal void InitRenderStateMatrices()
         {
             _stateRender._modelMatrices = new Matrix4[_model.ModelOriginal.Meshes.Count];
