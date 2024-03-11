@@ -59,16 +59,16 @@ namespace KWEngine3TestProject.Worlds
     internal class Scooter : GameObject
     {
         private float _degrees = 0f;
+        private float _degreesWheels = 0f;
         private float _degreesHandleBar = 0f;
         private float _velocity = 0f;
         public override void Act()
         {
-            //HelperRotation.AddMeshPreRotationY(this, 1, 0.5f);
-            if(Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.F1))
+            if(Keyboard.IsKeyPressed(Keys.F1))
             {
                 SetModel("KWCube");
             }
-            if (Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.F2))
+            if (Keyboard.IsKeyPressed(Keys.F2))
             {
                 SetModel("Scooter");
             }
@@ -77,34 +77,57 @@ namespace KWEngine3TestProject.Worlds
             {
                 if(_velocity == 0f)
                 {
-                    _velocity += 0.0001f;
+                    _velocity = 0.0001f;
                 }
                 else
                 {
-                    _velocity = MathHelper.Clamp(_velocity * 1.0075f, 0f, 0.03f);
+                    _velocity = MathHelper.Clamp(_velocity * 1.0125f, 0f, 0.03f);
                 }
             }
             else if(Keyboard.IsKeyDown(Keys.S))
             {
-                _velocity = MathHelper.Clamp(_velocity - 0.001f, 0f, 0.2f);
+                _velocity = MathHelper.Clamp(_velocity - 0.0005f, 0f, 0.03f);
+            }
+            else
+            {
+                _velocity = MathHelper.Clamp(_velocity - 0.00001f, 0f, 0.03f);
             }
 
-            if(Keyboard.IsKeyDown(Keys.A))
+
+            if (Keyboard.IsKeyDown(Keys.D) || Keyboard.IsKeyDown(Keys.A))
             {
-                _degrees = _degrees + 0.01f;
-                _degreesHandleBar = MathHelper.Clamp(_degreesHandleBar + 0.01f, -10, 10);
+                if (Keyboard.IsKeyDown(Keys.A))
+                {
+                    _degrees = _degrees + 0.01f * (_velocity * 500);
+                    _degreesHandleBar = MathHelper.Clamp(_degreesHandleBar + 0.1f, -10, 10);
+                }
+                if (Keyboard.IsKeyDown(Keys.D))
+                {
+                    _degrees = _degrees - 0.01f * (_velocity * 500);
+                    _degreesHandleBar = MathHelper.Clamp(_degreesHandleBar - 0.1f, -10, 10);
+                }
             }
-            if (Keyboard.IsKeyDown(Keys.D))
+            else
             {
-                _degrees = _degrees - 0.01f;
-                _degreesHandleBar = MathHelper.Clamp(_degreesHandleBar - 0.01f, -10, 10);
+                if(_degreesHandleBar < 0)
+                {
+                    _degreesHandleBar = MathHelper.Clamp(_degreesHandleBar + 0.2f, -10, 0);
+                }
+                else
+                {
+                    _degreesHandleBar = MathHelper.Clamp(_degreesHandleBar - 0.2f, 0, 10);
+                }
             }
+
+            _degreesWheels += _velocity;
+            HelperRotation.SetMeshPreRotationYZX(this, 1, _degreesWheels * 10, _degreesHandleBar, 0); // WheelFront
+            HelperRotation.SetMeshPreRotationYZX(this, 2, _degreesWheels * 10, 0, 0); // WheelBack
+            HelperRotation.SetMeshPreRotationYZX(this, 3, 0, _degreesHandleBar, 0); // HandleBar
+            HelperRotation.SetMeshPreRotationYZX(this, 4, 0, _degreesHandleBar, 0); // WheelHood
             SetRotation(0, _degrees, 0);
-            HelperRotation.SetMeshPreRotationYZX(this, 1, 0, _degreesHandleBar, 0);
             MoveAlongVector(LookAtVector, _velocity);
 
-
-            CurrentWorld.SetCameraPosition(this.Position.X - this.LookAtVector.X * 2, 2.5f, this.Position.Z - this.LookAtVector.Z * 2);
+            CurrentWorld.SetCameraPosition(this.Position.X - this.LookAtVector.X * 5, 2f, this.Position.Z - this.LookAtVector.Z * 5);
             CurrentWorld.SetCameraTarget(this.Position.X, this.Position.Y, this.Position.Z);
         }
     }
