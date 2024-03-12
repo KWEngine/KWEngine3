@@ -1401,16 +1401,19 @@ namespace KWEngine3.Model
 
                     float[] uvs2 = GetUVDataForMeshPrimitive(scene, mprim, ref model, 1);
 
-                    if ((tangents == null || tangents.Length == 0))
+                    if (tangents == null || tangents.Length == 0)
                     {
                         if (uvs != null && normals != null && indices != null)
                         {
-                            KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Adding them.");
+                            if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
+                            {
+                                KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Adding them.");
+                            }
                             tangents = GenerateTangentsFrom(geoMesh.Vertices, normals, uvs, indices);
                         }
                         else
                         {
-                            KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Normal maps not working.");
+                            KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Normal maps will not work.");
                         }
                     }
 

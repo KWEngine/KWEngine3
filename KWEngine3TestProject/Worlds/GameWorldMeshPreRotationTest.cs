@@ -20,6 +20,9 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             KWEngine.LoadModel("Scooter", "./Models/GLTFTest/Vespa.glb");
+            KWEngine.LoadModel("Car", "./Models/GLTFTest/CarLowPoly.gltf");
+            KWEngine.LoadModel("Car2", "./Models/GLTFTest/CarCartoon.gltf");
+            KWEngine.LoadModel("Car3", "./Models/GLTFTest/CarSports.gltf");
 
             SetCameraPosition(5f, 5f, 5f);
             SetCameraTarget(0f, 0f, 0f);
@@ -30,8 +33,8 @@ namespace KWEngine3TestProject.Worlds
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.Name = "Sun";
             sun.SetPosition(100, 100, 100);
-            sun.SetNearFar(100, 300);
-            sun.SetFOV(200);
+            sun.SetNearFar(30, 100);
+            sun.SetFOV(40);
             sun.SetColor(1, 1, 1, 2.5f);
             AddLightObject(sun);
 
@@ -46,9 +49,10 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(f);
 
             Scooter s = new Scooter();
-            s.SetModel("Scooter");
+            s.SetModel("Car3");
             s.IsShadowCaster = true;
             s.SetPosition(0, 0, 0);
+            s.SetScale(3);
             s.IsCollisionObject = true;
             s.SetRotation(0, 180, 0);
             s.UpdateLast = true;
@@ -66,7 +70,7 @@ namespace KWEngine3TestProject.Worlds
         {
             if(Keyboard.IsKeyPressed(Keys.F1))
             {
-                SetModel("KWCube");
+                SetModel("Car");
             }
             if (Keyboard.IsKeyPressed(Keys.F2))
             {
@@ -120,15 +124,49 @@ namespace KWEngine3TestProject.Worlds
             }
 
             _degreesWheels += _velocity;
-            HelperRotation.SetMeshPreRotationYZX(this, 1, _degreesWheels * 10, _degreesHandleBar, 0); // WheelFront
-            HelperRotation.SetMeshPreRotationYZX(this, 2, _degreesWheels * 10, 0, 0); // WheelBack
-            HelperRotation.SetMeshPreRotationYZX(this, 3, 0, _degreesHandleBar, 0); // HandleBar
-            HelperRotation.SetMeshPreRotationYZX(this, 4, 0, _degreesHandleBar, 0); // WheelHood
+            if (this.GetModelName() == "Scooter")
+            {
+                HelperRotation.SetMeshPreRotationYZX(this, 1, _degreesWheels * 10, _degreesHandleBar, 0); // WheelFront
+                HelperRotation.SetMeshPreRotationYZX(this, 2, _degreesWheels * 10, 0, 0); // WheelBack
+                HelperRotation.SetMeshPreRotationYZX(this, 3, 0, _degreesHandleBar, 0); // HandleBar
+                HelperRotation.SetMeshPreRotationYZX(this, 4, 0, _degreesHandleBar, 0); // WheelHood
+            }
+            else if(this.GetModelName() == "Car")
+            {
+                HelperRotation.SetMeshPreRotationYZX(this, 2, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFront
+                HelperRotation.SetMeshPreRotationYZX(this, 4, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFront
+                HelperRotation.SetMeshPreRotationYZX(this, 3, _degreesWheels * 50, 0, 0); // WheelBack
+            }
+            else if (this.GetModelName() == "Car2")
+            {
+                HelperRotation.SetMeshPreRotationYZX(this, 1, _degreesWheels * 50, 0, 0); // WheelBack
+                HelperRotation.SetMeshPreRotationYZX(this, 2, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFrontRight
+                HelperRotation.SetMeshPreRotationYZX(this, 3, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFrontLeft
+            }
+            else if (this.GetModelName() == "Car3")
+            {
+                HelperRotation.SetMeshPreRotationYZX(this, 1, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFrontLeft
+                HelperRotation.SetMeshPreRotationYZX(this, 2, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFrontRight
+                HelperRotation.SetMeshPreRotationYZX(this, 0, _degreesWheels * 50, 0, 0); // WheelBack
+            }
+            
             SetRotation(0, _degrees, 0);
             MoveAlongVector(LookAtVector, _velocity);
+            UpdateSunAndCamera();
+        }
 
-            CurrentWorld.SetCameraPosition(this.Position.X - this.LookAtVector.X * 5, 2f, this.Position.Z - this.LookAtVector.Z * 5);
+        private void UpdateSunAndCamera()
+        {
+            CurrentWorld.SetCameraPosition(this.Position.X - this.LookAtVectorLocalRight.X * 3, 2f, this.Position.Z - this.LookAtVector.Z * 3);
+            //CurrentWorld.SetCameraPosition(this.Position.X - this.LookAtVector.X * 5, 2f, this.Position.Z - this.LookAtVector.Z * 5);
             CurrentWorld.SetCameraTarget(this.Position.X, this.Position.Y, this.Position.Z);
+
+            LightObject sun = CurrentWorld.GetLightObjectByName("Sun");
+            if(sun != null)
+            {
+                sun.SetPosition(this.Position + new Vector3(25, 25, 25));
+                sun.SetTarget(this.Position);
+            }
         }
     }
 
