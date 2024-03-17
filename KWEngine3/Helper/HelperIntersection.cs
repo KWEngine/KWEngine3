@@ -940,6 +940,23 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Prüft, ob ein Punkt innerhalb eines Rechtecks auf XZ-Ebene liegt.
+        /// </summary>
+        /// <param name="pos">Zu prüfender Punkt</param>
+        /// <param name="center">Zentrum des Rechtecks</param>
+        /// <param name="width">Breite des Rechtecks</param>
+        /// <param name="depth">Breite des Rechtecks</param>
+        /// <returns>true, wenn der Punkt innerhalb des Rechtecks liegt</returns>
+        public static bool IsPointInsideRectangle(Vector3 pos, Vector3 center, float width, float depth)
+        {
+            return
+                pos.X >= center.X - width * 0.5f &&
+                pos.X <= center.X + width * 0.5f &&
+                pos.Z >= center.Z - depth * 0.5f &&
+                pos.Z <= center.Z + depth * 0.5f;
+        }
+
+        /// <summary>
         /// Prüft, ob sich ein Punkt innerhalb einer Kugel befindet
         /// </summary>
         /// <param name="point">zu prüfender Punkt</param>
@@ -1753,7 +1770,7 @@ namespace KWEngine3.Helper
             if (v < 0.0 || u + v > 1.0)
                 return false;
             float t = f * Vector3.Dot(edge2, q);
-            if (t > KWEngine.RAYTRACE_EPSILON) // ray intersection
+            if (t >= 0) //KWEngine.RAYTRACE_EPSILON) // ray intersection
             {
                 contactPoint = rayStart + rayDirection * t;
                 return true;

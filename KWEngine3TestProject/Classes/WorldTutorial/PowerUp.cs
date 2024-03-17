@@ -23,7 +23,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             SetScale(3.0f);
             UpdateTextPosition();
             SetColorEmissive(0.25f, 0.25f, 0.25f, 1f);
-            IsCollisionObject = true;
+            SetCollisionType(ColliderType.ConvexHull);
             HasTransparencyTexture = true;
         }
 

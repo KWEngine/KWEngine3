@@ -74,6 +74,7 @@ namespace KWEngine3.Renderer
         {
             PrimitiveQuad.Init();
             PrimitivePoint.Init();
+            //PrimitiveTriangle.Init();
 
             RendererGBuffer.Init();
             RendererGBufferInstanced.Init();
@@ -87,6 +88,7 @@ namespace KWEngine3.Renderer
             RendererExplosion.Init();
             RendererParticle.Init();
             RendererForwardText.Init();
+            RendererEditorHitboxes.Init();
 
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();

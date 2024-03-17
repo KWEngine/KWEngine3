@@ -1,4 +1,5 @@
-﻿using KWEngine3.Helper;
+﻿using Assimp;
+using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
 
@@ -9,7 +10,8 @@ namespace KWEngine3.GameObjects
         public Vector3[] _vertices = new Vector3[8];
         public Vector3[] _normals = new Vector3[3];
         public Vector3 _center = new Vector3(0, 0, 0);
-        public Vector3 _dimensions = new Vector3(0, 0, 0);
+        public Vector3 _dimensionsAABB = new Vector3(1, 1, 1);
+        public Vector3 _dimensionsOBB = new Vector3(1, 1, 1);
         public float _low = 0;
         public float _high = 0;
         public float _left = 0;
@@ -17,7 +19,7 @@ namespace KWEngine3.GameObjects
         public float _back = 0;
         public float _front = 0;
         public float _averageDiameter = 0;
-        public float _fullDiameter = 0;
+        public float _fullDiameterAABB = 0;
 
         public bool IsActive { get { return _mesh.IsActive; } }
         public Matrix4 _modelMatrixFinal = Matrix4.Identity;
@@ -27,6 +29,15 @@ namespace KWEngine3.GameObjects
         internal OctreeNode _currentOctreeNode = null;
         internal Matrix4 _capsulePreTransform = Matrix4.Identity;
         internal bool _isCapsule = false;
+
+        internal Vector2i indexLeftRightMostVertex = new Vector2i(0);
+        internal Vector2i indexBackFrontMostVertex = new Vector2i(0);
+        internal Vector2i indexBottomTopMostVertex = new Vector2i(0);
+
+        public override string ToString()
+        {
+            return _mesh.Name + "(" + _mesh.Model.Name + ")";
+        }
 
         public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh, Vector3 offset, Vector3 frontbottomleft, Vector3 backtopright)
         {
@@ -41,6 +52,10 @@ namespace KWEngine3.GameObjects
                 _vertices = new Vector3[mesh.Vertices.Length];
                 _normals = new Vector3[mesh.Normals.Length];
             }
+
+            indexBackFrontMostVertex = _mesh.indexBackFrontMostVertex;
+            indexBottomTopMostVertex = _mesh.indexBottomTopMostVertex;
+            indexLeftRightMostVertex = _mesh.indexLeftRightMostVertex;
         }
 
         public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh)
@@ -53,6 +68,10 @@ namespace KWEngine3.GameObjects
                 _vertices = new Vector3[mesh.Vertices.Length];
                 _normals = new Vector3[mesh.Normals.Length];
             }
+
+            indexBackFrontMostVertex = _mesh.indexBackFrontMostVertex;
+            indexBottomTopMostVertex = _mesh.indexBottomTopMostVertex;
+            indexLeftRightMostVertex = _mesh.indexLeftRightMostVertex;
         }
 
         internal bool Update(ref Vector3 gCenter)
@@ -122,17 +141,23 @@ namespace KWEngine3.GameObjects
             _front = maxZ;
 
             _averageDiameter = (xWidth + yWidth + zWidth) / 3;
-            _fullDiameter = -1;
-            if (xWidth > _fullDiameter)
-                _fullDiameter = xWidth;
-            if (yWidth > _fullDiameter)
-                _fullDiameter = yWidth;
-            if (zWidth > _fullDiameter)
-                _fullDiameter = zWidth;
+            _fullDiameterAABB = -1;
+            if (xWidth > _fullDiameterAABB)
+                _fullDiameterAABB = xWidth;
+            if (yWidth > _fullDiameterAABB)
+                _fullDiameterAABB = yWidth;
+            if (zWidth > _fullDiameterAABB)
+                _fullDiameterAABB = zWidth;
 
-            _dimensions.X = xWidth;
-            _dimensions.Y = yWidth;
-            _dimensions.Z = zWidth;
+            _dimensionsAABB.X = xWidth;
+            _dimensionsAABB.Y = yWidth;
+            _dimensionsAABB.Z = zWidth;
+
+            _dimensionsOBB = new Vector3(
+                (_vertices[indexLeftRightMostVertex.Y] - _vertices[indexLeftRightMostVertex.X]).LengthFast,
+                (_vertices[indexBottomTopMostVertex.Y] - _vertices[indexBottomTopMostVertex.X]).LengthFast,
+                (_vertices[indexBackFrontMostVertex.Y] - _vertices[indexBackFrontMostVertex.X]).LengthFast
+                );
 
             return true;
         }
@@ -166,6 +191,20 @@ namespace KWEngine3.GameObjects
             normal = _normals[_mesh.Faces[faceIndex].Normal];
         }
 
+        internal bool GetVerticesForTriangleFace(int faceIndex, Vector3 dir, out HitboxFace face)
+        {
+            face = new HitboxFace()
+            {
+                Normal = _normals[_mesh.Faces[faceIndex].Normal],
+                V1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]],
+                V2 = _vertices[_mesh.Faces[faceIndex].Vertices[1]],
+                V3 = _vertices[_mesh.Faces[faceIndex].Vertices[2]],
+            };
+
+            float dot = Vector3.Dot(dir, face.Normal);
+            return dot < 0;            
+        }
+
         internal void GetVerticesForCubeFace(int faceIndex, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 normal)
         {
             Vector3 qv1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]];
@@ -183,5 +222,34 @@ namespace KWEngine3.GameObjects
 
             normal = _mesh.Faces[faceIndex].Flip ? -_normals[_mesh.Faces[faceIndex].Normal] : _normals[_mesh.Faces[faceIndex].Normal];
         }
+
+        internal bool GetVerticesForCubeFace(int faceIndex, Vector3 dir, out HitboxFace face1, out HitboxFace face2)
+        {
+            Vector3 qv1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]];
+            Vector3 qv2 = _vertices[_mesh.Faces[faceIndex].Vertices[1]];
+            Vector3 qv3 = _vertices[_mesh.Faces[faceIndex].Vertices[2]];
+            Vector3 qv4 = _vertices[_mesh.Faces[faceIndex].Vertices[3]];
+
+            face1 = new HitboxFace()
+            {
+                V1 = qv1,
+                V2 = qv3,
+                V3 = qv4,
+                Normal = _mesh.Faces[faceIndex].Flip ? -_normals[_mesh.Faces[faceIndex].Normal] : _normals[_mesh.Faces[faceIndex].Normal]
+            };
+
+            face2 = new HitboxFace()
+            {
+                V1 = qv1,
+                V2 = qv2,
+                V3 = qv3,
+                Normal = _mesh.Faces[faceIndex].Flip ? -_normals[_mesh.Faces[faceIndex].Normal] : _normals[_mesh.Faces[faceIndex].Normal]
+            };
+
+            float dot = Vector3.Dot(dir, face1.Normal);
+            return dot < 0;
+        }
+
+        internal const float ONETHIRD = 1f / 3f;
     }
 }

@@ -7,7 +7,7 @@ namespace KWEngine3.Helper
     {
         // MISC. PROPERTIES
         public bool IsShadowCaster { get; set; }
-        public bool IsCollisionObject { get; set; }
+        public ColliderType IsCollisionObject { get; set; }
         public bool BlendTextureStates { get; set; }
         public int ID { get; set; }
         public string Name { get; set; }
@@ -54,7 +54,7 @@ namespace KWEngine3.Helper
             sg.Opacity = g._stateCurrent._opacity;
             sg.IsDepthTesting = g.IsDepthTesting;
             sg.IsShadowCaster = g.IsShadowCaster;
-            sg.IsCollisionObject = g.IsCollisionObject;
+            sg.IsCollisionObject = g._colliderType;
             sg.Name = g.Name;
             sg.ModelName = g._modelNameInDB;
             sg.ModelPath = g._model.ModelOriginal.Filename;

@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2024-03-11)</Product>
+		<Product>KWEngine3 (updated: 2024-03-20)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.2.6</Version>
-		<AssemblyVersion>3.0.2.6</AssemblyVersion>
-		<FileVersion>3.0.2.6</FileVersion>
-		<ProductVersion>3.0.2.6</ProductVersion>
+		<Version>3.0.3.0</Version>
+		<AssemblyVersion>3.0.3.0</AssemblyVersion>
+		<FileVersion>3.0.3.0</FileVersion>
+		<ProductVersion>3.0.3.0</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -102,6 +102,9 @@
 		<None Remove="Shaders\shader.editor.lightbulb.gbuffer.frag" />
 		<None Remove="Shaders\shader.editor.lightbulb.gbuffer.vert" />
 		<None Remove="Shaders\shader.editor.vert" />
+		<None Remove="Shaders\shader.editorTriangles.frag" />
+		<None Remove="Shaders\shader.editorTriangles.geom" />
+		<None Remove="Shaders\shader.editorTriangles.vert" />
 		<None Remove="Shaders\shader.explosion.frag" />
 		<None Remove="Shaders\shader.explosion.vert" />
 		<None Remove="Shaders\shader.flowfield.frag" />
@@ -215,6 +218,9 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.editorTriangles.geom" />
+		<EmbeddedResource Include="Shaders\shader.editorTriangles.frag" />
+		<EmbeddedResource Include="Shaders\shader.editorTriangles.vert" />
 		<EmbeddedResource Include="Shaders\shader.flowfielddirection.frag" />
 		<EmbeddedResource Include="Shaders\shader.flowfielddirection.vert" />
 		<EmbeddedResource Include="Shaders\shader.flowfield.frag" />

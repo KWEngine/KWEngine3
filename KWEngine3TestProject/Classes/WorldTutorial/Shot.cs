@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3;
+using KWEngine3.GameObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
 
         public Shot()
         {
-            IsCollisionObject = true;
+            SetCollisionType(ColliderType.ConvexHull);
             SetScale(0.1f, 0.1f, 2.0f);
             SetColor(1, 0, 0);
             SetColorEmissive(1, 1, 0, 2);

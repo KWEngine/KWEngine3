@@ -54,9 +54,9 @@ namespace KWEngine3.Helper
 
         public bool DoesNodeEncloseHitbox(GameObjectHitbox g)
         {
-            bool leftRightOK = g._center.X + g._fullDiameter <= Center.X + Scale.X && g._center.X - g._fullDiameter >= Center.X - Scale.X;
-            bool bottomTopOK = g._center.Y + g._fullDiameter <= Center.Y + Scale.Y && g._center.Y - g._fullDiameter >= Center.Y - Scale.Y;
-            bool backFrontOK = g._center.Z + g._fullDiameter <= Center.Z + Scale.Z && g._center.Z - g._fullDiameter >= Center.Z - Scale.Z;
+            bool leftRightOK = g._center.X + g._fullDiameterAABB <= Center.X + Scale.X && g._center.X - g._fullDiameterAABB >= Center.X - Scale.X;
+            bool bottomTopOK = g._center.Y + g._fullDiameterAABB <= Center.Y + Scale.Y && g._center.Y - g._fullDiameterAABB >= Center.Y - Scale.Y;
+            bool backFrontOK = g._center.Z + g._fullDiameterAABB <= Center.Z + Scale.Z && g._center.Z - g._fullDiameterAABB >= Center.Z - Scale.Z;
 
             return leftRightOK && bottomTopOK && backFrontOK;
         }

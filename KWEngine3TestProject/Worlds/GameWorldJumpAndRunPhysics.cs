@@ -50,7 +50,7 @@ namespace KWEngine3TestProject.Worlds
             Player p = new Player();
             p.SetModel("ubot");
             p.SetRotation(0, 90, 0);
-            p.IsCollisionObject = true;
+            p.SetCollisionType(ColliderType.ConvexHull);
             p.IsShadowCaster = true;
             p.SetHitboxToCapsuleForMesh(0);
             AddGameObject(p);
@@ -59,7 +59,7 @@ namespace KWEngine3TestProject.Worlds
             f01.SetModel("KWCube");
             f01.SetPosition(0, -4.5f, 0);
             f01.SetScale(10, 1, 1);
-            f01.IsCollisionObject = true;
+            f01.SetCollisionType(ColliderType.ConvexHull);
             f01.SetTexture(@"./textures/pavement_06_albedo.dds", TextureType.Albedo);
             f01.SetTexture(@"./textures/pavement_06_normal.dds", TextureType.Normal);
             f01.SetTexture(@"./textures/pavement_06_roughness.dds", TextureType.Roughness);
@@ -71,7 +71,7 @@ namespace KWEngine3TestProject.Worlds
             f02.SetModel("KWCube");
             f02.SetPosition(0, -1.5f, 0);
             f02.SetScale(3, 1, 1);
-            f02.IsCollisionObject = true;
+            f02.SetCollisionType(ColliderType.ConvexHull);
             f02.SetTexture(@"./textures/pavement_06_albedo.dds", TextureType.Albedo);
             f02.SetTexture(@"./textures/pavement_06_normal.dds", TextureType.Normal);
             f02.SetTexture(@"./textures/pavement_06_roughness.dds", TextureType.Roughness);
@@ -83,7 +83,7 @@ namespace KWEngine3TestProject.Worlds
             w01.SetModel("KWCube");
             w01.SetPosition(-5.5f, 0.0f, 0);
             w01.SetScale(1, 10, 1);
-            w01.IsCollisionObject = true;
+            w01.SetCollisionType(ColliderType.ConvexHull);
             w01.SetTexture(@"./textures/scifi_tile_03_albedo.dds", TextureType.Albedo);
             w01.SetTexture(@"./textures/scifi_tile_03_normal.dds", TextureType.Normal);
             w01.SetTexture(@"./textures/scifi_tile_03_metallic.dds", TextureType.Metallic);
@@ -97,7 +97,7 @@ namespace KWEngine3TestProject.Worlds
             w02.SetModel("KWCube");
             w02.SetPosition(5.5f, 0.0f, 0);
             w02.SetScale(1, 10, 1);
-            w02.IsCollisionObject = true;
+            w02.SetCollisionType(ColliderType.ConvexHull);
             w02.SetTexture(@"./textures/scifi_tile_03_albedo.dds", TextureType.Albedo);
             w02.SetTexture(@"./textures/scifi_tile_03_normal.dds", TextureType.Normal);
             w02.SetTexture(@"./textures/scifi_tile_03_metallic.dds", TextureType.Metallic);
@@ -111,7 +111,7 @@ namespace KWEngine3TestProject.Worlds
             w03.SetModel("KWCube");
             w03.SetPosition(0, 0, -1);
             w03.SetScale(10, 10, 1);
-            w03.IsCollisionObject = true;
+            w03.SetCollisionType(ColliderType.ConvexHull);
             w03.SetTexture(@"./textures/scifi_tile_02_albedo.dds", TextureType.Albedo);
             w03.SetTexture(@"./textures/scifi_tile_02_normal.dds", TextureType.Normal);
             w03.SetTexture(@"./textures/scifi_tile_02_metallic.dds", TextureType.Metallic);

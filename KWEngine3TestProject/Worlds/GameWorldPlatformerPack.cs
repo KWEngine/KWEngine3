@@ -64,7 +64,7 @@ namespace KWEngine3TestProject.Worlds
             f.SetModel("KWPlatform");
             f.SetScale(66, 8, 66);
             f.SetPosition(0, -4f, 0);
-            f.IsCollisionObject = true;
+            f.SetCollisionType(ColliderType.ConvexHull);
             f.IsShadowCaster = true;
             f.SetTexture("./Textures/Grass_02_512.png", TextureType.Albedo, 0);
             f.SetTexture("./Textures/Grass_01_512.png", TextureType.Albedo, 1);
@@ -79,7 +79,7 @@ namespace KWEngine3TestProject.Worlds
             fenceFront.SetModel("Fence_Middle64");
             fenceFront.SetPosition(0, 0, 32);
             fenceFront.SetHitboxScale(1, 10, 1);
-            fenceFront.IsCollisionObject = true;
+            fenceFront.SetCollisionType(ColliderType.ConvexHull);
             fenceFront.IsShadowCaster = true;
             AddGameObject(fenceFront);
 
@@ -88,7 +88,7 @@ namespace KWEngine3TestProject.Worlds
             fenceBack.SetModel("Fence_Middle64");
             fenceBack.SetPosition(0, 0, -32);
             fenceBack.SetHitboxScale(1, 10, 1);
-            fenceBack.IsCollisionObject = true;
+            fenceBack.SetCollisionType(ColliderType.ConvexHull);
             fenceBack.IsShadowCaster = true;
             AddGameObject(fenceBack);
 
@@ -99,7 +99,7 @@ namespace KWEngine3TestProject.Worlds
             fenceLeft.SetPosition(-32, 0, 0);
             fenceLeft.SetRotation(0, 90, 0);
             fenceLeft.SetHitboxScale(1, 10, 1);
-            fenceLeft.IsCollisionObject = true;
+            fenceLeft.SetCollisionType(ColliderType.ConvexHull);
             fenceLeft.IsShadowCaster = true;
             AddGameObject(fenceLeft);
 
@@ -110,7 +110,7 @@ namespace KWEngine3TestProject.Worlds
             fenceRight.SetPosition(32, 0, 0);
             fenceRight.SetRotation(0, 90, 0);
             fenceRight.SetHitboxScale(1, 10, 1);
-            fenceRight.IsCollisionObject = true;
+            fenceRight.SetCollisionType(ColliderType.ConvexHull);
             fenceRight.IsShadowCaster = true;
             AddGameObject(fenceRight);
 
@@ -119,7 +119,7 @@ namespace KWEngine3TestProject.Worlds
             ramp01.Name = "Ramp";
             ramp01.SetPosition(10, 0, -10);
             ramp01.SetScale(4);
-            ramp01.IsCollisionObject = true;
+            ramp01.SetCollisionType(ColliderType.ConvexHull);
             ramp01.IsShadowCaster = true;
             AddGameObject(ramp01);
 
@@ -127,7 +127,7 @@ namespace KWEngine3TestProject.Worlds
             plateau01.Name = "Plateau";
             plateau01.SetPosition(0, 2, -19);
             plateau01.SetScale(30, 4, 10);
-            plateau01.IsCollisionObject = true;
+            plateau01.SetCollisionType(ColliderType.ConvexHull);
             plateau01.IsShadowCaster = true;
             plateau01.SetColor(0.7f, 0.5f, 0.275f);
             AddGameObject(plateau01);
@@ -136,7 +136,7 @@ namespace KWEngine3TestProject.Worlds
             p.Name = "Player";
             p.SetModel("Toon");
             p.IsShadowCaster = true;
-            p.IsCollisionObject = true;
+            p.SetCollisionType(ColliderType.ConvexHull);
             p.SetHitboxToCapsuleForMesh(0);
             p.SetAnimationID(0);
             AddGameObject(p);
@@ -145,7 +145,7 @@ namespace KWEngine3TestProject.Worlds
             w.SetModel("Gun");
             w.Name = "Gun";
             w.SetScale(2.25f);
-            w.IsCollisionObject = true;
+            w.SetCollisionType(ColliderType.ConvexHull);
             w.SetPosition(15, 0.3f, 10);
             w.SetHitboxScale(1, 2, 1);
             w.SetPivot(15, 0.25f, 10);

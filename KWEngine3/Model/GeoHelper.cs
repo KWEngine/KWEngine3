@@ -32,7 +32,8 @@ namespace KWEngine3.Model
 
             Vector3 u = v2 - v1;
             Vector3 v = v3 - v1;
-            Vector3 n = Vector3.Normalize(Vector3.Cross(u, v));
+            Vector3 cross = Vector3.Cross(u, v);
+            Vector3 n = Vector3.Normalize(cross);
             for (int i = 0; i < normalsForWholeMesh.Count; i++)
             {
                 float dot = Vector3.Dot(n, normalsForWholeMesh[i]);

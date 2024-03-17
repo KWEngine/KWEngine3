@@ -146,7 +146,7 @@ namespace KWEngine3.GameObjects
             {
                 if(IsValid)
                 {
-                    _gameObject.IsCollisionObject = value;
+                    _gameObject._colliderType = ColliderType.ConvexHull;
                 }
             }
         }

@@ -4,7 +4,7 @@ using KWEngine3.Helper;
 using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldFirstPersonView;
 using OpenTK.Mathematics;
-using System.Drawing;
+
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -35,7 +35,7 @@ namespace KWEngine3TestProject.Worlds
             f01.SetTextureRepeat(3, 3);                                               // how many times the texture is tiled across the object?
             f01.SetScale(15, 0.2f, 15);
             f01.SetPosition(0, -0.1f, 0);
-            f01.IsCollisionObject = true;
+            f01.SetCollisionType(ColliderType.ConvexHull);
             AddGameObject(f01);
 
             PlayerFirstPerson p01 = new PlayerFirstPerson();
@@ -43,7 +43,7 @@ namespace KWEngine3TestProject.Worlds
             p01.Name = "Player #1";
             p01.SetPosition(-2.5f, 1.0f, -1.25f);
             p01.SetScale(1.0f, 2.0f, 1.0f);
-            p01.IsCollisionObject = true;
+            p01.SetCollisionType(ColliderType.ConvexHull);
             p01.UpdateLast = true;
             AddGameObject(p01);
 

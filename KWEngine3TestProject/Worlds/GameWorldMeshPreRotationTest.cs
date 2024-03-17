@@ -42,7 +42,7 @@ namespace KWEngine3TestProject.Worlds
             f.SetScale(100, 1, 100);
             f.SetPosition(0, -0.5f, 0);
             f.IsShadowCaster = true;
-            f.IsCollisionObject = true;
+            f.SetCollisionType(ColliderType.ConvexHull);
             f.SetTextureRepeat(25, 25);
             f.SetTexture("./Textures/sand_diffuse.dds", TextureType.Albedo);
             f.SetTexture("./Textures/sand_normal.dds", TextureType.Normal);
@@ -53,7 +53,7 @@ namespace KWEngine3TestProject.Worlds
             s.IsShadowCaster = true;
             s.SetPosition(0, 0, 0);
             s.SetScale(3);
-            s.IsCollisionObject = true;
+            s.SetCollisionType(ColliderType.ConvexHull);
             s.SetRotation(0, 180, 0);
             s.UpdateLast = true;
             AddGameObject(s);

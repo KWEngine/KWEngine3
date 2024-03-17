@@ -380,7 +380,7 @@ namespace KWEngine3
                 foreach (GameObject g in _gameObjectsToBeAdded)
                 {
                     _gameObjects.Add(g);
-                    if (g._isCollisionObject)
+                    if (g.IsCollisionObject)
                     {
                         foreach (GameObjectHitbox hb in g._hitboxes)
                         {
@@ -866,7 +866,7 @@ namespace KWEngine3
                 {
                     g.ID = _availableGameObjectIDs.Dequeue();
                     _gameObjects.Add(g);
-                    if (g._isCollisionObject)
+                    if (g.IsCollisionObject)
                     {
                         foreach (GameObjectHitbox hb in g._hitboxes)
                         {

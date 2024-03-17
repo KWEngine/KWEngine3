@@ -1,5 +1,4 @@
-﻿using KWEngine3.Framebuffers;
-using KWEngine3.GameObjects;
+﻿using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using KWEngine3.Renderer;
@@ -18,6 +17,8 @@ namespace KWEngine3.Editor
         public static int UCenterOfMass { get; private set; } = -1;
         public static int UDimensions { get; private set; } = -1;
         public static int ULookAtVector { get; private set; } = -1;
+        public static int ULookAtVectorRight { get; private set; } = -1;
+        public static int ULookAtVectorTop { get; private set; } = -1;
 
         public static void Init()
         {
@@ -54,6 +55,8 @@ namespace KWEngine3.Editor
                 UCenterOfMass = GL.GetUniformLocation(ProgramID, "uCenterOfMass");
                 UDimensions = GL.GetUniformLocation(ProgramID, "uDimensions");
                 ULookAtVector = GL.GetUniformLocation(ProgramID, "uLookAtVector");
+                ULookAtVectorRight = GL.GetUniformLocation(ProgramID, "uLookAtVectorRight");
+                ULookAtVectorTop = GL.GetUniformLocation(ProgramID, "uLookAtVectorTop");
             }
         }
 
@@ -72,7 +75,7 @@ namespace KWEngine3.Editor
         public static void Draw(GameObject g)
         {
             GL.BindVertexArray(PrimitivePoint.VAO);
-            DrawBoundingBox(g);
+            DrawLookAtVector(g);
             GL.BindVertexArray(0);
         }
 
@@ -83,20 +86,21 @@ namespace KWEngine3.Editor
             GL.BindVertexArray(0);
         }
 
-        private static void DrawBoundingBox(GameObject g)
+        private static void DrawLookAtVector(GameObject g)
         {
             GL.Uniform3(UColor, Vector3.One);
             GL.Uniform1(UType, 0);
             GL.Uniform3(UCenterOfMass, g._stateRender._center);
-            GL.Uniform3(UDimensions, g._stateRender._dimensions);
+            GL.Uniform3(UDimensions, 0f, 0f, 0f);
             GL.Uniform3(ULookAtVector, g._stateRender._lookAtVector);
+            GL.Uniform3(ULookAtVectorRight, g.LookAtVectorLocalRight);
+            GL.Uniform3(ULookAtVectorTop, g.LookAtVectorLocalUp);
             GL.DrawArrays(PrimitiveType.Points, 0, 1);
         }
-
         private static void DrawBoundingBox(TerrainObject t)
         {
             GL.Uniform3(UColor, Vector3.One);
-            GL.Uniform1(UType, 0);
+            GL.Uniform1(UType, 1);
             GL.Uniform3(UCenterOfMass, t._stateRender._center);
             GL.Uniform3(UDimensions, t._stateRender._dimensions);
             GL.Uniform3(ULookAtVector, Vector3.Zero);

@@ -20,7 +20,7 @@ namespace KWEngine3
         internal const float SIMULATIONNIBBLESIZE = 1f / 240f;
         internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
         internal const int LIGHTINDEXDIVIDER = 17;
-        internal const float RAYTRACE_EPSILON = 0.0000001f;
+        internal const float RAYTRACE_EPSILON = 0.000001f;
         internal const float RAYTRACE_SAFETY = 0.1f;
         internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
 
@@ -129,10 +129,11 @@ namespace KWEngine3
         public static float ApplicationTime { get; internal set; } = 0.0f;
         internal static float LastFrameTime { get; set; } = 0.0f;
         internal static int LastSimulationUpdateCycleCount { get; set; } = 0;
+
         /// <summary>
         /// Schreibt eine Log-Zeile in das Ausgabefenster des Edit-Modus
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="message">Zu schreibende Nachricht</param>
         public static void LogWriteLine(object message)
         {
             EngineLog.AddMessage(message.ToString());

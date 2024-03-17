@@ -17,7 +17,7 @@ namespace KWEngine3TestProject.Worlds
             if(r == 1)
             {
                 Enemy e = new Enemy();
-                e.IsCollisionObject = true;
+                e.SetCollisionType(ColliderType.ConvexHull);
                 //e.SetModel("EnemyShip");
                 e.SetColor(1, 0, 0);
                 e.SetPosition(HelperRandom.GetRandomNumber(-10f, +10f), 0, -8.5f);
@@ -36,7 +36,7 @@ namespace KWEngine3TestProject.Worlds
 
             Player p = new Player();
             p.SetModel("PlayerShip");
-            p.IsCollisionObject = true;
+            p.SetCollisionType(ColliderType.ConvexHull);
             p.SetPosition(0, 0, 6);
             p.SetColor(0, 1, 1);
             p.SetRotation(0, 180, 0);

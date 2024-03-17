@@ -1,6 +1,63 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Gibt an, von welcher Position der GameObject-Instanz aus der Raytrace-Test durchgeführt wird (Standard: Position)
+    /// </summary>
+    public enum RayTestPosition
+    {
+        /// <summary>
+        /// Verwendet Testtrahlen, die bei der Position-Eigenschaft der GameObject-Instanz beginnen
+        /// </summary>
+        Position,
+        /// <summary>
+        /// Verwendet Testtrahlen, die immer vom lokalen Boden der GameObject-Instanz beginnen
+        /// </summary>
+        Bottom,
+        /// <summary>
+        /// Verwendet Testtrahlen, die immer vom Mittelpunkt der GameObject-Hitbox beginnen
+        /// </summary>
+        HitboxCenter
+    }
+
+    /// <summary>
+    /// Bestimmt, wie viele Strahlen für die Messung der Bodennähe verwendet werden (Standard: 
+    /// </summary>
+    public enum MultiRayMode
+    {
+        /// <summary>
+        /// Verwendet zwei Strahlen entlang der lokalen negativen Y-Achse der Instanz (für 2D-Platformer)
+        /// </summary>
+        TwoRays2DPlatformerY,
+        /// <summary>
+        /// Verwendet vier Strahlen entlang der lokalen negativen Z-Achse der Instanz (für Top-Down-Platformer)
+        /// </summary>
+        FourRaysZ,
+        /// <summary>
+        /// Verwendet vier Strahlen entlang der lokalen negativen Y-Achse der Instanz (für 3D-Platformer)
+        /// </summary>
+        FourRaysY
+    }
+
+    /// <summary>
+    /// Art des Kollisionstyps
+    /// </summary>
+    public enum ColliderType
+    {
+        /// <summary>
+        /// Ist kein Kollisionsobjekt
+        /// </summary>
+        None,
+        /// <summary>
+        /// Hat eine konvexe Hülle (Standardtyp)
+        /// </summary>
+        ConvexHull,
+        /// <summary>
+        /// Eignet sich ausschließlich für raytraced Kollisionen
+        /// </summary>
+        RayCollider
+    }
+
+    /// <summary>
     /// Gibt an, auf welchen Fixpunkt sich die SetPosition()-Methode bezieht, wenn sie aufgerufen wird (Standardwert: Position)
     /// </summary>
     public enum PositionMode
@@ -641,5 +698,11 @@
     {
         Text,
         Image
+    }
+
+    internal enum FaceTestMode
+    {
+        Y,
+        Z
     }
 }

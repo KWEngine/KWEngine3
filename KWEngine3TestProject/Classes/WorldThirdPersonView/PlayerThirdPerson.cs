@@ -148,7 +148,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 s.SetScale(0.125f);
                 s.SetColor(0, 0, 1);
                 s.SetColorEmissive(0, 0, 1, 1.25f);
-                s.IsCollisionObject = true;
+                s.SetCollisionType(ColliderType.ConvexHull);
                 s.SetPosition(Center + LookAtVector * 0.75f);
                 s.TurnTowardsXYZ(target);
 

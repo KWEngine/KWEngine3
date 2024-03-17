@@ -37,7 +37,7 @@ namespace KWEngine3TestProject.Worlds
             i1.SetScale(4, 1, 2);
             i1.SetColor(1, 1, 1);
             i1.FlowFieldCost = 255;
-            i1.IsCollisionObject = true;
+            i1.SetCollisionType(ColliderType.ConvexHull);
             AddGameObject(i1);
 
             
@@ -46,7 +46,7 @@ namespace KWEngine3TestProject.Worlds
             i2.SetColor(1, 1, 1);
             i2.SetPosition(0, 0, -3);
             i2.FlowFieldCost = 255;
-            i2.IsCollisionObject = true;
+            i2.SetCollisionType(ColliderType.ConvexHull);
             AddGameObject(i2);
             
 
@@ -54,14 +54,14 @@ namespace KWEngine3TestProject.Worlds
             p.SetScale(1);
             p.SetPosition(-4.5f, 0.5f, 3.5f);
             p.SetColor(1, 1, 0);
-            p.IsCollisionObject = true;
+            p.SetCollisionType(ColliderType.ConvexHull);
             AddGameObject(p);
             
             Enemy e = new Enemy();
             e.SetModel("KWSphere");
             e.SetPosition(4.5f, 0.5f, 3.5f);
             e.SetColor(1, 0, 1);
-            e.IsCollisionObject = true;
+            e.SetCollisionType(ColliderType.ConvexHull);
             AddGameObject(e);
             
 

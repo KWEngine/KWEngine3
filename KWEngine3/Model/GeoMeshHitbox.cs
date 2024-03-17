@@ -1,5 +1,6 @@
 ﻿using Assimp;
 using OpenTK.Mathematics;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 
@@ -11,7 +12,9 @@ namespace KWEngine3.Model
         {
             return Name;
         }
-
+        internal Vector2i indexLeftRightMostVertex = new Vector2i(0);
+        internal Vector2i indexBackFrontMostVertex = new Vector2i(0);
+        internal Vector2i indexBottomTopMostVertex = new Vector2i(0);
         internal GeoMeshFace[] Faces { get; private set; }
 
         internal bool IsExtended { get; private set; } = false;
@@ -86,6 +89,47 @@ namespace KWEngine3.Model
                     }
                 }
                 Normals = tmpNormals.ToArray();
+
+                float left = float.MaxValue;
+                float bottom = float.MaxValue;
+                float back = float.MaxValue;
+                float right = float.MinValue;
+                float top = float.MinValue;
+                float front = float.MinValue;
+                for (int i = 0; i < Vertices.Length; i++)
+                {
+                    if (Vertices[i].X < left)
+                    {
+                        left = Vertices[i].X;
+                        indexLeftRightMostVertex.X = i;
+                    }
+                    if (Vertices[i].X > right)
+                    {
+                        right = Vertices[i].X;
+                        indexLeftRightMostVertex.Y = i;
+                    }
+                    if (Vertices[i].Y < bottom)
+                    {
+                        bottom = Vertices[i].Y;
+                        indexBottomTopMostVertex.X = i;
+                    }
+                    if (Vertices[i].Y > top)
+                    {
+                        top = Vertices[i].Y;
+                        indexBottomTopMostVertex.Y = i;
+                    }
+                    if (Vertices[i].Z < back)
+                    {
+                        back = Vertices[i].Z;
+                        indexBackFrontMostVertex.X = i;
+                    }
+                    if (Vertices[i].Z > front)
+                    {
+                        front = Vertices[i].Z;
+                        indexBackFrontMostVertex.Y = i;
+                    }
+                }
+                // TODO: Find the most opposite X/Y/Z values...
             }
             else
             {
@@ -112,6 +156,13 @@ namespace KWEngine3.Model
                 Faces[3] = new GeoMeshFace(0, false, 1, 2, 6, 5); // right
                 Faces[4] = new GeoMeshFace(1, false, 4, 5, 6, 7); // top
                 Faces[5] = new GeoMeshFace(1, true, 0, 1, 2, 3);  // bottom
+
+                indexLeftRightMostVertex.X = 0;
+                indexLeftRightMostVertex.Y = 1;
+                indexBottomTopMostVertex.X = 3;
+                indexBottomTopMostVertex.Y = 7;
+                indexBackFrontMostVertex.X = 3;
+                indexBackFrontMostVertex.Y = 0;
             } 
         }
 
@@ -144,6 +195,47 @@ namespace KWEngine3.Model
                 {
                     Faces[i] = uniqueFaces[i];
                 }
+
+                float left = float.MaxValue;
+                float bottom = float.MaxValue;
+                float back = float.MaxValue;
+                float right = float.MinValue;
+                float top = float.MinValue;
+                float front = float.MinValue;
+                for (int i = 0; i < Vertices.Length; i++)
+                {
+                    if (Vertices[i].X < left)
+                    {
+                        left = Vertices[i].X;
+                        indexLeftRightMostVertex.X = i;
+                    }
+                    if (Vertices[i].X > right)
+                    {
+                        right = Vertices[i].X;
+                        indexLeftRightMostVertex.Y = i;
+                    }
+                    if (Vertices[i].Y < bottom)
+                    {
+                        bottom = Vertices[i].Y;
+                        indexBottomTopMostVertex.X = i;
+                    }
+                    if (Vertices[i].Y > top)
+                    {
+                        top = Vertices[i].Y;
+                        indexBottomTopMostVertex.Y = i;
+                    }
+                    if (Vertices[i].Z < back)
+                    {
+                        back = Vertices[i].Z;
+                        indexBackFrontMostVertex.X = i;
+                    }
+                    if (Vertices[i].Z > front)
+                    {
+                        front = Vertices[i].Z;
+                        indexBackFrontMostVertex.Y = i;
+                    }
+                }
+                // TODO: Find the most opposite X/Y/Z values...
             }
             else
             {
@@ -169,6 +261,13 @@ namespace KWEngine3.Model
                 Faces[3] = new GeoMeshFace(0, false, 1, 2, 6, 5); // right
                 Faces[4] = new GeoMeshFace(1, false, 4, 5, 6, 7); // top
                 Faces[5] = new GeoMeshFace(1, true, 0, 1, 2, 3);  // bottom
+
+                indexLeftRightMostVertex.X = 0;
+                indexLeftRightMostVertex.Y = 1;
+                indexBottomTopMostVertex.X = 3;
+                indexBottomTopMostVertex.Y = 7;
+                indexBackFrontMostVertex.X = 3;
+                indexBackFrontMostVertex.Y = 0;
             }
         }
     }

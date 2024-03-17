@@ -85,6 +85,13 @@ namespace KWEngine3.Editor
                 RendererEditor.Bind();
                 RendererEditor.SetGlobals();
                 RendererEditor.Draw(SelectedGameObject);
+
+                if (SelectedGameObject.IsCollisionObject)
+                {
+                    RendererEditorHitboxes.Bind();
+                    RendererEditorHitboxes.SetGlobals();
+                    RendererEditorHitboxes.Draw(SelectedGameObject);
+                }
             }
             else if(SelectedTerrainObject != null)
             {
@@ -200,11 +207,11 @@ namespace KWEngine3.Editor
 
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Misc. properties:");
-                bool isCollObj = SelectedGameObject._isCollisionObject;
-                if (ImGui.Checkbox("Collider?", ref isCollObj))
-                {
-                    SelectedGameObject.IsCollisionObject = isCollObj;
-                }
+                bool isCollObj = SelectedGameObject._colliderType != ColliderType.None;
+                ImGui.Checkbox("Collider?", ref isCollObj);
+                //{
+                //    SelectedGameObject.IsCollisionObject = isCollObj;
+                //}
                 ImGui.SameLine();
                 ImGui.Checkbox("Shadows?", ref SelectedGameObject._isShadowCaster);
                 ImGui.SameLine();
