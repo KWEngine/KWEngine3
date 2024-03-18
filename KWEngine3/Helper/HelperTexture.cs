@@ -1,12 +1,184 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
+using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using SkiaSharp;
 
 namespace KWEngine3.Helper
 {
     internal static class HelperTexture
     {
+        private static readonly Regex rxNonDigits = new Regex(@"[^\d]+");
+
+        internal static int LeaveOnlyDigits(string input)
+        {
+            if (string.IsNullOrEmpty(input)) 
+                return -1;
+            string cleaned = rxNonDigits.Replace(input, "");
+
+            if (cleaned.Length == 0) 
+                return -1;
+
+            return Convert.ToInt32(cleaned);
+        }
+
+        internal static bool ConvertEmbeddedToTemporaryFile(byte[] data, string filename, string path)
+        {
+            File.WriteAllBytes(path + "/" + filename, data);
+            return File.Exists(path + "/" + filename);
+        }
+
+        internal static bool DeleteTemporaryFile(string filename, string path)
+        {
+            File.Delete(path + "/" + filename);
+            return !File.Exists(path + "/" + filename);
+        }
+
+        internal static string GetTextureTypeString(TextureType type)
+        {
+            if (type == TextureType.Albedo)
+                return "ALBEDO";
+            else if (type == TextureType.Normal)
+                return "NORMAL";
+            else if (type == TextureType.Metallic)
+                return "NORMAL";
+            else if (type == TextureType.Roughness)
+                return "NORMAL";
+            else if (type == TextureType.Emissive)
+                return "NORMAL";
+            else
+                return "UNKNOWN";
+        }
+
+        internal static GeoTexture ProcessTextureAlbedoForMaterial(Assimp.Material material, Assimp.Scene scene, ref GeoModel model)
+        {
+            GeoTexture tex = new GeoTexture();
+            tex.UVTransform = new Vector4(1, 1, 0, 0);
+            tex.UVMapIndex = material.TextureDiffuse.UVIndex;
+            tex.Type = TextureType.Albedo;
+
+            if (material.GetMaterialTexture(Assimp.TextureType.Diffuse, material.TextureDiffuse.TextureIndex, out Assimp.TextureSlot texSlot))
+            {
+                string tFilename;
+                if (texSlot.FilePath != null)
+                {
+                    tFilename = texSlot.FilePath;
+                    if (tFilename.Length == 0)
+                    {
+                        // try to find a texture with the model's filename in the same directory or in the subdirectories:
+                        tFilename = SceneImporter.FindTextureInSubs(model.Name, model.Path, true);
+                    }
+                    if (tFilename.Length == 0)
+                    {
+                        tex.IsEmbedded = true;
+                    }
+                    else if(tFilename.Contains("*"))
+                    {
+                        //embedded
+                        int index = LeaveOnlyDigits(tFilename);
+                        if (scene.Textures.Count > index)
+                        {
+                            Assimp.EmbeddedTexture embedded = scene.Textures[index];
+                            if(embedded.HasCompressedData)
+                            {
+                                tFilename = model.Name + "_" + material.Name + "_" + GetTextureTypeString(tex.Type) + "-EMBEDDED_" + index + "." + embedded.CompressedFormatHint;
+                                tex.IsEmbedded = true;
+                                if(ConvertEmbeddedToTemporaryFile(embedded.CompressedData, tFilename, model.Path))
+                                {
+                                }
+                                else
+                                {
+                                    KWEngine.LogWriteLine("[Import] Temporary image file " + tFilename + " could not be written to disk");
+                                    tFilename = "";
+                                }
+                            }
+                            else
+                            {
+                                KWEngine.LogWriteLine("[Import] Unsupported embedded image format for " + model.Name + " - skipped import");
+                                tFilename = "";
+                            }
+                        }
+                        else
+                            tFilename = "";
+                    }
+                    else
+                    {
+                        // load file from disk
+                        tFilename = HelperGeneral.EqualizePathDividers(tFilename);
+                    }
+
+                    if (model.Textures.ContainsKey(tFilename))
+                    {
+                        tex.OpenGLID = model.Textures[tFilename].OpenGLID;
+                    }
+                    else if (SceneImporter.CheckIfOtherModelsShareTexture(tFilename, model.Path, out GeoTexture sharedTexture))
+                    {
+                        return sharedTexture;
+                    }
+                    else
+                    {
+                        tex.OpenGLID = LoadTextureForModelExternal(
+                                SceneImporter.FindTextureInSubs(SceneImporter.StripPathFromFile(tFilename), model.Path), out int mipMaps
+                            );
+                        if(tex.IsEmbedded)
+                        {
+                            bool deleted = DeleteTemporaryFile(tFilename, model.Path);
+                            if (!deleted)
+                            {
+                                KWEngine.LogWriteLine("[Import] Temporary image file " + tFilename + " could not be deleted");
+                            }
+                        }
+                        tex.MipMaps = mipMaps;
+
+                        if (tex.OpenGLID > 0)
+                        {
+                            if (GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
+                            {
+                                tex.Width = width;
+                                tex.Height = height;
+                            }
+                            tex.Filename = tFilename;
+                        }
+                        else
+                        {
+                            tex.OpenGLID = KWEngine.TextureDefault;
+                            if (GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
+                            {
+                                tex.Width = width;
+                                tex.Height = height;
+                            }
+                            tex.UVTransform = new Vector4(100, 100, 0, 0);
+                            tex.MipMaps = 0;
+                            tex.IsKWEngineTexture = true;
+                        }
+                    }
+                }
+                else
+                {
+                    tex.OpenGLID = KWEngine.TextureDefault;
+                    if (GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
+                    {
+                        tex.Width = width;
+                        tex.Height = height;
+                    }
+                    tex.UVTransform = new Vector4(100, 100, 0, 0);
+                    tex.MipMaps = 0;
+                    tex.IsKWEngineTexture = true;
+
+                }
+            }
+            return tex;
+        }
+
+        internal static GeoTexture ProcessTextureForMaterial(TextureType textureType, Assimp.Material material, Assimp.Scene scene, ref GeoModel model)
+        {
+            if(textureType == TextureType.Albedo)
+            {
+                return ProcessTextureAlbedoForMaterial(material, scene, ref model);
+            }
+            return new GeoTexture();
+        }
         internal static void SaveTextureToBitmap(int texId, int width, int height, string name = null)
         {
             SKBitmap b = new SKBitmap(width, height, SKColorType.Rgb888x, SKAlphaType.Opaque);

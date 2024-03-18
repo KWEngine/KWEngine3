@@ -340,17 +340,21 @@ namespace KWEngine3.Model
         internal static string StripFileNameFromPath(string path)
         {
             path = HelperGeneral.EqualizePathDividers(path);
-            int index = path.LastIndexOf(Path.AltDirectorySeparatorChar);
-            int indexPoint = path.LastIndexOf('.');
-            if (index < 0 || indexPoint < index)
+            if (File.Exists(path))
             {
-                return path;
+                int index = path.LastIndexOf(Path.AltDirectorySeparatorChar);
+                int indexPoint = path.LastIndexOf('.');
+                if (index < 0 || indexPoint < index)
+                {
+                    return path;
+                }
+                else
+                {
+                    return path.Substring(0, index + 1);
+                }
             }
             else
-            {
-                return path.Substring(0, index + 1);
-            }
-
+                return path;
         }
 
         internal static string StripFileNameFromAssemblyPath(string path)
@@ -374,6 +378,22 @@ namespace KWEngine3.Model
             }
         }
 
+        internal static string StripEndingFromFile(string filename)
+        {
+            int index = filename.LastIndexOf(".");
+            if(index > 0)
+            {
+                return filename.Substring(0, index);
+            }
+            return filename;
+        }
+
+        internal static bool IsImageFile(string filename)
+        {
+            string fn = filename.ToLower().Trim();
+            return (fn.EndsWith(".png") || fn.EndsWith(".jpg") || fn.EndsWith(".jpeg") || fn.EndsWith(".bmp") || fn.EndsWith(".dds"));
+        }
+
         internal static string StripPathFromFile(string fileWithPath)
         {
             fileWithPath = HelperGeneral.EqualizePathDividers(fileWithPath);
@@ -388,7 +408,7 @@ namespace KWEngine3.Model
             }
         }
 
-        internal static string FindTextureInSubs(string filename, string path = null)
+        internal static string FindTextureInSubs(string filename, string path = null, bool isNotAnImageFile = false)
         {
             filename = HelperGeneral.EqualizePathDividers(filename);
             if (path != null)
@@ -406,22 +426,38 @@ namespace KWEngine3.Model
 
             foreach (FileInfo fi in currentDir.GetFiles())
             {
-                if (fi.Name.Trim() == StripPathFromFile(filename).Trim())
+                if (isNotAnImageFile)
                 {
-                    // file found:
-                    return fi.FullName;
+                    string fn = fi.Name.Trim();
+                    bool fnIsImageFile = IsImageFile(fn);
+                    filename = StripEndingFromFile(filename);
+                    if (fn.Contains(filename) && fnIsImageFile)
+                    {
+                        return fi.FullName;
+                    }
+                }
+                else
+                {
+                    if (StripPathFromFile(fi.Name.Trim()) == StripPathFromFile(filename).Trim())
+                    {
+                        return fi.FullName;
+                    }
                 }
             }
 
             if (currentDir.GetDirectories().Length == 0)
             {
-                Debug.WriteLine("File " + filename + " not found anywhere.");
+                KWEngine.LogWriteLine("[Import] Image file " + filename + " cannot be found.");
             }
             else
             {
                 foreach (DirectoryInfo di in currentDir.GetDirectories())
                 {
-                    return FindTextureInSubs(filename, di.FullName);
+                    string result = FindTextureInSubs(filename, di.FullName, isNotAnImageFile);
+                    if(result != null && result.Length > 0)
+                    {
+                        return result;
+                    }
                 }
             }
 
@@ -531,11 +567,28 @@ namespace KWEngine3.Model
             // Process Textures:
             if (material != null)
             {
-                // TODO: Metalness texture missing with assimp
+                // BEGIN TEXTURE IMPORT REWRITE
+
+                // ALBEDO/DIFFUSE
+                if (material.HasTextureDiffuse)
+                {
+                    GeoTexture tex = HelperTexture.ProcessTextureForMaterial(TextureType.Albedo, material, scene, ref model);
+                    if(tex.IsTextureSet)
+                    {
+                        geoMaterial.TextureAlbedo = tex;
+                        if (!tex.IsKWEngineTexture)
+                        {
+                            model.Textures.Add(tex.Filename, tex);
+                        }
+                    }
+                }
+
+
+
+                // END TEXTURE IMPORT REWRITE
 
                 bool specularUsed = false;
                 int roughnessTextureIndex = -1;
-                material.GetMaterialTexture(Assimp.TextureType.Diffuse, material.TextureDiffuse.TextureIndex, out TextureSlot test);
                 TextureSlot[] texturesOfMaterial = material.GetAllMaterialTextures();
                 List<string> textureFilePaths = new List<string>();
 
@@ -589,48 +642,7 @@ namespace KWEngine3.Model
                         }
                     }
                 }
-                /*
-                if(metalnessTexture != null)
-                {
-                    GeoTexture tex = new GeoTexture();
-                    tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = metalnessTexture.Filename;
-                    tex.UVMapIndex = material.TextureDiffuse.UVIndex;
-                    tex.Type = TextureType.Metallic;
-                    if (model.Textures.ContainsKey(tex.Filename))
-                    {
-                        tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
-                        geoMaterial.TextureMetallic = tex;
-                    }
-                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
-                    {
-                        geoMaterial.TextureMetallic = sharedTexture;
-                    }
-                    else
-                    {
-
-                        if (metalnessTexture.CompressedFormatHint.ToLower().EndsWith("dds"))
-                        {
-                            HelperDDS2.TryLoadDDS(metalnessTexture.CompressedData, false, out tex.OpenGLID, out int width, out int height);
-                        }
-                        else
-                        {
-                            tex.OpenGLID = HelperTexture.LoadTextureFromByteArray(metalnessTexture.CompressedData);
-                        }
-                        
-                        if (tex.OpenGLID > 0)
-                        {
-                            geoMaterial.TextureMetallic = tex;
-                            model.Textures.Add(tex.Filename, tex);
-                        }
-                        else
-                        {
-                            tex.OpenGLID = KWEngine.TextureBlack;
-                            geoMaterial.TextureMetallic = tex;
-                        }
-                    }
-                }
-                */
+               
                 // Diffuse texture
                 if (material.HasTextureDiffuse)
                 {
@@ -814,7 +826,7 @@ namespace KWEngine3.Model
             geoMesh.Material = geoMaterial;
         }
 
-        private static bool CheckIfOtherModelsShareTexture(string texture, string path, out GeoTexture sharedTex)
+        internal static bool CheckIfOtherModelsShareTexture(string texture, string path, out GeoTexture sharedTex)
         {
             path = HelperGeneral.EqualizePathDividers(path);
             sharedTex = new GeoTexture();
@@ -832,7 +844,6 @@ namespace KWEngine3.Model
                         }
                     }
                 }
-                
             }
             return false;
         }

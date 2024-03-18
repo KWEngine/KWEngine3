@@ -13,6 +13,8 @@ namespace KWEngine3.Model
         public int Width;
         public int Height;
         public int MipMaps;
+        public bool IsEmbedded;
+        public bool IsKWEngineTexture;
 
         public bool IsTextureSet { get { return OpenGLID > 0; } }
 
@@ -26,6 +28,8 @@ namespace KWEngine3.Model
             Width = 0;
             Height = 0;
             MipMaps = 0;
+            IsEmbedded = false;
+            IsKWEngineTexture = false;
         }
     }
 }

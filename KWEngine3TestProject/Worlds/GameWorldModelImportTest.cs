@@ -18,7 +18,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("PirateShip", "./Models/FBXTest/PirateShipScene.fbx");
+            KWEngine.LoadModel("PirateShip", "./Models/FBXTest/CubePBR_embedded.fbx");
 
             SetCameraPosition(-10, 10, 10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
