@@ -28,27 +28,27 @@ namespace KWEngine3TestProject.Worlds
             p.SetTexture("./Textures/spritesheet.png");
             p.SetTextureRepeat(1f / 10f, 1f / 3f);
             p.HasTransparencyTexture = true;
-            p.SetCollisionType(ColliderType.ConvexHull);
+            p.SetColliderType(ColliderType.ConvexHull);
             AddGameObject(p);
 
             Immovable floorleft = new Immovable();
             floorleft.SetPosition(-4, 0.0f, 0);
             floorleft.SetScale(4, 1, 1);
             floorleft.AddRotationZ(-14);
-            floorleft.SetCollisionType(ColliderType.ConvexHull);
+            floorleft.SetColliderType(ColliderType.ConvexHull);
             AddGameObject(floorleft);
 
             Immovable floormid = new Immovable();
             floormid.SetPosition(0, -0.5f, 0);
             floormid.SetScale(4, 1, 1);
-            floormid.SetCollisionType(ColliderType.ConvexHull);
+            floormid.SetColliderType(ColliderType.ConvexHull);
             AddGameObject(floormid);
 
             Immovable floorright = new Immovable();
             floorright.SetPosition(+4, 0.0f, 0);
             floorright.SetScale(4, 1, 1);
             floorright.AddRotationZ(14);
-            floorright.SetCollisionType(ColliderType.ConvexHull);
+            floorright.SetColliderType(ColliderType.ConvexHull);
             AddGameObject(floorright);
 
         }

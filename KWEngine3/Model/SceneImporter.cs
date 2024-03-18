@@ -161,11 +161,11 @@ namespace KWEngine3.Model
                     string pA = new DirectoryInfo(StripFileNameFromPath(p)).FullName;
                     if (!Path.IsPathRooted(filename))
                     {
-                        returnModel.PathAbsolute = Path.Combine(pA, filename);
+                        returnModel.PathAbsolute = HelperGeneral.EqualizePathDividers(Path.Combine(pA, filename));
                     }
                     else
                     {
-                        returnModel.PathAbsolute = filename;
+                        returnModel.PathAbsolute = HelperGeneral.EqualizePathDividers(filename);
                     }
 
                     bool success = File.Exists(returnModel.PathAbsolute);
@@ -531,11 +531,11 @@ namespace KWEngine3.Model
             // Process Textures:
             if (material != null)
             {
-
                 // TODO: Metalness texture missing with assimp
 
                 bool specularUsed = false;
                 int roughnessTextureIndex = -1;
+                material.GetMaterialTexture(Assimp.TextureType.Diffuse, material.TextureDiffuse.TextureIndex, out TextureSlot test);
                 TextureSlot[] texturesOfMaterial = material.GetAllMaterialTextures();
                 List<string> textureFilePaths = new List<string>();
 

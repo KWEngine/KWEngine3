@@ -1,26 +1,25 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
-    /// Gibt an, von welcher Position der GameObject-Instanz aus der Raytrace-Test durchgeführt wird (Standard: Position)
+    /// Bestimmt, in welche Richtung der Teststrahl geschossen wird (Standard: Y)
     /// </summary>
-    public enum RayTestPosition
+    /// <remarks>
+    /// Für 2D-Spiele aus der Vogelperspektive sollte i.d.R. Z verwendet werden
+    /// </remarks>
+    public enum SingleRayMode
     {
         /// <summary>
-        /// Verwendet Testtrahlen, die bei der Position-Eigenschaft der GameObject-Instanz beginnen
+        /// Schießt einen Strahl entlang der negativen lokalen Y-Achse der Instanz
         /// </summary>
-        Position,
+        Y,
         /// <summary>
-        /// Verwendet Testtrahlen, die immer vom lokalen Boden der GameObject-Instanz beginnen
+        /// Schießt einen Strahl entlang der negativen lokalen Z-Achse der Instanz (für 2D-Games aus der Vogelperspektive)
         /// </summary>
-        Bottom,
-        /// <summary>
-        /// Verwendet Testtrahlen, die immer vom Mittelpunkt der GameObject-Hitbox beginnen
-        /// </summary>
-        HitboxCenter
+        Z
     }
 
     /// <summary>
-    /// Bestimmt, wie viele Strahlen für die Messung der Bodennähe verwendet werden (Standard: 
+    /// Bestimmt, wie viele Strahlen für die Messung der Bodennähe verwendet und in welche Richtung sie geschossen werden
     /// </summary>
     public enum MultiRayMode
     {
@@ -35,7 +34,11 @@
         /// <summary>
         /// Verwendet vier Strahlen entlang der lokalen negativen Y-Achse der Instanz (für 3D-Platformer)
         /// </summary>
-        FourRaysY
+        FourRaysY,
+        /// <summary>
+        /// Verwendet acht Strahlen entlang der lokalen negativen Y-Achse der Instanz (für 3D-Platformer)
+        /// </summary>
+        EightRaysY
     }
 
     /// <summary>

@@ -26,7 +26,16 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
         public override void Act()
         {
-            if(Keyboard.IsKeyDown(Keys.D))
+            if(Keyboard.IsKeyDown(Keys.Q))
+            {
+                AddRotationY(0.25f, true);
+            }
+            if (Keyboard.IsKeyDown(Keys.E))
+            {
+                AddRotationY(-0.25f, true);
+            }
+
+            if (Keyboard.IsKeyDown(Keys.D))
             {
                 MoveOffset(-0.01f,0,0);
             }
@@ -60,11 +69,9 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             bool groundDetected = HandleGroundDetectionTest(out float yNew);
             if(_state == State.OnGround)
             {
-                if (groundDetected)
+                if (groundDetected && AABBLow - yNew < 0.01f)
                 {
-                    if(yNew != AABBLow)
-                        SetPositionY(yNew, PositionMode.BottomOfAABBHitbox);
-
+                    SetPositionY(yNew, PositionMode.BottomOfAABBHitbox);
                 }
                 else
                 {
@@ -77,7 +84,8 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 if(groundDetected)
                 {
                     float deltaHeight = AABBLow - yNew;
-                    if (deltaHeight < 0.01f)
+                    Console.WriteLine("dH: " + deltaHeight);
+                    if (deltaHeight <= 0.001f)
                     {
                         SetPositionY(yNew, PositionMode.BottomOfAABBHitbox);
                         _velocityY = 0;
@@ -91,8 +99,14 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             List<Intersection> intersections = GetIntersections();
             foreach (Intersection intersection in intersections)
             {
-                Console.WriteLine(intersection.MeshName);
-                MoveOffset(intersection.MTV);
+                if (_state == State.OnGround && HelperVector.IsVectorPointingUpward(intersection.MTV))
+                {
+                    // do nothing
+                }
+                else
+                {
+                    MoveOffset(intersection.MTV);
+                }
             }
 
             CurrentWorld.SetCameraPosition(Position.X + 0, 5, Position.Z - 5);
@@ -102,63 +116,13 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
         private bool HandleGroundDetectionTest(out float yNew)
         {
             yNew = 0;
-
-            //RayIntersectionGroupResult result = RaytraceObjectsBelowPositionMultiRay(RayTestPosition.Bottom, 1f, MultiRayMode.SingleRayY, typeof(GameObject));
-            RayIntersectionExt result = RaytraceObjectsBelowPosition(RayTestPosition.Bottom, typeof(GameObject));
-            if (result.IsValid)
+            RayIntersectionExtSet result = RaytraceObjectsBelowPositionMultiRay(MultiRayMode.EightRaysY, 1f, 1f, typeof(GameObject));
+            if(result.IsValid)
             {
-                yNew = result.IntersectionPoint.Y;
+                yNew = result.IntersectionPointNearest.Y;
                 return true;
             }
-
             return false;
-        }
-
-        private bool HandleGroundDetection(out float yNew)
-        {
-            float yNewLeft = float.MinValue;
-            float yNewRight = float.MinValue;
-            float yNewBack = float.MinValue;
-
-            bool yFound = false;
-
-            RayIntersectionExt rtFrontLeft = RaytraceObjectsNearby(Center + LookAtVector * 0.1f + LookAtVectorLocalRight * -0.1f, -Vector3.UnitY, typeof(Immovable)).FirstOrDefault();
-            if(rtFrontLeft.IsValid)
-            {
-                float distance = AABBLow - rtFrontLeft.IntersectionPoint.Y;
-                if (distance <= 0.00f)
-                {
-                    yFound = true;
-                    yNewLeft = rtFrontLeft.IntersectionPoint.Y;
-                }
-            }
-            
-            RayIntersectionExt rtFrontRight = RaytraceObjectsNearby(Center + LookAtVector * 0.1f + LookAtVectorLocalRight * +0.1f, -Vector3.UnitY, typeof(Immovable)).FirstOrDefault();
-            if (rtFrontRight.IsValid)
-            {
-                float distance = AABBLow - rtFrontRight.IntersectionPoint.Y;
-                if (distance <= 0.00f)
-                {
-                    yFound = true;
-                    yNewRight = rtFrontRight.IntersectionPoint.Y;
-                }
-            }
-
-            RayIntersectionExt rtFrontBack = RaytraceObjectsNearby(Center - LookAtVector * 0.1f, -Vector3.UnitY, typeof(Immovable)).FirstOrDefault();
-            if (rtFrontBack.IsValid)
-            {
-                float distance = AABBLow - rtFrontBack.IntersectionPoint.Y;
-                if (distance <= 0.00f)
-                {
-                    yFound = true;
-                    yNewBack = rtFrontBack.IntersectionPoint.Y;
-                }
-            }
-            
-
-            yNew = Math.Max(Math.Max(yNewLeft, yNewRight), yNewBack);
-
-            return yFound;
         }
     }
 }

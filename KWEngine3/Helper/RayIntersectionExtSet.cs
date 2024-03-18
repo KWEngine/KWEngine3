@@ -4,12 +4,12 @@ using OpenTK.Mathematics;
 namespace KWEngine3.Helper
 {
     /// <summary>
-    /// Wrapper-Klasse, die die Entfernung des vom Strahl getroffenen Objekts und einen Verweis auf das getroffene Objekt selbst beinhaltet
+    /// Wrapper-Klasse, die die Entfernung der von mehreren Strahlen getroffenen Objekte und Verweise auf diese beinhaltet
     /// </summary>
-    public struct RayIntersectionGroupResult
+    public struct RayIntersectionExtSet
     {
         /// <summary>
-        /// Das vom Strahl getroffene Objekt
+        /// Liste der getroffenen Objekte
         /// </summary>
         public List<GameObject> Objects { get; internal set; }
         /// <summary>
@@ -28,11 +28,12 @@ namespace KWEngine3.Helper
         public float DistanceAvg { get; internal set; } = 0f;
 
         /// <summary>
-        /// Punkt an dem der Strahl auf das Objekt trifft
+        /// Punkte, an dem die Strahlen auf Objekte trafen
         /// </summary>
         public List<Vector3> IntersectionPoints { get; internal set; }
+
         /// <summary>
-        /// Punkt an dem der Strahl auf das Objekt trifft
+        /// Ebenenvektoren der getroffenen Objekte
         /// </summary>
         public List<Vector3> SurfaceNormals { get; internal set; }
 
@@ -56,11 +57,17 @@ namespace KWEngine3.Helper
         public Vector3 SurfaceNormalAvg { get; internal set; }
 
         /// <summary>
+        /// Referenz auf das Objekt, dessen Entfernung am kürzesten zum Strahlenursprung war
+        /// </summary>
+        public GameObject ObjectNearest { get; internal set; }
+
+        /// <summary>
         /// Standardkonstruktor für die Instanz
         /// </summary>
-        public RayIntersectionGroupResult()
+        public RayIntersectionExtSet()
         {
             Objects = new List<GameObject>();
+            ObjectNearest = null;
             
             DistanceAvg = 0f;
             DistanceMin = float.MaxValue;

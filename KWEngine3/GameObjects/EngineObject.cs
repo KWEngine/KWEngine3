@@ -796,6 +796,16 @@ namespace KWEngine3.GameObjects
         internal List<GameObjectHitbox> _hitboxes = new();
         internal string _modelNameInDB = "KWCube";
         internal int _importedID = -1;
+        internal float _positionCenterDelta = 0f;
+        internal bool _positionLowerThanCenter = true;
+
+        internal void CheckPositionAndCenter()
+        {
+            Vector3 delta = Position - Center;
+            _positionCenterDelta = delta.LengthFast;
+            float dotPosLookAtUp = Vector3.Dot(delta, LookAtVectorLocalUp);
+            _positionLowerThanCenter = dotPosLookAtUp < 0f;
+        }
 
         internal void InitPreRotationQuaternions()
         {
@@ -912,7 +922,7 @@ namespace KWEngine3.GameObjects
             _stateRender = new EngineObjectRenderState(this);
             UpdateModelMatrixAndHitboxes();
             _statePrevious = _stateCurrent;
-
+            CheckPositionAndCenter();
         }
 
         internal bool HasEmissiveTexture

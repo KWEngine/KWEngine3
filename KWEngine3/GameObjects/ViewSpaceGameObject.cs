@@ -140,7 +140,7 @@ namespace KWEngine3.GameObjects
         public bool IsCollisionObject { 
             get 
             { 
-                return IsValid ? _gameObject.IsCollisionObject : false; 
+                return IsValid && _gameObject.IsCollisionObject; 
             }
             set
             {
@@ -158,7 +158,7 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return IsValid ? _gameObject.IsShadowCaster : false;
+                return IsValid && _gameObject.IsShadowCaster;
             }
             set
             {
@@ -261,7 +261,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Liefert true, wenn mind. eine GameObject-Instanz an einen Knochen des aufrufenden Objekts gebunden ist
         /// </summary>
-        public bool HasAttachedGameObjects { get { return IsValid ? _gameObject._gameObjectsAttached.Count > 0 : false; } }
+        public bool HasAttachedGameObjects { get { return IsValid && _gameObject._gameObjectsAttached.Count > 0; } }
 
         /// <summary>
         /// Liefert eine Liste der Knochennamen, an die aktuell eine andere GameObject-Instanz gebunden ist

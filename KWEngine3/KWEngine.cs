@@ -131,12 +131,13 @@ namespace KWEngine3
         internal static int LastSimulationUpdateCycleCount { get; set; } = 0;
 
         /// <summary>
-        /// Schreibt eine Log-Zeile in das Ausgabefenster des Edit-Modus
+        /// Schreibt eine Log-Zeile in das Ausgabefenster des Edit-Modus (nur Debug-Modus)
         /// </summary>
         /// <param name="message">Zu schreibende Nachricht</param>
         public static void LogWriteLine(object message)
         {
-            EngineLog.AddMessage(message.ToString());
+            if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
+                EngineLog.AddMessage(message.ToString());
         }
 
         /// <summary>

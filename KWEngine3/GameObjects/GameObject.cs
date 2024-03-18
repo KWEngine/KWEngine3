@@ -40,14 +40,28 @@ namespace KWEngine3.GameObjects
             get 
             { 
                 return _colliderType != ColliderType.None;
-            } 
+            }
+            set
+            {
+                if(value == true)
+                {
+                    if(_colliderType == ColliderType.None)
+                    {
+                        SetColliderType(ColliderType.ConvexHull);
+                    }
+                }
+                else
+                {
+                    SetColliderType(ColliderType.None);
+                }
+            }
         }
 
         /// <summary>
         /// Setzt die Art wie bei diesem Objekt nach Kollisionen geprüft wird
         /// </summary>
         /// <param name="ct">Kollisionstyp (Standard: ConvexHull)</param>
-        public void SetCollisionType(ColliderType ct)
+        public void SetColliderType(ColliderType ct)
         {
             ColliderType valueBefore = _colliderType;
             _colliderType = ct;
@@ -734,19 +748,45 @@ namespace KWEngine3.GameObjects
             return RaytraceObjectsNearby(new Vector3(rayPositionX, rayPositionY, rayPositionZ), rayDirectionNormalized, typelist);
         }
 
-        public RayIntersectionExt RaytraceObjectsBelowPosition(RayTestPosition rtp, params Type[] typelist)
+
+
+
+        /// <summary>
+        /// Schießt einen Strahl von der Mitte der Instanz nach unten und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft (Präzise, aber langsamer!)
+        /// </summary>
+        /// <param name="mode">Richtung des Strahls (Standard: Y-Achse)</param>
+        /// <param name="maxDistance">Trifft ein Strahl ein Objekt, wird es als Ergebnis verworfen, wenn die Strahlendistanz größer als die angegebene Distanz ist (abhängig von der Größe des Aufrufers)</param>
+        /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
+        /// <returns>Ergebnis des Strahlentests (für das Objekt, das am wenigsten vom Strahl entfernt war)</returns>
+        public RayIntersectionExt RaytraceObjectsBelowPosition(SingleRayMode mode, float maxDistance, params Type[] typelist)
         {
-            Vector3 position = rtp == RayTestPosition.Position ? Position : rtp == RayTestPosition.Bottom ? Center - LookAtVectorLocalUp * _obbRadii.Y : Center;
-            Vector3 rayDirection = -LookAtVectorLocalUp;
-            Vector3 offset = rayDirection * 0.1f;
+            Vector3 position = Center;
+            Vector3 rayDirection;
+            Vector3 offset;
+            if (mode == SingleRayMode.Y)
+            {
+               rayDirection = -LookAtVectorLocalUp;
+               offset = rayDirection * (_obbRadii.Y * 0.95f);
+            }
+            else
+            {
+                rayDirection = -LookAtVector;
+                offset = rayDirection * (_obbRadii.Z * 0.95f);
+            }
             position -= offset;
+
+
             if (typelist.Length == 0)
             {
                 KWEngine.LogWriteLine("[GameObject] WARNING: No list of types given for ray testing, assuming type 'GameObject'");
                 typelist = new Type[] { typeof(GameObject) };
             }
 
-            Vector3 currentContact = new();
+            GameObject on = null;
+            float dMin = float.MaxValue;
+            Vector3 ip = Vector3.Zero;
+            Vector3 sn = Vector3.UnitY;
+
             foreach (GameObjectHitbox hb in _collisionCandidates)
             {
                 if (hb.IsActive && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
@@ -757,18 +797,17 @@ namespace KWEngine3.GameObjects
                         {
                             if (hb.GetVerticesForTriangleFace(j, rayDirection, out HitboxFace face))
                             {
-                                bool hit = HelperIntersection.RayTriangleIntersection(position, rayDirection, face.V1, face.V2, face.V3, out currentContact);
+                                bool hit = HelperIntersection.RayTriangleIntersection(position, rayDirection, face.V1, face.V2, face.V3, out Vector3 currentContact);
                                 if (hit)
                                 {
                                     float currentDistance = (position + offset - currentContact).Length;
-                                    RayIntersectionExt result = new RayIntersectionExt()
+                                    if(currentDistance < maxDistance && currentDistance < dMin)
                                     {
-                                        Distance = currentDistance,
-                                        IntersectionPoint = currentContact,
-                                        Object = hb.Owner,
-                                        SurfaceNormal = face.Normal
-                                    };
-                                    return result;
+                                        ip = currentContact;
+                                        sn = face.Normal;
+                                        on = hb.Owner;
+                                        dMin = currentDistance;
+                                    }
                                 }
                             }
                         }
@@ -776,18 +815,17 @@ namespace KWEngine3.GameObjects
                         {
                             if (hb.GetVerticesForCubeFace(j, rayDirection, out HitboxFace face1, out HitboxFace face2))
                             {
-                                bool hit = HelperIntersection.RayTriangleIntersection(position, rayDirection, face1.V1, face1.V2, face1.V3, out currentContact);
+                                bool hit = HelperIntersection.RayTriangleIntersection(position, rayDirection, face1.V1, face1.V2, face1.V3, out Vector3 currentContact);
                                 if (hit)
                                 {
                                     float currentDistance = (position + offset - currentContact).Length;
-                                    RayIntersectionExt result = new RayIntersectionExt()
+                                    if (currentDistance < maxDistance && currentDistance < dMin)
                                     {
-                                        Distance = currentDistance,
-                                        IntersectionPoint = currentContact,
-                                        Object = hb.Owner,
-                                        SurfaceNormal = face1.Normal
-                                    };
-                                    return result;
+                                        ip = currentContact;
+                                        sn = face1.Normal;
+                                        on = hb.Owner;
+                                        dMin = currentDistance;
+                                    }
                                 }
                                 else
                                 {
@@ -795,14 +833,13 @@ namespace KWEngine3.GameObjects
                                     if (hit)
                                     {
                                         float currentDistance = (position + offset - currentContact).Length;
-                                        RayIntersectionExt result = new RayIntersectionExt()
+                                        if (currentDistance < maxDistance && currentDistance < dMin)
                                         {
-                                            Distance = currentDistance,
-                                            IntersectionPoint = currentContact,
-                                            Object = hb.Owner,
-                                            SurfaceNormal = face2.Normal
-                                        };
-                                        return result;
+                                            ip = currentContact;
+                                            sn = face2.Normal;
+                                            on = hb.Owner;
+                                            dMin = currentDistance;
+                                        }
                                     }
                                 }
                             }
@@ -810,14 +847,39 @@ namespace KWEngine3.GameObjects
                     }
                 }
             }
-            return new RayIntersectionExt();
+            return new RayIntersectionExt()
+            {
+                Distance = dMin,
+                IntersectionPoint = ip,
+                Object = on,
+                SurfaceNormal = sn
+            };
         }
 
-        public RayIntersectionGroupResult RaytraceObjectsBelowPositionMultiRay(RayTestPosition rtp, float sizeFactor, MultiRayMode rayMode, params Type[] typelist)
+        /// <summary>
+        /// Schießt mehrere Strahlen von der Mitte der Instanz nach unten und prüft, ob diese Strahlen in der Nähe liegende Objekte des angegebenen Typs treffen (Präzise, aber langsamer!)
+        /// </summary>
+        /// <param name="rayMode">Richtung und Anzahl der Teststrahlen</param>
+        /// <param name="sizeFactor">Die Strahlen werden innerhalb der Hitbox des Aufrufers gemäß dieses Faktors verteilt. Ist der Faktor 1, befinden sich die Strahlen an den Hitboxrändern. Ist er größer, befinden sich die Strahlen außerhalb der Hitbox.</param>
+        /// <param name="maxDistance">Trifft ein Strahl ein Objekt, wird es als Ergebnis verworfen, wenn die Strahlendistanz größer als die angegebene Distanz ist (abhängig von der Größe des Aufrufers)</param>
+        /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
+        /// <returns>Ergebnis des Strahlentests</returns>
+        public RayIntersectionExtSet RaytraceObjectsBelowPositionMultiRay(MultiRayMode rayMode, float sizeFactor, float maxDistance, params Type[] typelist)
         {
-            Vector3 position = rtp == RayTestPosition.Position ? Position : rtp == RayTestPosition.Bottom ? Center - LookAtVectorLocalUp * _obbRadii.Y : Center;
-            Vector3 rayDirection = Vector3.Normalize(rayMode == MultiRayMode.FourRaysZ ? -LookAtVector : -LookAtVectorLocalUp);
-            Vector3 offset = rayDirection * 0.1f;
+            Vector3 position = Center;
+            Vector3 rayDirection;
+            Vector3 offset;
+            if(rayMode == MultiRayMode.FourRaysZ)
+            {
+                rayDirection = -LookAtVector;
+                offset = rayDirection * (_obbRadii.Z * 0.95f);
+            }
+            else
+            {
+                rayDirection = -LookAtVectorLocalUp;
+                offset = rayDirection * (_obbRadii.Y * 0.95f);
+            }
+
             position -= offset; 
             if (typelist.Length == 0)
             {
@@ -857,7 +919,7 @@ namespace KWEngine3.GameObjects
                 }
             }
 
-            RayIntersectionGroupResult grp = new RayIntersectionGroupResult();
+            RayIntersectionExtSet grp = new RayIntersectionExtSet();
             if (facesFound)
             {
                 // Get the results...
@@ -868,58 +930,73 @@ namespace KWEngine3.GameObjects
                 float distanceMin = float.MaxValue;
                 float distanceMax = float.MinValue;
                 float distanceSum = 0f;
+                GameObject gNearest = null;
                 
                 
-                Vector4[] rayOrigins;
+                Vector3[] rayOrigins;
                 if(rayMode == MultiRayMode.TwoRays2DPlatformerY)
                 {
                     rayOrigins = _rayOrigins2;
-                    rayOrigins[0] = new Vector4(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor, 1f);
-                    rayOrigins[1] = new Vector4(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor, 1f);
+                    rayOrigins[0] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor);
+                    rayOrigins[1] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor);
                 }
                 else if(rayMode == MultiRayMode.FourRaysZ)
                 {
                     rayOrigins = _rayOrigins4;
-                    rayOrigins[0] = new Vector4(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVectorLocalUp * _obbRadii.Y * sizeFactor, 1f);
-                    rayOrigins[1] = new Vector4(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVectorLocalUp * _obbRadii.Y * sizeFactor, 1f);
-                    rayOrigins[2] = new Vector4(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVectorLocalUp * _obbRadii.Y * sizeFactor, 1f);
-                    rayOrigins[3] = new Vector4(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVectorLocalUp * _obbRadii.Y * sizeFactor, 1f);
+                    rayOrigins[0] = new Vector3(position + LookAtVectorLocalUp * _obbRadii.Y * sizeFactor); // top
+                    rayOrigins[1] = new Vector3(position - LookAtVectorLocalUp * _obbRadii.Y * sizeFactor); // bottom
+                    rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
+                    rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
+                }
+                else if(rayMode == MultiRayMode.EightRaysY)
+                {
+                    rayOrigins = _rayOrigins8;
+                    rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
+                    rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
+                    rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
+                    rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
+                    rayOrigins[4] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor);
+                    rayOrigins[5] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor);
+                    rayOrigins[6] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor);
+                    rayOrigins[7] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor);
                 }
                 else
                 {
                     rayOrigins = _rayOrigins4;
-                    rayOrigins[0] = new Vector4(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor, 1f);
-                    rayOrigins[1] = new Vector4(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor, 1f);
-                    rayOrigins[2] = new Vector4(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor, 1f);
-                    rayOrigins[3] = new Vector4(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor, 1f);
+                    rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
+                    rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
+                    rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
+                    rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
                 }
-
-                
 
                 int hits = 0;
                 foreach (HitboxFace face in selectedFaces)
                 {
                     for(int i = 0; i < rayOrigins.Length; i++)
                     {
-                        bool hit = HelperIntersection.RayTriangleIntersection(rayOrigins[i].Xyz, rayDirection, face.V1, face.V2, face.V3, out Vector3 currentContact);
+                        bool hit = HelperIntersection.RayTriangleIntersection(rayOrigins[i], rayDirection, face.V1, face.V2, face.V3, out Vector3 currentContact);
                         if (hit)
                         {
-                            hits++;
-                            float currentDistance = (rayOrigins[i].Xyz + offset - currentContact).LengthFast;
-                            grp.AddObject(face.Owner.Owner);
-                            grp.AddSurfaceNormal(face.Normal);
-                            distanceSum += currentDistance;
-                            normalAvg += face.Normal;
-                            positionAvg += currentContact;
-                            if(currentDistance < distanceMin)
+                            float currentDistance = (rayOrigins[i] + offset - currentContact).LengthFast;
+                            if (currentDistance < maxDistance)
                             {
-                                distanceMin = currentDistance;
-                                normalNearest = face.Normal;
-                                positionNearest = currentContact;
-                            }
-                            if(currentDistance > distanceMax)
-                            {
-                                distanceMax = currentDistance; 
+                                hits++;
+                                grp.AddObject(face.Owner.Owner);
+                                grp.AddSurfaceNormal(face.Normal);
+                                distanceSum += currentDistance;
+                                normalAvg += face.Normal;
+                                positionAvg += currentContact;
+                                if (currentDistance < distanceMin)
+                                {
+                                    distanceMin = currentDistance;
+                                    normalNearest = face.Normal;
+                                    positionNearest = currentContact;
+                                    gNearest = face.Owner.Owner;
+                                }
+                                if (currentDistance > distanceMax)
+                                {
+                                    distanceMax = currentDistance;
+                                }
                             }
                         }
                     }
@@ -932,6 +1009,7 @@ namespace KWEngine3.GameObjects
                 grp.DistanceAvg = distanceSum / hits;
                 grp.DistanceMin = distanceMin;
                 grp.DistanceMax = distanceMax;
+                grp.ObjectNearest = gNearest;
             }
             return grp;
         }
@@ -1197,9 +1275,9 @@ namespace KWEngine3.GameObjects
             }
             _stateCurrent._modelMatrix = HelperMatrix.CreateModelMatrix(_stateCurrent);
             _stateCurrent._modelMatrixInverse = Matrix4.Invert(_stateCurrent._modelMatrix);
-            _stateCurrent._lookAtVector = Vector3.Normalize(Vector3.TransformNormalInverse(Vector3.UnitZ, _stateCurrent._modelMatrixInverse));
-            _stateCurrent._lookAtVectorRight = Vector3.Normalize(Vector3.TransformNormalInverse(Vector3.UnitX, _stateCurrent._modelMatrixInverse));
-            _stateCurrent._lookAtVectorUp = Vector3.Normalize(Vector3.TransformNormalInverse(Vector3.UnitY, _stateCurrent._modelMatrixInverse));
+            _stateCurrent._lookAtVector = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitZ, _stateCurrent._modelMatrixInverse));
+            _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitX, _stateCurrent._modelMatrixInverse));
+            _stateCurrent._lookAtVectorUp = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitY, _stateCurrent._modelMatrixInverse));
 
             _stateCurrent._center = Vector3.Zero;
             Vector3 dimMax = new(float.MinValue);
@@ -1247,8 +1325,9 @@ namespace KWEngine3.GameObjects
         internal float _fullDiameter = 1f;
         internal Vector3 _obbRadii = new Vector3(0.5f);
 
-        internal static Vector4[] _rayOrigins2 = new Vector4[2];
-        internal static Vector4[] _rayOrigins4 = new Vector4[4];
+        internal static Vector3[] _rayOrigins2 = new Vector3[2];
+        internal static Vector3[] _rayOrigins4 = new Vector3[4];
+        internal static Vector3[] _rayOrigins8 = new Vector3[8];
         #endregion
     }
 }

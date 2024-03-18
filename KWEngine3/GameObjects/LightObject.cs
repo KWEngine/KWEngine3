@@ -216,7 +216,7 @@ namespace KWEngine3.GameObjects
         /// Setzt die Nah- und Ferngrenze (Reichweite) des Lichts
         /// </summary>
         /// <param name="near">Nahgrenze (mind. 0.1f)</param>
-        /// <param name="far">Ferngrenze (muss größer als die Nahgrenze sein)</param>
+        /// <param name="far">Ferngrenze (muss größer als die Nahgrenze sein, Standardwert: 100)</param>
         public void SetNearFar(float near, float far)
         {
             near = Math.Max(Math.Abs(near), 0.1f);

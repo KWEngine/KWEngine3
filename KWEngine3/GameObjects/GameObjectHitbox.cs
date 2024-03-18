@@ -166,7 +166,7 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return _mesh != null ? _mesh.IsExtended : false;
+                return _mesh != null && _mesh.IsExtended;
             }
         }
 

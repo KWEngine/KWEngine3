@@ -5,7 +5,7 @@ namespace KWEngine3.GameObjects
     internal struct LightObjectState
     {
         internal const float NEARDEFAULT = 0.1f;
-        internal const float FARDEFAULT = 10.0f;
+        internal const float FARDEFAULT = 100.0f;
         internal const float FOVDEFAULT = 90;
 
         public LightObject _parent;

@@ -32,7 +32,7 @@ namespace KWEngine3TestProject.Worlds
             f01.SetScale(15, 1f, 15);
             f01.SetPosition(0, -0.5f, 0);
             f01.IsShadowCaster = true;                                                // does the object cast and receive shadows? (default: false)
-            f01.SetCollisionType(ColliderType.ConvexHull);
+            f01.SetColliderType(ColliderType.ConvexHull);
             AddGameObject(f01);
 
             PlayerThirdPerson p01 = new PlayerThirdPerson();
@@ -40,7 +40,7 @@ namespace KWEngine3TestProject.Worlds
             p01.SetPosition(0, 0, 0);
             p01.SetScale(1);
             p01.IsShadowCaster = true;
-            p01.SetCollisionType(ColliderType.ConvexHull);
+            p01.SetColliderType(ColliderType.ConvexHull);
             p01.SetRotation(0, 180, 0);
             p01.SetHitboxToCapsuleForMesh(0);
             AddGameObject(p01);
@@ -50,7 +50,7 @@ namespace KWEngine3TestProject.Worlds
             Immovable box01 = new Immovable();
             box01.SetScale(2);
             box01.SetPosition(4, 1, -4);
-            box01.SetCollisionType(ColliderType.ConvexHull);
+            box01.SetColliderType(ColliderType.ConvexHull);
             box01.IsShadowCaster = true;
             AddGameObject(box01);
             /*

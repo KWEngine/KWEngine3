@@ -13,7 +13,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
 
         public Shot()
         {
-            SetCollisionType(ColliderType.ConvexHull);
+            SetColliderType(ColliderType.ConvexHull);
             SetScale(0.1f, 0.1f, 2.0f);
             SetColor(1, 0, 0);
             SetColorEmissive(1, 1, 0, 2);

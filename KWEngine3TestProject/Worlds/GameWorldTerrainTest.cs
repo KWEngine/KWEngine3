@@ -38,7 +38,7 @@ namespace KWEngine3TestProject.Worlds
             Player p = new Player();
             p.SetModel("Player");
             p.Name = "Player";
-            p.SetCollisionType(ColliderType.ConvexHull);
+            p.SetColliderType(ColliderType.ConvexHull);
             p.IsShadowCaster = true;
             AddGameObject(p);
 

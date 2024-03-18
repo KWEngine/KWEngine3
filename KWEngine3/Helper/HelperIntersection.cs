@@ -1770,7 +1770,7 @@ namespace KWEngine3.Helper
             if (v < 0.0 || u + v > 1.0)
                 return false;
             float t = f * Vector3.Dot(edge2, q);
-            if (t >= 0) //KWEngine.RAYTRACE_EPSILON) // ray intersection
+            if (t >= KWEngine.RAYTRACE_EPSILON) // ray intersection
             {
                 contactPoint = rayStart + rayDirection * t;
                 return true;
@@ -1786,10 +1786,6 @@ namespace KWEngine3.Helper
             Vector3 dimensions,      // aabb dimensions
             out float distance)
         {
-            // dirfrac.x = 1.0f / r.dir.x;
-            // dirfrac.y = 1.0f / r.dir.y;
-            // dirfrac.z = 1.0f / r.dir.z;
-
             Vector3 aabbLow = new Vector3(center - dimensions * 0.5f);
             Vector3 aabbHigh = new Vector3(center + dimensions * 0.5f);
 

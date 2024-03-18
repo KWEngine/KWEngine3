@@ -56,7 +56,7 @@ namespace KWEngine3TestProject.Worlds
             */
             Player p1 = new Player();
             p1.Name = "Player #1";
-            p1.SetCollisionType(ColliderType.ConvexHull);
+            p1.SetColliderType(ColliderType.ConvexHull);
             p1.SetModel("KWCube");
             p1.SetHitboxScale(1, 1, 1);
             p1.SetColor(1, 1, 0);

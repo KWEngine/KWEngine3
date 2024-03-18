@@ -1405,10 +1405,7 @@ namespace KWEngine3.Model
                     {
                         if (uvs != null && normals != null && indices != null)
                         {
-                            if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
-                            {
-                                KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Adding them.");
-                            }
+                            KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Adding them.");
                             tangents = GenerateTangentsFrom(geoMesh.Vertices, normals, uvs, indices);
                         }
                         else
@@ -1519,10 +1516,6 @@ namespace KWEngine3.Model
                 GeoVertex v1 = meshVertices[(int)meshIndices[i + 0]];
                 GeoVertex v2 = meshVertices[(int)meshIndices[i + 1]];
                 GeoVertex v3 = meshVertices[(int)meshIndices[i + 2]];
-
-                //Vector3 u = new Vector3(v2.X, v2.Y, v2.Z) - new Vector3(v1.X, v1.Y, v1.Z);
-                //Vector3 v = new Vector3(v3.X, v3.Y, v3.Z) - new Vector3(v1.X, v1.Y, v1.Z);
-                //Vector3 n = Vector3.Normalize(Vector3.Cross(u, v));
 
                 GeoMeshFaceHelper tmpFace = new GeoMeshFaceHelper(v1, v2, v3);
                 faces.Add(tmpFace);
