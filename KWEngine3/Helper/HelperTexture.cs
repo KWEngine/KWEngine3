@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Buffers.Binary;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
@@ -17,6 +18,28 @@ namespace KWEngine3.Helper
         public string Rest;
         public bool HasNestedList;
         public uint NestedListOffset;
+        public List<FBXNode> Children = new List<FBXNode>();
+        public List<FBXProperty> Properties = new List<FBXProperty>();
+        public List<FBXNode> Siblings = new List<FBXNode>();
+        public FBXNode Parent;
+
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+    internal class FBXProperty
+    {
+        public string Type;
+        public string Name;
+        public byte[] RawData;
+        public long ID;
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     internal static class HelperTexture
@@ -138,7 +161,7 @@ namespace KWEngine3.Helper
             return fileinfo != "Kaydara FBX Binary  ";
         }
 
-        internal static string GetFBXTextureFilename(TextureType ttype, string filename)
+        internal static string GetFBXTextureFilename(TextureType ttype, string filename, string modelName)
         {
             byte[] filedata = File.ReadAllBytes(filename);
             if(IsFBXASCII(filedata))
@@ -148,24 +171,83 @@ namespace KWEngine3.Helper
             else
             {
                 uint version = BitConverter.ToUInt32(filedata, 23);
-                FBXNode root = GetFBXNode(filedata, 27);
+                FBXNode root = ReadFBXNodeStructure(filedata, 27);
+
+                for(int i = 0; i < root.Siblings.Count;i++)
+                {
+                    if (root.Siblings[i].Name == "Objects")
+                    {
+                        FBXNode objectsGroup = root.Siblings[i];
+                        foreach(FBXNode geometryObject in objectsGroup.Children)
+                        {
+                            foreach(FBXNode geometryObjectDetail in geometryObject.Siblings)
+                            {
+                                int indexModel = -1;
+                                for(int j = 0; j < geometryObjectDetail.Properties.Count; j++)
+                                {
+                                    if (geometryObjectDetail.Properties[j].Name.StartsWith(modelName))
+                                    {
+                                        indexModel = j;
+                                        break;
+                                    }
+                                }
+                                
+                            }
+                        }
+
+                    }
+                }
+                //CycleFBXNodes(filedata, 27);
             }
             return "";
         }
 
-        internal static FBXNode GetFBXNode(byte[] data, uint startIndex)
+        internal static bool CheckFBXNestedList(byte[] data, uint endoffset)
         {
+            if (endoffset == 0)
+                return false;
+            // check for 13-NUL-Byte ending of node:
+            int endIndex = (int)(endoffset - 1);
+            char[] nestedListTerminator = new char[13];
+            bool hasNestedList = true;
+            for (int i = 0; i < 13; i++)
+            {
+                nestedListTerminator[i] = (char)data[endIndex - i];
+                if (nestedListTerminator[i] != 0)
+                {
+                    hasNestedList = false;
+                }
+            }
+            return hasNestedList;
+        }
+
+        internal static FBXNode ReadFBXNodeStructure(byte[] data, uint startIndex, FBXNode parent = null, int nestingLevel = 0, int nestingLevelEndOffset = 0, bool isSiblingsRead = false)
+        {
+            string TABS = "";
+            for(int i = 0; i < nestingLevel; i++)
+            {
+                TABS += "\t";
+            }
+            FBXNode n = new FBXNode();
+
             int idx = (int)startIndex;
             uint endoffset = BitConverter.ToUInt32(data, idx);
+            n.EndOffset = endoffset;
+            bool hasNestedList = CheckFBXNestedList(data, endoffset);
+            n.HasNestedList = hasNestedList;
+            n.Parent = parent;
 
             idx += 4;
             uint numproperties = BitConverter.ToUInt32(data, idx);
+            n.NumProperties = numproperties;
 
             idx += 4;
             uint proplistlen = BitConverter.ToUInt32(data, idx);
+            n.PropertyListLen = proplistlen;
 
             idx += 4;
             byte namelen = data[idx];
+            n.NameLen = namelen;
 
             idx += 1;
             string name = "";
@@ -175,52 +257,63 @@ namespace KWEngine3.Helper
                 name += (char)data[i];
                 idx++;
             }
-
-            // Loop through properties:
-            for(int i = 0; i < numproperties; i++)
+            n.Name = name;
+            Console.WriteLine(TABS + "Reading node: "  + n.Name);
+            if (n.Name == "SceneInfo")
             {
+
+            }
+
+            int idxBeforePropertyLoop = idx;
+            // Loop through properties:
+            for (int i = 0; i < numproperties; i++)
+            {
+                FBXProperty prop = new FBXProperty();
                 char propertyTypeCode = (char)data[idx];
-                if(propertyTypeCode == 'Y')
+                prop.Type = propertyTypeCode.ToString();
+                idx += 1;
+                if (propertyTypeCode == 'Y')
                 {
                     // short
                     
                     short val = BitConverter.ToInt16(data, idx);
-                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 2;
                 }
                 else if(propertyTypeCode == 'C')
                 {
                     // bool in byte (lsbit = 1/0)
                     byte val = data[idx];
-                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 1;
                 }
                 else if( propertyTypeCode == 'I')
                 {
                     // int
                     int val = BitConverter.ToInt32(data, idx);
-                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 4;
                 }
                 else if (propertyTypeCode == 'F')
                 {
                     // float
                     float val = BitConverter.ToSingle(data, idx);
-                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 4;
                 }
                 else if (propertyTypeCode == 'D')
                 {
                     // double
                     double val = BitConverter.ToDouble(data, idx);
-                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 8;
                 }
                 else if(propertyTypeCode == 'L')
                 {
                     //long (signed)
                     long val = BitConverter.ToInt64(data, idx);
-                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
+                    prop.ID = val;
                     idx += 8;
                 }
                 else if(propertyTypeCode == 'f')
@@ -241,6 +334,7 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 4;
                     }
+                    Console.WriteLine(TABS + "\t" + "float[]");
                 }
                 else if (propertyTypeCode == 'd')
                 {
@@ -260,6 +354,7 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 8;
                     }
+                    Console.WriteLine(TABS + "\t" + "double[]");
                 }
                 else if (propertyTypeCode == 'l')
                 {
@@ -279,6 +374,7 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 8;
                     }
+                    Console.WriteLine(TABS + "\t" + "long[]");
                 }
                 else if (propertyTypeCode == 'i')
                 {
@@ -298,6 +394,7 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 4;
                     }
+                    Console.WriteLine(TABS + "\t" + "int[]");
                 }
                 else if (propertyTypeCode == 'b')
                 {
@@ -317,6 +414,7 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 1;
                     }
+                    Console.WriteLine(TABS + "\t" + "byte[]");
                 }
                 else if(propertyTypeCode == 'S')
                 {
@@ -328,38 +426,61 @@ namespace KWEngine3.Helper
                     {
                         s += (char)data[j];
                     }
+                    s = s.Replace("\0", "|");
+                    Console.WriteLine(TABS + "\t" + "string: " + s);
+                    prop.Name = s;
                     idx += (int)length;
                 }
-            }
-
-            // check for 13-NUL-Byte ending of node:
-            int endIndex = (int)(endoffset - 1);
-            char[] nestedListTerminator = new char[13];
-            bool hasNestedList = true;
-            for(int i = 0; i < 13; i++)
-            {
-                nestedListTerminator[i] = (char)data[endIndex - i];
-                if (nestedListTerminator[i] != 0)
+                else if (propertyTypeCode == 'R')
                 {
-                    hasNestedList = false;
+                    uint length = BitConverter.ToUInt32(data, idx);
+
+                    byte[] arraydata = new byte[length];
+                    Array.Copy(data, idx, arraydata, 0, length);
+                    Console.WriteLine(TABS + "\t" + "RAW DATA");
+                    prop.RawData = arraydata;
+                    idx += (int)length;
                 }
+                n.Properties.Add(prop);
             }
 
             // if it has a nested list, save the offset to this list in an offset variable:
-            if(hasNestedList)
+            if (hasNestedList)
             {
-
+                Console.WriteLine(TABS + " START READING OF CHILDREN FOR " + n.Name);
+                n.Children.Add(ReadFBXNodeStructure(data, (uint)idx, n, nestingLevel + 1, (int)n.EndOffset));
+                Console.WriteLine(TABS + " END READING OF CHILDREN FOR " + n.Name);
             }
+            
 
-            return new FBXNode()
+            idx = (int)n.EndOffset;
+
+            int end = nestingLevelEndOffset > 0 ? nestingLevelEndOffset - 13 : data.Length;
+            if (isSiblingsRead == false)
             {
-                EndOffset = endoffset,
-                NameLen = namelen,
-                NumProperties = numproperties,
-                PropertyListLen = proplistlen,
-                Name = name,
-                HasNestedList = hasNestedList
-            };
+                Console.WriteLine(TABS + "START READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
+                while (idx > 0 && idx < end)
+                {
+                    FBXNode sibling = ReadFBXNodeStructure(data, (uint)idx, parent, nestingLevel, -1, true);
+                    n.Siblings.Add(sibling);
+                    idx = (int)sibling.EndOffset;
+                }
+                Console.WriteLine(TABS + " END READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
+            }
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(idx);
+            Console.ForegroundColor = ConsoleColor.White;
+            return n;
+        }
+
+        internal static void CycleFBXNodes(byte[] data, int startIndex)
+        {
+            while(startIndex > 0)
+            {
+                FBXNode n = ReadFBXNodeStructure(data, (uint)startIndex, null);
+                Console.WriteLine(n.Name + " (at index: " + startIndex + ")");
+                startIndex = (int)n.EndOffset;
+            }
         }
 
         internal static GeoTexture ProcessTextureForAssimpPBRMaterial(Assimp.Material material, TextureType ttype, Assimp.Scene scene, ref GeoModel model)
@@ -367,7 +488,7 @@ namespace KWEngine3.Helper
             if (material.Name.ToLower() == "materialpbr")
             {
                 string filetype = GetFileEnding(model.Filename);
-                string textureFilename = GetFBXTextureFilename(ttype, model.Filename);
+                string textureFilename = GetFBXTextureFilename(ttype, model.Filename, model.Name);
                 if (filetype == "fbx")
                 {
 
