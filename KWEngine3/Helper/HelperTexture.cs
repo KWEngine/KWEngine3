@@ -45,7 +45,7 @@ namespace KWEngine3.Helper
     internal static class HelperTexture
     {
         private static readonly Regex rxNonDigits = new Regex(@"[^\d]+");
-
+        private static readonly string replaceSymbol = "|KWEngine|";
 
 
         internal static string GetFileEnding(string path)
@@ -161,7 +161,141 @@ namespace KWEngine3.Helper
             return fileinfo != "Kaydara FBX Binary  ";
         }
 
-        internal static string GetFBXTextureFilename(TextureType ttype, string filename, string modelName)
+        internal static long GetMaterialIdFor(string materialName, FBXNode root)
+        {
+            for (int i = 0; i < root.Siblings.Count; i++)
+            {
+                if (root.Siblings[i].Name == "Objects")
+                {
+                    FBXNode objectsGroup = root.Siblings[i];
+                    foreach (FBXNode geometryObject in objectsGroup.Children)
+                    {
+                        foreach (FBXNode geometryObjectDetail in geometryObject.Siblings)
+                        {
+                            if (geometryObjectDetail.Name == "Material")
+                            {
+                                foreach (FBXProperty property in geometryObjectDetail.Properties)
+                                {
+                                    if (property.Type == "S")
+                                    {
+                                        int idx = property.Name.IndexOf(replaceSymbol);
+                                        if (idx > 0)
+                                        {
+                                            string matName = property.Name.Substring(0, idx);
+                                            if (matName == materialName)
+                                            {
+                                                return geometryObjectDetail.Properties[0].ID;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return -1;
+        }
+
+        internal static bool GetTextureMetallic(long textureId, FBXNode root, out string metallicFilename, out byte[] metallicData)
+        {
+            metallicFilename = "";
+            metallicData = null;
+            bool textureIdApproved = false;
+            for (int i = 0; i < root.Siblings.Count; i++)
+            {
+                if (root.Siblings[i].Name == "Objects")
+                {
+                    FBXNode objectsGroup = root.Siblings[i];
+                    foreach (FBXNode geometryObject in objectsGroup.Children)
+                    {
+                        foreach (FBXNode geometryObjectDetail in geometryObject.Siblings)
+                        {
+                            if (geometryObjectDetail.Name == "Texture")
+                            {
+                                bool found = false;
+                                foreach (FBXProperty property in geometryObjectDetail.Properties)
+                                {
+                                    if (property.Type == "S" && property.Name.ToLower().Contains("metallic_texture"))
+                                    {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if(found)
+                                {
+                                    long maybeId = geometryObjectDetail.Properties[0].ID;
+                                    if (maybeId == textureId)
+                                    {
+                                        textureIdApproved = true;
+                                        foreach(FBXNode sibling in geometryObjectDetail.Children[0].Siblings)
+                                        {
+                                            if(sibling.Name == "Media")
+                                            {
+                                                metallicFilename = sibling.Properties[0].Name;
+                                                metallicFilename = metallicFilename.Substring(0, metallicFilename.IndexOf(replaceSymbol));
+                                                metallicFilename = SceneImporter.StripPathFromFile(metallicFilename);
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+                            if (textureIdApproved)
+                            {
+
+                                break;
+                            }
+                        }
+                        if (textureIdApproved) break;
+                    }
+                }
+                if (textureIdApproved) break;
+            }
+
+            if(textureIdApproved)
+            {
+
+            }
+
+
+            return false;
+        }
+
+        internal static void GetMetallicRoughnessForMaterialID(long materialId, FBXNode root, out string roughnessFilename, out byte[] roughnessData, out string metallicFilename, out byte[] metallicData)
+        {
+            roughnessData = null;
+            metallicData = null;
+            roughnessFilename = "";
+            metallicFilename = "";
+
+            foreach(FBXNode sibling in root.Siblings)
+            {
+                if(sibling.Name == "Connections")
+                {
+                    FBXNode connList = sibling.Children[0];
+                    foreach(FBXNode connListSibling in connList.Siblings)
+                    {
+                        if(connListSibling.Name == "C")
+                        {
+                            long id = connListSibling.Properties[2].ID;
+                            if(id ==  materialId)
+                            {
+                                long textureId = connListSibling.Properties[1].ID;
+                                GetTextureMetallic(textureId, root, out string mFilename, out byte[] mData);
+                            }
+                        }
+                    }
+                }
+            }
+            
+
+            // Get texture ids for metallic and roughness textures
+
+
+        }
+
+        internal static string GetFBXTextureFilename(TextureType ttype, string filename, string materialName)
         {
             byte[] filedata = File.ReadAllBytes(filename);
             if(IsFBXASCII(filedata))
@@ -171,30 +305,14 @@ namespace KWEngine3.Helper
             else
             {
                 uint version = BitConverter.ToUInt32(filedata, 23);
-                FBXNode root = ReadFBXNodeStructure(filedata, 27);
-
-                for(int i = 0; i < root.Siblings.Count;i++)
+                if (version <= 7400)
                 {
-                    if (root.Siblings[i].Name == "Objects")
-                    {
-                        FBXNode objectsGroup = root.Siblings[i];
-                        foreach(FBXNode geometryObject in objectsGroup.Children)
-                        {
-                            foreach(FBXNode geometryObjectDetail in geometryObject.Siblings)
-                            {
-                                int indexModel = -1;
-                                for(int j = 0; j < geometryObjectDetail.Properties.Count; j++)
-                                {
-                                    if (geometryObjectDetail.Properties[j].Name.StartsWith(modelName))
-                                    {
-                                        indexModel = j;
-                                        break;
-                                    }
-                                }
-                                
-                            }
-                        }
+                    FBXNode root = ReadFBXNodeStructure(filedata, 27);
 
+                    long materialIdFromFBX = GetMaterialIdFor(materialName, root);
+                    if(materialIdFromFBX > 0)
+                    {
+                        GetMetallicRoughnessForMaterialID(materialIdFromFBX, root, out string roughFile, out byte[] roughData, out string metalFile, out byte[] metalData);
                     }
                 }
                 //CycleFBXNodes(filedata, 27);
@@ -426,7 +544,7 @@ namespace KWEngine3.Helper
                     {
                         s += (char)data[j];
                     }
-                    s = s.Replace("\0", "|");
+                    s = s.Replace("\0", replaceSymbol);
                     Console.WriteLine(TABS + "\t" + "string: " + s);
                     prop.Name = s;
                     idx += (int)length;
@@ -488,7 +606,7 @@ namespace KWEngine3.Helper
             if (material.Name.ToLower() == "materialpbr")
             {
                 string filetype = GetFileEnding(model.Filename);
-                string textureFilename = GetFBXTextureFilename(ttype, model.Filename, model.Name);
+                string textureFilename = GetFBXTextureFilename(ttype, model.Filename, material.Name);
                 if (filetype == "fbx")
                 {
 
