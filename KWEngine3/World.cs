@@ -678,12 +678,12 @@ namespace KWEngine3
             {
                 if(_background.Type == BackgroundType.Standard)
                 {
-                    HelperTexture.GetTextureDimensionsAlbedo(_background._standardId, out int width, out int height);
+                    HelperTexture.GetTextureDimensions(_background._standardId, out int width, out int height);
                     return new Vector2(width, height);
                 }
                 else
                 {
-                    HelperTexture.GetTextureDimensionsAlbedo(_background._skyboxId, out int width, out int height);
+                    HelperTexture.GetTextureDimensions(_background._skyboxId, out int width, out int height);
                     return new Vector2(width, height);
                 }
             }

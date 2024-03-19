@@ -7,9 +7,34 @@ using SkiaSharp;
 
 namespace KWEngine3.Helper
 {
+    internal class FBXNode
+    {
+        public uint EndOffset;
+        public uint NumProperties;
+        public uint PropertyListLen;
+        public byte NameLen;
+        public string Name;
+        public string Rest;
+        public bool HasNestedList;
+        public uint NestedListOffset;
+    }
+
     internal static class HelperTexture
     {
         private static readonly Regex rxNonDigits = new Regex(@"[^\d]+");
+
+
+
+        internal static string GetFileEnding(string path)
+        {
+            int index = path.LastIndexOf('.');
+            if (index >= 0)
+            {
+                return path.Substring(index + 1).ToLower();
+            }
+            else
+                return "";
+        }
 
         internal static int LeaveOnlyDigits(string input)
         {
@@ -42,23 +67,335 @@ namespace KWEngine3.Helper
             else if (type == TextureType.Normal)
                 return "NORMAL";
             else if (type == TextureType.Metallic)
-                return "NORMAL";
+                return "METALLIC";
             else if (type == TextureType.Roughness)
-                return "NORMAL";
+                return "ROUGHNESS";
             else if (type == TextureType.Emissive)
-                return "NORMAL";
+                return "EMISSIVE";
             else
                 return "UNKNOWN";
         }
 
-        internal static GeoTexture ProcessTextureAlbedoForMaterial(Assimp.Material material, Assimp.Scene scene, ref GeoModel model)
+        internal static int GetUVIndex(Assimp.Material material, TextureType ttype)
+        {
+            switch(ttype)
+            {
+                case TextureType.Albedo: return material.TextureDiffuse.UVIndex;
+                case TextureType.Normal: return material.TextureNormal.UVIndex;
+                case TextureType.Roughness: return material.TextureDiffuse.UVIndex;
+                case TextureType.Emissive: return material.TextureEmissive.UVIndex;
+                case TextureType.Metallic: return material.TextureDiffuse.UVIndex;
+                default: return material.TextureDiffuse.UVIndex;
+            }
+        }
+       
+        internal static int GetTextureSlotIndex(Assimp.Material material, TextureType ttype)
+        {
+            switch (ttype)
+            {
+                case TextureType.Albedo: return material.TextureDiffuse.TextureIndex;
+                case TextureType.Normal: return material.TextureNormal.TextureIndex;
+                case TextureType.Roughness: return -1; // TODO
+                case TextureType.Emissive: return material.TextureEmissive.TextureIndex;
+                case TextureType.Metallic: return -1; // TODO
+                default: return material.TextureDiffuse.TextureIndex;
+            }
+        }
+
+        internal static int GetDefaultTexture(TextureType ttype)
+        {
+            switch (ttype)
+            {
+                case TextureType.Albedo: return KWEngine.TextureDefault;
+                case TextureType.Normal: return KWEngine.TextureNormalEmpty;
+                case TextureType.Roughness: return KWEngine.TextureWhite;
+                case TextureType.Emissive: return KWEngine.TextureBlack;
+                case TextureType.Metallic: return KWEngine.TextureBlack;
+                default: return KWEngine.TextureDefault;
+            }
+        }
+
+        internal static Assimp.TextureType GetAssimpTextureType(TextureType ttype)
+        {
+            switch(ttype)
+            {
+                case TextureType.Albedo: return Assimp.TextureType.Diffuse;
+                case TextureType.Normal: return Assimp.TextureType.Normals;
+                case TextureType.Roughness: return Assimp.TextureType.Specular;
+                case TextureType.Emissive: return Assimp.TextureType.Emissive;
+                case TextureType.Metallic: return Assimp.TextureType.Unknown;
+                default: return Assimp.TextureType.Diffuse;
+            }
+        }
+
+        internal static bool IsFBXASCII(byte[] data)
+        {
+            string fileinfo = "";
+            for(int i = 0; i < 20; i++)
+            {
+                fileinfo += (char)data[i];
+            }
+            return fileinfo != "Kaydara FBX Binary  ";
+        }
+
+        internal static string GetFBXTextureFilename(TextureType ttype, string filename)
+        {
+            byte[] filedata = File.ReadAllBytes(filename);
+            if(IsFBXASCII(filedata))
+            {
+
+            }
+            else
+            {
+                uint version = BitConverter.ToUInt32(filedata, 23);
+                FBXNode root = GetFBXNode(filedata, 27);
+            }
+            return "";
+        }
+
+        internal static FBXNode GetFBXNode(byte[] data, uint startIndex)
+        {
+            int idx = (int)startIndex;
+            uint endoffset = BitConverter.ToUInt32(data, idx);
+
+            idx += 4;
+            uint numproperties = BitConverter.ToUInt32(data, idx);
+
+            idx += 4;
+            uint proplistlen = BitConverter.ToUInt32(data, idx);
+
+            idx += 4;
+            byte namelen = data[idx];
+
+            idx += 1;
+            string name = "";
+            int start = idx;
+            for(int i = idx; i < start + namelen; i++)
+            {
+                name += (char)data[i];
+                idx++;
+            }
+
+            // Loop through properties:
+            for(int i = 0; i < numproperties; i++)
+            {
+                char propertyTypeCode = (char)data[idx];
+                if(propertyTypeCode == 'Y')
+                {
+                    // short
+                    
+                    short val = BitConverter.ToInt16(data, idx);
+                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    idx += 2;
+                }
+                else if(propertyTypeCode == 'C')
+                {
+                    // bool in byte (lsbit = 1/0)
+                    byte val = data[idx];
+                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    idx += 1;
+                }
+                else if( propertyTypeCode == 'I')
+                {
+                    // int
+                    int val = BitConverter.ToInt32(data, idx);
+                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    idx += 4;
+                }
+                else if (propertyTypeCode == 'F')
+                {
+                    // float
+                    float val = BitConverter.ToSingle(data, idx);
+                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    idx += 4;
+                }
+                else if (propertyTypeCode == 'D')
+                {
+                    // double
+                    double val = BitConverter.ToDouble(data, idx);
+                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    idx += 8;
+                }
+                else if(propertyTypeCode == 'L')
+                {
+                    //long (signed)
+                    long val = BitConverter.ToInt64(data, idx);
+                    Console.WriteLine(propertyTypeCode.ToString() + val);
+                    idx += 8;
+                }
+                else if(propertyTypeCode == 'f')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+                    
+                    if(encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 4;
+                    }
+                }
+                else if (propertyTypeCode == 'd')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 8;
+                    }
+                }
+                else if (propertyTypeCode == 'l')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 8;
+                    }
+                }
+                else if (propertyTypeCode == 'i')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 4;
+                    }
+                }
+                else if (propertyTypeCode == 'b')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 1;
+                    }
+                }
+                else if(propertyTypeCode == 'S')
+                {
+                    uint length = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    string s = "";
+                    for(int j = idx; j < idx + (int)length; j++)
+                    {
+                        s += (char)data[j];
+                    }
+                    idx += (int)length;
+                }
+            }
+
+            // check for 13-NUL-Byte ending of node:
+            int endIndex = (int)(endoffset - 1);
+            char[] nestedListTerminator = new char[13];
+            bool hasNestedList = true;
+            for(int i = 0; i < 13; i++)
+            {
+                nestedListTerminator[i] = (char)data[endIndex - i];
+                if (nestedListTerminator[i] != 0)
+                {
+                    hasNestedList = false;
+                }
+            }
+
+            // if it has a nested list, save the offset to this list in an offset variable:
+            if(hasNestedList)
+            {
+
+            }
+
+            return new FBXNode()
+            {
+                EndOffset = endoffset,
+                NameLen = namelen,
+                NumProperties = numproperties,
+                PropertyListLen = proplistlen,
+                Name = name,
+                HasNestedList = hasNestedList
+            };
+        }
+
+        internal static GeoTexture ProcessTextureForAssimpPBRMaterial(Assimp.Material material, TextureType ttype, Assimp.Scene scene, ref GeoModel model)
+        {
+            if (material.Name.ToLower() == "materialpbr")
+            {
+                string filetype = GetFileEnding(model.Filename);
+                string textureFilename = GetFBXTextureFilename(ttype, model.Filename);
+                if (filetype == "fbx")
+                {
+
+                }
+                else if(filetype == "obj")
+                {
+
+                }
+                else if(filetype == "dae")
+                {
+
+                }
+                else
+                {
+
+                }
+            }
+            return new GeoTexture();
+        }
+
+        internal static GeoTexture ProcessTextureForAssimpMaterial(Assimp.Material material, TextureType ttype, Assimp.Scene scene, ref GeoModel model)
         {
             GeoTexture tex = new GeoTexture();
             tex.UVTransform = new Vector4(1, 1, 0, 0);
-            tex.UVMapIndex = material.TextureDiffuse.UVIndex;
-            tex.Type = TextureType.Albedo;
+            tex.UVMapIndex = GetUVIndex(material, ttype);
+            tex.Type = ttype;
 
-            if (material.GetMaterialTexture(Assimp.TextureType.Diffuse, material.TextureDiffuse.TextureIndex, out Assimp.TextureSlot texSlot))
+            if (material.GetMaterialTexture(GetAssimpTextureType(ttype), GetTextureSlotIndex(material, ttype), out Assimp.TextureSlot texSlot))
             {
                 string tFilename;
                 if (texSlot.FilePath != null)
@@ -84,10 +421,7 @@ namespace KWEngine3.Helper
                             {
                                 tFilename = model.Name + "_" + material.Name + "_" + GetTextureTypeString(tex.Type) + "-EMBEDDED_" + index + "." + embedded.CompressedFormatHint;
                                 tex.IsEmbedded = true;
-                                if(ConvertEmbeddedToTemporaryFile(embedded.CompressedData, tFilename, model.Path))
-                                {
-                                }
-                                else
+                                if(!ConvertEmbeddedToTemporaryFile(embedded.CompressedData, tFilename, model.Path))
                                 {
                                     KWEngine.LogWriteLine("[Import] Temporary image file " + tFilename + " could not be written to disk");
                                     tFilename = "";
@@ -133,7 +467,7 @@ namespace KWEngine3.Helper
 
                         if (tex.OpenGLID > 0)
                         {
-                            if (GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
+                            if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
                             {
                                 tex.Width = width;
                                 tex.Height = height;
@@ -142,13 +476,13 @@ namespace KWEngine3.Helper
                         }
                         else
                         {
-                            tex.OpenGLID = KWEngine.TextureDefault;
-                            if (GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
+                            tex.OpenGLID = GetDefaultTexture(ttype);
+                            if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
                             {
                                 tex.Width = width;
                                 tex.Height = height;
                             }
-                            tex.UVTransform = new Vector4(100, 100, 0, 0);
+                            tex.UVTransform = new Vector4(1, 1, 0, 0);
                             tex.MipMaps = 0;
                             tex.IsKWEngineTexture = true;
                         }
@@ -156,13 +490,13 @@ namespace KWEngine3.Helper
                 }
                 else
                 {
-                    tex.OpenGLID = KWEngine.TextureDefault;
-                    if (GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
+                    tex.OpenGLID = GetDefaultTexture(ttype);
+                    if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
                     {
                         tex.Width = width;
                         tex.Height = height;
                     }
-                    tex.UVTransform = new Vector4(100, 100, 0, 0);
+                    tex.UVTransform = new Vector4(1, 1, 0, 0);
                     tex.MipMaps = 0;
                     tex.IsKWEngineTexture = true;
 
@@ -173,11 +507,14 @@ namespace KWEngine3.Helper
 
         internal static GeoTexture ProcessTextureForMaterial(TextureType textureType, Assimp.Material material, Assimp.Scene scene, ref GeoModel model)
         {
-            if(textureType == TextureType.Albedo)
+            if(textureType == TextureType.Roughness || textureType == TextureType.Metallic)
             {
-                return ProcessTextureAlbedoForMaterial(material, scene, ref model);
+                return ProcessTextureForAssimpPBRMaterial(material, textureType, scene, ref model);
             }
-            return new GeoTexture();
+            else
+            {
+                return ProcessTextureForAssimpMaterial(material, textureType, scene, ref model);
+            }
         }
         internal static void SaveTextureToBitmap(int texId, int width, int height, string name = null)
         {
@@ -1194,7 +1531,7 @@ namespace KWEngine3.Helper
             return 1 + (int)Math.Floor(Math.Log(Math.Max(width, height), 2));
         }
 
-        internal static bool GetTextureDimensionsAlbedo(int oglTextureId, out int width, out int height)
+        internal static bool GetTextureDimensions(int oglTextureId, out int width, out int height)
         {
             if(oglTextureId <= 0)
             {

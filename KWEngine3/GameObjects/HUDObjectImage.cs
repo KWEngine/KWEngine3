@@ -75,7 +75,7 @@ namespace KWEngine3.GameObjects
                     _textureId = HelperTexture.LoadTextureForBackgroundExternal(filename, out int mipMapLevels);
                     KWEngine.CurrentWorld._customTextures.Add(filename, _textureId);
                 }
-                if (HelperTexture.GetTextureDimensionsAlbedo(_textureId, out int width, out int height))
+                if (HelperTexture.GetTextureDimensions(_textureId, out int width, out int height))
                 {
                     _textureName = filename;
                     SetScale(width, height);

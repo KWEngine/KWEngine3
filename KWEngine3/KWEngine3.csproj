@@ -58,6 +58,8 @@
 		<None Remove="Assets\Textures\black.png" />
 		<None Remove="Assets\Textures\checkerboard.png" />
 		<None Remove="Assets\Textures\cross.png" />
+		<None Remove="Assets\Textures\default.dds" />
+		<None Remove="Assets\Textures\default.png" />
 		<None Remove="Assets\Textures\fire01.dds" />
 		<None Remove="Assets\Textures\fire02.dds" />
 		<None Remove="Assets\Textures\fire03.dds" />
@@ -181,6 +183,8 @@
 		<EmbeddedResource Include="Assets\Textures\alpha.png" />
 		<EmbeddedResource Include="Assets\Textures\arrow.png" />
 		<EmbeddedResource Include="Assets\Textures\cross.png" />
+		<EmbeddedResource Include="Assets\Textures\default.dds" />
+		<EmbeddedResource Include="Assets\Textures\default.png" />
 		<EmbeddedResource Include="Assets\Textures\foliage_fern.dds" />
 		<EmbeddedResource Include="Assets\Textures\foliage_grassblade_01.dds">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>

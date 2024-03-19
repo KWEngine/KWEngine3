@@ -485,7 +485,7 @@ namespace KWEngine3.Model
                             tex.Type = TextureType.Albedo;
                             tex.OpenGLID = glTextureId;
 
-                            if (HelperTexture.GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
+                            if (HelperTexture.GetTextureDimensions(tex.OpenGLID, out int width, out int height))
                             {
                                 tex.Width = width;
                                 tex.Height = height;

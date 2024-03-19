@@ -563,7 +563,7 @@ namespace KWEngine3.Model
                     }
                 }
             }
-
+            GeoTexture tex;
             // Process Textures:
             if (material != null)
             {
@@ -572,7 +572,7 @@ namespace KWEngine3.Model
                 // ALBEDO/DIFFUSE
                 if (material.HasTextureDiffuse)
                 {
-                    GeoTexture tex = HelperTexture.ProcessTextureForMaterial(TextureType.Albedo, material, scene, ref model);
+                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Albedo, material, scene, ref model);
                     if(tex.IsTextureSet)
                     {
                         geoMaterial.TextureAlbedo = tex;
@@ -582,11 +582,57 @@ namespace KWEngine3.Model
                         }
                     }
                 }
+                if(material.HasTextureNormal)
+                {
+                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Normal, material, scene, ref model);
+                    if (tex.IsTextureSet)
+                    {
+                        geoMaterial.TextureNormal = tex;
+                        if (!tex.IsKWEngineTexture)
+                        {
+                            model.Textures.Add(tex.Filename, tex);
+                        }
+                    }
+                }
+                if (material.HasTextureEmissive)
+                {
+                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Emissive, material, scene, ref model);
+                    if (tex.IsTextureSet)
+                    {
+                        geoMaterial.TextureEmissive = tex;
+                        if (!tex.IsKWEngineTexture)
+                        {
+                            model.Textures.Add(tex.Filename, tex);
+                        }
+                    }
+                }
+
+                // Look for roughness texture:
+                tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Roughness, scene, ref model);
+                if (tex.IsTextureSet)
+                {
+                    geoMaterial.TextureRoughness = tex;
+                    if (!tex.IsKWEngineTexture)
+                    {
+                        model.Textures.Add(tex.Filename, tex);
+                    }
+                }
+
+                // Look for metallic texture:
+                tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Metallic, scene, ref model);
+                if (tex.IsTextureSet)
+                {
+                    geoMaterial.TextureMetallic = tex;
+                    if (!tex.IsKWEngineTexture)
+                    {
+                        model.Textures.Add(tex.Filename, tex);
+                    }
+                }
 
 
 
                 // END TEXTURE IMPORT REWRITE
-
+                /*
                 bool specularUsed = false;
                 int roughnessTextureIndex = -1;
                 TextureSlot[] texturesOfMaterial = material.GetAllMaterialTextures();
@@ -677,7 +723,7 @@ namespace KWEngine3.Model
                         
                         if (tex.OpenGLID > 0)
                         {
-                            if (HelperTexture.GetTextureDimensionsAlbedo(tex.OpenGLID, out int width, out int height))
+                            if (HelperTexture.GetTextureDimensions(tex.OpenGLID, out int width, out int height))
                             {
                                 tex.Width = width;
                                 tex.Height = height;
@@ -822,6 +868,7 @@ namespace KWEngine3.Model
                         }
                     }
                 }
+                */
             }
             geoMesh.Material = geoMaterial;
         }

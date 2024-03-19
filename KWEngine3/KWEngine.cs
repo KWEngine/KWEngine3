@@ -240,12 +240,14 @@ namespace KWEngine3
 
         internal static void InitializeFontsAndDefaultTextures()
         {
+            int mipMaps;
+
             InitializeFont("anonymous.dds", 0);
             InitializeFont("anonymous2.dds", 1);
             InitializeFont("anonymous3.dds", 2);
             InitializeFont("anonymous4.dds", 3);
 
-            TextureDefault = HelperTexture.LoadTextureInternal("checkerboard.png");
+            TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
             TextureWhite = HelperTexture.LoadTextureInternal("white.png");
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
@@ -255,7 +257,6 @@ namespace KWEngine3
             TextureFlowFieldArrow = HelperTexture.LoadTextureInternal("arrow.png");
             TextureFlowFieldCross = HelperTexture.LoadTextureInternal("cross.png");
 
-            int mipMaps;
             TextureFoliageGrass1 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_01.dds", out mipMaps);
             TextureFoliageGrass2 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_02.dds", out mipMaps);
             TextureFoliageGrass3 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_03.dds", out mipMaps);
