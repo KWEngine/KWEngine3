@@ -433,14 +433,14 @@ namespace KWEngine3.Model
                     filename = StripEndingFromFile(filename);
                     if (fn.Contains(filename) && fnIsImageFile)
                     {
-                        return fi.FullName;
+                        return HelperGeneral.EqualizePathDividers(fi.FullName);
                     }
                 }
                 else
                 {
                     if (StripPathFromFile(fi.Name.Trim()) == StripPathFromFile(filename).Trim())
                     {
-                        return fi.FullName;
+                        return HelperGeneral.EqualizePathDividers(fi.FullName);
                     }
                 }
             }
