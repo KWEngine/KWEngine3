@@ -1084,8 +1084,9 @@ namespace KWEngine3.Helper
                             Assimp.EmbeddedTexture embedded = scene.Textures[index];
                             if(embedded.HasCompressedData)
                             {
-                                tFilename = model.Name + "_" + material.Name + "_" + GetTextureTypeString(tex.Type) + "-EMBEDDED_" + index + "." + embedded.CompressedFormatHint;
+                                tFilename = model.Name + "_" + material.Name + "_" + GetTextureTypeString(tex.Type) + "-EMBEDDED_" + texSlot.TextureIndex + "_" + index + "." + embedded.CompressedFormatHint;
                                 tex.IsEmbedded = true;
+                                tex.Filename = tFilename;
                                 if(!ConvertEmbeddedToTemporaryFile(embedded.CompressedData, tFilename, model.Path))
                                 {
                                     KWEngine.LogWriteLine("[Import] Temporary image file " + tFilename + " could not be written to disk");
@@ -1160,13 +1161,9 @@ namespace KWEngine3.Helper
                 }
             }
 
-            if (tex.IsEmbedded)
+            if (tex.IsEmbedded && tex.Filename.Length > 0)
             {
                 bool deleted = DeleteTemporaryFile(tex.Filename, model.Path);
-                if (!deleted)
-                {
-                    KWEngine.LogWriteLine("[Import] Temporary image file " + tex.Filename + " could not be deleted");
-                }
             }
 
             return tex;

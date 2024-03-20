@@ -11,10 +11,32 @@ namespace KWEngine3.Model
 {
     internal static class SceneImporterGLTF
     {
+        internal static List<GeoAnimation> LoadAnimations(string filename)
+        {
+            List<GeoAnimation> animations = new List<GeoAnimation>();
+
+            filename = HelperGeneral.EqualizePathDividers(filename);
+            try
+            {
+                Gltf scene = Interface.LoadModel(filename);
+                GeoModel dummy = new GeoModel();
+                ProcessAnimations(scene, ref dummy);
+                if (dummy.Animations != null && dummy.Animations.Count > 0)
+                {
+                    animations.AddRange(dummy.Animations);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            return animations;
+        }
+
         internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false)
         {
             filename = HelperGeneral.EqualizePathDividers(filename.Trim());
-            Gltf scene = null;
+            Gltf scene;
             try
             {
                 scene = Interface.LoadModel(filename);

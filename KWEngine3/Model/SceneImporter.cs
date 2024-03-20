@@ -1,8 +1,6 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using Assimp;
 using Assimp.Configs;
-using Assimp.Unmanaged;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
 
@@ -34,6 +32,32 @@ namespace KWEngine3.Model
         }
 
         internal enum AssemblyMode { File, Internal, User }
+
+
+        internal static List<GeoAnimation> LoadAnimations(string filename)
+        {
+            List<GeoAnimation> animations = new List<GeoAnimation>();
+
+            filename = HelperGeneral.EqualizePathDividers(filename);
+            FileType type = CheckFileEnding(filename);
+            if (type != FileType.Invalid)
+            {
+                PostProcessSteps steps = PostProcessSteps.LimitBoneWeights | PostProcessSteps.ValidateDataStructure;
+
+                AssimpContext importer = new AssimpContext();
+                importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
+                importer.SetConfig(new MaxBoneCountConfig(KWEngine.MAX_BONES));
+                Scene scene = importer.ImportFile(filename, steps);
+
+                GeoModel dummy = new GeoModel();
+                ProcessAnimations(scene, ref dummy);
+                if(dummy.Animations != null && dummy.Animations.Count > 0)
+                {
+                    animations.AddRange(dummy.Animations);
+                }
+            }
+            return animations;
+        }
 
         internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal)
         {
@@ -598,7 +622,7 @@ namespace KWEngine3.Model
                     if(tex.IsTextureSet)
                     {
                         geoMaterial.TextureAlbedo = tex;
-                        if (!tex.IsKWEngineTexture)
+                        if (!tex.IsKWEngineTexture && model.Textures.ContainsKey(tex.Filename) == false)
                         {
                             model.Textures.Add(tex.Filename, tex);
                         }
@@ -610,7 +634,7 @@ namespace KWEngine3.Model
                     if (tex.IsTextureSet)
                     {
                         geoMaterial.TextureNormal = tex;
-                        if (!tex.IsKWEngineTexture)
+                        if (!tex.IsKWEngineTexture && model.Textures.ContainsKey(tex.Filename) == false)
                         {
                             model.Textures.Add(tex.Filename, tex);
                         }
@@ -624,7 +648,7 @@ namespace KWEngine3.Model
                     {
                         KWEngine.LogWriteLine("[Import] Assuming normal map in bump map property for " + model.Name + " - lighting may be wrong");
                         geoMaterial.TextureNormal = tex;
-                        if (!tex.IsKWEngineTexture)
+                        if (!tex.IsKWEngineTexture && model.Textures.ContainsKey(tex.Filename) == false)
                         {
                             model.Textures.Add(tex.Filename, tex);
                         }
@@ -638,7 +662,7 @@ namespace KWEngine3.Model
                     if (tex.IsTextureSet)
                     {
                         geoMaterial.TextureEmissive = tex;
-                        if (!tex.IsKWEngineTexture)
+                        if (!tex.IsKWEngineTexture && model.Textures.ContainsKey(tex.Filename) == false)
                         {
                             model.Textures.Add(tex.Filename, tex);
                         }
@@ -651,7 +675,7 @@ namespace KWEngine3.Model
                 if (tex.IsTextureSet)
                 {
                     geoMaterial.TextureRoughness = tex;
-                    if (!tex.IsKWEngineTexture)
+                    if (!tex.IsKWEngineTexture && model.Textures.ContainsKey(tex.Filename) == false)
                     {
                         model.Textures.Add(tex.Filename, tex);
                     }
@@ -666,7 +690,7 @@ namespace KWEngine3.Model
                         {
                             geoMaterial.TextureRoughness = tex;
                             geoMaterial.TextureRoughnessIsSpecular = true;
-                            if (!tex.IsKWEngineTexture)
+                            if (!tex.IsKWEngineTexture && model.Textures.ContainsKey(tex.Filename) == false)
                             {
                                 model.Textures.Add(tex.Filename, tex);
                             }
@@ -684,7 +708,7 @@ namespace KWEngine3.Model
                 if (tex.IsTextureSet)
                 {
                     geoMaterial.TextureMetallic = tex;
-                    if (!tex.IsKWEngineTexture)
+                    if (!tex.IsKWEngineTexture && model.Textures.ContainsKey(tex.Filename) == false)
                     {
                         model.Textures.Add(tex.Filename, tex);
                     }

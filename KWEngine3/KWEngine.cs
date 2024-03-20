@@ -8,6 +8,7 @@ using KWEngine3.Model;
 using KWEngine3.GameObjects;
 using OpenTK.Windowing.Common;
 using KWEngine3.Assets;
+using System.Xml.Linq;
 
 
 namespace KWEngine3
@@ -515,6 +516,59 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Lädt die unter dem Dateinamen zu findenden Animationen in das (zuvor unter dem Namen angegebenen) 3D-Modell
+        /// </summary>
+        /// <param name="modelname">Name des bereits importierten Modells</param>
+        /// <param name="filename">Dateiname der zu importierenden Datei</param>
+        /// <param name="callerName">(wird für interne Zwecke benötigt)</param>
+        public static void LoadAnimationIntoModel(string modelname, string filename, [CallerMemberName] string callerName = "")
+        {
+            if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
+            {
+                LogWriteLine("[Import] Model " + filename + " must be imported in Prepare() - aborting import");
+                return;
+                //throw new Exceptions.EngineException("[Import] Models must be imported in Prepare()");
+            }
+            if (!Models.ContainsKey(modelname.Trim()))
+            {
+                LogWriteLine("[Import] Model " + modelname + " not found in model database - please import it first");
+                return;
+            }
+            if(!File.Exists(filename))
+            {
+                LogWriteLine("[Import] File " + filename + " not found");
+                return;
+            }
+            GeoModel model = Models[modelname];
+            if(!model.HasBones)
+            {
+                LogWriteLine("[Import] Model " + modelname + " has no bones - aborting import");
+                return;
+            }
+            if(!HelperGeneral.IsModelFile(filename))
+            {
+                LogWriteLine("[Import] File " + filename + " is not a valid model file - aborting import");
+                return;
+            }
+
+            List<GeoAnimation> animations = null;
+            if (filename.ToLower().EndsWith("glb") || filename.ToLower().EndsWith("gltf"))
+            { 
+                animations = SceneImporterGLTF.LoadAnimations(filename); 
+            }
+            else
+            {
+                animations = SceneImporter.LoadAnimations(filename);
+                
+            }
+            
+            if(animations != null && animations.Count > 0)
+            {
+                model.Animations.AddRange(animations);
+            }
+        }
+
+        /// <summary>
         /// Lädt ein Modell aus einer Datei
         /// </summary>
         /// <param name="name">Name des Modells</param>
@@ -524,8 +578,9 @@ namespace KWEngine3
         {
             if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
             {
-                LogWriteLine("[Import] Models must be imported in Prepare()");
-                throw new KWEngine3.Exceptions.EngineException("[Import] Models must be imported in Prepare()");
+                LogWriteLine("[Import] Model " + filename + " must be imported in Prepare() - aborting import");
+                return;
+                //throw new Exceptions.EngineException("[Import] Models must be imported in Prepare()");
             }
             GeoModel m;
             if (Models.ContainsKey(name.Trim()))
