@@ -899,6 +899,7 @@ namespace KWEngine3.Helper
                 }
                 catch(Exception)
                 {
+                    KWEngine.LogWriteLine("[Import] Error reading PBR textures in model " + model.Filename);
                     return new GeoTexture();
                 }
             }
@@ -1039,7 +1040,8 @@ namespace KWEngine3.Helper
                             }
                             catch(Exception)
                             {
-
+                                KWEngine.LogWriteLine("[Import] Error reading PBR textures in model " + model.Filename);
+                                return new GeoTexture();
                             }
                             break;
                         }
