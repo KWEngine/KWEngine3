@@ -106,6 +106,11 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
                 _state = 0; // set state to 'stand'
                 _velocity = 0f;
             }
+            else if(upCorrection && !obstacleCorrection)
+            {
+                _state = 0;
+                _velocity = 0f;
+            }
 
             CurrentWorld.SetCameraPosition(Position + new Vector3(0, 10, 25));
             CurrentWorld.SetCameraTarget(Position);

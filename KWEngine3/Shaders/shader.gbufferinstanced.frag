@@ -20,7 +20,7 @@ uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureRoughness;
 uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureEmissive;
-uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = 1 means: object has transparency!
+uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = 1 means: texture is specular
 uniform ivec3 uUseTexturesAlbedoNormalEmissive; // x = albedo, y = normal, z = emissive
 uniform int uTextureIsMetallicRoughnessCombined;
 
@@ -85,7 +85,15 @@ void main()
 	{
 		if(!roughnessThroughMetallic)
 		{
-			roughness = texture(uTextureRoughness, vTexture).r;
+			if(uUseTexturesMetallicRoughness.z > 0)
+			{
+				roughness = 1.0 - texture(uTextureRoughness, vTexture).r;
+			}
+			else
+			{
+				roughness = texture(uTextureRoughness, vTexture).r;
+			}
+			//roughness = texture(uTextureRoughness, vTexture).r;
 		}
 	}
 

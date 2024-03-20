@@ -138,6 +138,7 @@ namespace KWEngine3TestProject.Worlds
             p.IsShadowCaster = true;
             p.SetColliderType(ColliderType.ConvexHull);
             p.SetHitboxToCapsuleForMesh(0);
+            p.SetHitboxScale(0.75f, 1f, 1f);
             p.SetAnimationID(0);
             AddGameObject(p);
 

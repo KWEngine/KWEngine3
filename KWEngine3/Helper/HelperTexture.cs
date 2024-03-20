@@ -1,13 +1,9 @@
-﻿using System;
-using System.Buffers.Binary;
-using System.Data;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using SkiaSharp;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace KWEngine3.Helper
 {
@@ -18,9 +14,7 @@ namespace KWEngine3.Helper
         public uint PropertyListLen;
         public byte NameLen;
         public string Name;
-        public string Rest;
         public bool HasNestedList;
-        public uint NestedListOffset;
         public List<FBXNode> Children = new List<FBXNode>();
         public List<FBXProperty> Properties = new List<FBXProperty>();
         public List<FBXNode> Siblings = new List<FBXNode>();
@@ -38,6 +32,7 @@ namespace KWEngine3.Helper
         public string Name;
         public byte[] RawData;
         public long ID;
+        public float FValue;
 
         public override string ToString()
         {
@@ -56,7 +51,7 @@ namespace KWEngine3.Helper
             int index = path.LastIndexOf('.');
             if (index >= 0)
             {
-                return path.Substring(index + 1).ToLower();
+                return path.Substring(index + 1).Trim().ToLower();
             }
             else
                 return "";
@@ -115,13 +110,18 @@ namespace KWEngine3.Helper
             }
         }
        
-        internal static int GetTextureSlotIndex(Assimp.Material material, TextureType ttype)
+        internal static int GetTextureSlotIndex(Assimp.Material material, TextureType ttype, bool isBumpInsteadOfNormalMap = false)
         {
+            if(isBumpInsteadOfNormalMap && material.HasTextureHeight)
+            {
+                return material.TextureHeight.TextureIndex;
+            }
+
             switch (ttype)
             {
                 case TextureType.Albedo: return material.TextureDiffuse.TextureIndex;
                 case TextureType.Normal: return material.TextureNormal.TextureIndex;
-                case TextureType.Roughness: return -1; // TODO
+                case TextureType.Roughness: return material.TextureSpecular.TextureIndex;
                 case TextureType.Emissive: return material.TextureEmissive.TextureIndex;
                 case TextureType.Metallic: return -1; // TODO
                 default: return material.TextureDiffuse.TextureIndex;
@@ -141,8 +141,12 @@ namespace KWEngine3.Helper
             }
         }
 
-        internal static Assimp.TextureType GetAssimpTextureType(TextureType ttype)
+        internal static Assimp.TextureType GetAssimpTextureType(TextureType ttype, bool isBumpInsteadOfNormal = false)
         {
+            if(isBumpInsteadOfNormal)
+            {
+                return Assimp.TextureType.Height;
+            }
             switch(ttype)
             {
                 case TextureType.Albedo: return Assimp.TextureType.Diffuse;
@@ -198,6 +202,73 @@ namespace KWEngine3.Helper
                 }
             }
             return -1;
+        }
+
+        internal static bool GetMetallicRoughnessValues(long materialId, FBXNode root, out float r, out float m)
+        {
+            r = 1.0f;
+            m = 0.0f;
+
+            bool mFound = false;
+            bool rFound = false;
+
+            for (int i = 0; i < root.Siblings.Count; i++)
+            {
+                if (root.Siblings[i].Name == "Objects")
+                {
+                    FBXNode objectsGroup = root.Siblings[i];
+                    foreach (FBXNode geometryObject in objectsGroup.Children)
+                    {
+                        foreach (FBXNode geometryObjectDetail in geometryObject.Siblings)
+                        {
+                            if (geometryObjectDetail.Name == "Material")
+                            {
+                                foreach (FBXProperty property in geometryObjectDetail.Properties)
+                                {
+                                    if (property.Type == "L" && property.ID == materialId)
+                                    {
+                                        foreach(FBXNode innerChild in geometryObjectDetail.Children)
+                                        {
+                                            foreach(FBXNode innerSibling in innerChild.Siblings)
+                                            {
+                                                if(innerSibling.Name == "Properties70" && innerSibling.Children.Count > 0)
+                                                {
+                                                    FBXNode propertyNode = innerSibling.Children[0];
+                                                    foreach(FBXNode propertyNodeSibling in propertyNode.Siblings)
+                                                    {
+                                                        foreach(FBXProperty propertyNodeSiblingProp in propertyNodeSibling.Properties)
+                                                        {
+                                                            if(propertyNodeSiblingProp.Name == "ReflectionFactor")
+                                                            {
+                                                                m = propertyNodeSibling.Properties.Last().FValue;
+                                                                mFound = true;
+                                                            }
+                                                            if(propertyNodeSiblingProp.Name == "SpecularFactor")
+                                                            {
+                                                                r = 1f - propertyNodeSibling.Properties.Last().FValue;
+                                                                rFound = true;
+                                                            }
+                                                        }
+                                                        if (mFound && rFound) break;
+                                                    }
+                                                }
+                                                if (mFound && rFound) break;
+                                            }
+                                            if (mFound && rFound) break;
+                                        }
+                                    }
+                                    if (mFound && rFound) break;
+                                }
+                            }
+                            if (mFound && rFound) break;
+                        }
+                        if (mFound && rFound) break;
+                    }
+                }
+                if (mFound && rFound) break;
+            }
+
+            return mFound && rFound;
         }
 
         internal static bool GetTextureMetallic(long textureId, FBXNode root, out string metallicFilename, out byte[] metallicData)
@@ -376,11 +447,13 @@ namespace KWEngine3.Helper
             return result;
         }
 
-        internal static void GetMetallicRoughnessForMaterialID(long materialId, FBXNode root, out string roughnessFilename, out byte[] roughnessData, out string metallicFilename, out byte[] metallicData)
+        internal static void GetMetallicRoughnessForMaterialID(long materialId, FBXNode root, out string roughnessFilename, out byte[] roughnessData, out string metallicFilename, out byte[] metallicData, out float roughness, out float metallic)
         {
+            roughness = 1.0f;
             roughnessData = null;
-            metallicData = null;
             roughnessFilename = "";
+            metallic = 0.0f;
+            metallicData = null;
             metallicFilename = "";
 
             foreach(FBXNode sibling in root.Siblings)
@@ -395,6 +468,12 @@ namespace KWEngine3.Helper
                             long id = connListSibling.Properties[2].ID;
                             if(id ==  materialId)
                             {
+                                if(GetMetallicRoughnessValues(materialId, root, out float tRoughness, out float tMetallic))
+                                {
+                                    roughness = tRoughness;
+                                    metallic = tMetallic;
+                                }
+
                                 long textureId = connListSibling.Properties[1].ID;
                                 if(GetTextureMetallic(textureId, root, out string mFilename, out byte[] mData))
                                 {
@@ -413,15 +492,17 @@ namespace KWEngine3.Helper
             }
         }
 
-        internal static GeoTexture GetFBXTextureFilenamesAndData(string filename, string materialName, TextureType type, ref GeoModel model)
+        internal static GeoTexture GetFBXTextureFilenamesAndData(string filename, string materialName, TextureType type, ref GeoModel model, out float roughness, out float metallic)
         {
+            roughness = 1.0f;
+            metallic = 0.0f;
             GeoTexture tex = new GeoTexture();
             if (model.AssemblyMode == SceneImporter.AssemblyMode.File)
             {
                 byte[] filedata = File.ReadAllBytes(filename);
                 if (IsFBXASCII(filedata))
                 {
-
+                    // TODO: check if there are old FBX ASCII files that include references to roughness/metallic textures and values...
                 }
                 else
                 {
@@ -433,7 +514,7 @@ namespace KWEngine3.Helper
                         long materialIdFromFBX = GetMaterialIdFor(materialName, root);
                         if (materialIdFromFBX > 0)
                         {
-                            GetMetallicRoughnessForMaterialID(materialIdFromFBX, root, out string roughFile, out byte[] roughData, out string metalFile, out byte[] metalData);
+                            GetMetallicRoughnessForMaterialID(materialIdFromFBX, root, out string roughFile, out byte[] roughData, out string metalFile, out byte[] metalData, out roughness, out metallic);
                             if (type == TextureType.Roughness && roughFile.Length > 0)
                             {
                                 string tFilename = roughFile;
@@ -442,9 +523,9 @@ namespace KWEngine3.Helper
                                 tex.UVTransform = new Vector4(1, 1, 0, 0);
                                 tex.IsEmbedded = roughData != null;
                                 tex.UVMapIndex = 0;
-                                tFilename = model.Name + "_" + materialName + "_" + GetTextureTypeString(type) + "-EMBEDDED_" + "X" + "." + GetFileEnding(tFilename);
-                                if (roughData != null)
+                                if (tex.IsEmbedded)
                                 {
+                                    tFilename = model.Name + "_" + materialName + "_" + GetTextureTypeString(type) + "-EMBEDDED_" + "X" + "." + GetFileEnding(tFilename);
                                     if (!ConvertEmbeddedToTemporaryFile(roughData, tFilename, model.Path))
                                     {
                                         KWEngine.LogWriteLine("[Import] Temporary image file " + roughFile + " could not be written to disk");
@@ -480,15 +561,15 @@ namespace KWEngine3.Helper
                             }
                             else if (type == TextureType.Metallic && metalFile.Length > 0)
                             {
-                                string tFilename = roughFile;
+                                string tFilename = metalFile;
 
                                 tex.Type = TextureType.Metallic;
                                 tex.UVTransform = new Vector4(1, 1, 0, 0);
                                 tex.IsEmbedded = metalData != null;
                                 tex.UVMapIndex = 0;
-                                tFilename = model.Name + "_" + materialName + "_" + GetTextureTypeString(type) + "-EMBEDDED_" + "X" + "." + GetFileEnding(tFilename);
-                                if (metalData != null)
+                                if (tex.IsEmbedded)
                                 {
+                                    tFilename = model.Name + "_" + materialName + "_" + GetTextureTypeString(type) + "-EMBEDDED_" + "X" + "." + GetFileEnding(tFilename);
                                     if (!ConvertEmbeddedToTemporaryFile(metalData, tFilename, model.Path))
                                     {
                                         KWEngine.LogWriteLine("[Import] Temporary image file " + roughFile + " could not be written to disk");
@@ -586,10 +667,6 @@ namespace KWEngine3.Helper
             }
             n.Name = name;
             //Console.WriteLine(TABS + "Reading node: "  + n.Name);
-            if (n.Name == "SceneInfo")
-            {
-
-            }
 
             int idxBeforePropertyLoop = idx;
             // Loop through properties:
@@ -603,35 +680,37 @@ namespace KWEngine3.Helper
                 {
                     // short
                     
-                    //short val = BitConverter.ToInt16(data, idx);
+                    short val = BitConverter.ToInt16(data, idx);
                     //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 2;
                 }
                 else if(propertyTypeCode == 'C')
                 {
                     // bool in byte (lsbit = 1/0)
-                    //byte val = data[idx];
+                    byte val = data[idx];
                     //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 1;
                 }
                 else if( propertyTypeCode == 'I')
                 {
                     // int
-                    //int val = BitConverter.ToInt32(data, idx);
+                    int val = BitConverter.ToInt32(data, idx);
                     //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 4;
                 }
                 else if (propertyTypeCode == 'F')
                 {
                     // float
-                    //float val = BitConverter.ToSingle(data, idx);
+                    float val = BitConverter.ToSingle(data, idx);
+                    prop.FValue = val;
                     //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 4;
                 }
                 else if (propertyTypeCode == 'D')
                 {
                     // double
-                    //double val = BitConverter.ToDouble(data, idx);
+                    double val = BitConverter.ToDouble(data, idx);
+                    prop.FValue = Convert.ToSingle(val);
                     //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 8;
                 }
@@ -800,29 +879,186 @@ namespace KWEngine3.Helper
             return n;
         }
 
-        internal static GeoTexture ProcessTextureForAssimpPBRMaterial(Assimp.Material material, TextureType ttype, Assimp.Scene scene, ref GeoModel model)
+        internal static GeoTexture ProcessTextureForAssimpPBRMaterial(Assimp.Material material, TextureType ttype, ref GeoModel model, out float roughnessVal, out float metallicVal)
         {
+            roughnessVal = 1f;
+            metallicVal = 0f;
+            string roughnessTexture = "";
+            string metallicTexture = "";
+
+            if(model.AssemblyMode == SceneImporter.AssemblyMode.Internal)
+                return new GeoTexture();
+
             string filetype = GetFileEnding(model.Filename);
                 
             if (filetype == "fbx")
             {
-                return GetFBXTextureFilenamesAndData(model.Filename, material.Name, ttype, ref model);
+                try
+                {
+                    return GetFBXTextureFilenamesAndData(model.Filename, material.Name, ttype, ref model, out roughnessVal, out metallicVal);
+                }
+                catch(Exception)
+                {
+                    return new GeoTexture();
+                }
             }
             else if(filetype == "obj")
             {
+                string[] lines = File.ReadAllLines(model.Filename);
+                if(lines != null && lines.Length > 0)
+                {
+                    foreach(string line in lines)
+                    {
+                        if(line.StartsWith("mtllib"))
+                        {
+                            string matfilename = line.Replace("mtllib ", "").Trim();
+                            string[] mtlLines = null;
+                            try
+                            {
+                                mtlLines = File.ReadAllLines(SceneImporter.StripFileNameFromPath(model.Filename) + matfilename);
+                                int mtOffset = 0;
+                                int mtEnd = -1;
+                                bool mtFound = false;
+                                foreach(string mtline in mtlLines)
+                                {
+                                    if(mtline == "newmtl " + material.Name)
+                                    {
+                                        mtFound = true;
+                                        break;
+                                    }
+                                    mtOffset++;
+                                }
+                                if(mtFound)
+                                {
+                                    mtEnd = mtlLines.Length - 1;
+                                    for (int i = mtOffset + 1; i < mtlLines.Length; i++)
+                                    {
+                                        if (mtlLines[i] == "" || mtlLines[i].ToLower().StartsWith("newmtl"))
+                                        {
+                                            mtEnd = i;
+                                            break;
+                                        }
+                                    }
 
+                                    if(mtEnd > mtOffset + 1)
+                                    {
+                                        for(int i = mtOffset + 1; i < mtEnd; i++)
+                                        {
+                                            if (mtlLines[i].StartsWith("Pr "))
+                                            {
+                                                string tmp = mtlLines[i].Substring(2);
+                                                float.TryParse(tmp, out roughnessVal);
+                                            }
+                                            else if (mtlLines[i].StartsWith("Pm "))
+                                            {
+                                                string tmp = mtlLines[i].Substring(2);
+                                                float.TryParse(tmp, out metallicVal);
+                                            }
+                                            else if (mtlLines[i].StartsWith("map_Pr "))
+                                            {
+                                                roughnessTexture = mtlLines[i].Substring(6).Trim();
+                                            }
+                                            else if (mtlLines[i].StartsWith("map_Pm "))
+                                            {
+                                                metallicTexture = mtlLines[i].Substring(6).Trim();
+                                            }
+                                        }
+                                    }
+
+                                    if(ttype == TextureType.Roughness && roughnessTexture.Length > 0)
+                                    {
+                                        GeoTexture tex = new GeoTexture();
+                                        tex.UVTransform = new Vector4(1, 1, 0, 0);
+                                        tex.Filename = HelperGeneral.EqualizePathDividers(roughnessTexture);
+                                        tex.IsEmbedded = false;
+                                        tex.UVMapIndex = 0;
+                                        tex.Type = ttype;
+
+                                        if (model.Textures.ContainsKey(roughnessTexture))
+                                        {
+                                            tex.OpenGLID = model.Textures[roughnessTexture].OpenGLID;
+                                        }
+                                        else if (SceneImporter.CheckIfOtherModelsShareTexture(roughnessTexture, model.Path, out GeoTexture sharedTexture))
+                                        {
+                                            tex = sharedTexture;
+                                        }
+                                        else
+                                        {
+                                            tex.OpenGLID = LoadTextureForModelExternal(
+                                                    SceneImporter.FindTextureInSubs(SceneImporter.StripPathFromFile(roughnessTexture), model.Path), out int mipMaps
+                                                );
+                                            tex.MipMaps = mipMaps;
+
+                                            if (tex.OpenGLID > 0)
+                                            {
+                                                if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
+                                                {
+                                                    tex.Width = width;
+                                                    tex.Height = height;
+                                                }
+                                            }
+                                        }
+                                        return tex;
+                                    }
+                                    else if(ttype == TextureType.Metallic && metallicTexture.Length > 0)
+                                    {
+                                        GeoTexture tex = new GeoTexture();
+                                        tex.UVTransform = new Vector4(1, 1, 0, 0);
+                                        tex.Filename = HelperGeneral.EqualizePathDividers(metallicTexture);
+                                        tex.IsEmbedded = false;
+                                        tex.UVMapIndex = 0;
+                                        tex.Type = ttype;
+
+                                        if (model.Textures.ContainsKey(metallicTexture))
+                                        {
+                                            tex.OpenGLID = model.Textures[metallicTexture].OpenGLID;
+                                        }
+                                        else if (SceneImporter.CheckIfOtherModelsShareTexture(metallicTexture, model.Path, out GeoTexture sharedTexture))
+                                        {
+                                            tex = sharedTexture;
+                                        }
+                                        else
+                                        {
+                                            tex.OpenGLID = LoadTextureForModelExternal(
+                                                    SceneImporter.FindTextureInSubs(SceneImporter.StripPathFromFile(metallicTexture), model.Path), out int mipMaps
+                                                );
+                                            tex.MipMaps = mipMaps;
+
+                                            if (tex.OpenGLID > 0)
+                                            {
+                                                if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
+                                                {
+                                                    tex.Width = width;
+                                                    tex.Height = height;
+                                                }
+                                            }
+                                        }
+                                        return tex;
+                                    }
+                                }
+                            }
+                            catch(Exception)
+                            {
+
+                            }
+                            break;
+                        }
+                    }
+                }
             }
             return new GeoTexture();
         }
 
-        internal static GeoTexture ProcessTextureForAssimpMaterial(Assimp.Material material, TextureType ttype, Assimp.Scene scene, ref GeoModel model)
+        internal static GeoTexture ProcessTextureForAssimpMaterial(Assimp.Material material, TextureType ttype, Assimp.Scene scene, ref GeoModel model, bool isBumpInsteadOfNormalMap = false)
         {
             GeoTexture tex = new GeoTexture();
             tex.UVTransform = new Vector4(1, 1, 0, 0);
             tex.UVMapIndex = GetUVIndex(material, ttype);
             tex.Type = ttype;
 
-            if (material.GetMaterialTexture(GetAssimpTextureType(ttype), GetTextureSlotIndex(material, ttype), out Assimp.TextureSlot texSlot))
+            Assimp.TextureType att = GetAssimpTextureType(ttype, isBumpInsteadOfNormalMap);
+
+            if (material.GetMaterialTexture(att, GetTextureSlotIndex(material, ttype, isBumpInsteadOfNormalMap), out Assimp.TextureSlot texSlot))
             {
                 string tFilename;
                 if (texSlot.FilePath != null)
@@ -934,17 +1170,27 @@ namespace KWEngine3.Helper
             return tex;
         }
 
-        internal static GeoTexture ProcessTextureForMaterial(TextureType textureType, Assimp.Material material, Assimp.Scene scene, ref GeoModel model)
+        internal static GeoTexture ProcessTextureForMaterial(TextureType textureType, Assimp.Material material, Assimp.Scene scene, ref GeoModel model, bool isSpecularAsRoughness, out float roughnessVal, out float metallicVal)
         {
-            if(textureType == TextureType.Roughness || textureType == TextureType.Metallic)
+            if(isSpecularAsRoughness == false && (textureType == TextureType.Roughness || textureType == TextureType.Metallic))
             {
-                return ProcessTextureForAssimpPBRMaterial(material, textureType, scene, ref model);
+                return ProcessTextureForAssimpPBRMaterial(material, textureType, ref model, out roughnessVal, out metallicVal);
             }
             else
             {
+                roughnessVal = 1.0f;
+                metallicVal = 0.0f;
                 return ProcessTextureForAssimpMaterial(material, textureType, scene, ref model);
             }
         }
+
+        internal static GeoTexture ProcessTextureForMaterialNormalBump(Assimp.Material material, Assimp.Scene scene, ref GeoModel model, bool isSpecularAsRoughness, out float roughnessVal, out float metallicVal)
+        {
+            roughnessVal = 1.0f;
+            metallicVal = 0.0f;
+            return ProcessTextureForAssimpMaterial(material, TextureType.Normal, scene, ref model, true);
+        }
+
         internal static void SaveTextureToBitmap(int texId, int width, int height, string name = null)
         {
             SKBitmap b = new SKBitmap(width, height, SKColorType.Rgb888x, SKAlphaType.Opaque);

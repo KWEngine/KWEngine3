@@ -18,15 +18,16 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("PirateShip", "./Models/FBXTest/CubePBR_embedded.fbx");
+            //KWEngine.LoadModel("PirateShip", "./Models/OBJTest/CubePBR.obj");
+            KWEngine.LoadModel("PirateShip", "./Models/FBXTest/CubePBR_embedded_noRMTextures.fbx");
 
             SetCameraPosition(-10, 10, 10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
 
-            RenderTestClass ship = new RenderTestClass();
+            Immovable ship = new Immovable();
             ship.SetModel("PirateShip");
             //ship.SetRotation(0, 90, 0);
-            AddRenderObject(ship);
+            AddGameObject(ship);
 
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(25, 25, 25);

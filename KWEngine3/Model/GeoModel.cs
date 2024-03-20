@@ -1,8 +1,5 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using KWEngine3.Helper;
 
 namespace KWEngine3.Model
@@ -12,7 +9,14 @@ namespace KWEngine3.Model
     /// </summary>
     public class GeoModel
     {
-
+        /// <summary>
+        /// Gibt Auskunft über den Modellnamen
+        /// </summary>
+        /// <returns>Modellname</returns>
+        public override string ToString()
+        {
+            return Name;
+        }
         internal bool IsKWCube6 { get; set; } = false;
 
         internal bool IsPrimitive { get { return Name == "kwcube.obj" || Name == "kwsphere.fbx" || Name.StartsWith("kwquad"); } }

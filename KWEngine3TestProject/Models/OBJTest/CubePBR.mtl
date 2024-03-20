@@ -1,0 +1,33 @@
+# Blender 3.5.0 MTL File: 'CubePBR_2Mats.blend'
+# www.blender.org
+
+newmtl MaterialEmpty
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+Pr 1.000000
+Pm 1.000000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+
+newmtl MaterialPBR
+Ni 1.450000
+d 1.000000
+illum 3
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd cubepbr_albedo.png
+map_Pm cubepbr_metallic.png
+map_Ks cubepbr_specular.png
+map_Pr cubepbr_roughness.png
+map_Ke cubepbr_emissive.png
+map_Bump -bm 1.000000 cubepbr_normal.png

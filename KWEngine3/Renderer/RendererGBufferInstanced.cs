@@ -180,7 +180,7 @@ namespace KWEngine3.Renderer
                 Vector3i useTexturesMetallicRoughness = new(
                     material.TextureMetallic.IsTextureSet ? 1 : 0,
                     material.TextureRoughness.IsTextureSet ? 1 : 0,
-                    r.IsTransparent ? 1 : 0 // TODO: opacity < 1? but this is not used in shader yet!
+                    material.TextureRoughnessIsSpecular ? 1 : 0
                     );
                 GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
                 GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);

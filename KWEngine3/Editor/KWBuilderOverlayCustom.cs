@@ -207,17 +207,20 @@ namespace KWEngine3.Editor
 
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Misc. properties:");
+                /*
                 bool isCollObj = SelectedGameObject._colliderType != ColliderType.None;
-                ImGui.Checkbox("Collider?", ref isCollObj);
-                //{
-                //    SelectedGameObject.IsCollisionObject = isCollObj;
-                //}
+                if(ImGui.Checkbox("Collider?", ref isCollObj))
+                {
+                    if(_)
+                    SelectedGameObject.IsCollisionObject = isCollObj;
+                }
                 ImGui.SameLine();
-                ImGui.Checkbox("Shadows?", ref SelectedGameObject._isShadowCaster);
+                */
+                ImGui.Checkbox("Shadow caster/receiver?", ref SelectedGameObject._isShadowCaster);
                 ImGui.SameLine();
-                ImGui.Checkbox("Lights?", ref SelectedGameObject._isAffectedByLight);
-                ImGui.SameLine();
-                ImGui.Text("On screen: " + (SelectedGameObject.IsInsideScreenSpace ? "YES" : "NO"));
+                ImGui.Checkbox("Affected by light?", ref SelectedGameObject._isAffectedByLight);
+                //ImGui.SameLine();
+                //ImGui.Text("In view: " + (SelectedGameObject.IsInsideScreenSpace ? "YES" : "NO"));
 
                 // Position/Rotation/Scale
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Position, Rotation & Scale:");

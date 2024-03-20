@@ -28,8 +28,6 @@ namespace KWEngine3.Model
                     return FileType.Wavefront;
                 case "fbx":
                     return FileType.Filmbox;
-                //case "blend":
-                //    return FileType.Blender;
                 default:
                     return FileType.Invalid;
             }
@@ -51,6 +49,33 @@ namespace KWEngine3.Model
             }
             else
             {
+                if(type == FileType.Wavefront && am == AssemblyMode.File)
+                {
+                    if(File.Exists(filename))
+                    {
+                        string[] lines = File.ReadAllLines(filename);
+                        if(lines != null && lines.Length > 2)
+                        {
+                            int offset = 0;
+                            bool changed = false;
+                            while(offset < lines.Length)
+                            {
+                                if (lines[offset].StartsWith("#"))
+                                {
+                                    lines[offset] = "";
+                                    changed = true;
+                                    offset++;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            if(changed)
+                                File.WriteAllLines(filename, lines);
+                        }
+                    }
+                }
                 AssimpContext importer = new AssimpContext();
                 importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
                 importer.SetConfig(new MaxBoneCountConfig(KWEngine.MAX_BONES));
@@ -567,12 +592,9 @@ namespace KWEngine3.Model
             // Process Textures:
             if (material != null)
             {
-                // BEGIN TEXTURE IMPORT REWRITE
-
-                // ALBEDO/DIFFUSE
                 if (material.HasTextureDiffuse)
                 {
-                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Albedo, material, scene, ref model);
+                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Albedo, material, scene, ref model, false, out float rTmp, out float mTmp);
                     if(tex.IsTextureSet)
                     {
                         geoMaterial.TextureAlbedo = tex;
@@ -584,7 +606,7 @@ namespace KWEngine3.Model
                 }
                 if(material.HasTextureNormal)
                 {
-                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Normal, material, scene, ref model);
+                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Normal, material, scene, ref model, false, out float rTmp, out float mTmp);
                     if (tex.IsTextureSet)
                     {
                         geoMaterial.TextureNormal = tex;
@@ -594,9 +616,25 @@ namespace KWEngine3.Model
                         }
                     }
                 }
+                else if(material.HasTextureHeight)
+                {
+                    // alternative for blender wavefront exporter writing normal map to bump map
+                    tex = HelperTexture.ProcessTextureForMaterialNormalBump(material, scene, ref model, false, out float rTmp, out float mTmp);
+                    if (tex.IsTextureSet)
+                    {
+                        KWEngine.LogWriteLine("[Import] Assuming normal map in bump map property for " + model.Name + " - lighting may be wrong");
+                        geoMaterial.TextureNormal = tex;
+                        if (!tex.IsKWEngineTexture)
+                        {
+                            model.Textures.Add(tex.Filename, tex);
+                        }
+                    }
+                }
+
+
                 if (material.HasTextureEmissive)
                 {
-                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Emissive, material, scene, ref model);
+                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Emissive, material, scene, ref model, false, out float rTmp, out float mTmp);
                     if (tex.IsTextureSet)
                     {
                         geoMaterial.TextureEmissive = tex;
@@ -606,9 +644,10 @@ namespace KWEngine3.Model
                         }
                     }
                 }
-
+                float rVal = 1.0f;
+                float mVal = 0.0f;
                 // Look for roughness texture:
-                tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Roughness, scene, ref model);
+                tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Roughness, ref model, out rVal, out mVal);
                 if (tex.IsTextureSet)
                 {
                     geoMaterial.TextureRoughness = tex;
@@ -617,9 +656,31 @@ namespace KWEngine3.Model
                         model.Textures.Add(tex.Filename, tex);
                     }
                 }
+                else
+                {
+                    // check if there is at least a specular texture available:
+                    if (material.HasTextureSpecular)
+                    {
+                        tex = HelperTexture.ProcessTextureForMaterial(TextureType.Roughness, material, scene, ref model, true, out rVal, out mVal);
+                        if (tex.IsTextureSet)
+                        {
+                            geoMaterial.TextureRoughness = tex;
+                            geoMaterial.TextureRoughnessIsSpecular = true;
+                            if (!tex.IsKWEngineTexture)
+                            {
+                                model.Textures.Add(tex.Filename, tex);
+                            }
+                        }
+                    }
+                }
+                if(geoMaterial.TextureRoughness.IsTextureSet == false && rVal != geoMaterial.Roughness)
+                {
+                    geoMaterial.Roughness = rVal;
+                }
+                
 
                 // Look for metallic texture:
-                tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Metallic, scene, ref model);
+                tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Metallic, ref model, out rVal, out mVal);
                 if (tex.IsTextureSet)
                 {
                     geoMaterial.TextureMetallic = tex;
@@ -628,247 +689,10 @@ namespace KWEngine3.Model
                         model.Textures.Add(tex.Filename, tex);
                     }
                 }
-
-
-
-                // END TEXTURE IMPORT REWRITE
-                /*
-                bool specularUsed = false;
-                int roughnessTextureIndex = -1;
-                TextureSlot[] texturesOfMaterial = material.GetAllMaterialTextures();
-                List<string> textureFilePaths = new List<string>();
-
-                for(int i = 0; i < texturesOfMaterial.Length; i++)
+                if (geoMaterial.TextureMetallic.IsTextureSet == false && mVal != geoMaterial.Metallic)
                 {
-                    TextureSlot slot = texturesOfMaterial[i];
-                    textureFilePaths.Add(slot.FilePath);
-                    if (roughnessTextureIndex < 0 && slot.TextureType == Assimp.TextureType.Shininess)
-                    {
-                        roughnessTextureIndex = i;
-                    }
-
-                    if(slot.TextureType == Assimp.TextureType.Specular)
-                    {
-                        GeoTexture tex = new GeoTexture();
-                        tex.UVTransform = new Vector4(1, 1, 0, 0);
-                        tex.Filename = HelperGeneral.EqualizePathDividers(slot.FilePath);
-                        tex.UVMapIndex = slot.UVIndex;
-                        if (model.Textures.ContainsKey(tex.Filename))
-                        {
-                            tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
-                        }
-                        else
-                        {
-                            if (model.AssemblyMode == AssemblyMode.File)
-                            {
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                        FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                    );
-                            }
-                            else
-                            {
-                                string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                                tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                            }
-                            
-                            if (tex.OpenGLID > 0)
-                            {
-                                tex.Type = TextureType.Roughness;
-                                model.Textures.Add(tex.Filename, tex);
-                                geoMaterial.TextureRoughness = tex;
-                                geoMaterial.TextureRoughnessIsSpecular = true;
-                                specularUsed = true;
-                            }
-                            else
-                            {
-                                geoMaterial.TextureRoughness = tex;
-                                geoMaterial.TextureRoughnessIsSpecular = false;
-                                tex.OpenGLID = KWEngine.TextureBlack;
-                            }
-                        }
-                    }
+                    geoMaterial.Metallic = mVal;
                 }
-               
-                // Diffuse texture
-                if (material.HasTextureDiffuse)
-                {
-                    GeoTexture tex = new GeoTexture();
-                    tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = HelperGeneral.EqualizePathDividers(material.TextureDiffuse.FilePath);
-                    tex.UVMapIndex = material.TextureDiffuse.UVIndex;
-                    tex.Type = TextureType.Albedo;
-                    if (model.Textures.ContainsKey(tex.Filename))
-                    {
-                        tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
-                        geoMaterial.TextureAlbedo = tex;
-                    }
-                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
-                    {
-                        geoMaterial.TextureAlbedo = sharedTexture;
-                    }
-                    else
-                    {
-                        if (model.AssemblyMode == AssemblyMode.File)
-                        {
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                );
-                        }
-                        else
-                        {
-
-                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                        }
-                        
-                        if (tex.OpenGLID > 0)
-                        {
-                            if (HelperTexture.GetTextureDimensions(tex.OpenGLID, out int width, out int height))
-                            {
-                                tex.Width = width;
-                                tex.Height = height;
-                            }
-                            geoMaterial.TextureAlbedo = tex;
-                            model.Textures.Add(tex.Filename, tex);
-                        }
-                        else
-                        {
-                            tex.OpenGLID = KWEngine.TextureDefault;
-                            tex.UVTransform = new Vector4(100, 100, 0, 0);
-                            geoMaterial.TextureAlbedo = tex;
-                        }
-                    }
-                }
-
-                // Normal map texture
-                if (material.HasTextureNormal)
-                {
-                    GeoTexture tex = new GeoTexture();
-                    tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = HelperGeneral.EqualizePathDividers(material.TextureNormal.FilePath);
-                    tex.UVMapIndex = material.TextureNormal.UVIndex;
-                    tex.Type = TextureType.Normal;
-                    if (model.Textures.ContainsKey(tex.Filename))
-                    {
-                        tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
-                        geoMaterial.TextureNormal = tex;
-                    }
-                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
-                    {
-                        geoMaterial.TextureNormal = sharedTexture;
-                    }
-                    else
-                    {
-                        if (model.AssemblyMode == AssemblyMode.File)
-                        {
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                );
-                        }
-                        else
-                        {
-                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                        }
-                        if (tex.OpenGLID > 0)
-                        {
-                            model.Textures.Add(tex.Filename, tex);
-                            geoMaterial.TextureNormal = tex;
-                        }
-                    }
-                }
-
-                // Roughness map texture
-                if (roughnessTextureIndex >= 0 && specularUsed == false)
-                {
-                    GeoTexture tex = new GeoTexture();
-                    tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = HelperGeneral.EqualizePathDividers(texturesOfMaterial[roughnessTextureIndex].FilePath);
-                    tex.UVMapIndex = texturesOfMaterial[roughnessTextureIndex].UVIndex;
-                    tex.Type = TextureType.Roughness;
-                    if (model.Textures.ContainsKey(tex.Filename))
-                    {
-                        tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
-                        geoMaterial.TextureRoughness = tex;
-                    }
-                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
-                    {
-                        geoMaterial.TextureRoughness = sharedTexture;
-                    }
-                    else
-                    {
-                        if (model.AssemblyMode == AssemblyMode.File)
-                        {
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                );
-                        }
-                        else
-                        {
-                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                        }
-                        
-                        if (tex.OpenGLID > 0)
-                        {
-                            geoMaterial.TextureRoughness = tex;
-                            model.Textures.Add(tex.Filename, tex);
-                        }
-                    }
-                }
-                else
-                {
-                    if(specularUsed && roughnessTextureIndex >= 0)
-                    {
-                        Debug.WriteLine("Skipping roughness texture for " + model.Filename + " because old style specular texture was found.");
-                    }
-                }
-
-                // Emissive map texture
-                if (material.HasTextureEmissive)
-                {
-                    GeoTexture tex = new GeoTexture();
-                    geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 0);
-                    tex.UVTransform = new Vector4(1, 1, 0, 0);
-                    tex.Filename = HelperGeneral.EqualizePathDividers(material.TextureEmissive.FilePath);
-                    tex.UVMapIndex = material.TextureEmissive.UVIndex;
-                    tex.Type = TextureType.Emissive;
-                    if (model.Textures.ContainsKey(tex.Filename))
-                    {
-                        tex.OpenGLID = model.Textures[tex.Filename].OpenGLID;
-                        geoMaterial.TextureEmissive = tex;
-                    }
-                    else if (CheckIfOtherModelsShareTexture(tex.Filename, model.Path, out GeoTexture sharedTexture))
-                    {
-                        geoMaterial.TextureEmissive = sharedTexture;
-                    }
-                    else
-                    {
-                        if (model.AssemblyMode == AssemblyMode.File)
-                        {
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(
-                                    FindTextureInSubs(StripPathFromFile(tex.Filename), model.Path), out int mipMaps
-                                );
-                        }
-                        else
-                        {
-                            string path = StripFileNameFromAssemblyPath(model.PathAbsolute).Substring(model.PathAbsolute.IndexOf('.') + 1) + StripPathFromFile(tex.Filename);
-                            tex.OpenGLID = HelperTexture.LoadTextureForModelInternal(path, out int mipMaps);
-                        }
-                        
-                        if (tex.OpenGLID > 0)
-                        {
-                            geoMaterial.TextureEmissive = tex;
-                            model.Textures.Add(tex.Filename, tex);
-                        }
-                        else
-                        {
-                            tex.OpenGLID = KWEngine.TextureBlack;
-                            geoMaterial.TextureEmissive = tex;
-                        }
-                    }
-                }
-                */
             }
             geoMesh.Material = geoMaterial;
         }

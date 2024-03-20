@@ -85,7 +85,14 @@ void main()
 	{
 		if(!roughnessThroughMetallic)
 		{
-			roughness = texture(uTextureRoughness, vTexture).r;
+			if(uUseTexturesMetallicRoughness.z > 0)
+			{
+				roughness = 1.0 - texture(uTextureRoughness, vTexture).r;
+			}
+			else
+			{
+				roughness = texture(uTextureRoughness, vTexture).r;
+			}
 		}
 	}
 

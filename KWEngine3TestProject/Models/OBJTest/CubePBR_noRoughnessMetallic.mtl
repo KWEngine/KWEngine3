@@ -1,0 +1,18 @@
+# Blender 3.5.0 MTL File: 'CubePBR_NoMetallicNoRoughnessTextures.blend'
+# www.blender.org
+
+newmtl MaterialPBR
+Ni 1.450000
+d 1.000000
+illum 3
+Pr 0.666000
+Pm 0.333000
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd cubepbr_albedo.png
+map_Ks cubepbr_specular.png
+map_Ke cubepbr_emissive.png
+map_Bump -bm 1.000000 cubepbr_normal.png

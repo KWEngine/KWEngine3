@@ -300,7 +300,7 @@ namespace KWEngine3.Renderer
                 Vector3i useTexturesMetallicRoughness = new Vector3i(
                     material.TextureMetallic.IsTextureSet ? 1 : 0,
                     material.TextureRoughness.IsTextureSet ? 1 : 0,
-                    0 // open slot
+                    material.TextureRoughnessIsSpecular ? 1 : 0
                     );
                 GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
                 GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);

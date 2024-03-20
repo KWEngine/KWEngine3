@@ -222,7 +222,15 @@ vec4 getPBR()
         }
         else
         {
-            specularMetallicRoughnessOcclusion.z = clamp(texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
+            if(uUseTexturesMetallicRoughness.z > 0)
+            {
+                specularMetallicRoughnessOcclusion.z = clamp(1.0 - texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
+            }
+            else
+            {
+                specularMetallicRoughnessOcclusion.z = clamp(texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
+            }
+            //specularMetallicRoughnessOcclusion.z = clamp(texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
         }
     }
     return specularMetallicRoughnessOcclusion;
