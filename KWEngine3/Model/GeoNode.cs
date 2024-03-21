@@ -1,9 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine3.Model
 {
@@ -15,9 +10,11 @@ namespace KWEngine3.Model
         }
         public string Name { get; internal set; } = null;
         public Matrix4 Transform = Matrix4.Identity;
+        public bool IsAssimpFBXNode = false;
+        public string NameWithoutFBXSuffix = null;
 
         public List<GeoNode> Children { get; internal set; } = new List<GeoNode>();
-        public GeoNode Parent { get; internal set; } = null;
+        public GeoNode Parent  = null;
 
         public static GeoNode FindChild(GeoNode nodeStart, string name)
         {

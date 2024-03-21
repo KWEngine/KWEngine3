@@ -1,5 +1,16 @@
 ﻿namespace KWEngine3
 {
+    internal enum MatrixFBXType
+    {
+        PreTranslation,
+        PreRotation,
+        PreScale,
+        PostTranslation,
+        PostRotation,
+        PostScale,
+        Complete
+    }
+
     /// <summary>
     /// Bestimmt, in welche Richtung der Teststrahl geschossen wird (Standard: Y)
     /// </summary>

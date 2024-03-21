@@ -252,8 +252,9 @@ namespace KWEngine3.Helper
 
         private static void ReadNodeHierarchy(EngineObject g, float timestamp, ref GeoAnimation animation, GeoNode node, ref Matrix4 parentTransform, List<GeoNode> attachBones, bool isVSG = false)
         {
-            animation.AnimationChannels.TryGetValue(node.Name, out GeoNodeAnimationChannel channel);
             Matrix4 nodeTransformation = node.Transform;
+            string channelLookup = node.Name;
+            animation.AnimationChannels.TryGetValue(channelLookup, out GeoNodeAnimationChannel channel);
 
             if (channel != null)
             {
@@ -268,39 +269,37 @@ namespace KWEngine3.Helper
             {
                 foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
                 {
-                    int index = mesh.BoneNames.IndexOf(node.Name);
+                    int index = mesh.BoneNames.IndexOf(node.NameWithoutFBXSuffix);
                     if (index >= 0)
                     {
                         Matrix4 boneMatrix = mesh.BoneOffset[index] * globalTransform * g._model.ModelOriginal.TransformGlobalInverse;
                         g._stateRender._boneTranslationMatrices[mesh.Name][index] = boneMatrix;
                         int tempIndex = attachBones != null ? attachBones.IndexOf(node) : -1;
-                        if (tempIndex >= 0)
+                        if (tempIndex >= 0 && g is GameObject)
                         {
-                            if(g is GameObject)
+                            GameObject attachedObject = (g as GameObject)._gameObjectsAttached[node];
+                            if (attachedObject != null)
                             {
-                                GameObject attachedObject = (g as GameObject)._gameObjectsAttached[node];
-                                if (attachedObject != null)
+                                Matrix4 attachmentMatrix;
+                                if (isVSG)
                                 {
-                                    Matrix4 attachmentMatrix;
-                                    if (isVSG)
-                                    {
-                                        attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
-                                    }
-                                    else
-                                    {
-                                        attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
-                                    }
-
-                                    Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
-                                    Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
-                                    Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
-                                    attachedObject.SetScaleRotationAndTranslation(
-                                        attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
-                                        attachmentMatrix.ExtractRotation(false) * attachedObject._rotationOffsetForAttachment,
-                                        attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward
-                                        );
+                                    attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
                                 }
+                                else
+                                {
+                                    attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                                }
+
+                                Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
+                                Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
+                                Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
+                                attachedObject.SetScaleRotationAndTranslation(
+                                    attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
+                                    attachmentMatrix.ExtractRotation(false) * attachedObject._rotationOffsetForAttachment,
+                                    attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward
+                                    );
                             }
+                            
                         }
                     }
                 }

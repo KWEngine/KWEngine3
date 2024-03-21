@@ -86,12 +86,12 @@ namespace KWEngine3.Editor
                 RendererEditor.SetGlobals();
                 RendererEditor.Draw(SelectedGameObject);
 
-                if (SelectedGameObject.IsCollisionObject)
-                {
+                //if (SelectedGameObject.IsCollisionObject)
+                //{
                     RendererEditorHitboxes.Bind();
                     RendererEditorHitboxes.SetGlobals();
                     RendererEditorHitboxes.Draw(SelectedGameObject);
-                }
+                //}
             }
             else if(SelectedTerrainObject != null)
             {

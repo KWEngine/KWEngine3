@@ -40,12 +40,15 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             KWEngine.LoadModel("FHBTEST", "./Models/GLTFTest/fullhitboxtest.glb");
+            KWEngine.LoadModel("Anim", "./Models/AnimationTest/Mannequin_StandUp.fbx");
 
             SetCameraFOV(90);
             SetCameraPosition(25, 25, 25);
             SetCameraTarget(0, 0, 0);
 
             Player p1 = new Player();
+            p1.SetModel("Anim");
+            p1.SetScale(0.01f);
             p1.Name = "Player #1";
             p1.SetColliderType(ColliderType.ConvexHull);
             p1.SetColor(1, 1, 0);

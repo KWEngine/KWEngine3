@@ -515,6 +515,8 @@ namespace KWEngine3
             return terrainModel;
         }
 
+       // public static void SetCustomHitboxForModel(string modelname, )
+
         /// <summary>
         /// Lädt die unter dem Dateinamen zu findenden Animationen in das (zuvor unter dem Namen angegebenen) 3D-Modell
         /// </summary>

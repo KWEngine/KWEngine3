@@ -15,16 +15,18 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("ExoGray", "./Models/AnimationTest/ExoGray.fbx");
-            KWEngine.LoadAnimationIntoModel("ExoGray", "./Models/AnimationTest/ExoGrayStandUp.fbx");
+            KWEngine.LoadModel("ExoGray", "./Models/AnimationTest/NinjaSwimming.fbx");
+            KWEngine.LoadAnimationIntoModel("ExoGray", "./Models/AnimationTest/NinjaAnimBoxing.fbx");
 
-            SetCameraPosition(15, 15, 15);
-            SetCameraPosition(0, 1, 0);
+            SetCameraPosition(3, 3, 3);
+            SetCameraTarget(0, 0.5f, 0);
             SetColorAmbient(0.5f, 0.5f, 0.5f);
 
-            Immovable test = new Immovable();
+            PlayerAnimated test = new PlayerAnimated();
             test.SetModel("ExoGray");
             test.SetScale(0.01f);
+            test.SetAnimationID(0);
+            test.SetAnimationPercentage(0.0f);
             AddGameObject(test);
 
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
