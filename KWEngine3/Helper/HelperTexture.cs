@@ -93,6 +93,8 @@ namespace KWEngine3.Helper
                 return "ROUGHNESS";
             else if (type == TextureType.Emissive)
                 return "EMISSIVE";
+            else if (type == TextureType.Transparency)
+                return "TRANSPARENCY";
             else
                 return "UNKNOWN";
         }
@@ -106,6 +108,7 @@ namespace KWEngine3.Helper
                 case TextureType.Roughness: return material.TextureDiffuse.UVIndex;
                 case TextureType.Emissive: return material.TextureEmissive.UVIndex;
                 case TextureType.Metallic: return material.TextureDiffuse.UVIndex;
+                case TextureType.Transparency: return material.TextureOpacity.UVIndex;
                 default: return material.TextureDiffuse.UVIndex;
             }
         }
@@ -124,6 +127,7 @@ namespace KWEngine3.Helper
                 case TextureType.Roughness: return material.TextureSpecular.TextureIndex;
                 case TextureType.Emissive: return material.TextureEmissive.TextureIndex;
                 case TextureType.Metallic: return -1; // TODO
+                case TextureType.Transparency: return material.TextureOpacity.TextureIndex;
                 default: return material.TextureDiffuse.TextureIndex;
             }
         }
@@ -137,6 +141,7 @@ namespace KWEngine3.Helper
                 case TextureType.Roughness: return KWEngine.TextureWhite;
                 case TextureType.Emissive: return KWEngine.TextureBlack;
                 case TextureType.Metallic: return KWEngine.TextureBlack;
+                case TextureType.Transparency: return KWEngine.TextureWhite;
                 default: return KWEngine.TextureDefault;
             }
         }
@@ -154,6 +159,7 @@ namespace KWEngine3.Helper
                 case TextureType.Roughness: return Assimp.TextureType.Specular;
                 case TextureType.Emissive: return Assimp.TextureType.Emissive;
                 case TextureType.Metallic: return Assimp.TextureType.Unknown;
+                case TextureType.Transparency: return Assimp.TextureType.Opacity;
                 default: return Assimp.TextureType.Diffuse;
             }
         }
@@ -1334,7 +1340,6 @@ namespace KWEngine3.Helper
             tex.Type = ttype;
 
             Assimp.TextureType att = GetAssimpTextureType(ttype, isBumpInsteadOfNormalMap);
-
             if (material.GetMaterialTexture(att, GetTextureSlotIndex(material, ttype, isBumpInsteadOfNormalMap), out Assimp.TextureSlot texSlot))
             {
                 string tFilename;

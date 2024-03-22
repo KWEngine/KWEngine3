@@ -84,7 +84,7 @@ namespace KWEngine3.Model
             returnModel.GLBOffset = GetGlbOffset(returnModel.PathAbsolute, ref returnModel);
             returnModel.AssemblyMode = AssemblyMode.File;
             returnModel.CalculatePath();
-            returnModel.Meshes = new Dictionary<string, GeoMesh>();
+            returnModel.Meshes = new();
             returnModel.TransformGlobalInverse = Matrix4.Identity;
             returnModel.Textures = new Dictionary<string, GeoTexture>();
             returnModel.IsValid = false;

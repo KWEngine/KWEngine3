@@ -18,6 +18,7 @@ namespace KWEngine3.Model
         public GeoTexture TextureEmissive;
         public GeoTexture TextureMetallic;
         public GeoTexture TextureRoughness;
+        public GeoTexture TextureTranparency;
 
         public float Metallic;
         public float Roughness;
@@ -100,6 +101,20 @@ namespace KWEngine3.Model
             else if (type == TextureType.Normal)
             {
                 TextureNormal = new GeoTexture()
+                {
+                    Filename = texture,
+                    OpenGLID = id,
+                    Type = type,
+                    UVMapIndex = 0,
+                    UVTransform = new Vector4(1, 1, 0, 0),
+                    Width = width,
+                    Height = height,
+                    MipMaps = mipmaps
+                };
+            }
+            else if(type == TextureType.Transparency)
+            {
+                TextureTranparency = new GeoTexture()
                 {
                     Filename = texture,
                     OpenGLID = id,

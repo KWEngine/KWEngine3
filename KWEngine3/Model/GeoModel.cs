@@ -73,7 +73,7 @@ namespace KWEngine3.Model
         /// Globale Transformationsinvers-Matrix
         /// </summary>
         public Matrix4 TransformGlobalInverse { get; internal set; }
-        internal Dictionary<string, GeoMesh> Meshes { get; set; }
+        internal SortedDictionary<string, GeoMesh> Meshes { get; set; }
         internal List<GeoMeshHitbox> MeshHitboxes { get; set; }
         /// <summary>
         /// Handelt es sich bei dem Modell um Terrain?

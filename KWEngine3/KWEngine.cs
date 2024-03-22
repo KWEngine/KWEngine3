@@ -508,7 +508,7 @@ namespace KWEngine3
             GeoModel terrainModel = new()
             {
                 Name = name,
-                Meshes = new Dictionary<string, GeoMesh>(),
+                Meshes = new(),
                 IsValid = true
             };
 

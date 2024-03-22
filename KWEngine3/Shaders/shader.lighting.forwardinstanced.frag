@@ -23,6 +23,7 @@ uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureRoughness;
 uniform sampler2D uTextureEmissive;
+uniform sampler2D uTextureTransparency;
 uniform ivec3 uUseTexturesAlbedoNormalEmissive;
 uniform ivec3 uUseTexturesMetallicRoughness;
 
@@ -206,6 +207,11 @@ float DistributionGGX(vec3 N, vec3 H, float a)
     return nom / denom;
 }
 
+vec4 getAlphaTexture()
+{
+    return texture(uTextureTransparency, vTexture);
+}
+
 vec4 getPBR()
 {
     vec4 specularMetallicRoughnessOcclusion = vec4(0.0, uMetallicRoughness.x, clamp(uMetallicRoughness.y, 0.0001, 1.0), 1.0);
@@ -253,6 +259,10 @@ vec4 getAlbedo()
     {
         albedo = vec4(uColorMaterial * uColorTint);
     }
+
+    vec4 alpha = getAlphaTexture();
+    albedo.w = min(albedo.w, alpha.w);
+
     return albedo;
 }
 

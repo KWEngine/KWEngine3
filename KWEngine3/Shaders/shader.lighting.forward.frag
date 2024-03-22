@@ -23,6 +23,7 @@ uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureRoughness;
 uniform sampler2D uTextureEmissive;
+uniform sampler2D uTextureTransparency;
 uniform ivec3 uUseTexturesAlbedoNormalEmissive;
 uniform ivec3 uUseTexturesMetallicRoughness;
 
@@ -241,6 +242,11 @@ vec4 getFragmentPositionAndDepth()
     return vec4(vPosition.xyz, 0.0);
 }
 
+vec4 getAlphaTexture()
+{
+    return texture(uTextureTransparency, vTexture);
+}
+
 vec4 getAlbedo()
 {
     vec4 albedo = vec4(1.0);
@@ -253,6 +259,10 @@ vec4 getAlbedo()
     {
         albedo = vec4(uColorMaterial * uColorTint);
     }
+
+    vec4 alpha = getAlphaTexture();
+    albedo.w = min(albedo.w, alpha.w);
+
     return albedo;
 }
 

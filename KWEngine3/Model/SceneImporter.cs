@@ -225,7 +225,7 @@ namespace KWEngine3.Model
 
             returnModel.AssemblyMode = am;
             returnModel.CalculatePath();
-            returnModel.Meshes = new Dictionary<string, GeoMesh>();
+            returnModel.Meshes = new();
             returnModel.TransformGlobalInverse = Matrix4.Invert(HelperMatrix.ConvertAssimpToOpenTKMatrix(scene.RootNode.Transform));
             returnModel.Textures = new Dictionary<string, GeoTexture>();
             
@@ -241,7 +241,7 @@ namespace KWEngine3.Model
             return returnModel;
         }
 
-        
+
 
         private static void GenerateNodeHierarchy(Node node, ref GeoModel model)
         {
@@ -663,12 +663,19 @@ namespace KWEngine3.Model
                     }
                 }
 
-                if(material.HasTextureDiffuse && material.HasTextureOpacity)
+                if(material.HasTextureOpacity)
                 {
-                    if(material.TextureDiffuse.FilePath == material.TextureOpacity.FilePath)
+                    tex = HelperTexture.ProcessTextureForMaterial(TextureType.Transparency, material, scene, ref model, false, out float rTmp, out float mTmp);
+                    if (tex.IsTextureSet)
                     {
+                        geoMaterial.TextureTranparency = tex;
+                        if (!tex.IsKWEngineTexture && model.Textures.ContainsKey(tex.Filename) == false)
+                        {
+                            model.Textures.Add(tex.Filename, tex);
+                        }
                         model.HasTransparencyTexture = true;
                     }
+                    
                 }
 
                 if(material.HasTextureNormal)
@@ -786,6 +793,21 @@ namespace KWEngine3.Model
             return false;
         }
 
+        internal static float GetAvgZValue(List<Vector3D> vertices, ref Matrix4 nodeTransform)
+        {
+            float max = float.MinValue;
+            float min = float.MaxValue;
+
+            foreach(Vector3D V in vertices)
+            {
+                Vector3 v = Vector3.TransformPosition(new Vector3(V.X, V.Y, V.Z), nodeTransform);
+
+                if (v.Z > max) max = v.Z;
+                if (v.Z < min) min = v.Z;
+            }
+            return (max - min) * 0.5f;
+        }
+
         private static bool ProcessMeshes(Scene scene, ref GeoModel model)
         {
             
@@ -866,7 +888,32 @@ namespace KWEngine3.Model
                 geoMesh.Transform = nodeTransform;
                 geoMesh.Terrain = null;
                 geoMesh.BoneTranslationMatrixCount = mesh.BoneCount;
-                geoMesh.Name = mesh.Name + " #" + m.ToString().PadLeft(4, '0') + " (Node: " + nodeName + ")";
+                string affix = "";
+                try
+                {
+                    if (scene.HasMaterials)
+                    {
+                        Material tmpMat = scene.Materials[mesh.MaterialIndex];
+                        if(tmpMat.HasTextureOpacity)
+                        {
+                            // determine the max z-value for the mesh's vertices
+                            if(mesh.HasVertices)
+                            {
+                                float z = GetAvgZValue(mesh.Vertices, ref nodeTransform);
+                                z = (MathHelper.Clamp(z / 20000f, -1f, 1f) + 1f) * 0.5f * 40000;
+                                ushort zInt = (ushort)z;
+                                char affixChar = (char)zInt;
+                                affix += ("z" + affixChar);
+
+                            }
+                        }
+                    }
+                }
+                catch(Exception)
+                {
+
+                }
+                geoMesh.Name = affix + mesh.Name + " #" + m.ToString().PadLeft(4, '0') + " (Node: " + nodeName + ")";
                 currentNodeName = nodeName;
                 currentMesh = mesh;
                 currentNodeTransform = nodeTransform;

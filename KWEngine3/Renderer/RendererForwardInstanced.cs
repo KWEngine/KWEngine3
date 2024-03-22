@@ -25,6 +25,7 @@ namespace KWEngine3.Renderer
         public static int UTextureMetallic { get; private set; } = -1;
         public static int UTextureRoughness { get; private set; } = -1;
         public static int UTextureEmissive { get; private set; } = -1;
+        public static int UTextureTransparency { get; private set; } = -1;
         public static int UTextureTransform { get; private set; } = -1;
         public static int UUseAnimations { get; private set; } = -1;
         public static int UBoneTransforms { get; private set; } = -1;
@@ -95,6 +96,7 @@ namespace KWEngine3.Renderer
                 UTextureMetallic = GL.GetUniformLocation(ProgramID, "uTextureMetallic");
                 UTextureRoughness = GL.GetUniformLocation(ProgramID, "uTextureRoughness");
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
+                UTextureTransparency = GL.GetUniformLocation(ProgramID, "uTextureTransparency");
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
                 UTextureMetallicRoughnessCombined = GL.GetUniformLocation(ProgramID, "uTextureIsMetallicRoughnessCombined");
                 UMetallicType = GL.GetUniformLocation(ProgramID, "uMetallicType");
@@ -356,23 +358,28 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, material.TextureEmissive.IsTextureSet ? material.TextureEmissive.OpenGLID : KWEngine.TextureBlack);
             GL.Uniform1(UTextureEmissive, TEXTUREOFFSET + 2);
 
+            // Transparency
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
+            GL.BindTexture(TextureTarget.Texture2D, material.TextureTranparency.IsTextureSet ? material.TextureTranparency.OpenGLID : KWEngine.TextureWhite);
+            GL.Uniform1(UTextureTransparency, TEXTUREOFFSET + 3);
+
             // Metallic/Roughness
             GL.Uniform1(UTextureMetallicRoughnessCombined, material.TextureRoughnessInMetallic ? 1 : 0);
             if(material.TextureRoughnessInMetallic)
             {
-                GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
+                GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
-                GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 3);
+                GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 4);
             }
             else
             {
-                GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
-                GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
-                GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 3);
-
                 GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
+                GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
+                GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 4);
+
+                GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 5);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureRoughness.IsTextureSet ? material.TextureRoughness.OpenGLID : KWEngine.TextureWhite);
-                GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 4);
+                GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 5);
             }
         }
     }

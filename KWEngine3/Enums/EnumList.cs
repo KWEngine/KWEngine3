@@ -637,7 +637,11 @@
         /// <summary>
         /// Emissive Map
         /// </summary>
-        Emissive
+        Emissive,
+        /// <summary>
+        /// Transparency Map
+        /// </summary>
+        Transparency
     };
 
     /// <summary>

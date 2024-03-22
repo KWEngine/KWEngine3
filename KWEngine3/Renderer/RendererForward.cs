@@ -25,6 +25,7 @@ namespace KWEngine3.Renderer
         public static int UTextureMetallic { get; private set; } = -1;
         public static int UTextureRoughness { get; private set; } = -1;
         public static int UTextureEmissive { get; private set; } = -1;
+        public static int UTextureTransparency { get; private set; } = -1;
         public static int UTextureTransform { get; private set; } = -1;
         public static int UUseAnimations { get; private set; } = -1;
         public static int UBoneTransforms { get; private set; } = -1;
@@ -92,6 +93,7 @@ namespace KWEngine3.Renderer
                 UTextureRoughness = GL.GetUniformLocation(ProgramID, "uTextureRoughness");
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
+                UTextureTransparency = GL.GetUniformLocation(ProgramID, "uTextureTransparency");
                 UTextureMetallicRoughnessCombined = GL.GetUniformLocation(ProgramID, "uTextureIsMetallicRoughnessCombined");
                 UMetallicType = GL.GetUniformLocation(ProgramID, "uMetallicType");
                 UUseAnimations = GL.GetUniformLocation(ProgramID, "uUseAnimations");
@@ -254,11 +256,12 @@ namespace KWEngine3.Renderer
             int val = g.IsShadowCaster ? 1 : -1;
             val *= g.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);
-
+            
             GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];
+
                 GeoMaterial material = g._model.Material[i];
                 if (material.ColorAlbedo.W <= 0)
                     continue;
@@ -352,24 +355,30 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, material.TextureEmissive.IsTextureSet ? material.TextureEmissive.OpenGLID : KWEngine.TextureBlack);
             GL.Uniform1(UTextureEmissive, TEXTUREOFFSET + 2);
 
+            // Transparency
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
+            GL.BindTexture(TextureTarget.Texture2D, material.TextureTranparency.IsTextureSet ? material.TextureTranparency.OpenGLID : KWEngine.TextureWhite);
+            GL.Uniform1(UTextureTransparency, TEXTUREOFFSET + 3);
+
             // Metallic/Roughness
             GL.Uniform1(UTextureMetallicRoughnessCombined, material.TextureRoughnessInMetallic ? 1 : 0);
             if(material.TextureRoughnessInMetallic)
             {
-                GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
+                GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
-                GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 3);
+                GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 4);
             }
             else
             {
-                GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
-                GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
-                GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 3);
-
                 GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
+                GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
+                GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 4);
+
+                GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 5);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureRoughness.IsTextureSet ? material.TextureRoughness.OpenGLID : KWEngine.TextureWhite);
-                GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 4);
+                GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 5);
             }
+
         }
     }
 }
