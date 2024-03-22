@@ -17,6 +17,8 @@ namespace KWEngine3.Model
         {
             return Name;
         }
+
+        internal bool HasTransparencyTexture { get; set; } = false;
         internal bool IsKWCube6 { get; set; } = false;
 
         internal bool IsPrimitive { get { return Name == "kwcube.obj" || Name == "kwsphere.fbx" || Name.StartsWith("kwquad"); } }

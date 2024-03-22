@@ -663,6 +663,15 @@ namespace KWEngine3.Model
                         }
                     }
                 }
+
+                if(material.HasTextureDiffuse && material.HasTextureOpacity)
+                {
+                    if(material.TextureDiffuse.FilePath == material.TextureOpacity.FilePath)
+                    {
+                        model.HasTransparencyTexture = true;
+                    }
+                }
+
                 if(material.HasTextureNormal)
                 {
                     tex = HelperTexture.ProcessTextureForMaterial(TextureType.Normal, material, scene, ref model, false, out float rTmp, out float mTmp);
@@ -821,11 +830,11 @@ namespace KWEngine3.Model
                                 GeoHelper.FindIndexOfVertexInList(ref face.Vertices[0], ref face.Vertices[1], ref face.Vertices[2], uniqueVerticesForWholeMesh, uniqueNormalsForWholeMesh, out int indexVertex1, out int indexVertex2, out int indexVertex3, out int indexNormal);
                                 Vector3 normal = uniqueNormalsForWholeMesh[indexNormal];
                                 //if (!faceNormals.Contains(normal))
-                                {
+                                //{
                                     faceNormals.Add(normal);
                                     GeoMeshFace tmpFace = new GeoMeshFace(indexNormal, false, indexVertex1, indexVertex2, indexVertex3);
                                     facesForHitbox.Add(tmpFace);
-                                }
+                                //}
                             }
                         }
 

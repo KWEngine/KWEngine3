@@ -90,6 +90,10 @@ namespace KWEngine3.GameObjects
             bool modelFound = KWEngine.Models.TryGetValue(modelname, out GeoModel model);
             if (modelFound)
             {
+                if (model.HasTransparencyTexture && HasTransparencyTexture == false)
+                {
+                    HasTransparencyTexture = model.HasTransparencyTexture;
+                }
                 if (!model.IsTerrain)
                 {
                     _modelNameInDB = modelname;

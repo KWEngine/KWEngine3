@@ -507,107 +507,132 @@ namespace KWEngine3.Helper
                 else
                 {
                     uint version = BitConverter.ToUInt32(filedata, 23);
+                    FBXNode root;
                     if (version <= 7400)
                     {
-                        FBXNode root = ReadFBXNodeStructure(filedata, 27);
-
-                        long materialIdFromFBX = GetMaterialIdFor(materialName, root);
-                        if (materialIdFromFBX > 0)
+                        root = ReadFBXNodeStructureOld(filedata, 27);
+                    }
+                    else
+                    {
+                        root = ReadFBXNodeStructure(filedata, 27);
+                    }
+                    
+                    long materialIdFromFBX = GetMaterialIdFor(materialName, root);
+                    if (materialIdFromFBX > 0)
+                    {
+                        GetMetallicRoughnessForMaterialID(materialIdFromFBX, root, out string roughFile, out byte[] roughData, out string metalFile, out byte[] metalData, out roughness, out metallic);
+                        if (type == TextureType.Roughness && roughFile.Length > 0)
                         {
-                            GetMetallicRoughnessForMaterialID(materialIdFromFBX, root, out string roughFile, out byte[] roughData, out string metalFile, out byte[] metalData, out roughness, out metallic);
-                            if (type == TextureType.Roughness && roughFile.Length > 0)
+                            string tFilename = roughFile;
+
+                            tex.Type = TextureType.Roughness;
+                            tex.UVTransform = new Vector4(1, 1, 0, 0);
+                            tex.IsEmbedded = roughData != null;
+                            tex.UVMapIndex = 0;
+                            if (tex.IsEmbedded)
                             {
-                                string tFilename = roughFile;
-
-                                tex.Type = TextureType.Roughness;
-                                tex.UVTransform = new Vector4(1, 1, 0, 0);
-                                tex.IsEmbedded = roughData != null;
-                                tex.UVMapIndex = 0;
-                                if (tex.IsEmbedded)
+                                tFilename = model.Name + "_" + materialName + "_" + GetTextureTypeString(type) + "-EMBEDDED_" + "X" + "." + GetFileEnding(tFilename);
+                                if (!ConvertEmbeddedToTemporaryFile(roughData, tFilename, model.Path))
                                 {
-                                    tFilename = model.Name + "_" + materialName + "_" + GetTextureTypeString(type) + "-EMBEDDED_" + "X" + "." + GetFileEnding(tFilename);
-                                    if (!ConvertEmbeddedToTemporaryFile(roughData, tFilename, model.Path))
-                                    {
-                                        KWEngine.LogWriteLine("[Import] Temporary image file " + roughFile + " could not be written to disk");
-                                    }
-                                }
-                                tex.Filename = tFilename;
-
-                                if (model.Textures.ContainsKey(tFilename))
-                                {
-                                    tex.OpenGLID = model.Textures[tFilename].OpenGLID;
-                                }
-                                else if (SceneImporter.CheckIfOtherModelsShareTexture(tFilename, model.Path, out GeoTexture sharedTexture))
-                                {
-                                    tex = sharedTexture;
-                                }
-                                else
-                                {
-                                    tex.OpenGLID = LoadTextureForModelExternal(
-                                            SceneImporter.FindTextureInSubs(SceneImporter.StripPathFromFile(tFilename), model.Path), out int mipMaps
-                                        );
-                                    tex.MipMaps = mipMaps;
-
-                                    if (tex.OpenGLID > 0)
-                                    {
-                                        if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
-                                        {
-                                            tex.Width = width;
-                                            tex.Height = height;
-                                        }
-                                        tex.Filename = tFilename;
-                                    }
+                                    KWEngine.LogWriteLine("[Import] Temporary image file " + roughFile + " could not be written to disk");
                                 }
                             }
-                            else if (type == TextureType.Metallic && metalFile.Length > 0)
+                            tex.Filename = tFilename;
+
+                            if (model.Textures.ContainsKey(tFilename))
                             {
-                                string tFilename = metalFile;
+                                tex.OpenGLID = model.Textures[tFilename].OpenGLID;
+                            }
+                            else if (SceneImporter.CheckIfOtherModelsShareTexture(tFilename, model.Path, out GeoTexture sharedTexture))
+                            {
+                                tex = sharedTexture;
+                            }
+                            else
+                            {
+                                tex.OpenGLID = LoadTextureForModelExternal(
+                                        SceneImporter.FindTextureInSubs(SceneImporter.StripPathFromFile(tFilename), model.Path), out int mipMaps
+                                    );
+                                tex.MipMaps = mipMaps;
 
-                                tex.Type = TextureType.Metallic;
-                                tex.UVTransform = new Vector4(1, 1, 0, 0);
-                                tex.IsEmbedded = metalData != null;
-                                tex.UVMapIndex = 0;
-                                if (tex.IsEmbedded)
+                                if (tex.OpenGLID > 0)
                                 {
-                                    tFilename = model.Name + "_" + materialName + "_" + GetTextureTypeString(type) + "-EMBEDDED_" + "X" + "." + GetFileEnding(tFilename);
-                                    if (!ConvertEmbeddedToTemporaryFile(metalData, tFilename, model.Path))
+                                    if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
                                     {
-                                        KWEngine.LogWriteLine("[Import] Temporary image file " + roughFile + " could not be written to disk");
+                                        tex.Width = width;
+                                        tex.Height = height;
                                     }
+                                    tex.Filename = tFilename;
                                 }
-                                tex.Filename = tFilename;
+                            }
+                        }
+                        else if (type == TextureType.Metallic && metalFile.Length > 0)
+                        {
+                            string tFilename = metalFile;
 
-                                if (model.Textures.ContainsKey(tFilename))
+                            tex.Type = TextureType.Metallic;
+                            tex.UVTransform = new Vector4(1, 1, 0, 0);
+                            tex.IsEmbedded = metalData != null;
+                            tex.UVMapIndex = 0;
+                            if (tex.IsEmbedded)
+                            {
+                                tFilename = model.Name + "_" + materialName + "_" + GetTextureTypeString(type) + "-EMBEDDED_" + "X" + "." + GetFileEnding(tFilename);
+                                if (!ConvertEmbeddedToTemporaryFile(metalData, tFilename, model.Path))
                                 {
-                                    tex.OpenGLID = model.Textures[tFilename].OpenGLID;
+                                    KWEngine.LogWriteLine("[Import] Temporary image file " + roughFile + " could not be written to disk");
                                 }
-                                else if (SceneImporter.CheckIfOtherModelsShareTexture(tFilename, model.Path, out GeoTexture sharedTexture))
-                                {
-                                    tex = sharedTexture;
-                                }
-                                else
-                                {
-                                    tex.OpenGLID = LoadTextureForModelExternal(
-                                            SceneImporter.FindTextureInSubs(SceneImporter.StripPathFromFile(tFilename), model.Path), out int mipMaps
-                                        );
-                                    tex.MipMaps = mipMaps;
+                            }
+                            tex.Filename = tFilename;
 
-                                    if (tex.OpenGLID > 0)
+                            if (model.Textures.ContainsKey(tFilename))
+                            {
+                                tex.OpenGLID = model.Textures[tFilename].OpenGLID;
+                            }
+                            else if (SceneImporter.CheckIfOtherModelsShareTexture(tFilename, model.Path, out GeoTexture sharedTexture))
+                            {
+                                tex = sharedTexture;
+                            }
+                            else
+                            {
+                                tex.OpenGLID = LoadTextureForModelExternal(
+                                        SceneImporter.FindTextureInSubs(SceneImporter.StripPathFromFile(tFilename), model.Path), out int mipMaps
+                                    );
+                                tex.MipMaps = mipMaps;
+
+                                if (tex.OpenGLID > 0)
+                                {
+                                    if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
                                     {
-                                        if (GetTextureDimensions(tex.OpenGLID, out int width, out int height))
-                                        {
-                                            tex.Width = width;
-                                            tex.Height = height;
-                                        }
-                                        tex.Filename = tFilename;
+                                        tex.Width = width;
+                                        tex.Height = height;
                                     }
+                                    tex.Filename = tFilename;
                                 }
                             }
                         }
                     }
+                    
                 }
             }
             return tex;
+        }
+
+        internal static bool CheckFBXNestedListNew(byte[] data, uint endoffset)
+        {
+            if (endoffset == 0)
+                return false;
+            // check for 25-NUL-Byte ending of node:
+            int endIndex = (int)(endoffset - 1);
+            char[] nestedListTerminator = new char[25];
+            bool hasNestedList = true;
+            for (int i = 0; i < nestedListTerminator.Length; i++)
+            {
+                nestedListTerminator[i] = (char)data[endIndex - i];
+                if (nestedListTerminator[i] != 0)
+                {
+                    hasNestedList = false;
+                }
+            }
+            return hasNestedList;
         }
 
         internal static bool CheckFBXNestedList(byte[] data, uint endoffset)
@@ -618,7 +643,7 @@ namespace KWEngine3.Helper
             int endIndex = (int)(endoffset - 1);
             char[] nestedListTerminator = new char[13];
             bool hasNestedList = true;
-            for (int i = 0; i < 13; i++)
+            for (int i = 0; i < nestedListTerminator.Length; i++)
             {
                 nestedListTerminator[i] = (char)data[endIndex - i];
                 if (nestedListTerminator[i] != 0)
@@ -630,6 +655,256 @@ namespace KWEngine3.Helper
         }
 
         internal static FBXNode ReadFBXNodeStructure(byte[] data, uint startIndex, FBXNode parent = null, int nestingLevel = 0, int nestingLevelEndOffset = 0, bool isSiblingsRead = false)
+        {
+            string TABS = "";
+            for (int i = 0; i < nestingLevel; i++)
+            {
+                TABS += "\t";
+            }
+            FBXNode n = new FBXNode();
+
+            int idx = (int)startIndex;
+            uint endoffset = (uint)BitConverter.ToUInt64(data, idx);
+            n.EndOffset = endoffset;
+            bool hasNestedList = CheckFBXNestedListNew(data, endoffset);
+            n.HasNestedList = hasNestedList;
+            n.Parent = parent;
+
+            idx += 8;
+            uint numproperties = (uint)BitConverter.ToUInt64(data, idx);
+            n.NumProperties = numproperties;
+
+            idx += 8;
+            uint proplistlen = (uint)BitConverter.ToUInt64(data, idx);
+            n.PropertyListLen = proplistlen;
+
+            idx += 8;
+            byte namelen = data[idx];
+            n.NameLen = namelen;
+
+            idx += 1;
+            string name = "";
+            int start = idx;
+            for (int i = idx; i < start + namelen; i++)
+            {
+                name += (char)data[i];
+                idx++;
+            }
+            n.Name = name;
+            //Console.WriteLine(TABS + "Reading node: "  + n.Name);
+
+            int idxBeforePropertyLoop = idx;
+            // Loop through properties:
+            for (int i = 0; i < numproperties; i++)
+            {
+                FBXProperty prop = new FBXProperty();
+                char propertyTypeCode = (char)data[idx];
+                prop.Type = propertyTypeCode.ToString();
+                idx += 1;
+                if (propertyTypeCode == 'Y')
+                {
+                    // short
+
+                    short val = BitConverter.ToInt16(data, idx);
+                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
+                    idx += 2;
+                }
+                else if (propertyTypeCode == 'C')
+                {
+                    // bool in byte (lsbit = 1/0)
+                    byte val = data[idx];
+                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
+                    idx += 1;
+                }
+                else if (propertyTypeCode == 'I')
+                {
+                    // int
+                    int val = BitConverter.ToInt32(data, idx);
+                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
+                    idx += 4;
+                }
+                else if (propertyTypeCode == 'F')
+                {
+                    // float
+                    float val = BitConverter.ToSingle(data, idx);
+                    prop.FValue = val;
+                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
+                    idx += 4;
+                }
+                else if (propertyTypeCode == 'D')
+                {
+                    // double
+                    double val = BitConverter.ToDouble(data, idx);
+                    prop.FValue = Convert.ToSingle(val);
+                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
+                    idx += 8;
+                }
+                else if (propertyTypeCode == 'L')
+                {
+                    //long (signed)
+                    long val = BitConverter.ToInt64(data, idx);
+                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
+                    prop.ID = val;
+                    idx += 8;
+                }
+                else if (propertyTypeCode == 'f')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 4;
+                    }
+                    //Console.WriteLine(TABS + "\t" + "float[]");
+                }
+                else if (propertyTypeCode == 'd')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 8;
+                    }
+                    //Console.WriteLine(TABS + "\t" + "double[]");
+                }
+                else if (propertyTypeCode == 'l')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 8;
+                    }
+                    //Console.WriteLine(TABS + "\t" + "long[]");
+                }
+                else if (propertyTypeCode == 'i')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 4;
+                    }
+                    //Console.WriteLine(TABS + "\t" + "int[]");
+                }
+                else if (propertyTypeCode == 'b')
+                {
+                    uint arrayLength = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint encoding = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    uint compressedLength = BitConverter.ToUInt32(data, idx);
+
+                    if (encoding > 0)
+                    {
+                        idx += (int)compressedLength;
+                    }
+                    else
+                    {
+                        idx += (int)arrayLength * 1;
+                    }
+                    //Console.WriteLine(TABS + "\t" + "byte[]");
+                }
+                else if (propertyTypeCode == 'S')
+                {
+                    uint length = BitConverter.ToUInt32(data, idx);
+
+                    idx += 4;
+                    string s = "";
+                    for (int j = idx; j < idx + (int)length; j++)
+                    {
+                        s += (char)data[j];
+                    }
+                    s = s.Replace("\0", replaceSymbol);
+                    //Console.WriteLine(TABS + "\t" + "string: " + s);
+                    prop.Name = s;
+                    idx += (int)length;
+                }
+                else if (propertyTypeCode == 'R')
+                {
+                    uint length = BitConverter.ToUInt32(data, idx);
+
+                    byte[] arraydata = new byte[length];
+                    Array.Copy(data, idx, arraydata, 0, length);
+                    //Console.WriteLine(TABS + "\t" + "RAW DATA");
+                    prop.RawData = arraydata;
+                    idx += (int)length;
+                }
+                n.Properties.Add(prop);
+            }
+
+            // if it has a nested list, save the offset to this list in an offset variable:
+            if (hasNestedList)
+            {
+                //Console.WriteLine(TABS + " START READING OF CHILDREN FOR " + n.Name);
+                n.Children.Add(ReadFBXNodeStructure(data, (uint)idx, n, nestingLevel + 1, (int)n.EndOffset));
+                //Console.WriteLine(TABS + " END READING OF CHILDREN FOR " + n.Name);
+            }
+
+
+            idx = (int)n.EndOffset;
+
+            int end = nestingLevelEndOffset > 0 ? nestingLevelEndOffset - 13 : data.Length;
+            if (isSiblingsRead == false)
+            {
+                //Console.WriteLine(TABS + "START READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
+                while (idx > 0 && idx < end)
+                {
+                    FBXNode sibling = ReadFBXNodeStructure(data, (uint)idx, parent, nestingLevel, -1, true);
+                    n.Siblings.Add(sibling);
+                    idx = (int)sibling.EndOffset;
+                }
+                //Console.WriteLine(TABS + " END READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
+            }
+            //Console.ForegroundColor = ConsoleColor.Red;
+            //Console.WriteLine(idx);
+            //Console.ForegroundColor = ConsoleColor.White;
+            return n;
+        }
+
+        internal static FBXNode ReadFBXNodeStructureOld(byte[] data, uint startIndex, FBXNode parent = null, int nestingLevel = 0, int nestingLevelEndOffset = 0, bool isSiblingsRead = false)
         {
             string TABS = "";
             for(int i = 0; i < nestingLevel; i++)
@@ -854,7 +1129,7 @@ namespace KWEngine3.Helper
             if (hasNestedList)
             {
                 //Console.WriteLine(TABS + " START READING OF CHILDREN FOR " + n.Name);
-                n.Children.Add(ReadFBXNodeStructure(data, (uint)idx, n, nestingLevel + 1, (int)n.EndOffset));
+                n.Children.Add(ReadFBXNodeStructureOld(data, (uint)idx, n, nestingLevel + 1, (int)n.EndOffset));
                 //Console.WriteLine(TABS + " END READING OF CHILDREN FOR " + n.Name);
             }
             
@@ -867,7 +1142,7 @@ namespace KWEngine3.Helper
                 //Console.WriteLine(TABS + "START READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
                 while (idx > 0 && idx < end)
                 {
-                    FBXNode sibling = ReadFBXNodeStructure(data, (uint)idx, parent, nestingLevel, -1, true);
+                    FBXNode sibling = ReadFBXNodeStructureOld(data, (uint)idx, parent, nestingLevel, -1, true);
                     n.Siblings.Add(sibling);
                     idx = (int)sibling.EndOffset;
                 }
