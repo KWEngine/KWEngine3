@@ -114,7 +114,7 @@ namespace KWEngine3
                      APIVersion = Version.Parse("4.0"),
                      Flags = ContextFlags.ForwardCompatible,
                      WindowState = WindowState.Normal,
-                     ClientSize = new Vector2i(width, height),
+                     Size = new Vector2i(width, height),
                      WindowBorder = WindowBorder.Fixed,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = ""

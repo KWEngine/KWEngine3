@@ -52,7 +52,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld._customTextures.Clear();
 
             // MODELS
-            for(int i = Models.Keys.Count - 1; i >= 4; i--)
+            for(int i = Models.Keys.Count - 1; i >= 5; i--)
             {
                 string modelName = Models.Keys.ElementAt(i);
                 GeoModel m = Models[modelName];

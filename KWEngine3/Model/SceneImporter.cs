@@ -134,10 +134,9 @@ namespace KWEngine3.Model
                             | PostProcessSteps.Triangulate
                             | PostProcessSteps.ValidateDataStructure
                             | PostProcessSteps.GenerateUVCoords
-                            | PostProcessSteps.CalculateTangentSpace
-                            | PostProcessSteps.JoinIdenticalVertices;
+                            | PostProcessSteps.CalculateTangentSpace;
                             
-                        if (filename != "kwcube.obj" && filename != "kwcube6.obj")
+                        if (filename != "kwcube.obj" && filename != "kwcube6.obj" && filename != "kwplatform.obj")
                             steps |= PostProcessSteps.JoinIdenticalVertices;
                         if(filename == "kwsphere.obj")
                             steps |= PostProcessSteps.GenerateSmoothNormals;
@@ -809,7 +808,7 @@ namespace KWEngine3.Model
                 mesh = scene.Meshes[m];
                 Matrix4 parentTransform = Matrix4.Identity;
                 bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, ref nodeTransform, out string nodeName, ref parentTransform);
-                bool isNewMesh = currentMeshName != null && mesh.Name != currentMeshName && currentNodeName != null && currentNodeName != nodeName && model.Filename != "kwcube6.obj";
+                bool isNewMesh = currentMeshName != null && mesh.Name != currentMeshName && currentNodeName != null && currentNodeName != nodeName;
 
                 if (mesh.PrimitiveType != PrimitiveType.Triangle)
                 {
@@ -841,7 +840,7 @@ namespace KWEngine3.Model
                         // Generate hitbox for the previous mesh:
                         meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, uniqueNormalsForWholeMesh, uniqueVerticesForWholeMesh, facesForHitbox);
                         meshHitBox.Model = model;
-                        meshHitBox.Name = currentMeshName;
+                        meshHitBox.Name = currentNodeName;
                         meshHitBox.Transform = currentNodeTransform;
                         meshHitBox.IsActive = !currentNodeName.ToLower().Contains("_nohitbox");
                         model.MeshHitboxes.Add(meshHitBox);
@@ -875,14 +874,6 @@ namespace KWEngine3.Model
                 geoMesh.Vertices = new GeoVertex[mesh.VertexCount];
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
                 geoMesh.VAOGenerateAndBind();
-
-                if (currentNodeName.ToLower().Contains("_fullhitbox"))
-                {
-                    for (int i = 0; i < mesh.FaceCount; i++)
-                    {
-
-                    }
-                }
 
                 for (int i = 0; i < mesh.VertexCount; i++)
                 {
@@ -1009,7 +1000,7 @@ namespace KWEngine3.Model
                 }
                 meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, uniqueNormalsForWholeMesh, uniqueVerticesForWholeMesh, facesForHitbox);
                 meshHitBox.Model = model;
-                meshHitBox.Name = model.Filename == "kwcube6.obj" ? "KWCube6" : currentMeshName;
+                meshHitBox.Name = currentNodeName;
                 meshHitBox.Transform = nodeTransform;
                 meshHitBox.IsActive = !currentNodeName.ToLower().Contains("_nohitbox");
                 model.MeshHitboxes.Add(meshHitBox);

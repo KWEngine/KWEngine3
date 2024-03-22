@@ -1404,7 +1404,7 @@ namespace KWEngine3.Editor
             {
                 foreach (string model in KWEngine.Models.Keys)
                 {
-                    if (model != "KWCube6")
+                    if (!KWEngine.Models[model].IsTerrain)
                         names.Add(model);
                 }
             }
