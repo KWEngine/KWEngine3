@@ -8,7 +8,7 @@ using KWEngine3.Model;
 using KWEngine3.GameObjects;
 using OpenTK.Windowing.Common;
 using KWEngine3.Assets;
-using System.Xml.Linq;
+using System.Diagnostics;
 
 
 namespace KWEngine3
@@ -39,7 +39,6 @@ namespace KWEngine3
         /// Aktuelle Welt
         /// </summary>
         public static World CurrentWorld { get; internal set; } = null;
-        //internal static Dictionary<World, Dictionary<string, int>> CustomTextures { get; set; } = new Dictionary<World, Dictionary<string, int>>();
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
 
         internal static void DeleteCustomModelsAndTexturesFromCurrentWorld()
@@ -63,25 +62,126 @@ namespace KWEngine3
         }
 
         internal static EngineMode Mode { get; set; } = EngineMode.Play;
+
+        /// <summary>
+        /// Gibt die Namen aller Hitboxen des angegebenen Modells auf der Editorkonsole aus
+        /// </summary>
+        /// <param name="modelname">Modellname</param>
+        public static void PrintHitboxesForModel(string modelname)
+        {
+            if (Models.ContainsKey(modelname))
+            {
+                GeoModel model = Models[modelname];
+                if (!model.IsPrimitive && !model.IsTerrain)
+                {
+                    if (model.MeshHitboxes == null || model.MeshHitboxes.Count == 0)
+                    {
+                        LogWriteLine("[Import] Model " + modelname + " has no hitboxes");
+                    }
+                    else
+                    {
+                        LogWriteLine("[Import] Listing hitboxes for model " + modelname + ":");
+                        foreach (GeoMeshHitbox hb in model.MeshHitboxes)
+                        {
+                            LogWriteLine("         -> " + hb.Name + " (" + (hb.IsActive ? "active" : "not active") + ")");
+                        }
+                    }
+                }
+                else
+                {
+                    LogWriteLine("[Import] Invalid model name - needs to be an imported model");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Import] Model " + modelname + " not found in database");
+            }
+        }
+
+        /// <summary>
+        /// Gibt die Namen aller Hitboxen des angegebenen Modells auf der Editorkonsole aus
+        /// </summary>
+        /// <param name="modelname">Modellname</param>
+        /// <returns>Liste der Hitboxnamen</returns>
+        public static List<string> GetHitboxesForModel(string modelname)
+        {
+            List<string> result = new();
+
+            if (Models.ContainsKey(modelname))
+            {
+                GeoModel model = Models[modelname];
+                if (!model.IsPrimitive && !model.IsTerrain)
+                {
+                    if (model.MeshHitboxes == null || model.MeshHitboxes.Count == 0)
+                    {
+                        LogWriteLine("[Import] Model " + modelname + " has no hitboxes");
+                    }
+                    else
+                    {
+                        foreach (GeoMeshHitbox hb in model.MeshHitboxes)
+                        {
+                            result.Add(hb.Name);
+                        }
+                    }
+                }
+                else
+                {
+                    LogWriteLine("[Import] Invalid model name - needs to be an imported model");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Import] Model " + modelname + " not found in database");
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Setzt die benannte Hitbox des Modells aktiv oder inaktiv
+        /// </summary>
+        /// <param name="modelname">Name des importierten 3D-Modells</param>
+        /// <param name="hitboxname">Name der zu ändernden Hitbox</param>
+        /// <param name="state">Status (true = aktiv, false = inaktiv)</param>
+        public static void SetHitboxEnabledForModel(string modelname, string hitboxname, bool state)
+        {
+            if (modelname == null) modelname = "";
+            if (hitboxname == null) hitboxname = "";
+
+            if (Models.ContainsKey(modelname))
+            {
+                GeoModel model = Models[modelname];
+                if(!model.IsPrimitive && !model.IsTerrain)
+                {
+                    foreach (GeoMeshHitbox hb in model.MeshHitboxes)
+                    {
+                        if(hb.Name == hitboxname)
+                        {
+                            hb.IsActive = state;
+                            LogWriteLine("[Import] Setting state of hitbox " + hitboxname + " of model " + modelname + " to " + (state ? "'active'" : "'inactive'"));
+                            return;
+                        }
+                    }
+                    LogWriteLine("[Import] Model " + modelname + " does not have a hitbox with name " + hitboxname);
+                }
+                else
+                {
+                    LogWriteLine("[Import] Invalid model name - cannot alter hitbox state");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Import] Model " + modelname + " not found in database - cannot alter hitbox state");
+            }
+        }
+
         /// <summary>
         /// Gibt an, ob der Edit-Modus aktiv ist
         /// </summary>
         public static bool EditModeActive { get { return Mode == EngineMode.Edit; } }
-        /*
-        internal static bool _octreeVisible = false;
-        /// <summary>
-        /// Gibt an, ob der Octree sichtbar ist
-        /// </summary>
-        internal static bool OctreeVisible { get { return _octreeVisible; } set { _octreeVisible = value; } }
-
-        /// <summary>
-        /// Zusätzliches Padding für den Octree (Standard: 1)
-        /// </summary>
-        internal static float OctreeSafetyZone { get { return _octreeSafetyZone; } set { _octreeSafetyZone = MathHelper.Max(0f, value); } }
-        */
 
         internal static float _octreeSafetyZone = 1f;
         internal static float _swpruneTolerance = 1.0f;
+
         /// <summary>
         /// Zusätzliches Padding für die Kollisionsvorhersage (Standard: 1.0f)
         /// </summary>
@@ -522,9 +622,11 @@ namespace KWEngine3
         /// </summary>
         /// <param name="modelname">Name des bereits importierten Modells</param>
         /// <param name="filename">Dateiname der zu importierenden Datei</param>
-        /// <param name="callerName">(wird für interne Zwecke benötigt)</param>
-        public static void LoadAnimationIntoModel(string modelname, string filename, [CallerMemberName] string callerName = "")
+        public static void LoadAnimationIntoModel(string modelname, string filename)
         {
+            MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
+            string callerName = caller.Name;
+
             if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
             {
                 LogWriteLine("[Import] Model " + filename + " must be imported in Prepare() - aborting import");
@@ -566,6 +668,8 @@ namespace KWEngine3
             
             if(animations != null && animations.Count > 0)
             {
+                if (model.Animations == null)
+                    model.Animations = new List<GeoAnimation>();
                 model.Animations.AddRange(animations);
             }
         }
@@ -575,14 +679,15 @@ namespace KWEngine3
         /// </summary>
         /// <param name="name">Name des Modells</param>
         /// <param name="filename">Datei des Modells</param>
-        /// <param name="callerName">(wird für interne Zwecke benötigt)</param>
-        public static void LoadModel(string name, string filename, [CallerMemberName] string callerName = "")
+        public static void LoadModel(string name, string filename)
         {
+            MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
+            string callerName = caller.Name;
+
             if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
             {
                 LogWriteLine("[Import] Model " + filename + " must be imported in Prepare() - aborting import");
                 return;
-                //throw new Exceptions.EngineException("[Import] Models must be imported in Prepare()");
             }
             GeoModel m;
             if (Models.ContainsKey(name.Trim()))

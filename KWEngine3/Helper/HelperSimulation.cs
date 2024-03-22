@@ -265,41 +265,37 @@ namespace KWEngine3.Helper
             }
             Matrix4 globalTransform = nodeTransformation * parentTransform;
 
-            if (channel != null)
+            foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
             {
-                foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
+                int index = mesh.BoneNames.IndexOf(node.NameWithoutFBXSuffix);
+                if (index >= 0)
                 {
-                    int index = mesh.BoneNames.IndexOf(node.NameWithoutFBXSuffix);
-                    if (index >= 0)
+                    Matrix4 boneMatrix = mesh.BoneOffset[index] * globalTransform * g._model.ModelOriginal.TransformGlobalInverse;
+                    g._stateRender._boneTranslationMatrices[mesh.Name][index] = boneMatrix;
+                    int tempIndex = attachBones != null ? attachBones.IndexOf(node) : -1;
+                    if (tempIndex >= 0 && g is GameObject)
                     {
-                        Matrix4 boneMatrix = mesh.BoneOffset[index] * globalTransform * g._model.ModelOriginal.TransformGlobalInverse;
-                        g._stateRender._boneTranslationMatrices[mesh.Name][index] = boneMatrix;
-                        int tempIndex = attachBones != null ? attachBones.IndexOf(node) : -1;
-                        if (tempIndex >= 0 && g is GameObject)
+                        GameObject attachedObject = (g as GameObject)._gameObjectsAttached[node];
+                        if (attachedObject != null)
                         {
-                            GameObject attachedObject = (g as GameObject)._gameObjectsAttached[node];
-                            if (attachedObject != null)
+                        Matrix4 attachmentMatrix;
+                            if (isVSG)
                             {
-                                Matrix4 attachmentMatrix;
-                                if (isVSG)
-                                {
-                                    attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
-                                }
-                                else
-                                {
-                                    attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
-                                }
-
-                                Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
-                                Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
-                                Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
-                                attachedObject.SetScaleRotationAndTranslation(
-                                    attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
-                                    attachmentMatrix.ExtractRotation(false) * attachedObject._rotationOffsetForAttachment,
-                                    attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward
-                                    );
+                                attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
                             }
-                            
+                            else
+                            {
+                                attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                            }
+
+                            Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
+                            Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
+                            Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
+                            attachedObject.SetScaleRotationAndTranslation(
+                                attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
+                                attachmentMatrix.ExtractRotation(false) * attachedObject._rotationOffsetForAttachment,
+                                attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward
+                                );
                         }
                     }
                 }

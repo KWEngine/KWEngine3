@@ -7,7 +7,7 @@ namespace KWEngine3.Model
     /// <summary>
     /// Modellklasse
     /// </summary>
-    public class GeoModel
+    internal class GeoModel
     {
         /// <summary>
         /// Gibt Auskunft über den Modellnamen
@@ -46,6 +46,9 @@ namespace KWEngine3.Model
             get; internal set;
 
         } = false;
+
+        public Dictionary<string, Dictionary<string, GeoBone>> BoneDictionary = new();
+
         
         /// <summary>
         /// Knoten des Skeletts

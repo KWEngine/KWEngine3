@@ -76,9 +76,6 @@ namespace KWEngine3.Model
                     boneIds[arrayIndex + 1] = Vertices[i].BoneIDs[1];
                     boneIds[arrayIndex + 2] = Vertices[i].BoneIDs[2];
 
-                    //Vector3 weights = new Vector3(Vertices[i].Weights[0], Vertices[i].Weights[1], Vertices[i].Weights[2]);
-                    //weights.Normalize();
-
                     boneWeights[arrayIndex] = Vertices[i].Weights[0];
                     boneWeights[arrayIndex + 1] = Vertices[i].Weights[1];
                     boneWeights[arrayIndex + 2] = Vertices[i].Weights[2];
@@ -90,8 +87,6 @@ namespace KWEngine3.Model
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-            //Vertices = null; // Not needed anymore. Let the GC clear it...
 
             if (hasBones)
             {

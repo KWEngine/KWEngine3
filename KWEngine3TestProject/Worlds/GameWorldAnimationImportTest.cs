@@ -15,8 +15,16 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("ExoGray", "./Models/AnimationTest/NinjaSwimming.fbx");
-            KWEngine.LoadAnimationIntoModel("ExoGray", "./Models/AnimationTest/NinjaAnimBoxing.fbx");
+            KWEngine.LoadModel("ExoGray", "./Models/AnimationTest/ExoGray_Idle_Uniform24.fbx");
+            KWEngine.LoadAnimationIntoModel("ExoGray", "./Models/AnimationTest/ExoGrayAnim_GetHit_Uniform24.fbx");
+
+            foreach(string hitbox in KWEngine.GetHitboxesForModel("ExoGray"))
+            {
+                if(!hitbox.ToLower().Contains("suit"))
+                {
+                    KWEngine.SetHitboxEnabledForModel("ExoGray", hitbox, false);
+                }
+            }
 
             SetCameraPosition(3, 3, 3);
             SetCameraTarget(0, 0.5f, 0);

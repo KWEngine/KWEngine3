@@ -42,19 +42,9 @@ namespace KWEngine3.Model
             FileType type = CheckFileEnding(filename);
             if (type != FileType.Invalid)
             {
-                PostProcessSteps steps =
-                                  PostProcessSteps.LimitBoneWeights
-                                | PostProcessSteps.Triangulate
-                                | PostProcessSteps.ValidateDataStructure
-                                | PostProcessSteps.GenerateUVCoords
-                                | PostProcessSteps.CalculateTangentSpace
-                                | PostProcessSteps.JoinIdenticalVertices
-                                | PostProcessSteps.SplitByBoneCount
-                                ;
+                PostProcessSteps steps = PostProcessSteps.None;
 
                 AssimpContext importer = new AssimpContext();
-                importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
-                importer.SetConfig(new MaxBoneCountConfig(KWEngine.MAX_BONES));
                 Scene scene = importer.ImportFile(filename, steps);
 
                 GeoModel dummy = new GeoModel();
@@ -112,6 +102,9 @@ namespace KWEngine3.Model
                 AssimpContext importer = new AssimpContext();
                 importer.SetConfig(new VertexBoneWeightLimitConfig(KWEngine.MAX_BONE_WEIGHTS));
                 importer.SetConfig(new MaxBoneCountConfig(KWEngine.MAX_BONES));
+                importer.SetConfig(new FBXOptimizeEmptyAnimationCurvesConfig(false));
+                importer.SetConfig(new FBXImportLightsConfig(false));
+                importer.SetConfig(new FBXImportCamerasConfig(false));
                 Scene scene = null;
                 if (am != AssemblyMode.File)
                 {
@@ -161,14 +154,12 @@ namespace KWEngine3.Model
                     if (type != FileType.Invalid)
                     {
                         PostProcessSteps steps =
-                                  PostProcessSteps.LimitBoneWeights
-                                | PostProcessSteps.Triangulate
-                                //| PostProcessSteps.FixInFacingNormals
+                                  PostProcessSteps.LimitBoneWeights |
+                                  PostProcessSteps.Triangulate
                                 | PostProcessSteps.ValidateDataStructure
                                 | PostProcessSteps.GenerateUVCoords
                                 | PostProcessSteps.CalculateTangentSpace
                                 | PostProcessSteps.SplitByBoneCount
-                                | PostProcessSteps.JoinIdenticalVertices
                                 ;
                         if (type == FileType.DirectX)
                             steps |= PostProcessSteps.FlipWindingOrder;
@@ -273,7 +264,7 @@ namespace KWEngine3.Model
             gNode.Name = n.Name;
             gNode.Parent = callingNode;
 
-            if (n.Name.ToLower().Contains("_$assimpfbx$_"))
+            if (n.Name.Contains("_$AssimpFbx$_"))
             {
                 gNode.IsAssimpFBXNode = true;
                 gNode.NameWithoutFBXSuffix = n.Name.Substring(0, n.Name.IndexOf("_$AssimpFbx$_"));
@@ -355,23 +346,46 @@ namespace KWEngine3.Model
         {
             foreach (Mesh mesh in scene.Meshes)
             {
+                if(mesh.HasBones)
+                {
+                    model.HasBones = true;
+                    break;
+                }
+            }
+            if(model.HasBones == false)
+            {
+                return true;
+            }
+
+            model.BoneNames = new List<string>();
+            foreach (Mesh mesh in scene.Meshes)
+            {
+                if (!model.BoneDictionary.ContainsKey(mesh.Name))
+                {
+                    model.BoneDictionary.Add(mesh.Name, new());
+                }
+
                 int boneIndexLocal = 0;
                 foreach (Bone bone in mesh.Bones)
                 {
-                    model.HasBones = true;
+                    if(model.BoneNames.Contains(bone.Name) == false)
+                    {
+                        model.BoneNames.Add(bone.Name);
+                    }
+
                     if (model.Armature == null)
                         FindRootBone(scene, ref model, bone.Name);
-
-                    if (!model.BoneNames.Contains(bone.Name))
-                        model.BoneNames.Add(bone.Name);
 
                     GeoBone geoBone = new GeoBone();
                     geoBone.Name = bone.Name;
                     geoBone.Index = boneIndexLocal;
                     geoBone.Offset = HelperMatrix.ConvertAssimpToOpenTKMatrix(bone.OffsetMatrix);
+                    geoBone.OffsetInverse = Matrix4.Invert(geoBone.Offset);
                     boneIndexLocal++;
-
-                    
+                    if (!model.BoneDictionary[mesh.Name].ContainsKey(bone.Name))
+                    {
+                        model.BoneDictionary[mesh.Name].Add(bone.Name, geoBone);
+                    }
                 }
             }
             return model.BoneNames.Count <= KWEngine.MAX_BONES;
@@ -1000,7 +1014,6 @@ namespace KWEngine3.Model
 
         private static void ProcessAnimations(Scene scene, ref GeoModel model)
         {
-
             if (scene.HasAnimations)
             {
                 model.Animations = new List<GeoAnimation>();
@@ -1014,25 +1027,7 @@ namespace KWEngine3.Model
                     foreach (NodeAnimationChannel nac in a.NodeAnimationChannels)
                     {
                         GeoNodeAnimationChannel ganc;
-                        MatrixFBXType keyType = MatrixFBXType.Complete;
                         string nodename = nac.NodeName;
-                        /*if(nodename.ToLower().Contains("_$assimpfbx$_"))
-                        {
-                            nodename = nac.NodeName.Substring(0, nac.NodeName.ToLower().IndexOf("_$assimpfbx$_"));
-                            if(nac.NodeName.ToLower().Contains("_$assimpfbx$_rotation"))
-                            {
-                                keyType = MatrixFBXType.PostRotation;
-                            }
-                            else if (nac.NodeName.ToLower().Contains("_$assimpfbx$_translation"))
-                            {
-                                keyType = MatrixFBXType.PostTranslation;
-                            }
-                            else if (nac.NodeName.ToLower().Contains("_$assimpfbx$_scale"))
-                            {
-                                keyType = MatrixFBXType.PostScale;
-                            }
-                        }
-                        */
                         if(ga.AnimationChannels.ContainsKey(nodename))
                         {
                             ganc = ga.AnimationChannels[nodename];
@@ -1043,52 +1038,42 @@ namespace KWEngine3.Model
                         }
 
                         // Rotation:
-                        if (keyType == MatrixFBXType.Complete || keyType == MatrixFBXType.PostRotation)
+                        ganc.RotationKeys = new List<GeoAnimationKeyframe>();
+                        foreach (QuaternionKey key in nac.RotationKeys)
                         {
-                            ganc.RotationKeys = new List<GeoAnimationKeyframe>();
-                            //Console.WriteLine(nac.NodeName);
-                            foreach (QuaternionKey key in nac.RotationKeys)
-                            {
-                                GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
-                                akf.Time = (float)key.Time;
-                                akf.Rotation = new OpenTK.Mathematics.Quaternion(key.Value.X, key.Value.Y, key.Value.Z, key.Value.W);
-                                akf.Translation = new Vector3(0, 0, 0);
-                                akf.Scale = new Vector3(1, 1, 1);
-                                akf.Type = GeoKeyframeType.Rotation;
-                                ganc.RotationKeys.Add(akf);
-                            }
+                            GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
+                            akf.Time = (float)key.Time;
+                            akf.Rotation = new OpenTK.Mathematics.Quaternion(key.Value.X, key.Value.Y, key.Value.Z, key.Value.W);
+                            akf.Translation = new Vector3(0, 0, 0);
+                            akf.Scale = new Vector3(1, 1, 1);
+                            akf.Type = GeoKeyframeType.Rotation;
+                            ganc.RotationKeys.Add(akf);
                         }
 
                         // Scale:
-                        if (keyType == MatrixFBXType.Complete || keyType == MatrixFBXType.PostScale)
+                        ganc.ScaleKeys = new List<GeoAnimationKeyframe>();
+                        foreach (VectorKey key in nac.ScalingKeys)
                         {
-                            ganc.ScaleKeys = new List<GeoAnimationKeyframe>();
-                            foreach (VectorKey key in nac.ScalingKeys)
-                            {
-                                GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
-                                akf.Time = (float)key.Time;
-                                akf.Rotation = new OpenTK.Mathematics.Quaternion(0, 0, 0, 1);
-                                akf.Translation = new Vector3(0, 0, 0);
-                                akf.Scale = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
-                                akf.Type = GeoKeyframeType.Scale;
-                                ganc.ScaleKeys.Add(akf);
-                            }
+                            GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
+                            akf.Time = (float)key.Time;
+                            akf.Rotation = new OpenTK.Mathematics.Quaternion(0, 0, 0, 1);
+                            akf.Translation = new Vector3(0, 0, 0);
+                            akf.Scale = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
+                            akf.Type = GeoKeyframeType.Scale;
+                            ganc.ScaleKeys.Add(akf);
                         }
 
                         // Translation:
-                        if (keyType == MatrixFBXType.Complete || keyType == MatrixFBXType.PostTranslation)
+                        ganc.TranslationKeys = new List<GeoAnimationKeyframe>();
+                        foreach (VectorKey key in nac.PositionKeys)
                         {
-                            ganc.TranslationKeys = new List<GeoAnimationKeyframe>();
-                            foreach (VectorKey key in nac.PositionKeys)
-                            {
-                                GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
-                                akf.Time = (float)key.Time;
-                                akf.Rotation = new OpenTK.Mathematics.Quaternion(0, 0, 0, 1);
-                                akf.Translation = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
-                                akf.Scale = new Vector3(1, 1, 1);
-                                akf.Type = GeoKeyframeType.Translation;
-                                ganc.TranslationKeys.Add(akf);
-                            }
+                            GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
+                            akf.Time = (float)key.Time;
+                            akf.Rotation = new OpenTK.Mathematics.Quaternion(0, 0, 0, 1);
+                            akf.Translation = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
+                            akf.Scale = new Vector3(1, 1, 1);
+                            akf.Type = GeoKeyframeType.Translation;
+                            ganc.TranslationKeys.Add(akf);
                         }
 
                         ga.AnimationChannels.Add(nodename, ganc);
