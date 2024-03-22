@@ -135,6 +135,7 @@ namespace KWEngine3.Model
             gNode.Parent = callingNode;
             gNode.Transform = HelperMatrix.ConvertGLTFTRSToOpenTKMatrix(n.Scale, n.Rotation, n.Translation);
             gNode.Name = n.Name;
+            gNode.NameWithoutFBXSuffix = n.Name;
             model.NodesWithoutHierarchy.Add(gNode);
             if (n.Children != null)
             {
