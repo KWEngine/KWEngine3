@@ -810,7 +810,6 @@ namespace KWEngine3.Model
 
         private static bool ProcessMeshes(Scene scene, ref GeoModel model)
         {
-            
             model.MeshHitboxes = new List<GeoMeshHitbox>();
 
             string currentMeshName = null;
@@ -901,7 +900,7 @@ namespace KWEngine3.Model
                             {
                                 float z = GetAvgZValue(mesh.Vertices, ref nodeTransform);
                                 z = (MathHelper.Clamp(z / 20000f, -1f, 1f) + 1f) * 0.5f * 40000;
-                                ushort zInt = (ushort)z;
+                                ushort zInt = (ushort)Math.Round(z);
                                 char affixChar = (char)zInt;
                                 affix += ("z" + affixChar);
 

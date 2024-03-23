@@ -1,32 +1,43 @@
-# Blender 3.5.0 MTL File: 'KWPlatform_beforeBevelModifier.blend'
-# www.blender.org
+# Blender MTL File: 'KWPlatform_beforeBevelModifier.blend'
+# Material Count: 4
 
-newmtl FrontBack
+newmtl 1_TopBottom
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd kwplatform_testimage.png
+map_Kd C:\\Users\\lutzk\\OneDrive - Eugen-Reintjes-Schule\\Blendermodels\\KWPlatform\\kwplatform_testimage.png
 
-newmtl LeftRight
+newmtl 2_LeftRight
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd kwplatform_testimage.png
+map_Kd C:\\Users\\lutzk\\OneDrive - Eugen-Reintjes-Schule\\Blendermodels\\KWPlatform\\kwplatform_testimage.png
 
-newmtl TopBottom
+newmtl 3_FrontBack
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
 Ks 0.000000 0.000000 0.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 1
-map_Kd kwplatform_testimage.png
+map_Kd C:\\Users\\lutzk\\OneDrive - Eugen-Reintjes-Schule\\Blendermodels\\KWPlatform\\kwplatform_testimage.png
+
+newmtl None
+Ns 500
+Ka 0.8 0.8 0.8
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
