@@ -211,6 +211,7 @@
       <Field Name="_gameObjectsAttached" Hidden="true" />
       <Field Name="_obbRadii" Hidden="true" />
       <Field Name="_positionOffsetForAttachment" Hidden="true" />
+      <Field Name="_rayOrigins1" Hidden="true" />
       <Field Name="_rayOrigins2" Hidden="true" />
       <Field Name="_rayOrigins4" Hidden="true" />
       <Field Name="_rayOrigins8" Hidden="true" />
@@ -285,7 +286,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="12.25" Width="2.75" />
+    <Position X="9.5" Y="12" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -519,7 +520,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="9" Width="2.75" />
+    <Position X="9.5" Y="8.75" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
