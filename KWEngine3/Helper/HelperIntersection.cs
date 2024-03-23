@@ -708,7 +708,7 @@ namespace KWEngine3.Helper
                     continue;
                 if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
-                    bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal);
+                    bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal, out string hitboxname);
                     if (result)
                     {
                         float currentDistance = (intersectionPoint - origin).LengthFast;
@@ -719,6 +719,7 @@ namespace KWEngine3.Helper
                                 Distance = currentDistance,
                                 IntersectionPoint = intersectionPoint,
                                 SurfaceNormal = normal,
+                                HitboxName = hitboxname,
                                 Object = g
                             };
                             list.Add(gd);
@@ -734,9 +735,9 @@ namespace KWEngine3.Helper
             return list;
         }
 
-        internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint)
+        internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint, out string hitboxname)
         {
-            return RaytraceObject(g, origin, worldRay, out intersectionPoint, out Vector3 normal, true);
+            return RaytraceObject(g, origin, worldRay, out intersectionPoint, out Vector3 normal, out hitboxname, true);
         }
 
         internal static bool RaytraceHitbox(GameObjectHitbox hb, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal)
@@ -792,12 +793,14 @@ namespace KWEngine3.Helper
         /// <param name="rayDirection">Richtung des Strahls (MUSS normalisiert sein!)</param>
         /// <param name="intersectionPoint">Schnittpunkt (Ausgabe)</param>
         /// <param name="faceNormal">Ebene des Schnittpunkts (Ausgabe)</param>
+        /// <param name="hitboxname">Name der getroffenen Hitbox</param>
         /// <param name="includeNonCollisionObjects">Sollen Objekte berücksichtigt werden, die NICHT als Kollisionsobjekt markiert sind?</param>
         /// <returns>true, wenn der Strahl das GameObject getroffen hat</returns>
-        public static bool RaytraceObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal, bool includeNonCollisionObjects = true)
+        public static bool RaytraceObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal, out string hitboxname, bool includeNonCollisionObjects = true)
         {
             faceNormal = KWEngine.WorldUp;
             intersectionPoint = new Vector3();
+            hitboxname = "";
             if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
             {
                 return false;
@@ -829,6 +832,7 @@ namespace KWEngine3.Helper
                                 if (currentDistance < minDistance)
                                 {
                                     resultSum++;
+                                    hitboxname = currentHitbox._mesh.Name;
                                     faceNormal = currentFaceNormal;
                                     intersectionPoint = currentContact;
                                     minDistance = currentDistance;
@@ -854,6 +858,7 @@ namespace KWEngine3.Helper
                                 if (currentDistance < minDistance)
                                 {
                                     resultSum++;
+                                    hitboxname = currentHitbox._mesh.Name;
                                     faceNormal = currentFaceNormal;
                                     intersectionPoint = currentContact;
                                     minDistance = currentDistance;
@@ -1904,7 +1909,7 @@ namespace KWEngine3.Helper
 
                     if (origin.X >= left && origin.X <= right && origin.Z >= back && origin.Z <= front)
                     {
-                        bool result = RaytraceObject(g, origin + new Vector3(0, KWEngine.RAYTRACE_SAFETY, 0), direction, out Vector3 intersectionPoint, out Vector3 faceNormal, false);
+                        bool result = RaytraceObject(g, origin + new Vector3(0, KWEngine.RAYTRACE_SAFETY, 0), direction, out Vector3 intersectionPoint, out Vector3 faceNormal, out string hitboxname, false);
                         
                         if (result == true)
                         {
@@ -1917,6 +1922,7 @@ namespace KWEngine3.Helper
                                 {
                                     Distance = delta.LengthFast,
                                     IntersectionPoint = intersectionPoint,
+                                    HitboxName = hitboxname,
                                     Object = g,
                                     SurfaceNormal = faceNormal
                                 };

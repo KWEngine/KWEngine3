@@ -250,6 +250,9 @@ namespace KWEngine3.Renderer
 
         public static void Draw(RenderObject r)
         {
+            if (r._stateRender._opacity == 0)
+                return;
+
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
 
             GL.Uniform4(UColorTint, new Vector4(r._stateRender._colorTint, r._stateRender._opacity));

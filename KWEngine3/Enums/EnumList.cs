@@ -32,8 +32,16 @@
     /// <summary>
     /// Bestimmt, wie viele Strahlen für die Messung der Bodennähe verwendet und in welche Richtung sie geschossen werden
     /// </summary>
-    public enum MultiRayMode
+    public enum RayMode
     {
+        /// <summary>
+        /// Verwendet einen Strahl aus der Mitte der Hitbox entlang der lokalen negativen Y-Achse
+        /// </summary>
+        SingleY,
+        /// <summary>
+        /// Verwendet einen Strahl aus der Mitte der Hitbox entlang der lokalen negativen Z-Achse
+        /// </summary>
+        SingleZ,
         /// <summary>
         /// Verwendet zwei Strahlen entlang der lokalen negativen Y-Achse der Instanz (für 2D-Platformer)
         /// </summary>

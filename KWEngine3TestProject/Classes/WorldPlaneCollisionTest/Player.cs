@@ -5,9 +5,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 {
@@ -19,9 +17,11 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
     public class Player : GameObject
     {
+        public static Vector3 PLAYERSTART = new Vector3(3, 0.33f, -4);
+
         private State _state = State.OnGround;
         private float _velocityY = 0f;
-        private float _gravity = 0.0015f;
+        private float _gravity = 0.00125f;
 
 
         public override void Act()
@@ -51,8 +51,11 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             {
                 MoveOffset(0, 0, -0.01f);
             }
-           
-            if (Keyboard.IsKeyDown(Keys.Space) && _state == State.OnGround)
+
+            if(Keyboard.IsKeyDown(Keys.R)) { MoveOffset(0, -0.01f, 0); }
+            if (Keyboard.IsKeyDown(Keys.T)) { MoveOffset(0, +0.01f, 0); }
+
+            if (Keyboard.IsKeyPressed(Keys.Space) && _state == State.OnGround)
             {
                 _velocityY = 0.05f;
                 _state = State.InAir;
@@ -65,37 +68,8 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             }
 
 
-            Console.WriteLine("vel: " + _velocityY);
-            bool groundDetected = HandleGroundDetectionTest(out float yNew);
-            if(_state == State.OnGround)
-            {
-                if (groundDetected && AABBLow - yNew < 0.01f)
-                {
-                    SetPositionY(yNew, PositionMode.BottomOfAABBHitbox);
-                }
-                else
-                {
-                    _velocityY = 0f;
-                    _state = State.InAir;
-                }
-            }
-            else
-            {
-                if(groundDetected)
-                {
-                    float deltaHeight = AABBLow - yNew;
-                    Console.WriteLine("dH: " + deltaHeight);
-                    if (deltaHeight <= 0.001f)
-                    {
-                        SetPositionY(yNew, PositionMode.BottomOfAABBHitbox);
-                        _velocityY = 0;
-                        _state = State.OnGround;
-                    }
-                }
-                
-            }
-
-
+            HandleGroundDetectionTest();
+            
             List<Intersection> intersections = GetIntersections();
             foreach (Intersection intersection in intersections)
             {
@@ -109,20 +83,46 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 }
             }
 
+
+            if (this.Position.Y < -0.5f)
+            {
+                _velocityY = 0;
+                _state = State.OnGround;
+                this.SetPosition(Player.PLAYERSTART);
+            }
+
             CurrentWorld.SetCameraPosition(Position.X + 0, 5, Position.Z - 5);
             CurrentWorld.SetCameraTarget(Center.X , 0, Center.Z);
         }
 
-        private bool HandleGroundDetectionTest(out float yNew)
+        private void HandleGroundDetectionTest()
         {
-            yNew = 0;
-            RayIntersectionExtSet result = RaytraceObjectsBelowPositionMultiRay(MultiRayMode.EightRaysY, 1f, 1f, typeof(GameObject));
+            RayIntersectionExtSet result = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 1f, -0.1f, 0.1f, typeof(GameObject));
             if(result.IsValid)
             {
-                yNew = result.IntersectionPointNearest.Y;
-                return true;
+                if(_state == State.OnGround)
+                {
+                    if (result.DistanceMin > -0.25f) // && result.DistanceMin < 0.05f)
+                        SetPositionY(result.IntersectionPointNearest.Y, PositionMode.BottomOfAABBHitbox);
+                }
+                else
+                {
+                    if(result.DistanceMin <= 0f && _velocityY < 0)
+                    {
+                        SetPositionY(result.IntersectionPointNearest.Y, PositionMode.BottomOfAABBHitbox);
+                        _velocityY = 0f;
+                        _state = State.OnGround;
+                    }
+                }
             }
-            return false;
+            else
+            {
+                if (_state == State.OnGround)
+                {
+                    _state = State.InAir;
+                    _velocityY = 0f;
+                }
+            }
         }
     }
 }

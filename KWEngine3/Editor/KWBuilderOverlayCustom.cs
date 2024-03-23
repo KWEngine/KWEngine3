@@ -1271,7 +1271,7 @@ namespace KWEngine3.Editor
             Vector3 lav = KWEngine.CurrentWorld._cameraEditor.Get3DMouseCoords();
             foreach (GameObject g in transparentObjects)
             {
-                bool hit = HelperIntersection.GetRayIntersectionPointOnGameObject(g, origin, lav, out Vector3 intersectionPoint);
+                bool hit = HelperIntersection.GetRayIntersectionPointOnGameObject(g, origin, lav, out Vector3 intersectionPoint, out string hitboxname);
                 if(hit)
                 {
                     SelectedGameObject = g;

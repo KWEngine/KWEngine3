@@ -18,11 +18,6 @@ namespace KWEngine3.Helper
         public float DistanceMin { get; internal set; } = float.MaxValue;
 
         /// <summary>
-        /// Die größte Distanz vom Aufrufer zum getroffenen Objekt
-        /// </summary>
-        public float DistanceMax { get; internal set; } = float.MinValue;
-
-        /// <summary>
         /// Die durchschnittliche Distanz vom Aufrufer zum getroffenen Objekt
         /// </summary>
         public float DistanceAvg { get; internal set; } = 0f;
@@ -62,16 +57,21 @@ namespace KWEngine3.Helper
         public GameObject ObjectNearest { get; internal set; }
 
         /// <summary>
+        /// Name der Hitbox des Objekts, dessen Entfernung am kürzesten zum Strahlenursprung war
+        /// </summary>
+        public string ObjectNearestHitboxName { get; internal set; }
+
+        /// <summary>
         /// Standardkonstruktor für die Instanz
         /// </summary>
         public RayIntersectionExtSet()
         {
             Objects = new List<GameObject>();
             ObjectNearest = null;
+            ObjectNearestHitboxName = "";
             
             DistanceAvg = 0f;
             DistanceMin = float.MaxValue;
-            DistanceMax = float.MinValue;
             
             IntersectionPointAvg = Vector3.Zero;
             IntersectionPointNearest = Vector3.Zero;

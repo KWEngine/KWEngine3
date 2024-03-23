@@ -102,7 +102,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 Vector3 target;
                 if (result)
                 {
-                    result = HelperIntersection.RaytraceObject(o, CurrentWorld.CameraPosition, HelperIntersection.GetMouseRay(), out target, out Vector3 faceNormal);
+                    result = HelperIntersection.RaytraceObject(o, CurrentWorld.CameraPosition, HelperIntersection.GetMouseRay(), out target, out Vector3 faceNormal, out string hitboxname);
                     if(result)
                     {
                         _aimingSphere.SetPosition(target);
@@ -132,7 +132,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 Vector3 target;
                 if (result)
                 {
-                    result = HelperIntersection.RaytraceObject(o, CurrentWorld.CameraPosition, HelperIntersection.GetMouseRay(), out target, out Vector3 faceNormal);
+                    result = HelperIntersection.RaytraceObject(o, CurrentWorld.CameraPosition, HelperIntersection.GetMouseRay(), out target, out Vector3 faceNormal, out string hitboxname);
                     if(!result)
                     {
                         target = HelperIntersection.GetMouseIntersectionPointOnPlane(Center + LookAtVector * 10, Plane.Camera);

@@ -162,7 +162,7 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                float delta = this.Position.Y - AABBLow;
+                float delta = this.Position.Y - (this.Center.Y - _obbRadii.Y);
                 base.SetPositionY(y + delta);
             }
         }
@@ -717,6 +717,7 @@ namespace KWEngine3.GameObjects
                         {
                             Distance = (intersectionPoint - rayOrigin).LengthFast,
                             Object = hb.Owner,
+                            HitboxName = hb._mesh.Name,
                             IntersectionPoint = intersectionPoint,
                             SurfaceNormal = faceNormal
                         };
@@ -748,139 +749,32 @@ namespace KWEngine3.GameObjects
             return RaytraceObjectsNearby(new Vector3(rayPositionX, rayPositionY, rayPositionZ), rayDirectionNormalized, typelist);
         }
 
-
-
-
-        /// <summary>
-        /// Schießt einen Strahl von der Mitte der Instanz nach unten und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft (Präzise, aber langsamer!)
-        /// </summary>
-        /// <param name="mode">Richtung des Strahls (Standard: Y-Achse)</param>
-        /// <param name="maxDistance">Trifft ein Strahl ein Objekt, wird es als Ergebnis verworfen, wenn die Strahlendistanz größer als die angegebene Distanz ist (abhängig von der Größe des Aufrufers)</param>
-        /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
-        /// <returns>Ergebnis des Strahlentests (für das Objekt, das am wenigsten vom Strahl entfernt war)</returns>
-        public RayIntersectionExt RaytraceObjectsBelowPosition(SingleRayMode mode, float maxDistance, params Type[] typelist)
-        {
-            Vector3 position = Center;
-            Vector3 rayDirection;
-            Vector3 offset;
-            if (mode == SingleRayMode.Y)
-            {
-               rayDirection = -LookAtVectorLocalUp;
-               offset = rayDirection * (_obbRadii.Y * 0.95f);
-            }
-            else
-            {
-                rayDirection = -LookAtVector;
-                offset = rayDirection * (_obbRadii.Z * 0.95f);
-            }
-            position -= offset;
-
-
-            if (typelist.Length == 0)
-            {
-                KWEngine.LogWriteLine("[GameObject] WARNING: No list of types given for ray testing, assuming type 'GameObject'");
-                typelist = new Type[] { typeof(GameObject) };
-            }
-
-            GameObject on = null;
-            float dMin = float.MaxValue;
-            Vector3 ip = Vector3.Zero;
-            Vector3 sn = Vector3.UnitY;
-
-            foreach (GameObjectHitbox hb in _collisionCandidates)
-            {
-                if (hb.IsActive && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
-                {
-                    for (int j = 0; j < hb._mesh.Faces.Length; j++)
-                    {
-                        if (hb.IsExtended)
-                        {
-                            if (hb.GetVerticesForTriangleFace(j, rayDirection, out HitboxFace face))
-                            {
-                                bool hit = HelperIntersection.RayTriangleIntersection(position, rayDirection, face.V1, face.V2, face.V3, out Vector3 currentContact);
-                                if (hit)
-                                {
-                                    float currentDistance = (position + offset - currentContact).Length;
-                                    if(currentDistance < maxDistance && currentDistance < dMin)
-                                    {
-                                        ip = currentContact;
-                                        sn = face.Normal;
-                                        on = hb.Owner;
-                                        dMin = currentDistance;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (hb.GetVerticesForCubeFace(j, rayDirection, out HitboxFace face1, out HitboxFace face2))
-                            {
-                                bool hit = HelperIntersection.RayTriangleIntersection(position, rayDirection, face1.V1, face1.V2, face1.V3, out Vector3 currentContact);
-                                if (hit)
-                                {
-                                    float currentDistance = (position + offset - currentContact).Length;
-                                    if (currentDistance < maxDistance && currentDistance < dMin)
-                                    {
-                                        ip = currentContact;
-                                        sn = face1.Normal;
-                                        on = hb.Owner;
-                                        dMin = currentDistance;
-                                    }
-                                }
-                                else
-                                {
-                                    hit = HelperIntersection.RayTriangleIntersection(position, rayDirection, face2.V1, face2.V2, face2.V3, out currentContact);
-                                    if (hit)
-                                    {
-                                        float currentDistance = (position + offset - currentContact).Length;
-                                        if (currentDistance < maxDistance && currentDistance < dMin)
-                                        {
-                                            ip = currentContact;
-                                            sn = face2.Normal;
-                                            on = hb.Owner;
-                                            dMin = currentDistance;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return new RayIntersectionExt()
-            {
-                Distance = dMin,
-                IntersectionPoint = ip,
-                Object = on,
-                SurfaceNormal = sn
-            };
-        }
-
         /// <summary>
         /// Schießt mehrere Strahlen von der Mitte der Instanz nach unten und prüft, ob diese Strahlen in der Nähe liegende Objekte des angegebenen Typs treffen (Präzise, aber langsamer!)
         /// </summary>
         /// <param name="rayMode">Richtung und Anzahl der Teststrahlen</param>
-        /// <param name="sizeFactor">Die Strahlen werden innerhalb der Hitbox des Aufrufers gemäß dieses Faktors verteilt. Ist der Faktor 1, befinden sich die Strahlen an den Hitboxrändern. Ist er größer, befinden sich die Strahlen außerhalb der Hitbox.</param>
+        /// <param name="sizeFactor">Wenn mehrere Strahlen gewählt sind, werden diese innerhalb der Hitbox des Aufrufers gemäß dieses Faktors verteilt. Ist der Faktor 1, befinden sich die Strahlen an den Hitboxrändern. Ist er größer, befinden sich die Strahlen außerhalb der Hitbox. Ist der Faktor kleiner als 1, befinden sich die Strahlen weiter innerhalb der Hitbox</param>
+        /// <param name="minDistance">Trifft ein Strahl ein Objekt, wird es als Ergebnis verworfen, wenn die Strahlendistanz kleiner als die angegebene Distanz ist (abhängig von der Größe des Aufrufers)</param>
         /// <param name="maxDistance">Trifft ein Strahl ein Objekt, wird es als Ergebnis verworfen, wenn die Strahlendistanz größer als die angegebene Distanz ist (abhängig von der Größe des Aufrufers)</param>
         /// <param name="typelist">Liste der Typen (Klassen), die für den Strahl getestet werden sollen</param>
         /// <returns>Ergebnis des Strahlentests</returns>
-        public RayIntersectionExtSet RaytraceObjectsBelowPositionMultiRay(MultiRayMode rayMode, float sizeFactor, float maxDistance, params Type[] typelist)
+        public RayIntersectionExtSet RaytraceObjectsBelowPosition(RayMode rayMode, float sizeFactor, float minDistance, float maxDistance, params Type[] typelist)
         {
             Vector3 position = Center;
             Vector3 rayDirection;
             Vector3 offset;
-            if(rayMode == MultiRayMode.FourRaysZ)
+            if(rayMode == RayMode.FourRaysZ || rayMode == RayMode.SingleZ)
             {
                 rayDirection = -LookAtVector;
-                offset = rayDirection * (_obbRadii.Z * 0.95f);
+                offset = rayDirection * (_obbRadii.Z * 1f);
             }
             else
             {
                 rayDirection = -LookAtVectorLocalUp;
-                offset = rayDirection * (_obbRadii.Y * 0.95f);
+                offset = rayDirection * (_obbRadii.Y * 1f);
             }
+            position -= offset;
 
-            position -= offset; 
             if (typelist.Length == 0)
             {
                 KWEngine.LogWriteLine("[GameObject] WARNING: No list of types given for ray testing, assuming type 'GameObject'");
@@ -928,19 +822,23 @@ namespace KWEngine3.GameObjects
                 Vector3 normalAvg = new Vector3();
                 Vector3 normalNearest = new Vector3();
                 float distanceMin = float.MaxValue;
-                float distanceMax = float.MinValue;
                 float distanceSum = 0f;
                 GameObject gNearest = null;
-                
+                string hitboxname = "";
                 
                 Vector3[] rayOrigins;
-                if(rayMode == MultiRayMode.TwoRays2DPlatformerY)
+                if (rayMode == RayMode.SingleY || rayMode == RayMode.SingleZ)
+                {
+                    rayOrigins = _rayOrigins1;
+                    rayOrigins[0] = new Vector3(position);
+                }
+                else if(rayMode == RayMode.TwoRays2DPlatformerY)
                 {
                     rayOrigins = _rayOrigins2;
                     rayOrigins[0] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor);
                     rayOrigins[1] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor);
                 }
-                else if(rayMode == MultiRayMode.FourRaysZ)
+                else if(rayMode == RayMode.FourRaysZ)
                 {
                     rayOrigins = _rayOrigins4;
                     rayOrigins[0] = new Vector3(position + LookAtVectorLocalUp * _obbRadii.Y * sizeFactor); // top
@@ -948,7 +846,7 @@ namespace KWEngine3.GameObjects
                     rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
                     rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
                 }
-                else if(rayMode == MultiRayMode.EightRaysY)
+                else if(rayMode == RayMode.EightRaysY)
                 {
                     rayOrigins = _rayOrigins8;
                     rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
@@ -977,8 +875,10 @@ namespace KWEngine3.GameObjects
                         bool hit = HelperIntersection.RayTriangleIntersection(rayOrigins[i], rayDirection, face.V1, face.V2, face.V3, out Vector3 currentContact);
                         if (hit)
                         {
-                            float currentDistance = (rayOrigins[i] + offset - currentContact).LengthFast;
-                            if (currentDistance < maxDistance)
+                            Vector3 delta = rayOrigins[i] + (offset * 2f) - currentContact;
+                            float dotDelta = Vector3.Dot(-delta, rayDirection);
+                            float currentDistance = (delta).LengthFast * (dotDelta >= 0 ? 1f : -1f);
+                            if (currentDistance <= maxDistance && currentDistance >= minDistance)
                             {
                                 hits++;
                                 grp.AddObject(face.Owner.Owner);
@@ -988,14 +888,11 @@ namespace KWEngine3.GameObjects
                                 positionAvg += currentContact;
                                 if (currentDistance < distanceMin)
                                 {
+                                    hitboxname = face.Owner._mesh.Name;
                                     distanceMin = currentDistance;
                                     normalNearest = face.Normal;
                                     positionNearest = currentContact;
                                     gNearest = face.Owner.Owner;
-                                }
-                                if (currentDistance > distanceMax)
-                                {
-                                    distanceMax = currentDistance;
                                 }
                             }
                         }
@@ -1008,8 +905,8 @@ namespace KWEngine3.GameObjects
                 grp.IntersectionPointNearest = positionNearest;
                 grp.DistanceAvg = distanceSum / hits;
                 grp.DistanceMin = distanceMin;
-                grp.DistanceMax = distanceMax;
                 grp.ObjectNearest = gNearest;
+                grp.ObjectNearestHitboxName = hitboxname;
             }
             return grp;
         }
@@ -1329,6 +1226,7 @@ namespace KWEngine3.GameObjects
         internal float _fullDiameter = 1f;
         internal Vector3 _obbRadii = new Vector3(0.5f);
 
+        internal static Vector3[] _rayOrigins1 = new Vector3[1];
         internal static Vector3[] _rayOrigins2 = new Vector3[2];
         internal static Vector3[] _rayOrigins4 = new Vector3[4];
         internal static Vector3[] _rayOrigins8 = new Vector3[8];

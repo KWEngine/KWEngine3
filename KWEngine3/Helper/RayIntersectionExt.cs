@@ -12,6 +12,12 @@ namespace KWEngine3.Helper
         /// Das vom Strahl getroffene Objekt
         /// </summary>
         public GameObject Object { get; internal set; }
+
+        /// <summary>
+        /// Name der Hitbox, die getroffen wurde
+        /// </summary>
+        public string HitboxName { get; internal set; }
+
         /// <summary>
         /// Die Distanz vom Aufrufer zum getroffenen Objekt
         /// </summary>
@@ -33,6 +39,7 @@ namespace KWEngine3.Helper
         {
             Object = null;
             Distance = 0;
+            HitboxName = "";
             IntersectionPoint = Vector3.Zero;
             SurfaceNormal = KWEngine.WorldUp;
         }
