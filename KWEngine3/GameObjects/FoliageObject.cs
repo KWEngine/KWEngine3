@@ -1,5 +1,4 @@
 ﻿using KWEngine3.Helper;
-using OpenTK.Graphics.ES20;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -27,6 +26,7 @@ namespace KWEngine3.GameObjects
         public FoliageObject(FoliageType type, int instanceCount)
         {
             _instanceCount = Math.Clamp(instanceCount, 1, 262144);
+            SetInstanceCount(_instanceCount);
             Type = type;
             if(type == FoliageType.GrassFresh)
             {
@@ -257,7 +257,7 @@ namespace KWEngine3.GameObjects
         internal Matrix4 _normalMatrix = Matrix4.Identity;
         internal Vector2i _nXZ = Vector2i.One;
         internal Vector2 _dXZ = Vector2.Zero;
-        internal float[] _noise;
+        internal float[] _noise = new float[512];
         internal int _textureId = -1;
         internal float _swayFactor = 0.05f;
         internal TerrainObject _terrainObject = null;
