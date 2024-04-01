@@ -1,4 +1,5 @@
 ﻿using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
@@ -36,10 +37,10 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 MoveAlongVector(movementVector, 0.01f);
             }
 
-            IntersectionTerrain it = GetIntersectionWithTerrain();
-            if (it != null)
+            RayTerrainIntersection rti = HelperIntersection.RaytraceTerrainBelowPosition(this.Center);
+            if (rti.IsValid)
             {
-                MoveOffset(it.MTV);
+                SetPositionY(rti.IntersectionPoint.Y, KWEngine3.PositionMode.BottomOfAABBHitbox);
             }
         }
     }

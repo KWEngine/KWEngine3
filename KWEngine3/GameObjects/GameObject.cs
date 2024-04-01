@@ -162,7 +162,7 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                float delta = this.Position.Y - (this.Center.Y - _obbRadii.Y);
+                float delta = this.Position.Y - (this.Position.Y - _obbRadii.Y);
                 base.SetPositionY(y + delta);
             }
         }

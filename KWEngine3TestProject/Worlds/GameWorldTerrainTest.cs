@@ -19,7 +19,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", "./Textures/pavement_06_albedo.dds", 25, 2, 25);
-            KWEngine.LoadModel("Player", "./Models/GLTFTest/FanplasticDan.glb");
+            KWEngine.LoadModel("Player", "./Models/robotERS.fbx");
 
             SetCameraPosition(0.0f, 25.0f, 25.0f);
             SetCameraFOV(20);
@@ -36,7 +36,7 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(sun);
 
             Player p = new Player();
-            p.SetModel("Player");
+            //p.SetModel("Player");
             p.Name = "Player";
             p.SetColliderType(ColliderType.ConvexHull);
             p.IsShadowCaster = true;
