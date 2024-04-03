@@ -23,37 +23,32 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
         private float _velocityY = 0f;
         private float _gravity = 0.00125f;
 
+        private Vector2 _currentCameraRotation = new Vector2(180, -45);
+        private float _limitYUp = 5;
+        private float _limitYDown = -75;
+
 
         public override void Act()
         {
-            if(Keyboard.IsKeyDown(Keys.Q))
-            {
-                AddRotationY(0.25f, true);
-            }
-            if (Keyboard.IsKeyDown(Keys.E))
-            {
-                AddRotationY(-0.25f, true);
-            }
+            AddRotationY(-MouseMovement.X * KWEngine.MouseSensitivity);
+            UpdateCameraPosition(MouseMovement * KWEngine.MouseSensitivity);
 
             if (Keyboard.IsKeyDown(Keys.D))
             {
-                MoveOffset(-0.01f,0,0);
+                MoveAlongVector(CurrentWorld.CameraLookAtVectorLocalRightXZ, 0.01f);
             }
             if (Keyboard.IsKeyDown(Keys.A))
             {
-                MoveOffset(+0.01f,0,0);
+                MoveAlongVector(-CurrentWorld.CameraLookAtVectorLocalRightXZ, 0.01f);
             }
             if (Keyboard.IsKeyDown(Keys.W))
             {
-                MoveOffset(0, 0, +0.01f);
+                MoveAlongVector(CurrentWorld.CameraLookAtVector, 0.01f);
             }
             if (Keyboard.IsKeyDown(Keys.S))
             {
-                MoveOffset(0, 0, -0.01f);
+                MoveAlongVector(-CurrentWorld.CameraLookAtVector, 0.01f);
             }
-
-            if(Keyboard.IsKeyDown(Keys.R)) { MoveOffset(0, -0.01f, 0); }
-            if (Keyboard.IsKeyDown(Keys.T)) { MoveOffset(0, +0.01f, 0); }
 
             if (Keyboard.IsKeyPressed(Keys.Space) && _state == State.OnGround)
             {
@@ -73,14 +68,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             List<Intersection> intersections = GetIntersections();
             foreach (Intersection intersection in intersections)
             {
-                if (_state == State.OnGround && HelperVector.IsVectorPointingUpward(intersection.MTV))
-                {
-                    // do nothing
-                }
-                else
-                {
-                    MoveOffset(intersection.MTV);
-                }
+                MoveOffset(intersection.MTV);
             }
 
 
@@ -91,8 +79,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 this.SetPosition(Player.PLAYERSTART);
             }
 
-            CurrentWorld.SetCameraPosition(Position.X + 0, 5, Position.Z - 5);
-            CurrentWorld.SetCameraTarget(Center.X , 0, Center.Z);
+            UpdateSun();
         }
 
         private void HandleGroundDetectionTest()
@@ -102,8 +89,11 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             {
                 if(_state == State.OnGround)
                 {
-                    if (result.DistanceMin > -0.25f) // && result.DistanceMin < 0.05f)
+                    if (result.DistanceMin > -0.1f)
+                    {
                         SetPositionY(result.IntersectionPointNearest.Y, PositionMode.BottomOfAABBHitbox);
+                    }
+                        
                 }
                 else
                 {
@@ -122,6 +112,43 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                     _state = State.InAir;
                     _velocityY = 0f;
                 }
+            }
+        }
+
+        private void UpdateCameraPosition(Vector2 msMovement)
+        {
+            _currentCameraRotation.X += msMovement.X;
+            _currentCameraRotation.Y += msMovement.Y;
+
+            if (_currentCameraRotation.Y < _limitYDown)
+            {
+                _currentCameraRotation.Y = _limitYDown;
+            }
+            if (_currentCameraRotation.Y > _limitYUp)
+            {
+                _currentCameraRotation.Y = _limitYUp;
+            }
+
+            Vector3 newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
+                    Center,                  // Drehpunkt
+                    7.5f,                             // Distanz zum Drehpunkt
+                    _currentCameraRotation.X,        // Drehung links/rechts
+                    _currentCameraRotation.Y,        // Drehung oben/unten
+                    false,                           // invertiere links/rechts?
+                    false                            // invertiere oben/unten?
+            );
+
+            CurrentWorld.SetCameraPosition(newCamPos);
+            CurrentWorld.SetCameraTarget(Center);
+        }
+
+        private void UpdateSun()
+        {
+            LightObject sun = CurrentWorld.GetLightObjectByName("Sun");
+            if(sun != null)
+            {
+                sun.SetPosition(Position + new Vector3(-25, 25, 12.5f));
+                sun.SetTarget(Position);
             }
         }
     }

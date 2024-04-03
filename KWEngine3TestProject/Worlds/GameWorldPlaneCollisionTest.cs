@@ -28,7 +28,7 @@ namespace KWEngine3TestProject.Worlds
             
             MapRender r = new MapRender();
             r.SetModel("Beach_Render");
-            //r.SetOpacity(0);
+            r.IsShadowCaster = true;
             AddRenderObject(r);
 
             Immovable x = new Immovable();
@@ -53,12 +53,14 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(p);
             
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            sun.Name = "Sun";
             sun.SetPosition(25, 25, 0);
             sun.SetColor(1, 1, 1, 2);
-            sun.SetFOV(20);
-            sun.SetNearFar(10, 100);
+            sun.SetFOV(45);
+            sun.SetNearFar(20, 80);
             AddLightObject(sun);
 
+            MouseCursorGrab();
         }
     }
 }
