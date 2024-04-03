@@ -277,12 +277,12 @@ namespace KWEngine3
                     {
                         if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
                         {
+                            l._fbShadowMap.Bind();
                             if (l.Type == LightType.Point)
                             {
                                 pointLights.Add(l);
                                 continue;
                             }
-                            l._fbShadowMap.Bind();
                             RendererShadowMap.RenderSceneForLight(l);
                         }
                     }
@@ -295,7 +295,7 @@ namespace KWEngine3
                             {
                                 continue;
                             }
-                            l._fbShadowMap.Bind();
+                            l._fbShadowMap.Bind(false);
                             RendererShadowMapInstanced.RenderSceneForLight(l);
                         }
                     }
@@ -305,7 +305,6 @@ namespace KWEngine3
                         RendererShadowMapCube.Bind();
                         foreach (LightObject l in pointLights)
                         {
-                            l._fbShadowMap.Bind();
                             RendererShadowMapCube.RenderSceneForLight(l);
                         }
 
@@ -314,7 +313,7 @@ namespace KWEngine3
                             RendererShadowMapCubeInstanced.Bind();
                             foreach (LightObject l in pointLights)
                             {
-                                l._fbShadowMap.Bind();
+                                l._fbShadowMap.Bind(false);
                                 RendererShadowMapCubeInstanced.RenderSceneForLight(l);
                             }
                         }

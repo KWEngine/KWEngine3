@@ -24,7 +24,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.LoadModel("Beach_Render", "./Models/GLTFTest/WorldADV03_Beach_Map.obj");
             KWEngine.LoadModel("Beach_Planes", "./Models/GLTFTest/WorldADV03_Beach_Floors.glb");
             KWEngine.LoadModel("Beach_Hitboxes", "./Models/GLTFTest/WorldADV03_Beach_Hitboxes.glb");
-            KWEngine.LoadModel("FHBTEST", "./Models/GLTFTest/fullhitboxtest.glb");
+            KWEngine.LoadModel("Toon", "./Models/PlatformerPack/Toon.glb");
             
             MapRender r = new MapRender();
             r.SetModel("Beach_Render");
@@ -44,11 +44,11 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(y);
             
             Player p = new Player();
-            p.SetModel("KWCube");
-            p.SetPosition(Player.PLAYERSTART);
-            p.SetColor(1, 0, 1);
-            p.SetScale(0.5f);
+            p.SetModel("Toon");
+            p.SetPosition(Player.PLAYERSTART.X, Player.PLAYERSTART.Y, Player.PLAYERSTART.Z, PositionMode.BottomOfAABBHitbox);
+            p.SetScale(0.25f);
             p.SetColliderType(ColliderType.ConvexHull);
+            p.SetHitboxScale(0.5f, 0.95f, 1f);
             p.IsShadowCaster = true;
             AddGameObject(p);
             

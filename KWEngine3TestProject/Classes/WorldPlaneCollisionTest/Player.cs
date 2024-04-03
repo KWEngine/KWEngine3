@@ -17,7 +17,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
     public class Player : GameObject
     {
-        public static Vector3 PLAYERSTART = new Vector3(3, 0.33f, -4);
+        public static Vector3 PLAYERSTART = new Vector3(3, 0.5f, -4);
 
         private State _state = State.OnGround;
         private float _velocityY = 0f;
@@ -62,7 +62,6 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 _velocityY -= _gravity;
             }
 
-
             HandleGroundDetectionTest();
             
             List<Intersection> intersections = GetIntersections();
@@ -70,7 +69,6 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             {
                 MoveOffset(intersection.MTV);
             }
-
 
             if (this.Position.Y < -0.5f)
             {
