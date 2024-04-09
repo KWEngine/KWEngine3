@@ -21,11 +21,13 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
         private State _state = State.OnGround;
         private float _velocityY = 0f;
-        private float _gravity = 0.00125f;
+        private float _gravity = 0.001f;
 
         private Vector2 _currentCameraRotation = new Vector2(180, -45);
         private float _limitYUp = 5;
         private float _limitYDown = -75;
+
+        private int _currentAnimationID = 0;
 
 
         public override void Act()
@@ -33,27 +35,38 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             AddRotationY(-MouseMovement.X * KWEngine.MouseSensitivity);
             UpdateCameraPosition(MouseMovement * KWEngine.MouseSensitivity);
 
+            Vector3 movementVector = Vector3.Zero;
             if (Keyboard.IsKeyDown(Keys.D))
             {
-                MoveAlongVector(CurrentWorld.CameraLookAtVectorLocalRightXZ, 0.01f);
+                movementVector += CurrentWorld.CameraLookAtVectorLocalRightXZ;
             }
             if (Keyboard.IsKeyDown(Keys.A))
             {
-                MoveAlongVector(-CurrentWorld.CameraLookAtVectorLocalRightXZ, 0.01f);
+                movementVector -= CurrentWorld.CameraLookAtVectorLocalRightXZ;
             }
             if (Keyboard.IsKeyDown(Keys.W))
             {
-                MoveAlongVector(CurrentWorld.CameraLookAtVector, 0.01f);
+                movementVector += CurrentWorld.CameraLookAtVector;
             }
             if (Keyboard.IsKeyDown(Keys.S))
             {
-                MoveAlongVector(-CurrentWorld.CameraLookAtVector, 0.01f);
+                movementVector -= CurrentWorld.CameraLookAtVector;
+            }
+
+            bool wasdPressed = false;
+            bool animationSwitched = false;
+            if(movementVector.LengthSquared > 0.1f)
+            {
+                wasdPressed = true;
+                movementVector.Normalize();
+                MoveAlongVector(movementVector, 0.01f);
             }
 
             if (Keyboard.IsKeyPressed(Keys.Space) && _state == State.OnGround)
             {
-                _velocityY = 0.05f;
+                _velocityY = 0.04f;
                 _state = State.InAir;
+                animationSwitched = true;
             }
 
             if(_state == State.InAir)
@@ -78,6 +91,38 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             }
 
             UpdateSun();
+            UpdateAnimation(wasdPressed, animationSwitched);
+        }
+
+        private void UpdateAnimation(bool isMoving, bool animationJustSwitched)
+        {
+            if (_state == State.InAir)
+            {
+                SetAnimationID(6);
+                if (animationJustSwitched)
+                {
+                    SetAnimationPercentage(0.5f);
+                }
+                SetAnimationPercentageAdvance(0.005f);
+                if(AnimationPercentage > 1f)
+                {
+                    SetAnimationPercentage(0.5f);
+                }
+            }
+            else
+            {
+                if(isMoving)
+                {
+                    SetAnimationID(11);
+                    SetAnimationPercentageAdvance(0.005f);
+                }
+                else
+                {
+                    SetAnimationID(4);
+                    SetAnimationPercentageAdvance(0.001f);
+                }
+
+            }
         }
 
         private void HandleGroundDetectionTest()

@@ -675,6 +675,28 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Gibt Auskunft über den Prozentwert der aktuell gewählten Animation (Werte zwischen 0f und 1f)
+        /// </summary>
+        public float AnimationPercentage 
+        { 
+            get
+            {
+                return _stateCurrent._animationPercentage;
+            }
+        }
+
+        /// <summary>
+        /// Gibt an, welche Animations-ID für diese Instanz aktuell gewählt ist. Beträgt der Wert -1, ist keine Animation gewählt.
+        /// </summary>
+        public int AnimationID
+        {
+            get
+            {
+                return _stateCurrent._animationID;
+            }
+        }
+
+        /// <summary>
         /// Gibt an, ob Änderungen an TextureOffset-Werten für die Render-Phase interpoliert werden (Standard: true) 
         /// (für 2D-Objekte mit Spritesheet-Animationen sollte dieser Wert auf 'false' gesetzt werden)
         /// </summary>
