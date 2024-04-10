@@ -228,7 +228,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAGAAGGASKwiSAwIAMEABAAQQyA0MBAEAABQ0CEIE=</HashCode>
+      <HashCode>jAiAGABGGASKwiSAwIAMEABAAQQyA0MBAEAABQ0CEIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
