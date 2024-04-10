@@ -27,9 +27,6 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
         private float _limitYUp = 5;
         private float _limitYDown = -75;
 
-        private int _currentAnimationID = 0;
-
-
         public override void Act()
         {
             AddRotationY(-MouseMovement.X * KWEngine.MouseSensitivity);

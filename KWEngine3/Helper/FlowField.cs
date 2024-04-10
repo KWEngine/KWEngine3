@@ -65,7 +65,7 @@ namespace KWEngine3.Helper
         /// <param name="center">Mittelpunkt des Felds</param>
         /// <param name="cellCountX">Anzahl Zellen in X-Richtung</param>
         /// <param name="cellCountZ">Anzahl Zellen in Z-Richtung</param>
-        /// <param name="cellRadius">Radius je Zelle</param>
+        /// <param name="cellRadius">Radius je Zelle (minimum: 0.1f)</param>
         /// <param name="fieldHeight">Höhe des Felds</param>
         /// <param name="mode">Genauigkeit bei der Messung der Hindernisse (Simple oder Box)</param>
         /// <param name="types">Liste der Klassen, die das FlowField scannen soll</param>
@@ -85,7 +85,7 @@ namespace KWEngine3.Helper
                 GridCellCount = new Vector3i(GridCellCount.X, GridCellCount.Y, GridCellCount.Z + 1);
             }
 
-            CellRadius = Math.Max(Math.Abs(cellRadius), 0.5f);
+            CellRadius = Math.Max(Math.Abs(cellRadius), 0.1f);
             _cellDiametre = CellRadius * 2;
 
             _types = new Type[types.Length];
