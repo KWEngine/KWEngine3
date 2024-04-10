@@ -89,6 +89,30 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Gibt an, ob das Objekt gerade vollständig unsichtbar ist
+        /// </summary>
+        public bool IsInvisible
+        {
+            get
+            {
+                if (_stateCurrent._opacity <= 0f)
+                    return true;
+                else
+                {
+                    bool visible = false;
+                    foreach (GeoMaterial mat in _model.Material)
+                    {
+                        if (mat.ColorAlbedo.W > 0f)
+                        {
+                            visible = true;
+                        }
+                    }
+                    return !visible;
+                }
+            }
+        }
+
+        /// <summary>
         /// Mittelpunkt des Objekts
         /// </summary>
         public Vector3 Center { get { return _stateCurrent._center; } }
