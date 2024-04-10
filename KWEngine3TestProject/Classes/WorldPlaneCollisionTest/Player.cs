@@ -21,7 +21,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
         private State _state = State.OnGround;
         private float _velocityY = 0f;
-        private float _gravity = 0.001f;
+        private float _gravity = 0.00075f;
 
         private Vector2 _currentCameraRotation = new Vector2(180, -45);
         private float _limitYUp = 5;
@@ -46,11 +46,11 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             }
             if (Keyboard.IsKeyDown(Keys.W))
             {
-                movementVector += CurrentWorld.CameraLookAtVector;
+                movementVector += CurrentWorld.CameraLookAtVectorXZ;
             }
             if (Keyboard.IsKeyDown(Keys.S))
             {
-                movementVector -= CurrentWorld.CameraLookAtVector;
+                movementVector -= CurrentWorld.CameraLookAtVectorXZ;
             }
 
             bool wasdPressed = false;
@@ -59,7 +59,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             {
                 wasdPressed = true;
                 movementVector.Normalize();
-                MoveAlongVector(movementVector, 0.01f);
+                MoveAlongVector(movementVector, 0.011f);
             }
 
             if (Keyboard.IsKeyPressed(Keys.Space) && _state == State.OnGround)
