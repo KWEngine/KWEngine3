@@ -24,11 +24,11 @@ namespace KWEngine3.Helper
             _normals[2] = new Vector3(0f, 0f, 1f);
         }
 
-        internal void Update(float offsetX, float offsetZ)
+        internal void Update(float offsetX, float offsetY, float offsetZ)
         {
             for (int i = 0; i < _vertices.Length; i++)
             {
-                _vertices[i] = _verticesOrg[i] + new Vector3(offsetX, 0f, offsetZ);
+                _vertices[i] = _verticesOrg[i] + new Vector3(offsetX, offsetY, offsetZ);
             }
         }
     }

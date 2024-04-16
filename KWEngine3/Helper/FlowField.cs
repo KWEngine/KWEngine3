@@ -150,7 +150,7 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn das Objekt im Feld liegt</returns>
         public bool Contains(GameObject g)
         {
-            bool overlapY = (g.AABBHigh >= _ffbottom && g.AABBHigh <= _fftop) || (g.AABBLow <= _fftop && g.AABBLow >= _ffbottom);
+            bool overlapY = (g.AABBHigh >= _ffbottom && g.AABBHigh <= _fftop) || (g.AABBLow <= _fftop && g.AABBLow >= _ffbottom) || (g.AABBLow <= _ffbottom && g.AABBHigh >= _fftop);
             if (overlapY)
             {
                 return ContainsXZ(g);
@@ -286,7 +286,7 @@ namespace KWEngine3.Helper
                     {
                         if (HelperGeneral.IsObjectClassOrSubclassOfTypes(_types, g))
                         {
-                            if (Contains(g))
+                            if (g.FlowFieldCost > 1 && Contains(g))
                             {
                                 checkObjects.Add(g);
                             }
@@ -315,7 +315,7 @@ namespace KWEngine3.Helper
                         }
                         else
                         {
-                            _hitbox.Update(cell.WorldPos.X, cell.WorldPos.Z);
+                            _hitbox.Update(cell.WorldPos.X, cell.WorldPos.Y, cell.WorldPos.Z);
 
                             foreach(GameObjectHitbox ghb in g._hitboxes)
                             {

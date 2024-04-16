@@ -40,8 +40,10 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.LoadModel("Beach_Planes", "./Models/GLTFTest/WorldADV03_Beach_Floors.glb");
             KWEngine.LoadModel("Beach_Hitboxes", "./Models/GLTFTest/WorldADV03_Beach_Hitboxes.glb");
             KWEngine.LoadModel("Toon", "./Models/PlatformerPack/Toon.glb");
-            KWEngine.LoadModel("Labyrinth", "./Models/OBJTest/Labyrinth.obj");
-            
+            KWEngine.LoadModel("Rock01", "./Models/OBJTest/rock01.obj");
+            KWEngine.LoadModel("Rock02", "./Models/OBJTest/rock02.obj");
+            KWEngine.LoadModel("Rock03", "./Models/OBJTest/rock03.obj");
+
             MapRender r = new MapRender();
             r.SetModel("Beach_Render");
             r.IsShadowCaster = true;
@@ -80,21 +82,6 @@ namespace KWEngine3TestProject.Worlds
             sun.SetShadowBias(0.000026f);
             AddLightObject(sun);
 
-            Immovable labyrinth = new Immovable();
-            labyrinth.Name = "Labyrinth";
-            labyrinth.SetModel("Labyrinth");
-            labyrinth.SetPosition(15.0f, 1.0f, -2.5f);
-            labyrinth.IsCollisionObject = true;
-            labyrinth.SetScale(0.11f, 0.14f, 0.11f);
-            labyrinth.IsShadowCaster = true;
-            labyrinth.FlowFieldCost = 255;
-            AddGameObject(labyrinth);
-
-            FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 40, 65, 0.1f, 1, FlowFieldMode.Box, typeof(Immovable));
-            flowField.IsVisible = false;
-            flowField.Update();
-            SetFlowField(flowField);
-
             Enemy e1 = new Enemy();
             e1.Name = "Enemy #1";
             e1.IsCollisionObject = true;
@@ -103,6 +90,74 @@ namespace KWEngine3TestProject.Worlds
             e1.SetColor(1f, 0f, 0f);
             e1.SetPosition(15f, 1.25f, -3f);
             AddGameObject(e1);
+
+            Immovable rock01 = new Immovable();
+            rock01.Name = "Rock #01";
+            rock01.SetModel("Rock01");
+            rock01.SetPosition(15.0f, 0.75f, -2.0f);
+            rock01.SetScale(2f, 2f, 2f);
+            rock01.IsCollisionObject = true;
+            rock01.FlowFieldCost = 255;
+            rock01.IsShadowCaster = true;
+            AddGameObject(rock01);
+
+            Immovable rock02 = new Immovable();
+            rock02.Name = "Rock #02";
+            rock02.SetModel("Rock02");
+            rock02.SetPosition(17.75f, 0.75f, -4.0f);
+            rock02.AddRotationY(90);
+            rock02.SetScale(2f, 2f, 2f);
+            rock02.IsCollisionObject = true;
+            rock02.FlowFieldCost = 255;
+            rock02.IsShadowCaster = true;
+            AddGameObject(rock02);
+
+            Immovable rock03 = new Immovable();
+            rock03.Name = "Rock #03";
+            rock03.SetModel("Rock03");
+            rock03.SetPosition(14.0f, 1.15f, +2.5f);
+            rock03.SetScale(2f, 2f, 2f);
+            rock03.IsCollisionObject = true;
+            rock03.FlowFieldCost = 255;
+            rock03.IsShadowCaster = true;
+            AddGameObject(rock03);
+
+            Immovable rock04 = new Immovable();
+            rock04.Name = "Rock #04";
+            rock04.SetModel("Rock01");
+            rock04.SetPosition(12.5f, 2.0f, 0.0f);
+            rock04.SetScale(2f, 2f, 2f);
+            rock04.IsCollisionObject = true;
+            rock04.AddRotationZ(180);
+            rock04.FlowFieldCost = 255;
+            rock04.IsShadowCaster = true;
+            AddGameObject(rock04);
+
+            Immovable rock05 = new Immovable();
+            rock05.Name = "Rock #05";
+            rock05.SetModel("Rock02");
+            rock05.SetPosition(14.0f, 0.75f, -6.0f);
+            rock05.SetScale(3f, 2f, 2f);
+            rock05.IsCollisionObject = true;
+            rock05.FlowFieldCost = 255;
+            rock05.IsShadowCaster = true;
+            AddGameObject(rock05);
+
+            Immovable rock06 = new Immovable();
+            rock06.Name = "Rock #06";
+            rock06.SetModel("Rock03");
+            rock06.SetPosition(17.0f, 0.67f, 1.0f);
+            rock06.AddRotationY(10);
+            rock06.SetScale(2f, 2f, 2f);
+            rock06.IsCollisionObject = true;
+            rock06.FlowFieldCost = 255;
+            rock06.IsShadowCaster = true;
+            AddGameObject(rock06);
+
+            FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 40, 65, 0.1f, 1, FlowFieldMode.Box, typeof(Immovable));
+            flowField.IsVisible = false;
+            flowField.Update();
+            SetFlowField(flowField);
 
             MouseCursorGrab();
         }
