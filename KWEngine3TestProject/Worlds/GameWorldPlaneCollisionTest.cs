@@ -104,7 +104,7 @@ namespace KWEngine3TestProject.Worlds
             Immovable rock02 = new Immovable();
             rock02.Name = "Rock #02";
             rock02.SetModel("Rock02");
-            rock02.SetPosition(17.75f, 0.75f, -4.0f);
+            rock02.SetPosition(18.5f, 0.75f, -4.0f);
             rock02.AddRotationY(90);
             rock02.SetScale(2f, 2f, 2f);
             rock02.IsCollisionObject = true;
@@ -154,8 +154,9 @@ namespace KWEngine3TestProject.Worlds
             rock06.IsShadowCaster = true;
             AddGameObject(rock06);
 
-            FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 40, 65, 0.1f, 1, FlowFieldMode.Box, typeof(Immovable));
-            flowField.IsVisible = false;
+            //FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 40, 65, 0.1f, 1, FlowFieldMode.Box, typeof(Immovable));
+            FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 16, 26, 0.25f, 1, FlowFieldMode.Box, typeof(Immovable));
+            flowField.IsVisible = true;
             flowField.Update();
             SetFlowField(flowField);
 
