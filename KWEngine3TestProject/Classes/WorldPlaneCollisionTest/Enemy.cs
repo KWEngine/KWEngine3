@@ -32,7 +32,32 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 avgDirection /= _directionVectors.Count;
 
                 MoveAlongVector(avgDirection, 0.005f);
-                TurnTowardsXZ(Position + avgDirection);
+
+                Player p = CurrentWorld.GetGameObjectByName<Player>("Player #1");
+                if (p != null)
+                {
+                    List<RayIntersection> results = HelperIntersection.RayTraceObjectsForViewVectorFastest(
+                        this.Center,
+                        Vector3.NormalizeFast(p.Center - this.Center),
+                        this,
+                        0,
+                        true,
+                        typeof(Player), typeof(Immovable)
+                        );
+                    if (results.Count > 0 && results[0].Object == p)
+                    {
+                        TurnTowardsXZ(p.Center);
+                    }
+                    else
+                    {
+                        TurnTowardsXZ(Center + avgDirection);
+                    }
+                }
+                else
+                {
+                    TurnTowardsXZ(Center + avgDirection);
+                }
+                
             }
             else
             {

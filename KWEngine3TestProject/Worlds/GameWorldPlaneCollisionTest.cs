@@ -88,9 +88,10 @@ namespace KWEngine3TestProject.Worlds
             e1.IsCollisionObject = true;
             e1.SetModel("Bee");
             e1.SetScale(0.5f);
-            e1.SetHitboxScale(0.75f, 1f, 1f);
+            e1.SetHitboxScale(0.67f, 1f, 0.9f);
             e1.SetColor(1f, 1f, 1f);
-            e1.SetPosition(15f, 1.0f, -3f);
+            e1.SetPosition(18f, 1.0f, -2f);
+            e1.IsShadowCaster = true;
             AddGameObject(e1);
 
             Immovable rock01 = new Immovable();
