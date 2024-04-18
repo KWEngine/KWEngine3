@@ -40,6 +40,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.LoadModel("Beach_Planes", "./Models/GLTFTest/WorldADV03_Beach_Floors.glb");
             KWEngine.LoadModel("Beach_Hitboxes", "./Models/GLTFTest/WorldADV03_Beach_Hitboxes.glb");
             KWEngine.LoadModel("Toon", "./Models/PlatformerPack/Toon.glb");
+            KWEngine.LoadModel("Bee", "./Models/PlatformerPack/Bee.glb");
             KWEngine.LoadModel("Rock01", "./Models/OBJTest/rock01.obj");
             KWEngine.LoadModel("Rock02", "./Models/OBJTest/rock02.obj");
             KWEngine.LoadModel("Rock03", "./Models/OBJTest/rock03.obj");
@@ -154,9 +155,8 @@ namespace KWEngine3TestProject.Worlds
             rock06.IsShadowCaster = true;
             AddGameObject(rock06);
 
-            //FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 40, 65, 0.1f, 1, FlowFieldMode.Box, typeof(Immovable));
-            FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 16, 26, 0.25f, 1, FlowFieldMode.Box, typeof(Immovable));
-            flowField.IsVisible = true;
+            FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 17, 27, 0.25f, 1, FlowFieldMode.Box, typeof(Immovable));
+            flowField.IsVisible = false;
             flowField.Update();
             SetFlowField(flowField);
 

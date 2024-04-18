@@ -145,6 +145,16 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="position">Position auf XYZ-Achse</param>
+        /// <param name="mode">Bestimmt, auf welchen Fixpunkt des Objekts sich die Positionsangaben beziehen sollen</param>
+        public void SetPosition(Vector3 position, PositionMode mode = PositionMode.Position)
+        {
+            this.SetPosition(position.X, position.Y, position.Z, mode);
+        }
+
+        /// <summary>
         /// Setzt die y-Position der Instanz auf den gegebenen Wert
         /// </summary>
         /// <param name="y">Position auf y-Achse</param>
