@@ -40,7 +40,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.LoadModel("Beach_Planes", "./Models/GLTFTest/WorldADV03_Beach_Floors.glb");
             KWEngine.LoadModel("Beach_Hitboxes", "./Models/GLTFTest/WorldADV03_Beach_Hitboxes.glb");
             KWEngine.LoadModel("Toon", "./Models/PlatformerPack/Toon.glb");
-            KWEngine.LoadModel("Bee", "./Models/PlatformerPack/Bee.glb");
+            KWEngine.LoadModel("Bee", "./Models/PlatformerPack/Bee.gltf");
             KWEngine.LoadModel("Rock01", "./Models/OBJTest/rock01.obj");
             KWEngine.LoadModel("Rock02", "./Models/OBJTest/rock02.obj");
             KWEngine.LoadModel("Rock03", "./Models/OBJTest/rock03.obj");
@@ -86,10 +86,11 @@ namespace KWEngine3TestProject.Worlds
             Enemy e1 = new Enemy();
             e1.Name = "Enemy #1";
             e1.IsCollisionObject = true;
-            e1.SetModel("KWCube");
+            e1.SetModel("Bee");
             e1.SetScale(0.5f);
-            e1.SetColor(1f, 0f, 0f);
-            e1.SetPosition(15f, 1.25f, -3f);
+            e1.SetHitboxScale(0.75f, 1f, 1f);
+            e1.SetColor(1f, 1f, 1f);
+            e1.SetPosition(15f, 1.0f, -3f);
             AddGameObject(e1);
 
             Immovable rock01 = new Immovable();

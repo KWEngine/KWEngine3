@@ -32,6 +32,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 avgDirection /= _directionVectors.Count;
 
                 MoveAlongVector(avgDirection, 0.005f);
+                TurnTowardsXZ(Position + avgDirection);
             }
             else
             {
