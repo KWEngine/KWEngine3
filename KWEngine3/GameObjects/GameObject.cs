@@ -66,11 +66,11 @@ namespace KWEngine3.GameObjects
             ColliderType valueBefore = _colliderType;
             _colliderType = ct;
 
-            if (valueBefore == ColliderType.ConvexHull && _colliderType == ColliderType.RayCollider)
+            if (valueBefore == ColliderType.ConvexHull && _colliderType == ColliderType.PlaneCollider)
             {
 
             }
-            else if (valueBefore == ColliderType.RayCollider && _colliderType == ColliderType.ConvexHull)
+            else if (valueBefore == ColliderType.PlaneCollider && _colliderType == ColliderType.ConvexHull)
             {
 
             }
@@ -178,7 +178,8 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Prüft auf eine Kollision mit einem Terrain-Objekt
+        /// Prüft auf eine Kollision mit einem Terrain-Objekt auf der vertikalen Weltachse und erzeugt einen Vector, der das
+        /// aufrufende Objekt stets auf die Höhe des Terrains verschiebt
         /// </summary>
         /// <returns>Kollisionsobjekt mit weiteren Details</returns>
         public IntersectionTerrain GetIntersectionWithTerrain()
@@ -208,12 +209,60 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Prüft auf Kollisionen mit PlaneCollider-Instanzen (EXPERIMENTELL)
+        /// </summary>
+        /// <returns>Liste der gefundenen Kollisionen</returns>
+        internal List<Intersection> GetIntersectionsWithPlaneColliders()
+        {
+            return GetIntersectionsWithPlaneColliders(Vector3.Zero);
+        }
+
+        /// <summary>
+        /// Prüft auf Kollisionen mit PlaneCollider-Instanzen (EXPERIMENTELL)
+        /// </summary>
+        /// <param name="offset">Verschiebung der aufrufenden Instanz vor der Kollisionsprüfung</param>
+        /// <returns>Liste der gefundenen Kollisionen</returns>
+        internal List<Intersection> GetIntersectionsWithPlaneColliders(Vector3 offset)
+        {
+            List<Intersection> intersections = new();
+            if (_colliderType == ColliderType.ConvexHull)
+            {
+                foreach (GameObjectHitbox ghb in _collisionCandidates)
+                {
+                    if (ghb.Owner._colliderType == ColliderType.PlaneCollider)
+                    {
+                        foreach (GameObjectHitbox hbcaller in _hitboxes)
+                        {
+                            List<Vector3> normals = new();
+                            foreach (GeoMeshFace face in ghb._mesh.Faces)
+                            {
+                                Vector3 n = ghb._normals[face.Normal] * (face.Flip ? -1f : 1f);
+
+                                Vector3 a = ghb._vertices[face.Vertices[0]];
+                                Vector3 b = ghb._vertices[face.Vertices[1]];
+                                Vector3 c = ghb._vertices[face.Vertices[2]];
+
+                                Intersection i = HelperIntersection.TestIntersectionForPlaneFace(hbcaller, a, b, c, n, offset, ghb);
+                                if (i != null && normals.Contains(i.MTV) == false)
+                                {
+                                    normals.Add(i.MTV);
+                                    intersections.Add(i);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return intersections;
+        }
+
+        /// <summary>
         /// Prüft, ob das Objekt gerade mit anderen Objekten kollidiert und gibt die erstbeste Kollision zurück
         /// </summary>
         /// <returns>zuerst gefundene Kollision</returns>
         public Intersection GetIntersection()
         {
-            if (!IsCollisionObject)
+            if (_colliderType != ColliderType.ConvexHull)
             {
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return null;

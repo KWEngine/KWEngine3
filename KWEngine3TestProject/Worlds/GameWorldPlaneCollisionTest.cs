@@ -53,7 +53,7 @@ namespace KWEngine3TestProject.Worlds
             Immovable beachPlanes = new Immovable();
             beachPlanes.SetModel("Beach_Planes");
             beachPlanes.Name = "Beach Collider Planes";
-            beachPlanes.SetColliderType(ColliderType.RayCollider);
+            beachPlanes.SetColliderType(ColliderType.PlaneCollider);
             beachPlanes.SetOpacity(0);
             AddGameObject(beachPlanes);
 

@@ -1491,6 +1491,153 @@ namespace KWEngine3.Helper
             return true;
         }
 
+        internal static Vector3[] _planeVertices = new Vector3[4];
+        internal static Vector3[] _planeNormals = new Vector3[4];
+        internal const float ONETHIRD = 1f / 3f;
+        internal static Intersection TestIntersectionForPlaneFace(GameObjectHitbox caller, Vector3 v1, Vector3 v2, Vector3 v3, Vector3 n, Vector3 offset, GameObjectHitbox collider)
+        {
+            _planeNormals[0] = n;
+
+            _planeVertices[0] = v1;
+            _planeVertices[1] = v2;
+            _planeVertices[2] = v3;
+            _planeVertices[3] = (v1 + v2 + v3) * ONETHIRD + (-n * 10000);
+
+            Vector3 center = (v1 + v2 + v3 + _planeVertices[3]) * 0.25f;
+
+            _planeNormals[1] = CalculateSurfaceNormal(v2, v1, _planeVertices[3]);
+            _planeNormals[2] = CalculateSurfaceNormal(_planeVertices[3], v1, v3);
+            _planeNormals[3] = CalculateSurfaceNormal(_planeVertices[3], v3, v2);
+
+
+            float mtvDistance = float.MaxValue;
+            float mtvDirection = 1;
+            float mtvDistanceUp = float.MaxValue;
+            float mtvDirectionUp = 1;
+
+            Vector3 MTVTemp = Vector3.Zero;
+            Vector3 MTVTempUp = Vector3.Zero;
+            int collisionNormalIndex = 0;
+            bool collisionNormalIndexFlip = false;
+            bool collisionNormalFromCaller = false;
+
+            for (int i = 0; i < caller._normals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref caller._normals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                {
+                    return null;
+                }
+                else
+                {
+                    OverlapResult m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref center, ref offset, true, caller);
+                    if (m.IsBetterResult)
+                    {
+                        collisionNormalIndex = i;
+                        collisionNormalIndexFlip = m.FlipNormal;
+                        collisionNormalFromCaller = true;
+                    }
+                }
+            }
+
+            for (int i = 0; i < _planeNormals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref _planeNormals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                {
+                    return null;
+                }
+                else
+                {
+                    OverlapResult m = CalculateOverlap(ref _planeNormals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref center, ref offset, false, collider);
+                    if (m.IsBetterResult)
+                    {
+                        collisionNormalIndex = i;
+                        collisionNormalIndexFlip = m.FlipNormal;
+                        collisionNormalFromCaller = false;
+                    }
+                }
+            }
+
+            if (MTVTemp == Vector3.Zero)
+                return null;
+
+            Vector3 collisionSurfaceNormal;
+            if (collisionNormalFromCaller)
+            {
+                collisionSurfaceNormal = caller._normals[collisionNormalIndex] * (collisionNormalIndexFlip ? -1 : 1);
+            }
+            else
+            {
+                collisionSurfaceNormal = collider._normals[collisionNormalIndex] * (collisionNormalIndexFlip ? -1 : 1);
+            }
+
+            Vector3 cross = Vector3.NormalizeFast(Vector3.Cross(Vector3.Cross(MTVTemp, KWEngine.WorldUp), MTVTemp));
+            Vector3 MTVTempUpToTop = MTVTemp + cross * MTVTempUp.LengthFast;
+            if (Vector3.Dot(MTVTempUpToTop, KWEngine.WorldUp) < 0)
+            {
+                MTVTempUpToTop = -MTVTempUpToTop;
+            }
+
+            // limit mtvup:
+            if (cross != Vector3.Zero && (Vector3.Dot(cross, KWEngine.WorldUp) < 0.999f))
+            {
+                //MTVUp:
+                float betaX = MTVTemp.X / cross.X;
+                float betaZ = MTVTemp.Z / cross.Z;
+                float betaXToTop = MTVTempUp.X / cross.X;
+                float betaZToTop = MTVTempUp.Z / cross.Z;
+                float beta = (float.IsNaN(betaX) || betaX == 0) ? betaZ : betaX;
+                float betaToTop = (float.IsNaN(betaXToTop) || betaXToTop == 0) ? betaZToTop : betaXToTop;
+                if (float.IsNaN(beta) == false && beta != 0 && float.IsInfinity(beta) == false)
+                {
+                    MTVTempUp = MTVTemp + new Vector3(-beta * cross.X, -beta * cross.Y, -beta * cross.Z);
+                    if (MTVTempUp.LengthFast > caller.Owner.Dimensions.Y)
+                    {
+                        MTVTempUp = MTVTemp;
+                    }
+                }
+                else
+                {
+                    MTVTempUp = MTVTemp + cross * MTVTemp.LengthFast;
+                }
+
+                if (float.IsNaN(betaToTop) == false && betaToTop != 0 && float.IsInfinity(betaToTop) == false)
+                {
+                    MTVTempUpToTop = MTVTempUp + new Vector3(-betaToTop * cross.X, -betaToTop * cross.Y, -betaToTop * cross.Z);
+                    if (MTVTempUpToTop.LengthFast > caller.Owner.Dimensions.Y)
+                    {
+                        MTVTempUpToTop = MTVTemp;
+                    }
+                }
+            }
+            else
+            {
+                MTVTempUp = MTVTemp + cross * MTVTemp.LengthFast;
+            }
+
+            Intersection o = new Intersection(collider.Owner, caller, collider, MTVTemp, MTVTempUp, collider._mesh.Name, collisionSurfaceNormal, MTVTempUpToTop);
+            return o;
+        }
+
+        internal static Vector3 CalculateSurfaceNormal(Vector3 a, Vector3 b, Vector3 c)
+        {
+            Vector3 u = b - a;
+            Vector3 v = c - a;
+            Vector3 n = new Vector3(
+                u.Y * v.Z - u.Z * v.Y,
+                u.Z * v.X - u.X * v.Z,
+                u.X * v.Y - u.Y * v.X);
+            n.NormalizeFast();
+            return n;
+        }
+
         internal static Intersection TestIntersection(GameObjectHitbox caller, GameObjectHitbox collider, Vector3 offset)
         {
             float mtvDistance = float.MaxValue;

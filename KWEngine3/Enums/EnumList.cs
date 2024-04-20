@@ -76,7 +76,7 @@
         /// <summary>
         /// Eignet sich ausschließlich für raytraced Kollisionen
         /// </summary>
-        RayCollider
+        PlaneCollider
     }
 
     /// <summary>
