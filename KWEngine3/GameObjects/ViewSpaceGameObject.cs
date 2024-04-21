@@ -142,6 +142,7 @@ namespace KWEngine3.GameObjects
             { 
                 return IsValid && _gameObject.IsCollisionObject; 
             }
+            /*
             set
             {
                 if(IsValid)
@@ -149,6 +150,7 @@ namespace KWEngine3.GameObjects
                     _gameObject._colliderType = ColliderType.ConvexHull;
                 }
             }
+            */
         }
 
         /// <summary>

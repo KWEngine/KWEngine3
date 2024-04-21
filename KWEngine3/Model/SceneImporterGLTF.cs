@@ -1360,7 +1360,7 @@ namespace KWEngine3.Model
             int glbOffset = -1;
             Dictionary<string, int> previouslyImportedGLBTextures = new Dictionary<string, int>();
 
-            model.MeshHitboxes = new List<GeoMeshHitbox>();
+            model.MeshCollider.MeshHitboxes = new List<GeoMeshHitbox>();
             string currentNodeName = null;
             Matrix4 currentNodeTransform = Matrix4.Identity;
             GeoMeshHitbox meshHitBox = null;
@@ -1525,7 +1525,7 @@ namespace KWEngine3.Model
                 meshHitBox.Name = mesh.Name;
                 meshHitBox.Transform = currentNodeTransform;
                 meshHitBox.IsActive = !currentNodeName.ToLower().Contains("_nohitbox");
-                model.MeshHitboxes.Add(meshHitBox);
+                model.MeshCollider.MeshHitboxes.Add(meshHitBox);
             }
             return true;
         }
@@ -1783,6 +1783,13 @@ namespace KWEngine3.Model
             }
 
             return tangents;
+        }
+
+        public static GeoMeshCollider LoadCollider(string filename)
+        {
+            GeoMeshCollider collider = new GeoMeshCollider();
+
+            return collider;
         }
     }
 }

@@ -70,7 +70,7 @@ namespace KWEngine3.Editor
         {
             GL.BindVertexArray(PrimitivePoint.VAO);
             
-            foreach(GameObjectHitbox hb in g._hitboxes)
+            foreach(GameObjectHitbox hb in g._colliderModel._hitboxes)
             {
                 if(hb.IsActive == false)
                 {

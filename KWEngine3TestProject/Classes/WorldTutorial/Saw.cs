@@ -22,7 +22,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             
             UpdateText();
             KWEngine.CurrentWorld.AddTextObject(_text);
-            SetColliderType(ColliderType.ConvexHull);
+            IsCollisionObject = true;
 
         }
         public override void Act()

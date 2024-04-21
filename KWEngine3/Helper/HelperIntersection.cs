@@ -125,7 +125,7 @@ namespace KWEngine3.Helper
         public static List<Intersection> GetIntersectionsForObjectWithOffset(GameObject caller, Vector3 offset)
         {
             List<Intersection> intersections = new List<Intersection>();
-            foreach(GameObjectHitbox hbCaller in caller._hitboxes)
+            foreach(GameObjectHitbox hbCaller in caller._colliderModel._hitboxes)
             {
                 if(hbCaller.IsActive)
                 {
@@ -207,12 +207,12 @@ namespace KWEngine3.Helper
                 if(g == gameObject)
                     continue;
                 
-                foreach (GameObjectHitbox hbCaller in gameObject._hitboxes)
+                foreach (GameObjectHitbox hbCaller in gameObject._colliderModel._hitboxes)
                 {
                     if (!hbCaller.IsActive)
                         continue;
 
-                    foreach(GameObjectHitbox hbother in g._hitboxes)
+                    foreach(GameObjectHitbox hbother in g._colliderModel._hitboxes)
                     {
                         if(!hbother.IsActive)
                             continue;
@@ -241,12 +241,12 @@ namespace KWEngine3.Helper
                     continue;
                 if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
-                    foreach (GameObjectHitbox hbCaller in gameObject._hitboxes)
+                    foreach (GameObjectHitbox hbCaller in gameObject._colliderModel._hitboxes)
                     {
                         if (!hbCaller.IsActive)
                             continue;
 
-                        foreach (GameObjectHitbox hbother in g._hitboxes)
+                        foreach (GameObjectHitbox hbother in g._colliderModel._hitboxes)
                         {
                             if (!hbother.IsActive)
                                 continue;
@@ -265,12 +265,12 @@ namespace KWEngine3.Helper
                     continue;
                 if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
-                    foreach (GameObjectHitbox hbCaller in gameObject._hitboxes)
+                    foreach (GameObjectHitbox hbCaller in gameObject._colliderModel._hitboxes)
                     {
                         if (!hbCaller.IsActive)
                             continue;
 
-                        foreach (GameObjectHitbox hbother in g._hitboxes)
+                        foreach (GameObjectHitbox hbother in g._colliderModel._hitboxes)
                         {
                             if (!hbother.IsActive)
                                 continue;
@@ -602,7 +602,7 @@ namespace KWEngine3.Helper
                     ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
                     Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
 
-                    foreach (GameObjectHitbox hb in g._hitboxes)
+                    foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
                         if(hb.IsActive)
                         {
@@ -810,9 +810,9 @@ namespace KWEngine3.Helper
             int resultSum = 0;
             float minDistance = float.MaxValue;
 
-            for (int i = 0; i < g._hitboxes.Count; i++)
+            for (int i = 0; i < g._colliderModel._hitboxes.Count; i++)
             {
-                GameObjectHitbox currentHitbox = g._hitboxes[i];
+                GameObjectHitbox currentHitbox = g._colliderModel._hitboxes[i];
                 if (!currentHitbox.IsActive)
                     continue;
 
@@ -885,7 +885,7 @@ namespace KWEngine3.Helper
         {
             ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
             Vector3 directionTransformedInv = new Vector3(1f / (directionTransformed.X == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.X), 1f / (directionTransformed.Y == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Y), 1f / (directionTransformed.Z == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Z));
-            foreach (GameObjectHitbox hb in g._hitboxes)
+            foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
             {
                 if (hb.IsActive)
                 {
@@ -981,7 +981,7 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn sich der Punkt innerhalb der Hitbox befindet</returns>
         public static bool IsPointInsideGameObject(Vector3 point, GameObject g)
         {
-            foreach (GameObjectHitbox h in g._hitboxes)
+            foreach (GameObjectHitbox h in g._colliderModel._hitboxes)
             {
                 if (!h.IsActive)
                     continue;
@@ -1021,9 +1021,9 @@ namespace KWEngine3.Helper
             Vector3 rayDirection = GetMouseRay();
             Vector3 rayOrigin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
 
-            for (int i = 0; i < g._hitboxes.Count; i++)
+            for (int i = 0; i < g._colliderModel._hitboxes.Count; i++)
             {
-                GameObjectHitbox currentHitbox = g._hitboxes[i];
+                GameObjectHitbox currentHitbox = g._colliderModel._hitboxes[i];
 
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
@@ -1120,9 +1120,9 @@ namespace KWEngine3.Helper
                 return false;
             }
 
-            for (int i = 0; i < g._hitboxes.Count; i++)
+            for (int i = 0; i < g._colliderModel._hitboxes.Count; i++)
             {
-                GameObjectHitbox currentHitbox = g._hitboxes[i];
+                GameObjectHitbox currentHitbox = g._colliderModel._hitboxes[i];
 
                 // test if object is far behind camera:
                 Vector3 camToObject = Vector3.NormalizeFast(currentHitbox._center - rayOrigin);
@@ -1224,12 +1224,12 @@ namespace KWEngine3.Helper
                 }
                 else
                 {
-                    meshTransform = g._hitboxes[meshIndex]._mesh.Transform;
+                    meshTransform = g._colliderModel._hitboxes[meshIndex]._mesh.Transform;
                 }
             }
             else
             {
-                meshTransform = g._hitboxes[meshIndex]._mesh.Transform;
+                meshTransform = g._colliderModel._hitboxes[meshIndex]._mesh.Transform;
             }
 
             return meshTransform;
@@ -1998,7 +1998,7 @@ namespace KWEngine3.Helper
 
                     if (origin.X >= left && origin.X <= right && origin.Z >= back && origin.Z <= front)
                     {
-                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
                             if (hb.IsActive)
                             {

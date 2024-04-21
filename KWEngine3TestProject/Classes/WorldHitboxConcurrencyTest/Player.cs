@@ -40,7 +40,7 @@ namespace KWEngine3TestProject.Classes.WorldHitboxConcurrencyTest
                 sp.SetRotation(this.Rotation);
                 sp.SetScale(0.1f, 0.1f, 1.25f);
                 sp.SetColorEmissive(0, 1, 0, 5);
-                sp.SetColliderType(ColliderType.ConvexHull);
+                sp.IsCollisionObject = true;
                 CurrentWorld.AddGameObject(sp);
 
                 _timestampLastShot = WorldTime;

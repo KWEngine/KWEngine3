@@ -36,7 +36,7 @@ namespace KWEngine3TestProject.Worlds
             test.SetScale(4, 1, 2);
             test.SetColor(1, 1, 1);
             test.FlowFieldCost = 255;
-            test.SetColliderType(ColliderType.ConvexHull);
+            test.IsCollisionObject = true;
             AddGameObject(test);
 
             Impassable i2 = new Impassable();
@@ -44,21 +44,21 @@ namespace KWEngine3TestProject.Worlds
             i2.SetColor(1, 1, 1);
             i2.SetPosition(0, 0, 4);
             i2.FlowFieldCost = 255;
-            i2.SetColliderType(ColliderType.ConvexHull);
+            i2.IsCollisionObject = true;
             AddGameObject(i2);
 
             Player p = new Player();
             p.SetScale(1);
             p.SetPosition(-4.5f, 0.5f, 3.5f);
             p.SetColor(1, 1, 0);
-            p.SetColliderType(ColliderType.ConvexHull);
+            p.IsCollisionObject = true;
             AddGameObject(p);
 
             Enemy e = new Enemy();
             e.SetModel("KWSphere");
             e.SetPosition(4.5f, 0.5f, 3.5f);
             e.SetColor(1, 0, 1);
-            e.SetColliderType(ColliderType.ConvexHull);
+            e.IsCollisionObject = true;
             AddGameObject(e);
 
             Immovable floor = new Immovable();

@@ -817,7 +817,8 @@ namespace KWEngine3.GameObjects
         internal EngineObjectRenderState _stateRender;
         internal string _name = "(no name)";
         internal EngineObjectModel _model;
-        internal List<GameObjectHitbox> _hitboxes = new();
+        internal ColliderModel _colliderModel;
+        //internal List<GameObjectHitbox> _hitboxes = new();
         internal string _modelNameInDB = "KWCube";
         internal int _importedID = -1;
         internal float _positionCenterDelta = 0f;

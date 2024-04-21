@@ -36,7 +36,7 @@ namespace KWEngine3TestProject.Worlds
             /*
             TerrainObject t = new TerrainObject("Terrain");
             t.IsShadowCaster = true;
-            t.SetColliderType(ColliderType.ConvexHull);
+            t.IsCollisionObject = true;
             AddTerrainObject(t);
             */
             

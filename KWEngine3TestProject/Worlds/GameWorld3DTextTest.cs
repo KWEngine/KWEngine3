@@ -47,7 +47,7 @@ namespace KWEngine3TestProject.Worlds
             /*
             Immovable i01 = new Immovable();
             i01.Name = "Floor";
-            i01.SetColliderType(ColliderType.ConvexHull);
+            i01.IsCollisionObject = true;
             i01.SetPosition(0, -4, 0);
             i01.SetScale(5, 2, 2);
             i01.SetRotation(0, 0, 0);
@@ -56,7 +56,7 @@ namespace KWEngine3TestProject.Worlds
             */
             Player p1 = new Player();
             p1.Name = "Player #1";
-            p1.SetColliderType(ColliderType.ConvexHull);
+            p1.IsCollisionObject = true;
             p1.SetModel("KWCube");
             p1.SetHitboxScale(1, 1, 1);
             p1.SetColor(1, 1, 0);

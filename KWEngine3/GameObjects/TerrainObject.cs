@@ -198,7 +198,7 @@ namespace KWEngine3.GameObjects
         internal void InitHitboxes()
         {
             _hitboxes.Clear();
-            foreach (GeoMeshHitbox gmh in _gModel.ModelOriginal.MeshHitboxes)
+            foreach (GeoMeshHitbox gmh in _gModel.ModelOriginal.MeshCollider.MeshHitboxes)
             {
                 _hitboxes.Add(new TerrainObjectHitbox(this, gmh));
             }

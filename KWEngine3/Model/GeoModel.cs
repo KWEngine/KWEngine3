@@ -74,7 +74,8 @@ namespace KWEngine3.Model
         /// </summary>
         public Matrix4 TransformGlobalInverse { get; internal set; }
         internal SortedDictionary<string, GeoMesh> Meshes { get; set; }
-        internal List<GeoMeshHitbox> MeshHitboxes { get; set; }
+        //internal List<GeoMeshHitbox> MeshHitboxes { get; set; }
+        internal GeoMeshCollider MeshCollider { get; set; }
         /// <summary>
         /// Handelt es sich bei dem Modell um Terrain?
         /// </summary>
@@ -137,7 +138,7 @@ namespace KWEngine3.Model
             }
 
             this.NodesWithoutHierarchy = null;
-            this.MeshHitboxes = null;
+            this.MeshCollider = null;
             this.Meshes = null;
             this.Animations = null;
             this.Armature = null;

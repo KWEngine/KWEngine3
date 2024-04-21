@@ -385,7 +385,7 @@ namespace KWEngine3.Helper
             g.IsAffectedByLight = sg.IsAffectedByLight;
             g.IsDepthTesting = sg.IsDepthTesting;
             g.IsShadowCaster = sg.IsShadowCaster;
-            g.SetColliderType(sg.IsCollisionObject);
+            g.IsCollisionObject = sg.IsCollisionObject;
             g.UpdateLast = sg.UpdateLast;
             g.Name = sg.Name;
             g.BlendTextureStates = sg.BlendTextureStates;

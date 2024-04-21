@@ -341,7 +341,7 @@ namespace KWEngine3
                 {
                     if (g._addRemoveHitboxes == AddRemoveHitboxMode.Add)
                     {
-                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
                             if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
                             {
@@ -351,7 +351,7 @@ namespace KWEngine3
                     }
                     else if (g._addRemoveHitboxes == AddRemoveHitboxMode.Remove)
                     {
-                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
                             if (hb.IsActive)
                             {
@@ -370,7 +370,7 @@ namespace KWEngine3
                     g.ID = 0;
 
                     _gameObjects.Remove(g);
-                    foreach(GameObjectHitbox hb in g._hitboxes)
+                    foreach(GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
                         _gameObjectHitboxes.Remove(hb);
                     }
@@ -382,7 +382,7 @@ namespace KWEngine3
                     _gameObjects.Add(g);
                     if (g.IsCollisionObject)
                     {
-                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
                             if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
                             {
@@ -868,7 +868,7 @@ namespace KWEngine3
                     _gameObjects.Add(g);
                     if (g.IsCollisionObject)
                     {
-                        foreach (GameObjectHitbox hb in g._hitboxes)
+                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
                             if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
                             {
@@ -911,7 +911,7 @@ namespace KWEngine3
                 {
                     _availableGameObjectIDs.Enqueue((ushort)g.ID);
                     g.ID = 0;
-                    foreach (GameObjectHitbox hb in g._hitboxes)
+                    foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
                         _gameObjectHitboxes.Remove(hb);
                     }

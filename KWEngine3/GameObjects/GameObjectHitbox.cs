@@ -29,6 +29,7 @@ namespace KWEngine3.GameObjects
         internal OctreeNode _currentOctreeNode = null;
         internal Matrix4 _capsulePreTransform = Matrix4.Identity;
         internal bool _isCapsule = false;
+        internal ColliderType _colliderType = ColliderType.ConvexHull;
 
         internal Vector2i indexLeftRightMostVertex = new Vector2i(0);
         internal Vector2i indexBackFrontMostVertex = new Vector2i(0);

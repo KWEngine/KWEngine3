@@ -53,14 +53,14 @@ namespace KWEngine3TestProject.Worlds
             Immovable beachPlanes = new Immovable();
             beachPlanes.SetModel("Beach_Planes");
             beachPlanes.Name = "Beach Collider Planes";
-            beachPlanes.SetColliderType(ColliderType.PlaneCollider);
+            beachPlanes.IsCollisionObject = true;
             beachPlanes.SetOpacity(0);
             AddGameObject(beachPlanes);
 
             Immovable beachHitboxes = new Immovable();
             beachHitboxes.SetModel("Beach_Hitboxes");
             beachHitboxes.Name = "Beach Hitboxes";
-            beachHitboxes.SetColliderType(ColliderType.ConvexHull);
+            beachHitboxes.IsCollisionObject = true;
             beachHitboxes.SetOpacity(0);
             AddGameObject(beachHitboxes);
             
@@ -69,7 +69,7 @@ namespace KWEngine3TestProject.Worlds
             _player.Name = "Player #1";
             _player.SetPosition(Player.PLAYERSTART.X, Player.PLAYERSTART.Y, Player.PLAYERSTART.Z, PositionMode.BottomOfAABBHitbox);
             _player.SetScale(0.25f);
-            _player.SetColliderType(ColliderType.ConvexHull);
+            _player.IsCollisionObject = true;
             _player.SetHitboxScale(0.5f, 0.75f, 1f);
             _player.IsShadowCaster = true;
             AddGameObject(_player);

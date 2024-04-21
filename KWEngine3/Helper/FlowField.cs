@@ -317,7 +317,7 @@ namespace KWEngine3.Helper
                         {
                             _hitbox.Update(cell.WorldPos.X, cell.WorldPos.Y, cell.WorldPos.Z);
 
-                            foreach(GameObjectHitbox ghb in g._hitboxes)
+                            foreach(GameObjectHitbox ghb in g._colliderModel._hitboxes)
                             {
                                 if(ghb.IsActive)
                                 {

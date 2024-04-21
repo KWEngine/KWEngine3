@@ -40,6 +40,7 @@ namespace KWEngine3
         /// </summary>
         public static World CurrentWorld { get; internal set; } = null;
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
+        internal static Dictionary<string, GeoMeshCollider> CustomColliders { get; set; } = new Dictionary<string, GeoMeshCollider>();
 
         internal static void DeleteCustomModelsAndTexturesFromCurrentWorld()
         {
@@ -59,6 +60,9 @@ namespace KWEngine3
                 m.Dispose();
                 Models.Remove(modelName);
             }
+
+            // CUSTOM COLLIDERS
+            CustomColliders.Clear();
         }
 
         internal static EngineMode Mode { get; set; } = EngineMode.Play;
@@ -74,14 +78,14 @@ namespace KWEngine3
                 GeoModel model = Models[modelname];
                 if (!model.IsPrimitive && !model.IsTerrain)
                 {
-                    if (model.MeshHitboxes == null || model.MeshHitboxes.Count == 0)
+                    if (model.MeshCollider.MeshHitboxes == null || model.MeshCollider.MeshHitboxes.Count == 0)
                     {
                         LogWriteLine("[Import] Model " + modelname + " has no hitboxes");
                     }
                     else
                     {
                         LogWriteLine("[Import] Listing hitboxes for model " + modelname + ":");
-                        foreach (GeoMeshHitbox hb in model.MeshHitboxes)
+                        foreach (GeoMeshHitbox hb in model.MeshCollider.MeshHitboxes)
                         {
                             LogWriteLine("         -> " + hb.Name + " (" + (hb.IsActive ? "active" : "not active") + ")");
                         }
@@ -112,13 +116,13 @@ namespace KWEngine3
                 GeoModel model = Models[modelname];
                 if (!model.IsPrimitive && !model.IsTerrain)
                 {
-                    if (model.MeshHitboxes == null || model.MeshHitboxes.Count == 0)
+                    if (model.MeshCollider.MeshHitboxes == null || model.MeshCollider.MeshHitboxes.Count == 0)
                     {
                         LogWriteLine("[Import] Model " + modelname + " has no hitboxes");
                     }
                     else
                     {
-                        foreach (GeoMeshHitbox hb in model.MeshHitboxes)
+                        foreach (GeoMeshHitbox hb in model.MeshCollider.MeshHitboxes)
                         {
                             result.Add(hb.Name);
                         }
@@ -152,7 +156,7 @@ namespace KWEngine3
                 GeoModel model = Models[modelname];
                 if(!model.IsPrimitive && !model.IsTerrain)
                 {
-                    foreach (GeoMeshHitbox hb in model.MeshHitboxes)
+                    foreach (GeoMeshHitbox hb in model.MeshCollider.MeshHitboxes)
                     {
                         if(hb.Name == hitboxname)
                         {
@@ -520,7 +524,7 @@ namespace KWEngine3
                 Name = name
             };
 
-            terrainModel.MeshHitboxes = new()
+            terrainModel.MeshCollider.MeshHitboxes = new()
             {
                 meshHitBox
             };
@@ -583,7 +587,7 @@ namespace KWEngine3
                 Name = name
             };
 
-            terrainModel.MeshHitboxes = new()
+            terrainModel.MeshCollider.MeshHitboxes = new()
             {
                 meshHitBox
             };
@@ -676,9 +680,45 @@ namespace KWEngine3
             }
         }
 
-        public static void LoadCollider(string name, string filename)
+        /// <summary>
+        /// Importiert ein 3D-Collidermodell unter dem angegebenen Namen
+        /// </summary>
+        /// <param name="name">Name, unter dem das Collidermodell gespeichert werden soll</param>
+        /// <param name="filename">Dateiname des Collidermodells</param>
+        public static void LoadModelCollider(string name, string filename)
         {
+            filename = filename == null ? "" : filename.Trim();
+            MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
+            string callerName = caller.Name;
 
+            if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
+            {
+                LogWriteLine("[Import] Model " + filename + " must be imported in Prepare() - aborting import");
+                return;
+            }
+            name = name.Trim();
+            if (CustomColliders.ContainsKey(name))
+            {
+                if (callerName != "BuildWorld")
+                {
+                    KWEngine.LogWriteLine("[Import] Collider " + (name == null ? "" : name) + " already exists");
+                    return;
+                }
+            }
+            else
+            {
+                GeoMeshCollider c = SceneImporter.LoadCollider(filename);
+                if (c != null)
+                {
+                    c.Name = name;
+                    CustomColliders.Add(name, c);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[Import] Collider " + (name == null ? "" : name) + " invalid");
+                    return;
+                }
+            }
         }
 
         /// <summary>

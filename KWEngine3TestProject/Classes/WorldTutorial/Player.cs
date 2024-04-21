@@ -17,7 +17,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             SetPosition(0, 0.0f, 95);
             AddRotationY(180);
             SetScale(0.5f);
-            SetColliderType(ColliderType.ConvexHull);
+            IsCollisionObject = true;
         }
 
         public override void Act()

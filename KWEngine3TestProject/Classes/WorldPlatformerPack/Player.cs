@@ -86,7 +86,7 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
                 else if (i.Object is Weapon)
                 {
                     AttachGameObjectToBone(i.Object, "Fist.R");
-                    i.Object.SetColliderType(ColliderType.None);
+                    i.Object.IsCollisionObject = false;
                     HelperGameObjectAttachment.SetRotationForAttachment(i.Object, -90, 0, 180);
                     HelperGameObjectAttachment.SetPositionOffsetForAttachment(i.Object, 0, 0.05f, 0);
                     HelperGameObjectAttachment.SetScaleForAttachment(i.Object, 1.25f, 1.25f, 1.25f);
@@ -145,7 +145,7 @@ namespace KWEngine3TestProject.Classes.WorldPlatformerPack
             Obstacle o = new Obstacle();
             o.SetPosition(x, y, z);
             o.SetColor(1, 0, 1);
-            o.SetColliderType(ColliderType.ConvexHull);
+            o.IsCollisionObject = true;
             CurrentWorld.AddGameObject(o);
         }
     }

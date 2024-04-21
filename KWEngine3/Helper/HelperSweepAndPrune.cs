@@ -64,9 +64,9 @@ namespace KWEngine3.Helper
 
                 if (vsgObject)
                 {
-                    lock (KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._hitboxes)
+                    lock (KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._colliderModel._hitboxes)
                     {
-                        foreach (GameObjectHitbox vsgHitbox in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._hitboxes)
+                        foreach (GameObjectHitbox vsgHitbox in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._colliderModel._hitboxes)
                         {
                             if (vsgHitbox.IsActive)
                             {

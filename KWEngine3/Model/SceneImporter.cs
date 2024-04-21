@@ -810,7 +810,7 @@ namespace KWEngine3.Model
 
         private static bool ProcessMeshes(Scene scene, ref GeoModel model)
         {
-            model.MeshHitboxes = new List<GeoMeshHitbox>();
+            model.MeshCollider.MeshHitboxes = new List<GeoMeshHitbox>();
 
             string currentMeshName = null;
             string currentNodeName = null;
@@ -864,7 +864,7 @@ namespace KWEngine3.Model
                         meshHitBox.Name = currentNodeName;
                         meshHitBox.Transform = currentNodeTransform;
                         meshHitBox.IsActive = !currentNodeName.ToLower().Contains("_nohitbox");
-                        model.MeshHitboxes.Add(meshHitBox);
+                        model.MeshCollider.MeshHitboxes.Add(meshHitBox);
 
                         faceHelpersForWholeMesh.Clear();
                         uniqueNormalsForWholeMesh.Clear();
@@ -1049,7 +1049,7 @@ namespace KWEngine3.Model
                 meshHitBox.Name = currentNodeName;
                 meshHitBox.Transform = nodeTransform;
                 meshHitBox.IsActive = !currentNodeName.ToLower().Contains("_nohitbox");
-                model.MeshHitboxes.Add(meshHitBox);
+                model.MeshCollider.MeshHitboxes.Add(meshHitBox);
 
                 faceHelpersForWholeMesh.Clear();
                 uniqueNormalsForWholeMesh.Clear();
@@ -1127,6 +1127,110 @@ namespace KWEngine3.Model
                     model.Animations.Add(ga);
                 }
             }
+        }
+
+        public static GeoMeshCollider LoadCollider(string filename)
+        {
+            GeoMeshCollider collider = null;
+            filename = filename == null ? "" : filename.Trim();
+            if(!File.Exists(filename))
+            {
+                return collider;
+            }
+
+            FileType type = CheckFileEnding(filename);
+            if (type == FileType.GLTF)
+            {
+                collider = SceneImporterGLTF.LoadCollider(filename);
+                return collider;
+            }
+            else
+            {
+                AssimpContext importer = new AssimpContext();
+                Scene scene = null;
+
+                filename = HelperGeneral.EqualizePathDividers(filename);
+                if (type != FileType.Invalid)
+                {
+                    scene = importer.ImportFile(filename, PostProcessSteps.ValidateDataStructure);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[Import] Invalid collider file type");
+                    return null;
+                }
+                
+                if (scene == null)
+                {
+                    KWEngine.LogWriteLine("[Import] Invalid collider file");
+                    return null;
+                }
+
+                collider = ProcessColliderScene(scene, filename);
+                scene.Clear();
+                importer.Dispose();
+
+                return collider;
+            }
+        }
+
+        public static GeoMeshCollider ProcessColliderScene(Scene scene, string filename)
+        {
+            
+            if (scene.HasMeshes)
+            {
+                GeoMeshCollider collider = new GeoMeshCollider();
+                GenerateNodeHierarchy(scene.RootNode, ref collider);
+                ProcessMeshes(scene, scene.RootNode, ref collider);
+
+                return collider;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private static void ProcessMeshes(Scene scene, Node currentNode, ref GeoMeshCollider collider)
+        {
+            if(currentNode.HasMeshes)
+            {
+                foreach(int meshIndex in currentNode.MeshIndices)
+                {
+                    Mesh m = scene.Meshes[meshIndex];
+                    foreach(Face f in m.Faces)
+                    {
+                        
+                    }
+                }
+            }
+        }
+
+        private static void GenerateNodeHierarchy(Node node, ref GeoMeshCollider collider)
+        {
+            GeoNode root = new GeoNode();
+            root.Name = node.Name;
+            root.Transform = HelperMatrix.ConvertAssimpToOpenTKMatrix(node.Transform);
+            root.Parent = null;
+            collider.Root = root;
+            foreach (Node child in node.Children)
+            {
+                root.Children.Add(MapNodeToNode(child, ref collider, ref root));
+            }
+        }
+
+        private static GeoNode MapNodeToNode(Node n, ref GeoMeshCollider collider, ref GeoNode callingNode)
+        {
+            GeoNode gNode = new GeoNode();
+            gNode.Name = n.Name;
+            gNode.Parent = callingNode;           
+            gNode.Transform = gNode.Transform * HelperMatrix.ConvertAssimpToOpenTKMatrix(n.Transform);
+            foreach (Node child in n.Children)
+            {
+                GeoNode newNode = MapNodeToNode(child, ref collider, ref gNode);
+                gNode.Children.Add(newNode);
+            }
+            return gNode;
         }
     }
 }

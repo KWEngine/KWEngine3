@@ -28,7 +28,7 @@ namespace KWEngine3.GameObjects
             float maxY = float.MinValue;
             float minZ = float.MaxValue;
             float maxZ = float.MinValue;
-            foreach (GeoMeshHitbox mhb in ModelOriginal.MeshHitboxes)
+            foreach (GeoMeshHitbox mhb in ModelOriginal.MeshCollider.MeshHitboxes)
             {
                 if (mhb.minX < minX) minX = mhb.minX;
                 if (mhb.maxX > maxX) maxX = mhb.maxX;

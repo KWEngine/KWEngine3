@@ -33,7 +33,7 @@ namespace KWEngine3TestProject.Worlds
             f.SetTextureRepeat(4, 0.25f, 2);
             f.SetScale(20, 2, 200);
             f.SetPosition(0, -1, 0);
-            f.SetColliderType(ColliderType.ConvexHull);
+            f.IsCollisionObject = true;
             AddGameObject(f);
 
             Player p = new Player();

@@ -38,22 +38,12 @@ namespace KWEngine3.GameObjects
         public bool IsCollisionObject 
         { 
             get 
-            { 
-                return _colliderType != ColliderType.None;
+            {
+                return _isCollisionObject;
             }
             set
             {
-                if(value == true)
-                {
-                    if(_colliderType == ColliderType.None)
-                    {
-                        SetColliderType(ColliderType.ConvexHull);
-                    }
-                }
-                else
-                {
-                    SetColliderType(ColliderType.None);
-                }
+                _isCollisionObject = value;
             }
         }
 
@@ -61,8 +51,9 @@ namespace KWEngine3.GameObjects
         /// Setzt die Art wie bei diesem Objekt nach Kollisionen geprüft wird
         /// </summary>
         /// <param name="ct">Kollisionstyp (Standard: ConvexHull)</param>
-        public void SetColliderType(ColliderType ct)
+        public void SetColliderModel(string colliderModelName)
         {
+            /*
             ColliderType valueBefore = _colliderType;
             _colliderType = ct;
 
@@ -89,6 +80,7 @@ namespace KWEngine3.GameObjects
                     }
                 }
             }
+            */
         }
 
         /// <summary>
@@ -188,9 +180,9 @@ namespace KWEngine3.GameObjects
             {
                 GameObjectHitbox lowestHitbox = null;
                 float y = float.MaxValue;
-                foreach (GameObjectHitbox hbcaller in _hitboxes)
+                foreach (GameObjectHitbox hbcaller in _colliderModel._hitboxes)
                 {
-                    if (hbcaller.IsActive && hbcaller.Owner._colliderType == ColliderType.ConvexHull && hbcaller._low < y)
+                    if (hbcaller.IsActive && hbcaller._colliderType == ColliderType.ConvexHull && hbcaller._low < y)
                     {
                         y = hbcaller._low;
                         lowestHitbox = hbcaller;
@@ -263,7 +255,7 @@ namespace KWEngine3.GameObjects
         /// <returns>zuerst gefundene Kollision</returns>
         public Intersection GetIntersection()
         {
-            if (_colliderType != ColliderType.ConvexHull)
+            if (!_isCollisionObject)
             {
                 KWEngine.LogWriteLine("GameObject " + ID + " not a collision object.");
                 return null;
@@ -271,9 +263,9 @@ namespace KWEngine3.GameObjects
 
             foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                if (hbother.Owner.ID > 0 && hbother.Owner._colliderType == ColliderType.ConvexHull)
+                if (hbother.Owner.ID > 0 && hbother._colliderType == ColliderType.ConvexHull)
                 {
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                    foreach (GameObjectHitbox hbcaller in this._colliderModel._hitboxes)
                     {
                         if (!hbcaller.IsActive)
                             continue;
@@ -294,7 +286,7 @@ namespace KWEngine3.GameObjects
         /// <returns>zuerst gefundene Kollision</returns>
         public Intersection GetIntersection<T>() where T : GameObject
         {
-            if (_colliderType != ColliderType.ConvexHull)
+            if (!_isCollisionObject)
             {
                 KWEngine.LogWriteLine("GameObject " + ID + " is not a collision object.");
                 return null;
@@ -302,11 +294,11 @@ namespace KWEngine3.GameObjects
 
             foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                if ((hbother.Owner is T) == false || hbother.Owner.ID <= 0 || hbother.Owner._colliderType != ColliderType.ConvexHull)
+                if ((hbother.Owner is T) == false || hbother.Owner.ID <= 0)
                 {
                     continue;
                 }
-                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                foreach (GameObjectHitbox hbcaller in this._colliderModel._hitboxes)
                 {
                     if (!hbcaller.IsActive)
                         continue;
@@ -326,17 +318,17 @@ namespace KWEngine3.GameObjects
         public List<Intersection> GetIntersections()
         {
             List<Intersection> intersections = new();
-            if (_colliderType != ColliderType.ConvexHull)
+            if (!_isCollisionObject)
             {
-                KWEngine.LogWriteLine("GameObject " + ID + " is not a convex hull collision object.");
+                KWEngine.LogWriteLine("GameObject " + ID + " is not a collision object.");
                 return intersections;
             }
 
             foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                if (hbother.Owner.ID > 0 && hbother.Owner._colliderType == ColliderType.ConvexHull)
+                if (hbother.Owner.ID > 0 && hbother._colliderType == ColliderType.ConvexHull)
                 {
-                    foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                    foreach (GameObjectHitbox hbcaller in this._colliderModel._hitboxes)
                     {
                         if (!hbcaller.IsActive)
                             continue;
@@ -358,19 +350,19 @@ namespace KWEngine3.GameObjects
         public List<Intersection> GetIntersections<T>() where T : GameObject
         {
             List<Intersection> intersections = new();
-            if (_colliderType != ColliderType.ConvexHull)
+            if (_isCollisionObject == false)
             {
-                KWEngine.LogWriteLine("GameObject " + ID + " is not a convex hull collision object.");
+                KWEngine.LogWriteLine("GameObject " + ID + " is not a collision object.");
                 return intersections;
             }
 
             foreach (GameObjectHitbox hbother in _collisionCandidates)
             {
-                if ((hbother.Owner is T) == false || hbother.Owner.ID <= 0 || hbother.Owner._colliderType != ColliderType.ConvexHull)
+                if ((hbother.Owner is T) == false || hbother.Owner.ID <= 0)
                 {
                     continue;
                 }
-                foreach (GameObjectHitbox hbcaller in this._hitboxes)
+                foreach (GameObjectHitbox hbcaller in this._colliderModel._hitboxes)
                 {
                     if (!hbcaller.IsActive)
                         continue;
@@ -714,24 +706,24 @@ namespace KWEngine3.GameObjects
         /// <param name="type">Art/Form der Kapsel</param>
         public void SetHitboxToCapsuleForMesh(int meshIndex = 0, CapsuleHitboxMode mode = CapsuleHitboxMode.Default, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
-            if(_hitboxes.Count > meshIndex)
+            if(_colliderModel._hitboxes.Count > meshIndex)
             {
                 Matrix4 meshTransform = HelperIntersection.CalculateMeshTransformForGameObject(this, meshIndex, mode);
 
-                Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.Center, 1.0f), meshTransform).Xyz;
-                Vector3 frontbottomleft = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.minX, _hitboxes[meshIndex]._mesh.minY, _hitboxes[meshIndex]._mesh.maxZ, 1f), meshTransform).Xyz;
-                Vector3 backtopright = Vector4.TransformRow(new Vector4(_hitboxes[meshIndex]._mesh.maxX, _hitboxes[meshIndex]._mesh.maxY, _hitboxes[meshIndex]._mesh.minZ, 1f), meshTransform).Xyz;
+                Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_colliderModel._hitboxes[meshIndex]._mesh.Center, 1.0f), meshTransform).Xyz;
+                Vector3 frontbottomleft = Vector4.TransformRow(new Vector4(_colliderModel._hitboxes[meshIndex]._mesh.minX, _colliderModel._hitboxes[meshIndex]._mesh.minY, _colliderModel._hitboxes[meshIndex]._mesh.maxZ, 1f), meshTransform).Xyz;
+                Vector3 backtopright = Vector4.TransformRow(new Vector4(_colliderModel._hitboxes[meshIndex]._mesh.maxX, _colliderModel._hitboxes[meshIndex]._mesh.maxY, _colliderModel._hitboxes[meshIndex]._mesh.minZ, 1f), meshTransform).Xyz;
                 lock (CurrentWorld._gameObjectHitboxes)
                 {
-                    if (CurrentWorld._gameObjectHitboxes.Contains(this._hitboxes[meshIndex]))
+                    if (CurrentWorld._gameObjectHitboxes.Contains(this._colliderModel._hitboxes[meshIndex]))
                     {
-                        CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
+                        CurrentWorld._gameObjectHitboxes.Remove(this._colliderModel._hitboxes[meshIndex]);
                     }
                     if(type == CapsuleHitboxType.Default)
-                        this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
+                        this._colliderModel._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshCollider.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
                     else
-                        this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
-                    CurrentWorld._gameObjectHitboxes.Add(this._hitboxes[meshIndex]);
+                        this._colliderModel._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshCollider.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
+                    CurrentWorld._gameObjectHitboxes.Add(this._colliderModel._hitboxes[meshIndex]);
                     UpdateModelMatrixAndHitboxes();
                 }
             }
@@ -1165,7 +1157,8 @@ namespace KWEngine3.GameObjects
         internal GameObject _attachedTo = null;
         internal Matrix4 _attachmentMatrix = Matrix4.Identity;
         internal Dictionary<GeoNode, GameObject> _gameObjectsAttached = new();
-        internal ColliderType _colliderType = ColliderType.None;
+        internal bool _isCollisionObject = false;
+        //internal ColliderType _colliderType = ColliderType.None;
         internal Vector3 _positionOffsetForAttachment = Vector3.Zero;
         internal Vector3 _scaleOffsetForAttachment = Vector3.One;
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
@@ -1194,10 +1187,10 @@ namespace KWEngine3.GameObjects
             {
                 RemoveHitboxesFromWorldHitboxList();
             }
-            _hitboxes.Clear();
-            foreach(GeoMeshHitbox gmh in _model.ModelOriginal.MeshHitboxes)
+            _colliderModel._hitboxes.Clear();
+            foreach(GeoMeshHitbox gmh in _model.ModelOriginal.MeshCollider.MeshHitboxes)
             {
-                _hitboxes.Add(new GameObjectHitbox(this, gmh));
+                _colliderModel._hitboxes.Add(new GameObjectHitbox(this, gmh));
             }
             if (this.ID > 0)
             {
@@ -1210,7 +1203,7 @@ namespace KWEngine3.GameObjects
         {
             lock (CurrentWorld._gameObjectHitboxes)
             {
-                foreach (GameObjectHitbox hb in _hitboxes)
+                foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
                 {
                     CurrentWorld._gameObjectHitboxes.Remove(hb);
                 }
@@ -1221,7 +1214,7 @@ namespace KWEngine3.GameObjects
         {
             lock (KWEngine.CurrentWorld._gameObjectHitboxes)
             {
-                foreach (GameObjectHitbox hb in _hitboxes)
+                foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
                 {
                     if (hb.IsActive)
                         KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
@@ -1271,7 +1264,7 @@ namespace KWEngine3.GameObjects
 
             Vector3 obbRadii = new(0);
 
-            foreach (GameObjectHitbox hb in _hitboxes)
+            foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
             {
                 if (hb.Update(ref _stateCurrent._center))
                 {

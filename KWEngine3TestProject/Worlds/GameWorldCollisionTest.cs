@@ -26,7 +26,7 @@ namespace KWEngine3TestProject.Worlds
         private void Spawn(int i)
         {
             BroadphaseTest b = new BroadphaseTest();
-            b.SetColliderType(ColliderType.ConvexHull);
+            b.IsCollisionObject = true;
             b.Name = "BPT #" + i;
             b.SetPosition(
                 HelperRandom.GetRandomNumber(-25, 25),
@@ -50,20 +50,20 @@ namespace KWEngine3TestProject.Worlds
             p1.SetModel("Anim");
             p1.SetScale(0.01f);
             p1.Name = "Player #1";
-            p1.SetColliderType(ColliderType.ConvexHull);
+            p1.IsCollisionObject = true;
             p1.SetColor(1, 1, 0);
             p1.SetPosition(0, 0.5f, 0);
             AddGameObject(p1);
 
             Immovable left = new Immovable();
-            left.SetColliderType(ColliderType.ConvexHull);
+            left.IsCollisionObject = true;
             left.SetPosition(-5, 0.5f, 0);
             left.SetColor(0, 1, 1);
             AddGameObject(left);
 
             Immovable right = new Immovable();
             right.SetModel("FHBTEST");
-            right.SetColliderType(ColliderType.ConvexHull);
+            right.IsCollisionObject = true;
             right.SetPosition(+5, 0, 0);
             right.SetColor(1, 0, 1);
             AddGameObject(right);

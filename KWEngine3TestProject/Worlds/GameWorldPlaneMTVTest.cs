@@ -21,7 +21,8 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.LoadModel("Plane", "./Models/GLTFTest/Plane.glb");
             Immovable i = new Immovable();
             i.SetModel("Plane");
-            i.SetColliderType(ColliderType.PlaneCollider);
+            i.IsCollisionObject = true;
+            //i.SetColliderType(ColliderType.PlaneCollider);
             i.IsShadowCaster = true;
             AddGameObject(i);
 
