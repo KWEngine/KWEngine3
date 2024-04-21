@@ -31,6 +31,7 @@
 		<None Remove="Assets\Fonts\anonymous3.dds" />
 		<None Remove="Assets\Fonts\anonymous4.dds" />
 		<None Remove="Assets\Models\capsulehitbox.obj" />
+		<None Remove="Assets\Models\capsulehitbox2.obj" />
 		<None Remove="Assets\Models\dollar.mtl" />
 		<None Remove="Assets\Models\dollar.obj" />
 		<None Remove="Assets\Models\heart.mtl" />
@@ -160,6 +161,7 @@
 		<EmbeddedResource Include="Assets\Fonts\anonymous3.dds" />
 		<EmbeddedResource Include="Assets\Fonts\anonymous4.dds" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox.obj" />
+		<EmbeddedResource Include="Assets\Models\capsulehitbox2.obj" />
 		<EmbeddedResource Include="Assets\Models\dollar.mtl" />
 		<EmbeddedResource Include="Assets\Models\dollar.obj" />
 		<EmbeddedResource Include="Assets\Models\heart.mtl" />

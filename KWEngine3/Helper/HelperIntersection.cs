@@ -1491,8 +1491,8 @@ namespace KWEngine3.Helper
             return true;
         }
 
-        internal static Vector3[] _planeVertices = new Vector3[4];
-        internal static Vector3[] _planeNormals = new Vector3[4];
+        internal static Vector3[] _planeVertices = new Vector3[3];
+        internal static Vector3[] _planeNormals = new Vector3[1];
         internal const float ONETHIRD = 1f / 3f;
         internal static Intersection TestIntersectionForPlaneFace(GameObjectHitbox caller, Vector3 v1, Vector3 v2, Vector3 v3, Vector3 n, Vector3 offset, GameObjectHitbox collider)
         {
@@ -1501,13 +1501,12 @@ namespace KWEngine3.Helper
             _planeVertices[0] = v1;
             _planeVertices[1] = v2;
             _planeVertices[2] = v3;
-            _planeVertices[3] = (v1 + v2 + v3) * ONETHIRD + (-n * 10000);
+            Vector3 center = (v1 + v2 + v3) * ONETHIRD;
+            //_planeVertices[3] = center + (-n * 10000);
 
-            Vector3 center = (v1 + v2 + v3 + _planeVertices[3]) * 0.25f;
-
-            _planeNormals[1] = CalculateSurfaceNormal(v2, v1, _planeVertices[3]);
+            /*_planeNormals[1] = CalculateSurfaceNormal(v2, v1, _planeVertices[3]);
             _planeNormals[2] = CalculateSurfaceNormal(_planeVertices[3], v1, v3);
-            _planeNormals[3] = CalculateSurfaceNormal(_planeVertices[3], v3, v2);
+            _planeNormals[3] = CalculateSurfaceNormal(_planeVertices[3], v3, v2);*/
 
 
             float mtvDistance = float.MaxValue;
@@ -1520,7 +1519,7 @@ namespace KWEngine3.Helper
             int collisionNormalIndex = 0;
             bool collisionNormalIndexFlip = false;
             bool collisionNormalFromCaller = false;
-
+            
             for (int i = 0; i < caller._normals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
@@ -1542,7 +1541,7 @@ namespace KWEngine3.Helper
                     }
                 }
             }
-
+            
             for (int i = 0; i < _planeNormals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;

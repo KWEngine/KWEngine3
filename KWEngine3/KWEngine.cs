@@ -389,6 +389,7 @@ namespace KWEngine3
         internal static GeoModel KWLightBulb;
         internal static GeoModel KWTerrainDefault;
         internal static GeoModel KWCapsule;
+        internal static GeoModel KWCapsule2;
         internal static GeoModel KWFoliageMinecraft;
         internal static GeoModel KWFoliageFern;
 
@@ -405,6 +406,7 @@ namespace KWEngine3
             KWDollar = SceneImporter.LoadModel("dollar.obj", false, SceneImporter.AssemblyMode.Internal);
             KWLightBulb = SceneImporter.LoadModel("lightbulb.obj", false, SceneImporter.AssemblyMode.Internal);
             KWCapsule = SceneImporter.LoadModel("capsulehitbox.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWCapsule2 = SceneImporter.LoadModel("capsulehitbox2.obj", false, SceneImporter.AssemblyMode.Internal);
             KWTerrainDefault = KWEngine.BuildDefaultTerrainModel("TerrainDefault", 10, 0, 10);
             KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
             KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
@@ -672,6 +674,11 @@ namespace KWEngine3
                     model.Animations = new List<GeoAnimation>();
                 model.Animations.AddRange(animations);
             }
+        }
+
+        public static void LoadCollider(string name, string filename)
+        {
+
         }
 
         /// <summary>

@@ -207,12 +207,12 @@ namespace KWEngine3.GameObjects
             }
             return null;
         }
-
+        /*
         /// <summary>
         /// Prüft auf Kollisionen mit PlaneCollider-Instanzen (EXPERIMENTELL)
         /// </summary>
         /// <returns>Liste der gefundenen Kollisionen</returns>
-        internal List<Intersection> GetIntersectionsWithPlaneColliders()
+        public List<Intersection> GetIntersectionsWithPlaneColliders()
         {
             return GetIntersectionsWithPlaneColliders(Vector3.Zero);
         }
@@ -222,7 +222,7 @@ namespace KWEngine3.GameObjects
         /// </summary>
         /// <param name="offset">Verschiebung der aufrufenden Instanz vor der Kollisionsprüfung</param>
         /// <returns>Liste der gefundenen Kollisionen</returns>
-        internal List<Intersection> GetIntersectionsWithPlaneColliders(Vector3 offset)
+        public List<Intersection> GetIntersectionsWithPlaneColliders(Vector3 offset)
         {
             List<Intersection> intersections = new();
             if (_colliderType == ColliderType.ConvexHull)
@@ -255,6 +255,7 @@ namespace KWEngine3.GameObjects
             }
             return intersections;
         }
+        */
 
         /// <summary>
         /// Prüft, ob das Objekt gerade mit anderen Objekten kollidiert und gibt die erstbeste Kollision zurück
@@ -710,7 +711,8 @@ namespace KWEngine3.GameObjects
         /// </summary>
         /// <param name="meshIndex">Index des 3D-Mesh, für das die Hitbox getauscht werden soll</param>
         /// <param name="mode">Modus zur Bestimmung der richtigen Hitbox-Orientierung</param>
-        public void SetHitboxToCapsuleForMesh(int meshIndex = 0, CapsuleHitboxMode mode = CapsuleHitboxMode.Default)
+        /// <param name="type">Art/Form der Kapsel</param>
+        public void SetHitboxToCapsuleForMesh(int meshIndex = 0, CapsuleHitboxMode mode = CapsuleHitboxMode.Default, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
             if(_hitboxes.Count > meshIndex)
             {
@@ -725,10 +727,12 @@ namespace KWEngine3.GameObjects
                     {
                         CurrentWorld._gameObjectHitboxes.Remove(this._hitboxes[meshIndex]);
                     }
-                    this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
+                    if(type == CapsuleHitboxType.Default)
+                        this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
+                    else
+                        this._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
                     CurrentWorld._gameObjectHitboxes.Add(this._hitboxes[meshIndex]);
                     UpdateModelMatrixAndHitboxes();
-                    
                 }
             }
         }

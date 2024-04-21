@@ -29,9 +29,17 @@ namespace KWEngine3TestProject.Worlds
             p.SetModel("KWCube");
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            p.SetPosition(0, 0.4f, 0);
-            p.SetHitboxToCapsuleForMesh(0);
+            
+            p.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
+            p.SetPosition(0.55f, 0.92f, -3f);
             AddGameObject(p);
+
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            sun.SetPosition(-10, 10, 0);
+            sun.SetNearFar(1, 20);
+            sun.SetFOV(16);
+            sun.SetColor(1, 1, 1, 1.75f);
+            AddLightObject(sun);
 
         }
     }

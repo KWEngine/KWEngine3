@@ -217,6 +217,21 @@
     }
 
     /// <summary>
+    /// Form der Kapsel-Hitbox
+    /// </summary>
+    public enum CapsuleHitboxType
+    {
+        /// <summary>
+        /// Standardmodus
+        /// </summary>
+        Default = 0,
+        /// <summary>
+        /// Kapsel ist in der unteren Hälfte stärker abgerundet 
+        /// </summary>
+        Sloped = 1
+    }
+
+    /// <summary>
     /// Modus für das Setzen der Kapsel-Hitbox bei 3D-Modellen
     /// </summary>
     public enum CapsuleHitboxMode
