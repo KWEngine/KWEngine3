@@ -18,11 +18,13 @@ namespace KWEngine3TestProject.Worlds
         {
             SetCameraPosition(0, 5, 5);
 
-            KWEngine.LoadModel("Plane", "./Models/GLTFTest/Plane.glb");
+            KWEngine.LoadModel("Plane", "./Models/GLTFTest/Plane2.glb");
+            KWEngine.LoadModelCollider("Plane", "./Models/GLTFTest/Plane2.glb");
+
             Immovable i = new Immovable();
             i.SetModel("Plane");
             i.IsCollisionObject = true;
-            //i.SetColliderType(ColliderType.PlaneCollider);
+            i.SetCustomColliderModel("Plane");
             i.IsShadowCaster = true;
             AddGameObject(i);
 

@@ -75,7 +75,7 @@ namespace KWEngine3.Model
         public Matrix4 TransformGlobalInverse { get; internal set; }
         internal SortedDictionary<string, GeoMesh> Meshes { get; set; }
         //internal List<GeoMeshHitbox> MeshHitboxes { get; set; }
-        internal GeoMeshCollider MeshCollider { get; set; }
+        internal GeoMeshCollider MeshCollider { get; set; } = new GeoMeshCollider();
         /// <summary>
         /// Handelt es sich bei dem Modell um Terrain?
         /// </summary>

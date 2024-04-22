@@ -15,6 +15,7 @@ namespace KWEngine3.Model
         internal Vector2i indexLeftRightMostVertex = new Vector2i(0);
         internal Vector2i indexBackFrontMostVertex = new Vector2i(0);
         internal Vector2i indexBottomTopMostVertex = new Vector2i(0);
+
         internal GeoMeshFace[] Faces { get; private set; }
 
         internal bool IsExtended { get; private set; } = false;
@@ -33,6 +34,8 @@ namespace KWEngine3.Model
         internal Matrix4 Transform = Matrix4.Identity;
 
         public GeoModel Model { get; internal set; } = null;
+
+
 
         public GeoMeshHitbox(float maxX, float maxY, float maxZ, float minX, float minY, float minZ, Mesh meshData = null)
         {

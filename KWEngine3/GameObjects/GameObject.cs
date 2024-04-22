@@ -48,10 +48,10 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Art wie bei diesem Objekt nach Kollisionen geprüft wird
+        /// Setzt ein benutzerdefiniertes Collider-Modell für die GameObject-Instanz (muss zuvor via KWEngine.LoadModelCollider() importiert worden sein)
         /// </summary>
-        /// <param name="ct">Kollisionstyp (Standard: ConvexHull)</param>
-        public void SetColliderModel(string colliderModelName)
+        /// <param name="colliderModelName">Name des Collider-Modells</param>
+        public void SetCustomColliderModel(string colliderModelName)
         {
             /*
             ColliderType valueBefore = _colliderType;

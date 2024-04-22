@@ -3,6 +3,7 @@ using Assimp;
 using Assimp.Configs;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
+using SkiaSharp;
 
 namespace KWEngine3.Model
 {
@@ -1195,15 +1196,88 @@ namespace KWEngine3.Model
         {
             if(currentNode.HasMeshes)
             {
-                foreach(int meshIndex in currentNode.MeshIndices)
+                float minX = float.MaxValue;
+                float minY = float.MaxValue;
+                float minZ = float.MaxValue;
+
+                float maxX = float.MinValue;
+                float maxY = float.MinValue;
+                float maxZ = float.MinValue;
+
+                List<Vector3> uniqueVertices = new();
+                List<Vector3> uniqueNormals = new();
+                List<GeoMeshFace> faces = new();
+
+                foreach (int meshIndex in currentNode.MeshIndices)
                 {
                     Mesh m = scene.Meshes[meshIndex];
                     foreach(Face f in m.Faces)
                     {
-                        
+                        List<Vector3> faceVerticesTmp = new();
+                        GeoMeshFace face = new GeoMeshFace(f.Indices.Count);
+                        foreach (int index in f.Indices)
+                        {
+                            Vector3 vertex = new Vector3(m.Vertices[index].X, m.Vertices[index].Y, m.Vertices[index].Z);
+                            if (vertex.X < minX)
+                                minX = vertex.X;
+                            if (vertex.Y < minY)
+                                minY = vertex.Y;
+                            if (vertex.Z < minZ)
+                                minZ = vertex.Z;
+                            if (vertex.X > maxX)
+                                maxX = vertex.X;
+                            if (vertex.Y > maxY)
+                                maxY = vertex.Y;
+                            if (vertex.Z > maxZ)
+                                maxZ = vertex.Z;
+
+                            faceVerticesTmp.Add(vertex);
+                            int indexOfVertexInList = uniqueVertices.IndexOf(vertex);
+                            if(indexOfVertexInList >= 0)
+                            {
+                                face.AddVertex(indexOfVertexInList);
+                            }
+                            else
+                            {
+                                uniqueVertices.Add(vertex);
+                                face.AddVertex(uniqueVertices.Count - 1);
+                            }
+                        }
+                        // determine face normal
+                        Vector3 n = CalculateMeshFaceNormal(faceVerticesTmp);
+                        int indexOfNormal = uniqueNormals.IndexOf(n);
+                        if(indexOfNormal >= 0)
+                        {
+                            face.SetNormal(indexOfNormal);
+                        }
+                        else
+                        {
+                            uniqueNormals.Add(n);
+                            face.SetNormal(uniqueNormals.Count - 1);
+                        }
+                        faces.Add(face);
                     }
                 }
+                GeoMeshHitbox hitbox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, uniqueNormals, uniqueVertices, faces);
+                collider.MeshHitboxes.Add(hitbox);
             }
+        }
+
+        private static Vector3 CalculateMeshFaceNormal(List<Vector3> faceVerticesTmp)
+        {
+            Vector3 n = Vector3.Zero;
+
+            for(int index = 0; index < faceVerticesTmp.Count; index++)
+            {
+                Vector3 current = faceVerticesTmp[index];
+                Vector3 next = faceVerticesTmp[(index + 1) % faceVerticesTmp.Count];
+
+                n.X += (current.Y - next.Y) * (current.Z + next.Z);
+                n.Y += (current.Z - next.Z) * (current.X + next.X);
+                n.Z += (current.X - next.X) * (current.Y + next.Y);
+            }
+            n.Normalize();
+            return n;
         }
 
         private static void GenerateNodeHierarchy(Node node, ref GeoMeshCollider collider)

@@ -11,5 +11,7 @@ namespace KWEngine3.Model
         public string Name { get; set; } = "";
         public GeoNode Root { get; set; } = null;
         public List<GeoMeshHitbox> MeshHitboxes = new();
+
+
     }
 }
