@@ -391,6 +391,22 @@ namespace KWEngine3.Model
             return model.BoneNames.Count <= KWEngine.MAX_BONES;
         }
 
+        private static void FindTransformForMesh(ref GeoMeshCollider collider, GeoNode node, string nodename, ref Matrix4 transform)
+        {
+            if(node.Name == nodename)
+            {
+                transform = node.Transform;
+                return;
+            }
+            else
+            {
+                foreach(GeoNode child in node.Children)
+                {
+                    FindTransformForMesh(ref collider, child, nodename, ref transform);
+                }
+            }
+        }
+
         private static bool FindTransformForMesh(Scene scene, Node currentNode, Mesh mesh, ref Matrix4 transform, out string nodeName, ref Matrix4 parentTransform)
         {
             Matrix4 currentNodeTransform = parentTransform * HelperMatrix.ConvertAssimpToOpenTKMatrix(currentNode.Transform);
@@ -1140,6 +1156,34 @@ namespace KWEngine3.Model
             }
 
             FileType type = CheckFileEnding(filename);
+            if (type == FileType.Wavefront)
+            {
+                if (File.Exists(filename))
+                {
+                    string[] lines = File.ReadAllLines(filename);
+                    if (lines != null && lines.Length > 2)
+                    {
+                        int offset = 0;
+                        bool changed = false;
+                        while (offset < lines.Length)
+                        {
+                            if (lines[offset].StartsWith("#"))
+                            {
+                                lines[offset] = "";
+                                changed = true;
+                                offset++;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        if (changed)
+                            File.WriteAllLines(filename, lines);
+                    }
+                }
+            }
+
             if (type == FileType.GLTF)
             {
                 collider = SceneImporterGLTF.LoadCollider(filename);
@@ -1181,6 +1225,7 @@ namespace KWEngine3.Model
             if (scene.HasMeshes)
             {
                 GeoMeshCollider collider = new GeoMeshCollider();
+                collider.Name = scene.RootNode.Name;
                 GenerateNodeHierarchy(scene.RootNode, ref collider);
                 ProcessMeshes(scene, scene.RootNode, ref collider);
 
@@ -1259,7 +1304,16 @@ namespace KWEngine3.Model
                     }
                 }
                 GeoMeshHitbox hitbox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, uniqueNormals, uniqueVertices, faces);
+                hitbox.Model = null;
+                hitbox.Name = currentNode.Name;
+                hitbox.Transform = Matrix4.Identity;
+                FindTransformForMesh(ref collider, collider.Root, currentNode.Name, ref hitbox.Transform);
+
                 collider.MeshHitboxes.Add(hitbox);
+            }
+            foreach(Node child in currentNode.Children)
+            {
+                ProcessMeshes(scene, child, ref collider);
             }
         }
 

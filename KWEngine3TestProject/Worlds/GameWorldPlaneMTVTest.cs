@@ -18,8 +18,8 @@ namespace KWEngine3TestProject.Worlds
         {
             SetCameraPosition(0, 5, 5);
 
-            KWEngine.LoadModel("Plane", "./Models/GLTFTest/Plane2.glb");
-            KWEngine.LoadModelCollider("Plane", "./Models/GLTFTest/Plane2.glb");
+            KWEngine.LoadModel("Plane", "./Models/OBJTest/PlaneRender.obj");
+            KWEngine.LoadModelCollider("Plane", "./Models/OBJTest/PlaneCollider.obj");
 
             Immovable i = new Immovable();
             i.SetModel("Plane");
