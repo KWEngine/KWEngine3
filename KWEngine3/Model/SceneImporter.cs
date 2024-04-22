@@ -196,6 +196,7 @@ namespace KWEngine3.Model
                 returnModel.IsKWCube6 = true;
             returnModel.Filename = filename;
             returnModel.Name = StripPathFromFile(filename);
+            returnModel.MeshCollider.Name = returnModel.Name;
             if (am == AssemblyMode.Internal)
             {
                 returnModel.PathAbsolute = "";
@@ -1146,7 +1147,7 @@ namespace KWEngine3.Model
             }
         }
 
-        public static GeoMeshCollider LoadCollider(string filename)
+        public static GeoMeshCollider LoadCollider(string filename, ColliderType colliderType)
         {
             GeoMeshCollider collider = null;
             filename = filename == null ? "" : filename.Trim();
@@ -1186,7 +1187,7 @@ namespace KWEngine3.Model
 
             if (type == FileType.GLTF)
             {
-                collider = SceneImporterGLTF.LoadCollider(filename);
+                collider = SceneImporterGLTF.LoadCollider(filename, colliderType);
                 return collider;
             }
             else
@@ -1211,7 +1212,7 @@ namespace KWEngine3.Model
                     return null;
                 }
 
-                collider = ProcessColliderScene(scene, filename);
+                collider = ProcessColliderScene(scene, filename, colliderType);
                 scene.Clear();
                 importer.Dispose();
 
@@ -1219,15 +1220,14 @@ namespace KWEngine3.Model
             }
         }
 
-        public static GeoMeshCollider ProcessColliderScene(Scene scene, string filename)
+        public static GeoMeshCollider ProcessColliderScene(Scene scene, string filename, ColliderType colliderType)
         {
-            
             if (scene.HasMeshes)
             {
                 GeoMeshCollider collider = new GeoMeshCollider();
                 collider.Name = scene.RootNode.Name;
                 GenerateNodeHierarchy(scene.RootNode, ref collider);
-                ProcessMeshes(scene, scene.RootNode, ref collider);
+                ProcessMeshes(scene, scene.RootNode, ref collider, colliderType);
 
                 return collider;
             }
@@ -1237,7 +1237,7 @@ namespace KWEngine3.Model
             }
         }
 
-        private static void ProcessMeshes(Scene scene, Node currentNode, ref GeoMeshCollider collider)
+        private static void ProcessMeshes(Scene scene, Node currentNode, ref GeoMeshCollider collider, ColliderType colliderType)
         {
             if(currentNode.HasMeshes)
             {
@@ -1307,13 +1307,14 @@ namespace KWEngine3.Model
                 hitbox.Model = null;
                 hitbox.Name = currentNode.Name;
                 hitbox.Transform = Matrix4.Identity;
+                hitbox._colliderType = colliderType;
                 FindTransformForMesh(ref collider, collider.Root, currentNode.Name, ref hitbox.Transform);
 
                 collider.MeshHitboxes.Add(hitbox);
             }
             foreach(Node child in currentNode.Children)
             {
-                ProcessMeshes(scene, child, ref collider);
+                ProcessMeshes(scene, child, ref collider, colliderType);
             }
         }
 

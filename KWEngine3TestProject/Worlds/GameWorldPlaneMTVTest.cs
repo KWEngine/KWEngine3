@@ -19,21 +19,20 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(0, 5, 5);
 
             KWEngine.LoadModel("Plane", "./Models/OBJTest/PlaneRender.obj");
-            KWEngine.LoadModelCollider("Plane", "./Models/OBJTest/PlaneCollider.obj");
+            KWEngine.LoadCollider("Plane", "./Models/OBJTest/PlaneCollider.obj", ColliderType.PlaneCollider);
 
             Immovable i = new Immovable();
             i.SetModel("Plane");
             i.IsCollisionObject = true;
-            i.SetCustomColliderModel("Plane");
+            i.SetColliderModel("Plane");
             i.IsShadowCaster = true;
             AddGameObject(i);
 
             Player p = new Player();
-            p.SetModel("KWCube");
+            p.SetModel("KWSphere");
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            
-            p.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
+            //p.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
             p.SetPosition(0.55f, 0.92f, -3f);
             AddGameObject(p);
 

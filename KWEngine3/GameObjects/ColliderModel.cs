@@ -9,6 +9,7 @@ namespace KWEngine3.GameObjects
     internal class ColliderModel
     {
         public List<GameObjectHitbox> _hitboxes = new();
-
+        public List<GameObjectHitbox> _hitboxesNew = new();
+        //public string _customName = null;
     }
 }

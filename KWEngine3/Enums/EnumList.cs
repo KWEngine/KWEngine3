@@ -102,7 +102,9 @@
     {
         None,
         Add,
-        Remove
+        Remove,
+        AddCustomRemoveDefault,
+        AddDefaultRemoveCustom
     }
 
     /// <summary>

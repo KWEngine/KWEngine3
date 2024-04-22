@@ -79,15 +79,24 @@ namespace KWEngine3.Editor
 
                 for (int j = 0; j < hb._mesh.Faces.Length; j++)
                 {
-                    if (hb.IsExtended)
+                    //if (hb.IsExtended)
+                    //{
+                    Span<Vector3> vertices = stackalloc Vector3[hb._mesh.Faces[j].VertexCount];
+                    hb.GetVerticesFromFace(j, ref vertices, out Vector3 currentFaceNormal);
+                    //hb.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
+                    float[] pos = new float[vertices.Length * 3];
+                    //int floatIndex = 0;
+                    for(int i = 0, floatIndex = 0; i < vertices.Length; i++, floatIndex += 3)
                     {
-                        hb.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
-                        float[] pos = new float[] { v1.X, v1.Y, v1.Z, v2.X, v2.Y, v2.Z, v3.X, v3.Y, v3.Z };
-                        GL.Uniform3(UVertexPositions, pos.Length / 3, pos);
-                        GL.Uniform1(UVertexCount, 3);
-                        GL.DrawArrays(PrimitiveType.Points, 0, 1);
+                        pos[floatIndex + 0] = vertices[i].X;
+                        pos[floatIndex + 1] = vertices[i].Y;
+                        pos[floatIndex + 2] = vertices[i].Z;
                     }
-                    else
+                    GL.Uniform3(UVertexPositions, pos.Length / 3, pos);
+                    GL.Uniform1(UVertexCount, pos.Length / 3);
+                    GL.DrawArrays(PrimitiveType.Points, 0, 1);
+                    //}
+                    /*else
                     {
                         hb.GetVerticesForCubeFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 currentFaceNormal);
                         
@@ -95,7 +104,7 @@ namespace KWEngine3.Editor
                         GL.Uniform3(UVertexPositions, pos.Length / 3, pos);
                         GL.Uniform1(UVertexCount, 4);
                         GL.DrawArrays(PrimitiveType.Points, 0, 1);
-                    }
+                    }*/
                 }
             }
 

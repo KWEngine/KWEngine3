@@ -1,5 +1,6 @@
 ﻿using KWEngine3.Helper;
 using KWEngine3.Model;
+using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -43,7 +44,61 @@ namespace KWEngine3.GameObjects
             }
             set
             {
+                if (this.ID > 0)
+                {
+                    if (_isCollisionObject != value)
+                    {
+                        KWEngine.CurrentWorld._gameObjectsColliderChange.Add(this);
+                        if (value == true)
+                        {
+                            _addRemoveHitboxes = AddRemoveHitboxMode.Add;
+                        }
+                        else
+                        {
+                            _addRemoveHitboxes = AddRemoveHitboxMode.Remove;
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("!!");
+                }
                 _isCollisionObject = value;
+            }
+
+        }
+
+        /// <summary>
+        /// Löscht ein ggf. verwendetes benutzerdefiniertes Collider-Modell für die aktuelle Instanz
+        /// </summary>
+        public void UnsetColliderModel()
+        {
+            if (this.ID > 0)
+            {
+                KWEngine.CurrentWorld._gameObjectsColliderChange.Add(this);
+                _addRemoveHitboxes = AddRemoveHitboxMode.AddDefaultRemoveCustom;
+                _colliderModel._hitboxesNew.Clear();
+                foreach(GeoMeshHitbox gmh in this._model.ModelOriginal.MeshCollider.MeshHitboxes)
+                {
+                    _colliderModel._hitboxesNew.Add(new GameObjectHitbox(this, gmh));
+                }
+            }
+            else
+            {
+                foreach (GameObjectHitbox ghb in _colliderModel._hitboxes)
+                {
+                    if (ghb.IsActive)
+                        KWEngine.CurrentWorld._gameObjectHitboxes.Remove(ghb);
+                }
+                _colliderModel._hitboxes.Clear();
+
+                foreach (GeoMeshHitbox gmh in _model.ModelOriginal.MeshCollider.MeshHitboxes)
+                {
+                    GameObjectHitbox ghbNew = new GameObjectHitbox(this, gmh);
+                    _colliderModel._hitboxes.Add(ghbNew);
+                }
+                UpdateModelMatrixAndHitboxes();
+                HelperSweepAndPrune.SweepAndPrune();
             }
         }
 
@@ -51,36 +106,42 @@ namespace KWEngine3.GameObjects
         /// Setzt ein benutzerdefiniertes Collider-Modell für die GameObject-Instanz (muss zuvor via KWEngine.LoadModelCollider() importiert worden sein)
         /// </summary>
         /// <param name="colliderModelName">Name des Collider-Modells</param>
-        public void SetCustomColliderModel(string colliderModelName)
+        public void SetColliderModel(string colliderModelName)
         {
-            /*
-            ColliderType valueBefore = _colliderType;
-            _colliderType = ct;
-
-            if (valueBefore == ColliderType.ConvexHull && _colliderType == ColliderType.PlaneCollider)
+            if (KWEngine.CustomColliders.ContainsKey(colliderModelName) == false)
             {
-
+                KWEngine.LogWriteLine("[GameObject] Cannot set custom collider model - name not found in database");
+                return;
             }
-            else if (valueBefore == ColliderType.PlaneCollider && _colliderType == ColliderType.ConvexHull)
-            {
 
+            if (this.ID > 0)
+            {
+                if (_isCollisionObject == true)
+                {
+                    KWEngine.CurrentWorld._gameObjectsColliderChange.Add(this);
+                    _addRemoveHitboxes = AddRemoveHitboxMode.AddCustomRemoveDefault;
+                }
             }
             else
             {
-                if (this.ID > 0)
+                foreach (GameObjectHitbox ghb in _colliderModel._hitboxes)
                 {
-                    KWEngine.CurrentWorld._gameObjectsColliderChange.Add(this);
-                    if (_colliderType == ColliderType.None)
-                    {
-                        _addRemoveHitboxes = AddRemoveHitboxMode.Remove;
-                    }
-                    else
-                    {
-                        _addRemoveHitboxes = AddRemoveHitboxMode.Add;
-                    }
+                    if (ghb.IsActive)
+                        KWEngine.CurrentWorld._gameObjectHitboxes.Remove(ghb);
                 }
+                _colliderModel._hitboxes.Clear();
+                
+
+                GeoMeshCollider meshCollider = KWEngine.CustomColliders[colliderModelName];
+                foreach(GeoMeshHitbox gmh in meshCollider.MeshHitboxes)
+                {
+                    GameObjectHitbox ghbNew = new GameObjectHitbox(this, gmh);
+                    _colliderModel._hitboxes.Add(ghbNew);
+                    KWEngine.CurrentWorld._gameObjectHitboxes.Add(ghbNew);
+                }
+                UpdateModelMatrixAndHitboxes();
+                HelperSweepAndPrune.SweepAndPrune();
             }
-            */
         }
 
         /// <summary>
@@ -199,7 +260,7 @@ namespace KWEngine3.GameObjects
             }
             return null;
         }
-        /*
+        
         /// <summary>
         /// Prüft auf Kollisionen mit PlaneCollider-Instanzen (EXPERIMENTELL)
         /// </summary>
@@ -217,37 +278,43 @@ namespace KWEngine3.GameObjects
         public List<Intersection> GetIntersectionsWithPlaneColliders(Vector3 offset)
         {
             List<Intersection> intersections = new();
-            if (_colliderType == ColliderType.ConvexHull)
+            
+            foreach (GameObjectHitbox ghb in _collisionCandidates)
             {
-                foreach (GameObjectHitbox ghb in _collisionCandidates)
+                if (ghb._colliderType == ColliderType.PlaneCollider)
                 {
-                    if (ghb.Owner._colliderType == ColliderType.PlaneCollider)
+                    foreach (GameObjectHitbox hbcaller in _colliderModel._hitboxes)
                     {
-                        foreach (GameObjectHitbox hbcaller in _hitboxes)
+                        if (hbcaller.IsActive == false)
+                            continue;
+
+                        List<Vector3> normals = new();
+                        foreach (GeoMeshFace face in ghb._mesh.Faces)
                         {
-                            List<Vector3> normals = new();
-                            foreach (GeoMeshFace face in ghb._mesh.Faces)
+                            Vector3 n = ghb._normals[face.Normal] * (face.Flip ? -1f : 1f);
+                            List<Vector3> faceVertices = new();
+                            Vector3 centerTemp = Vector3.Zero;
+                            foreach(int fvi in face.Vertices)
                             {
-                                Vector3 n = ghb._normals[face.Normal] * (face.Flip ? -1f : 1f);
+                                faceVertices.Add(ghb._vertices[fvi]);
+                                centerTemp += faceVertices[faceVertices.Count - 1];
+                            }
+                            centerTemp /= face.VertexCount;
 
-                                Vector3 a = ghb._vertices[face.Vertices[0]];
-                                Vector3 b = ghb._vertices[face.Vertices[1]];
-                                Vector3 c = ghb._vertices[face.Vertices[2]];
-
-                                Intersection i = HelperIntersection.TestIntersectionForPlaneFace(hbcaller, a, b, c, n, offset, ghb);
-                                if (i != null && normals.Contains(i.MTV) == false)
-                                {
-                                    normals.Add(i.MTV);
-                                    intersections.Add(i);
-                                }
+                            Intersection i = HelperIntersection.TestIntersectionForPlaneFace(hbcaller, faceVertices, n, centerTemp, offset, ghb);
+                            if (i != null && normals.Contains(i.MTV) == false)
+                            {
+                                normals.Add(i.MTV);
+                                intersections.Add(i);
                             }
                         }
                     }
                 }
             }
+            
             return intersections;
         }
-        */
+        
 
         /// <summary>
         /// Prüft, ob das Objekt gerade mit anderen Objekten kollidiert und gibt die erstbeste Kollision zurück
@@ -866,18 +933,23 @@ namespace KWEngine3.GameObjects
                 {
                     for (int j = 0; j < hb._mesh.Faces.Length; j++)
                     {
-                        if (hb.IsExtended)
-                        {
-                            if(hb.GetVerticesForTriangleFace(j, rayDirection, out HitboxFace face))
+                        //if (hb.IsExtended)
+                        //{
+                            GeoMeshFace f = hb._mesh.Faces[j];
+                            Span<Vector3> faceVertices = stackalloc Vector3[f.Vertices.Length];
+                            hb.GetVerticesFromFace(j, ref faceVertices, out Vector3 currentFaceNormal);
+
+                            if (hb.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace face))
                             {
                                 face.Owner = hb;
                                 selectedFaces.Add(face);
                                 facesFound = true;
                             }
-                        }
+                        //}
+                        /*
                         else
                         {
-                            if(hb.GetVerticesForCubeFace(j, rayDirection, out HitboxFace face1, out HitboxFace face2))
+                            if(hb.GetVerticesForCubeFaceAndCheckAngle(j, rayDirection, out HitboxFace face1, out HitboxFace face2))
                             {
                                 facesFound = true;
                                 face1.Owner = hb;
@@ -886,6 +958,7 @@ namespace KWEngine3.GameObjects
                                 selectedFaces.Add(face2);
                             }
                         }
+                        */
                     }
                 }
             }
@@ -949,7 +1022,7 @@ namespace KWEngine3.GameObjects
                 {
                     for(int i = 0; i < rayOrigins.Length; i++)
                     {
-                        bool hit = HelperIntersection.RayTriangleIntersection(rayOrigins[i], rayDirection, face.V1, face.V2, face.V3, out Vector3 currentContact);
+                        bool hit = HelperIntersection.RayNGonIntersection(rayOrigins[i], rayDirection, face.Normal, face.Vertices, out Vector3 currentContact);
                         if (hit)
                         {
                             Vector3 delta = rayOrigins[i] + (offset * 2f) - currentContact;
@@ -1186,6 +1259,10 @@ namespace KWEngine3.GameObjects
             if (this.ID > 0)
             {
                 RemoveHitboxesFromWorldHitboxList();
+            }
+            if(_colliderModel == null)
+            {
+                _colliderModel = new ColliderModel();
             }
             _colliderModel._hitboxes.Clear();
             foreach(GeoMeshHitbox gmh in _model.ModelOriginal.MeshCollider.MeshHitboxes)

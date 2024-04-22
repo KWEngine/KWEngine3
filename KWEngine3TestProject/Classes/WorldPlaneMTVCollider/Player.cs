@@ -38,13 +38,13 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 MoveOffset(0f, +0.01f, 0f);
             }
             
-            /*
+            
             List<Intersection> it = GetIntersectionsWithPlaneColliders();
             foreach(Intersection i in it)
             {
                 MoveOffset(i.MTV);
             }
-            */
+            
             
         }
     }

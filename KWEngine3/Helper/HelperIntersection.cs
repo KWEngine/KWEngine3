@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using Assimp;
+using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
@@ -746,21 +747,28 @@ namespace KWEngine3.Helper
             faceNormal = Vector3.Zero;
             for (int j = 0; j < hb._mesh.Faces.Length; j++)
             { 
-                if (hb.IsExtended)
-                {
-                    hb.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
-                    float dot = Vector3.Dot(rayDirection, currentFaceNormal);
-                    if (dot < 0)
+                //if (hb.IsExtended)
+                //{
+                    Span<Vector3> faceVertices = stackalloc Vector3[hb._mesh.Faces[j].VertexCount];
+                    if(hb.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace currentFace))
                     {
-                        bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
+                        bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
+                        //bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
                         if (hit)
                         {
-                            faceNormal = currentFaceNormal;
+                            faceNormal = currentFace.Normal;
                             intersectionPoint = currentContact;
                             return true;
                         }
                     }
-                }
+                    //hb.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
+                    //float dot = Vector3.Dot(rayDirection, currentFaceNormal);
+                    //if (dot < 0)
+                    //{
+                        
+                    //}
+                //}
+                /*
                 else
                 {
                     hb.GetVerticesForCubeFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 currentFaceNormal);
@@ -781,6 +789,7 @@ namespace KWEngine3.Helper
                         }
                     }
                 }
+                */
             }
             return false;
         }
@@ -818,16 +827,17 @@ namespace KWEngine3.Helper
 
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
-                    if (currentHitbox.IsExtended)
-                    {
-                        currentHitbox.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
+                    //if (currentHitbox.IsExtended)
+                    //{
+                        GeoMeshFace face = currentHitbox._mesh.Faces[j];
+                        Span<Vector3> faceVertices = stackalloc Vector3[face.Vertices.Length];
+                        currentHitbox.GetVerticesFromFace(j, ref faceVertices, out Vector3 currentFaceNormal);
                         float dot = Vector3.Dot(rayDirection, currentFaceNormal);
                         if (dot < 0)
                         {
-                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
+                            bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFaceNormal, ref faceVertices, out Vector3 currentContact);
                             if (hit)
                             {
-
                                 float currentDistance = (rayOrigin - currentContact).LengthSquared;
                                 if (currentDistance < minDistance)
                                 {
@@ -839,8 +849,8 @@ namespace KWEngine3.Helper
                                 }
                             }
                         }
-                    }
-                    else
+                    //}
+                    /*else
                     {
                         currentHitbox.GetVerticesForCubeFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 currentFaceNormal);
                         float dot = Vector3.Dot(rayDirection, currentFaceNormal);
@@ -865,7 +875,7 @@ namespace KWEngine3.Helper
                                 }
                             }
                         }
-                    }
+                    }*/
                 }
             }
             return resultSum > 0;
@@ -1027,6 +1037,18 @@ namespace KWEngine3.Helper
 
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
+                    Span<Vector3> faceVertices = stackalloc Vector3[currentHitbox._mesh.Faces[j].VertexCount];
+                    if (currentHitbox.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace currentFace))
+                    {
+                        bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
+                        if (hit)
+                        {
+                            return true;
+                        }
+                    }
+
+
+                    /*
                     if (currentHitbox.IsExtended)
                     {
                         currentHitbox.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
@@ -1057,6 +1079,7 @@ namespace KWEngine3.Helper
                             }
                         }
                     }
+                    */
                 }
             }
             return false;
@@ -1131,6 +1154,17 @@ namespace KWEngine3.Helper
 
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
+                    Span<Vector3> faceVertices = stackalloc Vector3[currentHitbox._mesh.Faces[j].VertexCount];
+                    if (currentHitbox.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace currentFace))
+                    {
+                        bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
+                        if (hit)
+                        {
+                            return true;
+                        }
+                    }
+
+                    /*
                     if (currentHitbox.IsExtended)
                     {
                         currentHitbox.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
@@ -1161,6 +1195,7 @@ namespace KWEngine3.Helper
                             }
                         }
                     }
+                    */
                 }
             }
             return false;
@@ -1494,20 +1529,10 @@ namespace KWEngine3.Helper
         internal static Vector3[] _planeVertices = new Vector3[3];
         internal static Vector3[] _planeNormals = new Vector3[1];
         internal const float ONETHIRD = 1f / 3f;
-        internal static Intersection TestIntersectionForPlaneFace(GameObjectHitbox caller, Vector3 v1, Vector3 v2, Vector3 v3, Vector3 n, Vector3 offset, GameObjectHitbox collider)
+        internal static Intersection TestIntersectionForPlaneFace(GameObjectHitbox caller, List<Vector3> vertices, Vector3 n, Vector3 center, Vector3 offset, GameObjectHitbox collider)
         {
             _planeNormals[0] = n;
-
-            _planeVertices[0] = v1;
-            _planeVertices[1] = v2;
-            _planeVertices[2] = v3;
-            Vector3 center = (v1 + v2 + v3) * ONETHIRD;
-            //_planeVertices[3] = center + (-n * 10000);
-
-            /*_planeNormals[1] = CalculateSurfaceNormal(v2, v1, _planeVertices[3]);
-            _planeNormals[2] = CalculateSurfaceNormal(_planeVertices[3], v1, v3);
-            _planeNormals[3] = CalculateSurfaceNormal(_planeVertices[3], v3, v2);*/
-
+            _planeVertices = vertices.ToArray();
 
             float mtvDistance = float.MaxValue;
             float mtvDirection = 1;
@@ -1898,6 +1923,52 @@ namespace KWEngine3.Helper
 
             return true;
         }
+
+        internal static bool RayNGonIntersection(Vector3 rayStart, Vector3 rayDirection, Vector3 normal, Vector3[] vertices, out Vector3 contactPoint)
+        {
+            bool planeWasHit = LinePlaneIntersection(out contactPoint, rayDirection, rayStart, normal, vertices[0]);
+            if (planeWasHit)
+            {
+                // check for every edge of the n-gon if the contact point is perpendicular to it
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    Vector3 b = vertices[(i + 1) % vertices.Length];
+                    Vector3 a = vertices[i];
+                    float mp = Vector3.Dot(Vector3.Cross(b - a, contactPoint - a), normal);
+                    if (mp < 0)
+                        return false;
+                }
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal static bool RayNGonIntersection(Vector3 rayStart, Vector3 rayDirection, Vector3 normal, ref Span<Vector3> vertices, out Vector3 contactPoint)
+        {
+            bool planeWasHit = LinePlaneIntersection(out contactPoint, rayDirection, rayStart, normal, vertices[0]);
+            if(planeWasHit)
+            {
+                // check for every edge of the n-gon if the contact point is perpendicular to it
+                for(int i = 0; i < vertices.Length; i++)
+                {
+                    Vector3 b = vertices[(i + 1) % vertices.Length];
+                    Vector3 a = vertices[i];
+                    float mp = Vector3.Dot(Vector3.Cross(b - a, contactPoint - a), normal);
+                    if (mp < 0)
+                        return false;
+                }
+                return true;
+            }
+            else
+            {
+                contactPoint = Vector3.Zero;
+                return false;
+            }
+        }
+
         internal static bool RayTriangleIntersection(Vector3 rayStart, Vector3 rayDirection, Vector3 vertex0, Vector3 vertex1, Vector3 vertex2, out Vector3 contactPoint)
         {
             

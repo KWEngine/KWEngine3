@@ -681,11 +681,12 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Importiert ein 3D-Collidermodell unter dem angegebenen Namen
+        /// Importiert ein 3D-Collider-Modell unter dem angegebenen Namen
         /// </summary>
-        /// <param name="name">Name, unter dem das Collidermodell gespeichert werden soll</param>
-        /// <param name="filename">Dateiname des Collidermodells</param>
-        public static void LoadModelCollider(string name, string filename)
+        /// <param name="name">Name, unter dem das Collider-Modell gespeichert werden soll</param>
+        /// <param name="filename">Dateiname des Collider-Modells</param>
+        /// <param name="colliderType">Art des Collider-Modells</param>
+        public static void LoadCollider(string name, string filename, ColliderType colliderType)
         {
             filename = filename == null ? "" : filename.Trim();
             MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
@@ -707,9 +708,10 @@ namespace KWEngine3
             }
             else
             {
-                GeoMeshCollider c = SceneImporter.LoadCollider(filename);
+                GeoMeshCollider c = SceneImporter.LoadCollider(filename, colliderType);
                 if (c != null)
                 {
+                    c.FileName = filename;
                     c.Name = name;
                     CustomColliders.Add(name, c);
                 }

@@ -2,6 +2,7 @@
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
+using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Mathematics;
 using System.Reflection;
@@ -359,7 +360,47 @@ namespace KWEngine3
                             }
                         }
                     }
+                    else if(g._addRemoveHitboxes == AddRemoveHitboxMode.AddCustomRemoveDefault)
+                    {
+                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
+                        {
+                            if (hb.IsActive)
+                            {
+                                bool result = _gameObjectHitboxes.Remove(hb);
+                            }
+                        }
+                        g._colliderModel._hitboxes.Clear();
+                        g._colliderModel._hitboxes.AddRange(g._colliderModel._hitboxesNew);
+                        g._colliderModel._hitboxesNew.Clear();
 
+                        foreach (GameObjectHitbox gmh in g._colliderModel._hitboxes)
+                        {
+                            if (gmh.IsActive && !_gameObjectHitboxes.Contains(gmh))
+                                _gameObjectHitboxes.Add(gmh);
+                        }
+                        g.UpdateModelMatrixAndHitboxes();
+                    }
+                    else if(g._addRemoveHitboxes == AddRemoveHitboxMode.AddDefaultRemoveCustom)
+                    {
+                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
+                        {
+                            if (hb.IsActive)
+                            {
+                                bool result = _gameObjectHitboxes.Remove(hb);
+                            }
+                        }
+
+                        g._colliderModel._hitboxes.Clear();
+                        g._colliderModel._hitboxes.AddRange(g._colliderModel._hitboxesNew);
+                        g._colliderModel._hitboxesNew.Clear();
+
+                        foreach (GameObjectHitbox gmh in g._colliderModel._hitboxes)
+                        {
+                            if (gmh.IsActive && !_gameObjectHitboxes.Contains(gmh))
+                                _gameObjectHitboxes.Add(gmh);
+                        }
+                        g.UpdateModelMatrixAndHitboxes();
+                    }
                     g._addRemoveHitboxes = AddRemoveHitboxMode.None;
                 }
                 _gameObjectsColliderChange.Clear();
@@ -886,9 +927,9 @@ namespace KWEngine3
                 return;
             }
 
+
             if (!_gameObjects.Contains(g) && !_gameObjectsToBeAdded.Contains(g))
             {
-                // TODO
                 g.ID = _availableGameObjectIDs.Dequeue();
                 _gameObjectsToBeAdded.Add(g);
             }
@@ -896,7 +937,6 @@ namespace KWEngine3
             {
                 KWEngine.LogWriteLine("[GameObject] Object " + g.Name + " already in world.");
             }
-
         }
 
         /// <summary>

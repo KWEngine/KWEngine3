@@ -1785,7 +1785,7 @@ namespace KWEngine3.Model
             return tangents;
         }
 
-        public static GeoMeshCollider LoadCollider(string filename)
+        public static GeoMeshCollider LoadCollider(string filename, ColliderType colliderType)
         {
             GeoMeshCollider collider = new GeoMeshCollider();
 

@@ -9,6 +9,7 @@ namespace KWEngine3.Model
     internal class GeoMeshCollider
     {
         public string Name { get; set; } = "";
+        public string FileName { get; set; } = "";
         public GeoNode Root { get; set; } = null;
         public List<GeoMeshHitbox> MeshHitboxes = new();
 

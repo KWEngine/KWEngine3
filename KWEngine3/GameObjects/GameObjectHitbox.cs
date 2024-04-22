@@ -44,7 +44,7 @@ namespace KWEngine3.GameObjects
         {
             Owner = owner;
             _mesh = mesh;
-
+            _colliderType = mesh._colliderType;
             _isCapsule = true;
             _capsulePreTransform =  Matrix4.CreateScale(backtopright.X - frontbottomleft.X, backtopright.Y - frontbottomleft.Y, frontbottomleft.Z - backtopright.Z) * Matrix4.CreateTranslation(offset);
 
@@ -63,7 +63,7 @@ namespace KWEngine3.GameObjects
         {
             Owner = owner;
             _mesh = mesh;
-           
+            _colliderType = mesh._colliderType;
             if (_mesh.IsExtended)
             {
                 _vertices = new Vector3[mesh.Vertices.Length];
@@ -184,6 +184,39 @@ namespace KWEngine3.GameObjects
             return vertices;
         }
 
+        internal void GetVerticesFromFace(int faceIndex, ref Span<Vector3> vertices, out Vector3 normal)
+        {
+            GeoMeshFace face = _mesh.Faces[faceIndex];
+            for(int i  = 0; i < face.VertexCount; i++)
+            {
+                vertices[i] = _vertices[face.Vertices[i]];
+            }
+            normal = _normals[_mesh.Faces[faceIndex].Normal];
+        }
+
+        internal bool GetVerticesFromFaceAndCheckAngle(int faceIndex, Vector3 dir, ref Span<Vector3> vertices, out HitboxFace hitboxface)
+        {
+            GeoMeshFace face = _mesh.Faces[faceIndex];
+            Vector3 n = _normals[_mesh.Faces[faceIndex].Normal];
+            float dot = Vector3.Dot(dir, n);
+            if (dot >= 0)
+            {
+                hitboxface = new HitboxFace();
+                return false;
+            }
+
+            for (int i = 0; i < face.VertexCount; i++)
+            {
+                vertices[i] = _vertices[face.Vertices[i]];
+            }
+            hitboxface = new HitboxFace()
+            {
+                Normal = n,
+                Vertices = vertices.ToArray()
+            };
+            return true;
+        }
+        /*
         internal void GetVerticesForTriangleFace(int faceIndex, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 normal)
         {
             v1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]];
@@ -192,7 +225,7 @@ namespace KWEngine3.GameObjects
             normal = _normals[_mesh.Faces[faceIndex].Normal];
         }
 
-        internal bool GetVerticesForTriangleFace(int faceIndex, Vector3 dir, out HitboxFace face)
+        internal bool GetVerticesForTriangleFaceAndCheckAngle(int faceIndex, Vector3 dir, out HitboxFace face)
         {
             face = new HitboxFace()
             {
@@ -205,7 +238,9 @@ namespace KWEngine3.GameObjects
             float dot = Vector3.Dot(dir, face.Normal);
             return dot < 0;            
         }
+        */
 
+        /*
         internal void GetVerticesForCubeFace(int faceIndex, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 normal)
         {
             Vector3 qv1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]];
@@ -223,8 +258,10 @@ namespace KWEngine3.GameObjects
 
             normal = _mesh.Faces[faceIndex].Flip ? -_normals[_mesh.Faces[faceIndex].Normal] : _normals[_mesh.Faces[faceIndex].Normal];
         }
+        */
 
-        internal bool GetVerticesForCubeFace(int faceIndex, Vector3 dir, out HitboxFace face1, out HitboxFace face2)
+        /*
+        internal bool GetVerticesForCubeFaceAndCheckAngle(int faceIndex, Vector3 dir, out HitboxFace face1, out HitboxFace face2)
         {
             Vector3 qv1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]];
             Vector3 qv2 = _vertices[_mesh.Faces[faceIndex].Vertices[1]];
@@ -250,6 +287,7 @@ namespace KWEngine3.GameObjects
             float dot = Vector3.Dot(dir, face1.Normal);
             return dot < 0;
         }
+        */
 
         internal const float ONETHIRD = 1f / 3f;
     }

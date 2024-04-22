@@ -1,8 +1,5 @@
 ﻿using Assimp;
 using OpenTK.Mathematics;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
 
 namespace KWEngine3.Model
 {
@@ -35,7 +32,7 @@ namespace KWEngine3.Model
 
         public GeoModel Model { get; internal set; } = null;
 
-
+        internal ColliderType _colliderType = ColliderType.ConvexHull;
 
         public GeoMeshHitbox(float maxX, float maxY, float maxZ, float minX, float minY, float minZ, Mesh meshData = null)
         {
