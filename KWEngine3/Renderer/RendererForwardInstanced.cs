@@ -139,8 +139,8 @@ namespace KWEngine3.Renderer
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
 
-            TextureUnit currentTextureUnit = TextureUnit.Texture5;
-            int currentTextureNumber = 5;
+            TextureUnit currentTextureUnit = TextureUnit.Texture6;
+            int currentTextureNumber = 6;
             // upload shadow maps (tex2d):
             int i;
             for (i = 0; i < KWEngine.CurrentWorld._preparedTex2DIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)

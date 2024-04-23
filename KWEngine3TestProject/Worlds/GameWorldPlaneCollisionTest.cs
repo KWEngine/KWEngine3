@@ -37,7 +37,7 @@ namespace KWEngine3TestProject.Worlds
             SetColorAmbient(0.5f, 0.5f, 0.5f);
 
             KWEngine.LoadModel("Beach_Render", "./Models/GLTFTest/WorldADV03_Beach_Map.obj");
-            KWEngine.LoadModel("Beach_Planes", "./Models/GLTFTest/WorldADV03_Beach_Floors.glb");
+            KWEngine.LoadCollider("Beach_Planes", "./Models/GLTFTest/WorldADV03_Beach_Floors.glb", ColliderType.PlaneCollider);
             KWEngine.LoadModel("Beach_Hitboxes", "./Models/GLTFTest/WorldADV03_Beach_Hitboxes.glb");
             KWEngine.LoadModel("Toon", "./Models/PlatformerPack/Toon.glb");
             KWEngine.LoadModel("Bee", "./Models/PlatformerPack/Bee.gltf");
@@ -51,7 +51,7 @@ namespace KWEngine3TestProject.Worlds
             AddRenderObject(r);
 
             Immovable beachPlanes = new Immovable();
-            beachPlanes.SetModel("Beach_Planes");
+            beachPlanes.SetColliderModel("Beach_Planes");
             beachPlanes.Name = "Beach Collider Planes";
             beachPlanes.IsCollisionObject = true;
             beachPlanes.SetOpacity(0);
