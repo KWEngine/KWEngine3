@@ -10,6 +10,7 @@ namespace KWEngine3.Model
     {
         public string Name { get; set; } = "";
         public string FileName { get; set; } = "";
+        public int GlbOffset = -1;
         public GeoNode Root { get; set; } = null;
         public List<GeoMeshHitbox> MeshHitboxes = new();
 
