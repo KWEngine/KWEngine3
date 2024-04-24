@@ -722,7 +722,7 @@ namespace KWEngine3.Model
 
         private static int GetGlbOffset(string path, ref GeoMeshCollider collider)
         {
-            if(path.ToLower().EndsWith(".glb"))
+            if(!path.ToLower().EndsWith(".glb"))
             {
                 return 0;
             }
@@ -910,6 +910,71 @@ namespace KWEngine3.Model
             return data;
         }
 
+        private static byte[] GetByteDataFromAccessor(Gltf scene, Accessor a, ref GeoMeshCollider collider)
+        {
+            if (a == null)
+                return null;
+
+            int accessorOffset = a.ByteOffset;
+            int accessorCount = a.Count;
+            int bufferViewId = (int)a.BufferView;
+
+            BufferView bufferView = scene.BufferViews[bufferViewId];
+            int bufferViewStride = bufferView.ByteStride == null ? 0 : (int)bufferView.ByteStride;
+            int bufferViewLength = bufferView.ByteLength;
+            int bufferViewOffset = bufferView.ByteOffset;
+            byte[] data = new byte[bufferViewLength];
+            if (collider.FileName.ToLower().EndsWith(".glb"))
+            {
+
+                using (FileStream stream = File.Open(collider.FileName, FileMode.Open, FileAccess.Read))
+                {
+
+                    stream.Position = collider.GlbOffset + accessorOffset + bufferViewOffset;
+                    if (bufferViewStride == 0)
+                    {
+                        stream.Read(data, 0, bufferViewLength);
+                    }
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
+                        return null;
+                    }
+                }
+            }
+            else
+            {
+                glTFLoader.Schema.Buffer buffer = scene.Buffers[bufferView.Buffer];
+                if (buffer.Uri.StartsWith("data:application/octet-stream;base64"))
+                {
+                    if (bufferViewStride == 0)
+                        data = GetDataFromBase64Stream(a, bufferViewLength, accessorOffset + bufferViewOffset, buffer.Uri);
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
+                        return null;
+                    }
+                }
+                else
+                {
+                    using (FileStream stream = File.Open(collider.FileName + Path.AltDirectorySeparatorChar + buffer.Uri, FileMode.Open, FileAccess.Read))
+                    {
+                        stream.Position = accessorOffset + bufferViewOffset;
+                        if (bufferViewStride == 0)
+                        {
+                            stream.Read(data, 0, bufferViewLength);
+                        }
+                        else
+                        {
+                            KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
+                            return null;
+                        }
+                    }
+                }
+            }
+            return data;
+        }
+
         private static byte[] GetDataFromBase64Stream(Accessor accessor, int bytesToCopy, int offset, string uri)
         {
             int commapos = uri.IndexOf(',');
@@ -1027,10 +1092,12 @@ namespace KWEngine3.Model
                 if (bytesPerData == 1)
                 {
                     verticesData[j++] = data[i];
+                    //TODO: CAUTION - this method will not work if this branch is entered
                 }
                 else if (bytesPerData == 2)
                 {
                     verticesData[j++] = BitConverter.ToUInt16(data, i);
+                    //TODO: CAUTION - this method will not work if this branch is entered
                 }
                 else
                 {
@@ -1149,7 +1216,7 @@ namespace KWEngine3.Model
             return verticesArray.ToArray();
         }
 
-        private static GeoVertex[] GetVertexDataForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoMeshCollider collider, Node node, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, out List<Vector3> uniqueVertices)
+        private static List<Vector3> GetVertexDataForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoMeshCollider collider, Node node, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, ref List<Vector3> uniqueVertices)
         {
             xmin = float.MaxValue;
             xmax = float.MinValue;
@@ -1157,46 +1224,28 @@ namespace KWEngine3.Model
             ymax = float.MinValue;
             zmin = float.MaxValue;
             zmax = float.MinValue;
-            uniqueVertices = new List<Vector3>();
+
+            List<Vector3> verticesArray = new();
 
             int vertexIndex = mprim.Attributes["POSITION"];
-            int bonesIndex = mprim.Attributes.ContainsKey("JOINTS_0") ? mprim.Attributes["JOINTS_0"] : -1;
-            int weightsIndex = mprim.Attributes.ContainsKey("WEIGHTS_0") ? mprim.Attributes["WEIGHTS_0"] : -1;
+            
             Accessor indexAccessor = scene.Accessors[vertexIndex];
-            Accessor bonesAccessor = null;
-            Accessor weightsAccessor = null;
-            if (bonesIndex >= 0 && weightsIndex >= 0)
-            {
-                bonesAccessor = scene.Accessors[bonesIndex];
-                weightsAccessor = scene.Accessors[weightsIndex];
-            }
-
             byte[] data = GetByteDataFromAccessor(scene, indexAccessor, ref collider);
-            byte[] dataBones = GetByteDataFromAccessor(scene, bonesAccessor, ref collider);
-            byte[] dataWeights = GetByteDataFromAccessor(scene, weightsAccessor, ref collider);
 
             int bytesPerData = GetBytesPerData(indexAccessor);
-            int bytesPerDataBones = GetBytesPerData(bonesAccessor);
-            int bytesPerDataWeights = GetBytesPerData(weightsAccessor);
-            uint[] bonesData = null;
-            float[] weightsData = null;
 
             float[] verticesData = new float[data.Length / bytesPerData];
-            if (bytesPerDataBones > 0 && bytesPerDataWeights > 0)
-            {
-                bonesData = new uint[dataBones.Length / bytesPerDataBones];
-                weightsData = new float[dataWeights.Length / bytesPerDataWeights];
-            }
-            List<GeoVertex> verticesArray = new List<GeoVertex>();
             for (int i = 0, j = 0, cswitch = 0; i < data.Length; i += bytesPerData)
             {
                 if (bytesPerData == 1)
                 {
                     verticesData[j++] = data[i];
+                    //TODO: CAUTION - this method will not work if this branch is entered
                 }
                 else if (bytesPerData == 2)
                 {
                     verticesData[j++] = BitConverter.ToUInt16(data, i);
+                    //TODO: CAUTION - this method will not work if this branch is entered
                 }
                 else
                 {
@@ -1224,23 +1273,20 @@ namespace KWEngine3.Model
                             zmax = verticesData[j];
 
                         Vector3 tmpVertex = new Vector3(verticesData[j - 2], verticesData[j - 1], verticesData[j]);
-                        verticesArray.Add(new GeoVertex(j, tmpVertex.X, tmpVertex.Y, tmpVertex.Z)); // moved from down below (testing)
+                        verticesArray.Add(tmpVertex);
 
-                        if (node.Name.ToLower().Contains("_fullhitbox"))
+                        bool add = true;
+                        for (int k = 0; k < uniqueVertices.Count; k++)
                         {
-                            bool add = true;
-                            for (int k = 0; k < uniqueVertices.Count; k++)
+                            if (uniqueVertices[k].X == tmpVertex.X && uniqueVertices[k].Y == tmpVertex.Y && uniqueVertices[k].Z == tmpVertex.Z)
                             {
-                                if (uniqueVertices[k].X == tmpVertex.X && uniqueVertices[k].Y == tmpVertex.Y && uniqueVertices[k].Z == tmpVertex.Z)
-                                {
-                                    add = false;
-                                    break;
-                                }
+                                add = false;
+                                break;
                             }
-                            if (add)
-                            {
-                                uniqueVertices.Add(tmpVertex);
-                            }
+                        }
+                        if (add)
+                        {
+                            uniqueVertices.Add(tmpVertex);
                         }
                     }
 
@@ -1248,7 +1294,7 @@ namespace KWEngine3.Model
                     j++;
                 }
             }
-            return verticesArray.ToArray();
+            return verticesArray;
         }
 
         private static int FillGeoVertexWithBoneIdsAndWeights(uint b0, uint b1, uint b2, uint b3, float w0, float w1, float w2, float w3, ref GeoVertex vertex, out List<int> boneIds)
@@ -1397,7 +1443,7 @@ namespace KWEngine3.Model
         }
 
 
-        private static uint[] GetIndicesForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoMeshCollider collider)
+        private static List<uint> GetIndicesForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoMeshCollider collider)
         {
             int indicesIndex = (int)mprim.Indices;
             Accessor indexAccessor = scene.Accessors[indicesIndex];
@@ -1470,7 +1516,7 @@ namespace KWEngine3.Model
                     indicesData[j++] = BitConverter.ToUInt32(data, i);
                 }
             }
-            return indicesData;
+            return indicesData.ToList();
         }
 
         private static uint[] GetIndicesForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoModel model)
@@ -2005,17 +2051,17 @@ namespace KWEngine3.Model
                 KWEngine.LogWriteLine("[Import] Cannot find collider model " + filename);
                 return collider;
             }
-            Gltf scene;
+            Gltf wholeScene;
             try
             {
-                scene = Interface.LoadModel(filename);
+                wholeScene = Interface.LoadModel(filename);
             }
             catch (Exception)
             {
                 KWEngine.LogWriteLine("[Import] Invalid collider model file: " + filename);
                 return null;
             }
-            if (scene.Scenes.Length != 1)
+            if (wholeScene.Scenes.Length != 1)
             {
                 KWEngine.LogWriteLine("[Import] Collider file " + filename + " contains of more than one scene. This is not supported.");
                 return collider;
@@ -2024,10 +2070,29 @@ namespace KWEngine3.Model
             collider.Name = StripPathFromFile(filename);
             collider.GlbOffset = GetGlbOffset(filename, ref collider);
 
-            GenerateNodeHierarchy(scene, ref collider);
-            ProcessMeshesForCollider(scene, collider.Root, ref collider, colliderType);
-
+            GenerateNodeHierarchy(wholeScene, ref collider);
+            foreach(GeoNode child in collider.Root.Children)
+            {
+                GenerateMeshHitboxes(wholeScene, child, ref collider, colliderType);
+            }
             return collider;
+        }
+
+        private static void GenerateMeshHitboxes(Gltf wholeScene, GeoNode geoNode, ref GeoMeshCollider collider, ColliderType colliderType)
+        {
+            FindGLTFNodeForGeoNode(wholeScene, geoNode, out Node n);
+            if (n != null)
+            {
+                GeoMeshHitbox hb = GenerateMeshHitboxForNode(wholeScene, n, ref collider, colliderType);
+                if(hb != null)
+                {
+                    collider.MeshHitboxes.Add(hb);
+                }
+                foreach(GeoNode child in geoNode.Children)
+                {
+                    GenerateMeshHitboxes(wholeScene, child, ref collider, colliderType);
+                }
+            }
         }
 
         private static void GenerateNodeHierarchy(Gltf gltf, ref GeoMeshCollider collider)
@@ -2045,46 +2110,109 @@ namespace KWEngine3.Model
             }
         }
 
-        private static void ProcessMeshesForCollider(Gltf scene, GeoNode currentNode, ref GeoMeshCollider collider, ColliderType colliderType)
+        private static GeoMeshHitbox GenerateMeshHitboxForNode(Gltf scene, Node gltfNode, ref GeoMeshCollider collider, ColliderType colliderType)
         {
-            bool result = FindGLTFNodeForGeoNode(scene, currentNode, out Node n);
-            if(result)
+            List<GeoMeshFace> faces = new();
+            List<Vector3> uniqueVertices = new();
+            List<Vector3> uniqueNormals = new();
+            List<Vector3> allVertices = new();
+            List<uint> allIndices = new();
+            
+            if(gltfNode.Mesh.HasValue)
             {
-                if(n.Mesh.HasValue)
+                Mesh mesh = scene.Meshes[gltfNode.Mesh.Value];
+                float minX = float.MaxValue;
+                float minY = float.MaxValue;
+                float minZ = float.MaxValue;
+                float maxX = float.MinValue;
+                float maxY = float.MinValue;
+                float maxZ = float.MinValue;
+                foreach (MeshPrimitive mp in mesh.Primitives)
                 {
-                    Mesh mesh = scene.Meshes[n.Mesh.Value];
-                    foreach(MeshPrimitive mp in mesh.Primitives)
+                    if(mp.Indices.HasValue && mp.Mode == MeshPrimitive.ModeEnum.TRIANGLES)
                     {
-                        if(mp.Indices.HasValue)
-                        {
-                            uint[] indices = GetIndicesForMeshPrimitive(scene, mp, ref collider);
-                            GeoVertex[] vertices = GetVertexDataForMeshPrimitive(scene, mp, )
-
-                        }
-                        else
-                        {
-                            KWEngine.LogWriteLine("[Import] GLTF file " + collider.FileName + " does not have vertex indices. This is not supported.");
-                            return;
-                        }
+                        allIndices.AddRange(GetIndicesForMeshPrimitive(scene, mp, ref collider));
+                        List<Vector3> verticesOfPrimitive = GetVertexDataForMeshPrimitive(scene, mp, ref collider, gltfNode, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, ref uniqueVertices);
+                        if (xmin < minX)
+                            minX = xmin;
+                        if (ymin < minY)
+                            minY = ymin;
+                        if (zmin < minZ)
+                            minZ = zmin;
+                        if (xmax > maxX)
+                            maxX = xmax;
+                        if (ymax > maxY)
+                            maxY = ymax;
+                        if (zmax > maxZ)
+                            maxZ = zmax;
+                        allVertices.AddRange(verticesOfPrimitive);
+                    }
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Import] GLTF file " + collider.FileName + " does not have vertex indices for a certain mesh or is not composed of triangles. This is not supported.");
+                        return null;
                     }
                 }
-                
+                // Generate faces and their normals:
+                for(int i  = 0; i < allIndices.Count; i += 3)
+                {
+                    int index1 = uniqueVertices.IndexOf(allVertices[(int)allIndices[i + 0]]);
+                    int index2 = uniqueVertices.IndexOf(allVertices[(int)allIndices[i + 1]]);
+                    int index3 = uniqueVertices.IndexOf(allVertices[(int)allIndices[i + 2]]);
+                    if (index1 < 0 || index2 < 0 || index3 < 0)
+                    {
+                        KWEngine.LogWriteLine("[Import] GLTF file " + collider.FileName + " has invalid vertex data");
+                        return null;
+                    }
+
+                    Vector3 a = uniqueVertices[index1];
+                    Vector3 b = uniqueVertices[index2];
+                    Vector3 c = uniqueVertices[index3];
+
+                    Vector3 normal = Vector3.Normalize(Vector3.Cross(c - b, a - b));
+                    int normalIndex = -1;
+                    if(!uniqueNormals.Contains(normal))
+                    {
+                        uniqueNormals.Add(normal);
+                        normalIndex = uniqueNormals.Count - 1;
+                    }
+                    else
+                    {
+                        normalIndex = uniqueNormals.IndexOf(normal);
+                        if(normalIndex < 0)
+                        {
+                            KWEngine.LogWriteLine("[Import] GLTF file " + collider.FileName + " gives invalid normal data");
+                            return null;
+                        }
+                    }
+
+
+                    GeoMeshFace face = new GeoMeshFace(normalIndex, false, index1, index2, index3);
+                    faces.Add(face);
+                }
+
+                // Generate final hitbox:
+                GeoMeshHitbox hb = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, uniqueNormals, uniqueVertices, faces);
+                hb._colliderType = colliderType;
+                return hb;
             }
-            
+            else
+            {
+                return null;
+            }
         }
 
-        private static bool FindGLTFNodeForGeoNode(Gltf scene, GeoNode node, out Node output)
+        private static void FindGLTFNodeForGeoNode(Gltf gltf, GeoNode node, out Node output)
         {
-            foreach(Node n in scene.Nodes)
+            foreach(Node n in gltf.Nodes)
             {
                 if(n.Name == node.Name)
                 {
                     output = n;
-                    return true;
+                    return;
                 }
             }
             output = null;
-            return false;
         }
 
         private static GeoNode MapNodeToNode(Node n, ref Gltf scene, ref GeoMeshCollider collider, ref GeoNode callingNode)

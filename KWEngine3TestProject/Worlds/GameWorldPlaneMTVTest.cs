@@ -29,7 +29,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(0, 5, 5);
 
             KWEngine.LoadModel("Plane", "./Models/OBJTest/PlaneRender.obj");
-            KWEngine.LoadCollider("Plane", "./Models/OBJTest/PlaneCollider.obj", ColliderType.PlaneCollider);
+            KWEngine.LoadCollider("Plane", "./Models/GLTFTest/PlaneCollider.glb", ColliderType.PlaneCollider);
 
             Immovable i = new Immovable();
             i.Name = "Plane";
