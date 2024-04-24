@@ -1280,9 +1280,12 @@ namespace KWEngine3.GameObjects
         {
             lock (CurrentWorld._gameObjectHitboxes)
             {
-                foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
+                if (_colliderModel != null)
                 {
-                    CurrentWorld._gameObjectHitboxes.Remove(hb);
+                    foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
+                    {
+                        CurrentWorld._gameObjectHitboxes.Remove(hb);
+                    }
                 }
             }
         }

@@ -2086,6 +2086,7 @@ namespace KWEngine3.Model
                 GeoMeshHitbox hb = GenerateMeshHitboxForNode(wholeScene, n, ref collider, colliderType);
                 if(hb != null)
                 {
+                    hb.Transform = geoNode.Transform;
                     collider.MeshHitboxes.Add(hb);
                 }
                 foreach(GeoNode child in geoNode.Children)
