@@ -1,7 +1,7 @@
 # Blender 3.5.0
 # www.blender.org
 mtllib PlaneRender.mtl
-g Planetest_fullhitbox_Mesh
+g Planetest_Mesh
 v -1.000000 0.000000 1.000000
 v 1.000000 0.000000 1.000000
 v -1.000000 0.000000 -1.000000

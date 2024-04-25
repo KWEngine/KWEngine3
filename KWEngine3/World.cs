@@ -354,20 +354,14 @@ namespace KWEngine3
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
-                            if (hb.IsActive)
-                            {
                                 bool result = _gameObjectHitboxes.Remove(hb);
-                            }
                         }
                     }
                     else if(g._addRemoveHitboxes == AddRemoveHitboxMode.AddCustomRemoveDefault)
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
-                            if (hb.IsActive)
-                            {
-                                bool result = _gameObjectHitboxes.Remove(hb);
-                            }
+                            bool result = _gameObjectHitboxes.Remove(hb);
                         }
                         g._colliderModel._hitboxes.Clear();
                         g._colliderModel._hitboxes.AddRange(g._colliderModel._hitboxesNew);
@@ -384,10 +378,7 @@ namespace KWEngine3
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
-                            if (hb.IsActive)
-                            {
-                                bool result = _gameObjectHitboxes.Remove(hb);
-                            }
+                            bool result = _gameObjectHitboxes.Remove(hb);
                         }
 
                         g._colliderModel._hitboxes.Clear();
@@ -397,7 +388,9 @@ namespace KWEngine3
                         foreach (GameObjectHitbox gmh in g._colliderModel._hitboxes)
                         {
                             if (gmh.IsActive && !_gameObjectHitboxes.Contains(gmh))
+                            {
                                 _gameObjectHitboxes.Add(gmh);
+                            }
                         }
                         g.UpdateModelMatrixAndHitboxes();
                     }

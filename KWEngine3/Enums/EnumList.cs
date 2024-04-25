@@ -66,10 +66,6 @@
     public enum ColliderType
     {
         /// <summary>
-        /// Ist kein Kollisionsobjekt
-        /// </summary>
-        None,
-        /// <summary>
         /// Hat eine konvexe Hülle (Standardtyp)
         /// </summary>
         ConvexHull,

@@ -120,6 +120,11 @@ namespace KWEngine3.GameObjects
                 {
                     KWEngine.CurrentWorld._gameObjectsColliderChange.Add(this);
                     _addRemoveHitboxes = AddRemoveHitboxMode.AddCustomRemoveDefault;
+                    _colliderModel._hitboxesNew.Clear();
+                    foreach (GeoMeshHitbox gmh in KWEngine.CustomColliders[colliderModelName].MeshHitboxes)
+                    {
+                        _colliderModel._hitboxesNew.Add(new GameObjectHitbox(this, gmh));
+                    }
                 }
             }
             else
@@ -260,16 +265,7 @@ namespace KWEngine3.GameObjects
             }
             return null;
         }
-        
-        /// <summary>
-        /// Prüft auf Kollisionen mit PlaneCollider-Instanzen (EXPERIMENTELL)
-        /// </summary>
-        /// <returns>Liste der gefundenen Kollisionen</returns>
-        public List<Intersection> GetIntersectionsWithPlaneColliders()
-        {
-            return GetIntersectionsWithPlaneColliders(Vector3.Zero);
-        }
-
+        /*
         /// <summary>
         /// Prüft auf Kollisionen mit PlaneCollider-Instanzen (EXPERIMENTELL)
         /// </summary>
@@ -285,9 +281,6 @@ namespace KWEngine3.GameObjects
                 {
                     foreach (GameObjectHitbox hbcaller in _colliderModel._hitboxes)
                     {
-                        if (hbcaller.IsActive == false)
-                            continue;
-
                         List<Vector3> normals = new();
                         foreach (GeoMeshFace face in ghb._mesh.Faces)
                         {
@@ -314,7 +307,7 @@ namespace KWEngine3.GameObjects
             
             return intersections;
         }
-        
+        */
 
         /// <summary>
         /// Prüft, ob das Objekt gerade mit anderen Objekten kollidiert und gibt die erstbeste Kollision zurück

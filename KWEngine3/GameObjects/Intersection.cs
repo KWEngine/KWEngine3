@@ -24,6 +24,11 @@ namespace KWEngine3.GameObjects
         private Vector3 _MTVUpToTop = Vector3.Zero;
 
         /// <summary>
+        /// Art der getroffenen Hitbox
+        /// </summary>
+        public ColliderType Type { get; private set; } = ColliderType.ConvexHull;
+
+        /// <summary>
         /// Minimal-Translation-Vector (für Kollisionskorrektur)
         /// </summary>
         public Vector3 MTV
@@ -72,19 +77,9 @@ namespace KWEngine3.GameObjects
         internal GameObjectHitbox _hitboxCaller = null;
         internal GameObjectHitbox _hitboxCollider = null;
 
-        /// <summary>
-        /// Konstruktormethode
-        /// </summary>
-        /// <param name="collider">Kollisionsobjekt</param>
-        /// <param name="hbCaller">Hitbox-Instanz des abfragenden Objekts</param>
-        /// <param name="hbCollider">Hitbox-Instanz des Kollisionsobjekts</param>
-        /// <param name="mtv">Korrektur-MTV</param>
-        /// <param name="mtvUp">Korrektur-MTV nach oben</param>
-        /// <param name="mName">Mesh-Name</param>
-        /// <param name="surfaceNormal">Ebenenvektor der Kollisionsoberfläche</param>
-        /// <param name="mtvUpTop">Korrektur-MTV (Y-Achse auf Oberfläche des Kollisionsobjekts; UNGÜLTIG FÜR KUGELN))</param>
-        internal Intersection(GameObject collider, GameObjectHitbox hbCaller, GameObjectHitbox hbCollider, Vector3 mtv, Vector3 mtvUp, string mName, Vector3 surfaceNormal, Vector3 mtvUpTop)
+        internal Intersection(GameObject collider, GameObjectHitbox hbCaller, GameObjectHitbox hbCollider, Vector3 mtv, Vector3 mtvUp, string mName, Vector3 surfaceNormal, Vector3 mtvUpTop, ColliderType type)
         {
+            Type = type;
             _hitboxCaller = hbCaller;
             _hitboxCollider = hbCollider;
             Object = collider;
@@ -98,21 +93,28 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Berechnet das Volumen der Kollision (wie viel von Objekt B schneidet sich mit Objekt A?)
         /// </summary>
+        /// <remarks>
+        /// Funktioniert lediglich, wenn beide Hitboxen vom Typ ConvexHull sind
+        /// </remarks>
         /// <returns>IntersectionVolume-Instanz mit genaueren Angaben zum Volumen</returns>
         public IntersectionVolume CalculateVolume()
         {
-            List<Vector3> volumeVertices = HelperIntersection.ClipFaces(_hitboxCaller, _hitboxCollider);
-            volumeVertices.AddRange(HelperIntersection.ClipFaces(_hitboxCollider, _hitboxCaller));
-            if (volumeVertices.Count > 0)
+            if (_hitboxCaller._colliderType == ColliderType.ConvexHull && _hitboxCollider._colliderType != ColliderType.ConvexHull)
             {
-                IntersectionVolume volume = new IntersectionVolume(volumeVertices, _hitboxCaller._center);
-                return volume;
+                List<Vector3> volumeVertices = HelperIntersection.ClipFaces(_hitboxCaller, _hitboxCollider);
+                volumeVertices.AddRange(HelperIntersection.ClipFaces(_hitboxCollider, _hitboxCaller));
+                if (volumeVertices.Count > 0)
+                {
+                    IntersectionVolume volume = new IntersectionVolume(volumeVertices, _hitboxCaller._center);
+                    return volume;
+                }
+                else
+                {
+                    IntersectionVolume volume = new IntersectionVolume();
+                    return volume;
+                }
             }
-            else
-            {
-                IntersectionVolume volume = new IntersectionVolume();
-                return volume;
-            }
+            return new IntersectionVolume();
         }
     }
 }

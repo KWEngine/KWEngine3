@@ -1646,7 +1646,7 @@ namespace KWEngine3.Helper
                 MTVTempUp = MTVTemp + cross * MTVTemp.LengthFast;
             }
 
-            Intersection o = new Intersection(collider.Owner, caller, collider, MTVTemp, MTVTempUp, collider._mesh.Name, collisionSurfaceNormal, MTVTempUpToTop);
+            Intersection o = new Intersection(collider.Owner, caller, collider, MTVTemp, MTVTempUp, collider._mesh.Name, collisionSurfaceNormal, MTVTempUpToTop, collider._colliderType);
             return o;
         }
 
@@ -1776,7 +1776,7 @@ namespace KWEngine3.Helper
                 MTVTempUp = MTVTemp + cross * MTVTemp.LengthFast;
             }
 
-            Intersection o = new Intersection(collider.Owner, caller, collider, MTVTemp, MTVTempUp, collider._mesh.Name, collisionSurfaceNormal, MTVTempUpToTop);
+            Intersection o = new Intersection(collider.Owner, caller, collider, MTVTemp, MTVTempUp, collider._mesh.Name, collisionSurfaceNormal, MTVTempUpToTop, collider._colliderType);
             return o;
         }
 
@@ -2165,6 +2165,29 @@ namespace KWEngine3.Helper
         {
             intersectionPoint = Vector4.TransformRow(new Vector4(originTransformed + dirctnTransformedNormalized * currentDistance, 1.0f), mat).Xyz;
             distanceWorldspace = (originWorldspace - intersectionPoint).LengthFast;
+        }
+
+        internal static Intersection TestIntersectionWithPlaneCollider(GameObjectHitbox hbCaller, GameObjectHitbox hbCollider, Vector3 offset)
+        {
+            foreach (GeoMeshFace face in hbCollider._mesh.Faces)
+            {
+                Vector3 n = hbCollider._normals[face.Normal] * (face.Flip ? -1f : 1f);
+                List<Vector3> faceVertices = new();
+                Vector3 centerTemp = Vector3.Zero;
+                foreach (int fvi in face.Vertices)
+                {
+                    faceVertices.Add(hbCollider._vertices[fvi]);
+                    centerTemp += faceVertices[faceVertices.Count - 1];
+                }
+                centerTemp /= face.VertexCount;
+
+                Intersection i = TestIntersectionForPlaneFace(hbCaller, faceVertices, n, centerTemp, offset, hbCollider);
+                if (i != null)
+                {
+                    return i;
+                }
+            }
+            return null;
         }
         #endregion
     }

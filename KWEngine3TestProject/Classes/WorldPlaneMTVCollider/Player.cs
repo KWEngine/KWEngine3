@@ -39,7 +39,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             }
             
             
-            List<Intersection> it = GetIntersectionsWithPlaneColliders();
+            List<Intersection> it = GetIntersections();
             foreach(Intersection i in it)
             {
                 MoveOffset(i.MTV);
