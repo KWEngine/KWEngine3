@@ -29,7 +29,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(0, 5, 5);
 
             KWEngine.LoadModel("Plane", "./Models/OBJTest/PlaneRender.obj");
-            KWEngine.LoadCollider("Plane", "./Models/GLTFTest/PlaneCollider.glb", ColliderType.PlaneCollider);
+            KWEngine.LoadCollider("Plane", "./Models/GLTFTest/PlaneCollider.gltf", ColliderType.PlaneCollider);
 
             Immovable i = new Immovable();
             i.Name = "Plane";
@@ -53,7 +53,7 @@ namespace KWEngine3TestProject.Worlds
             p.SetModel("KWSphere");
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            //p.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
+            p.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
             p.SetPosition(0.55f, 0.92f, -3f);
             AddGameObject(p);
 
@@ -65,6 +65,31 @@ namespace KWEngine3TestProject.Worlds
             sun.SetColor(1, 1, 1, 1.75f);
             AddLightObject(sun);
 
+            WorldEvent e1 = new WorldEvent(1, "PlaneToDefault");
+            AddWorldEvent(e1);
+
+            WorldEvent e2 = new WorldEvent(2, "PlaneToPlane");
+            AddWorldEvent(e2);
+        }
+
+        protected override void OnWorldEvent(WorldEvent e)
+        {
+            if(e.Description == "PlaneToDefault")
+            {
+                GameObject g = GetGameObjectByName("Plane");
+                if(g != null)
+                {
+                    g.UnsetColliderModel();
+                }
+            }
+            else if(e.Description == "PlaneToPlane")
+            {
+                GameObject g = GetGameObjectByName("Plane");
+                if (g != null)
+                {
+                    g.SetColliderModel("Plane");
+                }
+            }
         }
     }
 }

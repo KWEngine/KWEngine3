@@ -61,7 +61,7 @@ namespace KWEngine3.GameObjects
                 }
                 else
                 {
-                    Console.WriteLine("!!");
+                    //TODO: check if this is a necessary branch
                 }
                 _isCollisionObject = value;
             }

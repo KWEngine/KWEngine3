@@ -957,7 +957,8 @@ namespace KWEngine3.Model
                 }
                 else
                 {
-                    using (FileStream stream = File.Open(collider.FileName + Path.AltDirectorySeparatorChar + buffer.Uri, FileMode.Open, FileAccess.Read))
+                    string tmpName = SceneImporter.StripFileNameFromPath(collider.FileName);
+                    using (FileStream stream = File.Open(tmpName + Path.AltDirectorySeparatorChar + buffer.Uri, FileMode.Open, FileAccess.Read))
                     {
                         stream.Position = accessorOffset + bufferViewOffset;
                         if (bufferViewStride == 0)
@@ -1485,7 +1486,8 @@ namespace KWEngine3.Model
                     else
                     {
                         // TODO: CAUTION!
-                        using (FileStream file = File.Open(collider.FileName + Path.AltDirectorySeparatorChar + indicesBuffer.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
+                        string tmpName = SceneImporter.StripFileNameFromPath(collider.FileName);
+                        using (FileStream file = File.Open(tmpName + Path.AltDirectorySeparatorChar + indicesBuffer.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
                         {
                             file.Position = accessorOffset + bufferViewOffset;
                             file.Read(data, 0, bufferViewLength);
@@ -1560,7 +1562,6 @@ namespace KWEngine3.Model
                     }
                     else
                     {
-
                         using (FileStream file = File.Open(model.Path + Path.AltDirectorySeparatorChar + indicesBuffer.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
                         {
                             file.Position = accessorOffset + bufferViewOffset;
