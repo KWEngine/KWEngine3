@@ -68,10 +68,7 @@ namespace KWEngine3.Helper
                     {
                         foreach (GameObjectHitbox vsgHitbox in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._colliderModel._hitboxes)
                         {
-                            if (vsgHitbox.IsActive)
-                            {
-                                axisList.Add(vsgHitbox);
-                            }
+                            axisList.Add(vsgHitbox);
                         }
                     }
                 }

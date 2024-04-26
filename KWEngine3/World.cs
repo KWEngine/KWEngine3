@@ -5,6 +5,7 @@ using KWEngine3.Helper;
 using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Mathematics;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -32,7 +33,7 @@ namespace KWEngine3
         internal List<RenderObject> _renderObjectsToBeAdded = new();
         internal List<RenderObject> _renderObjectsToBeRemoved = new();
 
-        internal List<GameObject> _gameObjectsColliderChange = new();
+        internal List<ColliderChangeIntent> _gameObjectsColliderChange = new();
         internal List<GameObjectHitbox> _gameObjectHitboxes = new();
 
         internal List<TerrainObject> _terrainObjects = new();
@@ -338,63 +339,63 @@ namespace KWEngine3
 
             lock (_gameObjectHitboxes)
             {
-                foreach (GameObject g in _gameObjectsColliderChange)
+                foreach (ColliderChangeIntent g in _gameObjectsColliderChange)
                 {
-                    if (g._addRemoveHitboxes == AddRemoveHitboxMode.Add)
+                    if (g._mode == AddRemoveHitboxMode.Add)
                     {
-                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
+                        foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
-                            if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
+                            if (!_gameObjectHitboxes.Contains(hb))
                             {
                                 _gameObjectHitboxes.Add(hb);
                             }
                         }
                     }
-                    else if (g._addRemoveHitboxes == AddRemoveHitboxMode.Remove)
+                    else if (g._mode == AddRemoveHitboxMode.Remove)
                     {
-                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
-                        {
-                                bool result = _gameObjectHitboxes.Remove(hb);
-                        }
-                    }
-                    else if(g._addRemoveHitboxes == AddRemoveHitboxMode.AddCustomRemoveDefault)
-                    {
-                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
+                        foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
                             bool result = _gameObjectHitboxes.Remove(hb);
                         }
-                        g._colliderModel._hitboxes.Clear();
-                        g._colliderModel._hitboxes.AddRange(g._colliderModel._hitboxesNew);
-                        g._colliderModel._hitboxesNew.Clear();
-
-                        foreach (GameObjectHitbox gmh in g._colliderModel._hitboxes)
+                    }
+                    else if(g._mode == AddRemoveHitboxMode.AddCustomRemoveDefault)
+                    {
+                        foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
-                            if (gmh.IsActive && !_gameObjectHitboxes.Contains(gmh))
+                            bool result = _gameObjectHitboxes.Remove(hb);
+                        }
+                        g._objectToChange._colliderModel._hitboxes.Clear();
+                        g._objectToChange._colliderModel._hitboxes.AddRange(g._hitboxesNew);
+
+                        foreach (GameObjectHitbox gmh in g._objectToChange._colliderModel._hitboxes)
+                        {
+                            if (!_gameObjectHitboxes.Contains(gmh))
                                 _gameObjectHitboxes.Add(gmh);
                         }
-                        g.UpdateModelMatrixAndHitboxes();
+                        g._objectToChange._colliderModel._customColliderName = g._customColliderName;
+                        g._objectToChange._colliderModel._customColliderFilename = g._customColliderFilename;
+                        g._objectToChange.UpdateModelMatrixAndHitboxes();
                     }
-                    else if(g._addRemoveHitboxes == AddRemoveHitboxMode.AddDefaultRemoveCustom)
+                    else if(g._mode == AddRemoveHitboxMode.AddDefaultRemoveCustom)
                     {
-                        foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
+                        foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
                             bool result = _gameObjectHitboxes.Remove(hb);
                         }
 
-                        g._colliderModel._hitboxes.Clear();
-                        g._colliderModel._hitboxes.AddRange(g._colliderModel._hitboxesNew);
-                        g._colliderModel._hitboxesNew.Clear();
-
-                        foreach (GameObjectHitbox gmh in g._colliderModel._hitboxes)
+                        g._objectToChange._colliderModel._hitboxes.Clear();
+                        g._objectToChange._colliderModel._hitboxes.AddRange(g._hitboxesNew);
+                        g._objectToChange._colliderModel._customColliderName = "";
+                        g._objectToChange._colliderModel._customColliderFilename = "";
+                        foreach (GameObjectHitbox gmh in g._objectToChange._colliderModel._hitboxes)
                         {
-                            if (gmh.IsActive && !_gameObjectHitboxes.Contains(gmh))
+                            if (!_gameObjectHitboxes.Contains(gmh))
                             {
                                 _gameObjectHitboxes.Add(gmh);
                             }
                         }
-                        g.UpdateModelMatrixAndHitboxes();
+                        g._objectToChange.UpdateModelMatrixAndHitboxes();
                     }
-                    g._addRemoveHitboxes = AddRemoveHitboxMode.None;
                 }
                 _gameObjectsColliderChange.Clear();
 
@@ -418,7 +419,7 @@ namespace KWEngine3
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
-                            if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
+                            if (!_gameObjectHitboxes.Contains(hb))
                             {
                                 _gameObjectHitboxes.Add(hb);
                             }
@@ -904,7 +905,7 @@ namespace KWEngine3
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
-                            if (hb.IsActive && !_gameObjectHitboxes.Contains(hb))
+                            if (!_gameObjectHitboxes.Contains(hb))
                             {
                                 _gameObjectHitboxes.Add(hb);
                             }
@@ -1525,10 +1526,11 @@ namespace KWEngine3
         /// Lade eine Weltkonfiguation aus der angegebenen JSON-Datei
         /// </summary>
         /// <param name="filename">Dateiname (inkl. relativem Pfad)</param>
-        /// <param name="callerName">(nicht verwenden!)</param>
-        public void LoadJSON(string filename, [CallerMemberName] string callerName = "")
+        public void LoadJSON(string filename)
         {
-            if(callerName != "Prepare")
+            MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
+            string callerName = caller.Name;
+            if (callerName != "Prepare")
             {
                 KWEngine.LogWriteLine("[World] LoadJSON only allowed in Prepare()");
                 return;
@@ -1536,7 +1538,7 @@ namespace KWEngine3
             if (filename == null)
                 filename = "";
             else
-                filename = filename.Trim();
+                filename = HelperGeneral.EqualizePathDividers(filename.Trim());
 
             if (File.Exists(filename))
             {

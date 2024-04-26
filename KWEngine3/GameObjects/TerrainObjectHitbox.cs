@@ -16,8 +16,6 @@ namespace KWEngine3.GameObjects
         public float _averageDiameter = 0;
         public float _fullDiameter = 0;
 
-        public bool IsActive { get { return _mesh.IsActive; } }
-
         internal TerrainObject Owner { get; private set; }
         internal GeoMeshHitbox _mesh;
 
@@ -29,9 +27,6 @@ namespace KWEngine3.GameObjects
 
         internal bool Update(ref Vector3 gCenter)
         {
-            if (!IsActive)
-                return false;
-
             _center = Owner._stateCurrent._position + new Vector3(0f, _mesh.height / 2f, 0f);
             gCenter += _center;
 

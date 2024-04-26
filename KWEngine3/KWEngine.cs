@@ -87,7 +87,7 @@ namespace KWEngine3
                         LogWriteLine("[Import] Listing hitboxes for model " + modelname + ":");
                         foreach (GeoMeshHitbox hb in model.MeshCollider.MeshHitboxes)
                         {
-                            LogWriteLine("         -> " + hb.Name + " (" + (hb.IsActive ? "active" : "not active") + ")");
+                            LogWriteLine("         -> " + hb.Name);
                         }
                     }
                 }
@@ -138,44 +138,6 @@ namespace KWEngine3
                 LogWriteLine("[Import] Model " + modelname + " not found in database");
             }
             return result;
-        }
-
-        /// <summary>
-        /// Setzt die benannte Hitbox des Modells aktiv oder inaktiv
-        /// </summary>
-        /// <param name="modelname">Name des importierten 3D-Modells</param>
-        /// <param name="hitboxname">Name der zu ändernden Hitbox</param>
-        /// <param name="state">Status (true = aktiv, false = inaktiv)</param>
-        public static void SetHitboxEnabledForModel(string modelname, string hitboxname, bool state)
-        {
-            if (modelname == null) modelname = "";
-            if (hitboxname == null) hitboxname = "";
-
-            if (Models.ContainsKey(modelname))
-            {
-                GeoModel model = Models[modelname];
-                if(!model.IsPrimitive && !model.IsTerrain)
-                {
-                    foreach (GeoMeshHitbox hb in model.MeshCollider.MeshHitboxes)
-                    {
-                        if(hb.Name == hitboxname)
-                        {
-                            hb.IsActive = state;
-                            LogWriteLine("[Import] Setting state of hitbox " + hitboxname + " of model " + modelname + " to " + (state ? "'active'" : "'inactive'"));
-                            return;
-                        }
-                    }
-                    LogWriteLine("[Import] Model " + modelname + " does not have a hitbox with name " + hitboxname);
-                }
-                else
-                {
-                    LogWriteLine("[Import] Invalid model name - cannot alter hitbox state");
-                }
-            }
-            else
-            {
-                LogWriteLine("[Import] Model " + modelname + " not found in database - cannot alter hitbox state");
-            }
         }
 
         /// <summary>
@@ -392,8 +354,9 @@ namespace KWEngine3
         internal static GeoModel KWDollar;
         internal static GeoModel KWLightBulb;
         internal static GeoModel KWTerrainDefault;
-        internal static GeoModel KWCapsule;
-        internal static GeoModel KWCapsule2;
+        internal static GeoMeshCollider KWCapsule;
+        internal static GeoMeshCollider KWCapsule2;
+        internal static GeoMeshCollider KWSphereCollider;
         internal static GeoModel KWFoliageMinecraft;
         internal static GeoModel KWFoliageFern;
 
@@ -402,15 +365,16 @@ namespace KWEngine3
             Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", true, SceneImporter.AssemblyMode.Internal));
             Models.Add("KWQuad", SceneImporter.LoadModel("kwquad.obj", true, SceneImporter.AssemblyMode.Internal));
             Models.Add("KWQuad2D", SceneImporter.LoadModel("kwquad2.obj", true, SceneImporter.AssemblyMode.Internal));
-            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.fbx", true, SceneImporter.AssemblyMode.Internal));
+            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", true, SceneImporter.AssemblyMode.Internal));
             Models.Add("KWPlatform", SceneImporter.LoadModel("kwplatform.obj", true, SceneImporter.AssemblyMode.Internal));
             KWStar = SceneImporter.LoadModel("star.obj", false, SceneImporter.AssemblyMode.Internal);
             KWHeart = SceneImporter.LoadModel("heart.obj", false, SceneImporter.AssemblyMode.Internal);
             KWSkull = SceneImporter.LoadModel("skull.obj", false, SceneImporter.AssemblyMode.Internal);
             KWDollar = SceneImporter.LoadModel("dollar.obj", false, SceneImporter.AssemblyMode.Internal);
             KWLightBulb = SceneImporter.LoadModel("lightbulb.obj", false, SceneImporter.AssemblyMode.Internal);
-            KWCapsule = SceneImporter.LoadModel("capsulehitbox.obj", false, SceneImporter.AssemblyMode.Internal);
-            KWCapsule2 = SceneImporter.LoadModel("capsulehitbox2.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWSphereCollider = SceneImporter.LoadColliderInternal("kwsphere_collider.obj", ColliderType.ConvexHull);
+            KWCapsule = SceneImporter.LoadColliderInternal("capsulehitbox.obj", ColliderType.ConvexHull);
+            KWCapsule2 = SceneImporter.LoadColliderInternal("capsulehitbox2.obj", ColliderType.ConvexHull);
             KWTerrainDefault = KWEngine.BuildDefaultTerrainModel("TerrainDefault", 10, 0, 10);
             KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
             KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
@@ -688,13 +652,20 @@ namespace KWEngine3
         /// <param name="colliderType">Art des Collider-Modells</param>
         public static void LoadCollider(string name, string filename, ColliderType colliderType)
         {
+            
             filename = filename == null ? "" : filename.Trim();
             MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
             string callerName = caller.Name;
 
             if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
             {
-                LogWriteLine("[Import] Model " + filename + " must be imported in Prepare() - aborting import");
+                LogWriteLine("[Import] Collider " + filename + " must be imported in Prepare() - aborting import");
+                return;
+            }
+
+            if (name == null || name.Trim().Length == 0)
+            {
+                LogWriteLine("[Import] Collider " + filename + " must be imported with a proper database name");
                 return;
             }
             name = name.Trim();

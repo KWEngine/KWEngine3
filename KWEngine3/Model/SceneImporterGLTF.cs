@@ -1777,13 +1777,13 @@ namespace KWEngine3.Model
                     }
                 }
 
-                // Generate hitbox for the previous mesh:
+                // Generate hitbox for the mesh:
                 meshHitBox = new GeoMeshHitbox(maxX, maxY, maxZ, minX, minY, minZ, currentNodeName.ToLower().Contains("_fullhitbox") ? uniqueNormalsForWholeMesh : null, currentNodeName.ToLower().Contains("_fullhitbox") ? uniqueVerticesForWholeMesh : null, facesForHitbox);
                 meshHitBox.Model = model;
                 meshHitBox.Name = mesh.Name;
                 meshHitBox.Transform = currentNodeTransform;
-                meshHitBox.IsActive = !currentNodeName.ToLower().Contains("_nohitbox");
-                model.MeshCollider.MeshHitboxes.Add(meshHitBox);
+                if(!currentNodeName.ToLower().Contains("_nohitbox"))
+                    model.MeshCollider.MeshHitboxes.Add(meshHitBox);
             }
             return true;
         }

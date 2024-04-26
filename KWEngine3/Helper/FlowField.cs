@@ -319,14 +319,11 @@ namespace KWEngine3.Helper
 
                             foreach(GameObjectHitbox ghb in g._colliderModel._hitboxes)
                             {
-                                if(ghb.IsActive)
+                                if(HelperIntersection.TestIntersection(_hitbox, ghb))
                                 {
-                                    if(HelperIntersection.TestIntersection(_hitbox, ghb))
-                                    {
-                                        cell.SetCostTo(g.FlowFieldCost);
-                                        hasIncreasedCost = true;
-                                        break;
-                                    }
+                                    cell.SetCostTo(g.FlowFieldCost);
+                                    hasIncreasedCost = true;
+                                    break;
                                 }
                             }
                         }

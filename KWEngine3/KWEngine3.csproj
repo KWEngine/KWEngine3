@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2024-04-21)</Product>
+		<Product>KWEngine3 (updated: 2024-04-26)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.3.1</Version>
-		<AssemblyVersion>3.0.3.1</AssemblyVersion>
-		<FileVersion>3.0.3.1</FileVersion>
-		<ProductVersion>3.0.3.1</ProductVersion>
+		<Version>3.0.3.2</Version>
+		<AssemblyVersion>3.0.3.2</AssemblyVersion>
+		<FileVersion>3.0.3.2</FileVersion>
+		<ProductVersion>3.0.3.2</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -47,8 +47,8 @@
 		<None Remove="Assets\Models\kwquad.obj" />
 		<None Remove="Assets\Models\kwquad2.obj" />
 		<None Remove="Assets\Models\kwrect.obj" />
-		<None Remove="Assets\Models\kwsphere.fbx" />
 		<None Remove="Assets\Models\kwsphere.obj" />
+		<None Remove="Assets\Models\kwsphere_collider.obj" />
 		<None Remove="Assets\Models\lightbulb.obj" />
 		<None Remove="Assets\Models\skull.mtl" />
 		<None Remove="Assets\Models\skull.obj" />
@@ -176,7 +176,8 @@
 		<EmbeddedResource Include="Assets\Models\kwquad.obj" />
 		<EmbeddedResource Include="Assets\Models\kwquad2.obj" />
 		<EmbeddedResource Include="Assets\Models\kwrect.obj" />
-		<EmbeddedResource Include="Assets\Models\kwsphere.fbx" />
+		<EmbeddedResource Include="Assets\Models\kwsphere.obj" />
+		<EmbeddedResource Include="Assets\Models\kwsphere_collider.obj" />
 		<EmbeddedResource Include="Assets\Models\lightbulb.obj" />
 		<EmbeddedResource Include="Assets\Models\skull.mtl" />
 		<EmbeddedResource Include="Assets\Models\skull.obj" />

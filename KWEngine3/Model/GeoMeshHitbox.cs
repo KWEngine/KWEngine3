@@ -16,7 +16,6 @@ namespace KWEngine3.Model
         internal GeoMeshFace[] Faces { get; private set; }
 
         internal bool IsExtended { get; private set; } = false;
-        public bool IsActive { get; internal set; } = true;
 
         public string Name { get; internal set; }
         internal float maxX, maxY, maxZ;

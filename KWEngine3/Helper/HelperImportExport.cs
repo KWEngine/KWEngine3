@@ -100,7 +100,13 @@ namespace KWEngine3.Helper
                 {
                     KWEngine.LoadModel(sg.ModelName, sg.ModelPath);
                 }
-                w.AddGameObject(BuildGameObject(sg, sw, attachmentList));
+                if(sg.CustomColliderFile != null && sg.CustomColliderFile.Length > 0)
+                {
+                    KWEngine.LoadCollider(sg.CustomColliderName, sg.CustomColliderFile, sg.CustomColliderType);
+                }
+
+
+                w.AddGameObject(BuildGameObject(sg, sw, attachmentList, sg.CustomColliderName));
             }
             KWEngine.CurrentWorld.AddRemoveGameObjects();
 
@@ -377,10 +383,14 @@ namespace KWEngine3.Helper
             return l;
         }
 
-        private static GameObject BuildGameObject(SerializedGameObject sg, SerializedWorld sw, List<string[]> attachmentList)
+        private static GameObject BuildGameObject(SerializedGameObject sg, SerializedWorld sw, List<string[]> attachmentList, string customColliderName = "")
         {
             GameObject g = (GameObject)Assembly.GetEntryAssembly().CreateInstance(sg.Type);
             g.SetModel(sg.ModelName);
+            if(customColliderName.Length > 0)
+            {
+                g.SetColliderModel(customColliderName);
+            }
             g.SetOpacity(sg.Opacity);
             g.IsAffectedByLight = sg.IsAffectedByLight;
             g.IsDepthTesting = sg.IsDepthTesting;

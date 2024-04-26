@@ -53,6 +53,7 @@
       <Field Name="BLOOMHEIGHT" Hidden="true" />
       <Field Name="BLOOMWIDTH" Hidden="true" />
       <Method Name="BuildDefaultTerrainModel" Hidden="true" />
+      <Property Name="CustomColliders" Hidden="true" />
       <Field Name="DefaultCameraPosition" Hidden="true" />
       <Method Name="DeleteCustomModelsAndTexturesFromCurrentWorld" Hidden="true" />
       <Property Name="DeltaTimeAccumulator" Hidden="true" />
@@ -67,12 +68,14 @@
       <Method Name="InitializeModels" Hidden="true" />
       <Method Name="InitializeParticles" Hidden="true" />
       <Field Name="KWCapsule" Hidden="true" />
+      <Field Name="KWCapsule2" Hidden="true" />
       <Field Name="KWDollar" Hidden="true" />
       <Field Name="KWFoliageFern" Hidden="true" />
       <Field Name="KWFoliageMinecraft" Hidden="true" />
       <Field Name="KWHeart" Hidden="true" />
       <Field Name="KWLightBulb" Hidden="true" />
       <Field Name="KWSkull" Hidden="true" />
+      <Field Name="KWSphereCollider" Hidden="true" />
       <Field Name="KWStar" Hidden="true" />
       <Field Name="KWTerrainDefault" Hidden="true" />
       <Property Name="LastFrameTime" Hidden="true" />
@@ -109,7 +112,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BYgARLBBAoSJALEFpAhqARAARCggQioQjHn2Sv0KEIE=</HashCode>
+      <HashCode>BcgARLBBAoSJALENpAhqARAARCgAQioQjHn2Sv2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -200,15 +203,14 @@
   <Class Name="KWEngine3.GameObjects.GameObject">
     <Position X="9.5" Y="0.5" Width="2.75" />
     <Members>
-      <Field Name="_addRemoveHitboxes" Hidden="true" />
       <Field Name="_attachBoneNodes" Hidden="true" />
       <Field Name="_attachedTo" Hidden="true" />
       <Field Name="_attachmentMatrix" Hidden="true" />
-      <Field Name="_colliderType" Hidden="true" />
       <Field Name="_collisionCandidates" Hidden="true" />
       <Field Name="_flowfieldcost" Hidden="true" />
       <Field Name="_fullDiameter" Hidden="true" />
       <Field Name="_gameObjectsAttached" Hidden="true" />
+      <Field Name="_isCollisionObject" Hidden="true" />
       <Field Name="_obbRadii" Hidden="true" />
       <Field Name="_positionOffsetForAttachment" Hidden="true" />
       <Field Name="_rayOrigins1" Hidden="true" />
@@ -228,7 +230,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAGABGGASKwiSAwIAMEABAAQQyA0MBAEAABQ0CEIE=</HashCode>
+      <HashCode>jAiAGABGGAQKwiSAwIAOEABEAUQyA0EBQEAABA0CEIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -246,12 +248,12 @@
       <Field Name="UNIT" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CAAAAAABAAAEEECoAAAAAAAAgAAAAAAAAAAAABAAMEA=</HashCode>
+      <HashCode>CAAAAAABAAAEEECoAAAAAAAAgAAAAAAAAQAAABAAMEA=</HashCode>
       <FileName>GameObjects\Intersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.IntersectionTerrain">
-    <Position X="18.5" Y="3.25" Width="2.75" />
+    <Position X="18.5" Y="3.5" Width="2.75" />
     <Members>
       <Field Name="_colliderSurfaceNormal" Hidden="true" />
       <Field Name="_hitboxCaller" Hidden="true" />
@@ -286,7 +288,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="12" Width="2.75" />
+    <Position X="9.5" Y="12.5" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -337,9 +339,12 @@
   <Class Name="KWEngine3.Helper.HelperIntersection">
     <Position X="21.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_planeNormals" Hidden="true" />
+      <Field Name="_planeVertices" Hidden="true" />
       <Field Name="bounds" Hidden="true" />
       <Method Name="CalculateMeshTransformForGameObject" Hidden="true" />
       <Method Name="CalculateOverlap" Hidden="true" />
+      <Method Name="CalculateSurfaceNormal" Hidden="true" />
       <Method Name="ClipFaces" Hidden="true" />
       <Method Name="ClipLineToPlane" Hidden="true" />
       <Method Name="ConvertRayToMeshSpaceForAABBTest" Hidden="true" />
@@ -354,10 +359,12 @@
       <Method Name="LinePlaneIntersection" Hidden="true" />
       <Method Name="Max" Hidden="true" />
       <Method Name="Min" Hidden="true" />
+      <Field Name="ONETHIRD" Hidden="true" />
       <Method Name="Overlaps" Hidden="true" />
       <Field Name="pixelColor" Hidden="true" />
       <Method Name="RayAABBIntersection" Hidden="true" />
       <Method Name="RayBoxIntersection" Hidden="true" />
+      <Method Name="RayNGonIntersection" Hidden="true" />
       <Method Name="RayTerrainIntersection" Hidden="true" />
       <Method Name="RaytraceHitbox" Hidden="true" />
       <Method Name="RayTraceObjectsBelowPosition" Hidden="true" />
@@ -365,12 +372,14 @@
       <Method Name="RayTriangleIntersection" Hidden="true" />
       <Method Name="SatTest" Hidden="true" />
       <Method Name="TestIntersection" Hidden="true" />
+      <Method Name="TestIntersectionForPlaneFace" Hidden="true" />
       <Method Name="TestIntersectionForTerrain" Hidden="true" />
+      <Method Name="TestIntersectionsWithPlaneCollider" Hidden="true" />
       <Method Name="TestIntersectionTerrain" Hidden="true" />
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQKQAhQAALUCgCQAsAQAEEKAQAAgBLhGABGCABYLZIg=</HashCode>
+      <HashCode>BQKQAhQAALWCgCQAsAQAGEKAQQAgBLhGAJGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -404,7 +413,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="10.75" Width="2.75" />
+    <Position X="21.5" Y="10.5" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
@@ -426,7 +435,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="18.5" Y="8.5" Width="2.75" />
+    <Position X="18.5" Y="8.75" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -488,7 +497,7 @@
   <Class Name="KWEngine3.GameObjects.EngineObject">
     <Position X="6.5" Y="0.5" Width="2.75" />
     <Members>
-      <Field Name="_hitboxes" Hidden="true" />
+      <Field Name="_colliderModel" Hidden="true" />
       <Field Name="_importedID" Hidden="true" />
       <Field Name="_isAffectedByLight" Hidden="true" />
       <Field Name="_isShadowCaster" Hidden="true" />
@@ -515,12 +524,12 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyMCJ1oOGJygUIBuAgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
+      <HashCode>QyNCJ1oOGJygUIBuAgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="8.75" Width="2.75" />
+    <Position X="9.5" Y="9.5" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
@@ -594,7 +603,7 @@
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
-    <Position X="18.5" Y="5.25" Width="2.75" />
+    <Position X="18.5" Y="5.5" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AgAAAAAAEAAAAABAiAgAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
       <FileName>GameObjects\IntersectionVolume.cs</FileName>

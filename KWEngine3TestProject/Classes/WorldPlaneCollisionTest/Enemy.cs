@@ -68,6 +68,9 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             {
                 MoveOffset(i.MTV);
             }
+
+            SetAnimationID(2);
+            SetAnimationPercentageAdvance(0.005f);
         }
     }
 }

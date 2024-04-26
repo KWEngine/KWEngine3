@@ -58,6 +58,29 @@ namespace KWEngine3.Model
             return animations;
         }
 
+        internal static GeoMeshCollider LoadColliderInternal(string filename, ColliderType colliderType)
+        {
+            GeoMeshCollider collider = null;
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string resourceName = "KWEngine3.Assets.Models." + filename;
+            using (Stream s = assembly.GetManifestResourceStream(resourceName))
+            {
+                AssimpContext importer = new AssimpContext();
+                Scene scene = importer.ImportFileFromStream(s, PostProcessSteps.ValidateDataStructure);
+                if (scene == null)
+                {
+                    KWEngine.LogWriteLine("[Import] Invalid collider asset: " + resourceName);
+                    return null;
+                }
+
+                collider = ProcessColliderScene(scene, filename, colliderType);
+                scene.Clear();
+                importer.Dispose();
+
+                return collider;
+            }
+        }
+
         internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal)
         {
             if (filename == null)
@@ -171,7 +194,6 @@ namespace KWEngine3.Model
                     else
                     {
                         KWEngine.LogWriteLine("[Import] Invalid model file type");
-                        //HelperGeneral.ShowErrorAndQuit("SceneImporter::LoadModel()", "Invalid model type.");
                         return null;
                     }
                 }
@@ -881,8 +903,8 @@ namespace KWEngine3.Model
                         meshHitBox.Model = model;
                         meshHitBox.Name = currentNodeName;
                         meshHitBox.Transform = currentNodeTransform;
-                        meshHitBox.IsActive = !currentNodeName.ToLower().Contains("_nohitbox");
-                        model.MeshCollider.MeshHitboxes.Add(meshHitBox);
+                        if(!currentNodeName.ToLower().Contains("_nohitbox"))
+                            model.MeshCollider.MeshHitboxes.Add(meshHitBox);
 
                         faceHelpersForWholeMesh.Clear();
                         uniqueNormalsForWholeMesh.Clear();
@@ -1019,14 +1041,7 @@ namespace KWEngine3.Model
                 }
 
                 geoMesh.VBOGenerateTangents(mesh);
-                if(model.Filename == "kwcube.obj")
-                    geoMesh.VBOGenerateTextureCoords1(mesh, scene, 1);
-                else if(model.Filename == "kwcube6.obj")
-                    geoMesh.VBOGenerateTextureCoords1(mesh, scene, 6);
-                else if (model.Filename == "kwsphere.obj")
-                    geoMesh.VBOGenerateTextureCoords1(mesh, scene, 2);
-                else
-                    geoMesh.VBOGenerateTextureCoords1(mesh, scene);
+                 geoMesh.VBOGenerateTextureCoords1(mesh);
                 //geoMesh.VBOGenerateTextureCoords2(mesh);
 
                 ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh, model.Filename == "kwcube.obj" || model.Filename == "kwcube6.obj");
@@ -1043,17 +1058,12 @@ namespace KWEngine3.Model
                 if (currentNodeName.ToLower().Contains("_fullhitbox"))
                 {
                     facesForHitbox = new List<GeoMeshFace>();
-                    List<Vector3> faceNormals = new List<Vector3>();
                     foreach (GeoMeshFaceHelper face in faceHelpersForWholeMesh)
                     {
                         GeoHelper.FindIndexOfVertexInList(ref face.Vertices[0], ref face.Vertices[1], ref face.Vertices[2], uniqueVerticesForWholeMesh, uniqueNormalsForWholeMesh, out int indexVertex1, out int indexVertex2, out int indexVertex3, out int indexNormal);
                         Vector3 normal = uniqueNormalsForWholeMesh[indexNormal];
-                        //if (!faceNormals.Contains(normal))
-                        {
-                            faceNormals.Add(normal);
-                            GeoMeshFace tmpFace = new GeoMeshFace(indexNormal, false, indexVertex1, indexVertex2, indexVertex3);
-                            facesForHitbox.Add(tmpFace);
-                        }
+                        GeoMeshFace tmpFace = new GeoMeshFace(indexNormal, false, indexVertex1, indexVertex2, indexVertex3);
+                        facesForHitbox.Add(tmpFace);
                     }
                 }
 
@@ -1066,8 +1076,8 @@ namespace KWEngine3.Model
                 meshHitBox.Model = model;
                 meshHitBox.Name = currentNodeName;
                 meshHitBox.Transform = nodeTransform;
-                meshHitBox.IsActive = !currentNodeName.ToLower().Contains("_nohitbox");
-                model.MeshCollider.MeshHitboxes.Add(meshHitBox);
+                if(!currentNodeName.ToLower().Contains("_nohitbox"))
+                    model.MeshCollider.MeshHitboxes.Add(meshHitBox);
 
                 faceHelpersForWholeMesh.Clear();
                 uniqueNormalsForWholeMesh.Clear();
@@ -1309,8 +1319,8 @@ namespace KWEngine3.Model
                 hitbox.Transform = Matrix4.Identity;
                 hitbox._colliderType = colliderType;
                 FindTransformForMesh(ref collider, collider.Root, currentNode.Name, ref hitbox.Transform);
-
-                collider.MeshHitboxes.Add(hitbox);
+                if (!currentNode.Name.ToLower().Contains("_nohitbox"))
+                    collider.MeshHitboxes.Add(hitbox);
             }
             foreach(Node child in currentNode.Children)
             {

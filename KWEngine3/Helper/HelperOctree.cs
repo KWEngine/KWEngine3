@@ -16,8 +16,7 @@ namespace KWEngine3.Helper
 
         public static void Add(GameObjectHitbox g)
         {
-            if(g.IsActive)
-                _rootNode.AddGameObjectHitbox(g);
+            _rootNode.AddGameObjectHitbox(g);
         }
     }
 }

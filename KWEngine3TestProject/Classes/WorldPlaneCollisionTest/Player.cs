@@ -74,7 +74,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
             HandleGroundDetectionTest();
             
-            List<Intersection> intersections = GetIntersections();
+            List<Intersection> intersections = GetIntersections(IntersectionTestMode.CheckConvexHullsOnly);
             foreach (Intersection intersection in intersections)
             {
                 MoveOffset(intersection.MTV);

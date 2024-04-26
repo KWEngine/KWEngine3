@@ -8,7 +8,9 @@ namespace KWEngine3.Helper
         // MISC. PROPERTIES
         public bool IsShadowCaster { get; set; }
         public bool IsCollisionObject { get; set; }
-        public string CustomCollider { get; set; }
+        public string CustomColliderName { get; set; }
+        public string CustomColliderFile { get; set; }
+        public ColliderType CustomColliderType { get; set; } = ColliderType.ConvexHull;
         public bool BlendTextureStates { get; set; }
         public int ID { get; set; }
         public string Name { get; set; }
@@ -51,6 +53,26 @@ namespace KWEngine3.Helper
         {
             SerializedGameObject sg = new SerializedGameObject();
             sg.ID = g.ID;
+            if(g._colliderModel._customColliderFilename != null && g._colliderModel._customColliderFilename.Length > 0)
+            {
+                bool planeCollider = false;
+                foreach(GameObjectHitbox ghb in g._colliderModel._hitboxes)
+                {
+                    if(ghb._colliderType == ColliderType.PlaneCollider)
+                    {
+                        planeCollider = true;
+                        break;
+                    }
+                }
+                sg.CustomColliderType = planeCollider ? ColliderType.PlaneCollider : ColliderType.ConvexHull;
+                sg.CustomColliderFile = g._colliderModel._customColliderFilename;
+                sg.CustomColliderName = g._colliderModel._customColliderName;
+            }
+            else
+            {
+                sg.CustomColliderName = "";
+                sg.CustomColliderFile = "";
+            }
             sg.IsAffectedByLight = g.IsAffectedByLight;
             sg.Opacity = g._stateCurrent._opacity;
             sg.IsDepthTesting = g.IsDepthTesting;

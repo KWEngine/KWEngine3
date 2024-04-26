@@ -149,7 +149,7 @@ namespace KWEngine3.Editor
                 string modelName = SelectedGameObject._model.ModelOriginal.Name;
                 if (modelName == "kwcube.obj")
                     modelName = "KWCube";
-                else if (modelName == "kwsphere.fbx")
+                else if (modelName == "kwsphere.obj")
                     modelName = "KWSphere";
                 else if (modelName == "kwquad.obj")
                     modelName = "KWQuad";

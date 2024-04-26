@@ -37,7 +37,7 @@ namespace KWEngine3TestProject.Worlds
                 if (i != null)
                 {
                     Console.WriteLine("Setting collider back to default model collider");
-                    i.UnsetColliderModel();
+                    i.ResetColliderModel();
                 }
             }
             else if (Keyboard.IsKeyPressed(Keys.F3))
@@ -49,6 +49,32 @@ namespace KWEngine3TestProject.Worlds
                     i.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
                 }
             }
+            else if (Keyboard.IsKeyPressed(Keys.F4))
+            {
+                Immovable i = GetGameObjectByName<Immovable>("Plane");
+                if (i != null)
+                {
+                    Console.WriteLine("ACTIVATING COLLISION: adding hitboxes for Plane object");
+                    i.IsCollisionObject = true;
+                }
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F5))
+            {
+                Immovable i = GetGameObjectByName<Immovable>("Plane");
+                if (i != null)
+                {
+                    Console.WriteLine("DEACTIVATING COLLISION: Removing hitboxes for Plane object");
+                    i.IsCollisionObject = false;
+                }
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F6))
+            {
+                Immovable i = GetGameObjectByName<Immovable>("Plane");
+                if (i != null)
+                {
+                    
+                }
+            }
         }
 
         public override void Prepare()
@@ -58,11 +84,21 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.LoadModel("Plane", "./Models/OBJTest/PlaneRender.obj");
             KWEngine.LoadCollider("Plane", "./Models/OBJTest/PlaneCollider.obj", ColliderType.PlaneCollider);
 
+            Player p = new Player();
+            p.Name = "Player";
+            p.SetModel("KWSphere");
+            p.SetTexture("./Textures/uvpattern.png");
+            p.IsCollisionObject = true;
+            p.IsShadowCaster = true;
+            //p.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
+            p.SetPosition(0.55f, 2.5f, -3f);
+            AddGameObject(p);
+
             Immovable i = new Immovable();
             i.Name = "Plane";
             i.SetModel("Plane");
             i.IsCollisionObject = true;
-            //i.SetColliderModel("Plane");
+            i.SetColliderModel("Plane");
             i.IsShadowCaster = true;
             AddGameObject(i);
 
@@ -74,15 +110,6 @@ namespace KWEngine3TestProject.Worlds
             sphere.SetColor(1, 0, 0);
             sphere.SetScale(0.25f);
             AddGameObject(sphere);
-
-            Player p = new Player();
-            p.Name = "Player";
-            p.SetModel("KWSphere");
-            p.IsCollisionObject = true;
-            p.IsShadowCaster = true;
-            //p.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
-            p.SetPosition(0.55f, 2.5f, -3f);
-            AddGameObject(p);
 
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.Name = "Sun";
@@ -106,7 +133,7 @@ namespace KWEngine3TestProject.Worlds
                 GameObject g = GetGameObjectByName("Plane");
                 if(g != null)
                 {
-                    g.UnsetColliderModel();
+                    g.ResetColliderModel();
                 }
             }
             else if(e.Description == "PlaneToPlane")

@@ -12,6 +12,25 @@
     }
 
     /// <summary>
+    /// Gibt an, welche Arten von Hitboxen für die Kollisionsmessung berücksichtigt werden sollen
+    /// </summary>
+    public enum IntersectionTestMode
+    {
+        /// <summary>
+        /// Misst beide Arten: ConvexHull und Plane
+        /// </summary>
+        CheckAllHitboxTypes,
+        /// <summary>
+        /// Limitiert die Messung auf konvexe Hüllen (Convex Hull)
+        /// </summary>
+        CheckConvexHullsOnly,
+        /// <summary>
+        /// Limitiert die Messung auf Ebenen (Planes)
+        /// </summary>
+        CheckPlanesOnly
+    }
+
+    /// <summary>
     /// Bestimmt, in welche Richtung der Teststrahl geschossen wird (Standard: Y)
     /// </summary>
     /// <remarks>

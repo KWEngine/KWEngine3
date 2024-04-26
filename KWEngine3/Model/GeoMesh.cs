@@ -145,7 +145,7 @@ namespace KWEngine3.Model
             }
         }
 
-        internal void VBOGenerateTextureCoords1(Mesh mesh, Scene scene, int isKWCube = 0)
+        internal void VBOGenerateTextureCoords1(Mesh mesh)
         {
             if (mesh.HasTextureCoords(0))
             {
@@ -153,21 +153,8 @@ namespace KWEngine3.Model
 
                 for (int i = 0, arrayIndex = 0; i < mesh.TextureCoordinateChannels[0].Count; i++, arrayIndex += 2)
                 {
-                    if (isKWCube == 2)
-                    {
-                        values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
-                        values[arrayIndex + 1] = mesh.TextureCoordinateChannels[0][i].Y;
-                    }
-                    else if (isKWCube == 6)
-                    {
-                        values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
-                        values[arrayIndex + 1] = 1 - mesh.TextureCoordinateChannels[0][i].Y;
-                    }
-                    else
-                    {
-                        values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
-                        values[arrayIndex + 1] = mesh.TextureCoordinateChannels[0][i].Y;
-                    }
+                    values[arrayIndex] = mesh.TextureCoordinateChannels[0][i].X;
+                    values[arrayIndex + 1] = mesh.TextureCoordinateChannels[0][i].Y;
                 }
 
                 VBOTexture1 = GL.GenBuffer();

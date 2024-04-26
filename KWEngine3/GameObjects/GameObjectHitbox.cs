@@ -21,7 +21,6 @@ namespace KWEngine3.GameObjects
         public float _averageDiameter = 0;
         public float _fullDiameterAABB = 0;
 
-        public bool IsActive { get { return _mesh.IsActive; } }
         public Matrix4 _modelMatrixFinal = Matrix4.Identity;
 
         internal GameObject Owner { get; private set; }
@@ -75,11 +74,8 @@ namespace KWEngine3.GameObjects
             indexLeftRightMostVertex = _mesh.indexLeftRightMostVertex;
         }
 
-        internal bool Update(ref Vector3 gCenter)
+        internal void Update(ref Vector3 gCenter)
         {
-            if (!IsActive)
-                return false;
-
             Matrix4 meshPreTransform = _mesh.Transform;
 
             if (_isCapsule)
@@ -159,8 +155,6 @@ namespace KWEngine3.GameObjects
                 (_vertices[indexBottomTopMostVertex.Y] - _vertices[indexBottomTopMostVertex.X]).LengthFast,
                 (_vertices[indexBackFrontMostVertex.Y] - _vertices[indexBackFrontMostVertex.X]).LengthFast
                 );
-
-            return true;
         }
 
         public bool IsExtended
