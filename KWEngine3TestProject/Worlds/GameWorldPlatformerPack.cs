@@ -2,6 +2,7 @@
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldPlatformerPack;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
@@ -137,7 +138,7 @@ namespace KWEngine3TestProject.Worlds
             p.SetModel("Toon");
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
-            p.SetHitboxToCapsuleForMesh(0);
+            p.SetHitboxToCapsule();
             p.SetHitboxScale(0.75f, 1f, 1f);
             p.SetAnimationID(0);
             AddGameObject(p);

@@ -688,7 +688,7 @@ namespace KWEngine3
                 }
                 else
                 {
-                    KWEngine.LogWriteLine("[Import] Collider " + (name == null ? "" : name) + " invalid");
+                    KWEngine.LogWriteLine("[Import] Collider " + (name == null ? "" : name) + " invalid or file not found");
                     return;
                 }
             }

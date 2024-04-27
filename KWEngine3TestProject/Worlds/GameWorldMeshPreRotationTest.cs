@@ -145,9 +145,9 @@ namespace KWEngine3TestProject.Worlds
             }
             else if (this.GetModelName() == "Car3")
             {
-                HelperRotation.SetMeshPreRotationYZX(this, 1, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFrontLeft
+                HelperRotation.SetMeshPreRotationYZX(this, 3, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFrontLeft
                 HelperRotation.SetMeshPreRotationYZX(this, 2, _degreesWheels * 50, _degreesHandleBar * 2, 0); // WheelFrontRight
-                HelperRotation.SetMeshPreRotationYZX(this, 0, _degreesWheels * 50, 0, 0); // WheelBack
+                HelperRotation.SetMeshPreRotationYZX(this, 1, _degreesWheels * 50, 0, 0); // WheelBack
             }
             
             SetRotation(0, _degrees, 0);

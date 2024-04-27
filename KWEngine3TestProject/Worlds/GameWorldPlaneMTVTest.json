@@ -1,0 +1,366 @@
+{
+  "CamPosition": [
+    0,
+    5,
+    10
+  ],
+  "CamTarget": [
+    0,
+    0,
+    0
+  ],
+  "CamFOV": 90,
+  "Type": "KWEngine3TestProject.Worlds.GameWorldPlaneMTVTest",
+  "ColorAmbient": [
+    0.75,
+    0.75,
+    0.75
+  ],
+  "ColorBackgroundBoost": 1,
+  "BackgroundSkyBox": "",
+  "BackgroundSkyboxRotation": 0,
+  "Background2D": "",
+  "Background2DRepeat": [
+    1,
+    1
+  ],
+  "Background2DOffset": [
+    0,
+    0
+  ],
+  "Background2DClip": [
+    1,
+    1
+  ],
+  "BackgroundFillColor": [
+    0,
+    0,
+    0
+  ],
+  "GameObjects": [
+    {
+      "IsShadowCaster": true,
+      "IsCollisionObject": true,
+      "CustomColliderName": "",
+      "CustomColliderFile": "",
+      "CustomColliderType": 0,
+      "BlendTextureStates": true,
+      "ID": 1,
+      "Name": "Player",
+      "Type": "KWEngine3TestProject.Classes.WorldPlaneMTVCollider.Player",
+      "ModelName": "KWSphere",
+      "ModelPath": "kwsphere.obj",
+      "UpdateLast": false,
+      "IsDepthTesting": true,
+      "IsAffectedByLight": true,
+      "Opacity": 1,
+      "Position": [
+        0.55,
+        2.5,
+        -3
+      ],
+      "Rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "Scale": [
+        1,
+        1,
+        1
+      ],
+      "PositionOffset": null,
+      "RotationOffset": null,
+      "ScaleOffset": null,
+      "AttachedToID": 0,
+      "AttachedToParentBone": null,
+      "ScaleHitbox": [
+        1,
+        1,
+        1
+      ],
+      "Color": [
+        1,
+        1,
+        1
+      ],
+      "ColorEmissive": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Metallic": [
+        0
+      ],
+      "Roughness": [
+        1
+      ],
+      "MetallicType": 0,
+      "TextureOffset": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureRepeat": [
+        [
+          1,
+          1
+        ]
+      ],
+      "TextureAlbedo": [
+        "./Textures/uvpattern.png"
+      ],
+      "TextureNormal": [
+        null
+      ],
+      "TextureRoughness": [
+        null
+      ],
+      "TextureMetallic": [
+        null
+      ],
+      "TextureEmissive": [
+        null
+      ],
+      "TextureRoughnessInMetallic": [
+        false
+      ],
+      "TextureTransform": [
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "IsShadowCaster": true,
+      "IsCollisionObject": true,
+      "CustomColliderName": "Plane",
+      "CustomColliderFile": "./Models/OBJTest/PlaneCollider.obj",
+      "CustomColliderType": 1,
+      "BlendTextureStates": true,
+      "ID": 2,
+      "Name": "Plane",
+      "Type": "KWEngine3TestProject.Classes.WorldPlaneMTVCollider.Immovable",
+      "ModelName": "Plane",
+      "ModelPath": "./Models/OBJTest/PlaneRender.obj",
+      "UpdateLast": false,
+      "IsDepthTesting": true,
+      "IsAffectedByLight": true,
+      "Opacity": 1,
+      "Position": [
+        0,
+        0,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "Scale": [
+        1,
+        1,
+        1
+      ],
+      "PositionOffset": null,
+      "RotationOffset": null,
+      "ScaleOffset": null,
+      "AttachedToID": 0,
+      "AttachedToParentBone": null,
+      "ScaleHitbox": [
+        1,
+        1,
+        1
+      ],
+      "Color": [
+        1,
+        1,
+        1
+      ],
+      "ColorEmissive": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Metallic": [
+        0
+      ],
+      "Roughness": [
+        1
+      ],
+      "MetallicType": 0,
+      "TextureOffset": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureRepeat": [
+        [
+          1,
+          1
+        ]
+      ],
+      "TextureAlbedo": [
+        "plane.png"
+      ],
+      "TextureNormal": [
+        null
+      ],
+      "TextureRoughness": [
+        null
+      ],
+      "TextureMetallic": [
+        null
+      ],
+      "TextureEmissive": [
+        null
+      ],
+      "TextureRoughnessInMetallic": [
+        false
+      ],
+      "TextureTransform": [
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "IsShadowCaster": false,
+      "IsCollisionObject": false,
+      "CustomColliderName": "",
+      "CustomColliderFile": "",
+      "CustomColliderType": 0,
+      "BlendTextureStates": true,
+      "ID": 3,
+      "Name": "IndexSphere",
+      "Type": "KWEngine3TestProject.Classes.WorldPlaneMTVCollider.IndexSphere",
+      "ModelName": "KWSphere",
+      "ModelPath": "kwsphere.obj",
+      "UpdateLast": false,
+      "IsDepthTesting": true,
+      "IsAffectedByLight": false,
+      "Opacity": 1,
+      "Position": [
+        -0.9974785,
+        0.53097296,
+        -3.6548653
+      ],
+      "Rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "Scale": [
+        0.25,
+        0.25,
+        0.25
+      ],
+      "PositionOffset": null,
+      "RotationOffset": null,
+      "ScaleOffset": null,
+      "AttachedToID": 0,
+      "AttachedToParentBone": null,
+      "ScaleHitbox": [
+        1,
+        1,
+        1
+      ],
+      "Color": [
+        1,
+        0,
+        0
+      ],
+      "ColorEmissive": [
+        1,
+        0,
+        0,
+        2
+      ],
+      "Metallic": [
+        0
+      ],
+      "Roughness": [
+        1
+      ],
+      "MetallicType": 0,
+      "TextureOffset": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureRepeat": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureAlbedo": [
+        null
+      ],
+      "TextureNormal": [
+        null
+      ],
+      "TextureRoughness": [
+        null
+      ],
+      "TextureMetallic": [
+        null
+      ],
+      "TextureEmissive": [
+        null
+      ],
+      "TextureRoughnessInMetallic": [
+        false
+      ],
+      "TextureTransform": [
+        1,
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "RenderObjects": [],
+  "LightObjects": [
+    {
+      "Name": "Sun",
+      "ShadowCasterType": 2048,
+      "LightType": 2,
+      "ShadowBias": 6E-05,
+      "Position": [
+        -10,
+        10,
+        0
+      ],
+      "Target": [
+        0,
+        -1E-06,
+        0.0001
+      ],
+      "Far": 20,
+      "Near": 1,
+      "FOV": 16,
+      "Color": [
+        1,
+        1,
+        1,
+        1.75
+      ]
+    }
+  ],
+  "TerrainObjects": [],
+  "HUDObjects": [],
+  "TextObjects": [],
+  "FoliageObjects": [],
+  "ViewSpaceGameObject": null
+}

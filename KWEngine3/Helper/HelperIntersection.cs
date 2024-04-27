@@ -1173,7 +1173,7 @@ namespace KWEngine3.Helper
             }
         }
 
-        internal static Matrix4 CalculateMeshTransformForGameObject(GameObject g, int meshIndex, CapsuleHitboxMode mode)
+        internal static Matrix4 CalculateMeshTransformForGameObject(GameObject g, CapsuleHitboxMode mode)
         {
             Matrix4 meshTransform = Matrix4.Identity;
 
@@ -1187,14 +1187,13 @@ namespace KWEngine3.Helper
                 }
                 else
                 {
-                    meshTransform = g._colliderModel._hitboxes[meshIndex]._mesh.Transform;
+                    meshTransform = g._colliderModel._hitboxes[0]._mesh.Transform;
                 }
             }
             else
             {
-                meshTransform = g._colliderModel._hitboxes[meshIndex]._mesh.Transform;
+                meshTransform = g._colliderModel._hitboxes[0]._mesh.Transform;
             }
-
             return meshTransform;
         }
 

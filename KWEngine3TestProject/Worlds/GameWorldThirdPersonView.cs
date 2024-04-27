@@ -2,6 +2,7 @@
 using KWEngine3.GameObjects;
 using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldThirdPersonView;
+using OpenTK.Mathematics;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -42,7 +43,7 @@ namespace KWEngine3TestProject.Worlds
             p01.IsShadowCaster = true;
             p01.IsCollisionObject = true;
             p01.SetRotation(0, 180, 0);
-            p01.SetHitboxToCapsuleForMesh(0);
+            p01.SetHitboxToCapsule(0.67f, 1f, 0.5f, new Vector3(0, 0.5f, 0));
             AddGameObject(p01);
             
             

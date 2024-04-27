@@ -2,6 +2,7 @@
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldPlaneCollisionTest;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,7 +71,7 @@ namespace KWEngine3TestProject.Worlds
             _player.SetPosition(Player.PLAYERSTART.X, Player.PLAYERSTART.Y, Player.PLAYERSTART.Z, PositionMode.BottomOfAABBHitbox);
             _player.SetScale(0.25f);
             _player.IsCollisionObject = true;
-            _player.SetHitboxToCapsuleForMesh();
+            _player.SetHitboxToCapsule();
             _player.SetHitboxScale(0.5f, 0.75f, 1f);
             _player.IsShadowCaster = true;
             AddGameObject(_player);

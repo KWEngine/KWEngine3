@@ -2,6 +2,7 @@
 using KWEngine3.Model;
 using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
+using System.Linq;
 
 namespace KWEngine3.GameObjects
 {
@@ -770,32 +771,64 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
         /// </summary>
-        /// <param name="meshIndex">Index des 3D-Mesh, für das die Hitbox getauscht werden soll</param>
-        /// <param name="mode">Modus zur Bestimmung der richtigen Hitbox-Orientierung</param>
-        /// <param name="type">Art/Form der Kapsel</param>
-        public void SetHitboxToCapsuleForMesh(int meshIndex = 0, CapsuleHitboxMode mode = CapsuleHitboxMode.Default, CapsuleHitboxType type = CapsuleHitboxType.Default)
+        /// <param name="adjustFootLevelToZero">Legt die Höhe der Unterkante stets auf Y=0 fest (wenn true)</param>
+        /// <param name="type">Variation der Kapsel</param>
+        public void SetHitboxToCapsule(bool adjustFootLevelToZero = true, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
-            if(_colliderModel._hitboxes.Count > meshIndex)
+            float yOffset = 0;
+            if(adjustFootLevelToZero && _model.DimensionsMin.Y < 0)
             {
-                Matrix4 meshTransform = HelperIntersection.CalculateMeshTransformForGameObject(this, meshIndex, mode);
-
-                Vector3 currentHitboxCenter = Vector4.TransformRow(new Vector4(_colliderModel._hitboxes[meshIndex]._mesh.Center, 1.0f), meshTransform).Xyz;
-                Vector3 frontbottomleft = Vector4.TransformRow(new Vector4(_colliderModel._hitboxes[meshIndex]._mesh.minX, _colliderModel._hitboxes[meshIndex]._mesh.minY, _colliderModel._hitboxes[meshIndex]._mesh.maxZ, 1f), meshTransform).Xyz;
-                Vector3 backtopright = Vector4.TransformRow(new Vector4(_colliderModel._hitboxes[meshIndex]._mesh.maxX, _colliderModel._hitboxes[meshIndex]._mesh.maxY, _colliderModel._hitboxes[meshIndex]._mesh.minZ, 1f), meshTransform).Xyz;
-                lock (CurrentWorld._gameObjectHitboxes)
-                {
-                    if (CurrentWorld._gameObjectHitboxes.Contains(this._colliderModel._hitboxes[meshIndex]))
-                    {
-                        CurrentWorld._gameObjectHitboxes.Remove(this._colliderModel._hitboxes[meshIndex]);
-                    }
-                    if(type == CapsuleHitboxType.Default)
-                        this._colliderModel._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
-                    else
-                        this._colliderModel._hitboxes[meshIndex] = new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshHitboxes[0], currentHitboxCenter, frontbottomleft, backtopright);
-                    CurrentWorld._gameObjectHitboxes.Add(this._colliderModel._hitboxes[meshIndex]);
-                    UpdateModelMatrixAndHitboxes();
-                }
+                yOffset = 0 - _model.DimensionsMin.Y;
             }
+            SetHitboxToCapsule(
+                _model.DimensionsMax.X - _model.DimensionsMin.X,
+                _model.DimensionsMax.Y - _model.DimensionsMin.Y,
+                _model.DimensionsMax.Z - _model.DimensionsMin.Z,
+                new Vector3(_model.Center.Xyz + new Vector3(0, yOffset, 0))
+                );
+        }
+
+        /// <summary>
+        /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
+        /// </summary>
+        /// <param name="width">Breite der Kapsel (X-Achse)</param>
+        /// <param name="height">Höhe der Kapsel (Y-Achse)</param>
+        /// <param name="depth">Tiefe der Kapsel (Z-Achse)</param>
+        /// <param name="offset">Verschiebung der Kapsel</param>
+        /// <param name="type">Variation der Kapsel</param>
+        public void SetHitboxToCapsule(float width, float height, float depth, Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
+        {
+            Vector3 frontbottomleft = new Vector3(
+                offset.X - width * 0.5f,
+                offset.Y - height * 0.5f,
+                offset.Z + depth * 0.5f);
+            Vector3 backtopright = new Vector3(
+                offset.X + width * 0.5f,
+                offset.Y + height * 0.5f,
+                offset.Z - depth * 0.5f);
+
+            lock (CurrentWorld._gameObjectHitboxes)
+            {
+                foreach (GameObjectHitbox ghbInWorld in CurrentWorld._gameObjectHitboxes)
+                {
+                    foreach (GameObjectHitbox ghbInCollider in _colliderModel._hitboxes)
+                    {
+                        if (CurrentWorld._gameObjectHitboxes.Contains(ghbInCollider))
+                        {
+                            CurrentWorld._gameObjectHitboxes.Remove(ghbInCollider);
+                        }
+                    }
+                }
+                _colliderModel._hitboxes.Clear();
+
+                if (type == CapsuleHitboxType.Default)
+                    this._colliderModel._hitboxes.Add(new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], offset, frontbottomleft, backtopright));
+                else
+                    this._colliderModel._hitboxes.Add(new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshHitboxes[0], offset, frontbottomleft, backtopright));
+                CurrentWorld._gameObjectHitboxes.Add(this._colliderModel._hitboxes[0]);
+                UpdateModelMatrixAndHitboxes();
+            }
+            
         }
 
         /// <summary>
@@ -1177,7 +1210,7 @@ namespace KWEngine3.GameObjects
             if (_colliderModel._hitboxes.Count > hitboxIndex)
             {
                 GameObjectHitbox h = _colliderModel._hitboxes[hitboxIndex];
-
+                _colliderModel._hitboxes.RemoveAt(hitboxIndex);
                 lock (KWEngine.CurrentWorld._gameObjectHitboxes)
                 {
                     int indexInWorldList = KWEngine.CurrentWorld._gameObjectHitboxes.IndexOf(h);

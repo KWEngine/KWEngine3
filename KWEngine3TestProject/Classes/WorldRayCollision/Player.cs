@@ -88,6 +88,7 @@ namespace KWEngine3TestProject.Classes.WorldRayCollision
 
                 Quaternion slopeRotation = HelperRotation.GetRotationForSlope(nearestHitPosition1, nearestHitPosition2, this.LookAtVector);
                 SetRotation(slopeRotation);
+                SetPositionY(((nearestHitPosition1 + nearestHitPosition2) * 0.5f).Y, PositionMode.BottomOfAABBHitbox);
             }
             else
             {
