@@ -38,8 +38,8 @@ namespace KWEngine3TestProject.Worlds
             SetColorAmbient(0.5f, 0.5f, 0.5f);
 
             KWEngine.LoadModel("Beach_Render", "./Models/GLTFTest/WorldADV03_Beach_Map.obj");
-            KWEngine.LoadCollider("Beach_Planes", "./Models/GLTFTest/WorldADV03_Beach_Floors.glb", ColliderType.PlaneCollider);
-            KWEngine.LoadModel("Beach_Hitboxes", "./Models/GLTFTest/WorldADV03_Beach_Hitboxes.glb");
+            KWEngine.LoadCollider("Beach_Planes", "./Models/OBJTest/WorldADV03_Beach_Planes.obj", ColliderType.PlaneCollider);
+            KWEngine.LoadCollider("Beach_Hitboxes", "./Models/OBJTest/WorldADV03_Beach_Hitboxes.obj", ColliderType.ConvexHull);
             KWEngine.LoadModel("Toon", "./Models/PlatformerPack/Toon.glb");
             KWEngine.LoadModel("Bee", "./Models/PlatformerPack/Bee.gltf");
             KWEngine.LoadModel("Rock01", "./Models/OBJTest/rock01.obj");
@@ -58,13 +58,15 @@ namespace KWEngine3TestProject.Worlds
             beachPlanes.SetOpacity(0);
             AddGameObject(beachPlanes);
 
+            
             Immovable beachHitboxes = new Immovable();
-            beachHitboxes.SetModel("Beach_Hitboxes");
+            beachHitboxes.SetColliderModel("Beach_Hitboxes");
             beachHitboxes.Name = "Beach Hitboxes";
             beachHitboxes.IsCollisionObject = true;
             beachHitboxes.SetOpacity(0);
             AddGameObject(beachHitboxes);
             
+
             _player = new Player();
             _player.SetModel("Toon");
             _player.Name = "Player #1";

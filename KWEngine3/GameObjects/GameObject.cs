@@ -64,10 +64,6 @@ namespace KWEngine3.GameObjects
                         KWEngine.CurrentWorld._gameObjectsColliderChange.Add(intent);
                     }
                 }
-                else
-                {
-                    //TODO: check if this is a necessary branch
-                }
                 _isCollisionObject = value;
             }
 
@@ -146,19 +142,16 @@ namespace KWEngine3.GameObjects
 
             if (this.ID > 0)
             {
-                if (_isCollisionObject == true)
+                ColliderChangeIntent intent = new ColliderChangeIntent();
+                intent._objectToChange = this;
+                intent._customColliderName = colliderModelName;
+                intent._customColliderFilename = KWEngine.CustomColliders[colliderModelName].FileName;
+                intent._mode = AddRemoveHitboxMode.AddCustomRemoveDefault;
+                foreach (GeoMeshHitbox gmh in KWEngine.CustomColliders[colliderModelName].MeshHitboxes)
                 {
-                    ColliderChangeIntent intent = new ColliderChangeIntent();
-                    intent._objectToChange = this;
-                    intent._customColliderName = colliderModelName;
-                    intent._customColliderFilename = KWEngine.CustomColliders[colliderModelName].FileName;
-                    intent._mode = AddRemoveHitboxMode.AddCustomRemoveDefault;
-                    foreach (GeoMeshHitbox gmh in KWEngine.CustomColliders[colliderModelName].MeshHitboxes)
-                    {
-                        intent._hitboxesNew.Add(new GameObjectHitbox(this, gmh));
-                    }
-                    KWEngine.CurrentWorld._gameObjectsColliderChange.Add(intent);
+                    intent._hitboxesNew.Add(new GameObjectHitbox(this, gmh));
                 }
+                KWEngine.CurrentWorld._gameObjectsColliderChange.Add(intent);
             }
             else
             {
@@ -167,7 +160,7 @@ namespace KWEngine3.GameObjects
                     KWEngine.CurrentWorld._gameObjectHitboxes.Remove(ghb);
                 }
                 _colliderModel._hitboxes.Clear();
-                
+
                 GeoMeshCollider meshCollider = KWEngine.CustomColliders[colliderModelName];
                 _colliderModel._customColliderName = colliderModelName;
                 _colliderModel._customColliderFilename = meshCollider.FileName;
@@ -175,9 +168,7 @@ namespace KWEngine3.GameObjects
                 {
                     GameObjectHitbox ghbNew = new GameObjectHitbox(this, gmh);
                     _colliderModel._hitboxes.Add(ghbNew);
-                    KWEngine.CurrentWorld._gameObjectHitboxes.Add(ghbNew);
                 }
-
                 UpdateModelMatrixAndHitboxes();
                 HelperSweepAndPrune.SweepAndPrune();
             }

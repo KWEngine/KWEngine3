@@ -355,22 +355,25 @@ namespace KWEngine3
                     {
                         foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
-                            bool result = _gameObjectHitboxes.Remove(hb);
+                            _gameObjectHitboxes.Remove(hb);
                         }
                     }
                     else if(g._mode == AddRemoveHitboxMode.AddCustomRemoveDefault)
                     {
                         foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
-                            bool result = _gameObjectHitboxes.Remove(hb);
+                            _gameObjectHitboxes.Remove(hb);
                         }
                         g._objectToChange._colliderModel._hitboxes.Clear();
                         g._objectToChange._colliderModel._hitboxes.AddRange(g._hitboxesNew);
 
-                        foreach (GameObjectHitbox gmh in g._objectToChange._colliderModel._hitboxes)
+                        if (g._objectToChange._isCollisionObject)
                         {
-                            if (!_gameObjectHitboxes.Contains(gmh))
-                                _gameObjectHitboxes.Add(gmh);
+                            foreach (GameObjectHitbox gmh in g._objectToChange._colliderModel._hitboxes)
+                            {
+                                if (!_gameObjectHitboxes.Contains(gmh))
+                                    _gameObjectHitboxes.Add(gmh);
+                            }
                         }
                         g._objectToChange._colliderModel._customColliderName = g._customColliderName;
                         g._objectToChange._colliderModel._customColliderFilename = g._customColliderFilename;
@@ -380,18 +383,21 @@ namespace KWEngine3
                     {
                         foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
-                            bool result = _gameObjectHitboxes.Remove(hb);
+                            _gameObjectHitboxes.Remove(hb);
                         }
 
                         g._objectToChange._colliderModel._hitboxes.Clear();
                         g._objectToChange._colliderModel._hitboxes.AddRange(g._hitboxesNew);
                         g._objectToChange._colliderModel._customColliderName = "";
                         g._objectToChange._colliderModel._customColliderFilename = "";
-                        foreach (GameObjectHitbox gmh in g._objectToChange._colliderModel._hitboxes)
+                        if (g._objectToChange._isCollisionObject)
                         {
-                            if (!_gameObjectHitboxes.Contains(gmh))
+                            foreach (GameObjectHitbox gmh in g._objectToChange._colliderModel._hitboxes)
                             {
-                                _gameObjectHitboxes.Add(gmh);
+                                if (!_gameObjectHitboxes.Contains(gmh))
+                                {
+                                    _gameObjectHitboxes.Add(gmh);
+                                }
                             }
                         }
                         g._objectToChange.UpdateModelMatrixAndHitboxes();

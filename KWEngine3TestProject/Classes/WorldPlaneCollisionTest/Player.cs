@@ -17,10 +17,11 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
     public class Player : GameObject
     {
-        public static Vector3 PLAYERSTART = new Vector3(3, 0.5f, -4);
+        public static Vector3 PLAYERSTART = new Vector3(3, 0.19f, -4.5f);
 
         private State _state = State.OnGround;
         private float _velocityY = 0f;
+        private const float VELOCITYJUMP = 0.0325f;
         private float _gravity = 0.00075f;
 
         private Vector2 _currentCameraRotation = new Vector2(180, -45);
@@ -61,7 +62,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
             if (Keyboard.IsKeyPressed(Keys.Space) && _state == State.OnGround)
             {
-                _velocityY = 0.04f;
+                _velocityY = VELOCITYJUMP;
                 _state = State.InAir;
                 animationSwitched = true;
             }
@@ -71,13 +72,23 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 MoveOffset(0, _velocityY, 0);
                 _velocityY -= _gravity;
             }
+            else
+            {
+                //MoveOffset(0, -_gravity, 0);
+            }
 
             HandleGroundDetectionTest();
-            
+
             List<Intersection> intersections = GetIntersections(IntersectionTestMode.CheckConvexHullsOnly);
+            //List<Intersection> intersections = GetIntersections(IntersectionTestMode.CheckPlanesOnly);
             foreach (Intersection intersection in intersections)
             {
                 MoveOffset(intersection.MTV);
+                /*if(intersection.MTV.Y > 0 && _state == State.InAir)
+                {
+                    _state = State.OnGround;
+                    _velocityY = 0;
+                }*/
             }
 
             if (this.Position.Y < -0.5f)
