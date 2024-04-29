@@ -69,9 +69,49 @@ namespace KWEngine3TestProject.Worlds
             }
             else if (Keyboard.IsKeyPressed(Keys.F6))
             {
-                Immovable i = GetGameObjectByName<Immovable>("Plane");
+                Immovable i = GetGameObjectByName<Immovable>("PlaneOnTheFly");
                 if (i != null)
                 {
+                    i.ResetColliderModel();
+                    RemoveGameObject(i);
+                }
+                else
+                {
+                    i = new Immovable();
+                    i.Name = "PlaneOnTheFly";
+                    i.SetModel("Plane");
+                    i.IsCollisionObject = true;
+                    i.SetColliderModel("Plane");
+                    i.IsShadowCaster = true;
+                    i.SetPosition(-1, -1, -1);
+                    AddGameObject(i);
+                }
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F7))
+            {
+                Immovable i = GetGameObjectByName<Immovable>("PlaneOnTheFly");
+                if (i != null)
+                {
+                    i.IsCollisionObject = false;
+                    RemoveGameObject(i);
+                }
+                else
+                {
+                    i = new Immovable();
+                    i.Name = "PlaneOnTheFly";
+                    i.SetModel("Plane");
+                    i.SetColliderModel("Plane");
+                    i.IsShadowCaster = true;
+                    i.SetPosition(-1, -1, -1);
+                    AddGameObject(i);
+                }
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F8))
+            {
+                Immovable i = GetGameObjectByName<Immovable>("PlaneOnTheFly");
+                if (i != null)
+                {
+                    i.IsCollisionObject = !i.IsCollisionObject;
                     
                 }
             }
