@@ -142,7 +142,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            SetCameraPosition(0, 5, 10);
+            SetCameraPosition(0, 10, 7.5f);
 
             KWEngine.LoadModel("Plane", "./Models/OBJTest/PlaneRender.obj");
             KWEngine.LoadCollider("Plane", "./Models/OBJTest/PlaneCollider.obj", ColliderType.PlaneCollider);
@@ -163,7 +163,6 @@ namespace KWEngine3TestProject.Worlds
             i.IsCollisionObject = true;
             i.SetColliderModel("Plane");
             i.IsShadowCaster = true;
-            //i.SetModel("KWSphere");
             AddGameObject(i);
 
             IndexSphere sphere = new IndexSphere();
@@ -182,32 +181,6 @@ namespace KWEngine3TestProject.Worlds
             sun.SetFOV(16);
             sun.SetColor(1, 1, 1, 1.75f);
             AddLightObject(sun);
-
-            WorldEvent e1 = new WorldEvent(1, "PlaneToDefault");
-            //AddWorldEvent(e1);
-
-            WorldEvent e2 = new WorldEvent(2, "PlaneToPlane");
-            //AddWorldEvent(e2);
-        }
-
-        protected override void OnWorldEvent(WorldEvent e)
-        {
-            if(e.Description == "PlaneToDefault")
-            {
-                GameObject g = GetGameObjectByName("Plane");
-                if(g != null)
-                {
-                    g.ResetColliderModel();
-                }
-            }
-            else if(e.Description == "PlaneToPlane")
-            {
-                GameObject g = GetGameObjectByName("Plane");
-                if (g != null)
-                {
-                    g.SetColliderModel("Plane");
-                }
-            }
         }
     }
 }

@@ -5,9 +5,6 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
 {
@@ -23,17 +20,18 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
         private const float VELOCITY_JUMP = 0.04f;
         private const float GRAVITY = 0.0005f;
         private State _currentState = State.OnGround;
+        
 
         public override void Act()
-        {/*
-            Vector3 _slopeNormal = Vector3.Zero;
+        {
+            Vector3 slopeNormal = Vector3.UnitY;
             if (_currentState == State.OnGround)
             {
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.FourRaysY, 1f, -2f, 1.5f, typeof(Immovable));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.67f, -2f, 1.5f, typeof(Immovable));
                 if (set.IsValid)
                 {
-                    _slopeNormal = set.SurfaceNormalNearest;
-                    this.SetPositionY(set.IntersectionPointNearest.Y, PositionMode.BottomOfAABBHitbox);
+                    slopeNormal = set.SurfaceNormalAvg;
+                    this.SetPositionY(set.IntersectionPointAvg.Y, PositionMode.BottomOfAABBHitbox);
                 }
                 else
                 {
@@ -48,10 +46,10 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 if (_velocity < -0.5f)
                     _velocity = -0.5f;
 
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.FourRaysY, 1f, -2f, 1.5f, typeof(Immovable));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.67f, -2f, 1.5f, typeof(Immovable));
                 if (set.IsValid == true)
                 {
-                    if (set.DistanceMin < 0.05f)
+                    if (set.DistanceAvg < 0.05f)
                     {
                         _currentState = State.OnGround;
                         _velocity = 0f;
@@ -59,67 +57,49 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 }
 
             }
-            */
-            Vector3 pVelocity = Vector3.Zero;
+
+            Vector3 playerVelocity = Vector3.Zero;
             if (Keyboard.IsKeyDown(Keys.A))
             {
-                pVelocity += new Vector3(-0.01f, 0f, 0f);
+                playerVelocity.X -= 1f;
             }
             if (Keyboard.IsKeyDown(Keys.D))
             {
-                pVelocity += new Vector3(+0.01f, 0f, 0f);
+                playerVelocity.X += 1f;
             }
             if (Keyboard.IsKeyDown(Keys.W))
             {
-                pVelocity += new Vector3(0f, 0f, -0.01f);
+                playerVelocity.Z -= 1f;
             }
             if (Keyboard.IsKeyDown(Keys.S))
             {
-                pVelocity += new Vector3(0f, 0f, +0.01f);
+                playerVelocity.Z += 1f;
             }
-            if(Keyboard.IsKeyDown(Keys.Space) && _currentState == State.OnGround)
+
+            float slopeFactor = 1;
+            float playerVelocityLength = playerVelocity.LengthSquared;
+            if (playerVelocityLength > 0)
+            {
+                playerVelocity.NormalizeFast();
+                float dotSlopePlayer = Vector3.Dot(slopeNormal, playerVelocity);
+
+                if(dotSlopePlayer < 0 && dotSlopePlayer >= -0.8f)
+                {
+                    slopeFactor = 1f - Math.Abs(dotSlopePlayer);
+                }
+                else if(dotSlopePlayer < 0 && dotSlopePlayer < -0.8f)
+                {
+                    slopeFactor = 0f;
+                }
+                
+                MoveOffset(playerVelocity * 0.01f * slopeFactor);
+            }
+
+            if (Keyboard.IsKeyDown(Keys.Space) && _currentState == State.OnGround)
             {
                 _currentState = State.InAir;
                 _velocity = VELOCITY_JUMP;
             }
-
-            if(_currentState == State.OnGround)
-            {
-                if(pVelocity != Vector3.Zero)
-                    MoveOffset(pVelocity);
-            }
-            else
-            {
-                _velocity -= GRAVITY;
-                MoveOffset(pVelocity.X, _velocity, pVelocity.Z);
-            }
-
-            if(_currentState == State.OnGround)
-            {
-                List<Intersection> floorTest = GetIntersections<Immovable>(new Vector3(0, -0.001f, 0f), IntersectionTestMode.CheckAllHitboxTypes);
-                if(floorTest.Count == 0) 
-                {
-                    _currentState = State.InAir;
-                    _velocity = 0;
-                }
-            }
-
-            
-            
-            
-            
-            List<Intersection> it = GetIntersections<Immovable>(IntersectionTestMode.CheckAllHitboxTypes);
-            foreach (Intersection i in it)
-            {
-                MoveOffset(i.MTV);
-                if(i.MTV.Y > 0 && _currentState == State.InAir)
-                {
-                    _currentState = State.OnGround;
-                    _velocity = 0f;
-                }
-
-            }
-            
 
             if (Position.Y < -20)
             {
