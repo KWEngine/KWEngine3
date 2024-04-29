@@ -111,8 +111,31 @@ namespace KWEngine3TestProject.Worlds
                 Immovable i = GetGameObjectByName<Immovable>("PlaneOnTheFly");
                 if (i != null)
                 {
+                    if(i.IsCollisionObject)
+                        Console.WriteLine("Setting PlaneOnTheFly collision state to: deactivated");
+                    else
+                        Console.WriteLine("Setting PlaneOnTheFly collision state to: activated");
                     i.IsCollisionObject = !i.IsCollisionObject;
                     
+                }
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F9))
+            {
+                Immovable i = GetGameObjectByName<Immovable>("PlaneOnTheFly");
+                if (i != null)
+                {
+                    i.SetModel("KWSphere");
+
+                }
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F10))
+            {
+                Immovable i = GetGameObjectByName<Immovable>("PlaneOnTheFly");
+                if (i != null)
+                {
+                    i.SetModel("Plane");
+                    i.SetColliderModel("Plane");
+
                 }
             }
         }
@@ -140,6 +163,7 @@ namespace KWEngine3TestProject.Worlds
             i.IsCollisionObject = true;
             i.SetColliderModel("Plane");
             i.IsShadowCaster = true;
+            i.SetModel("KWSphere");
             AddGameObject(i);
 
             IndexSphere sphere = new IndexSphere();

@@ -1320,9 +1320,9 @@ namespace KWEngine3.GameObjects
 
         internal void RemoveHitboxesFromWorldHitboxList()
         {
-            lock (CurrentWorld._gameObjectHitboxes)
-            {
-                if (_colliderModel != null)
+            if (_colliderModel != null)
+            { 
+                lock (CurrentWorld._gameObjectHitboxes)
                 {
                     foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
                     {
@@ -1334,11 +1334,15 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateWorldHitboxList()
         {
-            lock (KWEngine.CurrentWorld._gameObjectHitboxes)
+            if (_isCollisionObject == true)
             {
-                foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
+                lock (KWEngine.CurrentWorld._gameObjectHitboxes)
                 {
-                    KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
+                    foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
+                    {
+                        if(!KWEngine.CurrentWorld._gameObjectHitboxes.Contains(hb))
+                            KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
+                    }
                 }
             }
         }
