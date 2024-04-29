@@ -775,7 +775,8 @@ namespace KWEngine3.GameObjects
                 _model.DimensionsMax.X - _model.DimensionsMin.X,
                 _model.DimensionsMax.Y - _model.DimensionsMin.Y,
                 _model.DimensionsMax.Z - _model.DimensionsMin.Z,
-                new Vector3(_model.Center.Xyz + new Vector3(0, yOffset, 0))
+                new Vector3(_model.Center.Xyz + new Vector3(0, yOffset, 0)), 
+                type
                 );
         }
 

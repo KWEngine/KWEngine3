@@ -153,8 +153,8 @@ namespace KWEngine3TestProject.Worlds
             p.SetTexture("./Textures/uvpattern.png");
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            //p.SetHitboxToCapsuleForMesh(0, CapsuleHitboxMode.Default, CapsuleHitboxType.Sloped);
-            p.SetPosition(0.55f, 2.5f, -3f);
+            p.SetHitboxToCapsule(false, CapsuleHitboxType.Sloped);
+            p.SetPosition(0.0f, 0.5f, 0f);
             AddGameObject(p);
 
             Immovable i = new Immovable();
@@ -163,7 +163,7 @@ namespace KWEngine3TestProject.Worlds
             i.IsCollisionObject = true;
             i.SetColliderModel("Plane");
             i.IsShadowCaster = true;
-            i.SetModel("KWSphere");
+            //i.SetModel("KWSphere");
             AddGameObject(i);
 
             IndexSphere sphere = new IndexSphere();
