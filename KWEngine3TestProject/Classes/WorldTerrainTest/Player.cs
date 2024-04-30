@@ -37,10 +37,10 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 MoveAlongVector(movementVector, 0.01f);
             }
 
-            RayTerrainIntersection rti = HelperIntersection.RaytraceTerrainBelowPosition(this.Center);
+            RayTerrainIntersectionSet rti = RaytraceTerrainBelowPosition(this.Position, KWEngine3.RayMode.FourRaysY, 1f);
             if (rti.IsValid)
             {
-                SetPositionY(rti.IntersectionPoint.Y, KWEngine3.PositionMode.BottomOfAABBHitbox);
+                SetPositionY(rti.IntersectionPointNearest.Y, KWEngine3.PositionMode.BottomOfAABBHitbox);
             }
         }
     }

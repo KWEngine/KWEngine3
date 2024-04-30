@@ -2,6 +2,7 @@
 using KWEngine3.Model;
 using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
+using System.ComponentModel;
 using System.Linq;
 
 namespace KWEngine3.GameObjects
@@ -260,12 +261,14 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /*
         /// <summary>
         /// Prüft auf eine Kollision mit einem Terrain-Objekt auf der vertikalen Weltachse und erzeugt einen Vector, der das
         /// aufrufende Objekt stets auf die Höhe des Terrains verschiebt
         /// </summary>
+        /// <param name="rayMode">Art der Testmethodik (Standard: SingleY)</param>
         /// <returns>Kollisionsobjekt mit weiteren Details</returns>
-        public IntersectionTerrain GetIntersectionWithTerrain()
+        public IntersectionTerrain GetIntersectionWithTerrain(RayMode rayMode = RayMode.SingleY)
         {
             foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
             {
@@ -289,6 +292,119 @@ namespace KWEngine3.GameObjects
                 }
             }
             return null;
+        }
+        */
+
+        /// <summary>
+        /// Prüft auf eine Strahlenkollision mit einem Terrain-Objekt direkt unterhalb der angegebenen Position
+        /// </summary>
+        /// <param name="position">Startposition des nach unten gerichteten Teststrahls</param>
+        /// <param name="rayMode">Art der Messung (Standard: SingleY)</param>
+        /// <param name="sizeFactor">Skalierungsfaktor der Strahlen (falls mehrere Strahlen verwendet werden)</param>
+        /// <returns>Ergebnis der Strahlenkollisionsmessung</returns>
+        public RayTerrainIntersectionSet RaytraceTerrainBelowPosition(Vector3 position, RayMode rayMode = RayMode.SingleY, float sizeFactor = 1f)
+        {
+            RayTerrainIntersectionSet resultSet = new RayTerrainIntersectionSet();
+
+            Vector3 rayDirection;
+            Vector3 offset;
+            if (rayMode == RayMode.FourRaysZ || rayMode == RayMode.SingleZ)
+            {
+                rayDirection = -LookAtVector;
+                offset = rayDirection * _obbRadii.Z * 10;
+            }
+            else
+            {
+                rayDirection = -LookAtVectorLocalUp;
+                offset = rayDirection * _obbRadii.Y * 10;
+            }
+            position -= offset;
+            Vector3[] rayOrigins;
+            if (rayMode == RayMode.SingleY || rayMode == RayMode.SingleZ)
+            {
+                rayOrigins = GameObject._rayOrigins1;
+                rayOrigins[0] = new Vector3(position);
+            }
+            else if (rayMode == RayMode.TwoRays2DPlatformerY)
+            {
+                rayOrigins = GameObject._rayOrigins2;
+                rayOrigins[0] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor);
+                rayOrigins[1] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor);
+            }
+            else if (rayMode == RayMode.FourRaysZ)
+            {
+                rayOrigins = GameObject._rayOrigins4;
+                rayOrigins[0] = new Vector3(position + LookAtVectorLocalUp * _obbRadii.Y * sizeFactor); // top
+                rayOrigins[1] = new Vector3(position - LookAtVectorLocalUp * _obbRadii.Y * sizeFactor); // bottom
+                rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
+                rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
+            }
+            else if (rayMode == RayMode.EightRaysY)
+            {
+                rayOrigins = GameObject._rayOrigins8;
+                rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
+                rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
+                rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
+                rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
+                rayOrigins[4] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor);
+                rayOrigins[5] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor);
+                rayOrigins[6] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor);
+                rayOrigins[7] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor);
+            }
+            else
+            {
+                rayOrigins = GameObject._rayOrigins4;
+                rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
+                rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
+                rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
+                rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
+            }
+
+            float distanceMin = float.MaxValue;
+            float distanceAvg = 0;
+            Vector3 normalAvg = Vector3.Zero;
+            Vector3 interAvg = Vector3.Zero;
+
+            foreach (TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
+            {
+                foreach (Vector3 ray in rayOrigins)
+                {
+                    Vector3 untranslatedPosition = ray - new Vector3(to._hitboxes[0]._center.X, 0, to._hitboxes[0]._center.Z);
+                    Sector s = to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
+                    if(s != null)
+                    {
+                        GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                        if (tris.HasValue)
+                        {
+                            bool hit = HelperIntersection.RayTriangleIntersection(ray, rayDirection, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                            if (hit)
+                            {
+                                float distance = (ray - contactPoint).LengthFast;
+
+                                contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
+                                distanceAvg += distance;
+                                interAvg += contactPoint;
+                                normalAvg += tris.Value.Normal;
+                                resultSet.AddSurfaceNormal(tris.Value.Normal);
+                                resultSet.AddIntersectionPoint(contactPoint);
+                                resultSet.AddObject(to);
+
+                                if (distance < distanceMin)
+                                {
+                                    resultSet.DistanceMin = distance;
+                                    resultSet.SurfaceNormalNearest = tris.Value.Normal;
+                                    resultSet.IntersectionPointNearest = contactPoint;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            resultSet.DistanceAvg = distanceAvg / resultSet.IntersectionPoints.Count;        
+            resultSet.SurfaceNormalAvg = normalAvg / resultSet.IntersectionPoints.Count;
+            resultSet.IntersectionPointAvg = interAvg / resultSet.IntersectionPoints.Count;
+
+            return resultSet;
         }
         
         /// <summary>
@@ -1183,6 +1299,7 @@ namespace KWEngine3.GameObjects
             return RaytraceObjectsNearbyFast(new Vector3(rayPositionX, rayPositionY, rayPositionZ), rayDirectionNormalized, typeof(GameObject));
         }
 
+        /*
         /// <summary>
         /// Prüft auf eine Strahlenkollision mit einem Terrain-Objekt direkt unterhalb der angegebenen Position
         /// </summary>
@@ -1192,6 +1309,7 @@ namespace KWEngine3.GameObjects
         {
             return HelperIntersection.RaytraceTerrainBelowPosition(position);
         }
+        */
 
         /// <summary>
         /// Löscht eine Hitbox mit dem gegebenen Index für die aktuelle Instanz

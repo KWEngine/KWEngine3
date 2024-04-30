@@ -31,24 +31,6 @@
     }
 
     /// <summary>
-    /// Bestimmt, in welche Richtung der Teststrahl geschossen wird (Standard: Y)
-    /// </summary>
-    /// <remarks>
-    /// Für 2D-Spiele aus der Vogelperspektive sollte i.d.R. Z verwendet werden
-    /// </remarks>
-    public enum SingleRayMode
-    {
-        /// <summary>
-        /// Schießt einen Strahl entlang der negativen lokalen Y-Achse der Instanz
-        /// </summary>
-        Y,
-        /// <summary>
-        /// Schießt einen Strahl entlang der negativen lokalen Z-Achse der Instanz (für 2D-Games aus der Vogelperspektive)
-        /// </summary>
-        Z
-    }
-
-    /// <summary>
     /// Bestimmt, wie viele Strahlen für die Messung der Bodennähe verwendet und in welche Richtung sie geschossen werden
     /// </summary>
     public enum RayMode

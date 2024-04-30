@@ -230,7 +230,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAGABGGAQqwiSAwIAOEABEAUAyA0EBQEAABA0CEIE=</HashCode>
+      <HashCode>jAiAEABGGAQqwiSAwIAOEABEAUAyA0EBQEAABA0CEIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -375,11 +375,10 @@
       <Method Name="TestIntersectionForPlaneFace" Hidden="true" />
       <Method Name="TestIntersectionForTerrain" Hidden="true" />
       <Method Name="TestIntersectionsWithPlaneCollider" Hidden="true" />
-      <Method Name="TestIntersectionTerrain" Hidden="true" />
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQKQAhQAALWCgCQAsAQAGEKAQQAgBLhGAJGCABYLZIg=</HashCode>
+      <HashCode>BQKQAhQAALWCgCQAsAQACEKAQQAgBLhGAJGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
