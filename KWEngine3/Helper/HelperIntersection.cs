@@ -1,10 +1,8 @@
-﻿using Assimp;
-using KWEngine3.GameObjects;
+﻿using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using System.ComponentModel;
 
 namespace KWEngine3.Helper
 {

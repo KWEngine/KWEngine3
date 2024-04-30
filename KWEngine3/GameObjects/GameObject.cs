@@ -1,9 +1,6 @@
 ﻿using KWEngine3.Helper;
 using KWEngine3.Model;
-using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
-using System.ComponentModel;
-using System.Linq;
 
 namespace KWEngine3.GameObjects
 {
