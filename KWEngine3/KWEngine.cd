@@ -230,7 +230,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAEABGGAQqwiSAwIAOEABEAUAyA0EBQEAABA0CEIE=</HashCode>
+      <HashCode>jAiAEABGGIwqwiSAwIAOEABEAUQyA0EBQEAABA0CEIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -250,20 +250,6 @@
     <TypeIdentifier>
       <HashCode>CAAAAAABAAAEEECoAAAAAAAAgAAAAAAAAQAAABAAMEA=</HashCode>
       <FileName>GameObjects\Intersection.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="KWEngine3.GameObjects.IntersectionTerrain">
-    <Position X="18.5" Y="3.5" Width="2.75" />
-    <Members>
-      <Field Name="_colliderSurfaceNormal" Hidden="true" />
-      <Field Name="_hitboxCaller" Hidden="true" />
-      <Field Name="_MTV" Hidden="true" />
-      <Method Name="IntersectionTerrain" Hidden="true" />
-      <Field Name="UNIT" Hidden="true" />
-    </Members>
-    <TypeIdentifier>
-      <HashCode>CAAAAAABAAAEEAAoAAAAAAAAAAAAAAAAAAAAAAAAEEA=</HashCode>
-      <FileName>GameObjects\IntersectionTerrain.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
@@ -288,7 +274,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="12.5" Width="2.75" />
+    <Position X="9.5" Y="13" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -373,12 +359,11 @@
       <Method Name="SatTest" Hidden="true" />
       <Method Name="TestIntersection" Hidden="true" />
       <Method Name="TestIntersectionForPlaneFace" Hidden="true" />
-      <Method Name="TestIntersectionForTerrain" Hidden="true" />
       <Method Name="TestIntersectionsWithPlaneCollider" Hidden="true" />
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQKQAhQAALWCgCQAsAQACEKAQQAgBLhGAJGCABYLZIg=</HashCode>
+      <HashCode>BQCQAhQAALWCgCQAsAQACEKAQQAgBLhGAJGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -412,7 +397,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="10.5" Width="2.75" />
+    <Position X="21.5" Y="10.75" Width="2.75" />
     <Members>
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
@@ -434,7 +419,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="18.5" Y="8.75" Width="2.75" />
+    <Position X="18.5" Y="7" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -528,7 +513,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="9.5" Width="2.75" />
+    <Position X="9.5" Y="10" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
@@ -602,7 +587,7 @@
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
-    <Position X="18.5" Y="5.5" Width="2.75" />
+    <Position X="18.5" Y="3.5" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AgAAAAAAEAAAAABAiAgAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
       <FileName>GameObjects\IntersectionVolume.cs</FileName>

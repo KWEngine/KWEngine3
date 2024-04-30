@@ -1290,38 +1290,6 @@ namespace KWEngine3.Helper
             }
         }
 
-        /*
-        internal static IntersectionTerrain TestIntersectionTerrain(GameObjectHitbox caller, TerrainObjectHitbox collider, RayMode rayMode = RayMode.SingleY)
-        {
-            
-            GeoModel model = collider.Owner._gModel.ModelOriginal;
-            Vector3 untranslatedPosition = caller._center - new Vector3(collider._center.X, 0, collider._center.Z);
-            Sector s = model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
-
-            
-            if (s != null)
-            {
-                
-
-                RayIntersectionExtSet resultSet = new RayIntersectionExtSet();
-                GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
-                if (tris.HasValue)
-                {
-                    resultSet.
-                    RayIntersectionExt i = TestIntersectionForTerrain(tris.Value, caller, collider, rayMode);
-                    return i;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return null;
-            }
-        }
-        */
         internal static bool RayTerrainIntersection(TerrainObject t, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 contactPoint)
         {
             contactPoint = Vector3.Zero;
@@ -1384,8 +1352,8 @@ namespace KWEngine3.Helper
             return false;
         }
 
-
-        private static IntersectionTerrain TestIntersectionForTerrain(GeoTerrainTriangle triangle, GameObjectHitbox caller, TerrainObjectHitbox collider)
+        /*
+        internal static IntersectionTerrain TestIntersectionForTerrain(GeoTerrainTriangle triangle, GameObjectHitbox caller, TerrainObjectHitbox collider)
         {
             Vector3 MTVTemp;
             Vector3 MTVTempUp = Vector3.Zero;
@@ -1401,13 +1369,14 @@ namespace KWEngine3.Helper
                     float dot = Vector3.Dot(MTVTempUp, triangle.Normal);
                     MTVTemp = triangle.Normal * dot;
 
-                    tempIntersection = new IntersectionTerrain(collider.Owner, caller, MTVTemp, MTVTempUp, collider.Owner.Name, triangle.Normal);
+                    tempIntersection = new IntersectionTerrain(collider.Owner, MTVTemp, MTVTempUp, triangle.Normal);
                     return tempIntersection;
                 }
 
             }
             return null;
         }
+        */
 
         internal static bool TestIntersection(FlowFieldHitbox ffhb, GameObjectHitbox collider)
         {

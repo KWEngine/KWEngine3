@@ -12,6 +12,9 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
 {
     internal class Player : GameObject
     {
+        private const int NORMALCOUNT = 30;
+        private List<Vector3> _surfaceNormals = new();
+        
         public override void Act()
         {
             Vector3 movementVector = new Vector3(0, 0, 0);
@@ -24,11 +27,11 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 movementVector.X -= 1;
             if (Keyboard.IsKeyDown(Keys.D))
                 movementVector.X += 1;
-
             if (Keyboard.IsKeyDown(Keys.Q))
                 MoveOffset(0, -0.01f, 0);
             if (Keyboard.IsKeyDown(Keys.E))
                 MoveOffset(0, +0.01f, 0);
+            
 
             if (movementVector.LengthSquared > 0)
             {
@@ -37,11 +40,28 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 MoveAlongVector(movementVector, 0.01f);
             }
 
-            RayTerrainIntersectionSet rti = RaytraceTerrainBelowPosition(this.Position, KWEngine3.RayMode.FourRaysY, 1f);
+            RayTerrainIntersectionSet rti = RaytraceTerrainBelowPositionExt(GetOBBBottom(), KWEngine3.RayMode.FourRaysY, 1f);
             if (rti.IsValid)
             {
-                SetPositionY(rti.IntersectionPointNearest.Y, KWEngine3.PositionMode.BottomOfAABBHitbox);
+                SetPositionY(rti.IntersectionPointAvg.Y, KWEngine3.PositionMode.BottomOfAABBHitbox);
+                if(_surfaceNormals.Count >= NORMALCOUNT)
+                {
+                    _surfaceNormals.RemoveAt(0); 
+                }
+                _surfaceNormals.Add(rti.SurfaceNormalAvg);
             }
+
+            if(_surfaceNormals.Count == NORMALCOUNT)
+            {
+                Vector3 avg = Vector3.Zero;
+                foreach(Vector3 n in _surfaceNormals)
+                {
+                    avg += n;
+                }
+                avg /= NORMALCOUNT;
+                SetRotationToMatchSurfaceNormal(Vector3.Normalize(avg));
+            }
+            
         }
     }
 }
