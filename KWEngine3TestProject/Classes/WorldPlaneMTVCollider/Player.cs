@@ -16,7 +16,10 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             InAir
         }
 
-        private float _velocity = 0f;
+        private Vector2 _velocityXZ = Vector2.Zero;
+        private float _velocityY = 0f;
+        private Vector2 _velocitySlopeJump = Vector2.Zero;
+
         private const float VELOCITY_JUMP = 0.04f;
         private const float GRAVITY = 0.0005f;
         private State _currentState = State.OnGround;
@@ -27,7 +30,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             Vector3 slopeNormal = Vector3.UnitY;
             if (_currentState == State.OnGround)
             {
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.67f, -2f, 1.5f, typeof(Immovable));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.SingleY, 1f, -2f, 1f, typeof(Immovable));
                 if (set.IsValid)
                 {
                     slopeNormal = set.SurfaceNormalAvg;
@@ -36,75 +39,79 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 else
                 {
                     _currentState = State.InAir;
-                    _velocity = 0f;
                 }
             }
             else
             {
-                MoveOffset(0f, _velocity, 0f);
-                _velocity -= GRAVITY;
-                if (_velocity < -0.5f)
-                    _velocity = -0.5f;
+                _velocityY -= GRAVITY;
+                if (_velocityY < -0.5f)
+                    _velocityY = -0.5f;
 
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.67f, -2f, 1.5f, typeof(Immovable));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.SingleY, 1f, -2f, 1f, typeof(Immovable));
                 if (set.IsValid == true)
                 {
-                    if (set.DistanceAvg < 0.05f)
+                    if (set.DistanceAvg < 0.025f)
                     {
                         _currentState = State.OnGround;
-                        _velocity = 0f;
+                        _velocityY = 0f;
+                        _velocitySlopeJump = Vector2.Zero;
                     }
                 }
-
             }
 
-            Vector3 playerVelocity = Vector3.Zero;
+            Vector2 inputVelocity = Vector2.Zero;
             if (Keyboard.IsKeyDown(Keys.A))
             {
-                playerVelocity.X -= 1f;
+                inputVelocity.X -= 1f;
             }
             if (Keyboard.IsKeyDown(Keys.D))
             {
-                playerVelocity.X += 1f;
+                inputVelocity.X += 1f;
             }
             if (Keyboard.IsKeyDown(Keys.W))
             {
-                playerVelocity.Z -= 1f;
+                inputVelocity.Y -= 1f;
             }
             if (Keyboard.IsKeyDown(Keys.S))
             {
-                playerVelocity.Z += 1f;
+                inputVelocity.Y += 1f;
             }
-
-            float slopeFactor = 1;
-            float playerVelocityLength = playerVelocity.LengthSquared;
-            if (playerVelocityLength > 0)
+            if(inputVelocity.LengthSquared > 0)
             {
-                playerVelocity.NormalizeFast();
-                float dotSlopePlayer = Vector3.Dot(slopeNormal, playerVelocity);
-
-                if(dotSlopePlayer < 0 && dotSlopePlayer >= -0.8f)
-                {
-                    slopeFactor = 1f - Math.Abs(dotSlopePlayer);
-                }
-                else if(dotSlopePlayer < 0 && dotSlopePlayer < -0.8f)
-                {
-                    slopeFactor = 0f;
-                }
-                
-                MoveOffset(playerVelocity * 0.01f * slopeFactor);
+                inputVelocity.NormalizeFast();
             }
+            float dotVelocityInputVelocity = Vector2.Dot(inputVelocity, _velocityXZ);
+                 
+            if(dotVelocityInputVelocity >= 0)
+                _velocityXZ += inputVelocity * 0.0005f;
+            else
+                _velocityXZ += inputVelocity * 0.0001f;
+
+            
 
             if (Keyboard.IsKeyDown(Keys.Space) && _currentState == State.OnGround)
             {
                 _currentState = State.InAir;
-                _velocity = VELOCITY_JUMP;
+                _velocityY += VELOCITY_JUMP;
+                _velocitySlopeJump = new Vector2(slopeNormal.X * 0.002f, slopeNormal.Z * 0.002f);
             }
+
+            _velocityXZ += _velocitySlopeJump;
+            if (_velocityXZ.LengthFast > 0.01f)
+            {
+                _velocityXZ = Vector2.NormalizeFast(_velocityXZ) * 0.01f;
+            }
+            MoveOffset(new Vector3(_velocityXZ.X, _velocityY, _velocityXZ.Y));
+
+            _velocityXZ /= 1.05f;
+            _velocitySlopeJump /= 1.05f;
 
             if (Position.Y < -20)
             {
                 SetPosition(0, 0.5f, 0);
-                _velocity = 0f;
+                _velocityY = 0f;
+                _velocityXZ = Vector2.Zero;
+                _velocitySlopeJump = Vector2.Zero;
                 _currentState = State.OnGround;
             }
         }

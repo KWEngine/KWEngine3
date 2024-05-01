@@ -294,6 +294,65 @@ namespace KWEngine3.Helper
             return screenCoordinates;
         }
 
+        /// <summary>
+        /// Erzeugt einen weichen Übergang des Wertes wenn er innerhalb der Unter-/Obergrenze liegt
+        /// </summary>
+        /// <param name="lowerBound">Wertuntergrenze</param>
+        /// <param name="upperBound">Wertobergrenze</param>
+        /// <param name="value">Zu überblendender Wert</param>
+        /// <returns>Weichgezeichneter Wert</returns>
+        public static float SmoothStep(float lowerBound, float upperBound, float value)
+        {
+            value = MathHelper.Clamp((value - lowerBound) / (upperBound - lowerBound), 0f, 1f);
+            return value * value * (3.0f - 2.0f * value);
+        }
+
+        /// <summary>
+        /// Erzeugt einen noch weicheren Übergang des Wertes wenn er innerhalb der Unter-/Obergrenze liegt
+        /// </summary>
+        /// <param name="lowerBound">Wertuntergrenze</param>
+        /// <param name="upperBound">Wertobergrenze</param>
+        /// <param name="value">Zu überblendender Wert</param>
+        /// <returns>Weichgezeichneter Wert</returns>
+        public static float SmootherStep(float lowerBound, float upperBound, float value)
+        {
+            value = MathHelper.Clamp((value - lowerBound) / (upperBound - lowerBound), 0f, 1f);
+            return value * value * value * (value * (6.0f * value - 15.0f) + 10.0f);
+        }
+
+        /// <summary>
+        /// Erzeugt einen weichen Übergang des Wertes wenn er innerhalb der Unter-/Obergrenze liegt
+        /// </summary>
+        /// <param name="lowerBound">Wertuntergrenze</param>
+        /// <param name="upperBound">Wertobergrenze</param>
+        /// <param name="value">Zu überblendender Wert</param>
+        /// <returns>Weichgezeichneter Wert</returns>
+        public static Vector3 SmoothStep(Vector3 lowerBound, Vector3 upperBound, float value)
+        {
+            return new Vector3(
+                SmoothStep(lowerBound.X, upperBound.X, value),
+                SmoothStep(lowerBound.Y, upperBound.Y, value),
+                SmoothStep(lowerBound.Z, upperBound.Z, value)
+                );
+        }
+
+        /// <summary>
+        /// Erzeugt einen noch weicheren Übergang des Wertes wenn er innerhalb der Unter-/Obergrenze liegt
+        /// </summary>
+        /// <param name="lowerBound">Wertuntergrenze</param>
+        /// <param name="upperBound">Wertobergrenze</param>
+        /// <param name="value">Zu überblendender Wert</param>
+        /// <returns>Weichgezeichneter Wert</returns>
+        public static Vector3 SmootherStep(Vector3 lowerBound, Vector3 upperBound, float value)
+        {
+            return new Vector3(
+                SmootherStep(lowerBound.X, upperBound.X, value),
+                SmootherStep(lowerBound.Y, upperBound.Y, value),
+                SmootherStep(lowerBound.Z, upperBound.Z, value)
+                );
+        }
+
+
         internal static Vector3 VectorZero = Vector3.Zero;
 
         internal static Quaternion LookRotation(Vector3 forward, Vector3 up)
