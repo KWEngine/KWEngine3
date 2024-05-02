@@ -93,6 +93,11 @@ namespace KWEngine3.Helper
             SurfaceNormals.Add(n);
         }
 
+        internal void AddIntersectionPoint(Vector3 p)
+        {
+            IntersectionPoints.Add(p);
+        }
+
         /// <summary>
         /// Gibt an, ob die Messung gültig und somit verwendbar ist
         /// </summary>

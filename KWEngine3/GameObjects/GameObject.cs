@@ -1154,6 +1154,7 @@ namespace KWEngine3.GameObjects
                                 hits++;
                                 grp.AddObject(face.Owner.Owner);
                                 grp.AddSurfaceNormal(face.Normal);
+                                grp.AddIntersectionPoint(currentContact);
                                 distanceSum += currentDistance;
                                 normalAvg += face.Normal;
                                 positionAvg += currentContact;

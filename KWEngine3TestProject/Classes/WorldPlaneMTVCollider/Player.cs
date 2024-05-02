@@ -19,8 +19,9 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
         private Vector2 _velocityXZ = Vector2.Zero;
         private float _velocityY = 0f;
         private Vector2 _velocitySlopeJump = Vector2.Zero;
-        private float _playerSpeed = 0.01f;
-        private const float _velocityReduction = 1.05f;
+        private float _playerSpeed = 0.02f;
+        private const float _velocityReduction = 1.033f;
+        private float _animationStep = 0f;
 
         private const float VELOCITY_JUMP = 0.04f;
         private const float GRAVITY = 0.0005f;
@@ -34,7 +35,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             Vector3 slopeNormal = Vector3.UnitY;
             if (_currentState == State.OnGround)
             {
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.FourRaysY, 0.85f, -0.5f, 0.1f, typeof(Immovable));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.75f, -1.0f, 0.1f, typeof(Immovable));
                 if (set.IsValid)
                 {
                     slopeNormal = set.SurfaceNormalAvg;
@@ -52,10 +53,10 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 if (_velocityY < -0.5f)
                     _velocityY = -0.5f;
 
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.FourRaysY, 0.85f, -0.5f, 0.1f, typeof(Immovable));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.75f, -0.5f, 0.05f, typeof(Immovable));
                 if (set.IsValid == true)
                 {
-                    if (set.DistanceAvg < 0.001f && _velocityY <= 0)
+                    if (set.DistanceAvg < 0.0001f &&  _velocityY <= 0)
                     {
                         _currentState = State.OnGround;
                         animationIsChanged = true;
@@ -87,19 +88,23 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 inputVelocity.NormalizeFast();
             }
             float dotVelocityInputVelocity = Vector2.Dot(inputVelocity, _velocityXZ);
-                 
-            if(dotVelocityInputVelocity >= 0)
-                _velocityXZ += inputVelocity * 0.0005f;
+            float dotVelocitySlope = Math.Min(0, Vector3.Dot(Vector3.NormalizeFast(new Vector3(_velocityXZ.X, 0, _velocityXZ.Y)), slopeNormal));
+            if (dotVelocityInputVelocity >= 0)
+            {
+                _velocityXZ += inputVelocity * 0.0005f + inputVelocity * dotVelocitySlope * 0.00045f;
+            }
             else
+            {
                 _velocityXZ += inputVelocity * 0.0001f;
+            }
 
             
 
-            if (Keyboard.IsKeyDown(Keys.Space) && _currentState == State.OnGround)
+            if ((Keyboard.IsKeyPressed(Keys.Space) || Mouse.IsButtonPressed(MouseButton.Right)) && _currentState == State.OnGround)
             {
                 _currentState = State.InAir;
                 _velocityY += VELOCITY_JUMP;
-                _velocitySlopeJump = new Vector2(slopeNormal.X * 0.002f, slopeNormal.Z * 0.002f);
+                _velocitySlopeJump = new Vector2(slopeNormal.X * 0.001f, slopeNormal.Z * 0.001f);
                 animationIsChanged = true;
             }
 
@@ -140,6 +145,11 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             foreach(Intersection i in intersections)
             {
                 MoveOffset(i.MTV);
+
+                if(i.MTV.Y < 0 && Math.Abs(i.MTV.Y) > Math.Abs(i.MTV.Z) && Math.Abs(i.MTV.Y) > Math.Abs(i.MTV.X) && _currentState == State.InAir)
+                {
+                    _velocityY = 0f;
+                }
             }
         }
 
@@ -150,7 +160,8 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             {
                 if(resetPercentage)
                 {
-                    SetAnimationPercentage(0f);
+                    _animationStep = 0f;
+                    SetAnimationPercentage(_animationStep);
                 }
                 if(_currentState == State.OnGround)
                 {
@@ -167,10 +178,29 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 }
                 else
                 {
-                    SetAnimationID(6); // Jump
-                    if(AnimationPercentage < 1)
+                    if (resetPercentage)
                     {
-                        SetAnimationPercentageAdvance(0.005f);
+                        SetAnimationID(6);
+                        _animationStep = 0.35f;
+                    }
+                    
+                    if(AnimationID == 6)
+                    {
+                        SetAnimationPercentage(_animationStep);
+                        if (_animationStep >= 1)
+                        {
+                            SetAnimationID(7);
+                            _animationStep = 0f;
+                            SetAnimationPercentage(_animationStep);
+                        }
+                        else
+                        {
+                            _animationStep += 0.006f;
+                        }
+                    }
+                    else if(AnimationID == 7)
+                    {
+                        SetAnimationPercentageAdvance(0.01f);
                     }
                 }
             }

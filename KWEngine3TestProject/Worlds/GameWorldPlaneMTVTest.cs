@@ -22,6 +22,7 @@ namespace KWEngine3TestProject.Worlds
                     s.SetPosition(list[0].IntersectionPoint);
                 }
             }
+            /*
             if (Keyboard.IsKeyPressed(Keys.F1))
             {
                 Immovable i = GetGameObjectByName<Immovable>("Plane");
@@ -138,11 +139,14 @@ namespace KWEngine3TestProject.Worlds
 
                 }
             }
+            */
         }
 
         public override void Prepare()
         {
-            SetCameraPosition(0, 10, 7.5f);
+            SetCameraPosition(0, 7.5f, 10.0f);
+            SetCameraTarget(0, 1, 0);
+            SetColorAmbient(0.5f, 0.5f, 0.5f);
 
             KWEngine.LoadModel("Player", "./Models/Tutorial/Toon.glb");
             KWEngine.LoadModel("Plane", "./Models/OBJTest/PlaneRender.obj");
@@ -157,6 +161,7 @@ namespace KWEngine3TestProject.Worlds
             p.SetHitboxToCapsule(true, CapsuleHitboxType.Sloped);
             p.SetPosition(0.0f, 0.5f, 0f);
             p.SetScale(0.5f);
+            p.SetHitboxScale(0.75f, 1.0f, 1.5f);
             AddGameObject(p);
 
             Immovable i = new Immovable();
@@ -169,7 +174,8 @@ namespace KWEngine3TestProject.Worlds
 
             Immovable box01 = new Immovable();
             box01.IsCollisionObject = true;
-            box01.SetPosition(0, 3, -2);
+            box01.SetPosition(-0.5f, 3, -2);
+            box01.SetScale(1.5f, 0.5f, 1.5f);
             box01.SetColor(1, 0, 1);
             box01.IsShadowCaster = true;
             AddGameObject(box01);
@@ -189,7 +195,7 @@ namespace KWEngine3TestProject.Worlds
             sun.SetPosition(-10, 10, 0);
             sun.SetNearFar(1, 20);
             sun.SetFOV(16);
-            sun.SetColor(1, 1, 1, 1.75f);
+            sun.SetColor(1, 1, 1, 2.5f);
             AddLightObject(sun);
         }
     }
