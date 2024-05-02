@@ -144,26 +144,36 @@ namespace KWEngine3TestProject.Worlds
         {
             SetCameraPosition(0, 10, 7.5f);
 
+            KWEngine.LoadModel("Player", "./Models/Tutorial/Toon.glb");
             KWEngine.LoadModel("Plane", "./Models/OBJTest/PlaneRender.obj");
             KWEngine.LoadCollider("Plane", "./Models/OBJTest/PlaneCollider.obj", ColliderType.PlaneCollider);
 
             Player p = new Player();
             p.Name = "Player";
-            p.SetModel("KWSphere");
+            p.SetModel("Player");
             p.SetTexture("./Textures/uvpattern.png");
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            p.SetHitboxToCapsule(false, CapsuleHitboxType.Sloped);
+            p.SetHitboxToCapsule(true, CapsuleHitboxType.Sloped);
             p.SetPosition(0.0f, 0.5f, 0f);
+            p.SetScale(0.5f);
             AddGameObject(p);
 
             Immovable i = new Immovable();
             i.Name = "Plane";
             i.SetModel("Plane");
-            i.IsCollisionObject = true;
             i.SetColliderModel("Plane");
+            i.IsCollisionObject = true;
             i.IsShadowCaster = true;
             AddGameObject(i);
+
+            Immovable box01 = new Immovable();
+            box01.IsCollisionObject = true;
+            box01.SetPosition(0, 3, -2);
+            box01.SetColor(1, 0, 1);
+            box01.IsShadowCaster = true;
+            AddGameObject(box01);
+
 
             IndexSphere sphere = new IndexSphere();
             sphere.SetModel("KWSphere");
@@ -174,7 +184,7 @@ namespace KWEngine3TestProject.Worlds
             sphere.SetScale(0.25f);
             AddGameObject(sphere);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.Low);
             sun.Name = "Sun";
             sun.SetPosition(-10, 10, 0);
             sun.SetNearFar(1, 20);
