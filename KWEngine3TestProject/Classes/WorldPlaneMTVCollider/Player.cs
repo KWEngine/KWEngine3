@@ -160,9 +160,9 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             foreach(Intersection i in intersections)
             {
                 MoveOffset(i.MTV);
-                if(_currentState == State.InAir && Vector3.Dot(Vector3.NormalizeFast(i.MTV), -KWEngine.WorldUp) > 0.1f)
+                if (_currentState == State.InAir && Vector3.Dot(Vector3.NormalizeFast(i.MTV), -KWEngine.WorldUp) > 0.1f)
                 {
-                    _velocityY = 0f;
+                    _velocityY = -0.005f;
                     _jumpingUp = false;
                 }
             }
