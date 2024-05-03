@@ -22,6 +22,7 @@ namespace KWEngine3TestProject.Worlds
                     s.SetPosition(list[0].IntersectionPoint);
                 }
             }
+
             /*
             if (Keyboard.IsKeyPressed(Keys.F1))
             {
@@ -159,7 +160,7 @@ namespace KWEngine3TestProject.Worlds
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
             p.SetHitboxToCapsule(true, CapsuleHitboxType.Sloped);
-            p.SetPosition(0.0f, 0.5f, 0f);
+            p.SetPosition(0f, 0f, 0f);
             p.SetScale(0.5f);
             p.SetHitboxScale(0.75f, 1.0f, 1.5f);
             AddGameObject(p);
@@ -172,7 +173,8 @@ namespace KWEngine3TestProject.Worlds
             i.IsShadowCaster = true;
             AddGameObject(i);
 
-            Immovable box01 = new Immovable();
+            Box box01 = new Box();
+            box01.Name = "Box01";
             box01.IsCollisionObject = true;
             box01.SetPosition(-0.5f, 3.5f, -2.0f);
             box01.SetScale(1.5f, 0.5f, 1.5f);

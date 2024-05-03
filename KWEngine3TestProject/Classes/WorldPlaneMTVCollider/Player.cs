@@ -36,7 +36,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             Vector3 slopeNormal = Vector3.UnitY;
             if (_currentState == State.OnGround)
             {
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.75f, -1.0f, 0.1f, typeof(Immovable));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.75f, -1.0f, 0.1f, typeof(Immovable), typeof(Box));
                 if (set.IsValid)
                 {
                     slopeNormal = set.SurfaceNormalAvg;
@@ -65,7 +65,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 if (_velocityY < -0.5f)
                     _velocityY = -0.5f;
 
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.75f, -0.5f, 0.05f, typeof(Immovable));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.75f, -0.5f, 0.05f, typeof(Immovable), typeof(Box));
                 if (set.IsValid == true)
                 {
                     if (set.DistanceAvg < 0.0001f &&  _velocityY <= 0)
@@ -117,7 +117,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             {
                 _currentState = State.InAir;
                 _jumpingUp = true;
-                _velocityY += VELOCITY_JUMP * 0.175f;
+                _velocityY += VELOCITY_JUMP * 0.33f;
                 _velocitySlopeJump = new Vector2(slopeNormal.X * 0.001f, slopeNormal.Z * 0.001f);
                 animationIsChanged = true;
             }
@@ -142,7 +142,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
 
             if (Position.Y < -20)
             {
-                SetPosition(0, 0.5f, 0);
+                SetPosition(0, 0.0f, 0);
                 _jumpingUp = false;
                 _velocityY = 0f;
                 _velocityXZ = Vector2.Zero;
@@ -156,7 +156,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
 
         private void HandleConvexHulls()
         {
-            List<Intersection> intersections = GetIntersections<Immovable>(IntersectionTestMode.CheckConvexHullsOnly);
+            List<Intersection> intersections = GetIntersections<Box>(IntersectionTestMode.CheckConvexHullsOnly);
             foreach(Intersection i in intersections)
             {
                 MoveOffset(i.MTV);
@@ -220,5 +220,6 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 }
             }
         }
+
     }
 }

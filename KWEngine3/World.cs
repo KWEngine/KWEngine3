@@ -965,6 +965,32 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Löscht alle aktuell in der Welt befindlichen GameObject-Instanzen des angegebenen Typs
+        /// </summary>
+        /// <typeparam name="T">Zu suchender Datentyp (Klasse)</typeparam>
+        /// <param name="includeSubtypes">wenn true, werden auch Unterklassen des angegebenen Typs berücksichtigt</param>
+        public void RemoveGameObjectsOfType<T>(bool includeSubtypes)
+        {
+            foreach(GameObject g in _gameObjects)
+            {
+                if(includeSubtypes)
+                {
+                    if (HelperGeneral.IsObjectClassOrSubclassOfType<T>(g))
+                    {
+                        RemoveGameObject(g);
+                    }
+                }
+                else
+                {
+                    if(HelperGeneral.IsObjectClassOfType<T>(g))
+                    {
+                        RemoveGameObject(g);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Löscht das angegebene Objekt aus der Welt
         /// </summary>
         /// <param name="r">Hinzuzufügendes Objekt</param>

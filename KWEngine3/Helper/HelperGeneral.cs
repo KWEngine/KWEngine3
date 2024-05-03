@@ -39,6 +39,21 @@ namespace KWEngine3.Helper
             return s;
         }
 
+        internal static bool IsObjectClassOfType<T>(GameObject g)
+        {
+            Type tType = typeof(T);
+            Type gType = g.GetType();
+            bool result = tType == gType;
+            return result;
+        }
+
+        internal static bool IsObjectClassOrSubclassOfType<T>(GameObject g)
+        {
+            Type gType = g.GetType();
+            Type tType = typeof(T);
+            return tType.IsAssignableFrom(gType);
+        }
+
         internal static bool IsObjectClassOrSubclassOfTypes(Type[] typelist, GameObject g)
         {
             Type gt = g.GetType();
