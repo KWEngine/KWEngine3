@@ -174,7 +174,7 @@ namespace KWEngine3TestProject.Worlds
 
             Immovable box01 = new Immovable();
             box01.IsCollisionObject = true;
-            box01.SetPosition(-0.5f, 3, -2);
+            box01.SetPosition(-0.5f, 3.5f, -2.0f);
             box01.SetScale(1.5f, 0.5f, 1.5f);
             box01.SetColor(1, 0, 1);
             box01.IsShadowCaster = true;

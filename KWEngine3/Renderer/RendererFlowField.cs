@@ -75,8 +75,6 @@ namespace KWEngine3.Renderer
                 URadius = GL.GetUniformLocation(ProgramID, "uRadius");
                 UColor = GL.GetUniformLocation(ProgramID, "uColor");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
-
-                HelperGeneral.CheckGLErrors();
             }
         }
 

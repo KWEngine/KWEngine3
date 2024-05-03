@@ -26,6 +26,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
         private const float VELOCITY_JUMP = 0.04f;
         private const float GRAVITY = 0.0005f;
         private State _currentState = State.OnGround;
+        private bool _jumpingUp = false;
         
 
         public override void Act()
@@ -49,6 +50,17 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             }
             else
             {
+                if(_jumpingUp)
+                {
+                    if(_velocityY < VELOCITY_JUMP)
+                    {
+                        _velocityY *= 1.1f;
+                    }
+                    else
+                    {
+                        _jumpingUp = false;
+                    }
+                }
                 _velocityY -= GRAVITY;
                 if (_velocityY < -0.5f)
                     _velocityY = -0.5f;
@@ -61,6 +73,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                         _currentState = State.OnGround;
                         animationIsChanged = true;
                         _velocityY = 0f;
+                        _jumpingUp = false;
                         _velocitySlopeJump = Vector2.Zero;
                     }
                 }
@@ -103,7 +116,8 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             if ((Keyboard.IsKeyPressed(Keys.Space) || Mouse.IsButtonPressed(MouseButton.Right)) && _currentState == State.OnGround)
             {
                 _currentState = State.InAir;
-                _velocityY += VELOCITY_JUMP;
+                _jumpingUp = true;
+                _velocityY += VELOCITY_JUMP * 0.175f;
                 _velocitySlopeJump = new Vector2(slopeNormal.X * 0.001f, slopeNormal.Z * 0.001f);
                 animationIsChanged = true;
             }
@@ -129,6 +143,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             if (Position.Y < -20)
             {
                 SetPosition(0, 0.5f, 0);
+                _jumpingUp = false;
                 _velocityY = 0f;
                 _velocityXZ = Vector2.Zero;
                 _velocitySlopeJump = Vector2.Zero;
@@ -145,10 +160,10 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             foreach(Intersection i in intersections)
             {
                 MoveOffset(i.MTV);
-
-                if(i.MTV.Y < 0 && Math.Abs(i.MTV.Y) > Math.Abs(i.MTV.Z) && Math.Abs(i.MTV.Y) > Math.Abs(i.MTV.X) && _currentState == State.InAir)
+                if(_currentState == State.InAir && Vector3.Dot(Vector3.NormalizeFast(i.MTV), -KWEngine.WorldUp) > 0.1f)
                 {
                     _velocityY = 0f;
+                    _jumpingUp = false;
                 }
             }
         }
@@ -181,7 +196,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                     if (resetPercentage)
                     {
                         SetAnimationID(6);
-                        _animationStep = 0.35f;
+                        _animationStep = 0.10f;
                     }
                     
                     if(AnimationID == 6)

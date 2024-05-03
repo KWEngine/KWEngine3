@@ -58,8 +58,6 @@ namespace KWEngine3.Renderer
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 URotationMatrix = GL.GetUniformLocation(ProgramID, "uRotationMatrix");
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
-
-                HelperGeneral.CheckGLErrors();
             }
         }
 
