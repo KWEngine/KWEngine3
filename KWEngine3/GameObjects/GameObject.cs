@@ -333,9 +333,9 @@ namespace KWEngine3.GameObjects
                 rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
                 rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
             }
-            else if (rayMode == RayMode.SevenRaysY)
+            else if (rayMode == RayMode.FiveRaysY)
             {
-                rayOrigins = _rayOrigins7;
+                rayOrigins = _rayOrigins5;
                 rayOrigins[0] = position; // center
                 rayOrigins[1] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
                 rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
@@ -1119,24 +1119,21 @@ namespace KWEngine3.GameObjects
                     rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
                     rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
                 }
-                else if(rayMode == RayMode.SevenRaysY)
+                else if(rayMode == RayMode.FiveRaysY)
                 {
                     centerIsRay = true;
-                    rayOrigins = _rayOrigins7;
+                    rayOrigins = _rayOrigins5;
                     rayOrigins[0] = position; // center
-                    rayOrigins[1] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
-                    rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
-                    rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
-                    rayOrigins[4] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) + LookAtVector * _obbRadii.Z * (sizeFactor * 0.85f)); // front right
-                    rayOrigins[5] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) + LookAtVector * _obbRadii.Z * (sizeFactor * 0.85f)); // front left
-                    rayOrigins[6] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) - LookAtVector * _obbRadii.Z * sizeFactor); // back right
-                    rayOrigins[7] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) - LookAtVector * _obbRadii.Z * sizeFactor); // back left
+                    rayOrigins[1] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * (sizeFactor * 0.95f)); // front right
+                    rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * (sizeFactor * 0.95f)); // front left
+                    rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * (sizeFactor * 0.95f)); // back right
+                    rayOrigins[4] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * (sizeFactor * 0.95f)); // back left
                 }
                 else
                 {
                     centerIsRay = true;
                     rayOrigins = _rayOrigins4;
-                    rayOrigins[0] = new Vector3(position); // center
+                    rayOrigins[0] = position; // center
                     rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
                     rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor); // left front
                     rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor); // right front
@@ -1568,7 +1565,7 @@ namespace KWEngine3.GameObjects
         internal static Vector3[] _rayOrigins1 = new Vector3[1];
         internal static Vector3[] _rayOrigins2 = new Vector3[2];
         internal static Vector3[] _rayOrigins4 = new Vector3[4];
-        internal static Vector3[] _rayOrigins7 = new Vector3[7];
+        internal static Vector3[] _rayOrigins5 = new Vector3[5];
         #endregion
     }
 }

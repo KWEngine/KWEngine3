@@ -7,6 +7,7 @@ using KWEngine3.Helper;
 using System;
 using System.Collections.Generic;
 using KWEngine3.GameObjects;
+using KWEngine3TestProject.Classes.WorldPlatformerPack;
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -167,14 +168,6 @@ namespace KWEngine3TestProject.Worlds
                 sun.SetPosition(this.Position + new Vector3(25, 25, 25));
                 sun.SetTarget(this.Position);
             }
-        }
-    }
-
-    internal class Floor : GameObject
-    {
-        public override void Act()
-        {
-
         }
     }
 }

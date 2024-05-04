@@ -51,7 +51,7 @@ namespace KWEngine3TestProject.Worlds
             r.IsShadowCaster = true;
             AddRenderObject(r);
 
-            Immovable beachPlanes = new Immovable();
+            Floor beachPlanes = new Floor();
             beachPlanes.SetColliderModel("Beach_Planes");
             beachPlanes.Name = "Beach Collider Planes";
             beachPlanes.IsCollisionObject = true;

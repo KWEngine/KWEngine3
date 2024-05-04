@@ -51,7 +51,7 @@ namespace KWEngine3.Helper
         {
             Type gType = g.GetType();
             Type tType = typeof(T);
-            return tType.IsAssignableFrom(gType);
+            return tType == gType || gType.IsSubclassOf(tType);
         }
 
         internal static bool IsObjectClassOrSubclassOfTypes(Type[] typelist, GameObject g)
@@ -59,7 +59,7 @@ namespace KWEngine3.Helper
             Type gt = g.GetType();
             foreach(Type t in typelist)
             {
-                if (t.IsAssignableFrom(gt))
+                if (t == gt || gt.IsSubclassOf(t))
                     return true;
             }
             return false;
@@ -67,8 +67,8 @@ namespace KWEngine3.Helper
 
         internal static bool IsTypeClassOrSubclassOfGameObject(Type t)
         {
-            Type src = typeof(GameObject);
-            return !(t.IsAssignableFrom(src));
+            Type gt = typeof(GameObject);
+            return t == gt || t.IsSubclassOf(gt);
         }
 
         /// <summary>

@@ -80,22 +80,16 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             HandleGroundDetectionTest();
 
             List<Intersection> intersections = GetIntersections(IntersectionTestMode.CheckConvexHullsOnly);
-            //List<Intersection> intersections = GetIntersections(IntersectionTestMode.CheckPlanesOnly);
             foreach (Intersection intersection in intersections)
             {
                 MoveOffset(intersection.MTV);
-                /*if(intersection.MTV.Y > 0 && _state == State.InAir)
-                {
-                    _state = State.OnGround;
-                    _velocityY = 0;
-                }*/
             }
 
             if (this.Position.Y < -0.5f)
             {
                 _velocityY = 0;
                 _state = State.OnGround;
-                this.SetPosition(Player.PLAYERSTART);
+                this.SetPosition(PLAYERSTART);
             }
 
             UpdateSun();
@@ -135,14 +129,14 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
         private void HandleGroundDetectionTest()
         {
-            RayIntersectionExtSet result = RaytraceObjectsBelowPosition(RayMode.SevenRaysY, 1f, -0.1f, 0.1f, typeof(GameObject));
+            RayIntersectionExtSet result = RaytraceObjectsBelowPosition(RayMode.FiveRaysY, 1f, -0.1f, 0.05f, typeof(Floor));
             if(result.IsValid)
             {
                 if(_state == State.OnGround)
                 {
                     if (result.DistanceMin > -0.1f)
                     {
-                        SetPositionY(result.IntersectionPointNearest.Y, PositionMode.BottomOfAABBHitbox);
+                        SetPositionY(result.IntersectionPointCenter.Y, PositionMode.BottomOfAABBHitbox);
                     }
                         
                 }
@@ -150,7 +144,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 {
                     if(result.DistanceMin <= 0f && _velocityY < 0)
                     {
-                        SetPositionY(result.IntersectionPointNearest.Y, PositionMode.BottomOfAABBHitbox);
+                        SetPositionY(result.IntersectionPointCenter.Y, PositionMode.BottomOfAABBHitbox);
                         _velocityY = 0f;
                         _state = State.OnGround;
                     }
