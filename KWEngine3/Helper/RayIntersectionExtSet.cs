@@ -20,7 +20,13 @@ namespace KWEngine3.Helper
         /// <summary>
         /// Die durchschnittliche Distanz vom Aufrufer zum getroffenen Objekt
         /// </summary>
-        public float DistanceAvg { get; internal set; } = 0f;
+        public float DistanceAvg { get; internal set; }
+
+        /// <summary>
+        /// Gibt die Distanz vom Ursprung des mittleren Teststrahls zur Oberfläche an
+        /// </summary>
+        /// <remarks>Sollte kein Schnittpunkt gefunden worden sein, wird stattdessen die durchschnittliche Entfernung verwendet</remarks>
+        public float DistanceToCenter { get; internal set; }
 
         /// <summary>
         /// Punkte, an dem die Strahlen auf Objekte trafen
@@ -31,6 +37,12 @@ namespace KWEngine3.Helper
         /// Ebenenvektoren der getroffenen Objekte
         /// </summary>
         public List<Vector3> SurfaceNormals { get; internal set; }
+
+        /// <summary>
+        /// Gibt den Schnittpunkt des mittleren Teststrahls mit der Oberfläche an
+        /// </summary>
+        /// <remarks>Sollte kein Schnittpunkt gefunden worden sein, wird stattdessen der durchschnittliche Schnittpunkt verwendet</remarks>
+        public Vector3 IntersectionPointCenter { get; internal set; }
 
         /// <summary>
         /// Enthält den Schnittpunkt, der von allen Strahlen am nächsten am Strahlursprung war
@@ -50,6 +62,12 @@ namespace KWEngine3.Helper
         /// Enthält den durchschnittlichen Oberflächenvektor aller ermittelten Schnittpunktflächen
         /// </summary>
         public Vector3 SurfaceNormalAvg { get; internal set; }
+
+        /// <summary>
+        /// Enthält den Oberflächenvektor der Oberfläche, die vom mittleren Teststrahl getroffen wurde
+        /// </summary>
+        /// <remarks>Sollte kein Schnittpunkt gefunden worden sein, wird stattdessen der durchschnittliche Ebenenvektor verwendet</remarks>
+        public Vector3 SurfaceNormalCenter { get; internal set; }
 
         /// <summary>
         /// Referenz auf das Objekt, dessen Entfernung am kürzesten zum Strahlenursprung war
@@ -72,12 +90,15 @@ namespace KWEngine3.Helper
             
             DistanceAvg = 0f;
             DistanceMin = float.MaxValue;
+            DistanceToCenter = 0f;
             
             IntersectionPointAvg = Vector3.Zero;
             IntersectionPointNearest = Vector3.Zero;
+            IntersectionPointCenter = Vector3.Zero;
 
             SurfaceNormalNearest = Vector3.UnitY;
             SurfaceNormalAvg = Vector3.UnitY;
+            SurfaceNormalCenter = Vector3.UnitY;
 
             IntersectionPoints = new List<Vector3>();
             SurfaceNormals = new List<Vector3>();
@@ -85,7 +106,8 @@ namespace KWEngine3.Helper
 
         internal void AddObject(GameObject g)
         {
-            Objects.Add(g);
+            if(Objects.Contains(g) == false)
+                Objects.Add(g);
         }
 
         internal void AddSurfaceNormal(Vector3 n)

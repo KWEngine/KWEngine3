@@ -56,9 +56,9 @@
         /// </summary>
         FourRaysY,
         /// <summary>
-        /// Verwendet acht Strahlen entlang der lokalen negativen Y-Achse der Instanz (für 3D-Platformer)
+        /// Verwendet sieben Strahlen entlang der lokalen negativen Y-Achse der Instanz (für 3D-Platformer)
         /// </summary>
-        EightRaysY
+        SevenRaysY
     }
 
     /// <summary>

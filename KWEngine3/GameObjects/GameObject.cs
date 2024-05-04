@@ -333,25 +333,25 @@ namespace KWEngine3.GameObjects
                 rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
                 rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
             }
-            else if (rayMode == RayMode.EightRaysY)
+            else if (rayMode == RayMode.SevenRaysY)
             {
-                rayOrigins = GameObject._rayOrigins8;
-                rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
-                rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
+                rayOrigins = _rayOrigins7;
+                rayOrigins[0] = position; // center
+                rayOrigins[1] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
                 rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
                 rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
-                rayOrigins[4] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor);
-                rayOrigins[5] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor);
-                rayOrigins[6] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor);
-                rayOrigins[7] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor);
+                rayOrigins[4] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) + LookAtVector * _obbRadii.Z * (sizeFactor * 0.85f)); // front right
+                rayOrigins[5] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) + LookAtVector * _obbRadii.Z * (sizeFactor * 0.85f)); // front left
+                rayOrigins[6] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) - LookAtVector * _obbRadii.Z * sizeFactor); // back right
+                rayOrigins[7] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) - LookAtVector * _obbRadii.Z * sizeFactor); // back left
             }
             else
             {
-                rayOrigins = GameObject._rayOrigins4;
-                rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
+                rayOrigins = _rayOrigins4;
+                rayOrigins[0] = new Vector3(position); // center
                 rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
-                rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
-                rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
+                rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor); // left front
+                rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor); // right front
             }
 
             float distanceMin = float.MaxValue;
@@ -1096,10 +1096,12 @@ namespace KWEngine3.GameObjects
                 float distanceSum = 0f;
                 GameObject gNearest = null;
                 string hitboxname = "";
-                
+                bool centerIsRay = false;
+
                 Vector3[] rayOrigins;
                 if (rayMode == RayMode.SingleY || rayMode == RayMode.SingleZ)
                 {
+                    centerIsRay = true;
                     rayOrigins = _rayOrigins1;
                     rayOrigins[0] = new Vector3(position);
                 }
@@ -1117,28 +1119,32 @@ namespace KWEngine3.GameObjects
                     rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
                     rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
                 }
-                else if(rayMode == RayMode.EightRaysY)
+                else if(rayMode == RayMode.SevenRaysY)
                 {
-                    rayOrigins = _rayOrigins8;
-                    rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
-                    rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
+                    centerIsRay = true;
+                    rayOrigins = _rayOrigins7;
+                    rayOrigins[0] = position; // center
+                    rayOrigins[1] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
                     rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
                     rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
-                    rayOrigins[4] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor);
-                    rayOrigins[5] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor);
-                    rayOrigins[6] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor);
-                    rayOrigins[7] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor - LookAtVector * _obbRadii.Z * sizeFactor);
+                    rayOrigins[4] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) + LookAtVector * _obbRadii.Z * (sizeFactor * 0.85f)); // front right
+                    rayOrigins[5] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) + LookAtVector * _obbRadii.Z * (sizeFactor * 0.85f)); // front left
+                    rayOrigins[6] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) - LookAtVector * _obbRadii.Z * sizeFactor); // back right
+                    rayOrigins[7] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * (sizeFactor * 0.85f) - LookAtVector * _obbRadii.Z * sizeFactor); // back left
                 }
                 else
                 {
+                    centerIsRay = true;
                     rayOrigins = _rayOrigins4;
-                    rayOrigins[0] = new Vector3(position + LookAtVector * _obbRadii.Z * sizeFactor); // front
+                    rayOrigins[0] = new Vector3(position); // center
                     rayOrigins[1] = new Vector3(position - LookAtVector * _obbRadii.Z * sizeFactor); // back
-                    rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
-                    rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
+                    rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor); // left front
+                    rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor); // right front
                 }
 
+                
                 int hits = 0;
+                bool centerInfoFound = false;
                 foreach (HitboxFace face in selectedFaces)
                 {
                     for(int i = 0; i < rayOrigins.Length; i++)
@@ -1146,9 +1152,12 @@ namespace KWEngine3.GameObjects
                         bool hit = HelperIntersection.RayNGonIntersection(rayOrigins[i], rayDirection, face.Normal, face.Vertices, out Vector3 currentContact);
                         if (hit)
                         {
-                            Vector3 delta = rayOrigins[i] + (offset * 2f) - currentContact;
+                            Vector3 delta = rayOrigins[i] + (2 * offset) - currentContact;
                             float dotDelta = Vector3.Dot(-delta, rayDirection);
                             float currentDistance = (delta).LengthFast * (dotDelta >= 0 ? 1f : -1f);
+
+                            
+
                             if (currentDistance <= maxDistance && currentDistance >= minDistance)
                             {
                                 hits++;
@@ -1166,6 +1175,14 @@ namespace KWEngine3.GameObjects
                                     positionNearest = currentContact;
                                     gNearest = face.Owner.Owner;
                                 }
+
+                                if (i == 0 && centerIsRay)
+                                {
+                                    centerInfoFound = true;
+                                    grp.DistanceToCenter = currentDistance;
+                                    grp.IntersectionPointCenter = currentContact;
+                                    grp.SurfaceNormalCenter = face.Normal;
+                                }
                             }
                         }
                     }
@@ -1179,6 +1196,13 @@ namespace KWEngine3.GameObjects
                 grp.DistanceMin = distanceMin;
                 grp.ObjectNearest = gNearest;
                 grp.ObjectNearestHitboxName = hitboxname;
+
+                if(centerInfoFound == false)
+                {
+                    grp.DistanceToCenter = grp.DistanceAvg;
+                    grp.IntersectionPointCenter = grp.IntersectionPointAvg;
+                    grp.SurfaceNormalCenter = grp.SurfaceNormalAvg;
+                }
             }
             return grp;
         }
@@ -1544,7 +1568,7 @@ namespace KWEngine3.GameObjects
         internal static Vector3[] _rayOrigins1 = new Vector3[1];
         internal static Vector3[] _rayOrigins2 = new Vector3[2];
         internal static Vector3[] _rayOrigins4 = new Vector3[4];
-        internal static Vector3[] _rayOrigins8 = new Vector3[8];
+        internal static Vector3[] _rayOrigins7 = new Vector3[7];
         #endregion
     }
 }

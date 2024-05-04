@@ -160,7 +160,8 @@ namespace KWEngine3TestProject.Worlds
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
             p.SetHitboxToCapsule(true, CapsuleHitboxType.Sloped);
-            p.SetPosition(0f, 0f, 0f);
+            //p.SetPosition(0f, 0f, 0f);
+            p.SetPosition(-2.19f, 0.75f, 1.72f);
             p.SetScale(0.5f);
             p.SetHitboxScale(0.75f, 1.0f, 1.5f);
             AddGameObject(p);

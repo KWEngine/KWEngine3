@@ -36,11 +36,11 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             Vector3 slopeNormal = Vector3.UnitY;
             if (_currentState == State.OnGround)
             {
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.75f, -1.0f, 0.1f, typeof(Immovable), typeof(Box));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.FourRaysY, 0.75f, -1.0f, 0.1f, typeof(Immovable), typeof(Box));
                 if (set.IsValid)
                 {
                     slopeNormal = set.SurfaceNormalAvg;
-                    this.SetPositionY(set.IntersectionPointAvg.Y, PositionMode.BottomOfAABBHitbox);
+                    this.SetPositionY(set.IntersectionPointCenter.Y, PositionMode.BottomOfAABBHitbox);
                 }
                 else
                 {
@@ -65,12 +65,13 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
                 if (_velocityY < -0.5f)
                     _velocityY = -0.5f;
 
-                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.EightRaysY, 0.75f, -0.5f, 0.05f, typeof(Immovable), typeof(Box));
+                RayIntersectionExtSet set = RaytraceObjectsBelowPosition(RayMode.FourRaysY, 0.75f, -0.5f, 0.05f, typeof(Immovable), typeof(Box));
                 if (set.IsValid == true)
                 {
                     if (set.DistanceAvg < 0.0001f &&  _velocityY <= 0)
                     {
                         _currentState = State.OnGround;
+                        this.SetPositionY(set.IntersectionPointCenter.Y, PositionMode.BottomOfAABBHitbox);
                         animationIsChanged = true;
                         _velocityY = 0f;
                         _jumpingUp = false;
@@ -96,7 +97,8 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             {
                 inputVelocity.Y += 1f;
             }
-            if(inputVelocity.LengthSquared > 0)
+            float inputVelocityLengthSq = inputVelocity.LengthSquared;
+            if (inputVelocityLengthSq > 0)
             {
                 inputVelocity.NormalizeFast();
             }
@@ -129,7 +131,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             {
                 _velocityXZ = Vector2.NormalizeFast(_velocityXZ) * _playerSpeed;
             }
-            if (velocitySum > 0.001f)
+            if (inputVelocityLengthSq > 0)
             {
                 TurnTowardsXZ(this.Position + new Vector3(_velocityXZ.X, 0, _velocityXZ.Y));
             }
@@ -160,10 +162,18 @@ namespace KWEngine3TestProject.Classes.WorldPlaneMTVCollider
             foreach(Intersection i in intersections)
             {
                 MoveOffset(i.MTV);
-                if (_currentState == State.InAir && Vector3.Dot(Vector3.NormalizeFast(i.MTV), -KWEngine.WorldUp) > 0.1f)
+
+                if (_currentState == State.InAir)
                 {
-                    _velocityY = -0.005f;
-                    _jumpingUp = false;
+                    if (Vector3.Dot(Vector3.NormalizeFast(i.MTV), -KWEngine.WorldUp) > 0.1f)
+                    {
+                        _velocityY = -0.005f;
+                        _jumpingUp = false;
+                    }
+                    if(i.MTV.Xz.LengthSquared > 0)
+                    {
+                        _velocityXZ = Vector2.Zero;
+                    }
                 }
             }
         }

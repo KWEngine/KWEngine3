@@ -216,7 +216,7 @@
       <Field Name="_rayOrigins1" Hidden="true" />
       <Field Name="_rayOrigins2" Hidden="true" />
       <Field Name="_rayOrigins4" Hidden="true" />
-      <Field Name="_rayOrigins8" Hidden="true" />
+      <Field Name="_rayOrigins7" Hidden="true" />
       <Field Name="_rotationOffsetForAttachment" Hidden="true" />
       <Field Name="_scaleOffsetForAttachment" Hidden="true" />
       <Method Name="GetBoneNameForAttachedGameObject" Hidden="true" />
