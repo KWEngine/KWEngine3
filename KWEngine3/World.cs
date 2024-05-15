@@ -826,6 +826,9 @@ namespace KWEngine3
         /// <param name="ex">Objekt</param>
         public void AddExplosionObject(ExplosionObject ex)
         {
+            if (ex == null)
+                return;
+
             if (!_particleAndExplosionObjects.Contains(ex))
             {
                 ex._starttime = WorldTime;
@@ -839,6 +842,9 @@ namespace KWEngine3
         /// <param name="po">Objekt</param>
         public void AddParticleObject(ParticleObject po)
         {
+            if (po == null)
+                return;
+
             if (!_particleAndExplosionObjects.Contains(po))
             {
                 po._starttime = WorldTime;
@@ -852,6 +858,9 @@ namespace KWEngine3
         /// <param name="f">hinzuzufügendes Objekt</param>
         public void AddFoliageObject(FoliageObject f)
         {
+            if (f == null)
+                return;
+
             if (IsPrepared == false)
             {
                 if (!_foliageObjects.Contains(f))
@@ -882,6 +891,9 @@ namespace KWEngine3
         /// <param name="f">zu entfernendes Objekt</param>
         public void RemoveFoliageObject(FoliageObject f)
         {
+            if (f == null)
+                return;
+
             if (IsPrepared == false)
             {
                 _foliageObjects.Remove(f);
@@ -901,6 +913,9 @@ namespace KWEngine3
         /// <param name="g">Objekt</param>
         public void AddGameObject(GameObject g)
         {
+            if (g == null)
+                return;
+
             if(IsPrepared == false)
             {
                 if (!_gameObjects.Contains(g))
@@ -945,6 +960,9 @@ namespace KWEngine3
         /// <param name="g">Objekt</param>
         public void RemoveGameObject(GameObject g)
         {
+            if (g == null)
+                return;
+
             if(IsPrepared == false)
             {
                 if(_gameObjects.Remove(g))
@@ -996,7 +1014,10 @@ namespace KWEngine3
         /// <param name="r">Hinzuzufügendes Objekt</param>
         public void AddRenderObject(RenderObject r)
         {
-            if(r.IsConfigured == false)
+            if (r == null)
+                return;
+
+            if (r.IsConfigured == false)
             {
                 KWEngine.LogWriteLine("[World] RenderObject instance '" + r.Name + "' incomplete. Set additional instance count first.");
             }
@@ -1031,6 +1052,8 @@ namespace KWEngine3
         /// <param name="r">Zu löschendes Objekt</param>
         public void RemoveRenderObject(RenderObject r)
         {
+            if (r == null)
+                return;
             if (IsPrepared == false)
             {
                 _renderObjects.Remove(r);
@@ -1050,6 +1073,9 @@ namespace KWEngine3
         /// <param name="l">Objekt</param>
         public void AddLightObject(LightObject l)
         {
+            if (l == null)
+                return;
+
             if (_lightObjects.Count + _lightObjectsToBeAdded.Count < KWEngine.MAX_LIGHTS)
             {
                 if (!_lightObjects.Contains(l) && !_lightObjectsToBeAdded.Contains(l))
@@ -1072,6 +1098,9 @@ namespace KWEngine3
         /// <param name="l">Objekt</param>
         public void RemoveLightObject(LightObject l)
         {
+            if (l == null)
+                return;
+
             if (!_lightObjectsToBeRemoved.Contains(l))
                 _lightObjectsToBeRemoved.Add(l);
         }
@@ -1082,6 +1111,9 @@ namespace KWEngine3
         /// <param name="t">Objekt</param>
         public void AddTerrainObject(TerrainObject t)
         {
+            if (t == null)
+                return;
+
             if (IsPrepared == false)
             {
                 if (!_terrainObjects.Contains(t))
@@ -1106,6 +1138,9 @@ namespace KWEngine3
         /// <param name="t">Objekt</param>
         public void RemoveTerrainObject(TerrainObject t)
         {
+            if (t == null)
+                return;
+
             if (IsPrepared == false)
             {
                 _terrainObjects.Remove(t);
