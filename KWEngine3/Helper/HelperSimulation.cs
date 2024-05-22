@@ -293,7 +293,7 @@ namespace KWEngine3.Helper
                             Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
                             attachedObject.SetScaleRotationAndTranslation(
                                 attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
-                                attachmentMatrix.ExtractRotation(false) * attachedObject._rotationOffsetForAttachment,
+                                attachmentMatrix.ExtractRotation(true) * attachedObject._rotationOffsetForAttachment,
                                 attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward
                                 );
                         }
