@@ -410,6 +410,8 @@ namespace KWEngine3
                     _availableGameObjectIDs.Enqueue((ushort)g.ID);
                     g.ID = 0;
 
+                    HelperGameObjectAttachment.CleanAttachments(g);
+
                     _gameObjects.Remove(g);
                     foreach(GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
@@ -974,6 +976,9 @@ namespace KWEngine3
                         _gameObjectHitboxes.Remove(hb);
                     }
                 }
+
+                HelperGameObjectAttachment.CleanAttachments(g);
+
                 HelperSweepAndPrune.SweepAndPrune();
                 return;
             }
@@ -986,8 +991,8 @@ namespace KWEngine3
         /// Löscht alle aktuell in der Welt befindlichen GameObject-Instanzen des angegebenen Typs
         /// </summary>
         /// <typeparam name="T">Zu suchender Datentyp (Klasse)</typeparam>
-        /// <param name="includeSubtypes">wenn true, werden auch Unterklassen des angegebenen Typs berücksichtigt</param>
-        public void RemoveGameObjectsOfType<T>(bool includeSubtypes)
+        /// <param name="includeSubtypes">wenn true, werden auch Unterklassen des angegebenen Typs berücksichtigt (Standard: true)</param>
+        public void RemoveGameObjectsOfType<T>(bool includeSubtypes = true)
         {
             foreach(GameObject g in _gameObjects)
             {

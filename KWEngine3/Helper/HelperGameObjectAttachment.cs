@@ -79,5 +79,23 @@ namespace KWEngine3.Helper
                 MathHelper.DegreesToRadians(z)
                 );
         }
+
+        internal static void CleanAttachments(GameObject obj)
+        {
+            obj.DetachAllBoneAttachments(false);
+
+            if (obj.IsAttachedToGameObject)
+            {
+                GameObject parent = obj.GetGameObjectThatIAmAttachedTo();
+                if (parent != null)
+                {
+                    string boneName = parent.GetBoneNameForAttachedGameObject(obj);
+                    if (boneName != null)
+                    {
+                        parent.DetachGameObjectFromBone(boneName);
+                    }
+                }
+            }
+        }
     }
 }

@@ -776,8 +776,10 @@ namespace KWEngine3.GameObjects
         /// Entfernt die Bindung (Attachment) einer GameObject-Instanz 
         /// </summary>
         /// <param name="boneName">Name des Knochens</param>
-        public void DetachGameObjectFromBone(string boneName)
+        /// <returns>Wenn der Vorgang erfolgreich ist, ist der Rückgabewert die abgekoppelte Instanz (andernfalls wird null zurückgegeben)</returns>
+        public GameObject DetachGameObjectFromBone(string boneName)
         {
+            GameObject result = null;
             if (_model.ModelOriginal.BoneNames.IndexOf(boneName) >= 0)
             {
                 GeoNode node = GeoNode.FindChild(_model.ModelOriginal.Armature, boneName);
@@ -796,6 +798,8 @@ namespace KWEngine3.GameObjects
                         attachment.SetPosition(position);
                         attachment.SetRotation(rotation);
                         attachment.SetScale(scale.X, scale.Y, scale.Z);
+
+                        result = attachment;
                     }
                     else
                     {
@@ -807,6 +811,7 @@ namespace KWEngine3.GameObjects
             {
                 KWEngine.LogWriteLine("[GameObject] Invalid bone name");
             }
+            return result;
         }
 
         /// <summary>
@@ -1393,6 +1398,22 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("[GameObject] Cannot find model '" + modelname + "'.");
             }
             return modelFound;
+        }
+
+        /// <summary>
+        /// Entfernt die Verbindung zu allen am Instanzmodell anhaftenden GameObject-Instanzen (Bone-Attachments)
+        /// </summary>
+        /// <param name="deleteAttachments">wenn true, werden die anhaftenden Instanzen nicht nur abgekoppelt sondern auch aus der Welt gelöscht (Standard: false)</param>
+        public void DetachAllBoneAttachments(bool deleteAttachments = false)
+        {
+            foreach (string bone in GetBoneNamesForAttachedGameObject())
+            {
+                DetachGameObjectFromBone(bone);
+
+                GameObject attachment = GetAttachedGameObjectForBone(bone);
+                if (attachment != null && deleteAttachments == true)
+                    KWEngine.CurrentWorld.RemoveGameObject(attachment);
+            }
         }
 
         #region Internals
