@@ -1408,11 +1408,11 @@ namespace KWEngine3.GameObjects
         {
             foreach (string bone in GetBoneNamesForAttachedGameObject())
             {
-                DetachGameObjectFromBone(bone);
-
                 GameObject attachment = GetAttachedGameObjectForBone(bone);
                 if (attachment != null && deleteAttachments == true)
                     KWEngine.CurrentWorld.RemoveGameObject(attachment);
+
+                DetachGameObjectFromBone(bone);
             }
         }
 
