@@ -1447,6 +1447,24 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Durchsucht die Liste der HUDObject-Instanzen nach Objekten, die die angegebene Zeichenkette enthalten
+        /// </summary>
+        /// <param name="name">Zu suchende Zeichenkette</param>
+        /// <returns>Liste der gefundenen Objekte</returns>
+        public List<HUDObject> GetHUDObjectsByName(string name)
+        {
+            List<HUDObject> list = new();
+            foreach(HUDObject h in _hudObjects)
+            {
+                if(h.Name != null && h.Name.Contains(name))
+                {
+                    list.Add(h);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
         /// Durchsucht die Liste der HUDObject-Instanzen nach einem Textobjekt mit dem gegebenen Namen
         /// </summary>
         /// <param name="name">Name des gesuchten Objekts</param>
@@ -1459,6 +1477,24 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Durchsucht die Liste der HUDObject-Instanzen nach HUDObjectText-Objekten, die die angegebene Zeichenkette enthalten
+        /// </summary>
+        /// <param name="name">Zu suchende Zeichenkette</param>
+        /// <returns>Liste der gefundenen Objekte</returns>
+        public List<HUDObjectText> GetHUDObjectTextsByName(string name)
+        {
+            List<HUDObjectText> list = new();
+            foreach (HUDObject h in _hudObjects)
+            {
+                if (h is HUDObjectText && h.Name != null && h.Name.Contains(name))
+                {
+                    list.Add(h as HUDObjectText);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
         /// Durchsucht die Liste der HUDObject-Instanzen nach einem Bildobjekt mit dem gegebenen Namen
         /// </summary>
         /// <param name="name">Name des gesuchten Objekts</param>
@@ -1468,6 +1504,24 @@ namespace KWEngine3
             name = name.Trim();
             HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectImage && ho.Name == name);
             return h as HUDObjectImage;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der HUDObject-Instanzen nach HUDObjectImage-Objekten, die die angegebene Zeichenkette enthalten
+        /// </summary>
+        /// <param name="name">Zu suchende Zeichenkette</param>
+        /// <returns>Liste der gefundenen Objekte</returns>
+        public List<HUDObjectImage> GetHUDObjectImagesByName(string name)
+        {
+            List<HUDObjectImage> list = new();
+            foreach (HUDObject h in _hudObjects)
+            {
+                if (h is HUDObjectImage && h.Name != null && h.Name.Contains(name))
+                {
+                    list.Add(h as HUDObjectImage);
+                }
+            }
+            return list;
         }
 
         /// <summary>
