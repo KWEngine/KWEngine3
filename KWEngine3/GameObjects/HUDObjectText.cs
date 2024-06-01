@@ -55,12 +55,17 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt den Text (maximal 256 Zeichen)
         /// </summary>
-        /// <param name="text">Text</param>
-        public void SetText(string text)
+        /// <param name="text">zu setzender Text</param>
+        /// <param name="trim">Leerzeichen zu Beginn und am Ende der Zeichenkette werden abgeschnitten (Standardwert: true)</param>
+        public void SetText(string text, bool trim = true)
         {
             if (text != null)
             {
-                _text = text.Trim();
+                if (trim)
+                    _text = text.Trim();
+                else
+                    _text = text;
+
                 if(_text.Length > 256)
                 {
                     _text = _text.Substring(0, 256);
