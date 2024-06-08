@@ -94,7 +94,8 @@ namespace KWEngine3
                      Flags = ContextFlags.ForwardCompatible,
                      WindowState = WindowState.Fullscreen,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
-                     Title = ""
+                     Title = "",
+                     CurrentMonitor = Monitors.GetPrimaryMonitor().Handle
                  }
                  )
         {
@@ -108,9 +109,35 @@ namespace KWEngine3
         /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
         /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
+        public GLWindow(int width, int height, bool vSync = true) 
+            : this(
+                 new GameWindowSettings() { UpdateFrequency = 0 },
+                 new NativeWindowSettings()
+                 {
+                     API = ContextAPI.OpenGL,
+                     APIVersion = Version.Parse("4.0"),
+                     Flags = ContextFlags.ForwardCompatible,
+                     WindowState = WindowState.Normal,
+                     Size = new Vector2i(width, height),
+                     WindowBorder = WindowBorder.Fixed,
+                     Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
+                     Title = ""
+                 }
+        )
+        {
+            _ppQuality = PostProcessingQuality.High;
+            KWEngine.InitializeFontsAndDefaultTextures();
+        }
+
+        /// <summary>
+        /// Standardkonstruktor für den Fenstermodus
+        /// </summary>
+        /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
+        /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
+        /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
         /// <param name="windowMode">Art des Fensters (Standard oder rahmenlos)</param>
-        public GLWindow(int width, int height, bool vSync = true, PostProcessingQuality ppQuality = PostProcessingQuality.High, WindowMode windowMode = WindowMode.Default) 
+        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -123,6 +150,36 @@ namespace KWEngine3
                      WindowBorder = windowMode == WindowMode.Default ? WindowBorder.Fixed : WindowBorder.Hidden,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = ""
+                 }
+        )
+        {
+            _ppQuality = ppQuality;
+            KWEngine.InitializeFontsAndDefaultTextures();
+        }
+
+        /// <summary>
+        /// Standardkonstruktor für den Fenstermodus
+        /// </summary>
+        /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
+        /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
+        /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
+        /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
+        /// <param name="windowMode">Art des Fensters (Standard oder rahmenlos)</param>
+        /// <param name="monitorHandle">Handle des Monitors, auf dem das Fenster geöffnet werden soll</param>
+        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode, MonitorHandle monitorHandle)
+            : this(
+                 new GameWindowSettings() { UpdateFrequency = 0 },
+                 new NativeWindowSettings()
+                 {
+                     API = ContextAPI.OpenGL,
+                     APIVersion = Version.Parse("4.0"),
+                     Flags = ContextFlags.ForwardCompatible,
+                     WindowState = WindowState.Normal,
+                     Size = new Vector2i(width, height),
+                     WindowBorder = windowMode == WindowMode.Default ? WindowBorder.Fixed : WindowBorder.Hidden,
+                     Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
+                     Title = "",
+                     CurrentMonitor = monitorHandle
                  }
         )
         {
