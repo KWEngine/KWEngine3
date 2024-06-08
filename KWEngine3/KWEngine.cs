@@ -9,6 +9,7 @@ using KWEngine3.GameObjects;
 using OpenTK.Windowing.Common;
 using KWEngine3.Assets;
 using System.Diagnostics;
+using OpenTK.Windowing.Desktop;
 
 
 namespace KWEngine3
@@ -181,11 +182,11 @@ namespace KWEngine3
                 }
             }
         }
-        
+
         internal static double DeltaTimeAccumulator { get; set; } = 0.0f;
         internal static float DeltaTimeFactorForOverlay { get; set; } = 1f;
         internal static double DeltaTimeCurrentNibbleSize { get; set; } = SIMULATIONNIBBLESIZE;
-        
+
         /// <summary>
         /// Gibt an, wie lange die aktuelle Welt bereits aktiv ist
         /// </summary>
@@ -215,7 +216,7 @@ namespace KWEngine3
             EngineLog.Clear();
         }
 
-        
+
 
         internal const int BLOOMWIDTH = 960;//720;//960;
         internal const int BLOOMHEIGHT = 540; //405;//540;
@@ -303,7 +304,7 @@ namespace KWEngine3
         public static Vector3 WorldUp { get; } = Vector3.UnitY;
 
         internal static int[] FontTextureArray { get; set; } = new int[4];
-        
+
 
         internal static void InitializeFontsAndDefaultTextures()
         {
@@ -386,7 +387,7 @@ namespace KWEngine3
             {
                 ExplosionObject.Axes[i] = Vector3.Normalize(ExplosionObject.Axes[i]);
             }
-            
+
         }
 
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new();
@@ -446,7 +447,7 @@ namespace KWEngine3
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke03.dds");
             ParticleDictionary.Add(ParticleType.LoopSmoke3, new ParticleInfo(tex, 6, 32));
-            
+
         }
 
         internal static GeoModel GetModel(string name)
@@ -587,7 +588,7 @@ namespace KWEngine3
             return terrainModel;
         }
 
-       // public static void SetCustomHitboxForModel(string modelname, )
+        // public static void SetCustomHitboxForModel(string modelname, )
 
         /// <summary>
         /// Lädt die unter dem Dateinamen zu findenden Animationen in das (zuvor unter dem Namen angegebenen) 3D-Modell
@@ -629,15 +630,15 @@ namespace KWEngine3
 
             List<GeoAnimation> animations = null;
             if (filename.ToLower().EndsWith("glb") || filename.ToLower().EndsWith("gltf"))
-            { 
-                animations = SceneImporterGLTF.LoadAnimations(filename); 
+            {
+                animations = SceneImporterGLTF.LoadAnimations(filename);
             }
             else
             {
                 animations = SceneImporter.LoadAnimations(filename);
-                
+
             }
-            
+
             if(animations != null && animations.Count > 0)
             {
                 if (model.Animations == null)
@@ -654,7 +655,7 @@ namespace KWEngine3
         /// <param name="colliderType">Art des Collider-Modells</param>
         public static void LoadCollider(string name, string filename, ColliderType colliderType)
         {
-            
+
             filename = filename == null ? "" : filename.Trim();
             MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
             string callerName = caller.Name;
@@ -759,6 +760,57 @@ namespace KWEngine3
                 KWEngine.LogWriteLine("[Model] Model " + (modelname == null ? "" : modelname.Trim()) + " not found");
             }
             return resultList;
-        }       
+        }
+
+        /// <summary>
+        /// Erfragt Informationen über die aktuell angeschlossenen Monitore/Bildschirme
+        /// </summary>
+        /// <returns>Monitor-/Bildschirminformationen</returns>
+        public static ScreenInfo ScreenInformation => _screenInfo;
+        
+        internal static ScreenInfo CollectScreenInfo()
+        {
+            MonitorInfo primaryMonitor = Monitors.GetPrimaryMonitor();
+            List<MonitorInfo> monitors = Monitors.GetMonitors();
+            ScreenInfo sInfo = new ScreenInfo()
+            {
+                _screens = new Screen[monitors.Count]
+            };
+
+            int index = 0;
+            foreach (MonitorInfo mInfo in monitors)
+            {
+                Screen s;
+                if (mInfo.Handle.Pointer == primaryMonitor.Handle.Pointer)
+                {
+                    s = new Screen()
+                    {
+                        IsPrimary = true,
+                        Width = mInfo.HorizontalResolution,
+                        Height = mInfo.VerticalResolution,
+                        DPI = new Vector2(mInfo.HorizontalRawDpi, mInfo.VerticalRawDpi),
+                        Name = mInfo.Name,
+                        Handle = mInfo.Handle.Pointer
+                    };
+                    sInfo._primaryIndex = index;
+                }
+                else
+                {
+                    s = new Screen()
+                    {
+                        IsPrimary = false,
+                        Width = mInfo.HorizontalResolution,
+                        Height = mInfo.VerticalResolution,
+                        DPI = new Vector2(mInfo.HorizontalRawDpi, mInfo.VerticalRawDpi),
+                        Name = mInfo.Name,
+                        Handle = mInfo.Handle.Pointer
+                    };
+                }
+                sInfo._screens[index++] = s;
+            }
+            return sInfo;
+        }
+
+        internal static ScreenInfo _screenInfo = CollectScreenInfo();
     }
 }

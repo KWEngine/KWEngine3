@@ -1,4 +1,6 @@
-﻿namespace KWEngine3TestProject
+﻿using KWEngine3;
+
+namespace KWEngine3TestProject
 {
     internal class Program
     {

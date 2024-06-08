@@ -166,7 +166,7 @@ namespace KWEngine3
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
         /// <param name="windowMode">Art des Fensters (Standard oder rahmenlos)</param>
         /// <param name="monitorHandle">Handle des Monitors, auf dem das Fenster geöffnet werden soll</param>
-        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode, MonitorHandle monitorHandle)
+        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode, IntPtr monitorHandle)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -179,7 +179,7 @@ namespace KWEngine3
                      WindowBorder = windowMode == WindowMode.Default ? WindowBorder.Fixed : WindowBorder.Hidden,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
-                     CurrentMonitor = monitorHandle
+                     CurrentMonitor = GetMonitorHandleForPointer(monitorHandle)
                  }
         )
         {
@@ -1001,6 +1001,18 @@ namespace KWEngine3
             {
                 KWEngine.LogWriteLine("[Cursor] Import of " + filename + " failed: File missing or not of type PNG/CUR");
             }
+        }
+
+        internal static MonitorHandle GetMonitorHandleForPointer(IntPtr ptr)
+        {
+            foreach(MonitorInfo mInfo in Monitors.GetMonitors())
+            {
+                if(mInfo.Handle.Pointer == ptr)
+                {
+                    return mInfo.Handle;
+                }
+            }
+            return Monitors.GetPrimaryMonitor().Handle;
         }
     }
 }
