@@ -785,6 +785,19 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Erfragt die aktuelle Texturverschiebung des 2D-Hintergrundbilds
+        /// </summary>
+        /// <returns>Verschiebungswerte</returns>
+        public Vector2 GetBackground2DOffset()
+        {
+            if (_background != null && _background.Type == BackgroundType.Standard)
+            {
+                return _background.Offset;
+            }
+            return Vector2.Zero;
+        }
+
+        /// <summary>
         /// Setzt die Texturwiederholung des 2D-Hintergrundbilds
         /// </summary>
         /// <param name="x">x-Wiederholung</param>
@@ -795,6 +808,19 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Erfragt die aktuelle Texturwiederholung des 2D-Hintergrundbilds
+        /// </summary>
+        /// <returns>Wiederholungswerte</returns>
+        public Vector2 GetBackground2DRepeat()
+        {
+            if(_background != null && _background.Type == BackgroundType.Standard)
+            {
+                return _background.Scale;
+            }
+            return Vector2.One;
+        }
+
+        /// <summary>
         /// Beschneidet die 2D-Hintergrundtextur
         /// </summary>
         /// <param name="x">Beschneidung in x-Richtung</param>
@@ -802,6 +828,19 @@ namespace KWEngine3
         public void SetBackground2DClip(float x, float y)
         {
             _background.SetClip(x, y);
+        }
+
+        /// <summary>
+        /// Erfragt die aktuelle Texturbeschneidung des 2D-Hintergrundbilds
+        /// </summary>
+        /// <returns>Beschneidungswerte</returns>
+        public Vector2 GetBackground2DClip()
+        {
+            if (_background != null && _background.Type == BackgroundType.Standard)
+            {
+                return _background.Clip;
+            }
+            return Vector2.One;
         }
 
         /// <summary>

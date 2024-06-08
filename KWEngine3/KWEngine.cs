@@ -307,6 +307,8 @@ namespace KWEngine3
 
         internal static void InitializeFontsAndDefaultTextures()
         {
+            KWEngine.Window.AnisotropicFilteringLevel = KWEngine.Window._ppQuality == PostProcessingQuality.High ? 4 : KWEngine.Window._ppQuality == PostProcessingQuality.Low ? 2 : 1;
+
             int mipMaps;
 
             InitializeFont("anonymous.dds", 0);

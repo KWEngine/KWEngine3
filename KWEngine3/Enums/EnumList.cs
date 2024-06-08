@@ -1,5 +1,20 @@
 ﻿namespace KWEngine3
 {
+    /// <summary>
+    /// Fenstermodus der Anwendung
+    /// </summary>
+    public enum WindowMode
+    {
+        /// <summary>
+        /// Standardfenster mit Dekoration (Standard, mit Titelleiste und Rahmen)
+        /// </summary>
+        Default,
+        /// <summary>
+        /// Rahmenloses Fenster
+        /// </summary>
+        BorderlessWindow
+    }
+
     internal enum MatrixFBXType
     {
         PreTranslation,

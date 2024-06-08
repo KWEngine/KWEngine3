@@ -12,9 +12,8 @@
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUDNew" Hidden="true" />
       <Field Name="_worldNew" Hidden="true" />
-      <Property Name="AnisotropicFiltering" Hidden="true" />
+      <Property Name="AnisotropicFilteringLevel" Hidden="true" />
       <Field Name="DELTASFORMOVINGAVG" Hidden="true" />
-      <Property Name="FrameTotalCount" Hidden="true" />
       <Method Name="GatherWeightedMovingAvg" Hidden="true" />
       <Field Name="MOUSEDELTAMAXSAMPLECOUNT" Hidden="true" />
       <Method Name="OnClosing" Hidden="true" />
@@ -36,7 +35,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiBBAAABQAAAQyAUAkBgEACAhIABCYAaAEAUAEuAgA=</HashCode>
+      <HashCode>AAiBBAAABQAAAQyAUAkBgEACAhIABCQAYAEAUAEuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -189,7 +188,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDQKdBUVzoGghbliTK5ZD6YcUaGCH/EeAvk=</HashCode>
+      <HashCode>SQl0OI6AJDRKdBUVzpGghbliTK5ZD6YcUaGCH/EeA/k=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>

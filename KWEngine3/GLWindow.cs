@@ -22,20 +22,24 @@ namespace KWEngine3
     /// </summary>
     public abstract class GLWindow : GameWindow
     {
+        // input related:
+        internal KeyboardExt _keyboard = new();
+        internal MouseExt _mouse = new();
+        internal const int DELTASFORMOVINGAVG = 4;
+        internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
+        internal Vector2 _mouseDeltaToUse = Vector2.Zero;
+        internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
+
+        // quality related:
         internal PostProcessingQuality _ppQuality = PostProcessingQuality.High;
-        internal ulong FrameTotalCount { get; set; } = 0;
+        internal int AnisotropicFilteringLevel { get; set; } = 4;
+
+        // other:
         internal Matrix4 _viewProjectionMatrixHUD;
         internal Matrix4 _viewProjectionMatrixHUDNew;
         internal KWBuilderOverlay Overlay { get; set; }
         internal Stopwatch _stopwatch = new();
-        internal int AnisotropicFiltering { get; set; } = 4;
-        internal Vector2 _mouseDeltaToUse = Vector2.Zero;
-        internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
-        internal const int DELTASFORMOVINGAVG = 4;
-        internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
 
-        internal KeyboardExt _keyboard = new();
-        internal MouseExt _mouse = new();
 
         internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
         {
@@ -76,7 +80,7 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Standardkonstruktor für den Fullscreen-Modus
+        /// Standardkonstruktor für den exklusiven Fullscreen-Modus
         /// </summary>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
@@ -105,7 +109,8 @@ namespace KWEngine3
         /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
-        public GLWindow(int width, int height, bool vSync = true, PostProcessingQuality ppQuality = PostProcessingQuality.High) 
+        /// <param name="windowMode">Art des Fensters (Standard oder rahmenlos)</param>
+        public GLWindow(int width, int height, bool vSync = true, PostProcessingQuality ppQuality = PostProcessingQuality.High, WindowMode windowMode = WindowMode.Default) 
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -115,7 +120,7 @@ namespace KWEngine3
                      Flags = ContextFlags.ForwardCompatible,
                      WindowState = WindowState.Normal,
                      Size = new Vector2i(width, height),
-                     WindowBorder = WindowBorder.Fixed,
+                     WindowBorder = windowMode == WindowMode.Default ? WindowBorder.Fixed : WindowBorder.Hidden,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = ""
                  }
@@ -124,8 +129,6 @@ namespace KWEngine3
             _ppQuality = ppQuality;
             KWEngine.InitializeFontsAndDefaultTextures();
         }
-
-        
 
         /// <summary>
         /// Prüft, ob der Mauszeiger aktuell innerhalb des Fensters ist
@@ -434,7 +437,6 @@ namespace KWEngine3
 
             // bring image to monitor screen:
             SwapBuffers();
-            FrameTotalCount++;
         }
 
         /// <summary>
@@ -943,6 +945,5 @@ namespace KWEngine3
                 KWEngine.LogWriteLine("[Cursor] Import of " + filename + " failed: File missing or not of type PNG/CUR");
             }
         }
- 
     }
 }
