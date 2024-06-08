@@ -15,6 +15,7 @@
       <Property Name="AnisotropicFilteringLevel" Hidden="true" />
       <Field Name="DELTASFORMOVINGAVG" Hidden="true" />
       <Method Name="GatherWeightedMovingAvg" Hidden="true" />
+      <Method Name="GetMonitorHandleForPointer" Hidden="true" />
       <Field Name="MOUSEDELTAMAXSAMPLECOUNT" Hidden="true" />
       <Method Name="OnClosing" Hidden="true" />
       <Method Name="OnKeyDown" Hidden="true" />
@@ -35,7 +36,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiBBAAABQAAAQyAUAkBgEACAhIABCQAYAEAUAEuAgA=</HashCode>
+      <HashCode>AAiFBAAABQAAAQyAUAkBgEACAhIABCQAYAEAUAEuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -46,12 +47,14 @@
       <Field Name="_glowUpsampleF1" Hidden="true" />
       <Field Name="_glowUpsampleF2" Hidden="true" />
       <Field Name="_octreeSafetyZone" Hidden="true" />
+      <Field Name="_screenInfo" Hidden="true" />
       <Field Name="_stateCameraGameBeforeToggle" Hidden="true" />
       <Field Name="_swpruneTolerance" Hidden="true" />
       <Field Name="_uniformOffsetMultiplier" Hidden="true" />
       <Field Name="BLOOMHEIGHT" Hidden="true" />
       <Field Name="BLOOMWIDTH" Hidden="true" />
       <Method Name="BuildDefaultTerrainModel" Hidden="true" />
+      <Method Name="CollectScreenInfo" Hidden="true" />
       <Property Name="CustomColliders" Hidden="true" />
       <Field Name="DefaultCameraPosition" Hidden="true" />
       <Method Name="DeleteCustomModelsAndTexturesFromCurrentWorld" Hidden="true" />
@@ -111,7 +114,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgARLBBAoSJALENpAhqARAARCgAQioQjHn2Sv2KEIE=</HashCode>
+      <HashCode>BcgARLBBAoSJALENpApqARAAVCgCQioQjHn2Sv2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
