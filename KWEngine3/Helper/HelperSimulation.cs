@@ -8,6 +8,27 @@ namespace KWEngine3.Helper
 {
     internal static class HelperSimulation
     {
+        public static void BlendWorldBackgroundStates(float alpha)
+        {
+            if(KWEngine.CurrentWorld._background.Type == BackgroundType.Standard)
+            {
+                KWEngine.CurrentWorld._background._stateRender.Scale = Vector2.Lerp(
+                    KWEngine.CurrentWorld._background._statePrevious.Scale,
+                    KWEngine.CurrentWorld._background._stateCurrent.Scale,
+                    alpha);
+
+                KWEngine.CurrentWorld._background._stateRender.Clip = Vector2.Lerp(
+                    KWEngine.CurrentWorld._background._statePrevious.Clip,
+                    KWEngine.CurrentWorld._background._stateCurrent.Clip,
+                    alpha);
+
+                KWEngine.CurrentWorld._background._stateRender.Offset = Vector2.Lerp(
+                    KWEngine.CurrentWorld._background._statePrevious.Offset,
+                    KWEngine.CurrentWorld._background._stateCurrent.Offset,
+                    alpha);
+            }
+        }
+
         public static void BlendLightObjectStates(LightObject l, float alpha)
         {
             l._stateRender._nearFarFOVType = new Vector4(

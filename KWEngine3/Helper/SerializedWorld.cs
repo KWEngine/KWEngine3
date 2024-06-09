@@ -59,9 +59,9 @@ namespace KWEngine3.Helper
             wj.BackgroundFillColor = new float[] { w._backgroundFillColor.X, w._backgroundFillColor.Y, w._backgroundFillColor.Z };
 
             wj.Background2D = w._background.Type == BackgroundType.Standard ? w._background._filename : "";
-            wj.Background2DClip = new float[] { w._background.Clip.X, w._background.Clip.Y };
-            wj.Background2DOffset = new float[] { w._background.Offset.X, w._background.Offset.Y };
-            wj.Background2DRepeat = new float[] { w._background.Scale.X, w._background.Scale.Y };
+            wj.Background2DClip = new float[] { w._background._stateCurrent.Clip.X, w._background._stateCurrent.Clip.Y };
+            wj.Background2DOffset = new float[] { w._background._stateCurrent.Offset.X, w._background._stateCurrent.Offset.Y };
+            wj.Background2DRepeat = new float[] { w._background._stateCurrent.Scale.X, w._background._stateCurrent.Scale.Y };
 
             wj.GameObjects = GenerateGameObjects(w);
             wj.RenderObjects = GenerateRenderObjects(w);

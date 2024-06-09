@@ -71,11 +71,11 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UColorAmbient, skyColor);
 
             GL.Uniform4(UTextureScaleAndOffset, new Vector4(
-                KWEngine.CurrentWorld._background.Scale.X,
-                KWEngine.CurrentWorld._background.Scale.Y,
-                KWEngine.CurrentWorld._background.Offset.X,
-                KWEngine.CurrentWorld._background.Offset.Y));
-            GL.Uniform2(UTextureClip, KWEngine.CurrentWorld._background.Clip);
+                KWEngine.CurrentWorld._background._stateRender.Scale.X,
+                KWEngine.CurrentWorld._background._stateRender.Scale.Y,
+                KWEngine.CurrentWorld._background._stateRender.Offset.X,
+                KWEngine.CurrentWorld._background._stateRender.Offset.Y));
+            GL.Uniform2(UTextureClip, KWEngine.CurrentWorld._background._stateRender.Clip);
 
             
             GL.BindVertexArray(FramebufferQuad.GetVAOId());

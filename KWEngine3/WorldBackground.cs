@@ -10,18 +10,20 @@ namespace KWEngine3
         internal int _standardId = -1;
         internal int _mipMapLevels = -1;
 
+        internal WorldBackgroundState _stateCurrent = new WorldBackgroundState();
+        internal WorldBackgroundState _statePrevious = new WorldBackgroundState();
+        internal WorldBackgroundState _stateRender = new WorldBackgroundState();
+
         public BackgroundType Type { get; set; } = BackgroundType.None;
         internal Matrix3 _rotation  = Matrix3.Identity;
         internal Matrix3 _rotationReflection = Matrix3.Identity;
-        public Vector2 Offset { get; set; } = Vector2.Zero;
-        public Vector2 Scale { get; set; } = Vector2.One;
-        public Vector2 Clip { get; set; } = Vector2.One;
         public float _brightnessMultiplier = 1f;
         public string _filename = "";
         public SkyboxType SkyBoxType { get; set; } = SkyboxType.CubeMap;
 
         public void SetSkybox(string filename, float rotation = 0f, SkyboxType type = SkyboxType.CubeMap)
         {
+            ResetScaleOffsetClip();
             filename = HelperGeneral.EqualizePathDividers(filename == null ? "" : filename.Trim());
             int texId;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
@@ -66,6 +68,7 @@ namespace KWEngine3
 
         public void SetStandard(string filename)
         {
+            ResetScaleOffsetClip();
             filename = HelperGeneral.EqualizePathDividers(filename == null ? "" : filename.Trim());
             int texId;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
@@ -93,17 +96,17 @@ namespace KWEngine3
 
         public void SetOffset(float x, float y)
         {
-            Offset = new Vector2(x, y);
+            _stateCurrent.Offset = new Vector2(x, y);
         }
 
         public void SetClip(float x, float y)
         {
-            Clip = new Vector2(x, y);
+            _stateCurrent.Clip = new Vector2(x, y);
         }
 
         public void SetRepeat(float x, float y)
         {
-            Scale = new Vector2(x, y);
+            _stateCurrent.Scale = new Vector2(x, y);
         }
 
         public void Unset()
@@ -111,10 +114,21 @@ namespace KWEngine3
             DeleteSkybox();
             DeleteStandard();
             Type = BackgroundType.None;
-            Scale = Vector2.One;
-            Offset = Vector2.Zero;
-            Clip = Vector2.One;
+            ResetScaleOffsetClip();
             _rotation = Matrix3.Identity;
+        }
+
+        public void ResetScaleOffsetClip()
+        {
+            _stateCurrent.Scale = Vector2.One;
+            _stateCurrent.Offset = Vector2.Zero;
+            _stateCurrent.Clip = Vector2.One;
+            _statePrevious.Scale = Vector2.One;
+            _statePrevious.Offset = Vector2.Zero;
+            _statePrevious.Clip = Vector2.One;
+            _stateRender.Scale = Vector2.One;
+            _stateRender.Offset = Vector2.Zero;
+            _stateRender.Clip = Vector2.One;
         }
 
         internal void DeleteStandard()

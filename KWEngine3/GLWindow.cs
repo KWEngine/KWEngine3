@@ -688,6 +688,8 @@ namespace KWEngine3
             if (alpha < 0 || alpha > 1)
                 alpha = 0;
 
+            HelperSimulation.BlendWorldBackgroundStates(alpha);
+
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
                 if(g.IsAttachedToViewSpaceGameObject == false)
@@ -783,6 +785,8 @@ namespace KWEngine3
 
                     KWEngine.CurrentWorld._cameraGame.BackupCameraState();
                     KWEngine.CurrentWorld._cameraEditor.BackupCameraState();
+
+                    KWEngine.CurrentWorld._background._statePrevious = KWEngine.CurrentWorld._background._stateCurrent;
 
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {

@@ -792,7 +792,7 @@ namespace KWEngine3
         {
             if (_background != null && _background.Type == BackgroundType.Standard)
             {
-                return _background.Offset;
+                return _background._stateCurrent.Offset;
             }
             return Vector2.Zero;
         }
@@ -815,7 +815,7 @@ namespace KWEngine3
         {
             if(_background != null && _background.Type == BackgroundType.Standard)
             {
-                return _background.Scale;
+                return _background._stateCurrent.Scale;
             }
             return Vector2.One;
         }
@@ -838,7 +838,7 @@ namespace KWEngine3
         {
             if (_background != null && _background.Type == BackgroundType.Standard)
             {
-                return _background.Clip;
+                return _background._stateCurrent.Clip;
             }
             return Vector2.One;
         }
