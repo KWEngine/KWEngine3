@@ -9,6 +9,7 @@ namespace KWEngine3.Helper
         // MISC. PROPERTIES
         public bool IsShadowCaster { get; set; }
         public int ID { get; set; }
+        public LookAtVectorMode LAVMode { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
         public string ModelName { get; set; }
@@ -46,6 +47,7 @@ namespace KWEngine3.Helper
         {
             SerializedRenderObject rg = new SerializedRenderObject();
             rg.IsAffectedByLight = r.IsAffectedByLight;
+            rg.LAVMode = r.LookAtVectorMode;
             rg.Opacity = r._stateCurrent._opacity;
             rg.IsDepthTesting = r.IsDepthTesting;
             rg.IsShadowCaster = r.IsShadowCaster;

@@ -15,6 +15,33 @@
         BorderlessWindow
     }
 
+    /// <summary>
+    /// Gibt an, ob die Standardausrichtung des Objekts statt der Z-Achse eine der anderen Achsen sein soll
+    /// </summary>
+    public enum LookAtVectorMode
+    {
+        /// <summary>
+        /// Standard (positive Z-Achse)
+        /// </summary>
+        Default,
+        /// <summary>
+        /// Blickrichtung in positive X-Achse (rechts)
+        /// </summary>
+        XPositive,
+        /// <summary>
+        /// Blickrichtung in positive Y-Achse (oben)
+        /// </summary>
+        YPositive,
+        /// <summary>
+        /// Blickrichtung in negative Y-Achse (unten)
+        /// </summary>
+        YNegative,
+        /// <summary>
+        /// Blickrichtung in negative X-Achse (links)
+        /// </summary>
+        XNegative
+    }
+
     internal enum MatrixFBXType
     {
         PreTranslation,

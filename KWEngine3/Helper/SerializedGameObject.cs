@@ -7,6 +7,7 @@ namespace KWEngine3.Helper
     {
         // MISC. PROPERTIES
         public bool IsShadowCaster { get; set; }
+        public LookAtVectorMode LAVMode { get; set; }
         public bool IsCollisionObject { get; set; }
         public string CustomColliderName { get; set; }
         public string CustomColliderFile { get; set; }
@@ -53,7 +54,8 @@ namespace KWEngine3.Helper
         {
             SerializedGameObject sg = new SerializedGameObject();
             sg.ID = g.ID;
-            if(g._colliderModel._customColliderFilename != null && g._colliderModel._customColliderFilename.Length > 0)
+            sg.LAVMode = g.LookAtVectorMode;
+            if (g._colliderModel._customColliderFilename != null && g._colliderModel._customColliderFilename.Length > 0)
             {
                 bool planeCollider = false;
                 foreach(GameObjectHitbox ghb in g._colliderModel._hitboxes)

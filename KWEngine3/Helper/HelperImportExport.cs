@@ -387,7 +387,8 @@ namespace KWEngine3.Helper
         {
             GameObject g = (GameObject)Assembly.GetEntryAssembly().CreateInstance(sg.Type);
             g.SetModel(sg.ModelName);
-            if(customColliderName.Length > 0)
+            g.LookAtVectorMode = sg.LAVMode;
+            if (customColliderName.Length > 0)
             {
                 g.SetColliderModel(customColliderName);
             }
@@ -476,6 +477,7 @@ namespace KWEngine3.Helper
             RenderObject r = (RenderObject)Assembly.GetEntryAssembly().CreateInstance(sr.Type);
             r.SetModel(sr.ModelName);
             r.SetOpacity(sr.Opacity);
+            r.LookAtVectorMode = sr.LAVMode;
             r.IsAffectedByLight = sr.IsAffectedByLight;
             r.IsDepthTesting = sr.IsDepthTesting;
             r.IsShadowCaster = sr.IsShadowCaster;

@@ -21,6 +21,11 @@ namespace KWEngine3.GameObjects
         public string Name { get { return _name; } set { if (value != null && value.Length > 0) _name = value; } }
 
         /// <summary>
+        /// Gibt die Standardausrichtung des Look-At-Vektors für diese Instanz an (Standard: +Z-Achse)
+        /// </summary>
+        public LookAtVectorMode LookAtVectorMode { get; set; } = LookAtVectorMode.Default;
+
+        /// <summary>
         /// Setzt bzw. gibt an, ob das Objekt von anderen Objekten aufgrund der Entfernung zur Kamera verdeckt werden kann (Standard: true)
         /// </summary>
         public bool IsDepthTesting { get; set; } = true;
@@ -644,6 +649,7 @@ namespace KWEngine3.GameObjects
             lookat = Matrix3.Transpose(lookat);
             Quaternion q = Quaternion.FromMatrix(lookat);
             q.Invert();
+            //TODO
             return q;
         }
 
@@ -960,6 +966,34 @@ namespace KWEngine3.GameObjects
                         return true;
                 }
                 return false;
+            }
+        }
+
+        internal static Quaternion rotXPositive = Quaternion.FromAxisAngle(Vector3.UnitY, -MathF.PI / 2f);
+        internal static Quaternion rotXNegative = Quaternion.FromAxisAngle(Vector3.UnitY, MathF.PI / 2f);
+        internal static Quaternion rotYPositive = Quaternion.FromAxisAngle(Vector3.UnitY, -MathF.PI / 2f);
+        internal static Quaternion rotYNegative = Quaternion.FromAxisAngle(Vector3.UnitY, MathF.PI / 2f);
+
+        internal void ApplyLookAtVectorMode(ref Quaternion q)
+        {
+            if(LookAtVectorMode != LookAtVectorMode.Default)
+            {
+                if(LookAtVectorMode == LookAtVectorMode.XPositive)
+                {
+                    q *= rotXPositive;
+                }
+                else if (LookAtVectorMode == LookAtVectorMode.XNegative)
+                {
+                    q *= rotXNegative;
+                }
+                else if (LookAtVectorMode == LookAtVectorMode.YPositive)
+                {
+                    q *= rotYPositive;
+                }
+                else
+                {
+                    q *= rotYNegative;
+                }
             }
         }
 
