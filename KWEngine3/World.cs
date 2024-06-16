@@ -1740,7 +1740,7 @@ namespace KWEngine3
         /// <param name="e">Hinzufügendes Ereignisobjekt</param>
         public void AddWorldEvent(WorldEvent e)
         {
-            if(e != null)
+            if(e != null && e.Timestamp >= 0f)
             {
                 e.Owner = this;
                 _eventQueue.Add(e);
