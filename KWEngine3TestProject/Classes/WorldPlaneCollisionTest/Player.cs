@@ -129,7 +129,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
         private void HandleGroundDetectionTest()
         {
-            RayIntersectionExtSet result = RaytraceObjectsBelowPosition(RayMode.FiveRaysY, 1f, -0.1f, 0.05f, typeof(Floor));
+            RayIntersectionExtSet result = RaytraceObjectsBelowPosition(RayMode.FiveRaysY, 1f, -0.1f, 0.05f, typeof(Floor), typeof(Immovable));
             if(result.IsValid)
             {
                 if(_state == State.OnGround)
