@@ -2,6 +2,7 @@
 using KWEngine3.Helper;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using System.Reflection;
 
 namespace KWEngine3.Renderer
@@ -11,6 +12,7 @@ namespace KWEngine3.Renderer
         public static int ProgramID { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
         public static int UTextureBloom { get; private set; } = -1;
+        public static int UFadeColor { get; private set; } = -1;
 
         public static int UId { get; private set; } = -1;
         
@@ -40,6 +42,7 @@ namespace KWEngine3.Renderer
                 GL.LinkProgram(ProgramID);
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
                 UTextureBloom = GL.GetUniformLocation(ProgramID, "uTextureBloom");
+                UFadeColor = GL.GetUniformLocation(ProgramID, "uFadeColor");
             }
         }
 
@@ -54,7 +57,7 @@ namespace KWEngine3.Renderer
             // ?
         }
 
-        public static void Draw(Framebuffer fbSource, Framebuffer fbSourceBloom) // currently from lighting pass
+        public static void Draw(Framebuffer fbSource, Framebuffer fbSourceBloom, Vector4 fadeColor) // currently from lighting pass
         {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
@@ -70,8 +73,8 @@ namespace KWEngine3.Renderer
                 GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
             }
             GL.Uniform1(UTextureAlbedo, 1);
-            
-            
+
+            GL.Uniform4(UFadeColor, ref fadeColor);
 
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());

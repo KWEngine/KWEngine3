@@ -274,7 +274,7 @@ namespace KWEngine3
             UpdateDeltaTime(e.Time);
             _mouseDeltaToUse = GatherWeightedMovingAvg(MouseState.Delta, (float)(e.Time * 1000.0));
 
-            UpdateScene();
+            float alpha = UpdateScene();
 
             List<LightObject> pointLights = new();
             List<GameObject> gameObjectsForForwardRendering = new();
@@ -458,9 +458,14 @@ namespace KWEngine3
                 }
 
                 // Final screen pass
+                Vector4 fadeColor = new Vector4(
+                    Vector3.Lerp(KWEngine.CurrentWorld._fadeStatePrevious.Color, KWEngine.CurrentWorld._fadeStateCurrent.Color, alpha),
+                    KWEngine.CurrentWorld._fadeStatePrevious.Factor * alpha + KWEngine.CurrentWorld._fadeStatePrevious.Factor * (1f - alpha)
+                    );
+                
                 RenderManager.BindScreen();
                 RendererCopy.Bind();
-                RendererCopy.Draw(RenderManager.FramebufferLightingPass, _ppQuality == PostProcessingQuality.Disabled ? null : RenderManager.FramebuffersBloomTemp[0]);
+                RendererCopy.Draw(RenderManager.FramebufferLightingPass, _ppQuality == PostProcessingQuality.Disabled ? null : RenderManager.FramebuffersBloomTemp[0], fadeColor);
 
                 if (KWEngine.CurrentWorld._flowField != null && KWEngine.CurrentWorld._flowField.IsVisible)
                 {
@@ -664,7 +669,7 @@ namespace KWEngine3
             KWEngine.DeltaTimeAccumulator += Math.Min(tf, KWEngine.SIMULATIONMAXACCUMULATOR);
         }
 
-        internal void UpdateScene()
+        internal float UpdateScene()
         {
             
             List<GameObject> postponedViewSpaceAttachments = new();
@@ -740,6 +745,8 @@ namespace KWEngine3
                     KWEngine.CurrentWorld._cameraEditor._stateCurrent.ViewMatrix
                     );
             }
+
+            return alpha;
         }
 
         /// <summary>
@@ -787,6 +794,7 @@ namespace KWEngine3
                     KWEngine.CurrentWorld._cameraEditor.BackupCameraState();
 
                     KWEngine.CurrentWorld._background._statePrevious = KWEngine.CurrentWorld._background._stateCurrent;
+                    KWEngine.CurrentWorld._fadeStatePrevious = KWEngine.CurrentWorld._fadeStateCurrent;
 
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
@@ -898,7 +906,7 @@ namespace KWEngine3
                     {
                         KWEngine.CurrentWorld.Act();
                     }
-                    
+
                     KWEngine.CurrentWorld.ProcessWorldEventQueue();
 
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
@@ -934,7 +942,6 @@ namespace KWEngine3
                             }
                             KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(attachment);
                         }
-
                     }
 
                     double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;

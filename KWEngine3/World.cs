@@ -74,6 +74,9 @@ namespace KWEngine3
         internal Vector3 _backgroundFillColor = new(0.0f, 0.0f, 0.0f);
         internal WorldBackground _background = new();
 
+        internal WorldFadeState _fadeStateCurrent = new WorldFadeState();
+        internal WorldFadeState _fadeStatePrevious = new WorldFadeState();
+
         internal IReadOnlyCollection<GameObject> GetGameObjectsSortedByType()
         {
             IReadOnlyCollection<GameObject> myTempList = _gameObjects
@@ -586,6 +589,44 @@ namespace KWEngine3
             _lightObjectsToBeAdded.Clear();
         }
         #endregion
+
+        /// <summary>
+        /// Gibt die globale Mischfarbe an, mit der der Bildschirminhalt gemischt wird, wenn FadeFactor kleiner als 1.0 ist
+        /// </summary>
+        public Vector3 FadeColor { 
+            get
+            {
+                return _fadeStateCurrent.Color;
+            }
+        }
+
+        /// <summary>
+        /// Setzt die globale Mischfarbe, mit der der Bildschirminhalt gemischt wird, wenn FadeFactor kleiner als 1.0 ist
+        /// </summary>
+        /// <param name="r">Rotanteil (von 0 bis 1)</param>
+        /// <param name="g">Grünanteil (von 0 bis 1)</param>
+        /// <param name="b">Blauanteil (von 0 bis 1)</param>
+        public void SetFadeColor(float r, float g, float b)
+        {
+            r = Math.Clamp(r, 0f, 1f);
+            g = Math.Clamp(g, 0f, 1f);
+            b = Math.Clamp(b, 0f, 1f);
+            _fadeStateCurrent.Color = new Vector3(r, g, b);
+        }
+
+        /// <summary>
+        /// Gibt den aktuellen Mischfaktor an (Standard: 1.0 für vollständige Darstellung des Bildschirminhalts)
+        /// </summary>
+        public float FadeFactor { get { return _fadeStateCurrent.Factor; } }
+
+        /// <summary>
+        /// Setzt den Mischfaktor zwischen globaler Mischfarbe und dem Bildschirminhalt. Ist f == 1.0, wird der Bildschirminhalt vollständig angezeigt.
+        /// </summary>
+        /// <param name="f">Mischfaktor (muss zwischen 0.0 und 1.0 liegen)</param>
+        public void SetFadeFactor(float f)
+        {
+            _fadeStateCurrent.Factor = Math.Clamp(f, 0f, 1f);
+        }
 
         /// <summary>
         /// Gibt an, ob die Welt bereits via Prepare()-Methode abschließend vorbereitet wurde
