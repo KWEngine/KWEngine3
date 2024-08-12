@@ -131,6 +131,8 @@
       <Field Name="_currentShadowLights" Hidden="true" />
       <Field Name="_customTextures" Hidden="true" />
       <Field Name="_eventQueue" Hidden="true" />
+      <Field Name="_fadeStateCurrent" Hidden="true" />
+      <Field Name="_fadeStatePrevious" Hidden="true" />
       <Field Name="_flowField" Hidden="true" />
       <Field Name="_foliageObjects" Hidden="true" />
       <Field Name="_foliageObjectsToBeAdded" Hidden="true" />
@@ -191,7 +193,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQl0OI6AJDRKdBUVzpGghbliTK5ZD6YcUaGCH/EeA/k=</HashCode>
+      <HashCode>SQt0OI6AJDRKdBUdzpGghbliTK5ZD6YcUaGCH/EeA/k=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
