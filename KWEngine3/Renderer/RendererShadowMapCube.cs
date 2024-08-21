@@ -91,6 +91,15 @@ namespace KWEngine3.Renderer
                 if(t.IsShadowCaster)
                     Draw(t);
             }
+
+            if(KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+            {
+                ViewSpaceGameObject vsgo = KWEngine.CurrentWorld.GetViewSpaceGameObject();
+                if(vsgo.IsShadowCaster && vsgo._gameObject._stateRender._opacity > 0 && vsgo._gameObject.IsAffectedByLight)
+                {
+                    Draw(vsgo);
+                }
+            }
         }
 
         public static void Draw(GameObject g)
@@ -122,6 +131,46 @@ namespace KWEngine3.Renderer
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * g._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y, material.ColorAlbedo.W * g._stateRender._opacity));
                 GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * g._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * g._stateRender._uvTransform.W));
                 GL.Uniform2(UTextureClip, g._stateRender._uvClip);
+                GL.ActiveTexture(TextureUnit.Texture0);
+                GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
+                GL.Uniform1(UTextureAlbedo, 0);
+                GL.BindVertexArray(mesh.VAO);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+                GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+                GL.BindVertexArray(0);
+            }
+        }
+
+        public static void Draw(ViewSpaceGameObject vsgo)
+        {
+            GeoMesh[] meshes = vsgo._gameObject._model.ModelOriginal.Meshes.Values.ToArray();
+            for (int i = 0; i < meshes.Length; i++)
+            {
+                GeoMesh mesh = meshes[i];
+                GeoMaterial material = vsgo._gameObject._model.Material[i];
+
+                if (material.ColorAlbedo.W == 0)
+                    continue;
+
+                if (vsgo._gameObject.IsAnimated)
+                {
+                    GL.Uniform1(UUseAnimations, 1);
+                    for (int j = 0; j < vsgo._gameObject._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
+                    {
+                        Matrix4 tmp = vsgo._gameObject._stateRender._boneTranslationMatrices[mesh.Name][j];
+                        GL.UniformMatrix4(UBoneTransforms + j * KWEngine._uniformOffsetMultiplier, false, ref tmp);
+                    }
+                }
+                else
+                {
+                    GL.Uniform1(UUseAnimations, 0);
+                }
+
+                GL.UniformMatrix4(UModelMatrix, false, ref vsgo._gameObject._stateRender._modelMatrices[i]);
+                GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * vsgo._gameObject._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * vsgo._gameObject._stateRender._uvTransform.Y, material.ColorAlbedo.W * vsgo._gameObject._stateRender._opacity));
+                GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * vsgo._gameObject._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * vsgo._gameObject._stateRender._uvTransform.W));
+                GL.Uniform2(UTextureClip, vsgo._gameObject._stateRender._uvClip);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureAlbedo, 0);

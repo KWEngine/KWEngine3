@@ -53,6 +53,11 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
                 MoveAndStrafeAlongCameraXZ(move, strafe, 0.025f);
             }
 
+            foreach(Intersection i in GetIntersections<Wall>())
+            {
+                MoveOffset(i.MTV);
+            }
+
             CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0.5f);
         }
     }

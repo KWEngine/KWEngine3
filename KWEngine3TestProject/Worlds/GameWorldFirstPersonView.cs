@@ -36,7 +36,17 @@ namespace KWEngine3TestProject.Worlds
             f01.SetScale(15, 0.2f, 15);
             f01.SetPosition(0, -0.1f, 0);
             f01.IsCollisionObject = true;
+            f01.IsShadowCaster = true;
             AddGameObject(f01);
+
+            Wall w1 = new Wall();
+            w1.SetScale(5, 2, 1);
+            w1.SetPosition(0, 1, 0);
+            w1.SetTexture("./Textures/Brick_01_512.png");
+            w1.SetTextureRepeat(5, 2);
+            w1.IsCollisionObject = true;
+            w1.IsShadowCaster = true;
+            AddGameObject(w1);
 
             PlayerFirstPerson p01 = new PlayerFirstPerson();
             p01.SetModel("KWCube");
@@ -51,7 +61,7 @@ namespace KWEngine3TestProject.Worlds
             att01.Name = "Attachment";
             att01.SetColor(0, 0, 1);
             att01.SetScale(0.25f);
-            att01.SetPosition(0, 0.125f, 0);
+            att01.SetPosition(0, 0.125f, 3);
             att01.SetColorEmissive(0, 0, 1, 1);
             AddGameObject(att01);
 
@@ -61,7 +71,13 @@ namespace KWEngine3TestProject.Worlds
             vsw.SetModel("fpsArms");
             vsw.SetOffset(0f, -0.25f, 0.75f);
             vsw.SetScale(0.25f);
+            vsw.IsShadowCaster = true;
             SetViewSpaceGameObject(vsw);
+
+            LightObject lo = new LightObject(LightType.Point, ShadowQuality.High);
+            lo.SetPosition(0, 3, -2);
+            lo.SetColor(1, 1, 0, 3);
+            AddLightObject(lo);
         }
     }
 }
