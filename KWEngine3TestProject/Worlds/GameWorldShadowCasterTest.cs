@@ -61,7 +61,7 @@ namespace KWEngine3TestProject.Worlds
             quadTest.SetPosition(1, 0.5f, 0);
             quadTest.IsShadowCaster = true;
             quadTest.SetTexture("./Textures/fx_boom.png");
-            quadTest.HasTransparencyTexture = false;
+            quadTest.HasTransparencyTexture = true;
             quadTest.AddRotationX(-90);
             AddGameObject(quadTest);
             
@@ -71,7 +71,7 @@ namespace KWEngine3TestProject.Worlds
             quadTest2.SetPosition(-0.5f, 0.5f, 0);
             quadTest2.IsShadowCaster = true;
             quadTest2.SetTexture("./Textures/fx_boom.png");
-            quadTest2.HasTransparencyTexture = false;
+            quadTest2.HasTransparencyTexture = true;
             AddGameObject(quadTest2);
 
             TextObject tx = new TextObject("Hello World!");

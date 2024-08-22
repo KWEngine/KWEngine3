@@ -398,10 +398,12 @@ namespace KWEngine3
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
                 RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
                 RenderManager.FramebufferLightingPass.Bind(false);
-
+                
+                GL.Disable(EnableCap.DepthTest);
                 RendererLightingPass.Bind();
                 RendererLightingPass.SetGlobals();
                 RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
+                GL.Enable(EnableCap.DepthTest);
 
                 if (KWEngine.CurrentWorld._background.Type != BackgroundType.None)
                 {
@@ -426,7 +428,17 @@ namespace KWEngine3
                     if (gameObjectsForForwardRendering.Count > 0)
                         RendererForward.RenderScene(gameObjectsForForwardRendering);
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+                    {
+                        if(KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
+                        {
+                            GL.Disable(EnableCap.DepthTest);
+                        }
                         RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
+                        if (KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
+                        {
+                            GL.Enable(EnableCap.DepthTest);
+                        }
+                    }
                 }
                 
                 if (renderObjectsForForwardRendering.Count > 0)
@@ -446,6 +458,9 @@ namespace KWEngine3
                     RendererParticle.Bind();
                     RendererParticle.RenderParticles(KWEngine.CurrentWorld._particleAndExplosionObjects);
                 }
+
+                GL.Disable(EnableCap.DepthTest);
+
                 // HUD objects pass:
                 RendererHUD.Bind();
                 RendererHUD.SetGlobals();
@@ -462,6 +477,7 @@ namespace KWEngine3
                     Vector3.Lerp(KWEngine.CurrentWorld._fadeStatePrevious.Color, KWEngine.CurrentWorld._fadeStateCurrent.Color, alpha),
                     KWEngine.CurrentWorld._fadeStatePrevious.Factor * alpha + KWEngine.CurrentWorld._fadeStatePrevious.Factor * (1f - alpha)
                     );
+
                 
                 RenderManager.BindScreen();
                 RendererCopy.Bind();
@@ -469,7 +485,6 @@ namespace KWEngine3
 
                 if (KWEngine.CurrentWorld._flowField != null && KWEngine.CurrentWorld._flowField.IsVisible)
                 {
-                    GL.Disable(EnableCap.DepthTest);
                     if (KWEngine.CurrentWorld._flowField.Destination != null)
                     {
                         GL.Enable(EnableCap.Blend);
@@ -482,7 +497,6 @@ namespace KWEngine3
                     RendererFlowField.Bind();
                     Matrix4 vp = KWEngine.Mode != EngineMode.Edit ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
                     RendererFlowField.Draw(KWEngine.CurrentWorld._flowField, ref vp);
-                    GL.Enable(EnableCap.DepthTest);
                 }
 #if DEBUG
                 HelperGeneral.CheckGLErrors();
@@ -499,6 +513,8 @@ namespace KWEngine3
 
             // bring image to monitor screen:
             SwapBuffers();
+
+            GL.Enable(EnableCap.DepthTest);
         }
 
         /// <summary>

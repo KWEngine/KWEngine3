@@ -19,13 +19,14 @@ namespace KWEngine3TestProject.Worlds
         {
             SetCameraFOV(90);
             KWEngine.LoadModel("fpsArms", @".\Models\FirstPersonView\fps_arms.fbx");
-
+            KWEngine.LoadModel("fpsGun", @"./Models/PlatformerPack/Gun.gltf");
+            /*
             List<string> bones = KWEngine.GetModelBoneNames("fpsArms");
             foreach(string bone in bones)
             {
                 KWEngine.LogWriteLine(bone); // hand.R
             }
-
+            */
             Immovable f01 = new Immovable();
             f01.Name = "Floor";
             f01.SetModel("KWCube");
@@ -68,10 +69,12 @@ namespace KWEngine3TestProject.Worlds
             MouseCursorGrab();
             SetCameraToFirstPersonGameObject(p01, 0.5f);
             ViewSpaceWeapon vsw = new ViewSpaceWeapon();
-            vsw.SetModel("fpsArms");
-            vsw.SetOffset(0f, -0.25f, 0.75f);
+            vsw.SetModel("fpsGun");
+            vsw.SetOffset(0.25f, -0.25f, 0.75f);
+            vsw.SetRotation(0, 15, 0);
             vsw.SetScale(0.25f);
             vsw.IsShadowCaster = true;
+            vsw.DepthTestingEnabled = false;
             SetViewSpaceGameObject(vsw);
 
             LightObject lo = new LightObject(LightType.Point, ShadowQuality.High);

@@ -15,6 +15,10 @@ namespace KWEngine3.GameObjects
         internal Vector3 _up = Vector3.UnitY;
         internal Quaternion _rotation = Quaternion.Identity;
         internal readonly static Quaternion ROT180 = Quaternion.FromEulerAngles(0, (float)Math.PI, 0);
+        /// <summary>
+        /// Gibt an, ob das Objekt andere Objekte schneiden kann (true) oder immer über anderen Objekten gezeichnet wird (false)
+        /// </summary>
+        public bool DepthTestingEnabled { get; set; } = true;
 
         internal bool IsValid { get { return _gameObject != null; } }
 

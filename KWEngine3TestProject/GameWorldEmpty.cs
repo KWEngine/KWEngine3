@@ -8,7 +8,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3TestProject
 {
-    public class GameWorldStart : World
+    public class GameWorldEmpty : World
     {
         public override void Act()
         {

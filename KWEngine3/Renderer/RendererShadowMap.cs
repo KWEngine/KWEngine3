@@ -85,7 +85,7 @@ namespace KWEngine3.Renderer
                         Draw(t);
                 }
 
-                if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+                if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached && KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled)
                 {
                     ViewSpaceGameObject vsgo = KWEngine.CurrentWorld.GetViewSpaceGameObject();
                     if (vsgo.IsShadowCaster && vsgo._gameObject._stateRender._opacity > 0 && vsgo._gameObject.IsAffectedByLight)

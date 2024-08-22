@@ -14,7 +14,7 @@ namespace KWEngine3TestProject.Worlds
         {
             if(Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape))
             {
-                Window.SetWorld(new GameWorldStart());
+                Window.SetWorld(new GameWorldEmpty());
             }
         }
 
