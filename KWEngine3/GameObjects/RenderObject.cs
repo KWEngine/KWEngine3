@@ -259,8 +259,8 @@ namespace KWEngine3.GameObjects
             _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitX, _stateCurrent._modelMatrixInverse));
             _stateCurrent._lookAtVectorUp = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitY, _stateCurrent._modelMatrixInverse));
 
-            Vector3 dimsMax = new Vector3(float.MinValue);
-            Vector3 dimsMin = new Vector3(float.MaxValue);
+            Vector3 translationMax = new Vector3(0);
+            Vector3 translationMin = new Vector3(0);
 
             if (InstanceCount > 1)
             {
@@ -277,30 +277,44 @@ namespace KWEngine3.GameObjects
                     float tY = tmp[i + 13];
                     float tZ = tmp[i + 14];
 
-                    if (tX > dimsMax.X)
-                        dimsMax.X = tX;
-                    if (tX < dimsMin.X)
-                        dimsMin.X = tX;
+                    if (tX > translationMax.X)
+                        translationMax.X = tX;
+                    if (tX < translationMin.X)
+                        translationMin.X = tX;
 
-                    if (tY > dimsMax.Y)
-                        dimsMax.Y = tY;
-                    if (tY < dimsMin.Y)
-                        dimsMin.Y = tY;
+                    if (tY > translationMax.Y)
+                        translationMax.Y = tY;
+                    if (tY < translationMin.Y)
+                        translationMin.Y = tY;
 
-                    if (tZ > dimsMax.Z)
-                        dimsMax.Z = tZ;
-                    if (tZ < dimsMin.Z)
-                        dimsMin.Z = tZ;
+                    if (tZ > translationMax.Z)
+                        translationMax.Z = tZ;
+                    if (tZ < translationMin.Z)
+                        translationMin.Z = tZ;
                 }
             }
             else
             {
-                dimsMin.X = 0; dimsMin.Y = 0; dimsMin.Z = 0;
-                dimsMax.X = 0; dimsMax.Y = 0; dimsMax.Z = 0;
+                translationMin.X = 0; translationMin.Y = 0; translationMin.Z = 0;
+                translationMax.X = 0; translationMax.Y = 0; translationMax.Z = 0;
             }
 
-            Vector4 dimMinTransformed = Vector4.TransformRow(_model.DimensionsMin + new Vector4(dimsMin, 0f), _stateCurrent._modelMatrix);
-            Vector4 dimMaxTransformed = Vector4.TransformRow(_model.DimensionsMax + new Vector4(dimsMax, 0f), _stateCurrent._modelMatrix);
+            Vector3 tmpmin = new Vector3(
+                    Math.Min(_model.DimensionsMin.X, translationMin.X - _model.DimensionsMin.X),
+                    Math.Min(_model.DimensionsMin.Y, translationMin.Y - _model.DimensionsMin.Y),
+                    Math.Min(_model.DimensionsMin.Z, translationMin.Z - _model.DimensionsMin.Z)
+                );
+
+            Vector3 tmpmax = new Vector3(
+                    Math.Max(_model.DimensionsMax.X, translationMax.X + _model.DimensionsMax.X),
+                    Math.Max(_model.DimensionsMax.Y, translationMax.Y + _model.DimensionsMax.Y),
+                    Math.Max(_model.DimensionsMax.Z, translationMax.Z + _model.DimensionsMax.Z)
+                );
+
+            //Vector4 dimMinTransformed = Vector4.TransformRow(_model.DimensionsMin + new Vector4(tmpmin, 0f), _stateCurrent._modelMatrix);
+            //Vector4 dimMaxTransformed = Vector4.TransformRow(_model.DimensionsMax + new Vector4(tmpmax, 0f), _stateCurrent._modelMatrix);
+            Vector4 dimMinTransformed = Vector4.TransformRow(new Vector4(tmpmin, 1f), _stateCurrent._modelMatrix);
+            Vector4 dimMaxTransformed = Vector4.TransformRow(new Vector4(tmpmax, 1f), _stateCurrent._modelMatrix);
 
             _stateCurrent._dimensions.X = dimMaxTransformed.X - dimMinTransformed.X;
             _stateCurrent._dimensions.Y = dimMaxTransformed.Y - dimMinTransformed.Y;

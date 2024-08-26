@@ -27,15 +27,15 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
-            bool hq =KWEngine.Window._ppQuality == PostProcessingQuality.Standard;
+            bool hq = (int)KWEngine.Window._ppQuality >= 1;
             Bind(false);
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, _lightType == LightType.Point));
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
             FramebufferErrorCode status;
 
             if(_lightType == LightType.Point)
             {
-                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
+                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToBorder, true, true));
             }
             else
             {

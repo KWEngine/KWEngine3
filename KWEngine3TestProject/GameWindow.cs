@@ -5,7 +5,7 @@ namespace KWEngine3TestProject
 {
     public class GameWindow : GLWindow
     {
-        public GameWindow() : base(1280, 720, false, PostProcessingQuality.Low, WindowMode.Default)
+        public GameWindow() : base(1280, 720, false, PostProcessingQuality.High, WindowMode.Default)
         {
             SetWorld(new GameWorldPlaneCollisionTest());
         }

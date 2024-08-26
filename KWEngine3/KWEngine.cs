@@ -308,7 +308,7 @@ namespace KWEngine3
 
         internal static void InitializeFontsAndDefaultTextures()
         {
-            Window.AnisotropicFilteringLevel = Window._ppQuality == PostProcessingQuality.Standard ? 8 : 4;
+            Window.AnisotropicFilteringLevel = (int)Window._ppQuality == 2 ? 8 : (int)Window._ppQuality == 1 ? 4 : 1;
 
             int mipMaps;
 

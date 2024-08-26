@@ -376,17 +376,71 @@ void main()
             float darkeningCurrentLight = 1.0;
             if(uShadowCaster > 0)
             {
+                /*
+                if(shadowMapIndex > 0) // directional or sun light
+                {
+                    vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPosition, 1.0);
+                    
+                    // if the light is directional, we first have to linearize the depth values:
+			        vec3 projCoordsForTextureLookup = (vShadowCoord.xyz / vShadowCoord.w) * 0.5 + 0.5;
+                    if(uUseTextureReflectionQuality.w > 0)
+                    {
+                        darkeningCurrentLight = 0;
+                        float offset = 1.0 / textureSize(uShadowMap[shadowMapIndex - 1], 0).x;
+                        for(int i = 0; i < 5; i++)
+                        {
+                            vec2 currentOffset = vec2(offset * fragOffsets[i].x, offset * fragOffsets[i].y);
+			                vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy + currentOffset);
+                            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
+                            if(currentLightType == 1)
+                            {
+                                fragmentDepthLinearized = (vShadowCoord.z - currentLightNear) / (currentLightFar - currentLightNear);
+                            }
+                            darkeningCurrentLight += calculateShadow(b, fragmentDepthLinearized, currentLightBias * fragOffsetsWeights2[i], currentLightHardness) * fragOffsetsWeights[i];
+                        }
+                    }
+                    else
+                    {
+                            vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
+                            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
+                            if(currentLightType == 1)
+                            {
+                                fragmentDepthLinearized = (vShadowCoord.z - currentLightNear) / (currentLightFar - currentLightNear);
+                            }
+                        darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                    }
+                }
+                */
+                
                 if(shadowMapIndex > 0) // directional or sun light
                 {
                     // if the light is directional, we first have to linearize the depth values:
 			        vec3 projCoordsForTextureLookup = (vShadowCoord[shadowMapIndex - 1].xyz / vShadowCoord[shadowMapIndex - 1].w) * 0.5 + 0.5;
-			        vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
-                    float fragmentDepthLinearized = projCoordsForTextureLookup.z;
-                    if(currentLightType > 0.0)
+                    if(uUseTextureReflectionQuality.w > 0)
                     {
-                        fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
+                        darkeningCurrentLight = 0;
+                        float offset = 1.0 / textureSize(uShadowMap[shadowMapIndex - 1], 0).x;
+                        for(int i = 0; i < 5; i++)
+                        {
+                            vec2 currentOffset = vec2(offset * fragOffsets[i].x, offset * fragOffsets[i].y);
+			                vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy + currentOffset);
+                            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
+                            if(currentLightType > 0.0)
+                            {
+                                fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
+                            }
+                            darkeningCurrentLight += calculateShadow(b, fragmentDepthLinearized, currentLightBias * fragOffsetsWeights2[i], currentLightHardness) * fragOffsetsWeights[i];
+                        }
                     }
-			        darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                    else{
+			            vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
+                        float fragmentDepthLinearized = projCoordsForTextureLookup.z;
+                        if(currentLightType > 0.0)
+                        {
+                            fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
+                        }
+			            darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                    }
                 }
                 else if(shadowMapIndex < 0) // point light
                 {

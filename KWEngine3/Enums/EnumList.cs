@@ -522,9 +522,9 @@
         /// </summary>
         Low = 512 * 2,
         /// <summary>
-        /// Mittlere Qualität
+        /// Mittlere Qualität (Standard)
         /// </summary>
-        Medium = 1024 * 2,
+        Default = 1024 * 2,
         /// <summary>
         /// Hohe Qualität
         /// </summary>

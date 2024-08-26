@@ -106,7 +106,7 @@ namespace KWEngine3.Renderer
 
                 UTextureSkybox = GL.GetUniformLocation(ProgramID, "uTextureSkybox");
                 UTextureBackground = GL.GetUniformLocation(ProgramID, "uTextureBackground");
-                UUseTextureReflection = GL.GetUniformLocation(ProgramID, "uUseTextureReflection");
+                UUseTextureReflection = GL.GetUniformLocation(ProgramID, "uUseTextureReflectionQuality");
                 UTextureSkyboxRotation = GL.GetUniformLocation(ProgramID, "uTextureSkyboxRotation");
 
                 UShadowCaster = GL.GetUniformLocation(ProgramID, "uShadowCaster");
@@ -212,7 +212,7 @@ namespace KWEngine3.Renderer
                 KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? -1 : 0,
                 KWEngine.CurrentWorld._background._mipMapLevels,
                 (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000),
-                KWEngine.Window._ppQuality == PostProcessingQuality.Standard ? 5 : 1);
+                (int)KWEngine.Window._ppQuality > 1 ? 1 : 0);
             GL.Uniform4(UUseTextureReflection, reflectionStats);
             if (KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular && KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
             {

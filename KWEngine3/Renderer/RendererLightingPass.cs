@@ -173,7 +173,7 @@ namespace KWEngine3.Renderer
                 KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? -1 : 0,
                 KWEngine.CurrentWorld._background._mipMapLevels,
                 (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000),
-                (int)KWEngine.Window._ppQuality >= 1 ? 1 : 0);
+                (int)KWEngine.Window._ppQuality > 1 ? 1 : 0);
             GL.Uniform4(UUseTextureReflection, reflectionStats);
             if (KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular && KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
             {

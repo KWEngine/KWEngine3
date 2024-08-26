@@ -76,9 +76,10 @@ namespace KWEngine3TestProject.Worlds
             _player.SetHitboxToCapsule();
             _player.SetHitboxScale(0.5f, 0.75f, 1f);
             _player.IsShadowCaster = true;
+            _player.SetOpacity(0.5f);
             AddGameObject(_player);
             
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.Default);
             sun.Name = "Sun";
             sun.SetPosition(25, 25, 0);
             sun.SetColor(1, 1, 1, 2);
@@ -164,6 +165,16 @@ namespace KWEngine3TestProject.Worlds
             flowField.IsVisible = false;
             flowField.Update();
             SetFlowField(flowField);
+
+            InstancedObjectTest itt = new InstancedObjectTest();
+            itt.SetModel("KWCube");
+            itt.SetScale(1);
+            itt.SetPosition(0, 1, 0);
+            itt.SetColor(1, 1, 0);
+            itt.SetAdditionalInstanceCount(1);
+            itt.IsShadowCaster = true;
+            itt.SetPositionForInstance(1, 1, 1, 0);
+            AddRenderObject(itt);
 
             MouseCursorGrab();
         }
