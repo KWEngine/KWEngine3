@@ -17,7 +17,7 @@ uniform samplerCube uShadowMapCube[3];
 uniform samplerCube uTextureSkybox;
 uniform mat3 uTextureSkyboxRotation;
 uniform sampler2D uTextureBackground;
-uniform ivec3 uUseTextureReflection;
+uniform ivec4 uUseTextureReflectionQuality;
 uniform mat4 uViewProjectionMatrixShadowMap[3];
 uniform float uLights[850];
 uniform int uLightCount;
@@ -35,7 +35,9 @@ const mat4 quantizationMatrix3Inv = mat4(
 										0.0319417555, -0.1722823173, -0.2758014811f, -0.3376131734
 										);
 const float offsetZero = 0.035955884801;
-
+const vec2 fragOffsets[] = vec2[5](vec2(0, 0), vec2(-1, -1), vec2(1, -1), vec2(1, 1), vec2(-1, 1));
+const float fragOffsetsWeights[] = float[5](0.2, 0.2, 0.2, 0.2, 0.2);
+const float fragOffsetsWeights2[] = float[5](1.0, 5.0, 5.0, 5.0, 5.0);
 
 /*
 Default             = 0 =>  0.04, 0.04, 0.04
@@ -187,32 +189,32 @@ vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fra
 	float mipMapLevel = 0.0;
 	vec3 refl = vec3(1.0);
     // x = type, y = mipmaplevels
-	if(uUseTextureReflection.x == 1) //2 = equi, 1 = cubemap 
+	if(uUseTextureReflectionQuality.x == 1) //2 = equi, 1 = cubemap 
 	{
 		vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
 
-		int mipMapLevels = uUseTextureReflection.y;
+		int mipMapLevels = uUseTextureReflectionQuality.y;
 		mipMapLevel = roughness * mipMapLevels;
-		refl = textureLod(uTextureSkybox, reflectedCameraSurfaceNormal, mipMapLevel).xyz * (float(uUseTextureReflection.z) / 1000.0);
+		refl = textureLod(uTextureSkybox, reflectedCameraSurfaceNormal, mipMapLevel).xyz * (float(uUseTextureReflectionQuality.z) / 1000.0);
 	}
-    else if(uUseTextureReflection.x == 2)
+    else if(uUseTextureReflectionQuality.x == 2)
     {
         vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
 
-		int mipMapLevels = uUseTextureReflection.y;
+		int mipMapLevels = uUseTextureReflectionQuality.y;
 		mipMapLevel = roughness * mipMapLevels;
 		refl = sampleFromEquirectangular(fragPosWorld, reflectedCameraSurfaceNormal, mipMapLevel);
     }
-	else if(uUseTextureReflection.x < 0)
+	else if(uUseTextureReflectionQuality.x < 0)
 	{
 		vec3 reflectedCameraSurfaceNormal = reflect(-fragmentToCamera, N);
 		vec2 coordinates = (reflectedCameraSurfaceNormal.xy + 1.0) / 2.0;
 		coordinates.y = -coordinates.y;
 
-		int mipMapLevels = uUseTextureReflection.y;
+		int mipMapLevels = uUseTextureReflectionQuality.y;
 		mipMapLevel = roughness * mipMapLevels;
 
-		refl = textureLod(uTextureBackground, coordinates, mipMapLevel).xyz * (float(uUseTextureReflection.z) / 1000.0);
+		refl = textureLod(uTextureBackground, coordinates, mipMapLevel).xyz * (float(uUseTextureReflectionQuality.z) / 1000.0);
 	}
 	return refl;
 }
@@ -248,7 +250,8 @@ void main()
     vec3 emissive = vec3(max(0, albedo.x - 1.0), max(0, albedo.y - 1.0), max(0, albedo.z - 1.0));
     albedo = vec3(min(albedo.x, 1.0), min(albedo.y, 1.0), min(albedo.z, 1.0));
     
-    vec3 fragPosition = getFragmentPosition();
+    //getFragmentPositions();
+    vec3 fragPosition = getFragmentPosition(); //vec3(fragPositions[0], fragPositions[1], fragPositions[2]);
     vec3 N = normal;
     vec3 V = normalize(uCameraPos - fragPosition);
     vec3 F0 = getF0(int(pbr.z));
@@ -325,16 +328,35 @@ void main()
                 if(shadowMapIndex > 0) // directional or sun light
                 {
                     vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPosition, 1.0);
-
+                    
                     // if the light is directional, we first have to linearize the depth values:
 			        vec3 projCoordsForTextureLookup = (vShadowCoord.xyz / vShadowCoord.w) * 0.5 + 0.5;
-			        vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
-                    float fragmentDepthLinearized = projCoordsForTextureLookup.z;
-                    if(currentLightType == 1)
+                    if(uUseTextureReflectionQuality.w > 0)
                     {
-                        fragmentDepthLinearized = (vShadowCoord.z - currentLightNear) / (currentLightFar - currentLightNear);
+                        darkeningCurrentLight = 0;
+                        float offset = 1.0 / textureSize(uShadowMap[shadowMapIndex - 1], 0).x;
+                        for(int i = 0; i < 5; i++)
+                        {
+                            vec2 currentOffset = vec2(offset * fragOffsets[i].x, offset * fragOffsets[i].y);
+			                vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy + currentOffset);
+                            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
+                            if(currentLightType == 1)
+                            {
+                                fragmentDepthLinearized = (vShadowCoord.z - currentLightNear) / (currentLightFar - currentLightNear);
+                            }
+                            darkeningCurrentLight += calculateShadow(b, fragmentDepthLinearized, currentLightBias * fragOffsetsWeights2[i], currentLightHardness) * fragOffsetsWeights[i];
+                        }
                     }
-			        darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                    else
+                    {
+                            vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
+                            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
+                            if(currentLightType == 1)
+                            {
+                                fragmentDepthLinearized = (vShadowCoord.z - currentLightNear) / (currentLightFar - currentLightNear);
+                            }
+                        darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                    }
                 }
                 else if(shadowMapIndex < 0) // point light
                 {

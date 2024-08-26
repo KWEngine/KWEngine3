@@ -30,7 +30,7 @@ uniform ivec3 uUseTexturesMetallicRoughness;
 uniform samplerCube uTextureSkybox;
 uniform mat3 uTextureSkyboxRotation;
 uniform sampler2D uTextureBackground;
-uniform ivec3 uUseTextureReflection;
+uniform ivec4 uUseTextureReflectionQuality;
 
 uniform vec2 uMetallicRoughness;
 uniform vec4 uColorEmissive;
@@ -49,6 +49,9 @@ const mat4 quantizationMatrix3Inv = mat4(
 										0.0319417555, -0.1722823173, -0.2758014811f, -0.3376131734
 										);
 const float offsetZero = 0.035955884801;
+const vec2 fragOffsets[] = vec2[5](vec2(0, 0), vec2(-1, -1), vec2(1, -1), vec2(1, 1), vec2(-1, 1));
+const float fragOffsetsWeights[] = float[5](0.2, 0.2, 0.2, 0.2, 0.2);
+const float fragOffsetsWeights2[] = float[5](1.0, 5.0, 5.0, 5.0, 5.0);
 /*
 Default             = 0 =>  0.04, 0.04, 0.04
 PlasticOrGlassLow   = 1 =>  0.03, 0.03, 0.03
@@ -92,32 +95,32 @@ vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fra
 	float mipMapLevel = 0.0;
 	vec3 refl = vec3(1.0);
     // x = type, y = mipmaplevels
-	if(uUseTextureReflection.x == 1) //2 = equi, 1 = cubemap 
+	if(uUseTextureReflectionQuality.x == 1) //2 = equi, 1 = cubemap 
 	{
 		vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
 
-		int mipMapLevels = uUseTextureReflection.y;
+		int mipMapLevels = uUseTextureReflectionQuality.y;
 		mipMapLevel = roughness * mipMapLevels;
-		refl = textureLod(uTextureSkybox, reflectedCameraSurfaceNormal, mipMapLevel).xyz * (float(uUseTextureReflection.z) / 1000.0);
+		refl = textureLod(uTextureSkybox, reflectedCameraSurfaceNormal, mipMapLevel).xyz * (float(uUseTextureReflectionQuality.z) / 1000.0);
 	}
-    else if(uUseTextureReflection.x == 2)
+    else if(uUseTextureReflectionQuality.x == 2)
     {
         vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
 
-		int mipMapLevels = uUseTextureReflection.y;
+		int mipMapLevels = uUseTextureReflectionQuality.y;
 		mipMapLevel = roughness * mipMapLevels;
 		refl = sampleFromEquirectangular(fragPosWorld, reflectedCameraSurfaceNormal, mipMapLevel);
     }
-	else if(uUseTextureReflection.x < 0)
+	else if(uUseTextureReflectionQuality.x < 0)
 	{
 		vec3 reflectedCameraSurfaceNormal = reflect(-fragmentToCamera, N);
 		vec2 coordinates = (reflectedCameraSurfaceNormal.xy + 1.0) / 2.0;
 		coordinates.y = -coordinates.y;
 
-		int mipMapLevels = uUseTextureReflection.y;
+		int mipMapLevels = uUseTextureReflectionQuality.y;
 		mipMapLevel = roughness * mipMapLevels;
 
-		refl = textureLod(uTextureBackground, coordinates, mipMapLevel).xyz * (float(uUseTextureReflection.z) / 1000.0);
+		refl = textureLod(uTextureBackground, coordinates, mipMapLevel).xyz * (float(uUseTextureReflectionQuality.z) / 1000.0);
 	}
 	return refl;
 }

@@ -147,7 +147,7 @@ namespace KWEngine3.Renderer
             {
                 LightObject l = KWEngine.CurrentWorld._lightObjects[KWEngine.CurrentWorld._preparedTex2DIndices[i]];
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, KWEngine.Window._ppQuality == PostProcessingQuality.High ? l._fbShadowMap._blurBuffer2.Attachments[0].ID : l._fbShadowMap.Attachments[0].ID);
+                GL.BindTexture(TextureTarget.Texture2D, l._fbShadowMap.Attachments[0].ID);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
                 GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[0]);
             }
@@ -206,13 +206,14 @@ namespace KWEngine3.Renderer
             }
             GL.Uniform1(UTextureSkybox, currentTextureNumber++);
 
-            Vector3i reflectionStats = new Vector3i(
+            Vector4i reflectionStats = new Vector4i(
                 KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox && KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular ? 2 :
                 KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Skybox && KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.CubeMap ? 1 :
                 KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? -1 : 0,
                 KWEngine.CurrentWorld._background._mipMapLevels,
-                (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000));
-            GL.Uniform3(UUseTextureReflection, reflectionStats);
+                (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000),
+                KWEngine.Window._ppQuality == PostProcessingQuality.Standard ? 5 : 1);
+            GL.Uniform4(UUseTextureReflection, reflectionStats);
             if (KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular && KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
             {
                 GL.UniformMatrix3(UTextureSkyboxRotation, false, ref KWEngine.CurrentWorld._background._rotationReflection);

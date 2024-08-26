@@ -13,7 +13,7 @@ namespace KWEngine3.Framebuffers
         public override void Init(int width, int height)
         {
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA8, width, height, 0, TextureMinFilter.Linear, TextureWrapMode.ClampToEdge, false, false)); // Color1
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA8, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, false, false)); // Color1
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];
             for(int i = 0; i < Attachments.Count; i++)
             {

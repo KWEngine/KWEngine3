@@ -561,8 +561,8 @@ namespace KWEngine3
                 _preparedLightsArray[offset + 13] = l._stateRender._nearFarFOVType.Z;
                 _preparedLightsArray[offset + 14] = l._stateRender._nearFarFOVType.W;
 
-                _preparedLightsArray[offset + 15] = l._shadowBias;
-                _preparedLightsArray[offset + 16] = l._shadowOffset;
+                _preparedLightsArray[offset + 15] = l._shadowBias * ((int)KWEngine.Window._ppQuality >= 1 ? 1 : 4);
+                _preparedLightsArray[offset + 16] = (int)KWEngine.Window._ppQuality >= 1 ? l._shadowOffset : 0;
 
                 offset += KWEngine.LIGHTINDEXDIVIDER;
                 offsetTex += KWEngine.LIGHTINDEXDIVIDER;

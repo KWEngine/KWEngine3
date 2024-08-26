@@ -12,8 +12,6 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
-            bool hq = KWEngine.Window._ppQuality == PostProcessingQuality.High;
-
             Bind(false);
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 0));   // Color
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 1));   // Bloom

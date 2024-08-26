@@ -8,7 +8,7 @@ namespace KWEngine3.Framebuffers
         public int ID { get; set; } = -1;
         public TextureTarget _target = TextureTarget.Texture2D;
         public FramebufferTextureMode Mode { get; set; } = FramebufferTextureMode.RGBA8;
-        public FramebufferTexture(FramebufferTextureMode mode, int width, int height, int attachmentNumber, TextureMinFilter filter = TextureMinFilter.Nearest, TextureWrapMode wrapMode = TextureWrapMode.Repeat, bool borderColorWhite = false, bool cubeMap = false)
+        public FramebufferTexture(FramebufferTextureMode mode, int width, int height, int attachmentNumber, TextureMinFilter filter = TextureMinFilter.Nearest, TextureMagFilter filterMag = TextureMagFilter.Nearest, TextureWrapMode wrapMode = TextureWrapMode.Repeat, bool borderColorWhite = false, bool cubeMap = false)
         {
             uint wrapmode = (uint)wrapMode;
             float[] borderColor = borderColorWhite ? new float[] { 1, 1, 1, 1 } : new float[] { 0, 0, 0, 0 };
@@ -76,7 +76,7 @@ namespace KWEngine3.Framebuffers
                 GL.TexParameterI(_target, TextureParameterName.TextureWrapR, ref wrapmode);
 
             GL.TexParameter(_target, TextureParameterName.TextureMinFilter, (float)filter);
-            GL.TexParameter(_target, TextureParameterName.TextureMagFilter, filter == TextureMinFilter.Nearest ? (float)TextureMagFilter.Nearest : (float)TextureMagFilter.Linear);
+            GL.TexParameter(_target, TextureParameterName.TextureMagFilter, (float)filterMag);
             
             GL.TexParameter(_target, TextureParameterName.TextureBorderColor, borderColor);
             if(mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH16F)
@@ -87,7 +87,8 @@ namespace KWEngine3.Framebuffers
             {
                 GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0 + attachmentNumber, ID, 0);
             }
-            if (_target == TextureTarget.Texture2D && filter == TextureMinFilter.LinearMipmapLinear)
+            //if (_target == TextureTarget.Texture2D && filter == TextureMinFilter.LinearMipmapLinear)
+            if (filter == TextureMinFilter.LinearMipmapLinear)
                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
         }
 

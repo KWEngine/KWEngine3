@@ -42,7 +42,7 @@ namespace KWEngine3.Renderer
             FramebufferLightingPass = new FramebufferLighting(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
 
             // Bloom
-            if (KWEngine.Window._ppQuality == PostProcessingQuality.High)
+            if (KWEngine.Window._ppQuality == PostProcessingQuality.Standard)
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
                 {
@@ -50,7 +50,7 @@ namespace KWEngine3.Renderer
                     FramebuffersBloomTemp[i] = new FramebufferBloom(KWEngine.BLOOMWIDTH >> i, KWEngine.BLOOMHEIGHT >> i);
                 }
             }
-            else if(KWEngine.Window._ppQuality == PostProcessingQuality.Low)
+            else
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS / 2; i++)
                 {
@@ -59,10 +59,7 @@ namespace KWEngine3.Renderer
                     FramebuffersBloomTemp[i] = new FramebufferBloom(bloomSize.X, bloomSize.Y);
                 }
             }
-            else
-            {
-                // no bloom at all
-            }
+            
         }
 
         public static void InitializeClearColor()
@@ -99,7 +96,6 @@ namespace KWEngine3.Renderer
             RendererShadowMapInstanced.Init();
             RendererShadowMapCube.Init();
             RendererShadowMapCubeInstanced.Init();
-            RendererShadowMapBlur.Init();
 
             RendererEditor.Init();
             RendererGrid.Init();
@@ -151,7 +147,7 @@ namespace KWEngine3.Renderer
             GL.Disable(EnableCap.DepthTest);
             RendererBloomDownsample.Bind();
 
-            if(KWEngine.Window._ppQuality == PostProcessingQuality.High)
+            if(KWEngine.Window._ppQuality == PostProcessingQuality.Standard)
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
                 {

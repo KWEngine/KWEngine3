@@ -84,7 +84,6 @@ namespace KWEngine3TestProject.Worlds
             sun.SetColor(1, 1, 1, 2);
             sun.SetFOV(45);
             sun.SetNearFar(20, 80);
-            sun.SetShadowBias(0.000026f);
             AddLightObject(sun);
 
             Enemy e1 = new Enemy();

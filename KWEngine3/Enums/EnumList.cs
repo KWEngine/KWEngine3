@@ -520,15 +520,15 @@
         /// <summary>
         /// Niedrige Qualität
         /// </summary>
-        Low = 512,
+        Low = 512 * 2,
         /// <summary>
         /// Mittlere Qualität
         /// </summary>
-        Medium = 1024,
+        Medium = 1024 * 2,
         /// <summary>
         /// Hohe Qualität
         /// </summary>
-        High = 2048
+        High = 2048 * 2
     }
 
     /// <summary>
@@ -603,17 +603,17 @@
     public enum PostProcessingQuality
     {
         /// <summary>
-        /// Standard
+        /// Hoch
         /// </summary>
-        High,
+        High = 2,
         /// <summary>
-        /// Niedrige Qualität (Artefaktbildung möglich)
+        /// Standard (vorausgewählt)
         /// </summary>
-        Low,
+        Standard = 1,
         /// <summary>
-        /// Ausgeschaltet
+        /// Niedrig
         /// </summary>
-        Disabled
+        Low = 0
     };
 
     /// <summary>

@@ -60,7 +60,7 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
                 MoveAlongVector(movementVector, 0.011f);
             }
 
-            if (Keyboard.IsKeyPressed(Keys.Space) && _state == State.OnGround)
+            if ((Keyboard.IsKeyPressed(Keys.Space) || Mouse.IsButtonPressed(MouseButton.Right))&& _state == State.OnGround)
             {
                 _velocityY = VELOCITYJUMP;
                 _state = State.InAir;

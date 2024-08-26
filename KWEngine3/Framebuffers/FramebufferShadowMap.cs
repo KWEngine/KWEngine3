@@ -10,9 +10,6 @@ namespace KWEngine3.Framebuffers
 {
     internal class FramebufferShadowMap : Framebuffer
     {
-        public FramebufferShadowMapBlur _blurBuffer1;
-        public FramebufferShadowMapBlur _blurBuffer2;
-
         public override void Clear(bool keepDepth = false)
         {
             for (int i = 0; i < ClearColorValues.Count; i++)
@@ -30,15 +27,15 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
-            bool hq = KWEngine.Window._ppQuality == PostProcessingQuality.High;
+            bool hq =KWEngine.Window._ppQuality == PostProcessingQuality.Standard;
             Bind(false);
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Nearest, TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, _lightType == LightType.Point));
             FramebufferErrorCode status;
 
             if(_lightType == LightType.Point)
             {
-                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Nearest, TextureWrapMode.ClampToBorder, true, true));
+                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
             }
             else
             {
@@ -59,12 +56,6 @@ namespace KWEngine3.Framebuffers
                 throw new Exception("Framebuffer invalid.");
             }
             Unbind();
-
-            if (_lightType != LightType.Point)
-            {
-                _blurBuffer1 = new FramebufferShadowMapBlur(width, height, _lightType);
-                _blurBuffer2 = new FramebufferShadowMapBlur(width, height, _lightType);
-            }
         }
     }
 }

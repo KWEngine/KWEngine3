@@ -73,7 +73,7 @@ namespace KWEngine3.Renderer
 
                 //_nearFarFOVType = new Vector4(NEARDEFAULT, FARDEFAULT, FOVDEFAULT, type == LightType.Point ? 0 : type == LightType.Sun ? -1 : 1);
                 GL.Uniform3(UNearFarSun, new Vector3(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y, l._stateRender._nearFarFOVType.W));
-                foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjects())
+                foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
                 {
                     if(g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
                         Draw(g);

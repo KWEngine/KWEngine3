@@ -31,7 +31,7 @@ namespace KWEngine3
         internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
 
         // quality related:
-        internal PostProcessingQuality _ppQuality = PostProcessingQuality.High;
+        internal PostProcessingQuality _ppQuality = PostProcessingQuality.Standard;
         internal int AnisotropicFilteringLevel { get; set; } = 4;
 
         // other:
@@ -84,7 +84,7 @@ namespace KWEngine3
         /// </summary>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
-        public GLWindow(bool vSync = true, PostProcessingQuality ppQuality = PostProcessingQuality.High)
+        public GLWindow(bool vSync = true, PostProcessingQuality ppQuality = PostProcessingQuality.Standard)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -125,7 +125,7 @@ namespace KWEngine3
                  }
         )
         {
-            _ppQuality = PostProcessingQuality.High;
+            _ppQuality = PostProcessingQuality.Standard;
             KWEngine.InitializeFontsAndDefaultTextures();
         }
 
@@ -378,16 +378,6 @@ namespace KWEngine3
                             }
                         }
                     }
-
-                    // Shadow map blur pass:
-                    if (_ppQuality == PostProcessingQuality.High)
-                    {
-                        RendererShadowMapBlur.Bind();
-                        foreach (LightObject shadowLight in KWEngine.CurrentWorld._currentShadowLights)
-                        {
-                            RendererShadowMapBlur.Draw(shadowLight);
-                        }
-                    }
                 }
 
                 // clear inbetween:
@@ -467,10 +457,7 @@ namespace KWEngine3
                 RendererHUD.RenderHUDObjects();
 
                 // Bloom pass:
-                if (_ppQuality != PostProcessingQuality.Disabled)
-                {
-                    RenderManager.DoBloomPass();
-                }
+                RenderManager.DoBloomPass();
 
                 // Final screen pass
                 Vector4 fadeColor = new Vector4(
@@ -481,7 +468,7 @@ namespace KWEngine3
                 
                 RenderManager.BindScreen();
                 RendererCopy.Bind();
-                RendererCopy.Draw(RenderManager.FramebufferLightingPass, _ppQuality == PostProcessingQuality.Disabled ? null : RenderManager.FramebuffersBloomTemp[0], fadeColor);
+                RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0], fadeColor);
 
                 if (KWEngine.CurrentWorld._flowField != null && KWEngine.CurrentWorld._flowField.IsVisible)
                 {

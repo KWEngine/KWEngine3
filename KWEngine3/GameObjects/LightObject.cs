@@ -13,8 +13,8 @@ namespace KWEngine3.GameObjects
         internal LightObjectState _stateRender;
         internal FramebufferShadowMap _fbShadowMap = null;
         internal int _shadowMapSize;
-        internal float _shadowBias = 0.00006f;
-        internal float _shadowOffset = 0f;
+        internal float _shadowBias = 0.000006f;
+        internal float _shadowOffset = 0.001f;
 
         /// <summary>
         /// Befinden sich das Lichtobjekt und seine Lichtstrahlen aktuell auf dem Bildschirm?
@@ -49,13 +49,10 @@ namespace KWEngine3.GameObjects
             }
 
             ShadowCasterType = shadowType;
-            _shadowMapSize = ShadowCasterType == ShadowQuality.Low ? 512
-                : ShadowCasterType == ShadowQuality.Medium ? 1024
-                : ShadowCasterType == ShadowQuality.High ? 2048
-                : -1;
+            _shadowMapSize = shadowType == ShadowQuality.NoShadow ? -1 : (int)shadowType;
 
             if (lightType == LightType.Point)
-                _shadowBias = 0.0006f;
+                _shadowBias = 0.00006f;
 
             _stateCurrent = new LightObjectState(this, lightType);
             _statePrevious = _stateCurrent;
@@ -66,7 +63,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Feintuning für den Schatteneffekt des Lichts (im Bereich [-0.1f;+0.1f])
         /// </summary>
-        /// <param name="bias">Bias-Wert (Standardwert: 0.00006f)</param>
+        /// <param name="bias">Bias-Wert (Standardwert: 0.000006f)</param>
         public void SetShadowBias(float bias)
         {
             _shadowBias = MathHelper.Clamp(bias, -0.1f, 0.1f);
@@ -278,15 +275,6 @@ namespace KWEngine3.GameObjects
         {
             if (_fbShadowMap != null)
             {
-                if (_fbShadowMap._blurBuffer1 != null)
-                {
-                    _fbShadowMap._blurBuffer1.Dispose();
-                }
-                if (_fbShadowMap._blurBuffer2 != null)
-                {
-                    _fbShadowMap._blurBuffer2.Dispose();
-                }
-
                 _fbShadowMap.Dispose();
                 _fbShadowMap = null;
                 Framebuffer.UpdateGlobalShadowMapCounter(false);
