@@ -516,7 +516,7 @@
         /// <summary>
         /// Kein Schattenwurf
         /// </summary>
-        NoShadow = 0,
+        NoShadow = -1,
         /// <summary>
         /// Niedrige Qualität
         /// </summary>
@@ -524,7 +524,7 @@
         /// <summary>
         /// Mittlere Qualität (Standard)
         /// </summary>
-        Default = 1024 * 2,
+        Medium = 1024 * 2,
         /// <summary>
         /// Hohe Qualität
         /// </summary>
@@ -609,11 +609,7 @@
         /// <summary>
         /// Standard (vorausgewählt)
         /// </summary>
-        Standard = 1,
-        /// <summary>
-        /// Niedrig
-        /// </summary>
-        Low = 0
+        Standard = 1
     };
 
     /// <summary>

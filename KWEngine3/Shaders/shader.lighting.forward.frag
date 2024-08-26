@@ -50,7 +50,7 @@ const mat4 quantizationMatrix3Inv = mat4(
 										);
 const float offsetZero = 0.035955884801;
 const vec2 fragOffsets[] = vec2[5](vec2(0, 0), vec2(-1, -1), vec2(1, -1), vec2(1, 1), vec2(-1, 1));
-const float fragOffsetsWeights[] = float[5](0.2, 0.2, 0.2, 0.2, 0.2);
+const float fragOffsetsWeights[] = float[5](0.4, 0.15, 0.15, 0.15, 0.15);
 const float fragOffsetsWeights2[] = float[5](1.0, 5.0, 5.0, 5.0, 5.0);
 
 /*

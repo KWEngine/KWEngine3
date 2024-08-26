@@ -42,7 +42,7 @@ namespace KWEngine3.Renderer
             FramebufferLightingPass = new FramebufferLighting(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
 
             // Bloom
-            if (KWEngine.Window._ppQuality == PostProcessingQuality.Standard)
+            if ((int)KWEngine.Window._ppQuality > 1) // high only
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
                 {
@@ -147,7 +147,7 @@ namespace KWEngine3.Renderer
             GL.Disable(EnableCap.DepthTest);
             RendererBloomDownsample.Bind();
 
-            if(KWEngine.Window._ppQuality == PostProcessingQuality.Standard)
+            if((int)KWEngine.Window._ppQuality > 1) // high only
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
                 {

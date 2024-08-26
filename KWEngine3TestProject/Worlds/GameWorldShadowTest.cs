@@ -14,11 +14,11 @@ namespace KWEngine3TestProject.Worlds
             if(Keyboard.IsKeyPressed(Keys.F1))
             {
                 _pointLight.SetColor(_pointLight.Color.X, _pointLight.Color.Y, _pointLight.Color.Z, 0);
-                _directionalLight.SetColor(_directionalLight.Color.X, _directionalLight.Color.Y, _directionalLight.Color.Z, 3);
+                _directionalLight.SetColor(_directionalLight.Color.X, _directionalLight.Color.Y, _directionalLight.Color.Z, 4);
             }
             else if(Keyboard.IsKeyPressed(Keys.F2))
             {
-                _pointLight.SetColor(_pointLight.Color.X, _pointLight.Color.Y, _pointLight.Color.Z, 2);
+                _pointLight.SetColor(_pointLight.Color.X, _pointLight.Color.Y, _pointLight.Color.Z, 4);
                 _directionalLight.SetColor(_directionalLight.Color.X, _directionalLight.Color.Y, _directionalLight.Color.Z, 0);
             }
         }
@@ -52,7 +52,7 @@ namespace KWEngine3TestProject.Worlds
             _pointLight = new LightObject(LightType.Point, ShadowQuality.High);
             _pointLight.SetPosition(-2.5f, 2.0f, 5);
             _pointLight.SetNearFar(1, 20);
-            _pointLight.SetColor(1, 1, 1, 4);
+            _pointLight.SetColor(1, 1, 1, 0);
             AddLightObject(_pointLight);
             
 

@@ -56,13 +56,18 @@ namespace KWEngine3.Renderer
 
         public static void Draw(Framebuffer fbSource1, Framebuffer fbSource2) // currently from lighting pass
         {
-            bool hq = KWEngine.Window._ppQuality == PostProcessingQuality.Standard;
+            bool hq = KWEngine.Window._ppQuality == PostProcessingQuality.High;
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource1.Attachments[0].ID);
             GL.Uniform1(UTextureSmaller, 0);
 
-            GL.Uniform3(UBloomRadius, new Vector3(KWEngine._glowRadius, hq ? KWEngine._glowUpsampleF1 * 2f : KWEngine._glowUpsampleF1 / 2f, KWEngine._glowUpsampleF2));
+            //GL.Uniform3(UBloomRadius, new Vector3(KWEngine._glowRadius, hq ? KWEngine._glowUpsampleF1 * 2f : KWEngine._glowUpsampleF1 / 2f, KWEngine._glowUpsampleF2));
+            GL.Uniform3(UBloomRadius, new Vector3(
+                hq ? KWEngine._glowRadius * 1.00f : KWEngine._glowRadius * 1.67f, 
+                hq ? KWEngine._glowUpsampleF1 * 2.0f : KWEngine._glowUpsampleF1 * 2.0f, 
+                hq ? KWEngine._glowUpsampleF2 * 2.0f : KWEngine._glowUpsampleF2 * 2.0f)
+                );
 
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, fbSource2.Attachments[0].ID);

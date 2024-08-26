@@ -1003,7 +1003,7 @@ namespace KWEngine3.Editor
                         if (ImGui.Combo("Shadow caster quality", ref _newLightShadowCasterQualityIndex, _shadowCasterQualities, _shadowCasterQualities.Length))
                         {
                             string q = _shadowCasterQualities[_newLightShadowCasterQualityIndex];
-                            _newLightShadowCasterQuality = q == "no shadow" ? ShadowQuality.NoShadow : q == "low" ? ShadowQuality.Low : q == "medium" ? ShadowQuality.Default : ShadowQuality.High;
+                            _newLightShadowCasterQuality = q == "no shadow" ? ShadowQuality.NoShadow : q == "low" ? ShadowQuality.Low : q == "medium" ? ShadowQuality.Medium : ShadowQuality.High;
                         }
                     }
                     if (ImGui.Button("Add instance now!"))

@@ -244,9 +244,9 @@ namespace KWEngine3
         internal static Matrix4 Identity = Matrix4.Identity;
         //private static Vector3 _worldUp = new Vector3(0, 1, 0);
         internal static int _uniformOffsetMultiplier = 1;
-        internal static float _glowRadius = 1.0f;
-        internal static float _glowUpsampleF1 = 0.20f;
-        internal static float _glowUpsampleF2 = 0.80f;
+        internal static float _glowRadius = 0.75f;
+        internal static float _glowUpsampleF1 = 0.15f;
+        internal static float _glowUpsampleF2 = 0.70f;
 
         /// <summary>
         /// Steuert das Ausmaß des durch Überbelichtung erzeugten Glow-Effekts (von 0 bis 1, Standard: 1.0)

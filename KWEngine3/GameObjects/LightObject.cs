@@ -13,8 +13,8 @@ namespace KWEngine3.GameObjects
         internal LightObjectState _stateRender;
         internal FramebufferShadowMap _fbShadowMap = null;
         internal int _shadowMapSize;
-        internal float _shadowBias = 0.00006f;
-        internal float _shadowOffset = 0f;
+        internal float _shadowBias = 0.00002f;
+        internal float _shadowOffset = 0.001f;
 
         /// <summary>
         /// Befinden sich das Lichtobjekt und seine Lichtstrahlen aktuell auf dem Bildschirm?
@@ -49,10 +49,7 @@ namespace KWEngine3.GameObjects
             }
 
             ShadowCasterType = shadowType;
-            _shadowMapSize = ShadowCasterType == ShadowQuality.Low ? 512
-                : ShadowCasterType == ShadowQuality.Default ? 1024
-                : ShadowCasterType == ShadowQuality.High ? 2048
-                : -1;
+            _shadowMapSize = (int)ShadowCasterType;
 
             if (lightType == LightType.Point)
                 _shadowBias = 0.0006f;
@@ -66,7 +63,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Feintuning für den Schatteneffekt des Lichts (im Bereich [-0.1f;+0.1f])
         /// </summary>
-        /// <param name="bias">Bias-Wert (Standardwert: 0.00006f)</param>
+        /// <param name="bias">Bias-Wert (Standardwert: 0.00002f)</param>
         public void SetShadowBias(float bias)
         {
             _shadowBias = MathHelper.Clamp(bias, -0.1f, 0.1f);
