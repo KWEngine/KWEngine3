@@ -72,6 +72,7 @@
 		<None Remove="Assets\Textures\foliage_grassblade_minecraft.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_normal.png" />
 		<None Remove="Assets\Textures\heightmap.png" />
+		<None Remove="Assets\Textures\heightmap_test.png" />
 		<None Remove="Assets\Textures\noise.png" />
 		<None Remove="Assets\Textures\normalmap.png" />
 		<None Remove="Assets\Textures\particleburst_bubbles.dds" />
@@ -153,6 +154,8 @@
 		<None Remove="Shaders\shader.octree.vert" />
 		<None Remove="Shaders\shader.terrain.gbuffer.frag" />
 		<None Remove="Shaders\shader.terrain.gbuffer.vert" />
+		<None Remove="Shaders\shader.terrainNew.gbuffer.frag" />
+		<None Remove="Shaders\shader.terrainNew.gbuffer.vert" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -202,6 +205,7 @@
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
 		<EmbeddedResource Include="Assets\Textures\foliage_grassblade_minecraft.dds" />
+		<EmbeddedResource Include="Assets\Textures\heightmap_test.png" />
 		<EmbeddedResource Include="Assets\Textures\noise.png" />
 		<EmbeddedResource Include="Assets\Textures\normalmap.png" />
 		<EmbeddedResource Include="Assets\Textures\black.png" />
@@ -336,6 +340,8 @@
 		<EmbeddedResource Include="Shaders\shader.background.skybox.vert" />
 		<EmbeddedResource Include="Shaders\shader.explosion.frag" />
 		<EmbeddedResource Include="Shaders\shader.explosion.vert" />
+		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.frag" />
+		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.vert" />
 	</ItemGroup>
 
 	<ItemGroup>
