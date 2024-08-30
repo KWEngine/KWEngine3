@@ -54,6 +54,7 @@
 		<None Remove="Assets\Models\skull.obj" />
 		<None Remove="Assets\Models\star.mtl" />
 		<None Remove="Assets\Models\star.obj" />
+		<None Remove="Assets\Models\terrainMesh.obj" />
 		<None Remove="Assets\Textures\alpha.png" />
 		<None Remove="Assets\Textures\arrow.png" />
 		<None Remove="Assets\Textures\black.png" />
@@ -155,6 +156,8 @@
 		<None Remove="Shaders\shader.terrain.gbuffer.frag" />
 		<None Remove="Shaders\shader.terrain.gbuffer.vert" />
 		<None Remove="Shaders\shader.terrainNew.gbuffer.frag" />
+		<None Remove="Shaders\shader.terrainNew.gbuffer.tesc" />
+		<None Remove="Shaders\shader.terrainNew.gbuffer.tese" />
 		<None Remove="Shaders\shader.terrainNew.gbuffer.vert" />
 	</ItemGroup>
 
@@ -186,6 +189,7 @@
 		<EmbeddedResource Include="Assets\Models\skull.obj" />
 		<EmbeddedResource Include="Assets\Models\star.mtl" />
 		<EmbeddedResource Include="Assets\Models\star.obj" />
+		<EmbeddedResource Include="Assets\Models\terrainMesh.obj" />
 		<EmbeddedResource Include="Assets\Textures\alpha.png" />
 		<EmbeddedResource Include="Assets\Textures\arrow.png" />
 		<EmbeddedResource Include="Assets\Textures\cross.png" />
@@ -341,6 +345,8 @@
 		<EmbeddedResource Include="Shaders\shader.explosion.frag" />
 		<EmbeddedResource Include="Shaders\shader.explosion.vert" />
 		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.frag" />
+		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.tesc" />
+		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.tese" />
 		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.vert" />
 	</ItemGroup>
 

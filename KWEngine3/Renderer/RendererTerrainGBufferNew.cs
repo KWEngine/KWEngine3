@@ -27,6 +27,10 @@ namespace KWEngine3.Renderer
         public static int UTextureTransform { get; private set; } = -1;
         public static int UIdShadowCaster { get; private set; } = -1;
 
+        public static int UCamPosition { get; private set; } = -1;
+        public static int UCamDirection { get; private set; } = -1;
+        public static int UTextureHeightMap { get; private set; } = -1;
+
         private const int TEXTUREOFFSET = 0;
         private static int HeightmapTextureID = -1;
 
@@ -38,15 +42,26 @@ namespace KWEngine3.Renderer
 
                 string resourceNameVertexShader = "KWEngine3.Shaders.shader.terrainNew.gbuffer.vert";
                 string resourceNameFragmentShader = "KWEngine3.Shaders.shader.terrainNew.gbuffer.frag";
+                string resourceNameTCShader = "KWEngine3.Shaders.shader.terrainNew.gbuffer.tesc";
+                string resourceNameTEShader = "KWEngine3.Shaders.shader.terrainNew.gbuffer.tese";
 
                 int vertexShader;
                 int fragmentShader;
+                int tcshader;
+                int teshader;
                 Assembly assembly = Assembly.GetExecutingAssembly();
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
                 {
                     vertexShader = HelperShader.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
                 }
-
+                using (Stream s = assembly.GetManifestResourceStream(resourceNameTCShader))
+                {
+                    tcshader = HelperShader.LoadCompileAttachShader(s, ShaderType.TessControlShader, ProgramID);
+                }
+                using (Stream s = assembly.GetManifestResourceStream(resourceNameTEShader))
+                {
+                    teshader = HelperShader.LoadCompileAttachShader(s, ShaderType.TessEvaluationShader, ProgramID);
+                }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
                 {
                     fragmentShader = HelperShader.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
@@ -68,12 +83,16 @@ namespace KWEngine3.Renderer
                 UNormalMatrix = GL.GetUniformLocation(ProgramID, "uNormalMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
 
+                UCamDirection = GL.GetUniformLocation(ProgramID, "uCamDirection");
+                UCamPosition = GL.GetUniformLocation(ProgramID, "uCamPosition");
+
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
                 UTextureNormal = GL.GetUniformLocation(ProgramID, "uTextureNormal");
                 UTextureMetallic = GL.GetUniformLocation(ProgramID, "uTextureMetallic");
                 UTextureRoughness = GL.GetUniformLocation(ProgramID, "uTextureRoughness");
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
+                UTextureHeightMap = GL.GetUniformLocation(ProgramID, "uTextureHeightMap");
             }
 
             if(true)
@@ -118,7 +137,7 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UMetallicRoughness, new Vector3(0f, 1f, 0f));
 
             Matrix4 modelMatrix = Matrix4.Identity;
-            Matrix4 normalMatrix = Matrix4.Transpose(Matrix4.Invert(modelMatrix));
+            Matrix4 normalMatrix = modelMatrix;
             GL.UniformMatrix4(UModelMatrix, false, ref modelMatrix);
             GL.UniformMatrix4(UNormalMatrix, false, ref normalMatrix);
 
@@ -129,11 +148,19 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
             GL.Uniform3(UColorMaterial, 1f, 1f, 1f);
 
+            GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
+            GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
+
+            UploadTexturesTest();
+
+            GeoMesh mesh = KWEngine.KWTerrain.Meshes.ElementAt(0).Value;
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-            GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Patches, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
+
+            HelperGeneral.CheckGLErrors();
         }
 
         public static void Draw(TerrainObject t)
@@ -206,6 +233,38 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
             GL.BindTexture(TextureTarget.Texture2D, material.TextureRoughness.IsTextureSet ? material.TextureRoughness.OpenGLID : KWEngine.TextureWhite);
             GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 4);
+        }
+        private static void UploadTexturesTest()
+        {
+            // Albedo
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
+            GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
+            GL.Uniform4(UTextureTransform, new Vector4(1f, 1f, 0f, 0f));
+
+            // Normal
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 1);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNormalEmpty);
+            GL.Uniform1(UTextureNormal, TEXTUREOFFSET + 1);
+
+            // Emissive
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 2);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
+            GL.Uniform1(UTextureEmissive, TEXTUREOFFSET + 2);
+
+            // Metallic/Roughness
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
+            GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 3);
+
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
+            GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 4);
+
+            // testing height map
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 5);
+            GL.BindTexture(TextureTarget.Texture2D, HeightmapTextureID);
+            GL.Uniform1(UTextureHeightMap, TEXTUREOFFSET + 5);
         }
     }
 }

@@ -230,8 +230,9 @@ namespace KWEngine3
             GL.CullFace(CullFaceMode.Back);
             GL.DepthFunc(DepthFunction.Less);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            GL.PatchParameter(PatchParameterInt.PatchVertices, 4); // terrain tesselation
             //GL.LineWidth(2f); // not available on core profile
-            
+
             KWBuilderOverlay.InitFrameTimeQueue();
          }
 
@@ -292,19 +293,20 @@ namespace KWEngine3
                 RendererTerrainGBufferNew.Bind();
                 RendererTerrainGBufferNew.DrawTestTerrain();
 
-                if (false)
+                
+
+                // Render GameObject instances to G-Buffer:
+                RendererGBuffer.Bind();
+                gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene());
+                // Render RenderObject instances to G-Buffer:
+                if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                 {
+                    RendererGBufferInstanced.Bind();
+                    renderObjectsForForwardRendering.AddRange(RendererGBufferInstanced.RenderScene());
+                }
 
-                    // Render GameObject instances to G-Buffer:
-                    RendererGBuffer.Bind();
-                    gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene());
-                    // Render RenderObject instances to G-Buffer:
-                    if (KWEngine.CurrentWorld._renderObjects.Count > 0)
-                    {
-                        RendererGBufferInstanced.Bind();
-                        renderObjectsForForwardRendering.AddRange(RendererGBufferInstanced.RenderScene());
-                    }
-
+                
+                
                     if (KWEngine.CurrentWorld._foliageObjects.Count > 0)
                     {
                         RendererGBufferFoliage.Bind();
@@ -496,7 +498,7 @@ namespace KWEngine3
 #endif
                 // unbind last render program:
                 GL.UseProgram(0);
-            }
+            
 
             KWBuilderOverlay.AddFrameTime(KWEngine.LastFrameTime);
             RenderOverlay((float)e.Time);
