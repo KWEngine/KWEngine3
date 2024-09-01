@@ -22,6 +22,11 @@ out vec3 vBiTangentTE[];
 
 uniform vec3 uCamPosition;
 uniform vec3 uCamDirection;
+uniform mat4 uViewProjectionMatrix;
+uniform mat4 uModelMatrix;
+
+const float outer = 3;
+const float inner = 3;
 
 void main()
 {
@@ -34,17 +39,31 @@ void main()
     vTangentTE[gl_InvocationID] = vTangent[gl_InvocationID];
     vBiTangentTE[gl_InvocationID] = vBiTangent[gl_InvocationID];
 
+
+    
+
+
     // ----------------------------------------------------------------------
     // invocation zero controls tessellation levels for the entire patch
     if (gl_InvocationID == 0)
     {
-        gl_TessLevelOuter[0] = 16;
-        gl_TessLevelOuter[1] = 16;
-        gl_TessLevelOuter[2] = 16;
-        gl_TessLevelOuter[3] = 16;
+        vec3 deltaCam = uCamPosition - vPosition[gl_InvocationID];
+        float delta = length(deltaCam);
+        delta = max(16.0 - delta, 1);
+        float tessLevel = int(delta);
 
-        gl_TessLevelInner[0] = 16;
-        gl_TessLevelInner[1] = 16;
+       vec4 vPositionClipSpace = uViewProjectionMatrix * uModelMatrix * vec4(vPositionTE[gl_InvocationID], 1.0);
+       vPositionClipSpace.xyz /= vPositionClipSpace.w;
+
+       tessLevel = clamp((1.0 - vPositionClipSpace.z) * 160, 1, 16);
+
+        gl_TessLevelOuter[0] = tessLevel;
+        gl_TessLevelOuter[1] = tessLevel;
+        gl_TessLevelOuter[2] = tessLevel;
+        gl_TessLevelOuter[3] = tessLevel;
+                               
+        gl_TessLevelInner[0] = tessLevel;
+        gl_TessLevelInner[1] = tessLevel;
     }
 }
 	

@@ -231,6 +231,7 @@ namespace KWEngine3
             GL.DepthFunc(DepthFunction.Less);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.PatchParameter(PatchParameterInt.PatchVertices, 4); // terrain tesselation
+            
             //GL.LineWidth(2f); // not available on core profile
 
             KWBuilderOverlay.InitFrameTimeQueue();
@@ -291,9 +292,11 @@ namespace KWEngine3
                 RenderManager.FramebufferDeferred.Bind();
 
                 RendererTerrainGBufferNew.Bind();
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                 RendererTerrainGBufferNew.DrawTestTerrain();
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-                
+
 
                 // Render GameObject instances to G-Buffer:
                 RendererGBuffer.Bind();

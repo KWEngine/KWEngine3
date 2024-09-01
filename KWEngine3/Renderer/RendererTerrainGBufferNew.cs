@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3.Assets;
+using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
@@ -153,11 +154,8 @@ namespace KWEngine3.Renderer
 
             UploadTexturesTest();
 
-            GeoMesh mesh = KWEngine.KWTerrain.Meshes.ElementAt(0).Value;
-            GL.BindVertexArray(mesh.VAO);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-            GL.DrawElements(PrimitiveType.Patches, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(KWTerrainQuad.VAO);
+            GL.DrawArrays(PrimitiveType.Patches, 0, 4);
             GL.BindVertexArray(0);
 
             HelperGeneral.CheckGLErrors();

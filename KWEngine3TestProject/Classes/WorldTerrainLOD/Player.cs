@@ -31,6 +31,15 @@ namespace KWEngine3TestProject.Classes.WorldTerrainLOD
                 MoveAndStrafeAlongCameraXZ(move, strafe, 0.025f);
             }
 
+            if(Keyboard.IsKeyDown(Keys.Q))
+            {
+                MoveOffset(0, -0.025f, 0);
+            }
+            if (Keyboard.IsKeyDown(Keys.E))
+            {
+                MoveOffset(0, +0.025f, 0);
+            }
+
             CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0.5f);
         }
     }

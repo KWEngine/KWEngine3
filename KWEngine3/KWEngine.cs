@@ -362,7 +362,7 @@ namespace KWEngine3
         internal static GeoMeshCollider KWSphereCollider;
         internal static GeoModel KWFoliageMinecraft;
         internal static GeoModel KWFoliageFern;
-        internal static GeoModel KWTerrain;
+        //internal static GeoModel KWTerrain;
 
         internal static void InitializeModels()
         {
@@ -382,9 +382,11 @@ namespace KWEngine3
             KWTerrainDefault = KWEngine.BuildDefaultTerrainModel("TerrainDefault", 10, 0, 10);
             KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
             KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
-            KWTerrain = SceneImporter.LoadModel("terrainMesh.obj", true, SceneImporter.AssemblyMode.Internal);
+            //KWTerrain = SceneImporter.LoadModel("terrainMesh.obj", true, SceneImporter.AssemblyMode.Internal);
 
             KWFoliageGrass.Init();
+            KWTerrainQuad.Init();
+
 
             for (int i = 0; i < ExplosionObject.Axes.Length; i++)
             {
