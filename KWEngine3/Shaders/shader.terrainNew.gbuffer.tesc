@@ -47,15 +47,9 @@ void main()
     // invocation zero controls tessellation levels for the entire patch
     if (gl_InvocationID == 0)
     {
-        vec3 deltaCam = uCamPosition - vPosition[gl_InvocationID];
-        float delta = length(deltaCam);
-        delta = max(16.0 - delta, 1);
-        float tessLevel = int(delta);
-
-       vec4 vPositionClipSpace = uViewProjectionMatrix * uModelMatrix * vec4(vPositionTE[gl_InvocationID], 1.0);
-       vPositionClipSpace.xyz /= vPositionClipSpace.w;
-
-       tessLevel = clamp((1.0 - vPositionClipSpace.z) * 160, 1, 16);
+       vec4 vPositionWorldSpace =  uModelMatrix * vec4((vPositionTE[0] + vPositionTE[3]) * 0.5, 1.0);
+       float delta = length(vPositionWorldSpace.xyz - uCamPosition) * 0.5;
+       float tessLevel = clamp(32.0 - delta, 1.0, 32.0);
 
         gl_TessLevelOuter[0] = tessLevel;
         gl_TessLevelOuter[1] = tessLevel;

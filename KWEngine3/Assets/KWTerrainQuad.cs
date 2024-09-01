@@ -12,20 +12,21 @@ namespace KWEngine3.Assets
 
         public static int VAO;
 
+        private static float multiplier = 10f;
+
         public static void Init()
         {
             _vertices = new float[]
             {
-                +0.5f, 0, -0.5f, // 
-                -0.5f, 0, -0.5f,
-                -0.5f, 0, +0.5f,
-                +0.5f, 0, +0.5f,
+                +0.5f * multiplier, 0, -0.5f * multiplier,
+                -0.5f * multiplier, 0, -0.5f * multiplier,
+                -0.5f * multiplier, 0, +0.5f * multiplier,
+                +0.5f * multiplier, 0, +0.5f * multiplier,
 
             };
 
             _uvs = new float[]
             {
-                
                 1, 1,
                 0, 1,
                 0, 0,
