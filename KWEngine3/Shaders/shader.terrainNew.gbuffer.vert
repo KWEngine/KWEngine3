@@ -13,7 +13,7 @@ uniform mat4 uNormalMatrix;
 */
 uniform vec4 uTextureTransform;
 
-out vec4 vPosition;
+out vec3 vPosition;
 out vec2 vTexture;
 out vec3 vNormal;
 out vec3 vTangent;
@@ -23,7 +23,7 @@ out vec3 vBiTangent;
 void main()
 {
 	gl_Position = vec4(aPosition, 1.0); //uViewProjectionMatrix * uModelMatrix * totalLocalPos;
-	vPosition = vec4(aPosition, 1.0); //uModelMatrix * totalLocalPos;
+	vPosition = vec3(aPosition); //uModelMatrix * totalLocalPos;
 	vNormal = aNormal; //normalize((uNormalMatrix * totalNormal).xyz);
 	vTangent = aTangent;
 	vBiTangent = aBiTangent;

@@ -111,8 +111,20 @@ namespace KWEngine3.Renderer
         }
         
 
-        public static void CheckShaderStatus(int programId, int vertexShaderId, int fragmentShaderId, int geometryShaderId = -1)
+        public static void CheckShaderStatus(int programId, int vertexShaderId, int fragmentShaderId, int geometryShaderId = -1, int tessControlShaderId = -1, int tessEvalShaderId = -1)
         {
+            GL.GetProgram(programId, GetProgramParameterName.LinkStatus, out int linkStatus);
+            if(linkStatus != 1)
+            {
+                GL.GetProgram(programId, GetProgramParameterName.InfoLogLength, out int logLength);
+                if(logLength > 0)
+                {
+                    string msg = GL.GetProgramInfoLog(programId);
+                    KWEngine.LogWriteLine("[ProgramLog] " + msg);
+                }
+            }
+
+
             string vMsg = "";
             string fMsg = "";
             GL.GetShader(vertexShaderId, ShaderParameter.CompileStatus, out int vertexStatus);
@@ -139,6 +151,28 @@ namespace KWEngine3.Renderer
                 {
                     gMsg = GL.GetShaderInfoLog(geometryShaderId);
                     KWEngine.LogWriteLine("[ShaderGeometry] " + gMsg);
+                }
+            }
+
+            if (tessControlShaderId > 0)
+            {
+                string gMsg = "";
+                GL.GetShader(tessControlShaderId, ShaderParameter.CompileStatus, out int tcStatus);
+                if (tcStatus == 0)
+                {
+                    gMsg = GL.GetShaderInfoLog(tessControlShaderId);
+                    KWEngine.LogWriteLine("[ShaderTessC] " + gMsg);
+                }
+            }
+
+            if (tessEvalShaderId > 0)
+            {
+                string gMsg = "";
+                GL.GetShader(tessControlShaderId, ShaderParameter.CompileStatus, out int teStatus);
+                if (teStatus == 0)
+                {
+                    gMsg = GL.GetShaderInfoLog(tessEvalShaderId);
+                    KWEngine.LogWriteLine("[ShaderTessE] " + gMsg);
                 }
             }
         }

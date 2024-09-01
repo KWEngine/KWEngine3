@@ -68,7 +68,7 @@ namespace KWEngine3.Renderer
                 }
 
                 GL.LinkProgram(ProgramID);
-                RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
+                RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader, -1, tcshader, teshader);
 
 
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
