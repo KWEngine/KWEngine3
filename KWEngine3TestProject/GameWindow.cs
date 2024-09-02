@@ -13,6 +13,7 @@ namespace KWEngine3TestProject
             WindowMode.Default
             )
         {
+            Title = "instanced terrain displacement test";
             SetWorld(new GameWorldTerrainLODTest());
         }
     }

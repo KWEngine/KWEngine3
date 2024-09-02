@@ -154,11 +154,13 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
             GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
 
-            float x = 128;
+            float x = 32;
             float z = x;
             float tileSq = 16;
 
             GL.Uniform4(UTerrainData, x, z, tileSq, 1f / 3f);
+
+            GL.Uniform4(UTextureTransform, new Vector4(1f, 1f, 0f, 0f));
 
             UploadTexturesTest();
 
@@ -198,6 +200,8 @@ namespace KWEngine3.Renderer
                 GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
                 GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
                 GL.Uniform3(UColorMaterial, material.ColorAlbedo.Xyz);
+
+
 
                 UploadTextures(ref material, t);
 
@@ -246,7 +250,7 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
             GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureCheckerboard);
             GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
-            GL.Uniform4(UTextureTransform, new Vector4(1f, 1f, 0f, 0f));
+            
 
             // Normal
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 1);

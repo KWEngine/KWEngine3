@@ -34,8 +34,11 @@ void main()
 	vNormal = aNormal;
 	vTangent = aTangent;
 	vBiTangent = aBiTangent;
+
+	float texX = aTexture.x / tileCountX + gl_InstanceID * (1.0 / tileCountX);
+	float texZ = aTexture.y / tileCountZ + (gl_InstanceID / tileCountX) * (1.0 / tileCountZ);
 	vTexture = vec2(
-		(aTexture.x + uTextureTransform.z) * uTextureTransform.x,
-		(aTexture.y + uTextureTransform.w) * uTextureTransform.y
+		(texX + uTextureTransform.z) * uTextureTransform.x,
+		(texZ + uTextureTransform.w) * uTextureTransform.y
 		);
 }

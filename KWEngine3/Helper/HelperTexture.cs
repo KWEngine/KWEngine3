@@ -2110,7 +2110,7 @@ namespace KWEngine3.Helper
                     texID = GL.GenTexture();
                     GL.BindTexture(TextureTarget.Texture2D, texID);
                     byte[] data;
-                    if (image.ColorType == SKColorType.Rgba8888)
+                    if (image.ColorType == SKColorType.Rgba8888 || image.ColorType == SKColorType.Bgra8888)
                     {
                         data = image.Bytes;
                         GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,

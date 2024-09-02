@@ -35,10 +35,10 @@ namespace KWEngine3.Assets
 
             _normals = new float[]
             {
-                0,0,1,
-                0,0,1,
-                0,0,1,
-                0,0,1,
+                0,1,0,
+                0,1,0,
+                0,1,0,
+                0,1,0,
 
             };
 
@@ -52,10 +52,10 @@ namespace KWEngine3.Assets
 
             _bitangents = new float[]
             {
-                0, 1, 0,
-                0, 1, 0,
-                0, 1, 0,
-                0, 1, 0,
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
+                0, 0, -1,
              };
 
 
