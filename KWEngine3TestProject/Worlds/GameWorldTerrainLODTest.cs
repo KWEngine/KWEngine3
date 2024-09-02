@@ -28,7 +28,7 @@ namespace KWEngine3TestProject.Worlds
 
             Immovable i1 = new Immovable();
             i1.SetColor(1, 1, 0);
-            i1.SetPosition(0, 0.5f, -5);
+            i1.SetPosition(0, 0.5f, 0);
             AddGameObject(i1);
 
             SetCameraToFirstPersonGameObject(p, 0.5f);

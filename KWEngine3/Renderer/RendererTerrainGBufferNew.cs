@@ -28,6 +28,7 @@ namespace KWEngine3.Renderer
         public static int UTextureTransform { get; private set; } = -1;
         public static int UIdShadowCaster { get; private set; } = -1;
 
+        public static int UTerrainData { get; private set; } = -1;
         public static int UCamPosition { get; private set; } = -1;
         public static int UCamDirection { get; private set; } = -1;
         public static int UTextureHeightMap { get; private set; } = -1;
@@ -94,6 +95,7 @@ namespace KWEngine3.Renderer
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
                 UTextureHeightMap = GL.GetUniformLocation(ProgramID, "uTextureHeightMap");
+                UTerrainData = GL.GetUniformLocation(ProgramID, "uTerrainData");
             }
 
             if(true)
@@ -152,10 +154,16 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
             GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
 
+            float x = 32;
+            float z = x;
+            float tileSq = 16;
+
+            GL.Uniform4(UTerrainData, x, z, tileSq, 1f / 3f);
+
             UploadTexturesTest();
 
             GL.BindVertexArray(KWTerrainQuad.VAO);
-            GL.DrawArrays(PrimitiveType.Patches, 0, 4);
+            GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (int)((x  * z) / (tileSq * tileSq)));
             GL.BindVertexArray(0);
 
             HelperGeneral.CheckGLErrors();

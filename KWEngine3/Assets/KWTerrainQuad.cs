@@ -12,7 +12,7 @@ namespace KWEngine3.Assets
 
         public static int VAO;
 
-        private static float multiplier = 10f;
+        private static float multiplier = 8f;
 
         public static void Init()
         {
