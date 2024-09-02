@@ -12,6 +12,9 @@ uniform mat4 uModelMatrix;
 uniform mat4 uNormalMatrix;
 uniform sampler2D uTextureHeightMap;
 
+out vec2 vTexture;
+out vec3 vNormal;
+out mat3 vTBN;
 
 void main()
 {
@@ -79,6 +82,9 @@ void main()
     // ----------------------------------------------------------------------
     // output patch point position in clip space
     gl_Position = uViewProjectionMatrix * uModelMatrix * p;
+    vTexture = t;
+    vNormal = vec3(0, 1, 0);
+    vTBN = mat3(1.0);
 
 	/*
 	vec3 vTangent = normalize((uNormalMatrix * totalTangent).xyz);

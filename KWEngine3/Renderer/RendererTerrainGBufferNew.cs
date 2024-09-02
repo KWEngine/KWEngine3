@@ -144,7 +144,7 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UModelMatrix, false, ref modelMatrix);
             GL.UniformMatrix4(UNormalMatrix, false, ref normalMatrix);
 
-            Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(0, 0, 0);
+            Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(1, 1, 0);
             Vector3i useTexturesMetallicRoughness = new Vector3i(0, 0, 0);
 
             GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
@@ -154,7 +154,7 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
             GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
 
-            float x = 32;
+            float x = 128;
             float z = x;
             float tileSq = 16;
 
@@ -244,7 +244,7 @@ namespace KWEngine3.Renderer
         {
             // Albedo
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureCheckerboard);
             GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
             GL.Uniform4(UTextureTransform, new Vector4(1f, 1f, 0f, 0f));
 

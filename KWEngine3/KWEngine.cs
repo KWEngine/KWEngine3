@@ -283,6 +283,7 @@ namespace KWEngine3
         internal static int TextureCubemapEmpty = -1;
         internal static int TextureDepthEmpty = -1;
         internal static int TextureDepthCubeMapEmpty = -1;
+        internal static int TextureCheckerboard = -1;
 
         internal static int TextureFlowFieldArrow = -1;
         internal static int TextureFlowFieldCross = -1;
@@ -323,6 +324,7 @@ namespace KWEngine3
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
             TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
             TextureNoise = HelperTexture.LoadTextureInternal("noise.png");
+            TextureCheckerboard = HelperTexture.LoadTextureInternal("checkerboard.png");
 
             TextureFlowFieldArrow = HelperTexture.LoadTextureInternal("arrow.png");
             TextureFlowFieldCross = HelperTexture.LoadTextureInternal("cross.png");

@@ -1,6 +1,5 @@
 ﻿#version 400 core
 
-in vec4 vPosition;
 in vec2 vTexture;
 in vec3 vNormal;
 in mat3 vTBN;

@@ -54,7 +54,6 @@
 		<None Remove="Assets\Models\skull.obj" />
 		<None Remove="Assets\Models\star.mtl" />
 		<None Remove="Assets\Models\star.obj" />
-		<None Remove="Assets\Models\terrainMesh.obj" />
 		<None Remove="Assets\Textures\alpha.png" />
 		<None Remove="Assets\Textures\arrow.png" />
 		<None Remove="Assets\Textures\black.png" />
@@ -189,7 +188,6 @@
 		<EmbeddedResource Include="Assets\Models\skull.obj" />
 		<EmbeddedResource Include="Assets\Models\star.mtl" />
 		<EmbeddedResource Include="Assets\Models\star.obj" />
-		<EmbeddedResource Include="Assets\Models\terrainMesh.obj" />
 		<EmbeddedResource Include="Assets\Textures\alpha.png" />
 		<EmbeddedResource Include="Assets\Textures\arrow.png" />
 		<EmbeddedResource Include="Assets\Textures\cross.png" />

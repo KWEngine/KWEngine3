@@ -27,10 +27,10 @@ namespace KWEngine3.Assets
 
             _uvs = new float[]
             {
-                1, 1,
-                0, 1,
-                0, 0,
                 1, 0,
+                0, 0,
+                0, 1,
+                1, 1,
             };
 
             _normals = new float[]
