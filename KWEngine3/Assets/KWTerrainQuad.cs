@@ -18,11 +18,10 @@ namespace KWEngine3.Assets
         {
             _vertices = new float[]
             {
-                +0.5f * multiplier, 0, -0.5f * multiplier, // right back
-                -0.5f * multiplier, 0, -0.5f * multiplier, // left back
-                -0.5f * multiplier, 0, +0.5f * multiplier, // left front
-                +0.5f * multiplier, 0, +0.5f * multiplier, // right front
-
+                +0.5f * multiplier, 0f, -0.5f * multiplier, // right back
+                -0.5f * multiplier, 0f, -0.5f * multiplier, // left back
+                -0.5f * multiplier, 0f, +0.5f * multiplier, // left front
+                +0.5f * multiplier, 0f, +0.5f * multiplier, // right front
             };
 
             _uvs = new float[]

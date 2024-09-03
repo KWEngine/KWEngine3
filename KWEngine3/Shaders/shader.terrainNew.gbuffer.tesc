@@ -60,42 +60,48 @@ void main()
     float delta = 0;
     /*
     vPositionWorldSpace =  uModelMatrix * vec4(vPosition[gl_InvocationID], 1.0);
-    delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
-    int tessLevel = int(clamp(delta * 128, 1.0, 32.0));
+    delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition));// * uTerrainData.w);
+    int tessLevel = int(clamp(delta * 128, 2.0, 16.0));
     gl_TessLevelOuter[gl_InvocationID] = tessLevel - (tessLevel % 2);
-    gl_TessLevelInner[0] = tessLevel;
-    gl_TessLevelInner[1] = tessLevel;
+    gl_TessLevelInner[0] = max(gl_TessLevelOuter[gl_InvocationID], 1);
+    gl_TessLevelInner[1] = max(gl_TessLevelOuter[gl_InvocationID], 1);
     */
+    
     
     if (gl_InvocationID == 0)
     {
+        // von oben nach unten: 0 1 2 3
+
         // left edge:
         vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[1], 1.0);
-        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
-        int tessLevelLeft = int(clamp(delta * 128, 1.0, 32.0));
+        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition));
+        int tessLevelLeft = int(clamp(delta * 128, 1.0, 32.0)); 
        
         // right edge:
-        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[3], 1.0);
-        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
+        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[1], 1.0);
+        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition));
         int tessLevelRight = int(clamp(delta * 128, 1.0, 32.0));
         
         // back edge
-        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[0], 1.0);
-        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
-        int tessLevelBack = int(clamp(delta * 128, 1.0, 32.0));
+        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[2], 1.0);
+        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition));
+        int tessLevelBack = int(clamp(delta * 128, 1.0, 32.0)); 
 
          // front edge
         vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[2], 1.0);
-        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
-        int tessLevelFront = int(clamp(delta * 128, 1.0, 32.0));
+        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition));
+        int tessLevelFront = int(clamp(delta * 128, 1.0, 32.0)); 
 
-        gl_TessLevelOuter[0] = tessLevelBack;
-        gl_TessLevelOuter[1] = tessLevelLeft;
-        gl_TessLevelOuter[2] = tessLevelFront;
-        gl_TessLevelOuter[3] = tessLevelRight;
+        float a = (tessLevelLeft + tessLevelRight) * 0.5;
+        float b = (tessLevelFront + tessLevelBack) * 0.5;
 
-        gl_TessLevelInner[0] = gl_TessLevelOuter[0];
-        gl_TessLevelInner[1] = gl_TessLevelOuter[0];
+        gl_TessLevelOuter[0] = a; // right
+        gl_TessLevelOuter[1] = b; // back
+        gl_TessLevelOuter[2] = a; // left
+        gl_TessLevelOuter[3] = b; // front
+
+        gl_TessLevelInner[0] = (a + b) * 0.5;
+        gl_TessLevelInner[1] = (a + b) * 0.5;
     }
     
 }
