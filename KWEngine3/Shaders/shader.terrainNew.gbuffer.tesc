@@ -38,6 +38,8 @@ void main()
     vBiTangentTE[gl_InvocationID] = vBiTangent[gl_InvocationID];
 
     // ----------------------------------------------------------------------
+
+    /*
     // invocation zero controls tessellation levels for the entire patch
     if (gl_InvocationID == 0)
     {
@@ -53,5 +55,48 @@ void main()
         gl_TessLevelInner[0] = tessLevel - (tessLevel % 2);
         gl_TessLevelInner[1] = tessLevel - (tessLevel % 2);
     }
+    */
+    vec4 vPositionWorldSpace = vec4(1);
+    float delta = 0;
+    /*
+    vPositionWorldSpace =  uModelMatrix * vec4(vPosition[gl_InvocationID], 1.0);
+    delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
+    int tessLevel = int(clamp(delta * 128, 1.0, 32.0));
+    gl_TessLevelOuter[gl_InvocationID] = tessLevel - (tessLevel % 2);
+    gl_TessLevelInner[0] = tessLevel;
+    gl_TessLevelInner[1] = tessLevel;
+    */
+    
+    if (gl_InvocationID == 0)
+    {
+        // left edge:
+        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[1], 1.0);
+        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
+        int tessLevelLeft = int(clamp(delta * 128, 1.0, 32.0));
+       
+        // right edge:
+        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[3], 1.0);
+        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
+        int tessLevelRight = int(clamp(delta * 128, 1.0, 32.0));
+        
+        // back edge
+        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[0], 1.0);
+        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
+        int tessLevelBack = int(clamp(delta * 128, 1.0, 32.0));
+
+         // front edge
+        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[2], 1.0);
+        delta = 1.0 / (length(vPositionWorldSpace.xyz - uCamPosition) * uTerrainData.w);
+        int tessLevelFront = int(clamp(delta * 128, 1.0, 32.0));
+
+        gl_TessLevelOuter[0] = tessLevelBack;
+        gl_TessLevelOuter[1] = tessLevelLeft;
+        gl_TessLevelOuter[2] = tessLevelFront;
+        gl_TessLevelOuter[3] = tessLevelRight;
+
+        gl_TessLevelInner[0] = gl_TessLevelOuter[0];
+        gl_TessLevelInner[1] = gl_TessLevelOuter[0];
+    }
+    
 }
 	
