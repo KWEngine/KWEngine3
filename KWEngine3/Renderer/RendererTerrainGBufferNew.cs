@@ -130,7 +130,7 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void DrawTestTerrain()
+        public static void DrawTestTerrain(TerrainObject t)
         {
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
@@ -159,7 +159,6 @@ namespace KWEngine3.Renderer
             float tileSq = 16;
 
             GL.Uniform4(UTerrainData, x, z, tileSq, 1f / 3f);
-
             GL.Uniform4(UTextureTransform, new Vector4(1f, 1f, 0f, 0f));
 
             UploadTexturesTest();

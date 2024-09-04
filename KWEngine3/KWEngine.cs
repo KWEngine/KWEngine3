@@ -2,7 +2,6 @@
 using KWEngine3.Helper;
 using System.Reflection;
 using OpenTK.Graphics.OpenGL4;
-using System.Runtime.CompilerServices;
 using KWEngine3.Editor;
 using KWEngine3.Model;
 using KWEngine3.GameObjects;
@@ -358,13 +357,11 @@ namespace KWEngine3
         internal static GeoModel KWSkull;
         internal static GeoModel KWDollar;
         internal static GeoModel KWLightBulb;
-        internal static GeoModel KWTerrainDefault;
         internal static GeoMeshCollider KWCapsule;
         internal static GeoMeshCollider KWCapsule2;
         internal static GeoMeshCollider KWSphereCollider;
         internal static GeoModel KWFoliageMinecraft;
         internal static GeoModel KWFoliageFern;
-        //internal static GeoModel KWTerrain;
 
         internal static void InitializeModels()
         {
@@ -381,10 +378,8 @@ namespace KWEngine3
             KWSphereCollider = SceneImporter.LoadColliderInternal("kwsphere_collider.obj", ColliderType.ConvexHull);
             KWCapsule = SceneImporter.LoadColliderInternal("capsulehitbox.obj", ColliderType.ConvexHull);
             KWCapsule2 = SceneImporter.LoadColliderInternal("capsulehitbox2.obj", ColliderType.ConvexHull);
-            KWTerrainDefault = KWEngine.BuildDefaultTerrainModel("TerrainDefault", 10, 0, 10);
             KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
             KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
-            //KWTerrain = SceneImporter.LoadModel("terrainMesh.obj", true, SceneImporter.AssemblyMode.Internal);
 
             KWFoliageGrass.Init();
             KWTerrainQuad.Init();
@@ -478,7 +473,7 @@ namespace KWEngine3
         /// <param name="width">Breite</param>
         /// <param name="height">Höhe</param>
         /// <param name="depth">Tiefe</param>
-        public static void BuildTerrainModel(string name, string heightmap, string texture, float width, float height, float depth)
+        public static void BuildTerrainModel(string name, string heightmap, string texture, int width, int height, int depth)
         {
             if (Models.ContainsKey(name))
             {
