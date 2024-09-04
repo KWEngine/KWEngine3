@@ -17,20 +17,17 @@ out vec3 vBiTangent;
 
 void main()
 {
-	int tileCountX = int(uTerrainData.x / uTerrainData.z); // 64 / 16 = 4
-	int tileCountZ = int(uTerrainData.y / uTerrainData.z); // 64 / 16 = 4
-	float instanceSize = uTerrainData.z;				   // 16
-	float offsetXUneven = int(tileCountX + 1) % 2;       // 5 % 2 = 1
-	float offsetZUneven = int(tileCountZ + 1) % 2;       // 5 % 2 = 1
-
+	int tileCountX = int(uTerrainData.x / uTerrainData.z);
+	int tileCountZ = int(uTerrainData.y / uTerrainData.z);
+	float instanceSize = uTerrainData.z;
+	float offsetXUneven = int(tileCountX + 1) % 2;
+	float offsetZUneven = int(tileCountZ + 1) % 2;
 	float instanceOffsetX = gl_InstanceID % tileCountX * (instanceSize * 0.5) + offsetXUneven * instanceSize * 0.25 - uTerrainData.x * 0.25;
 	float instanceOffsetZ = gl_InstanceID / tileCountX * (instanceSize * 0.5) + offsetZUneven * instanceSize * 0.25 - uTerrainData.y * 0.25;
 
-
-	//vec3 adding = vec3(instanceOffsetX, gl_InstanceID * 0.1, instanceOffsetZ);
-	vec3 adding = vec3(instanceOffsetX, 0.0 * gl_InstanceID, instanceOffsetZ);
-	gl_Position = vec4(aPosition + adding, 1.0);
-	vPosition = aPosition + adding; 
+	vec3 offset = vec3(instanceOffsetX, 0.0, instanceOffsetZ);
+	gl_Position = vec4(aPosition + offset, 1.0);
+	vPosition = aPosition + offset; 
 	vNormal = aNormal;
 	vTangent = aTangent;
 	vBiTangent = aBiTangent;
