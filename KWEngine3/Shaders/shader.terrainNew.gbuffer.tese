@@ -3,6 +3,7 @@ layout (quads, equal_spacing, ccw) in;
 
 in vec3 vPositionTE[];
 in vec2 vTextureTE[];
+in vec2 vTextureHeightTE[];
 in vec3 vNormalTE[];
 in vec3 vTangentTE[];
 in vec3 vBiTangentTE[];
@@ -10,6 +11,7 @@ in vec3 vBiTangentTE[];
 uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uNormalMatrix;
+uniform vec4 uTerrainData;
 uniform sampler2D uTextureHeightMap;
 
 out vec2 vTexture;
@@ -32,7 +34,18 @@ void main()
                 t03 * v * (1.0 - u) +
                 t02 * u * v;
 
-    float height = texture(uTextureHeightMap, t).r * 2.0;
+    vec2 th00 = vTextureHeightTE[0];
+    vec2 th01 = vTextureHeightTE[1];
+    vec2 th02 = vTextureHeightTE[2];
+    vec2 th03 = vTextureHeightTE[3];
+
+    vec2 th =   th00 * (1.0 - u) * (1.0 - v) +
+                th01 * u * (1.0 - v) + 
+                th03 * v * (1.0 - u) +
+                th02 * u * v;
+
+
+    float height = texture(uTextureHeightMap, th).r * uTerrainData.w;
 
     vec3 p00 = gl_in[0].gl_Position.xyz;
     vec3 p01 = gl_in[1].gl_Position.xyz;

@@ -49,6 +49,30 @@ namespace KWEngine3.GameObjects
         internal bool _isCollisionObject = false;
         internal bool _isShadowCaster = false;
         internal int _idFromImport = -1;
+        internal int _heightmap = -1;
+
+        /// <summary>
+        /// Breite des Terrain-Objekts
+        /// </summary>
+        public int Width
+        {
+            get; internal set;
+        }
+        /// <summary>
+        /// Tiefe des Terrain-Objekts
+        /// </summary>
+        public int Depth
+        {
+            get; internal set;
+        }
+
+        /// <summary>
+        /// Höhe des Terrain-Objekts
+        /// </summary>
+        public float Height
+        {
+            get; internal set;
+        }
 
         internal TerrainObject()
         {
@@ -61,16 +85,40 @@ namespace KWEngine3.GameObjects
         /// <param name="name">Name des Terrain-Modells</param>
         public TerrainObject(string name)
         {
-            if(name == null || name.Trim().Length == 0 || !KWEngine.Models.ContainsKey(name))
+            bool modelSet = SetModel(name);
+            if(!modelSet)
             {
                 throw new EngineException("[TerrainObject] Terrain model name not found");
             }
 
+        }
 
+        internal bool SetModel(string modelname)
+        {
+            if (modelname == null || modelname.Length == 0)
+            {
+                return false;
+            }
 
-            InitHitboxes();
-            InitRenderStateMatrices();
-            InitStates();
+            bool modelFound = KWEngine.Models.TryGetValue(modelname, out GeoModel model);
+            if (modelFound && model.IsTerrain)
+            {
+                _gModel = new EngineObjectModel(model);
+                for (int i = 0; i < _gModel.Material.Length; i++)
+                {
+                    _gModel.Material[i] = model.Meshes.Values.ToArray()[i].Material;
+                }
+
+                Width = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetWidth();
+                Height = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetHeight();
+                Depth = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetDepth();
+                _heightmap = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain._texHeight;
+
+                InitHitboxes();
+                InitRenderStateMatrices();
+                InitStates();
+            }
+            return modelFound;
         }
 
         /// <summary>

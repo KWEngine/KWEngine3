@@ -15,8 +15,8 @@ namespace KWEngine3.Model
             Right
         }
 
-        private float mWidth = 0;
-        private float mDepth = 0;
+        private int mWidth = 0;
+        private int mDepth = 0;
         private float mHeight;
         private int mDots = -1;
         private int mSectorSize = -1;
@@ -32,22 +32,22 @@ namespace KWEngine3.Model
         private Sector[,] mSectorMap;
         private float mCompleteDiameter;
 
-        public float GetScaleFactor()
+        public float GetHeight()
         {
             return mHeight;
         }
 
-        public float GetWidth()
+        public int GetWidth()
         {
             return mWidth;
         }
 
-        public float GetDepth()
+        public int GetDepth()
         {
             return mDepth;
         }
 
-        internal GeoMesh BuildTerrain(string heightMap, float width, float height, float depth, GeoTerrain terrain)
+        internal GeoMesh BuildTerrain(string terrainName, string heightMap, int width, float height, int depth)
         {
             GeoMesh mmp;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
@@ -84,8 +84,8 @@ namespace KWEngine3.Model
                         double mp = Math.Round(mDots / 1000000.0, 3);
                         long start = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 
-                        float stepWidth = mWidth / (image.Width - 1);
-                        float stepDepth = mDepth / (image.Height - 1);
+                        float stepWidth = (float)mWidth / (image.Width - 1);
+                        float stepDepth = (float)mDepth / (image.Height - 1);
 
                         float trisCountWidth = (mWidth / stepWidth) * 2;
                         float trisCountDepth = (mDepth / stepDepth) * 2;
@@ -100,20 +100,19 @@ namespace KWEngine3.Model
                             for (int j = 0; j < mSectorSize; j++)
                             {
                                 Sector se = new Sector();
-                                se.Left = -mWidth / 2 + i * (mWidth / mSectorSize);
-                                se.Right = -mWidth / 2 + (i + 1) * (mWidth / mSectorSize);
-                                se.Back = -mDepth / 2 + (j + 1) * (mDepth / mSectorSize);
-                                se.Front = -mDepth / 2 + j * (mDepth / mSectorSize);
+                                se.Left = -mWidth / 2 + i * ((float)mWidth / mSectorSize);
+                                se.Right = -mWidth / 2 + (i + 1) * ((float)mWidth / mSectorSize);
+                                se.Back = -mDepth / 2 + (j + 1) * ((float)mDepth / mSectorSize);
+                                se.Front = -mDepth / 2 + j * ((float)mDepth / mSectorSize);
                                 se.Center = new Vector2((se.Left + se.Right) / 2, (se.Front + se.Back) / 2);
                                 mSectorMap[i, j] = se;
                             }
                         }
-                        mSectorWidth = mWidth / mSectorSize;
-                        mSectorDepth = mDepth / mSectorSize;
-
+                        mSectorWidth = (float)mWidth / mSectorSize;
+                        mSectorDepth = (float)mDepth / mSectorSize;
 
                         float[,] mHeightMap = new float[image.Width, image.Height];
-                        mCompleteDiameter = (float)Math.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
+                        mCompleteDiameter = MathF.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
 
 
                         Vector3[] points = new Vector3[mDots];
@@ -139,7 +138,7 @@ namespace KWEngine3.Model
                         }
 
                         mmp = new GeoMesh();
-                        mmp.Name = heightMap;
+                        mmp.Name = terrainName;
 
                         int imageHeight = image.Height;
                         Vector3 normalT1 = new Vector3(0, 0, 0);

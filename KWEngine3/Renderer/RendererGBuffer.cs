@@ -98,21 +98,20 @@ namespace KWEngine3.Renderer
         public static List<GameObject> RenderScene()
         {
             List<GameObject> forwardObjects = new();
-            if (KWEngine.CurrentWorld != null)
+
+            SetGlobals();
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                SetGlobals();
-                foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+                if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || !g.IsInsideScreenSpace))
+                    continue;
+                if (g.IsTransparent || g.IsDepthTesting == false)
                 {
-                    if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || !g.IsInsideScreenSpace))
-                        continue;
-                    if (g.IsTransparent || g.IsDepthTesting == false)
-                    {
-                        forwardObjects.Add(g);
-                        continue;
-                    }
-                    Draw(g);
+                    forwardObjects.Add(g);
+                    continue;
                 }
-            }
+                Draw(g);
+                }
+            
             return forwardObjects;
         }
 

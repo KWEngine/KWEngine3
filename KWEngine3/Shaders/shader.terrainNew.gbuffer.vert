@@ -11,6 +11,7 @@ uniform vec4 uTerrainData;
 
 out vec3 vPosition;
 out vec2 vTexture;
+out vec2 vTextureHeight;
 out vec3 vNormal;
 out vec3 vTangent;
 out vec3 vBiTangent;
@@ -38,4 +39,5 @@ void main()
 		(texX + uTextureTransform.z) * uTextureTransform.x,
 		(texZ + uTextureTransform.w) * uTextureTransform.y
 		);
+		vTextureHeight = vec2(texX, texZ);
 }

@@ -8,6 +8,7 @@ layout (vertices=4) out;
 // input from vertex shader
 in vec3 vPosition[];
 in vec2 vTexture[];
+in vec2 vTextureHeight[];
 in vec3 vNormal[];
 in vec3 vTangent[];
 in vec3 vBiTangent[];
@@ -15,6 +16,7 @@ in vec3 vBiTangent[];
 // output to evaluation shader
 out vec3 vPositionTE[];
 out vec2 vTextureTE[];
+out vec2 vTextureHeightTE[];
 out vec3 vNormalTE[];
 out vec3 vTangentTE[];
 out vec3 vBiTangentTE[];
@@ -41,6 +43,7 @@ void main()
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
     vPositionTE[gl_InvocationID] = vPosition[gl_InvocationID];
     vTextureTE[gl_InvocationID] = vTexture[gl_InvocationID];
+    vTextureHeightTE[gl_InvocationID] = vTextureHeight[gl_InvocationID];
     vNormalTE[gl_InvocationID] = vNormal[gl_InvocationID];
     vTangentTE[gl_InvocationID] = vTangent[gl_InvocationID];
     vBiTangentTE[gl_InvocationID] = vBiTangent[gl_InvocationID];

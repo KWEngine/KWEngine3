@@ -97,13 +97,6 @@ namespace KWEngine3.Renderer
                 UTextureHeightMap = GL.GetUniformLocation(ProgramID, "uTextureHeightMap");
                 UTerrainData = GL.GetUniformLocation(ProgramID, "uTerrainData");
             }
-
-            if(true)
-            {
-                HeightmapTextureID = HelperTexture.LoadTextureForModelInternalExecutingAssembly("Assets.Textures.heightmap_test.png", out int mipMaps);
-
-
-            }
         }
 
         public static void Bind()
@@ -130,46 +123,6 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void DrawTestTerrain(TerrainObject t)
-        {
-            Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-            GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
-            GL.Uniform3(UColorTint, 1f, 1f, 1f);
-            GL.Uniform4(UColorEmissive, 0f, 0f, 0f, 0f);
-            GL.Uniform2(UIdShadowCaster, new Vector2i(1, 1));
-            GL.Uniform3(UMetallicRoughness, new Vector3(0f, 1f, 0f));
-
-            Matrix4 modelMatrix = Matrix4.Identity;
-            Matrix4 normalMatrix = modelMatrix;
-            GL.UniformMatrix4(UModelMatrix, false, ref modelMatrix);
-            GL.UniformMatrix4(UNormalMatrix, false, ref normalMatrix);
-
-            Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(1, 1, 0);
-            Vector3i useTexturesMetallicRoughness = new Vector3i(0, 0, 0);
-
-            GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
-            GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
-            GL.Uniform3(UColorMaterial, 1f, 1f, 1f);
-
-            GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
-            GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
-
-            float x = 32;
-            float z = x;
-            float tileSq = 16;
-
-            GL.Uniform4(UTerrainData, x, z, tileSq, 1f / 3f);
-            GL.Uniform4(UTextureTransform, new Vector4(1f, 1f, 0f, 0f));
-
-            UploadTexturesTest();
-
-            GL.BindVertexArray(KWTerrainQuad.VAO);
-            GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (int)((x  * z) / (tileSq * tileSq)));
-            GL.BindVertexArray(0);
-
-            HelperGeneral.CheckGLErrors();
-        }
-
         public static void Draw(TerrainObject t)
         {
             GL.Uniform3(UColorTint, t._stateRender._colorTint);
@@ -177,39 +130,39 @@ namespace KWEngine3.Renderer
             GL.Uniform2(UIdShadowCaster, new Vector2i(t.ID, t.IsShadowCaster ? 1 : 0));
             GL.Uniform3(UMetallicRoughness, new Vector3(t._gModel._metallicTerrain, t._gModel._roughnessTerrain, Convert.ToSingle((int)t._gModel._metallicType)));
 
-            GeoMesh[] meshes = t._gModel.ModelOriginal.Meshes.Values.ToArray();
-            for (int i = 0; i < meshes.Length; i++)
-            {
-                GeoMesh mesh = meshes[i];
-                GeoMaterial material = t._gModel.Material[0]; // only for terrain objects: always index 0
+            GeoMesh mesh = t._gModel.ModelOriginal.Meshes.Values.ToArray()[0];
 
-                GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
-                GL.UniformMatrix4(UNormalMatrix, false, ref t._stateRender._normalMatrix);
+            GeoMaterial material = t._gModel.Material[0]; // only for terrain objects: always index 0
 
-                Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(
-                    material.TextureAlbedo.IsTextureSet ? 1 : 0,
-                    material.TextureNormal.IsTextureSet ? 1 : 0,
-                    material.TextureEmissive.IsTextureSet ? 1 : 0
-                    );
-                Vector3i useTexturesMetallicRoughness = new Vector3i(
-                    material.TextureMetallic.IsTextureSet ? 1 : 0,
-                    material.TextureRoughness.IsTextureSet ? 1 : 0,
-                    0 //always opaque
-                    );
-                GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
-                GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
-                GL.Uniform3(UColorMaterial, material.ColorAlbedo.Xyz);
+            GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
+            GL.UniformMatrix4(UNormalMatrix, false, ref t._stateRender._normalMatrix);
 
+            Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(
+                material.TextureAlbedo.IsTextureSet ? 1 : 0,
+                material.TextureNormal.IsTextureSet ? 1 : 0,
+                material.TextureEmissive.IsTextureSet ? 1 : 0
+                );
+            Vector3i useTexturesMetallicRoughness = new Vector3i(
+                material.TextureMetallic.IsTextureSet ? 1 : 0,
+                material.TextureRoughness.IsTextureSet ? 1 : 0,
+                0 //always opaque
+                );
+            GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
+            GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
+            GL.Uniform3(UColorMaterial, material.ColorAlbedo.Xyz);
 
+            GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
+            GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
 
-                UploadTextures(ref material, t);
+            GL.Uniform4(UTerrainData, t.Width, t.Depth, 16, t.Height);
 
-                GL.BindVertexArray(mesh.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                GL.BindVertexArray(0);
-            }
+            UploadTextures(ref material, t);
+
+            GL.BindVertexArray(KWTerrainQuad.VAO);
+            GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (t.Width * t.Depth) / (16 * 16));
+            GL.BindVertexArray(0);
+
+            HelperGeneral.CheckGLErrors();
         }
 
         private static void UploadTextures(ref GeoMaterial material, TerrainObject t)
@@ -218,11 +171,16 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
             GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
             GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
-            GL.Uniform4(UTextureTransform, new Vector4(
-                material.TextureAlbedo.UVTransform.X * t._stateRender._uvTransform.X,
-                material.TextureAlbedo.UVTransform.Y * t._stateRender._uvTransform.Y,
-                material.TextureAlbedo.UVTransform.Z + t._stateRender._uvTransform.Z,
-                material.TextureAlbedo.UVTransform.W + t._stateRender._uvTransform.W));
+            if (material.TextureAlbedo.IsTextureSet)
+            {
+                GL.Uniform4(UTextureTransform, new Vector4(
+                    material.TextureAlbedo.UVTransform.X * t._stateRender._uvTransform.X,
+                    material.TextureAlbedo.UVTransform.Y * t._stateRender._uvTransform.Y,
+                    material.TextureAlbedo.UVTransform.Z + t._stateRender._uvTransform.Z,
+                    material.TextureAlbedo.UVTransform.W + t._stateRender._uvTransform.W));
+            }
+            else
+                GL.Uniform4(UTextureTransform, new Vector4(1, 1, 0, 0));
 
             // Normal
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 1);
@@ -242,37 +200,9 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
             GL.BindTexture(TextureTarget.Texture2D, material.TextureRoughness.IsTextureSet ? material.TextureRoughness.OpenGLID : KWEngine.TextureWhite);
             GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 4);
-        }
-        private static void UploadTexturesTest()
-        {
-            // Albedo
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureCheckerboard);
-            GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
-            
 
-            // Normal
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 1);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNormalEmpty);
-            GL.Uniform1(UTextureNormal, TEXTUREOFFSET + 1);
-
-            // Emissive
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 2);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
-            GL.Uniform1(UTextureEmissive, TEXTUREOFFSET + 2);
-
-            // Metallic/Roughness
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
-            GL.Uniform1(UTextureMetallic, TEXTUREOFFSET + 3);
-
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
-            GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 4);
-
-            // testing height map
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 5);
-            GL.BindTexture(TextureTarget.Texture2D, HeightmapTextureID);
+            GL.BindTexture(TextureTarget.Texture2D, t._heightmap > 0 ? t._heightmap : KWEngine.TextureBlack);
             GL.Uniform1(UTextureHeightMap, TEXTUREOFFSET + 5);
         }
     }

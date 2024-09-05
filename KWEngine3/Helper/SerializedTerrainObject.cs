@@ -47,7 +47,7 @@ namespace KWEngine3.Helper
             st.ModelName = t._gModel.ModelOriginal.Name;
             st.ModelPath = t._gModel.ModelOriginal.Filename;
             st.Width = t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetWidth();
-            st.Height = t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetScaleFactor();
+            st.Height = t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetHeight();
             st.Depth = t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetDepth();
 
             st.Position = new float[] { t._stateCurrent._position.X, t._stateCurrent._position.Y, t._stateCurrent._position.Z };

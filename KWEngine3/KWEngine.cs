@@ -504,7 +504,7 @@ namespace KWEngine3
             };
 
             GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain(heightmap, width, height, depth, t);
+            GeoMesh terrainMesh = t.BuildTerrain(name, heightmap, width, height, depth);
             terrainMesh.Terrain = t;
             GeoMaterial mat = new()
             {
