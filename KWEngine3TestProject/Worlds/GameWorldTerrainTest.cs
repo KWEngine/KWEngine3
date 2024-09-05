@@ -18,7 +18,6 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", "./Textures/pavement_06_albedo.dds", 25, 2, 25);
             KWEngine.LoadModel("Player", "./Models/robotERS.fbx");
 
             SetCameraPosition(0.0f, 25.0f, 25.0f);
@@ -42,6 +41,8 @@ namespace KWEngine3TestProject.Worlds
             p.IsShadowCaster = true;
             AddGameObject(p);
 
+
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 32, 32, 2);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;

@@ -9,6 +9,7 @@ using OpenTK.Windowing.Common;
 using KWEngine3.Assets;
 using System.Diagnostics;
 using OpenTK.Windowing.Desktop;
+using KWEngine3.Exceptions;
 
 
 namespace KWEngine3
@@ -469,15 +470,30 @@ namespace KWEngine3
         /// </summary>
         /// <param name="name">Name des Modells</param>
         /// <param name="heightmap">Height Map Textur</param>
-        /// <param name="texture">Textur der Oberfläche</param>
         /// <param name="width">Breite</param>
-        /// <param name="height">Höhe</param>
         /// <param name="depth">Tiefe</param>
-        public static void BuildTerrainModel(string name, string heightmap, string texture, int width, int height, int depth)
+        /// <param name="height">Höhe</param>
+        public static void BuildTerrainModel(string name, string heightmap, int width, int depth, float height)
         {
+            if (name == null || name.Trim().Length == 0)
+            {
+                KWEngine.LogWriteLine("[KWEngine] Terrain name is invalid");
+                return;
+            }
+            if (heightmap == null || !File.Exists(heightmap) || (!heightmap.Trim().ToLower().EndsWith(".jpg") && !heightmap.Trim().ToLower().EndsWith(".png") && !heightmap.Trim().ToLower().EndsWith(".jpeg")))
+            {
+                KWEngine.LogWriteLine("[KWEngine] Terrain height map file is invalid");
+                return;
+            }
+            
+
+            width = Math.Max(width - (width % 16), 16);
+            depth = Math.Max(depth - (depth % 16), 16);
+            height = Math.Clamp(height, 0f, 256f);
+
             if (Models.ContainsKey(name))
             {
-                KWEngine.LogWriteLine("[Terrain] Model name already used");
+                KWEngine.LogWriteLine("[KWEngine] Model name already used");
                 return;
             }
             GeoModel terrainModel = new()
@@ -487,19 +503,8 @@ namespace KWEngine3
                 IsValid = true
             };
 
-            GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null)
-            {
-                Model = terrainModel,
-                Name = name
-            };
-
-            terrainModel.MeshCollider.MeshHitboxes = new()
-            {
-                meshHitBox
-            };
-
             GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain(heightmap, width, height, depth, true);
+            GeoMesh terrainMesh = t.BuildTerrain(heightmap, width, height, depth, t);
             terrainMesh.Terrain = t;
             GeoMaterial mat = new()
             {
@@ -509,46 +514,8 @@ namespace KWEngine3
                 Metallic = 0,
                 Roughness = 1
             };
-
-            GeoTexture texDiffuse = new()
-            {
-                Filename = texture,
-                Type = TextureType.Albedo,
-                UVMapIndex = 0,
-                UVTransform = new Vector4(1, 1, 0, 0)
-            };
-
-            if (KWEngine.CurrentWorld._customTextures.ContainsKey(texture))
-            {
-                texDiffuse.OpenGLID = KWEngine.CurrentWorld._customTextures[texture];
-            }
-            else
-            {
-                int texId = HelperTexture.LoadTextureForModelExternal(texture, out int mipMaps);
-                texDiffuse.OpenGLID = texId > 0 ? texId : KWEngine.TextureDefault;
-
-                if (texId > 0)
-                {
-                    KWEngine.CurrentWorld._customTextures.Add(texture, texDiffuse.OpenGLID);
-                }
-            }
-            mat.TextureAlbedo = texDiffuse;
-
-
             terrainMesh.Material = mat;
             terrainModel.Meshes.Add("Terrain", terrainMesh);
-            //terrainModel.Meshes.Add("TerrainSides", sideMeshes);
-            KWEngine.Models.Add(name, terrainModel);
-        }
-
-        /*internal static GeoModel BuildDefaultTerrainModel(string name, float width, float height, float depth)
-        {
-            GeoModel terrainModel = new()
-            {
-                Name = name,
-                Meshes = new(),
-                IsValid = true
-            };
 
             GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null)
             {
@@ -561,35 +528,8 @@ namespace KWEngine3
                 meshHitBox
             };
 
-            GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain(null, width, height, depth, out GeoMesh sideMeshes, 1f, 1f, false);
-            terrainMesh.Terrain = t;
-            GeoMaterial mat = new()
-            {
-                BlendMode = BlendingFactor.OneMinusSrcAlpha,
-                ColorAlbedo = new(1, 1, 1, 1),
-                ColorEmissive = new(0, 0, 0, 0),
-                Metallic = 0,
-                Roughness = 1
-            };
-
-            GeoTexture texDiffuse = new()
-            {
-                Filename = "Default terrain texture",
-                Type = TextureType.Albedo,
-                UVMapIndex = 0,
-                UVTransform = new Vector4(1f, 1f, 0f, 0f),
-                OpenGLID = KWEngine.TextureWhite
-            };
-            mat.TextureAlbedo = texDiffuse;
-
-            terrainMesh.Material = mat;
-            terrainModel.Meshes.Add("Terrain", terrainMesh);
-            terrainModel.Meshes.Add("TerrainSideMeshes", sideMeshes);
-
-            return terrainModel;
+            KWEngine.Models.Add(name, terrainModel);
         }
-        */
 
         /// <summary>
         /// Lädt die unter dem Dateinamen zu findenden Animationen in das (zuvor unter dem Namen angegebenen) 3D-Modell
@@ -605,7 +545,6 @@ namespace KWEngine3
             {
                 LogWriteLine("[Import] Model " + filename + " must be imported in Prepare() - aborting import");
                 return;
-                //throw new Exceptions.EngineException("[Import] Models must be imported in Prepare()");
             }
             if (!Models.ContainsKey(modelname.Trim()))
             {

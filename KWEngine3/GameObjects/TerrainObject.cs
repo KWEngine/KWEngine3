@@ -48,11 +48,7 @@ namespace KWEngine3.GameObjects
         internal string _name = "(no name)";
         internal bool _isCollisionObject = false;
         internal bool _isShadowCaster = false;
-        internal int _heightMap = -1;
         internal int _idFromImport = -1;
-        internal int _width = 16;
-        internal int _depth = 16;
-        internal float _height = 0;
 
         internal TerrainObject()
         {
@@ -63,28 +59,14 @@ namespace KWEngine3.GameObjects
         /// Standardkonstruktor für ein Terrain-Objekt
         /// </summary>
         /// <param name="name">Name des Terrain-Modells</param>
-        /// <param name="heightmap">Dateiname der Height-Map-Textur (idealerweise im PNG-Dateiformat)</param>
-        /// <param name="width">Breite des Terrains (x-Achse, Mindestwert: 16, Angaben werden auf eine durch 16 teilbare Zahl gerundet)</param>
-        /// <param name="depth">Tiefe des Terrains (z-Achse, Mindestwert: 16, Angaben werden auf eine durch 16 teilbare Zahl gerundet)</param>
-        /// <param name="height">Maximale Höhe des Terrains (muss ein positiver Wert sein zwischen 0 und 256 sein)</param>
-        public TerrainObject(string name, string heightmap, int width = 16, int depth = 16, float height = 0)
+        public TerrainObject(string name)
         {
-            if(heightmap == null || !File.Exists(heightmap))
+            if(name == null || name.Trim().Length == 0 || !KWEngine.Models.ContainsKey(name))
             {
-                KWEngine.LogWriteLine("[TerrainObject] Heightmap file is invalid");
-                throw new EngineException("[TerrainObject] Heightmap file is invalid");
-            }
-            if(name == null || name.Trim().Length == 0)
-            {
-                KWEngine.LogWriteLine("[TerrainObject] Name is invalid");
-                throw new EngineException("[TerrainObject] Name is invalid");
+                throw new EngineException("[TerrainObject] Terrain model name not found");
             }
 
-            _width = Math.Max(width - (width % 16), 16);
-            _depth = Math.Max(depth - (depth % 16), 16);
-            _height = Math.Clamp(height, 0f, 256f);
 
-            BuildTerrainModel(name, heightmap, width, height, depth);
 
             InitHitboxes();
             InitRenderStateMatrices();
@@ -260,60 +242,6 @@ namespace KWEngine3.GameObjects
         internal void InitRenderStateMatrices()
         {
             _stateRender._modelMatrix = Matrix4.Identity;
-        }
-
-        internal static void BuildTerrainModel(string name, string heightmap, int width, float height, int depth)
-        {
-            GeoModel terrainModel = new()
-            {
-                Name = name,
-                Meshes = new(),
-                IsValid = true
-            };
-
-            GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null)
-            {
-                Model = terrainModel,
-                Name = name
-            };
-
-            terrainModel.MeshCollider.MeshHitboxes = new()
-            {
-                meshHitBox
-            };
-
-            GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain(heightmap, width, height, depth, true);
-            terrainMesh.Terrain = t;
-            terrainMesh.Material = GenerateDefaultMaterial();
-
-            terrainModel.Meshes.Add("Terrain", terrainMesh);
-            KWEngine.Models.Add(name, terrainModel);
-        }
-
-        internal static GeoMaterial GenerateDefaultMaterial()
-        {
-            return new GeoMaterial()
-            {
-                BlendMode = BlendingFactor.OneMinusSrcAlpha,
-                ColorAlbedo = new Vector4(1, 1, 1, 1),
-                ColorEmissive = new Vector4(0, 0, 0, 0),
-                Metallic = 0,
-                Roughness = 1,
-                TextureAlbedo = new()
-                {
-                    Filename = "",
-                    Height = 256,
-                    Width = 256,
-                    IsEmbedded = false,
-                    IsKWEngineTexture = true,
-                    MipMaps = 0,
-                    UVMapIndex = 0,
-                    Type = TextureType.Albedo,
-                    UVTransform = new Vector4(1, 1, 0, 0),
-                    OpenGLID = KWEngine.TextureCheckerboard
-                }
-            };
         }
 
         internal GeoMaterial GenerateMaterial(string texture)

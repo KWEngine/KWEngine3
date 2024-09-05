@@ -27,8 +27,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap2.png", "./Textures/Dirt_01_512.png", 40, 1, 80);
-
+            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap.png", 48, 48, 1);
             TerrainObject t = new TerrainObject("T1");
             t.Name = "TestTerrain";
             t.SetPosition(0, 0, 0);

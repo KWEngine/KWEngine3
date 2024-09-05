@@ -17,6 +17,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap.png", 32, 32, 1);
+
             SetCameraFOV(90);
 
             Player p = new Player();
@@ -36,7 +38,9 @@ namespace KWEngine3TestProject.Worlds
             MouseCursorGrab();
 
 
-            TerrainObject t = new TerrainObject("karautest", "./Textures/heightmap.png", 32, 32, 1);
+            TerrainObject t = new TerrainObject("KarauTest");
+            t.IsShadowCaster = true;
+            t.IsCollisionObject = true;
             AddTerrainObject(t);
         }
     }
