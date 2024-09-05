@@ -52,24 +52,22 @@ namespace KWEngine3.Model
             return mDepth;
         }
 
-        internal GeoMesh BuildTerrain(string heightMap, float width, float height, float depth, out GeoMesh sideMeshes, float texRepeatX = 1, float texRepeatY = 1, bool isFile = true)
+        internal GeoMesh BuildTerrain(string heightMap, float width, float height, float depth, bool isFile = true)
         {
-            
-
             GeoMesh mmp;
-            sideMeshes = new GeoMesh();
             if (isFile)
             {
                 if (!File.Exists(heightMap))
                 {
-                    KWEngine.LogWriteLine("[Terrain] Height map invalid.");
+                    KWEngine.LogWriteLine("[Terrain] Heightmap invalid.");
                     return null;
                 }
                 else
                 {
-                    if(!heightMap.Trim().ToLower().EndsWith("png") && !heightMap.Trim().ToLower().EndsWith("jpg") && !heightMap.Trim().ToLower().EndsWith("jpeg"))
+                    string hmtmp = heightMap.Trim().ToLower();
+                    if(!hmtmp.EndsWith("png") && !hmtmp.EndsWith("jpg") && !hmtmp.EndsWith("jpeg"))
                     {
-                        KWEngine.LogWriteLine("[Terrain] Height map may be of type PNG or JPG only.");
+                        KWEngine.LogWriteLine("[Terrain] Heightmap may be of type PNG or JPG only.");
                         return null;
                     }
                     else
@@ -115,13 +113,13 @@ namespace KWEngine3.Model
 
                         mWidth = width;
                         mDepth = depth;
-                        mScaleFactor = height >= 0 ? height : 1;
-                        mTexX = texRepeatX > 0 ? texRepeatX : 1;
-                        mTexY = texRepeatY > 0 ? texRepeatY : 1;
+                        mScaleFactor = height;
+                        mTexX = 1;
+                        mTexY = 1;
 
-                        if (image.Width < 4 || image.Height < 4 || image.Height > 256 || image.Width > 256)
+                        if (image.Width < 4 || image.Height < 4 || image.Height > 4096 || image.Width > 4096)
                         {
-                            KWEngine.LogWriteLine("[Terrain] Height map too small or too big (4-256px)");
+                            KWEngine.LogWriteLine("[Terrain] Height map too small or too big (4-4096px)");
                             DeleteOpenGLHeightMap(heightMap);
                             return null;
                         }
@@ -165,17 +163,7 @@ namespace KWEngine3.Model
                         int c = 0;
                         int cFBuffer = 0;
                         int cFBufferUV = 0;
-                        float[] VBOVerticesBuffer = new float[mDots * 3];
-                        float[] VBONormalsBuffer = new float[mDots * 3];
-                        float[] VBOUVBuffer = new float[mDots * 2];
-                        float[] VBOTangentBuffer = new float[mDots * 3];
-                        float[] VBOBiTangentBuffer = new float[mDots * 3];
-                        Dictionary<int, Vector3> normalMapping = new Dictionary<int, Vector3>();
-                        Dictionary<int, Vector3> tangentMapping = new Dictionary<int, Vector3>();
-                        Dictionary<int, Vector3> bitangentMapping = new Dictionary<int, Vector3>();
-                        Dictionary<int, int> normalMappingCount = new Dictionary<int, int>();
-
-                        //List<GeoMeshTerrainFace> outerFaces = new List<GeoMeshTerrainFace>();
+                        
                         List<Vector3> frontFaces = new List<Vector3>();
                         List<Vector3> backFaces = new List<Vector3>();
                         List<Vector3> leftFaces = new List<Vector3>();
@@ -217,18 +205,6 @@ namespace KWEngine3.Model
                                     frontFaces.Add(tmp);
                                 }
 
-                                VBOVerticesBuffer[cFBuffer + 0] = points[c].X;
-                                VBOVerticesBuffer[cFBuffer + 1] = points[c].Y;
-                                VBOVerticesBuffer[cFBuffer + 2] = points[c].Z;
-
-                                VBOUVBuffer[cFBufferUV + 0] = i * (1f / (image.Width - 1));
-                                VBOUVBuffer[cFBufferUV + 1] = j * (1f / (image.Height - 1));
-
-                                normalMapping.Add(c, new Vector3(0, 0, 0));
-                                tangentMapping.Add(c, new Vector3(0, 0, 0));
-                                bitangentMapping.Add(c, new Vector3(0, 0, 0));
-                                normalMappingCount.Add(c, 0);
-
                                 //increase counter:
                                 c++;
                                 cFBuffer += 3;
@@ -239,12 +215,7 @@ namespace KWEngine3.Model
                         mmp = new GeoMesh();
                         mmp.Name = heightMap;
 
-                        // Build indices and triangles:
-                        mmp.VAO = GL.GenVertexArray();
-                        GL.BindVertexArray(mmp.VAO);
-
                         int triangles = 0;
-                        List<uint> mIndices = new List<uint>();
                         int imageHeight = image.Height;
                         Vector3 normalT1 = new Vector3(0, 0, 0);
                         Vector3 normalT2 = new Vector3(0, 0, 0);
@@ -265,16 +236,7 @@ namespace KWEngine3.Model
                                 continue;
                             }
 
-                            // Generate Indices:
-                            mIndices.Add((uint)(i + imageHeight + 1));
-                            mIndices.Add((uint)(i + imageHeight));
-                            mIndices.Add((uint)(i));
-
-
-                            mIndices.Add((uint)(i));
-                            mIndices.Add((uint)(i + 1));
-                            mIndices.Add((uint)(i + imageHeight + 1));
-
+                            
                             // Generate Triangle objects:
 
                             // T1:
@@ -294,7 +256,7 @@ namespace KWEngine3.Model
                             {
                                 mSectorMap[tuple.X, tuple.Y].AddTriangle(t123);
                             }
-
+                            /*
                             // tangents and bitangent generation
                             deltaU1 = VBOUVBuffer[(i + imageHeight) * 2] - VBOUVBuffer[(i + imageHeight + 1) * 2];
                             deltaV1 = VBOUVBuffer[(i + imageHeight) * 2 + 1] - VBOUVBuffer[(i + imageHeight + 1) * 2 + 1];
@@ -347,7 +309,7 @@ namespace KWEngine3.Model
                             tmp += bitangent;
                             bitangentMapping[i + imageHeight + 1] = tmp;
 
-
+                            */
 
                             // ============================ T2 ======================
 
@@ -362,7 +324,7 @@ namespace KWEngine3.Model
                             {
                                 mSectorMap[tuple.X, tuple.Y].AddTriangle(t456);
                             }
-
+                            /*
                             // tangents and bitangent generation
                             deltaU1 = VBOUVBuffer[(i + 1) * 2] - VBOUVBuffer[(i) * 2];
                             deltaV1 = VBOUVBuffer[(i + 1) * 2 + 1] - VBOUVBuffer[(i) * 2 + 1];
@@ -413,13 +375,13 @@ namespace KWEngine3.Model
                             bitangentMapping.TryGetValue(i, out tmp);
                             tmp += bitangent;
                             bitangentMapping[i] = tmp;
-
+                            */
                             triangles += 2;
                         }
                         //Debug.WriteLine("\tGenerated triangles:\t" + triangles);
                         cFBuffer = 0;
 
-
+                        /*
                         for (int i = 0; i < points.Length; i++)
                         {
                             // Interpolate normals:
@@ -504,16 +466,16 @@ namespace KWEngine3.Model
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, mmp.VBOIndex);
                         GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * 4, indices, BufferUsageHint.StaticDraw);
                         GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
+                        */
 
                         mmp.Transform = Matrix4.Identity;
 
-                        GL.BindVertexArray(0);
+                        //GL.BindVertexArray(0);
 
-                        long diff = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - start;
+                        //long diff = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond - start;
                         //Debug.WriteLine("\t...done (" + Math.Round(diff / 1000f, 2) + " seconds)");
 
-
+                        /*
                         // Generate side meshes:
                         float[] VBOVerticesBufferSideMesh = new float[(frontFaces.Count + backFaces.Count + leftFaces.Count + rightFaces.Count) * 2 * 3];
                         float[] VBONormalsBufferSideMesh = new float[VBOVerticesBufferSideMesh.Length];
@@ -585,6 +547,7 @@ namespace KWEngine3.Model
 
                         sideMeshes.Transform = Matrix4.Identity;
                         GL.BindVertexArray(0);
+                        */
                     }
                 }
             }
@@ -595,7 +558,7 @@ namespace KWEngine3.Model
                 return null;
             }
             mmp.Primitive = PrimitiveType.Triangles;
-            sideMeshes.Primitive = PrimitiveType.Triangles;
+            //sideMeshes.Primitive = PrimitiveType.Triangles;
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
             return mmp;
         }

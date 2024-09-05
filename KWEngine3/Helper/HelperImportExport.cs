@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3.Exceptions;
+using KWEngine3.GameObjects;
 using OpenTK.Mathematics;
 using System.Reflection;
 using System.Text.Json;
@@ -183,7 +184,8 @@ namespace KWEngine3.Helper
             {
                 if(!usedterrainNames.Contains(st.ModelName))
                 {
-                    KWEngine.BuildTerrainModel(st.ModelName, st.ModelPath, st.TextureAlbedo, st.Width, st.Height, st.Depth);
+                    //KWEngine.BuildTerrainModel(st.ModelName, st.ModelPath, st.TextureAlbedo, st.Width, st.Height, st.Depth);
+                    throw new EngineException("Not implemented yet.");
                     usedterrainNames.Add(st.ModelName);
                 }
             }
@@ -329,7 +331,8 @@ namespace KWEngine3.Helper
 
         private static TerrainObject BuildTerrainObject(SerializedTerrainObject st)
         {
-            TerrainObject t = new TerrainObject(st.ModelName);
+            throw new EngineException("Not implemented yet.");
+            /*TerrainObject t = new TerrainObject(st.ModelName);
             t._idFromImport = st.ID;
             t.Name = st.Name;
             t.IsShadowCaster = st.IsShadowCaster;
@@ -365,6 +368,7 @@ namespace KWEngine3.Helper
             }
 
             return t;
+            */
         }
 
         private static LightObject BuildLightObject(SerializedLightObject sl)

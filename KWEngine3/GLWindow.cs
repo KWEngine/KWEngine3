@@ -293,7 +293,7 @@ namespace KWEngine3
 
                 RendererTerrainGBufferNew.Bind();
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                RendererTerrainGBufferNew.DrawTestTerrain();
+                //RendererTerrainGBufferNew.DrawTestTerrain();
                 //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
 

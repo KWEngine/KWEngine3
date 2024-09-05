@@ -34,6 +34,10 @@ namespace KWEngine3TestProject.Worlds
             SetCameraToFirstPersonGameObject(p, 0.5f);
 
             MouseCursorGrab();
+
+
+            TerrainObject t = new TerrainObject("karautest", "./Textures/heightmap.png", 32, 32, 1);
+            AddTerrainObject(t);
         }
     }
 }

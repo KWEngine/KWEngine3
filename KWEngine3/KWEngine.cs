@@ -499,7 +499,7 @@ namespace KWEngine3
             };
 
             GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain(heightmap, width, height, depth, out GeoMesh sideMeshes, 1, 1, true);
+            GeoMesh terrainMesh = t.BuildTerrain(heightmap, width, height, depth, true);
             terrainMesh.Terrain = t;
             GeoMaterial mat = new()
             {
@@ -537,11 +537,11 @@ namespace KWEngine3
 
             terrainMesh.Material = mat;
             terrainModel.Meshes.Add("Terrain", terrainMesh);
-            terrainModel.Meshes.Add("TerrainSides", sideMeshes);
+            //terrainModel.Meshes.Add("TerrainSides", sideMeshes);
             KWEngine.Models.Add(name, terrainModel);
         }
 
-        internal static GeoModel BuildDefaultTerrainModel(string name, float width, float height, float depth)
+        /*internal static GeoModel BuildDefaultTerrainModel(string name, float width, float height, float depth)
         {
             GeoModel terrainModel = new()
             {
@@ -589,8 +589,7 @@ namespace KWEngine3
 
             return terrainModel;
         }
-
-        // public static void SetCustomHitboxForModel(string modelname, )
+        */
 
         /// <summary>
         /// Lädt die unter dem Dateinamen zu findenden Animationen in das (zuvor unter dem Namen angegebenen) 3D-Modell
