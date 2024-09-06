@@ -149,6 +149,10 @@
 		<None Remove="Shaders\shader.msm16.vert" />
 		<None Remove="Shaders\shader.msm16instanced.frag" />
 		<None Remove="Shaders\shader.msm16instanced.vert" />
+		<None Remove="Shaders\shader.msm16terrain.cube.frag" />
+		<None Remove="Shaders\shader.msm16terrain.cube.tesc" />
+		<None Remove="Shaders\shader.msm16terrain.cube.tese" />
+		<None Remove="Shaders\shader.msm16terrain.cube.vert" />
 		<None Remove="Shaders\shader.msm16terrain.frag" />
 		<None Remove="Shaders\shader.msm16terrain.tesc" />
 		<None Remove="Shaders\shader.msm16terrain.tese" />
@@ -274,6 +278,10 @@
 		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.forward.particle.frag" />
 		<EmbeddedResource Include="Shaders\shader.forward.particle.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.tesc" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.tese" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.frag" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.tesc" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.tese" />
