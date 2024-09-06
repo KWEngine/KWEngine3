@@ -81,11 +81,10 @@ namespace KWEngine3.Model
                             return null;
                         }
 
-                        double mp = Math.Round(mDots / 1000000.0, 3);
-                        long start = DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
-
-                        float stepWidth = (float)mWidth / (image.Width - 1);
-                        float stepDepth = (float)mDepth / (image.Height - 1);
+                        //float stepWidth = (float)mWidth / (image.Width - 1);
+                        //float stepDepth = (float)mDepth / (image.Height - 1);
+                        float stepWidth = (float)mWidth / image.Width;
+                        float stepDepth = (float)mDepth / image.Height;
 
                         float trisCountWidth = (mWidth / stepWidth) * 2;
                         float trisCountDepth = (mDepth / stepDepth) * 2;

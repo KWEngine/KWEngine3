@@ -96,6 +96,8 @@ namespace KWEngine3.Renderer
             RendererShadowMapInstanced.Init();
             RendererShadowMapCube.Init();
             RendererShadowMapCubeInstanced.Init();
+            RendererShadowMapTerrain.Init();
+            RendererShadowMapTerrainCube.Init();
 
             RendererEditor.Init();
             RendererGrid.Init();

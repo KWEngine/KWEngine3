@@ -67,16 +67,23 @@ void main()
 
     positionWorldSpace.xyz += normal * height;
 
+    // compute patch surface normal
+    vec3 uVec = p00 - p01;
+    vec3 vVec = p02 - p00;
+    vec3 normalLighting = normalize(cross(vVec, uVec));
+
+    vec3 tangent = vTangentTE[0] - normalLighting * dot( vTangentTE[0], normalLighting ); // orthonormalization ot the tangent vectors
+    vec3 bitangent = vBiTangentTE[0] - normalLighting * dot( vBiTangentTE[0], normalLighting ); // orthonormalization of the binormal vectors to the normal vector 
+    bitangent = bitangent - tangent * dot( bitangent, tangent ); // orthonormalization of the binormal vectors to the tangent vector
+    
+
+
     // ----------------------------------------------------------------------
     // output patch point position in clip space
     gl_Position = uViewProjectionMatrix * positionWorldSpace;
     vTexture = t;
-    vNormal = vec3(0, 1, 0);
-    vTBN = mat3(1.0);
-
-	/*
-	vec3 vTangent = normalize((uNormalMatrix * totalTangent).xyz);
-	vec3 vBiTangent = normalize((uNormalMatrix * totalBiTangent).xyz);
-	vTBN = mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz);
-	*/
+    vNormal = normalize((uNormalMatrix * vec4(normalLighting, 0.0)).xyz);
+    tangent = normalize((uNormalMatrix * vec4(tangent, 0.0)).xyz);
+    bitangent = normalize((uNormalMatrix * vec4(bitangent, 0.0)).xyz);
+	vTBN = mat3(tangent, bitangent, vNormal);
 }

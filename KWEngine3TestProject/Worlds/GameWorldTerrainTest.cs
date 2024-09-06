@@ -20,7 +20,7 @@ namespace KWEngine3TestProject.Worlds
         {
             KWEngine.LoadModel("Player", "./Models/robotERS.fbx");
 
-            SetCameraPosition(0.0f, 25.0f, 25.0f);
+            SetCameraPosition(0.0f, 30.0f, 30.0f);
             SetCameraFOV(20);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
 
@@ -42,13 +42,14 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(p);
 
 
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 32, 32, 2);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 32, 32, 2);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
+            t.SetTexture("./Textures/pavement_06_albedo.dds");
             t.SetTexture("./Textures/pavement_06_roughness.dds", TextureType.Roughness);
             t.SetTexture("./Textures/pavement_06_normal.dds", TextureType.Normal);
-            t.SetTextureRepeat(12.5f, 12.5f);
+            t.SetTextureRepeat(4f, 4f);
             AddTerrainObject(t);
         }
     }

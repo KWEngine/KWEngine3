@@ -39,6 +39,9 @@ namespace KWEngine3TestProject.Worlds
 
 
             TerrainObject t = new TerrainObject("KarauTest");
+            t.SetTexture("./Textures/iron_panel_albedo.dds");
+            t.SetTexture("./Textures/iron_panel_normal.dds", TextureType.Normal);
+            t.SetTextureRepeat(2, 2);
             t.IsShadowCaster = true;
             t.IsCollisionObject = true;
             AddTerrainObject(t);

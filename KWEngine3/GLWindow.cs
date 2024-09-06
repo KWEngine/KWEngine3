@@ -291,13 +291,6 @@ namespace KWEngine3
             {
                 RenderManager.FramebufferDeferred.Bind();
 
-                //RendererTerrainGBufferNew.Bind();
-                //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                //RendererTerrainGBufferNew.DrawTestTerrain();
-                //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-
-
                 // Render GameObject instances to G-Buffer:
                 RendererGBuffer.Bind();
                 gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene());
@@ -318,11 +311,11 @@ namespace KWEngine3
                 if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
                 {
                     RendererTerrainGBufferNew.Bind();
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                     RendererTerrainGBufferNew.RenderScene();
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 }
-
+                HelperGeneral.CheckGLErrors();
                 if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
                 {
                     RendererExplosion.Bind();
@@ -338,7 +331,7 @@ namespace KWEngine3
                     RendererLightOverlay.Draw(KWEngine.CurrentWorld._lightObjects);
                     GL.Enable(EnableCap.DepthTest);
                 }
-
+                HelperGeneral.CheckGLErrors();
                 // Shadow map pass:
                 KWEngine.CurrentWorld.PrepareLightObjectsForRenderPass();
                 if (Framebuffer._fbShadowMapCounter > 0)

@@ -34,7 +34,6 @@ namespace KWEngine3.Renderer
         public static int UTextureHeightMap { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;
-        private static int HeightmapTextureID = -1;
 
         public static void Init()
         {
@@ -129,14 +128,12 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
             GL.Uniform2(UIdShadowCaster, new Vector2i(t.ID, t.IsShadowCaster ? 1 : 0));
             GL.Uniform3(UMetallicRoughness, new Vector3(t._gModel._metallicTerrain, t._gModel._roughnessTerrain, Convert.ToSingle((int)t._gModel._metallicType)));
-
             GeoMesh mesh = t._gModel.ModelOriginal.Meshes.Values.ToArray()[0];
 
             GeoMaterial material = t._gModel.Material[0]; // only for terrain objects: always index 0
 
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             GL.UniformMatrix4(UNormalMatrix, false, ref t._stateRender._normalMatrix);
-
             Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(
                 material.TextureAlbedo.IsTextureSet ? 1 : 0,
                 material.TextureNormal.IsTextureSet ? 1 : 0,
@@ -154,15 +151,12 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
             GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
 
-            GL.Uniform4(UTerrainData, t.Width, t.Depth, 16, t.Height);
-
+            GL.Uniform4(UTerrainData, t.Width, t.Depth, KWEngine.TERRAIN_PATCH_SIZE, t.Height);
             UploadTextures(ref material, t);
 
             GL.BindVertexArray(KWTerrainQuad.VAO);
-            GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (t.Width * t.Depth) / (16 * 16));
+            GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (t.Width * t.Depth) / (KWEngine.TERRAIN_PATCH_SIZE * KWEngine.TERRAIN_PATCH_SIZE));
             GL.BindVertexArray(0);
-
-            HelperGeneral.CheckGLErrors();
         }
 
         private static void UploadTextures(ref GeoMaterial material, TerrainObject t)

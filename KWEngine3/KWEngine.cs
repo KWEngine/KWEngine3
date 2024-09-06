@@ -25,6 +25,7 @@ namespace KWEngine3
         internal const float RAYTRACE_EPSILON = 0.000001f;
         internal const float RAYTRACE_SAFETY = 0.1f;
         internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
+        internal const int TERRAIN_PATCH_SIZE = 16;
 
 
         /// <summary>
@@ -469,10 +470,10 @@ namespace KWEngine3
         /// Baut ein Terrain-Modell
         /// </summary>
         /// <param name="name">Name des Modells</param>
-        /// <param name="heightmap">Height Map Textur</param>
-        /// <param name="width">Breite</param>
-        /// <param name="depth">Tiefe</param>
-        /// <param name="height">Höhe</param>
+        /// <param name="heightmap">Heightmap Textur</param>
+        /// <param name="width">Breite (x-Achse, gültige Werte in 16er-Schritten)</param>
+        /// <param name="depth">Tiefe (z-Achse, gültige Werte in 16er-Schritten)</param>
+        /// <param name="height">Höhe (y-Achse, gültige Werte von 0 bis 256)</param>
         public static void BuildTerrainModel(string name, string heightmap, int width, int depth, float height)
         {
             if (name == null || name.Trim().Length == 0)

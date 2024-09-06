@@ -188,12 +188,11 @@ namespace KWEngine3.GameObjects
         /// </summary>
         /// <param name="filename">Dateiname (inkl. relativem Pfad)</param>
         /// <param name="type">Texturtyp (Standard: Albedo)</param>
-        /// <param name="meshId">interne Nummer des 3D-Modellteils (Standard: 0)</param>
-        public void SetTexture(string filename, TextureType type = TextureType.Albedo, int meshId = 0)
+        public void SetTexture(string filename, TextureType type = TextureType.Albedo)
         {
             if (filename == null)
                 filename = "";
-            _gModel.SetTexture(filename.Trim(), type, meshId);
+            _gModel.SetTexture(filename.Trim(), type, 0);
         }
 
         /// <summary>
