@@ -702,6 +702,11 @@ namespace KWEngine3.Model
                         }
                     }
                 }
+                else
+                {
+                    GeoTexture texDummy = new GeoTexture();
+                    geoMaterial.TextureAlbedo = texDummy;
+                }
 
                 if(material.HasTextureOpacity)
                 {

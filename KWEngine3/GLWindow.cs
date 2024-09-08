@@ -339,12 +339,13 @@ namespace KWEngine3
                     {
                         if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
                         {
+                            l._fbShadowMap.Bind();
                             if (l.Type == LightType.Point)
                             {
                                 pointLights.Add(l);
                                 continue;
                             }
-                            l._fbShadowMap.Bind();
+                            
                             RendererShadowMap.RenderSceneForLight(l);
                         }
                     }
@@ -360,16 +361,6 @@ namespace KWEngine3
                             }
                             l._fbShadowMap.Bind(false);
                             RendererShadowMapTerrain.RenderSceneForLight(l);
-                        }
-
-                        if (pointLights.Count > 0)
-                        {
-                            RendererShadowMapTerrainCube.Bind();
-                            foreach(LightObject l in pointLights)
-                            {
-                                l._fbShadowMap.Bind();
-                                RendererShadowMapTerrainCube.RenderSceneForLight(l);
-                            }
                         }
                     }
 
