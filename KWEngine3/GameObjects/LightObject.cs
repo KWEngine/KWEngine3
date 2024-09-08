@@ -44,7 +44,7 @@ namespace KWEngine3.GameObjects
             if(shadowType != ShadowQuality.NoShadow && Framebuffer.ShadowMapCount >= KWEngine.MAX_SHADOWMAPS)
             {
                 KWEngine.LogWriteLine("New LightObject instance cannot cast shadows!");
-                KWEngine.LogWriteLine("Reason: > 3 shadow casters in world already.");
+                KWEngine.LogWriteLine("\tReason: > 3 shadow casters in world already.");
                 shadowType = ShadowQuality.NoShadow;
             }
 
@@ -67,6 +67,15 @@ namespace KWEngine3.GameObjects
         public void SetShadowBias(float bias)
         {
             _shadowBias = MathHelper.Clamp(bias, -0.1f, 0.1f);
+        }
+
+        /// <summary>
+        /// Feintuning für die Position des Schatteneffekts (Standardwert: 0.001f)
+        /// </summary>
+        /// <param name="offset">Erlaubte Werte zwischen 0.0f und 0.1f</param>
+        public void SetShadowOffset(float offset)
+        {
+            _shadowOffset = MathHelper.Clamp(offset, 0f, 0.1f);
         }
 
         /// <summary>
@@ -224,8 +233,11 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateLookAtVector()
         {
-            _stateCurrent._lookAtVector = Vector3.NormalizeFast(_stateCurrent._target - _stateCurrent._position);
-            CheckForIllegalAngles();
+            if (Type != LightType.Point)
+            {
+                _stateCurrent._lookAtVector = Vector3.NormalizeFast(_stateCurrent._target - _stateCurrent._position);
+                CheckForIllegalAngles();
+            }
         }
 
         internal void GetVolume(out Vector3 center, out Vector3 dimensions)

@@ -5,9 +5,8 @@ in vec3 vPositionTE[];
 in vec3 vNormalTE[];
 in vec2 vTextureHeightTE[];
 
-uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
-uniform vec4 uTerrainData;
+uniform ivec4 uTerrainData;
 uniform sampler2D uTextureHeightMap;
 
 void main()
@@ -50,5 +49,5 @@ void main()
 
     // ----------------------------------------------------------------------
     // output patch point position in clip space
-    gl_Position = uViewProjectionMatrix * positionWorldSpace;
+    gl_Position = positionWorldSpace;
 }

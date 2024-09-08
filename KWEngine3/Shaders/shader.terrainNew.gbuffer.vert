@@ -7,7 +7,7 @@ layout(location = 3) in	vec3 aTangent;
 layout(location = 4) in	vec3 aBiTangent;
 
 uniform vec4 uTextureTransform;
-uniform vec4 uTerrainData;
+uniform ivec4 uTerrainData;
 
 out vec3 vPosition;
 out vec2 vTexture;
@@ -18,13 +18,11 @@ out vec3 vBiTangent;
 
 void main()
 {
-	int tileCountX = int(uTerrainData.x / uTerrainData.z);
-	int tileCountZ = int(uTerrainData.y / uTerrainData.z);
+	int tileCountX = uTerrainData.x / uTerrainData.z;
+	int tileCountZ = uTerrainData.y / uTerrainData.z;
 	float instanceSize = uTerrainData.z;
-	float offsetXUneven = int(tileCountX + 1) % 2;
-	float offsetZUneven = int(tileCountZ + 1) % 2;
-	float instanceOffsetX = gl_InstanceID % tileCountX * (instanceSize * 0.5) + offsetXUneven * instanceSize * 0.25 - uTerrainData.x * 0.25;
-	float instanceOffsetZ = gl_InstanceID / tileCountX * (instanceSize * 0.5) + offsetZUneven * instanceSize * 0.25 - uTerrainData.y * 0.25;
+	float instanceOffsetX = gl_InstanceID % tileCountX * (instanceSize * 0.5) + instanceSize * 0.25 - uTerrainData.x * 0.25;
+	float instanceOffsetZ = gl_InstanceID / tileCountX * (instanceSize * 0.5) + instanceSize * 0.25 - uTerrainData.y * 0.25;
 
 	vec3 offset = vec3(instanceOffsetX, 0.0, instanceOffsetZ);
 	gl_Position = vec4(aPosition + offset, 1.0);

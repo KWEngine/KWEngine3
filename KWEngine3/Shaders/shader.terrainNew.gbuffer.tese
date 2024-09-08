@@ -11,7 +11,7 @@ in vec3 vBiTangentTE[];
 uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uNormalMatrix;
-uniform vec4 uTerrainData;
+uniform ivec4 uTerrainData;
 uniform sampler2D uTextureHeightMap;
 
 out vec2 vTexture;
@@ -23,7 +23,7 @@ void main()
 	// get patch coordinate
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
-  
+ 
     vec2 t00 = vTextureTE[0];
     vec2 t01 = vTextureTE[1];
     vec2 t02 = vTextureTE[2];

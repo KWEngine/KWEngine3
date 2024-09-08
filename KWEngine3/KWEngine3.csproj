@@ -150,6 +150,7 @@
 		<None Remove="Shaders\shader.msm16instanced.frag" />
 		<None Remove="Shaders\shader.msm16instanced.vert" />
 		<None Remove="Shaders\shader.msm16terrain.cube.frag" />
+		<None Remove="Shaders\shader.msm16terrain.cube.geom" />
 		<None Remove="Shaders\shader.msm16terrain.cube.tesc" />
 		<None Remove="Shaders\shader.msm16terrain.cube.tese" />
 		<None Remove="Shaders\shader.msm16terrain.cube.vert" />
@@ -239,6 +240,7 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.geom" />
 		<EmbeddedResource Include="Shaders\shader.editorTriangles.geom" />
 		<EmbeddedResource Include="Shaders\shader.editorTriangles.frag" />
 		<EmbeddedResource Include="Shaders\shader.editorTriangles.vert" />

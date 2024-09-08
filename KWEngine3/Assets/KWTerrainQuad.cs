@@ -12,7 +12,7 @@ namespace KWEngine3.Assets
 
         public static int VAO;
 
-        private static float multiplier = 8f;
+        private static float multiplier = KWEngine.TERRAIN_PATCH_SIZE / 2;
 
         public static void Init()
         {

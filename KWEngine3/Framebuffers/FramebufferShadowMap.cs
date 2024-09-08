@@ -21,8 +21,10 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
+            GL.GetInteger(GetPName.MaxCubeMapTextureSize, out int size);
+
             bool hq = (int)KWEngine.Window._ppQuality >= 1;
-            Bind(false);
+            Bind(false); 
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
             FramebufferErrorCode status;

@@ -86,14 +86,6 @@ namespace KWEngine3.Renderer
                     Draw(g);
             }
 
-            /*
-            foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
-            {
-                if(t.IsShadowCaster)
-                    Draw(t);
-            }
-            */
-
             if(KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached && KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled)
             {
                 ViewSpaceGameObject vsgo = KWEngine.CurrentWorld.GetViewSpaceGameObject();

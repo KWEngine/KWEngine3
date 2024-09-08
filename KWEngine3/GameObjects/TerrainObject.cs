@@ -69,7 +69,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Höhe des Terrain-Objekts
         /// </summary>
-        public float Height
+        public int Height
         {
             get; internal set;
         }

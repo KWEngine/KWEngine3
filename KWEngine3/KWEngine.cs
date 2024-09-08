@@ -471,10 +471,10 @@ namespace KWEngine3
         /// </summary>
         /// <param name="name">Name des Modells</param>
         /// <param name="heightmap">Heightmap Textur</param>
-        /// <param name="width">Breite (x-Achse, gültige Werte in 16er-Schritten)</param>
-        /// <param name="depth">Tiefe (z-Achse, gültige Werte in 16er-Schritten)</param>
-        /// <param name="height">Höhe (y-Achse, gültige Werte von 0 bis 256)</param>
-        public static void BuildTerrainModel(string name, string heightmap, int width, int depth, float height)
+        /// <param name="width">Breite (x-Achse, gültige Werte in 16er-Schritten bis max. 1024)</param>
+        /// <param name="depth">Tiefe (z-Achse, gültige Werte in 16er-Schritten bis max. 1024)</param>
+        /// <param name="height">Höhe (y-Achse, gültige Werte von 0 bis 64)</param>
+        public static void BuildTerrainModel(string name, string heightmap, int width, int depth, int height)
         {
             if (name == null || name.Trim().Length == 0)
             {
@@ -488,9 +488,9 @@ namespace KWEngine3
             }
             
 
-            width = Math.Max(width - (width % 16), 16);
-            depth = Math.Max(depth - (depth % 16), 16);
-            height = Math.Clamp(height, 0f, 256f);
+            width = Math.Clamp(width - (width % 16), 16, 1024);
+            depth = Math.Clamp(depth - (depth % 16), 16, 1024);
+            height = Math.Clamp(height, 0, 64);
 
             if (Models.ContainsKey(name))
             {

@@ -17,7 +17,7 @@ namespace KWEngine3.Model
 
         private int mWidth = 0;
         private int mDepth = 0;
-        private float mHeight;
+        private int mHeight;
         private int mDots = -1;
         private int mSectorSize = -1;
         private float mSectorWidth;
@@ -32,7 +32,7 @@ namespace KWEngine3.Model
         private Sector[,] mSectorMap;
         private float mCompleteDiameter;
 
-        public float GetHeight()
+        public int GetHeight()
         {
             return mHeight;
         }
@@ -47,7 +47,7 @@ namespace KWEngine3.Model
             return mDepth;
         }
 
-        internal GeoMesh BuildTerrain(string terrainName, string heightMap, int width, float height, int depth)
+        internal GeoMesh BuildTerrain(string terrainName, string heightMap, int width, int pHeight, int depth)
         {
             GeoMesh mmp;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
@@ -72,7 +72,7 @@ namespace KWEngine3.Model
                         mDots = image.Width * image.Height;
                         mWidth = width;
                         mDepth = depth;
-                        mHeight = height;
+                        mHeight = pHeight;
 
                         if (image.Width < 4 || image.Height < 4 || image.Height > 4096 || image.Width > 4096)
                         {
@@ -81,14 +81,10 @@ namespace KWEngine3.Model
                             return null;
                         }
 
-                        //float stepWidth = (float)mWidth / (image.Width - 1);
-                        //float stepDepth = (float)mDepth / (image.Height - 1);
-                        float stepWidth = (float)mWidth / image.Width;
-                        float stepDepth = (float)mDepth / image.Height;
-
+                        float stepWidth = (float)mWidth / (image.Width - 1);
+                        float stepDepth = (float)mDepth / (image.Height - 1);
                         float trisCountWidth = (mWidth / stepWidth) * 2;
                         float trisCountDepth = (mDepth / stepDepth) * 2;
-
                         int tmpSectorCountWidth = (int)Math.Round(trisCountWidth / 4);
                         int tmpSectorCountDepth = (int)Math.Round(trisCountDepth / 4);
                         mSectorSize = Math.Min(tmpSectorCountWidth, tmpSectorCountDepth);
@@ -195,8 +191,8 @@ namespace KWEngine3.Model
         {
             List<SectorTuple> indices = new List<SectorTuple>();
 
-            float dividerWidth = mWidth / mSectorMap.GetLength(0);
-            float dividerDepth = mDepth / mSectorMap.GetLength(1);
+            float dividerWidth = MathF.Max(mWidth / mSectorMap.GetLength(0), 1f);
+            float dividerDepth = MathF.Max(mDepth / mSectorMap.GetLength(1), 1f);
 
             foreach (Vector3 v in t.Vertices)
             {

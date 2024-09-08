@@ -311,11 +311,9 @@ namespace KWEngine3
                 if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
                 {
                     RendererTerrainGBufferNew.Bind();
-                    //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                     RendererTerrainGBufferNew.RenderScene();
-                    //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 }
-                HelperGeneral.CheckGLErrors();
+
                 if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
                 {
                     RendererExplosion.Bind();
@@ -331,7 +329,7 @@ namespace KWEngine3
                     RendererLightOverlay.Draw(KWEngine.CurrentWorld._lightObjects);
                     GL.Enable(EnableCap.DepthTest);
                 }
-                HelperGeneral.CheckGLErrors();
+
                 // Shadow map pass:
                 KWEngine.CurrentWorld.PrepareLightObjectsForRenderPass();
                 if (Framebuffer._fbShadowMapCounter > 0)
@@ -341,15 +339,40 @@ namespace KWEngine3
                     {
                         if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
                         {
-                            l._fbShadowMap.Bind();
                             if (l.Type == LightType.Point)
                             {
                                 pointLights.Add(l);
                                 continue;
                             }
+                            l._fbShadowMap.Bind();
                             RendererShadowMap.RenderSceneForLight(l);
                         }
                     }
+
+                    if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
+                    {
+                        RendererShadowMapTerrain.Bind();
+                        foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
+                        {
+                            if (l.Type == LightType.Point)
+                            {
+                                continue;
+                            }
+                            l._fbShadowMap.Bind(false);
+                            RendererShadowMapTerrain.RenderSceneForLight(l);
+                        }
+
+                        if (pointLights.Count > 0)
+                        {
+                            RendererShadowMapTerrainCube.Bind();
+                            foreach(LightObject l in pointLights)
+                            {
+                                l._fbShadowMap.Bind();
+                                RendererShadowMapTerrainCube.RenderSceneForLight(l);
+                            }
+                        }
+                    }
+
                     if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                     {
                         RendererShadowMapInstanced.Bind();
@@ -369,6 +392,7 @@ namespace KWEngine3
                         RendererShadowMapCube.Bind();
                         foreach (LightObject l in pointLights)
                         {
+                            l._fbShadowMap.Bind(false);
                             RendererShadowMapCube.RenderSceneForLight(l);
                         }
 

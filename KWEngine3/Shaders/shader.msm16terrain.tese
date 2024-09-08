@@ -7,8 +7,11 @@ in vec2 vTextureHeightTE[];
 
 uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
-uniform vec4 uTerrainData;
+uniform ivec4 uTerrainData;
 uniform sampler2D uTextureHeightMap;
+
+out float vZ;
+out float vW;
 
 void main()
 {
@@ -47,6 +50,10 @@ void main()
     vec4 positionWorldSpace = uModelMatrix * vec4(p, 1.0);
 
     positionWorldSpace.xyz += normal * height;
+
+    vec4 transformedPosition = uViewProjectionMatrix * positionWorldSpace;
+	vZ = transformedPosition.z;
+	vW = transformedPosition.w;
 
     // ----------------------------------------------------------------------
     // output patch point position in clip space

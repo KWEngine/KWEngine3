@@ -135,31 +135,5 @@ namespace KWEngine3.Renderer
             }
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
         }
-
-        public static void Draw(TerrainObject t)
-        {
-            GeoMesh[] meshes = t._gModel.ModelOriginal.Meshes.Values.ToArray();
-            for (int i = 0; i < meshes.Length; i++)
-            {
-                GeoMesh mesh = meshes[i];
-                GeoMaterial material = t._gModel.Material[i];
-
-                if (material.ColorAlbedo.W == 0)
-                    continue;
-
-                GL.Uniform1(UUseAnimations, 0);
-
-                GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
-                GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X, material.TextureAlbedo.UVTransform.Y, material.ColorAlbedo.W));
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
-                GL.Uniform1(UTextureAlbedo, 0);
-                GL.BindVertexArray(mesh.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                GL.BindVertexArray(0);
-            }
-        }
     }
 }

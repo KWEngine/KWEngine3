@@ -20,29 +20,39 @@ namespace KWEngine3TestProject.Worlds
         {
             KWEngine.LoadModel("Player", "./Models/robotERS.fbx");
 
-            SetCameraPosition(0.0f, 30.0f, 30.0f);
+            SetCameraPosition(0.0f, 50, 50);
             SetCameraFOV(20);
+            
             SetColorAmbient(0.25f, 0.25f, 0.25f);
-
+            /*
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(-25, 25, 25);
             sun.SetFOV(20);
             sun.SetShadowBias(0.00004f);
             sun.SetTarget(0, 0, 0);
-            sun.SetColor(1, 1, 1, 5);
-            sun.SetNearFar(1, 50);
+            sun.SetColor(1, 1, 1, 2.5f);
+            sun.SetNearFar(10, 100);
             sun.Name = "Sun";
             AddLightObject(sun);
+            */
+
+            LightObject plight = new LightObject(LightType.Point, ShadowQuality.Low);
+            plight.SetPosition(0, 5, 0);
+            plight.SetColor(1, 1, 0, 3);
+            plight.SetNearFar(1, 10);
+            AddLightObject(plight);
+            
 
             Player p = new Player();
             //p.SetModel("Player");
             p.Name = "Player";
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
+            p.SetPosition(-5, 0.5f, 0);
+            p.SetOpacity(0.9f);
             AddGameObject(p);
-
-
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 32, 32, 2);
+            /*
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 32, 32, 0);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
@@ -51,6 +61,13 @@ namespace KWEngine3TestProject.Worlds
             t.SetTexture("./Textures/pavement_06_normal.dds", TextureType.Normal);
             t.SetTextureRepeat(4f, 4f);
             AddTerrainObject(t);
+            */
+            KWEngine3TestProject.Classes.Immovable plane = new KWEngine3TestProject.Classes.Immovable();
+            plane.SetScale(16, 1, 16);
+            plane.IsShadowCaster = true;
+            plane.SetPosition(0, -0.5f, 0);
+            plane.SetOpacity(0.9f);
+            AddGameObject(plane);
         }
     }
 }

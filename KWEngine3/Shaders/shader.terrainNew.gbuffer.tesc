@@ -24,22 +24,38 @@ out vec3 vBiTangentTE[];
 uniform vec3 uCamPosition;
 uniform vec3 uCamDirection;
 uniform mat4 uModelMatrix;
-uniform vec4 uTerrainData;
+uniform mat4 uViewProjectionMatrix;
+uniform ivec4 uTerrainData;
 
-int getTLevel(vec3 vPosWS)
+int getTLevel(vec3 dir, float dp)
 {
-    float l = length(vPosWS.xyz - uCamPosition);
-    float delta = (8096.0 * 2.0) / (l * l);
-    int tlevel = int(clamp(delta, 2.0, 16.0)); 
-    tlevel = tlevel - tlevel % 2;
-    return tlevel;
+    dp = step(0, dp); // if dp < 0 => 0, else 1
+    float l = dot(dir, dir) + ((1 - dp) * 32768.0);
+
+    if(l < 512)
+    {
+        return 32;
+    }
+    else if(l < 2048.0)
+    {
+        return 16;
+    }
+    else if(l < 8096.0)
+    {
+        return 8;
+    }
+    else if(l < 32768.0)
+    {
+        return 4;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 void main()
 {
-    
-    // ----------------------------------------------------------------------
-    // pass attributes through
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
     vPositionTE[gl_InvocationID] = vPosition[gl_InvocationID];
     vTextureTE[gl_InvocationID] = vTexture[gl_InvocationID];
@@ -50,37 +66,34 @@ void main()
 
     if (gl_InvocationID == 0)
     {
-        vec4 vPositionWorldSpace = vec4(1);
+        //vPosition[0] => right back
+        //vPosition[1] => left back
+        //vPosition[2] => left front
+        //vPosition[3] => right front
+        vec4 pBack = uModelMatrix * vec4((vPosition[0] + vPosition[1]) * 0.5, 1.0);
+        vec4 pFront = uModelMatrix * vec4((vPosition[2] + vPosition[3]) * 0.5, 1.0);
+        vec4 pLeft = uModelMatrix * vec4((vPosition[1] + vPosition[2]) * 0.5, 1.0);
+        vec4 pRight = uModelMatrix * vec4((vPosition[0] + vPosition[3]) * 0.5, 1.0);
 
-        // left edge:
-        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[1], 1.0);
-        int tessLevelLeft = getTLevel(vPositionWorldSpace.xyz);
-        
-       
-        // right edge:
-        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[1], 1.0);
-        int tessLevelRight = getTLevel(vPositionWorldSpace.xyz);
-        
-        // back edge
-        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[2], 1.0);
-        int tessLevelBack = getTLevel(vPositionWorldSpace.xyz);
+        vec3 camToLeft = pLeft.xyz - uCamPosition;
+        vec3 camToRight = pRight.xyz - uCamPosition;
+        vec3 camToBack = pBack.xyz - uCamPosition;
+        vec3 camToFront = pFront.xyz - uCamPosition;
 
-         // front edge
-        vPositionWorldSpace =  uModelMatrix * vec4(vPositionTE[2], 1.0);
-        int tessLevelFront = getTLevel(vPositionWorldSpace.xyz);
+        float dotCamToLeft  = dot(camToLeft, uCamDirection);
+        float dotCamToRight = dot(camToRight, uCamDirection);
+        float dotCamToBack  = dot(camToBack, uCamDirection);
+        float dotCamToFront = dot(camToFront, uCamDirection);
 
-        int a = int((tessLevelLeft + tessLevelRight) * 0.5);
-        int b = int((tessLevelFront + tessLevelBack) * 0.5);
-        a = a + a % 2;
-        b = b + b % 2;
+        // 1 = no tessellation outer
+        gl_TessLevelOuter[0] = getTLevel(camToRight, dotCamToRight); // right
+        gl_TessLevelOuter[1] = getTLevel(camToBack, dotCamToBack); // back
+        gl_TessLevelOuter[2] = getTLevel(camToLeft, dotCamToLeft); // left
+        gl_TessLevelOuter[3] = getTLevel(camToFront, dotCamToFront); // front
 
-        gl_TessLevelOuter[0] = a;
-        gl_TessLevelOuter[1] = b;
-        gl_TessLevelOuter[2] = a;
-        gl_TessLevelOuter[3] = b;
-
-        gl_TessLevelInner[0] = a; 
-        gl_TessLevelInner[1] = a;
+        // 1 = no tesselation inner
+        gl_TessLevelInner[0] = (gl_TessLevelOuter[0] + gl_TessLevelOuter[2]) * 0.5; // horizontally
+        gl_TessLevelInner[1] = (gl_TessLevelOuter[1] + gl_TessLevelOuter[3]) * 0.5; // vertically
     }
     
 }

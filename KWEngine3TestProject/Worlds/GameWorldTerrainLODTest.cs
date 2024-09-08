@@ -17,14 +17,14 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap.png", 32, 32, 1);
+            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap3.png", 96, 96, 1);
 
             SetCameraFOV(90);
 
             Player p = new Player();
             p.SetOpacity(0);
             p.SetRotation(0, 180, 0);
-            p.SetPosition(0, 2, 10);
+            p.SetPosition(0, 10, 25);
 
             AddGameObject(p);
 

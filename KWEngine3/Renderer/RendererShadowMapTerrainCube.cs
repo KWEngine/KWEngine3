@@ -12,7 +12,7 @@ namespace KWEngine3.Renderer
         public static int ProgramID { get; private set; } = -1;
         public static int UViewProjectionMatrix { get; private set; } = -1;
         public static int UModelMatrix { get; private set; } = -1;
-        public static int UNearFarSun { get; private set; } = -1;
+        public static int UNearFar { get; private set; } = -1;
         public static int UTerrainData { get; private set; } = -1;
         public static int UTextureHeightMap { get; private set; } = -1;
         public static int UCamPosition { get; private set; } = -1;
@@ -62,7 +62,7 @@ namespace KWEngine3.Renderer
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
-                UNearFarSun = GL.GetUniformLocation(ProgramID, "uNearFarSun");
+                UNearFar = GL.GetUniformLocation(ProgramID, "uNearFar");
                 UTerrainData = GL.GetUniformLocation(ProgramID, "uTerrainData");
                 UCamPosition = GL.GetUniformLocation(ProgramID, "uCamPosition");
                 UCamDirection = GL.GetUniformLocation(ProgramID, "uCamDirection");
@@ -79,9 +79,16 @@ namespace KWEngine3.Renderer
             if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
             {
                 GL.Viewport(0, 0, l._shadowMapSize, l._shadowMapSize);
-                Matrix4 vp = l._stateRender._viewProjectionMatrix[0];
-                GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
-                GL.Uniform3(UNearFarSun, new Vector3(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y, l._stateRender._nearFarFOVType.W));
+                for (int i = 0; i < 6; i++)
+                {
+                    Matrix4 vp = l._stateRender._viewProjectionMatrix[i];
+                    GL.UniformMatrix4(UViewProjectionMatrix + i * KWEngine._uniformOffsetMultiplier, false, ref vp);
+                }
+
+                GL.Uniform2(UNearFar, new Vector2(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y));
+                GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
+                GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
+
                 foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
                 {
                     if (t.IsShadowCaster)
@@ -92,17 +99,18 @@ namespace KWEngine3.Renderer
         public static void Draw(TerrainObject t)
         {
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
-            GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
-            GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
+            
             GL.Uniform4(UTerrainData, t.Width, t.Depth, KWEngine.TERRAIN_PATCH_SIZE, t.Height);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, t._heightmap > 0 ? t._heightmap : KWEngine.TextureBlack);
             GL.Uniform1(UTextureHeightMap, 0);
 
+            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.BindVertexArray(KWTerrainQuad.VAO);
             GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (t.Width * t.Depth) / (KWEngine.TERRAIN_PATCH_SIZE * KWEngine.TERRAIN_PATCH_SIZE));
             GL.BindVertexArray(0);
+            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         }
     }
 }
