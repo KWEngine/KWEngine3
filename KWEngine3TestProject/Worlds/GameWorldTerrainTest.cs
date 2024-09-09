@@ -23,8 +23,8 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(0.0f, 50, 50);
             SetCameraFOV(20);
             
-            SetColorAmbient(0.25f, 0.25f, 0.25f);
-            /*
+            SetColorAmbient(1f, 1f, 1f);
+            
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(-25, 25, 25);
             sun.SetFOV(20);
@@ -34,26 +34,26 @@ namespace KWEngine3TestProject.Worlds
             sun.SetNearFar(10, 100);
             sun.Name = "Sun";
             AddLightObject(sun);
-            */
-
+            
+            /*
             LightObject plight = new LightObject(LightType.Point, ShadowQuality.Low);
             plight.SetPosition(0, 5, 0);
             plight.SetColor(1, 1, 0, 3);
             plight.SetNearFar(1, 10);
             AddLightObject(plight);
-            
+            */
 
             Player p = new Player();
             //p.SetModel("Player");
             p.Name = "Player";
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            p.SetPosition(-5, 0.5f, 0);
+            p.SetPosition(0, 0.5f, 0);
             //p.SetOpacity(0.9f);
             AddGameObject(p);
 
             
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 32, 32, 3);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 16, 16, 2);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;

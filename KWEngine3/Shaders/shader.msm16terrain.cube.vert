@@ -15,8 +15,8 @@ void main()
 	int tileCountX = uTerrainData.x / uTerrainData.z;
 	int tileCountZ = uTerrainData.y / uTerrainData.z;
 	float instanceSize = uTerrainData.z;
-	float instanceOffsetX = gl_InstanceID % tileCountX * (instanceSize * 0.5) + instanceSize * 0.25 - uTerrainData.x * 0.25;
-	float instanceOffsetZ = gl_InstanceID / tileCountX * (instanceSize * 0.5) + instanceSize * 0.25 - uTerrainData.y * 0.25;
+	float instanceOffsetX = (gl_InstanceID % tileCountX) * (instanceSize * 1.0) - uTerrainData.x * 0.5 + instanceSize * 0.5; 
+	float instanceOffsetZ = (gl_InstanceID / tileCountX) * (instanceSize * 1.0) - uTerrainData.y * 0.5 + instanceSize * 0.5;
 
 	vec3 offset = vec3(instanceOffsetX, 0.0, instanceOffsetZ);
 	gl_Position = vec4(aPosition + offset, 1.0);

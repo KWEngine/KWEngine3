@@ -85,6 +85,7 @@ namespace KWEngine3.Renderer
             RendererParticle.Init();
             RendererForwardText.Init();
             RendererEditorHitboxes.Init();
+            RendererTerrainCollision.Init();
 
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();

@@ -163,6 +163,9 @@
 		<None Remove="Shaders\shader.octree.vert" />
 		<None Remove="Shaders\shader.terrain.gbuffer.frag" />
 		<None Remove="Shaders\shader.terrain.gbuffer.vert" />
+		<None Remove="Shaders\shader.terrainDebug.frag" />
+		<None Remove="Shaders\shader.terrainDebug.geom" />
+		<None Remove="Shaders\shader.terrainDebug.vert" />
 		<None Remove="Shaders\shader.terrainNew.gbuffer.frag" />
 		<None Remove="Shaders\shader.terrainNew.gbuffer.tesc" />
 		<None Remove="Shaders\shader.terrainNew.gbuffer.tese" />
@@ -360,6 +363,9 @@
 		<EmbeddedResource Include="Shaders\shader.background.skybox.vert" />
 		<EmbeddedResource Include="Shaders\shader.explosion.frag" />
 		<EmbeddedResource Include="Shaders\shader.explosion.vert" />
+		<EmbeddedResource Include="Shaders\shader.terrainDebug.frag" />
+		<EmbeddedResource Include="Shaders\shader.terrainDebug.geom" />
+		<EmbeddedResource Include="Shaders\shader.terrainDebug.vert" />
 		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.frag" />
 		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.tesc" />
 		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.tese" />

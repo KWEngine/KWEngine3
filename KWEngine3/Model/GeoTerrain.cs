@@ -18,7 +18,6 @@ namespace KWEngine3.Model
         private int mWidth = 0;
         private int mDepth = 0;
         private int mHeight;
-        private int mDots = -1;
         private int mSectorSize = -1;
         private float mSectorWidth;
         private float mSectorDepth;
@@ -29,7 +28,7 @@ namespace KWEngine3.Model
         internal int _texG = KWEngine.TextureAlpha;
         internal int _texB = KWEngine.TextureAlpha;
 
-        private Sector[,] mSectorMap;
+        internal Sector[,] mSectorMap;
         private float mCompleteDiameter;
 
         public int GetHeight()
@@ -47,144 +46,6 @@ namespace KWEngine3.Model
             return mDepth;
         }
 
-        /*
-        internal GeoMesh BuildTerrain(string terrainName, string heightMap, int width, int pHeight, int depth)
-        {
-            GeoMesh mmp;
-            try
-            {
-                using (Stream s = File.Open(heightMap, FileMode.Open))
-                {
-                    using (SKBitmap image = SKBitmap.Decode(s))
-                    {
-                        if (image == null || image.Width % 16 != 0 || image.Height % 16 != 0 || image.Width < 16 || image.Height < 16 || image.Height > 1024 || image.Width > 1024)
-                        {
-                            throw new Exception();
-                        }
-                            
-                        mDots = image.Width * image.Height;
-                        mWidth = width;
-                        mDepth = depth;
-                        mHeight = pHeight;
-
-                        float stepWidth = (float)mWidth / (image.Width);
-                        float stepDepth = (float)mDepth / (image.Height);
-                        float trisCountWidth = (mWidth / stepWidth) * 2;
-                        float trisCountDepth = (mDepth / stepDepth) * 2;
-                        int tmpSectorCountWidth = (int)Math.Round(trisCountWidth / 4);
-                        int tmpSectorCountDepth = (int)Math.Round(trisCountDepth / 4);
-                        mSectorSize = Math.Min(tmpSectorCountWidth, tmpSectorCountDepth);
-
-                        mSectorMap = new Sector[mSectorSize, mSectorSize];
-                        for (int i = 0; i < mSectorSize; i++)
-                        {
-                            for (int j = 0; j < mSectorSize; j++)
-                            {
-                                Sector se = new Sector();
-                                se.Left = -mWidth / 2 + i * ((float)mWidth / mSectorSize);
-                                se.Right = -mWidth / 2 + (i + 1) * ((float)mWidth / mSectorSize);
-                                se.Back = -mDepth / 2 + (j + 1) * ((float)mDepth / mSectorSize);
-                                se.Front = -mDepth / 2 + j * ((float)mDepth / mSectorSize);
-                                se.Center = new Vector2((se.Left + se.Right) / 2, (se.Front + se.Back) / 2);
-                                mSectorMap[i, j] = se;
-                            }
-                        }
-                        mSectorWidth = (float)mWidth / mSectorSize;
-                        mSectorDepth = (float)mDepth / mSectorSize;
-
-                        float[,] mHeightMap = new float[image.Width, image.Height];
-                        mCompleteDiameter = MathF.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
-
-
-                        Vector3[] points = new Vector3[mDots];
-                        int c = 0;
-                        for (int i = 0; i < image.Width; i++)
-                        {
-                            for (int j = 0; j < image.Height; j++)
-                            {
-                                SKColor tmpColor = image.GetPixel(i, j);
-                                float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
-                                mHeightMap[i, j] = normalizedRGB;
-
-                                Vector3 tmp = new Vector3(
-                                    i * stepWidth - mWidth / 2,
-                                    mHeight * normalizedRGB,
-                                    -mDepth / 2 + j * stepDepth
-                                    );
-                                points[c] = tmp;
-
-                                //increase 2nd counter:
-                                c++;
-                            }
-                        }
-
-                        mmp = new GeoMesh();
-                        mmp.Name = terrainName;
-
-                        int imageHeight = image.Height;
-                        Vector3 normalT1 = new Vector3(0, 0, 0);
-                        Vector3 normalT2 = new Vector3(0, 0, 0);
-                        for (int i = 0; i < points.Length - imageHeight - 1; i++)
-                        {
-                            if ((i + 1) % imageHeight == 0)
-                            {
-                                continue;
-                            }
-
-                            // Generate Triangle objects:
-                            // ============================ T1 ======================
-                            Vector3 v1 = new Vector3(points[i + imageHeight + 1]);
-                            Vector3 v2 = new Vector3(points[i + imageHeight]);
-                            Vector3 v3 = new Vector3(points[i]);
-                            GeoTerrainTriangle t123 = new GeoTerrainTriangle(v1, v2, v3);
-                            normalT1 = t123.Normal;
-
-                            List<SectorTuple> st123 = GetSectorTuplesForTriangle(t123);
-                            foreach (SectorTuple tuple in st123)
-                            {
-                                mSectorMap[tuple.X, tuple.Y].AddTriangle(t123);
-                            }
-
-                            // ============================ T2 ======================
-                            Vector3 v4 = new Vector3(points[i]);
-                            Vector3 v5 = new Vector3(points[i + 1]);
-                            Vector3 v6 = new Vector3(points[i + imageHeight + 1]);
-                            GeoTerrainTriangle t456 = new GeoTerrainTriangle(v4, v5, v6);
-                            normalT2 = t456.Normal;
-
-                            List<SectorTuple> st456 = GetSectorTuplesForTriangle(t456);
-                            foreach (SectorTuple tuple in st456)
-                            {
-                                mSectorMap[tuple.X, tuple.Y].AddTriangle(t456);
-                            }
-                        }
-                        mmp.Transform = Matrix4.Identity;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                KWEngine.LogWriteLine("[KWEngine] Height map image invalid or its width/height is not a multiple of 16 (range is from 16 - 1024px)");
-                //DeleteOpenGLHeightMap(heightMap);
-                return null;
-            }
-
-            if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
-            {
-                _texHeight = KWEngine.CurrentWorld._customTextures[heightMap];
-            }
-            else
-            {
-                _texHeight = HelperTexture.LoadTextureForModelExternal(heightMap, out int tmpMips);
-                KWEngine.CurrentWorld._customTextures.Add(heightMap, _texHeight);
-            }
-
-            mmp.Primitive = PrimitiveType.Patches;
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
-            return mmp;
-        }
-        */
-
         internal GeoMesh BuildTerrain(string terrainName, string heightMap, int width, int pHeight, int depth)
         {
             GeoMesh mmp;
@@ -199,13 +60,12 @@ namespace KWEngine3.Model
                             throw new Exception();
                         }
 
-                        mDots = image.Width * image.Height;
                         mWidth = width; // terrain width
                         mDepth = depth; // terrain depth
                         mHeight = pHeight;
 
-                        float triangleWidth = 1f;
-                        float triangleDepth = 1f;
+                        float triangleWidth = 0.5f;
+                        float triangleDepth = 0.5f;
                         int sectorLength = 4;
 
                         int startX = -mWidth / 2;
@@ -214,13 +74,13 @@ namespace KWEngine3.Model
                         List<Vector3> vertices = new();
 
                         int sectorCountX = mWidth / sectorLength;
-                        int sectorCountZ = mWidth / sectorLength;
+                        int sectorCountZ = mDepth / sectorLength;
 
                         mSectorMap = new Sector[sectorCountX, sectorCountZ];
 
-                        for (int i = 0; i < mSectorMap.GetLength(0) - 1; i++)
+                        for (int i = 0; i < mSectorMap.GetLength(0); i++)
                         {
-                            for(int j = 0; j < mSectorMap.GetLength(1) - 1; j++)
+                            for(int j = 0; j < mSectorMap.GetLength(1); j++)
                             {
                                 float sectorLeft = startX + i * sectorLength;
                                 float sectorRight = startX + (i + 1) * sectorLength;
@@ -265,49 +125,12 @@ namespace KWEngine3.Model
                                         currentSector.AddTriangle(tri0);
                                         currentSector.AddTriangle(tri1);
                                     }
-                                    
-                                    
-                                    /*float z = i * triangleDepth;
-
-                                    float xScaledToImageSize = HelperGeneral.ScaleToRange(x, 0, mWidth, 0, image.Width);
-                                    float zScaledToImageSize = HelperGeneral.ScaleToRange(z, 0, mDepth, 0, image.Height);
-
-                                    SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
-                                    float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
-                                    Vector3 tmp = new Vector3(
-                                            x,
-                                            mHeight * normalizedRGB,
-                                            z
-                                            );
-                                    vertices.Add(tmp);
-                                    */
+                                   
                                 }
 
                                 mSectorMap[i, j] = currentSector;
                             }
                         }
-
-
-
-
-                        for (int i = 0; i < mWidth / triangleWidth; i++)
-                        {
-                            float x = i * triangleWidth;
-                            float z = i * triangleDepth;
-
-                            float xScaledToImageSize = HelperGeneral.ScaleToRange(x, 0, mWidth, 0, image.Width);
-                            float zScaledToImageSize = HelperGeneral.ScaleToRange(z, 0, mDepth, 0, image.Height);
-
-                            SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
-                            float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
-                            Vector3 tmp = new Vector3(
-                                    x,
-                                    mHeight * normalizedRGB,
-                                    z
-                                    );
-                            vertices.Add(tmp);
-                        }
-
                         mmp = new GeoMesh();
                         mmp.Name = terrainName;
                         mmp.Transform = Matrix4.Identity;
@@ -328,6 +151,10 @@ namespace KWEngine3.Model
             else
             {
                 _texHeight = HelperTexture.LoadTextureForModelExternal(heightMap, out int tmpMips);
+                GL.BindTexture(TextureTarget.Texture2D, _texHeight);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
                 KWEngine.CurrentWorld._customTextures.Add(heightMap, _texHeight);
             }
 
@@ -525,7 +352,7 @@ namespace KWEngine3.Model
         internal static float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image)
         {
             float xScaledToImageSize = HelperGeneral.ScaleToRange(x + terrainWidth / 2, 0, terrainWidth, 0, image.Width);
-            float zScaledToImageSize = HelperGeneral.ScaleToRange(z - terrainDepth / 2, 0, terrainDepth, 0, image.Height);
+            float zScaledToImageSize = HelperGeneral.ScaleToRange(z + terrainDepth / 2, 0, terrainDepth, 0, image.Height);
 
             SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
             float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
