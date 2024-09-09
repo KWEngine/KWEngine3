@@ -39,7 +39,7 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 TurnTowardsXZ(Position + movementVector);
                 MoveAlongVector(movementVector, 0.01f);
             }
-            /*
+            
             RayTerrainIntersectionSet rti = RaytraceTerrainBelowPositionExt(GetOBBBottom(), KWEngine3.RayMode.FourRaysY, 1f);
             if (rti.IsValid)
             {
@@ -61,7 +61,7 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 avg /= NORMALCOUNT;
                 SetRotationToMatchSurfaceNormal(Vector3.Normalize(avg));
             }
-            */
+            
         }
     }
 }

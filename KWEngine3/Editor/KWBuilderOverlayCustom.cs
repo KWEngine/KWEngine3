@@ -642,6 +642,10 @@ namespace KWEngine3.Editor
                 {
                     ImGui.SliderFloat("Shadow bias", ref SelectedLightObject._shadowBias, 0.0f, 0.001f, "%.6f");   
                 }
+                if (SelectedLightObject.ShadowCasterType != ShadowQuality.NoShadow)
+                {
+                    ImGui.SliderFloat("Shadow offset", ref SelectedLightObject._shadowOffset, 0.0f, 0.1f, "%.4f");
+                }
             }
             else if(SelectedTerrainObject != null)
             {

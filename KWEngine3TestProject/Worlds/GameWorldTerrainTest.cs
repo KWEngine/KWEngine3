@@ -53,7 +53,7 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(p);
 
             
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 32, 32, 3);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 32, 32, 3);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;

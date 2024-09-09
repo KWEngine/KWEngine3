@@ -17,9 +17,10 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap3.png", 96, 96, 1);
+            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap3.png", 96, 96, 3);
 
             SetCameraFOV(90);
+            SetColorAmbient(0.5f, 0.5f, 0.5f);
 
             Player p = new Player();
             p.SetOpacity(0);
@@ -41,10 +42,20 @@ namespace KWEngine3TestProject.Worlds
             TerrainObject t = new TerrainObject("KarauTest");
             t.SetTexture("./Textures/iron_panel_albedo.dds");
             t.SetTexture("./Textures/iron_panel_normal.dds", TextureType.Normal);
-            t.SetTextureRepeat(2, 2);
+            t.SetTextureRepeat(4, 4);
             t.IsShadowCaster = true;
             t.IsCollisionObject = true;
             AddTerrainObject(t);
+
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            sun.SetPosition(-25, 25, 25);
+            sun.SetFOV(20);
+            sun.SetShadowBias(0.00004f);
+            sun.SetTarget(0, 0, 0);
+            sun.SetColor(1, 1, 1, 2f);
+            sun.SetNearFar(10, 100);
+            sun.Name = "Sun";
+            AddLightObject(sun);
         }
     }
 }

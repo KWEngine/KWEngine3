@@ -251,6 +251,21 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Skaliert einen Wert dahingehend, dass er in den durch lowerBound und upperBound angegebenen Bereich passt
+        /// </summary>
+        /// <param name="inputValue">zu skalierender Wert</param>
+        /// <param name="inputLow">Minimalwert des nicht-skalierten Werts</param>
+        /// <param name="inputHigh">Maximalwert des nicht-skalierten Werts</param>
+        /// <param name="outputLow">Minimalwert des Ausgabewertebereichs</param>
+        /// <param name="outputHigh">Maximalwert des Ausgabewertebereichs</param>
+        /// <returns>skalierter Wert</returns>
+        public static float ScaleToRange(float inputValue, float inputLow, float inputHigh, float outputLow, float outputHigh)
+        {
+            float val = (outputHigh - outputLow) * ((inputValue - inputLow) / (inputHigh - inputLow)) + outputLow;
+            return val;
+        }
+
+        /// <summary>
         /// Beschneidet Werte
         /// </summary>
         /// <param name="v">Wert</param>

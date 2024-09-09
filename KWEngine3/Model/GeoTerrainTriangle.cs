@@ -44,6 +44,10 @@ namespace KWEngine3.Model
             return y;
         }
 
+        public override string ToString()
+        {
+            return v1.ToString() + "][" + v2.ToString() + "][" + v3.ToString();
+        }
         public GeoTerrainTriangle(Vector3 a, Vector3 b, Vector3 c)
         {
             Normals = new Vector3[3];

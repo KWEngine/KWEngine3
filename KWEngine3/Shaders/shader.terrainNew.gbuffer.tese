@@ -24,15 +24,7 @@ void main()
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
  
-    vec2 t00 = vTextureTE[0];
-    vec2 t01 = vTextureTE[1];
-    vec2 t02 = vTextureTE[2];
-    vec2 t03 = vTextureTE[3];
-
-    vec2 t =    t00 * (1.0 - u) * (1.0 - v) +
-                t01 * u * (1.0 - v) + 
-                t03 * v * (1.0 - u) +
-                t02 * u * v;
+    
 
     vec2 th00 = vTextureHeightTE[0];
     vec2 th01 = vTextureHeightTE[1];
@@ -43,7 +35,6 @@ void main()
                 th01 * u * (1.0 - v) + 
                 th03 * v * (1.0 - u) +
                 th02 * u * v;
-
 
     float height = texture(uTextureHeightMap, th).r * uTerrainData.w;
 
@@ -76,10 +67,22 @@ void main()
     vec3 bitangent = vBiTangentTE[0] - normalLighting * dot( vBiTangentTE[0], normalLighting ); // orthonormalization of the binormal vectors to the normal vector 
     bitangent = bitangent - tangent * dot( bitangent, tangent ); // orthonormalization of the binormal vectors to the tangent vector
     
+    vec2 t00 = vTextureTE[0];
+    vec2 t01 = vTextureTE[1];
+    vec2 t02 = vTextureTE[2];
+    vec2 t03 = vTextureTE[3];
 
+    vec2 t =    t00 * (1.0 - u) * (1.0 - v) +
+                t01 * u * (1.0 - v) + 
+                t03 * v * (1.0 - u) +
+                t02 * u * v;
+
+    
+    float tSpeedUp = 1.0 / max(0.001, abs(dot(normalLighting, vec3(0, 1, 0))));
+    t *= tSpeedUp;
 
     // ----------------------------------------------------------------------
-    // output patch point position in clip space
+
     gl_Position = uViewProjectionMatrix * positionWorldSpace;
     vTexture = t;
     vNormal = normalize((uNormalMatrix * vec4(normalLighting, 0.0)).xyz);

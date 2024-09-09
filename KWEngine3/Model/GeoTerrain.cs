@@ -47,42 +47,28 @@ namespace KWEngine3.Model
             return mDepth;
         }
 
+        /*
         internal GeoMesh BuildTerrain(string terrainName, string heightMap, int width, int pHeight, int depth)
         {
             GeoMesh mmp;
-            if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
-            {
-                _texHeight = KWEngine.CurrentWorld._customTextures[heightMap];
-            }
-            else
-            {
-                _texHeight = HelperTexture.LoadTextureForModelExternal(heightMap, out int tmpMips);
-                KWEngine.CurrentWorld._customTextures.Add(heightMap, _texHeight);
-            }
-
             try
             {
                 using (Stream s = File.Open(heightMap, FileMode.Open))
                 {
                     using (SKBitmap image = SKBitmap.Decode(s))
                     {
-                        if (image == null)
-                            return null;
-
+                        if (image == null || image.Width % 16 != 0 || image.Height % 16 != 0 || image.Width < 16 || image.Height < 16 || image.Height > 1024 || image.Width > 1024)
+                        {
+                            throw new Exception();
+                        }
+                            
                         mDots = image.Width * image.Height;
                         mWidth = width;
                         mDepth = depth;
                         mHeight = pHeight;
 
-                        if (image.Width < 4 || image.Height < 4 || image.Height > 4096 || image.Width > 4096)
-                        {
-                            KWEngine.LogWriteLine("[KWEngine] Height map too small or too big (must be between 4px and 4096px)");
-                            DeleteOpenGLHeightMap(heightMap);
-                            return null;
-                        }
-
-                        float stepWidth = (float)mWidth / (image.Width - 1);
-                        float stepDepth = (float)mDepth / (image.Height - 1);
+                        float stepWidth = (float)mWidth / (image.Width);
+                        float stepDepth = (float)mDepth / (image.Height);
                         float trisCountWidth = (mWidth / stepWidth) * 2;
                         float trisCountDepth = (mDepth / stepDepth) * 2;
                         int tmpSectorCountWidth = (int)Math.Round(trisCountWidth / 4);
@@ -178,15 +164,177 @@ namespace KWEngine3.Model
             }
             catch (Exception)
             {
-                KWEngine.LogWriteLine("[KWEngine] Terrain source material invalid");
-                DeleteOpenGLHeightMap(heightMap);
+                KWEngine.LogWriteLine("[KWEngine] Height map image invalid or its width/height is not a multiple of 16 (range is from 16 - 1024px)");
+                //DeleteOpenGLHeightMap(heightMap);
                 return null;
             }
+
+            if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
+            {
+                _texHeight = KWEngine.CurrentWorld._customTextures[heightMap];
+            }
+            else
+            {
+                _texHeight = HelperTexture.LoadTextureForModelExternal(heightMap, out int tmpMips);
+                KWEngine.CurrentWorld._customTextures.Add(heightMap, _texHeight);
+            }
+
             mmp.Primitive = PrimitiveType.Patches;
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
             return mmp;
         }
+        */
 
+        internal GeoMesh BuildTerrain(string terrainName, string heightMap, int width, int pHeight, int depth)
+        {
+            GeoMesh mmp;
+            try
+            {
+                using (Stream s = File.Open(heightMap, FileMode.Open))
+                {
+                    using (SKBitmap image = SKBitmap.Decode(s))
+                    {
+                        if (image == null || image.Width % 16 != 0 || image.Height % 16 != 0 || image.Width < 16 || image.Height < 16 || image.Height > 1024 || image.Width > 1024)
+                        {
+                            throw new Exception();
+                        }
+
+                        mDots = image.Width * image.Height;
+                        mWidth = width; // terrain width
+                        mDepth = depth; // terrain depth
+                        mHeight = pHeight;
+
+                        float triangleWidth = 1f;
+                        float triangleDepth = 1f;
+                        int sectorLength = 4;
+
+                        int startX = -mWidth / 2;
+                        int startZ = mDepth / 2;
+
+                        List<Vector3> vertices = new();
+
+                        int sectorCountX = mWidth / sectorLength;
+                        int sectorCountZ = mWidth / sectorLength;
+
+                        mSectorMap = new Sector[sectorCountX, sectorCountZ];
+
+                        for (int i = 0; i < mSectorMap.GetLength(0) - 1; i++)
+                        {
+                            for(int j = 0; j < mSectorMap.GetLength(1) - 1; j++)
+                            {
+                                float sectorLeft = startX + i * sectorLength;
+                                float sectorRight = startX + (i + 1) * sectorLength;
+                                float sectorBack = startZ - (j + 1) * sectorLength;
+                                float sectorFront = startZ - j * sectorLength;
+
+                                Sector currentSector = new Sector(
+                                    sectorLeft,
+                                    sectorRight,
+                                    sectorBack,
+                                    sectorFront
+                                    );
+
+
+                                // generate triangles for this sector:
+                                float h = 0;
+                                for (float x = sectorLeft; x < sectorRight; x += triangleWidth)
+                                {
+                                    for(float z = sectorBack; z < sectorFront; z += triangleDepth)
+                                    {
+                                        h = GetHeightForVertex(x + triangleWidth, z, mWidth, mDepth, mHeight, image);
+                                        Vector3 t0 = new Vector3(x + triangleWidth, h, z);                  // right back
+
+                                        h = GetHeightForVertex(x, z, mWidth, mDepth, mHeight, image);
+                                        Vector3 t1 = new Vector3(x, h, z);                                  // left back
+
+                                        h = GetHeightForVertex(x, z + triangleDepth, mWidth, mDepth, mHeight, image);
+                                        Vector3 t2 = new Vector3(x, h, z + triangleDepth);                  // left front
+
+
+                                        h = GetHeightForVertex(x, z + triangleDepth, mWidth, mDepth, mHeight, image);
+                                        Vector3 t3 = new Vector3(x, h, z + triangleDepth);                  // left front
+
+                                        h = GetHeightForVertex(x + triangleWidth, z + triangleDepth, mWidth, mDepth, mHeight, image);
+                                        Vector3 t4 = new Vector3(x + triangleWidth, h, z + triangleDepth);  // right front
+
+                                        h = GetHeightForVertex(x + triangleWidth, z, mWidth, mDepth, mHeight, image);
+                                        Vector3 t5 = new Vector3(x + triangleWidth, h, z);                  // right back
+
+                                        GeoTerrainTriangle tri0 = new GeoTerrainTriangle(t0, t1, t2);
+                                        GeoTerrainTriangle tri1 = new GeoTerrainTriangle(t3, t4, t5);
+                                        currentSector.AddTriangle(tri0);
+                                        currentSector.AddTriangle(tri1);
+                                    }
+                                    
+                                    
+                                    /*float z = i * triangleDepth;
+
+                                    float xScaledToImageSize = HelperGeneral.ScaleToRange(x, 0, mWidth, 0, image.Width);
+                                    float zScaledToImageSize = HelperGeneral.ScaleToRange(z, 0, mDepth, 0, image.Height);
+
+                                    SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
+                                    float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
+                                    Vector3 tmp = new Vector3(
+                                            x,
+                                            mHeight * normalizedRGB,
+                                            z
+                                            );
+                                    vertices.Add(tmp);
+                                    */
+                                }
+
+                                mSectorMap[i, j] = currentSector;
+                            }
+                        }
+
+
+
+
+                        for (int i = 0; i < mWidth / triangleWidth; i++)
+                        {
+                            float x = i * triangleWidth;
+                            float z = i * triangleDepth;
+
+                            float xScaledToImageSize = HelperGeneral.ScaleToRange(x, 0, mWidth, 0, image.Width);
+                            float zScaledToImageSize = HelperGeneral.ScaleToRange(z, 0, mDepth, 0, image.Height);
+
+                            SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
+                            float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
+                            Vector3 tmp = new Vector3(
+                                    x,
+                                    mHeight * normalizedRGB,
+                                    z
+                                    );
+                            vertices.Add(tmp);
+                        }
+
+                        mmp = new GeoMesh();
+                        mmp.Name = terrainName;
+                        mmp.Transform = Matrix4.Identity;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                KWEngine.LogWriteLine("[KWEngine] Height map image invalid or its width/height is not a multiple of 16 (range is from 16 - 1024px)");
+                //DeleteOpenGLHeightMap(heightMap);
+                return null;
+            }
+
+            if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
+            {
+                _texHeight = KWEngine.CurrentWorld._customTextures[heightMap];
+            }
+            else
+            {
+                _texHeight = HelperTexture.LoadTextureForModelExternal(heightMap, out int tmpMips);
+                KWEngine.CurrentWorld._customTextures.Add(heightMap, _texHeight);
+            }
+
+            mmp.Primitive = PrimitiveType.Patches;
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
+            return mmp;
+        }
         private List<SectorTuple> GetSectorTuplesForTriangle(GeoTerrainTriangle t)
         {
             List<SectorTuple> indices = new List<SectorTuple>();
@@ -372,6 +520,17 @@ namespace KWEngine3.Model
             {
                 KWEngine.CurrentWorld._customTextures.Remove(entry);
             }
+        }
+
+        internal static float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image)
+        {
+            float xScaledToImageSize = HelperGeneral.ScaleToRange(x + terrainWidth / 2, 0, terrainWidth, 0, image.Width);
+            float zScaledToImageSize = HelperGeneral.ScaleToRange(z - terrainDepth / 2, 0, terrainDepth, 0, image.Height);
+
+            SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
+            float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
+
+            return normalizedRGB * terrainHeight;
         }
     }
 }
