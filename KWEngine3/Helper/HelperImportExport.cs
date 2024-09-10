@@ -184,8 +184,7 @@ namespace KWEngine3.Helper
             {
                 if(!usedterrainNames.Contains(st.ModelName))
                 {
-                    //KWEngine.BuildTerrainModel(st.ModelName, st.ModelPath, st.TextureAlbedo, st.Width, st.Height, st.Depth);
-                    throw new EngineException("Not implemented yet.");
+                    KWEngine.BuildTerrainModel(st.ModelName, st.ModelPath, st.Width, st.Depth, st.Height);
                     usedterrainNames.Add(st.ModelName);
                 }
             }
@@ -331,8 +330,7 @@ namespace KWEngine3.Helper
 
         private static TerrainObject BuildTerrainObject(SerializedTerrainObject st)
         {
-            throw new EngineException("Not implemented yet.");
-            /*TerrainObject t = new TerrainObject(st.ModelName);
+            TerrainObject t = new TerrainObject(st.ModelName);
             t._idFromImport = st.ID;
             t.Name = st.Name;
             t.IsShadowCaster = st.IsShadowCaster;
@@ -368,7 +366,6 @@ namespace KWEngine3.Helper
             }
 
             return t;
-            */
         }
 
         private static LightObject BuildLightObject(SerializedLightObject sl)

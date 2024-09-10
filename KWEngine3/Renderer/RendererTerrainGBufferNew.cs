@@ -154,13 +154,12 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UTerrainData, t.Width, t.Depth, KWEngine.TERRAIN_PATCH_SIZE, t.Height);
             UploadTextures(ref material, t);
 
-            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.BindVertexArray(KWTerrainQuad.VAO);
             GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (t.Width * t.Depth) / (KWEngine.TERRAIN_PATCH_SIZE * KWEngine.TERRAIN_PATCH_SIZE));
             GL.BindVertexArray(0);
-            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         }
-
         private static void UploadTextures(ref GeoMaterial material, TerrainObject t)
         {
             // Albedo

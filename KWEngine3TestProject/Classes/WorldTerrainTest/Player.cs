@@ -40,7 +40,7 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 MoveAlongVector(movementVector, 0.01f);
             }
             
-            RayTerrainIntersectionSet rti = RaytraceTerrainBelowPositionExt(GetOBBBottom(), KWEngine3.RayMode.SingleY, 1f);
+            RayTerrainIntersectionSet rti = RaytraceTerrainBelowPositionExt(GetOBBBottom(), KWEngine3.RayMode.FourRaysY, 1f);
             if (rti.IsValid)
             {
                 //Console.WriteLine(rti.IntersectionPointAvg.Y);

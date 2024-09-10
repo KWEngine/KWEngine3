@@ -22,7 +22,7 @@ namespace KWEngine3.Model
         internal int _texHeight = -1;
         internal Sector[,] mSectorMap;
         private float mCompleteDiameter;
-        private string _heightMapName;
+        internal string _heightMapName;
 
         public int GetHeight()
         {

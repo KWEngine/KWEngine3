@@ -24,8 +24,6 @@ void main()
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
  
-    
-
     vec2 th00 = vTextureHeightTE[0];
     vec2 th01 = vTextureHeightTE[1];
     vec2 th02 = vTextureHeightTE[2];
@@ -78,8 +76,8 @@ void main()
                 t02 * u * v;
 
     
-    float tSpeedUp = 1.0 / max(0.001, abs(dot(normalLighting, vec3(0, 1, 0))));
-    t *= tSpeedUp;
+    //float tSpeedUp = 1.0 / max(0.001, abs(dot(normalLighting, vec3(0, 1, 0))));
+    //t *= tSpeedUp;
 
     // ----------------------------------------------------------------------
 

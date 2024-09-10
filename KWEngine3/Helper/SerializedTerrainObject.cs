@@ -16,9 +16,9 @@ namespace KWEngine3.Helper
         public bool IsVisible { get; set; } = true;
         public string ModelName { get; set; }
         public string ModelPath { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public float Depth { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Depth { get; set; }
         public float[] Position { get; set; }
         public float[] Color { get; set; }
         public float[] ColorEmissive { get; set; }
@@ -45,7 +45,7 @@ namespace KWEngine3.Helper
             st.IsVisible = t.IsVisible;
             st.Name = t.Name;
             st.ModelName = t._gModel.ModelOriginal.Name;
-            st.ModelPath = t._gModel.ModelOriginal.Filename;
+            st.ModelPath = t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain._heightMapName;
             st.Width = t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetWidth();
             st.Height = t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetHeight();
             st.Depth = t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetDepth();

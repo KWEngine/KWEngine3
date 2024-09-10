@@ -18,6 +18,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            /*
             KWEngine.LoadModel("Player", "./Models/robotERS.fbx");
 
             SetCameraPosition(0.0f, 100, 100);
@@ -35,13 +36,13 @@ namespace KWEngine3TestProject.Worlds
             sun.Name = "Sun";
             AddLightObject(sun);
            
-            /*
+            
             LightObject plight = new LightObject(LightType.Point, ShadowQuality.Low);
             plight.SetPosition(0, 5, 0);
             plight.SetColor(1, 1, 0, 3);
             plight.SetNearFar(1, 10);
             AddLightObject(plight);
-            */
+            
 
             Player p = new Player();
             //p.SetModel("Player");
@@ -53,7 +54,7 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(p);
 
             
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 32, 32, 2);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 32, 32, 5);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
@@ -61,22 +62,10 @@ namespace KWEngine3TestProject.Worlds
             //t.SetTexture("./Textures/pavement_06_roughness.dds", TextureType.Roughness);
             t.SetTexture("./Textures/iron_panel_normal.dds", TextureType.Normal);
             t.SetTextureRepeat(4f, 4f);
-            t.SetPosition(2, 0, 0);
+            t.SetPosition(0, 0, 0);
             AddTerrainObject(t);
-            
-
-            /*
-            KWEngine3TestProject.Classes.Immovable plane = new KWEngine3TestProject.Classes.Immovable();
-            plane.SetScale(32, 1, 32);
-            plane.IsShadowCaster = true;
-            plane.SetPosition(0, -0.5f, 0);
-            plane.SetTexture("./Textures/iron_panel_albedo.dds");
-            //plane.SetTexture("./Textures/pavement_06_roughness.dds", TextureType.Roughness);
-            plane.SetTexture("./Textures/iron_panel_normal.dds", TextureType.Normal);
-            plane.SetTextureRepeat(4f, 4f);
-            //plane.SetOpacity(1);
-            AddGameObject(plane);
             */
+            LoadJSON("./Worlds/test.json");
         }
     }
 }

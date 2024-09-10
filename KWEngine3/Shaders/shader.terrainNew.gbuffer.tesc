@@ -29,8 +29,8 @@ uniform ivec4 uTerrainData;
 
 int getTLevel(vec3 dir, float dp)
 {
-    //dp = step(0, dp); // if dp < 0 => 0, else 1
-    float l = dot(dir, dir); // + ((1 - dp) * 32768.0);
+    dp = step(0, dp); // if dp < 0 => 0, else 1
+    float l = dot(dir, dir) + ((1 - dp) * 32768.0);
 
     if(l < 1024.0)
     {
@@ -85,11 +85,13 @@ void main()
         float dotCamToBack  = dot(camToBack, uCamDirection);
         float dotCamToFront = dot(camToFront, uCamDirection);
 
+        float dp = max(max(max(dotCamToLeft, dotCamToRight), dotCamToBack), dotCamToFront);
+
         // 1 = no tessellation outer
-        gl_TessLevelOuter[0] = getTLevel(camToRight, dotCamToRight); // right
-        gl_TessLevelOuter[1] = getTLevel(camToBack, dotCamToBack); // back
-        gl_TessLevelOuter[2] = getTLevel(camToLeft, dotCamToLeft); // left
-        gl_TessLevelOuter[3] = getTLevel(camToFront, dotCamToFront); // front
+        gl_TessLevelOuter[0] = getTLevel(camToRight, dp); // right
+        gl_TessLevelOuter[1] = getTLevel(camToBack, dp); // back
+        gl_TessLevelOuter[2] = getTLevel(camToLeft, dp); // left
+        gl_TessLevelOuter[3] = getTLevel(camToFront, dp); // front
 
         // 1 = no tesselation inner
         gl_TessLevelInner[0] = (gl_TessLevelOuter[0] + gl_TessLevelOuter[2]) * 0.5; // horizontally

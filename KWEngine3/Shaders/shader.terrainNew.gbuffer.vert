@@ -18,8 +18,8 @@ out vec3 vBiTangent;
 
 void main()
 {
-	int tileCountX = uTerrainData.x / uTerrainData.z; // 32 / 16 = 2
-	int tileCountZ = uTerrainData.y / uTerrainData.z; // 32 / 16 = 2
+	int tileCountX = uTerrainData.x / uTerrainData.z;
+	int tileCountZ = uTerrainData.y / uTerrainData.z;
 	float instanceSize = uTerrainData.z;
 
 	float instanceOffsetX = (gl_InstanceID % tileCountX) * (instanceSize * 1.0) - uTerrainData.x * 0.5 + instanceSize * 0.5; 
@@ -32,7 +32,20 @@ void main()
 	vTangent = aTangent;
 	vBiTangent = aBiTangent;
 
-	float texX = aTexture.x / tileCountX + gl_InstanceID * (1.0 / tileCountX);
+	//           0          / 2          + (0             * (1   / 2)) = 0.0
+	//           1          / 2          + (0             * (1   / 2)) = 0.5
+	//           0          / 2          + (1             * (1   / 2)) = 0.5
+	//           1          / 2          + (1             * (1   / 2)) = 1.0 ok
+	float texX = aTexture.x / tileCountX + (gl_InstanceID * (1.0 / tileCountX));
+
+	//           0          / 2          + (0             / 2)          * (1   / 2)           = 0.0
+	//           1          / 2          + (0             / 2)          * (1   / 2)           = 0.5
+	//           0          / 2          + (1             / 2)          * (1   / 2)           = 0.0
+	//           1          / 2          + (1             / 2)          * (1   / 2)           = 0.5 ok
+	//           0          / 2          + (2             / 2)          * (1   / 2)           = 0.5
+	//           1          / 2          + (2             / 2)          * (1   / 2)           = 1.0
+	//           0          / 2          + (3             / 2)          * (1   / 2)           = 0.5
+	//           1          / 2          + (3             / 2)          * (1   / 2)           = 1.0 ok
 	float texZ = aTexture.y / tileCountZ + (gl_InstanceID / tileCountX) * (1.0 / tileCountZ);
 	vTexture = vec2(
 		(texX + uTextureTransform.z) * uTextureTransform.x,

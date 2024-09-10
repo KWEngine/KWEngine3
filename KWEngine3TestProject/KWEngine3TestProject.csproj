@@ -1408,6 +1408,9 @@
     <None Update="Worlds\GameWorldPlaneMTVTest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Worlds\test.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties models_4gltftest_4sword_1gltf__JsonSchema="https://deta.space/assets/spacefile.schema.json" /></VisualStudio></ProjectExtensions>
