@@ -1,12 +1,5 @@
-﻿//using KWEngine2.Collision;
-using KWEngine3.Model;
+﻿using KWEngine3.Model;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine3.Helper
 {

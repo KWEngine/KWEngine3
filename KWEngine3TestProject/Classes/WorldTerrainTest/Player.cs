@@ -40,15 +40,20 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 MoveAlongVector(movementVector, 0.01f);
             }
             
-            RayTerrainIntersectionSet rti = RaytraceTerrainBelowPositionExt(GetOBBBottom(), KWEngine3.RayMode.FourRaysY, 1f);
+            RayTerrainIntersectionSet rti = RaytraceTerrainBelowPositionExt(GetOBBBottom(), KWEngine3.RayMode.SingleY, 1f);
             if (rti.IsValid)
             {
+                //Console.WriteLine(rti.IntersectionPointAvg.Y);
                 SetPositionY(rti.IntersectionPointAvg.Y, KWEngine3.PositionMode.BottomOfAABBHitbox);
                 if(_surfaceNormals.Count >= NORMALCOUNT)
                 {
                     _surfaceNormals.RemoveAt(0); 
                 }
                 _surfaceNormals.Add(rti.SurfaceNormalAvg);
+            }
+            else
+            {
+                //Console.WriteLine("no ray collision detected");
             }
 
             if(_surfaceNormals.Count == NORMALCOUNT)

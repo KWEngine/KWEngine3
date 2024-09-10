@@ -370,10 +370,10 @@ namespace KWEngine3.GameObjects
                         GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
                         if (tris.HasValue)
                         {
-                            bool hit = HelperIntersection.RayTriangleIntersection(ray, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                            bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
                             if (hit)
                             {
-                                float distance = (ray - offset - contactPoint).LengthFast;
+                                float distance = (untranslatedPosition - offset - contactPoint).LengthFast;
 
                                 contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
                                 distanceAvg += distance;

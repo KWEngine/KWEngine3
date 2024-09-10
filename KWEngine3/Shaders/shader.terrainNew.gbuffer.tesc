@@ -29,18 +29,18 @@ uniform ivec4 uTerrainData;
 
 int getTLevel(vec3 dir, float dp)
 {
-    dp = step(0, dp); // if dp < 0 => 0, else 1
-    float l = dot(dir, dir) + ((1 - dp) * 32768.0);
+    //dp = step(0, dp); // if dp < 0 => 0, else 1
+    float l = dot(dir, dir); // + ((1 - dp) * 32768.0);
 
-    if(l < 512)
+    if(l < 1024.0)
     {
         return 32;
     }
-    else if(l < 2048.0)
+    else if(l < 4096.0)
     {
         return 16;
     }
-    else if(l < 8096.0)
+    else if(l < 8096.0 * 2)
     {
         return 8;
     }

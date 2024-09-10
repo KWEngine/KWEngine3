@@ -20,10 +20,10 @@ namespace KWEngine3TestProject.Worlds
         {
             KWEngine.LoadModel("Player", "./Models/robotERS.fbx");
 
-            SetCameraPosition(0.0f, 50, 50);
+            SetCameraPosition(0.0f, 100, 100);
             SetCameraFOV(20);
             
-            SetColorAmbient(1f, 1f, 1f);
+            SetColorAmbient(0.5f, 0.5f, 0.5f);
             
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(-25, 25, 25);
@@ -34,7 +34,7 @@ namespace KWEngine3TestProject.Worlds
             sun.SetNearFar(10, 100);
             sun.Name = "Sun";
             AddLightObject(sun);
-            
+           
             /*
             LightObject plight = new LightObject(LightType.Point, ShadowQuality.Low);
             plight.SetPosition(0, 5, 0);
@@ -48,12 +48,12 @@ namespace KWEngine3TestProject.Worlds
             p.Name = "Player";
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            p.SetPosition(0, 0.5f, 0);
+            p.SetPosition(1, 0.5f, 1);
             //p.SetOpacity(0.9f);
             AddGameObject(p);
 
             
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 16, 16, 2);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 32, 32, 2);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
@@ -61,6 +61,7 @@ namespace KWEngine3TestProject.Worlds
             //t.SetTexture("./Textures/pavement_06_roughness.dds", TextureType.Roughness);
             t.SetTexture("./Textures/iron_panel_normal.dds", TextureType.Normal);
             t.SetTextureRepeat(4f, 4f);
+            t.SetPosition(2, 0, 0);
             AddTerrainObject(t);
             
 

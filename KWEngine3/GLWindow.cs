@@ -471,12 +471,14 @@ namespace KWEngine3
             GL.Disable(EnableCap.DepthTest);
 
             // Terrain collision patch debug pass:
+            /*
             RendererTerrainCollision.Bind();
             RendererTerrainCollision.SetGlobals();
             foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
             {
                 RendererTerrainCollision.Draw(t);
             }
+            */
 
             // HUD objects pass:
             RendererHUD.Bind();

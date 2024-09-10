@@ -17,19 +17,12 @@ namespace KWEngine3.Model
 
         private int mWidth = 0;
         private int mDepth = 0;
-        private int mHeight;
-        private int mSectorSize = -1;
-        private float mSectorWidth;
-        private float mSectorDepth;
+        private int mHeight = 0;
+        private int mSectorSize = 2;
         internal int _texHeight = -1;
-
-        internal int _texBlend = KWEngine.TextureBlack;
-        internal int _texR = KWEngine.TextureAlpha;
-        internal int _texG = KWEngine.TextureAlpha;
-        internal int _texB = KWEngine.TextureAlpha;
-
         internal Sector[,] mSectorMap;
         private float mCompleteDiameter;
+        private string _heightMapName;
 
         public int GetHeight()
         {
@@ -66,10 +59,12 @@ namespace KWEngine3.Model
 
                         float triangleWidth = 0.5f;
                         float triangleDepth = 0.5f;
-                        int sectorLength = 4;
+                        int sectorLength = 2;
 
                         int startX = -mWidth / 2;
-                        int startZ = mDepth / 2;
+                        int startZ = -mDepth / 2;
+
+                        mCompleteDiameter = MathF.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
 
                         List<Vector3> vertices = new();
 
@@ -84,8 +79,8 @@ namespace KWEngine3.Model
                             {
                                 float sectorLeft = startX + i * sectorLength;
                                 float sectorRight = startX + (i + 1) * sectorLength;
-                                float sectorBack = startZ - (j + 1) * sectorLength;
-                                float sectorFront = startZ - j * sectorLength;
+                                float sectorFront = startZ + (j + 1) * sectorLength;
+                                float sectorBack = startZ + j * sectorLength;
 
                                 Sector currentSector = new Sector(
                                     sectorLeft,
@@ -143,7 +138,7 @@ namespace KWEngine3.Model
                 //DeleteOpenGLHeightMap(heightMap);
                 return null;
             }
-
+            _heightMapName = heightMap;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
             {
                 _texHeight = KWEngine.CurrentWorld._customTextures[heightMap];
@@ -159,9 +154,9 @@ namespace KWEngine3.Model
             }
 
             mmp.Primitive = PrimitiveType.Patches;
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
             return mmp;
         }
+        /*
         private List<SectorTuple> GetSectorTuplesForTriangle(GeoTerrainTriangle t)
         {
             List<SectorTuple> indices = new List<SectorTuple>();
@@ -202,17 +197,15 @@ namespace KWEngine3.Model
             }
             return indices;
         }
+        */
 
         public Sector GetSectorForUntranslatedPosition(Vector3 position)
         {
-            float dividerWidth = mWidth / mSectorSize;
-            float dividerDepth = mDepth / mSectorSize;
-
             float tmpF;
             tmpF = position.X + (mWidth / 2);
-            int tmpIndexX = Math.Min((int)(tmpF / dividerWidth), mSectorMap.GetLength(0) - 1);
+            int tmpIndexX = Math.Min((int)(tmpF * 0.5f), mSectorMap.GetLength(0) - 1);
             tmpF = position.Z + (mDepth / 2);
-            int tmpIndexZ = Math.Min((int)(tmpF / dividerDepth), mSectorMap.GetLength(1) - 1);
+            int tmpIndexZ = Math.Min((int)(tmpF * 0.5f), mSectorMap.GetLength(1) - 1);
 
             if (tmpIndexX < 0 || tmpIndexX >= mSectorMap.GetLength(0)
                 || tmpIndexZ < 0 || tmpIndexZ >= mSectorMap.GetLength(1))
@@ -221,6 +214,7 @@ namespace KWEngine3.Model
             return mSectorMap[tmpIndexX, tmpIndexZ];
         }
 
+        /*
         private void GenerateFaceVertices(
             List<Vector3> pointList,
             SideFaceType sideFaceType,
@@ -322,6 +316,7 @@ namespace KWEngine3.Model
             }
             indexCounter += (uint)pointList.Count * 2;
         }
+        */
 
         internal void Dispose()
         {
@@ -333,6 +328,7 @@ namespace KWEngine3.Model
                 }
             }
             mSectorMap = null;
+            DeleteOpenGLHeightMap(_heightMapName);
         }
 
         internal void DeleteOpenGLHeightMap(string entry)
@@ -351,8 +347,10 @@ namespace KWEngine3.Model
 
         internal static float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image)
         {
-            float xScaledToImageSize = HelperGeneral.ScaleToRange(x + terrainWidth / 2, 0, terrainWidth, 0, image.Width);
-            float zScaledToImageSize = HelperGeneral.ScaleToRange(z + terrainDepth / 2, 0, terrainDepth, 0, image.Height);
+            float xScaledToImageSize = HelperGeneral.ScaleToRange(x + terrainWidth / 2, 0, terrainWidth, 0, image.Width - 1);
+            float zScaledToImageSize = HelperGeneral.ScaleToRange(z + terrainDepth / 2, 0, terrainDepth, 0, image.Height - 1);
+
+            //Console.WriteLine((int)xScaledToImageSize + "||" + (int)zScaledToImageSize);
 
             SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
             float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
