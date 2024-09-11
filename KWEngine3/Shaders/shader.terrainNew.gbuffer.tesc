@@ -26,31 +26,32 @@ uniform vec3 uCamDirection;
 uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
 uniform ivec4 uTerrainData;
+uniform int uTerrainThreshold;
 
 int getTLevel(vec3 dir, float dp)
 {
     dp = step(0, dp); // if dp < 0 => 0, else 1
-    float l = dot(dir, dir) + ((1 - dp) * 32768.0);
+    float l = dot(dir, dir) + ((1 - dp) * (uTerrainThreshold * 32));
 
-    if(l < 1024.0)
+    if(l < uTerrainThreshold) // 1024
     {
         return 32;
     }
-    else if(l < 4096.0)
+    else if(l < uTerrainThreshold * 4) // 4096
     {
         return 16;
     }
-    else if(l < 8096.0 * 2)
+    else if(l < uTerrainThreshold * 16) // 16192
     {
         return 8;
     }
-    else if(l < 32768.0)
+    else if(l < uTerrainThreshold * 32) // 32768
     {
         return 4;
     }
     else
     {
-        return 1;
+        return 2;
     }
 }
 

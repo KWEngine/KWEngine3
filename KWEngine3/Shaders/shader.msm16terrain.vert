@@ -23,7 +23,24 @@ void main()
 	vPosition = aPosition + offset; 
 	vNormal = aNormal;
 
-	float texX = aTexture.x / tileCountX + gl_InstanceID * (1.0 / tileCountX);
+		//           0          / 2          + (0                           * (1   / 2)) = 0.0
+	//           1          / 2          + (0                           * (1   / 2)) = 0.5
+	//           0          / 2          + (1                           * (1   / 2)) = 0.5
+	//           1          / 2          + (1                           * (1   / 2)) = 1.0 ok
+	//           0          / 2          + (0                           * (1   / 2)) = 0.0
+	//           1          / 2          + (0                           * (1   / 2)) = 0.5
+	//           0          / 2          + (1                           * (1   / 2)) = 0.5
+	//           1          / 2          + (1                           * (1   / 2)) = 1.0 ok
+	float texX = aTexture.x / tileCountX + (gl_InstanceID % tileCountX) * (1.0 / tileCountX);
+
+	//           0          / 2          + (0             / 2)          * (1   / 2)           = 0.0
+	//           1          / 2          + (0             / 2)          * (1   / 2)           = 0.5
+	//           0          / 2          + (1             / 2)          * (1   / 2)           = 0.0
+	//           1          / 2          + (1             / 2)          * (1   / 2)           = 0.5 ok
+	//           0          / 2          + (2             / 2)          * (1   / 2)           = 0.5
+	//           1          / 2          + (2             / 2)          * (1   / 2)           = 1.0
+	//           0          / 2          + (3             / 2)          * (1   / 2)           = 0.5
+	//           1          / 2          + (3             / 2)          * (1   / 2)           = 1.0 ok
 	float texZ = aTexture.y / tileCountZ + (gl_InstanceID / tileCountX) * (1.0 / tileCountZ);
 	vTextureHeight = vec2(texX, texZ);
 }

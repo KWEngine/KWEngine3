@@ -32,11 +32,15 @@ void main()
 	vTangent = aTangent;
 	vBiTangent = aBiTangent;
 
-	//           0          / 2          + (0             * (1   / 2)) = 0.0
-	//           1          / 2          + (0             * (1   / 2)) = 0.5
-	//           0          / 2          + (1             * (1   / 2)) = 0.5
-	//           1          / 2          + (1             * (1   / 2)) = 1.0 ok
-	float texX = aTexture.x / tileCountX + (gl_InstanceID * (1.0 / tileCountX));
+	//           0          / 2          + (0                           * (1   / 2)) = 0.0
+	//           1          / 2          + (0                           * (1   / 2)) = 0.5
+	//           0          / 2          + (1                           * (1   / 2)) = 0.5
+	//           1          / 2          + (1                           * (1   / 2)) = 1.0 ok
+	//           0          / 2          + (0                           * (1   / 2)) = 0.0
+	//           1          / 2          + (0                           * (1   / 2)) = 0.5
+	//           0          / 2          + (1                           * (1   / 2)) = 0.5
+	//           1          / 2          + (1                           * (1   / 2)) = 1.0 ok
+	float texX = aTexture.x / tileCountX + (gl_InstanceID % tileCountX) * (1.0 / tileCountX);
 
 	//           0          / 2          + (0             / 2)          * (1   / 2)           = 0.0
 	//           1          / 2          + (0             / 2)          * (1   / 2)           = 0.5

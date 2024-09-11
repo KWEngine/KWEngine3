@@ -29,6 +29,7 @@ namespace KWEngine3.Renderer
         public static int UIdShadowCaster { get; private set; } = -1;
 
         public static int UTerrainData { get; private set; } = -1;
+        public static int UTerrainThreshold { get; private set; } = -1;
         public static int UCamPosition { get; private set; } = -1;
         public static int UCamDirection { get; private set; } = -1;
         public static int UTextureHeightMap { get; private set; } = -1;
@@ -95,6 +96,7 @@ namespace KWEngine3.Renderer
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
                 UTextureHeightMap = GL.GetUniformLocation(ProgramID, "uTextureHeightMap");
                 UTerrainData = GL.GetUniformLocation(ProgramID, "uTerrainData");
+                UTerrainThreshold = GL.GetUniformLocation(ProgramID, "uTerrainThreshold");
             }
         }
 
@@ -150,15 +152,15 @@ namespace KWEngine3.Renderer
 
             GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
             GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
-
+            GL.Uniform1(UTerrainThreshold, (int)KWEngine.TerrainTessellationThreshold);
             GL.Uniform4(UTerrainData, t.Width, t.Depth, KWEngine.TERRAIN_PATCH_SIZE, t.Height);
             UploadTextures(ref material, t);
 
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.BindVertexArray(KWTerrainQuad.VAO);
             GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (t.Width * t.Depth) / (KWEngine.TERRAIN_PATCH_SIZE * KWEngine.TERRAIN_PATCH_SIZE));
             GL.BindVertexArray(0);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         }
         private static void UploadTextures(ref GeoMaterial material, TerrainObject t)
         {

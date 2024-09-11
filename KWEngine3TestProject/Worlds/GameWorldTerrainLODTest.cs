@@ -12,7 +12,10 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            
+            if(Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Q))
+            {
+                Window.SetWorld(new GameWorldTerrainTest());
+            }
         }
 
         public override void Prepare()
@@ -38,6 +41,7 @@ namespace KWEngine3TestProject.Worlds
 
             MouseCursorGrab();
 
+            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
 
             TerrainObject t = new TerrainObject("KarauTest");
             t.SetTexture("./Textures/uvpattern.png");

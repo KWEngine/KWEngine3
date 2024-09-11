@@ -13,12 +13,15 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            
+            if (Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Q))
+            {
+                Window.SetWorld(new GameWorldTerrainLODTest());
+            }
         }
 
         public override void Prepare()
         {
-            /*
+            
             KWEngine.LoadModel("Player", "./Models/robotERS.fbx");
 
             SetCameraPosition(0.0f, 100, 100);
@@ -64,8 +67,8 @@ namespace KWEngine3TestProject.Worlds
             t.SetTextureRepeat(4f, 4f);
             t.SetPosition(0, 0, 0);
             AddTerrainObject(t);
-            */
-            LoadJSON("./Worlds/test.json");
+            
+            
         }
     }
 }

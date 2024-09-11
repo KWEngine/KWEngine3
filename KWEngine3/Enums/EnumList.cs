@@ -1,6 +1,25 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Gibt an, ab welcher Entfernung Terrain-Objekte weniger detailliert gezeichnet werden
+    /// </summary>
+    public enum TerrainThresholdValue
+    {
+        /// <summary>
+        /// Ab 32 Längeneinheiten
+        /// </summary>
+        T32 = 1024,
+        /// <summary>
+        /// Ab 64 Längeneinheiten
+        /// </summary>
+        T64 = 4096,
+        /// <summary>
+        /// Ab 128 Längeneinheiten
+        /// </summary>
+        T128 = 16384
+    }
+
+    /// <summary>
     /// Fenstermodus der Anwendung
     /// </summary>
     public enum WindowMode

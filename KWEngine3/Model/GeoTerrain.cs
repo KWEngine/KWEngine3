@@ -349,8 +349,30 @@ namespace KWEngine3.Model
         {
             float xScaledToImageSize = HelperGeneral.ScaleToRange(x + terrainWidth / 2, 0, terrainWidth, 0, image.Width - 1);
             float zScaledToImageSize = HelperGeneral.ScaleToRange(z + terrainDepth / 2, 0, terrainDepth, 0, image.Height - 1);
-
+            /*
             //Console.WriteLine((int)xScaledToImageSize + "||" + (int)zScaledToImageSize);
+
+            float xPartLeft = 1f - xScaledToImageSize - (int)xScaledToImageSize;
+            float xPartRight = 1f - xPartLeft;
+
+            float zPartUpper = 1f - zScaledToImageSize - (int)zScaledToImageSize;
+            float zPartLower = 1f - zPartUpper;
+
+            SKColor colorUpperLeft = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
+            float colorUpperLeftNormalized = ((colorUpperLeft.Red + colorUpperLeft.Green + colorUpperLeft.Blue) / 3f) / 255f;
+
+            SKColor colorUpperRight = image.GetPixel(Math.Min((int)xScaledToImageSize + 1, image.Width - 1), (int)zScaledToImageSize);
+            float colorUpperRightNormalized = ((colorUpperRight.Red + colorUpperRight.Green + colorUpperRight.Blue) / 3f) / 255f;
+
+            SKColor colorLowerLeft = image.GetPixel((int)xScaledToImageSize, Math.Min((int)zScaledToImageSize + 1, image.Height - 1));
+            float colorLowerLeftNormalized = ((colorLowerLeft.Red + colorLowerLeft.Green + colorLowerLeft.Blue) / 3f) / 255f;
+
+            SKColor colorLowerRight = image.GetPixel(Math.Min((int)xScaledToImageSize + 1, image.Width - 1), Math.Min((int)zScaledToImageSize + 1, image.Height - 1));
+            float colorLowerRightNormalized = ((colorLowerRight.Red + colorLowerRight.Green + colorLowerRight.Blue) / 3f) / 255f;
+
+            // calculate weighted average of these four colors:
+            float colorLeftRight = colorUpperLeft * 
+            */
 
             SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
             float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;

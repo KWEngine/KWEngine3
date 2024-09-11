@@ -17,6 +17,7 @@ namespace KWEngine3.Renderer
         public static int UTextureHeightMap { get; private set; } = -1;
         public static int UCamPosition { get; private set; } = -1;
         public static int UCamDirection { get; private set; } = -1;
+        public static int UTerrainThreshold { get; private set; } = -1;
 
         public static void Init()
         {
@@ -66,6 +67,7 @@ namespace KWEngine3.Renderer
                 UTerrainData = GL.GetUniformLocation(ProgramID, "uTerrainData");
                 UCamPosition = GL.GetUniformLocation(ProgramID, "uCamPosition");
                 UCamDirection = GL.GetUniformLocation(ProgramID, "uCamDirection");
+                UTerrainThreshold = GL.GetUniformLocation(ProgramID, "uTerrainThreshold");
             }
         }
 
@@ -101,6 +103,7 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             
             GL.Uniform4(UTerrainData, t.Width, t.Depth, KWEngine.TERRAIN_PATCH_SIZE, t.Height);
+            GL.Uniform1(UTerrainThreshold, (int)KWEngine.TerrainTessellationThreshold);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, t._heightmap > 0 ? t._heightmap : KWEngine.TextureBlack);

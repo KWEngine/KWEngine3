@@ -27,6 +27,10 @@ namespace KWEngine3
         internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
         internal const int TERRAIN_PATCH_SIZE = 16;
 
+        /// <summary>
+        /// Gibt an, ab welcher Entfernung Terrain-Geometrie weniger detailliert dargestellt werden soll (Standard: 32 Einheiten)
+        /// </summary>
+        public static TerrainThresholdValue TerrainTessellationThreshold { get; set; } = TerrainThresholdValue.T32;
 
         /// <summary>
         /// Gibt die maximale Anzahl der Instanzen für RenderObjects an
