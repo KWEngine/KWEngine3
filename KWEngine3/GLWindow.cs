@@ -355,12 +355,15 @@ namespace KWEngine3
                         RendererShadowMapTerrain.Bind();
                         foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                         {
-                            if (l.Type == LightType.Point)
+                            if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
                             {
-                                continue;
+                                if (l.Type == LightType.Point)
+                                {
+                                    continue;
+                                }
+                                l._fbShadowMap.Bind(false);
+                                RendererShadowMapTerrain.RenderSceneForLight(l);
                             }
-                            l._fbShadowMap.Bind(false);
-                            RendererShadowMapTerrain.RenderSceneForLight(l);
                         }
                     }
 
@@ -369,12 +372,15 @@ namespace KWEngine3
                         RendererShadowMapInstanced.Bind();
                         foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                         {
-                            if (l.Type == LightType.Point)
+                            if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
                             {
-                                continue;
+                                if (l.Type == LightType.Point)
+                                {
+                                    continue;
+                                }
+                                l._fbShadowMap.Bind(false);
+                                RendererShadowMapInstanced.RenderSceneForLight(l);
                             }
-                            l._fbShadowMap.Bind(false);
-                            RendererShadowMapInstanced.RenderSceneForLight(l);
                         }
                     }
 
