@@ -8,12 +8,12 @@ namespace KWEngine3TestProject
         public GameWindow() : base(
             1280, 
             720, 
-            false, 
+            true, 
             PostProcessingQuality.Standard, 
             WindowMode.Default
             )
         {
-            SetWorld(new GameWorldTerrainLODTest());
+            SetWorld(new GameWorldEmpty());
         }
     }
 }

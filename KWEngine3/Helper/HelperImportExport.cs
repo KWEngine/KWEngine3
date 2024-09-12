@@ -170,7 +170,7 @@ namespace KWEngine3.Helper
                 }
                 w.AddRenderObject(BuildRenderObject(sr));
             }
-            KWEngine.CurrentWorld.AddRemoveGameObjects();
+            KWEngine.CurrentWorld.AddRemoveRenderObjects();
 
             // Build and add light object instances:
             foreach (SerializedLightObject sl in sw.LightObjects)
@@ -380,7 +380,7 @@ namespace KWEngine3.Helper
             l.SetNearFar(sl.Near, sl.Far);
             l.SetFOV(sl.FOV);
             l.SetColor(sl.Color[0], sl.Color[1], sl.Color[2], sl.Color[3]);
-
+            l.SetShadowOffset(sl.ShadowOffset);
             return l;
         }
 

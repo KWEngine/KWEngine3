@@ -144,7 +144,7 @@ namespace KWEngine3.Renderer
             if (f._terrainObject != null && f._terrainObject.ID != 0)
             {
                 GeoTerrain m = f._terrainObject._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
-                GL.Uniform3(UTerrainScale, m.GetWidth(), m.GetHeight(), m.GetDepth());
+                GL.Uniform3(UTerrainScale, (float)m.GetWidth(), (float)m.GetHeight(), (float)m.GetDepth());
                 GL.Uniform3(UTerrainPosition, f._terrainObject._stateRender._position);
                 GL.ActiveTexture(TextureUnit.Texture3);
                 GL.BindTexture(TextureTarget.Texture2D, m._texHeight);

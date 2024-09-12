@@ -79,7 +79,6 @@ namespace KWEngine3.Renderer
         {
             Matrix4 vp = KWEngine.Mode != EngineMode.Edit ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UModelViewProjection, false, ref vp);
-            HelperGeneral.CheckGLErrors();
         }
 
         public static void Draw(TerrainObject t)

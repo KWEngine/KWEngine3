@@ -14,6 +14,7 @@ namespace KWEngine3.Helper
         public float Near { get; set; }
         public float FOV { get; set; }
         public float[] Color { get; set; }
+        public float ShadowOffset { get; set; }
 
         public static SerializedLightObject GenerateSerializedLightObject(LightObject l)
         {
@@ -29,6 +30,7 @@ namespace KWEngine3.Helper
             sl.Near = l._stateCurrent._nearFarFOVType.X;
             sl.FOV = l._stateCurrent._nearFarFOVType.Z;
             sl.Color = new float[] { l._stateCurrent._color.X, l._stateCurrent._color.Y, l._stateCurrent._color.Z, l._stateCurrent._color.W };
+            sl.ShadowOffset = l._shadowOffset;
 
             return sl;
         }

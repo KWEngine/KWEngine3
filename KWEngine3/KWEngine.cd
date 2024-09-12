@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="7.25" Width="2.75" />
+    <Position X="0.5" Y="7.5" Width="2.75" />
     <Members>
       <Field Name="_keyboard" Hidden="true" />
       <Field Name="_mouse" Hidden="true" />
@@ -53,7 +53,6 @@
       <Field Name="_uniformOffsetMultiplier" Hidden="true" />
       <Field Name="BLOOMHEIGHT" Hidden="true" />
       <Field Name="BLOOMWIDTH" Hidden="true" />
-      <Method Name="BuildDefaultTerrainModel" Hidden="true" />
       <Method Name="CollectScreenInfo" Hidden="true" />
       <Property Name="CustomColliders" Hidden="true" />
       <Field Name="DefaultCameraPosition" Hidden="true" />
@@ -79,7 +78,6 @@
       <Field Name="KWSkull" Hidden="true" />
       <Field Name="KWSphereCollider" Hidden="true" />
       <Field Name="KWStar" Hidden="true" />
-      <Field Name="KWTerrainDefault" Hidden="true" />
       <Property Name="LastFrameTime" Hidden="true" />
       <Property Name="LastSimulationUpdateCycleCount" Hidden="true" />
       <Field Name="LIGHTINDEXDIVIDER" Hidden="true" />
@@ -93,8 +91,10 @@
       <Field Name="RAYTRACE_SAFETY_SQ" Hidden="true" />
       <Field Name="SIMULATIONMAXACCUMULATOR" Hidden="true" />
       <Field Name="SIMULATIONNIBBLESIZE" Hidden="true" />
+      <Field Name="TERRAIN_PATCH_SIZE" Hidden="true" />
       <Field Name="TextureAlpha" Hidden="true" />
       <Field Name="TextureBlack" Hidden="true" />
+      <Field Name="TextureCheckerboard" Hidden="true" />
       <Field Name="TextureCubemapEmpty" Hidden="true" />
       <Field Name="TextureDefault" Hidden="true" />
       <Field Name="TextureDepthCubeMapEmpty" Hidden="true" />
@@ -114,7 +114,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgARLBBAoSJALENpApqARAAVCgCQioQjHn2Sv2KEIE=</HashCode>
+      <HashCode>BcgAR7BBAoSJALEMpApqARAAVCgCQioQjHn2Sv2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -198,7 +198,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="13.5" Width="2.75" />
+    <Position X="0.5" Y="13.75" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -273,12 +273,12 @@
       <Method Name="UpdateLookAtVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ACAIAQAAAAQA4AAqAICAFSwAAAAQCgAAAQgAgIAEAAY=</HashCode>
+      <HashCode>ACAIAQAAAAQA4AAqAICAFSwAAgAQCgAAAQgAgIAEAAY=</HashCode>
       <FileName>GameObjects\LightObject.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="13.25" Width="2.75" />
+    <Position X="9.5" Y="13.5" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -307,7 +307,7 @@
     <Position X="12.5" Y="11" Width="2.75" />
     <Members>
       <Field Name="_gModel" Hidden="true" />
-      <Field Name="_heightMap" Hidden="true" />
+      <Field Name="_heightmap" Hidden="true" />
       <Field Name="_hitboxes" Hidden="true" />
       <Field Name="_idFromImport" Hidden="true" />
       <Field Name="_isCollisionObject" Hidden="true" />
@@ -316,13 +316,16 @@
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
       <Field Name="_stateRender" Hidden="true" />
+      <Method Name="GenerateMaterial" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
+      <Property Name="IsVisible" Hidden="true" />
+      <Method Name="SetModel" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QCAAIQACCAQgkAAIQCCAIAQEACBAAxABAAgAEABAQIQ=</HashCode>
+      <HashCode>QCAAIQACDAQgkAAIACCAIEQEACBAAxAhAAgAEABAQMQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -412,7 +415,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="11" Width="2.75" />
+    <Position X="0.5" Y="11.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -517,7 +520,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="10" Width="2.75" />
+    <Position X="9.5" Y="10.25" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />

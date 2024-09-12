@@ -18,7 +18,7 @@ namespace KWEngine3.Model
         private int mWidth = 0;
         private int mDepth = 0;
         private int mHeight = 0;
-        private int mSectorSize = 2;
+        //private int mSectorSize = 2;
         internal int _texHeight = -1;
         internal Sector[,] mSectorMap;
         private float mCompleteDiameter;

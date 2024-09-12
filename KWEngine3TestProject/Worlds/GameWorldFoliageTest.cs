@@ -27,7 +27,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap.png", 48, 48, 1);
+            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap.png", 48, 48, 5);
             TerrainObject t = new TerrainObject("T1");
             t.Name = "TestTerrain";
             t.SetPosition(0, 0, 0);
@@ -62,6 +62,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraToFirstPersonGameObject(player, 0f);
             MouseCursorGrab();
             AddGameObject(player);
+
             /*
             Immovable center = new Immovable();
             center.SetColor(1, 1, 1);

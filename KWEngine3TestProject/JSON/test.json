@@ -1,16 +1,16 @@
 {
   "CamPosition": [
     0,
-    100,
-    100
+    10.5,
+    25
   ],
   "CamTarget": [
-    0,
-    0,
-    0
+    0.034698766,
+    10.160538,
+    24.061821
   ],
-  "CamFOV": 20,
-  "Type": "KWEngine3TestProject.Worlds.GameWorldTerrainTest",
+  "CamFOV": 90,
+  "Type": "KWEngine3TestProject.Worlds.GameWorldTerrainLODTest",
   "ColorAmbient": [
     0.5,
     0.5,
@@ -39,31 +39,31 @@
   ],
   "GameObjects": [
     {
-      "IsShadowCaster": true,
-      "IsCollisionObject": true,
+      "IsShadowCaster": false,
+      "IsCollisionObject": false,
       "CustomColliderName": "",
       "CustomColliderFile": "",
       "CustomColliderType": 0,
       "BlendTextureStates": true,
       "ID": 1,
-      "Name": "Player",
-      "Type": "KWEngine3TestProject.Classes.WorldTerrainTest.Player",
+      "Name": "Player #1",
+      "Type": "KWEngine3TestProject.Classes.WorldTerrainLOD.Player",
       "ModelName": "KWCube",
       "ModelPath": "kwcube.obj",
       "UpdateLast": false,
       "IsDepthTesting": true,
       "IsAffectedByLight": true,
-      "Opacity": 1,
+      "Opacity": 0,
       "Position": [
-        1,
-        0.5,
-        1
+        0,
+        10,
+        25
       ],
       "Rotation": [
         0,
+        1,
         0,
-        0,
-        1
+        -4.371139E-08
       ],
       "Scale": [
         1,
@@ -134,6 +134,103 @@
         0,
         0
       ]
+    },
+    {
+      "IsShadowCaster": false,
+      "IsCollisionObject": false,
+      "CustomColliderName": "",
+      "CustomColliderFile": "",
+      "CustomColliderType": 0,
+      "BlendTextureStates": true,
+      "ID": 2,
+      "Name": "(no name)",
+      "Type": "KWEngine3TestProject.Classes.WorldTerrainLOD.Immovable",
+      "ModelName": "KWCube",
+      "ModelPath": "kwcube.obj",
+      "UpdateLast": false,
+      "IsDepthTesting": true,
+      "IsAffectedByLight": true,
+      "Opacity": 1,
+      "Position": [
+        0,
+        0.5,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "Scale": [
+        1,
+        1,
+        1
+      ],
+      "PositionOffset": null,
+      "RotationOffset": null,
+      "ScaleOffset": null,
+      "AttachedToID": 0,
+      "AttachedToParentBone": null,
+      "ScaleHitbox": [
+        1,
+        1,
+        1
+      ],
+      "Color": [
+        1,
+        1,
+        0
+      ],
+      "ColorEmissive": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "Metallic": [
+        0
+      ],
+      "Roughness": [
+        1
+      ],
+      "MetallicType": 0,
+      "TextureOffset": [
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureRepeat": [
+        [
+          1,
+          1
+        ]
+      ],
+      "TextureAlbedo": [
+        null
+      ],
+      "TextureNormal": [
+        null
+      ],
+      "TextureRoughness": [
+        null
+      ],
+      "TextureMetallic": [
+        null
+      ],
+      "TextureEmissive": [
+        null
+      ],
+      "TextureRoughnessInMetallic": [
+        false
+      ],
+      "TextureTransform": [
+        1,
+        1,
+        0,
+        0
+      ]
     }
   ],
   "RenderObjects": [],
@@ -142,19 +239,19 @@
       "Name": "Sun",
       "ShadowCasterType": 4096,
       "LightType": 2,
-      "ShadowBias": 4E-05,
+      "ShadowBias": 2E-05,
       "Position": [
-        -25,
-        25,
-        25
+        -100,
+        100,
+        100
       ],
       "Target": [
         0,
         0,
         0
       ],
-      "Far": 100,
-      "Near": 10,
+      "Far": 500,
+      "Near": 50,
       "FOV": 20,
       "Color": [
         1,
@@ -166,12 +263,12 @@
   ],
   "TerrainObjects": [
     {
-      "ID": 2,
+      "ID": 3,
       "Name": "(no name)",
       "IsShadowCaster": true,
       "IsCollisionObject": true,
       "IsVisible": true,
-      "ModelName": "Terrain",
+      "ModelName": "KarauTest",
       "ModelPath": "./Textures/heightmap.png",
       "Width": 32,
       "Height": 5,
@@ -200,17 +297,17 @@
         0
       ],
       "TextureRepeat": [
-        4,
-        4
+        1,
+        1
       ],
-      "TextureAlbedo": "./Textures/iron_panel_albedo.dds",
-      "TextureNormal": "./Textures/iron_panel_normal.dds",
+      "TextureAlbedo": "./Textures/uvpattern.png",
+      "TextureNormal": null,
       "TextureRoughness": null,
       "TextureMetallic": null,
       "TextureEmissive": null,
       "TextureTransform": [
-        4,
-        4,
+        1,
+        1,
         0,
         0
       ]

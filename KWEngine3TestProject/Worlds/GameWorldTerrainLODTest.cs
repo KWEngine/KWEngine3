@@ -20,6 +20,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            /*
             KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap.png", 32, 32, 5);
 
             SetCameraFOV(90);
@@ -36,12 +37,6 @@ namespace KWEngine3TestProject.Worlds
             i1.SetColor(1, 1, 0);
             i1.SetPosition(0, 0.5f, 0);
             AddGameObject(i1);
-
-            SetCameraToFirstPersonGameObject(p, 0.5f);
-
-            MouseCursorGrab();
-
-            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
 
             TerrainObject t = new TerrainObject("KarauTest");
             t.SetTexture("./Textures/uvpattern.png");
@@ -60,6 +55,14 @@ namespace KWEngine3TestProject.Worlds
             sun.SetNearFar(50, 500);
             sun.Name = "Sun";
             AddLightObject(sun);
+            */
+            LoadJSON("./JSON/test.json");
+
+            SetCameraToFirstPersonGameObject(GetGameObjectByName("Player #1"), 0.5f);
+
+            MouseCursorGrab();
+
+            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
         }
     }
 }
