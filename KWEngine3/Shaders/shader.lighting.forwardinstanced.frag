@@ -255,8 +255,8 @@ vec4 getAlbedo()
     vec4 albedo = vec4(1.0);
     if(uUseTexturesAlbedoNormalEmissive.x > 0)
     {
-        albedo = texture(uTextureAlbedo, vTexture);
-        albedo.w *= uColorTint.w; // uColorTint.w contains overall opacity for gameobject
+        albedo = texture(uTextureAlbedo, vTexture) * uColorTint;
+        //albedo.w *= uColorTint.w; // uColorTint.w contains overall opacity for gameobject
     }
     else
     {
