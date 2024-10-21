@@ -49,7 +49,14 @@ namespace KWEngine3.GameObjects
             }
 
             ShadowCasterType = shadowType;
-            _shadowMapSize = (int)ShadowCasterType;
+            if (lightType == LightType.Point)
+            {
+                _shadowMapSize = (int)ShadowCasterType / 2;
+            }
+            else
+            {
+                _shadowMapSize = (int)ShadowCasterType;
+            }
 
             if (lightType == LightType.Point)
                 _shadowBias = 0.0006f;

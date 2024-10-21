@@ -614,7 +614,7 @@ namespace KWEngine3.Editor
                 {
                     if (SelectedLightObject.Type == LightType.Sun)
                     {
-                        if (ImGui.SliderFloat("FOV (degrees)", ref fovNew, 10, SelectedLightObject._shadowMapSize, "%.0f"))
+                        if (ImGui.SliderFloat("FOV", ref fovNew, 10, SelectedLightObject._shadowMapSize, "%.0f"))
                         {
                             SelectedLightObject.SetFOV(fovNew);
                         }
