@@ -14,6 +14,7 @@ namespace KWEngine3.Framebuffers
         {
             Bind(false);
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA8, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, false, false)); // Color1
+            SizeInBytes = width * height * 4;
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];
             for(int i = 0; i < Attachments.Count; i++)
             {

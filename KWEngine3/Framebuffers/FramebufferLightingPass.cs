@@ -16,6 +16,12 @@ namespace KWEngine3.Framebuffers
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 0));   // Color
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 1));   // Bloom
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 2)); // Depth
+
+            SizeInBytes =
+                width * height * 3 * sizeof(byte) +
+                width * height * 3 * sizeof(byte) +
+                width * height * 1 * sizeof(float);
+
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
             for(int i = 0; i < Attachments.Count - 1; i++)
             {

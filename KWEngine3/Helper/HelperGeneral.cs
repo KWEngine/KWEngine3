@@ -4,6 +4,10 @@ using System.Runtime.InteropServices;
 using KWEngine3.GameObjects;
 using System.Diagnostics;
 using System.Reflection;
+using KWEngine3.Model;
+using static Assimp.Metadata;
+using KWEngine3.Renderer;
+using KWEngine3.Framebuffers;
 
 namespace KWEngine3.Helper
 {
@@ -13,53 +17,208 @@ namespace KWEngine3.Helper
     public static class HelperGeneral
     {
 
+        private static int GetTextureSizeInBytes(KWTexture t)
+        {
+            int currentSizeInBytes = 0;
+            GL.BindTexture(t.Target, t.ID);
+            CheckGLErrors();
+
+
+            // mipmaps?
+            GL.GetTexParameter(t.Target, GetTextureParameter.TextureMaxLevel, out int mipmapCount);
+            CheckGLErrors();
+            if (t.Target == TextureTarget.Texture2D)
+            {
+                // compression?
+                GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureCompressed, out int compressed);
+                CheckGLErrors();
+                if (compressed > 0)
+                {
+                    GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureCompressedImageSize, out currentSizeInBytes);
+                    CheckGLErrors();
+                }
+                else
+                {
+                    // get resolution:
+                    GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureWidth, out int width);
+                    CheckGLErrors();
+                    GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureHeight, out int height);
+                    CheckGLErrors();
+                    int pixels = width * height;
+
+                    // get number of color channels:
+                    GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureInternalFormat, out int format);
+                    PixelInternalFormat glFormat = (PixelInternalFormat)format;
+                    int channels = 0;
+                    if (glFormat == PixelInternalFormat.Rgb8 || glFormat == PixelInternalFormat.Rgb)
+                    {
+                        channels = 3;
+                    }
+                    else if (glFormat == PixelInternalFormat.Rgba8 || glFormat == PixelInternalFormat.Rgba)
+                    {
+                        channels = 4;
+                    }
+                    currentSizeInBytes = channels * pixels;
+                    CheckGLErrors();
+                }
+            }
+            else if (t.Target == TextureTarget.TextureCubeMap)
+            {
+                // compression?
+                GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureCompressed, out int compressed);
+                CheckGLErrors();
+                if (compressed > 0)
+                {
+                    GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureCompressedImageSize, out currentSizeInBytes);
+                    CheckGLErrors();
+                    currentSizeInBytes *= 6;
+                }
+                else
+                {
+                    // get resolution:
+                    GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureWidth, out int width);
+                    CheckGLErrors();
+                    GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureHeight, out int height);
+                    CheckGLErrors();
+                    int pixels = width * height;
+
+                    // get number of color channels:
+                    GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureInternalFormat, out int format);
+                    PixelInternalFormat glFormat = (PixelInternalFormat)format;
+                    int channels = 0;
+                    if (glFormat == PixelInternalFormat.Rgb8 || glFormat == PixelInternalFormat.Rgb)
+                    {
+                        channels = 3;
+                    }
+                    else if (glFormat == PixelInternalFormat.Rgba8 || glFormat == PixelInternalFormat.Rgba)
+                    {
+                        channels = 4;
+                    }
+                    currentSizeInBytes = channels * pixels * 6;
+                    CheckGLErrors();
+                }
+            }
+            GL.BindTexture(t.Target, 0);
+            if (mipmapCount > 0)
+            {
+                currentSizeInBytes = (int)(currentSizeInBytes * 1.3333333f);
+            }
+            return currentSizeInBytes;
+        }
+
+        internal static int GetTextureSizeInBytes(GeoMaterial m)
+        {
+            int currentSizeInBytes = 0;
+
+            if(m.TextureAlbedo.IsTextureSet)
+            {
+                currentSizeInBytes += GetTextureSizeInBytes(new KWTexture(m.TextureAlbedo.OpenGLID, TextureTarget.Texture2D));
+            }
+            if(m.TextureEmissive.IsTextureSet)
+            {
+                currentSizeInBytes += GetTextureSizeInBytes(new KWTexture(m.TextureEmissive.OpenGLID, TextureTarget.Texture2D));
+            }
+            if (m.TextureMetallic.IsTextureSet)
+            {
+                currentSizeInBytes += GetTextureSizeInBytes(new KWTexture(m.TextureMetallic.OpenGLID, TextureTarget.Texture2D));
+            }
+            if (m.TextureNormal.IsTextureSet)
+            {
+                currentSizeInBytes += GetTextureSizeInBytes(new KWTexture(m.TextureNormal.OpenGLID, TextureTarget.Texture2D));
+            }
+            if (m.TextureRoughness.IsTextureSet)
+            {
+                currentSizeInBytes += GetTextureSizeInBytes(new KWTexture(m.TextureRoughness.OpenGLID, TextureTarget.Texture2D));
+            }
+
+            return currentSizeInBytes;
+        }
+
         internal static int GetTextureStorageSize()
         {
             int bytes = 0;
 
-            foreach(KeyValuePair<string, KWTexture> entry in KWEngine.CurrentWorld._customTextures)
+            // Framebuffers:
+            bytes += RenderManager.FramebufferDeferred.SizeInBytes;
+            bytes += RenderManager.FramebufferLightingPass.SizeInBytes;
+            foreach(FramebufferBloom fbb in RenderManager.FramebuffersBloom)
             {
-                int currentSizeInBytes = 0;
-                GL.BindTexture(entry.Value.Target, entry.Value.ID);
-                CheckGLErrors();
-
-
-                // mipmaps?
-                GL.GetTexParameter(entry.Value.Target, GetTextureParameter.TextureMaxLevel, out int mipmapCount);
-                CheckGLErrors();
-                if (entry.Value.Target == TextureTarget.Texture2D)
-                {
-                    // compression?
-                    GL.GetTexLevelParameter(entry.Value.Target, 0, GetTextureParameter.TextureCompressed, out int compressed);
-                    CheckGLErrors();
-                    if (compressed > 0)
-                    {
-                        GL.GetTexLevelParameter(entry.Value.Target, 0, GetTextureParameter.TextureCompressedImageSize, out currentSizeInBytes);
-                        CheckGLErrors();
-                    }
-                    else
-                    {
-                        // get resolution:
-                        GL.GetTexLevelParameter(entry.Value.Target, 0, GetTextureParameter.TextureWidth, out int width);
-                        CheckGLErrors();
-                        GL.GetTexLevelParameter(entry.Value.Target, 0, GetTextureParameter.TextureHeight, out int height);
-                        CheckGLErrors();
-                        int pixels = width * height;
-
-                        // get number of color channels:
-                        GL.GetTexParameter(entry.Value.Target, GetTextureParameter.TextureInternalFormat, out int format);
-                        CheckGLErrors();
-                    }
-                }
-                else if(entry.Value.Target == TextureTarget.TextureCubeMap)
-                {
-
-                }
-                GL.BindTexture(entry.Value.Target, 0);
+                bytes += fbb.SizeInBytes;
+            }
+            foreach (FramebufferBloom fbb in RenderManager.FramebuffersBloomTemp)
+            {
+                bytes += fbb.SizeInBytes;
+            }
+            
+            foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)
+            {
+                bytes += l._fbShadowMap.SizeInBytes;
             }
 
+            // Custom textures:
+            foreach (KeyValuePair<string, KWTexture> entry in KWEngine.CurrentWorld._customTextures)
+            {
+                bytes += GetTextureSizeInBytes(entry.Value);
+            }
+
+            // Model textures:
+            foreach(KeyValuePair<string, GeoModel> entry in KWEngine.Models)
+            {
+                if (entry.Value.AssemblyMode == SceneImporter.AssemblyMode.File)
+                {
+                    foreach (GeoMesh mesh in entry.Value.Meshes.Values)
+                    {
+                        bytes += GetTextureSizeInBytes(mesh.Material);
+                    }
+                }
+            }
+            CheckGLErrors();
             return bytes;
         }
+
+        internal static int GetGeometryStorageSize()
+        {
+            int bytes = 0;
+            foreach (KeyValuePair<string, GeoModel> entry in KWEngine.Models)
+            {
+                if (entry.Value.AssemblyMode == SceneImporter.AssemblyMode.File)
+                {
+                    foreach (GeoMesh mesh in entry.Value.Meshes.Values)
+                    {
+                        bytes += GetMeshGeometrySizeInBytes(mesh);
+                    }
+                }
+            }
+            return bytes;
+        }
+
+        internal static int GetMeshGeometrySizeInBytes(GeoMesh mesh)
+        {
+            int currentSizeInBytes = 0;
+            currentSizeInBytes += GetBufferSizeOfVBO(mesh.VBOPosition, BufferTarget.ArrayBuffer);
+            currentSizeInBytes += GetBufferSizeOfVBO(mesh.VBONormal, BufferTarget.ArrayBuffer);
+            currentSizeInBytes += GetBufferSizeOfVBO(mesh.VBOTangent, BufferTarget.ArrayBuffer);
+            currentSizeInBytes += GetBufferSizeOfVBO(mesh.VBOBiTangent, BufferTarget.ArrayBuffer);
+            currentSizeInBytes += GetBufferSizeOfVBO(mesh.VBOBoneIDs, BufferTarget.ArrayBuffer);
+            currentSizeInBytes += GetBufferSizeOfVBO(mesh.VBOBoneWeights, BufferTarget.ArrayBuffer);
+            currentSizeInBytes += GetBufferSizeOfVBO(mesh.VBOIndex, BufferTarget.ElementArrayBuffer);
+
+            return currentSizeInBytes;
+        }
+
+        internal static int GetBufferSizeOfVBO(int id, BufferTarget type)
+        {
+            if(id <= 0)
+            {
+                return 0;
+            }
+
+            GL.BindBuffer(type, id);
+            GL.GetBufferParameter(type, BufferParameterName.BufferSize, out int currentSize);
+            GL.BindBuffer(type, 0);
+            return currentSize;
+        }
+
         internal static bool IsAssemblyDebugBuild(Assembly assembly)
         {
             foreach (var attribute in assembly.GetCustomAttributes(false))

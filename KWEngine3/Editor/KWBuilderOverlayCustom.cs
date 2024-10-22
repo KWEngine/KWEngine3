@@ -1051,7 +1051,8 @@ namespace KWEngine3.Editor
             //ImGui.LabelText(KWEngine.LastSimulationUpdateCycleCount.ToString(), "Last update cycle count:");
             //ImGui.LabelText(_lastUpdateCycleTime.ToString("000.##") + " ms", "Last update cycle time:");
             //ImGui.LabelText(_lastRenderCallsTime.ToString("000.##") + " ms", "Last render calls time:");
-            ImGui.LabelText((HelperGeneral.GetTextureStorageSize() / 1000000f).ToString("000.##") + "MB", "Texture memory:");
+            ImGui.LabelText(KWEngine._texMemUsed.ToString("00000") + " MB", "Texture memory:");
+            ImGui.LabelText(KWEngine._geometryMemUsed.ToString("00000") + " MB", "Geometry memory:");
             ImGui.EndChild();
 
             // Object list:

@@ -18,7 +18,13 @@ namespace KWEngine3.Framebuffers
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2));     // Metallic, Roughness, MetallicType attachment
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG32I, width, height, 3));     // ID, ShadowCaster
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4)); // Depth
-            
+            SizeInBytes =
+                width * height * 3 * sizeof(float) +
+                width * height * 3 * sizeof(float) +
+                width * height * 3 * sizeof(byte) +
+                width * height * 2 * sizeof(int) +
+                width * height * 1 * sizeof(float);
+
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
             for(int i = 0; i < Attachments.Count - 1; i++)
             {

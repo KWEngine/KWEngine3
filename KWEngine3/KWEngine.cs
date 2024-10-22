@@ -167,6 +167,8 @@ namespace KWEngine3
         }
 
         internal static CursorState _stateCameraGameBeforeToggle = CursorState.Normal;
+        internal static float _texMemUsed = 0f;
+        internal static float _geometryMemUsed = 0f;
         internal static void ToggleEditMode()
         {
             if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
@@ -174,6 +176,8 @@ namespace KWEngine3
                 Mode = Mode == EngineMode.Play ? EngineMode.Edit : EngineMode.Play;
                 if (EditModeActive)
                 {
+                    _texMemUsed = MathF.Round(HelperGeneral.GetTextureStorageSize() / 1000000f, 2);
+                    _geometryMemUsed = MathF.Round(HelperGeneral.GetGeometryStorageSize() / 1000000f, 2);
                     CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
                     CurrentWorld._cameraEditor.UpdatePitchYaw(true);
                     _stateCameraGameBeforeToggle = Window.CursorState;

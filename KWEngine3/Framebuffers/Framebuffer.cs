@@ -12,6 +12,7 @@ namespace KWEngine3.Framebuffers
         public LightType _lightType = LightType.Point;
         public bool _isLight = false;
         public Vector3 _clearColor = Vector3.Zero;
+        public int SizeInBytes = 0;
 
         public static int ShadowMapCount { get { return _fbShadowMapCounter; } }
         public List<FramebufferTexture> Attachments { get; set; } = new List<FramebufferTexture>();

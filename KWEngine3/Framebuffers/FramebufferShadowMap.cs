@@ -21,12 +21,16 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
-            GL.GetInteger(GetPName.MaxCubeMapTextureSize, out int size);
+            //GL.GetInteger(GetPName.MaxCubeMapTextureSize, out int size);
 
             bool hq = (int)KWEngine.Window._ppQuality >= 1;
             Bind(false); 
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
+            SizeInBytes = width * height * 4 * sizeof(ushort);
+            if(_lightType == LightType.Point)
+                SizeInBytes *= 6;
+                
             FramebufferErrorCode status;
 
             if(_lightType == LightType.Point)
@@ -35,14 +39,14 @@ namespace KWEngine3.Framebuffers
             }
             else
             {
-                // TODO: Check whether this can go or not :-)
-                
+                // TODO: Check why this has to be included for directional lights!
                 Renderbuffers.Add(GL.GenRenderbuffer());
                 GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
                 GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, width, height);
                 GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
                 
             }
+            SizeInBytes += width * height * (hq ? sizeof(float) : sizeof(short));
 
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
 
