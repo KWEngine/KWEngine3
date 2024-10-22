@@ -143,16 +143,19 @@ namespace KWEngine3.Helper
             bytes += RenderManager.FramebufferLightingPass.SizeInBytes;
             foreach(FramebufferBloom fbb in RenderManager.FramebuffersBloom)
             {
-                bytes += fbb.SizeInBytes;
+                if(fbb != null)
+                    bytes += fbb.SizeInBytes;
             }
             foreach (FramebufferBloom fbb in RenderManager.FramebuffersBloomTemp)
             {
-                bytes += fbb.SizeInBytes;
+                if (fbb != null)
+                    bytes += fbb.SizeInBytes;
             }
             
             foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)
             {
-                bytes += l._fbShadowMap.SizeInBytes;
+                if(l._fbShadowMap != null)
+                    bytes += l._fbShadowMap.SizeInBytes;
             }
 
             // Custom textures:
