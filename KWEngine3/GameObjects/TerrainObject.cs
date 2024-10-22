@@ -291,6 +291,7 @@ namespace KWEngine3.GameObjects
             _stateRender._modelMatrix = Matrix4.Identity;
         }
 
+        /*
         internal GeoMaterial GenerateMaterial(string texture)
         {
             GeoMaterial mat = new GeoMaterial();
@@ -305,7 +306,7 @@ namespace KWEngine3.GameObjects
 
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(texture))
             {
-                texDiffuse.OpenGLID = KWEngine.CurrentWorld._customTextures[texture];
+                texDiffuse.OpenGLID = KWEngine.CurrentWorld._customTextures[texture].ID;
             }
             else
             {
@@ -314,11 +315,12 @@ namespace KWEngine3.GameObjects
 
                 if (texId > 0)
                 {
-                    KWEngine.CurrentWorld._customTextures.Add(texture, texDiffuse.OpenGLID);
+                    KWEngine.CurrentWorld._customTextures.Add(texture, new KWTexture(texDiffuse.OpenGLID, TextureTarget.Texture2D));
                 }
             }
             mat.TextureAlbedo = texDiffuse;
             return mat;
         }
+        */
     }
 }

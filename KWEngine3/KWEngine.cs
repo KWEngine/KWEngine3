@@ -53,7 +53,7 @@ namespace KWEngine3
             for(int i = KWEngine.CurrentWorld._customTextures.Count - 1; i >= 0; i--)
             {
                 string currentTextureFilename = KWEngine.CurrentWorld._customTextures.Keys.ElementAt(i);
-                int currentTexture = KWEngine.CurrentWorld._customTextures[currentTextureFilename];
+                int currentTexture = KWEngine.CurrentWorld._customTextures[currentTextureFilename].ID;
                 HelperTexture.DeleteTexture(currentTexture);
             }
             KWEngine.CurrentWorld._customTextures.Clear();

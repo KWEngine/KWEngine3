@@ -12,6 +12,54 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
+
+        internal static int GetTextureStorageSize()
+        {
+            int bytes = 0;
+
+            foreach(KeyValuePair<string, KWTexture> entry in KWEngine.CurrentWorld._customTextures)
+            {
+                int currentSizeInBytes = 0;
+                GL.BindTexture(entry.Value.Target, entry.Value.ID);
+                CheckGLErrors();
+
+
+                // mipmaps?
+                GL.GetTexParameter(entry.Value.Target, GetTextureParameter.TextureMaxLevel, out int mipmapCount);
+                CheckGLErrors();
+                if (entry.Value.Target == TextureTarget.Texture2D)
+                {
+                    // compression?
+                    GL.GetTexLevelParameter(entry.Value.Target, 0, GetTextureParameter.TextureCompressed, out int compressed);
+                    CheckGLErrors();
+                    if (compressed > 0)
+                    {
+                        GL.GetTexLevelParameter(entry.Value.Target, 0, GetTextureParameter.TextureCompressedImageSize, out currentSizeInBytes);
+                        CheckGLErrors();
+                    }
+                    else
+                    {
+                        // get resolution:
+                        GL.GetTexLevelParameter(entry.Value.Target, 0, GetTextureParameter.TextureWidth, out int width);
+                        CheckGLErrors();
+                        GL.GetTexLevelParameter(entry.Value.Target, 0, GetTextureParameter.TextureHeight, out int height);
+                        CheckGLErrors();
+                        int pixels = width * height;
+
+                        // get number of color channels:
+                        GL.GetTexParameter(entry.Value.Target, GetTextureParameter.TextureInternalFormat, out int format);
+                        CheckGLErrors();
+                    }
+                }
+                else if(entry.Value.Target == TextureTarget.TextureCubeMap)
+                {
+
+                }
+                GL.BindTexture(entry.Value.Target, 0);
+            }
+
+            return bytes;
+        }
         internal static bool IsAssemblyDebugBuild(Assembly assembly)
         {
             foreach (var attribute in assembly.GetCustomAttributes(false))

@@ -1,4 +1,5 @@
-﻿using KWEngine3.Helper;
+﻿using glTFLoader.Schema;
+using KWEngine3.Helper;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -68,12 +69,12 @@ namespace KWEngine3.GameObjects
             {
                 if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
                 {
-                    _textureId = KWEngine.CurrentWorld._customTextures[filename];
+                    _textureId = KWEngine.CurrentWorld._customTextures[filename].ID;
                 }
                 else
                 {
                     _textureId = HelperTexture.LoadTextureForBackgroundExternal(filename, out int mipMapLevels);
-                    KWEngine.CurrentWorld._customTextures.Add(filename, _textureId);
+                    KWEngine.CurrentWorld._customTextures.Add(filename, new KWTexture(_textureId, OpenTK.Graphics.OpenGL4.TextureTarget.Texture2D));
                 }
                 if (HelperTexture.GetTextureDimensions(_textureId, out int width, out int height))
                 {

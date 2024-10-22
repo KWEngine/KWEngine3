@@ -52,7 +52,7 @@ namespace KWEngine3.GameObjects
                 int textureId;
                 if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
                 {
-                    textureId = KWEngine.CurrentWorld._customTextures[filename];
+                    textureId = KWEngine.CurrentWorld._customTextures[filename].ID;
                 }
                 else
                 {
@@ -63,7 +63,7 @@ namespace KWEngine3.GameObjects
                     }
                     else
                     {
-                        KWEngine.CurrentWorld._customTextures.Add(filename, textureId);
+                        KWEngine.CurrentWorld._customTextures.Add(filename, new KWTexture(textureId, OpenTK.Graphics.OpenGL4.TextureTarget.Texture2D));
                     }
 
                 }

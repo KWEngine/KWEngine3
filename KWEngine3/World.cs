@@ -59,7 +59,7 @@ namespace KWEngine3
         internal Queue<ushort> _availableGameObjectIDs = new();
         internal Queue<ushort> _availableLightObjectIDs = new();
 
-        internal Dictionary<string, int> _customTextures = new();
+        internal Dictionary<string, KWTexture> _customTextures = new();
 
         internal Camera _cameraGame;
         internal Camera _cameraEditor;

@@ -28,7 +28,7 @@ namespace KWEngine3
             int texId;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
             {
-                texId = KWEngine.CurrentWorld._customTextures[filename];
+                texId = KWEngine.CurrentWorld._customTextures[filename].ID;
             }
             else
             {
@@ -37,7 +37,7 @@ namespace KWEngine3
                 else
                     texId = HelperTexture.LoadTextureSkyboxEquirectangular(filename, out _mipMapLevels, out int w, out int h);
                 if(texId > 0)
-                    KWEngine.CurrentWorld._customTextures.Add(filename, texId);
+                    KWEngine.CurrentWorld._customTextures.Add(filename, new KWTexture(texId, type == SkyboxType.CubeMap ? TextureTarget.TextureCubeMap : TextureTarget.Texture2D));
             }
             if(texId > 0)
             {
@@ -73,13 +73,13 @@ namespace KWEngine3
             int texId;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
             {
-                texId = KWEngine.CurrentWorld._customTextures[filename];
+                texId = KWEngine.CurrentWorld._customTextures[filename].ID;
             }
             else
             {
                 texId = HelperTexture.LoadTextureForBackgroundExternal(filename, out _mipMapLevels);
                 if (texId > 0)
-                    KWEngine.CurrentWorld._customTextures.Add(filename, texId);
+                    KWEngine.CurrentWorld._customTextures.Add(filename, new KWTexture(texId, TextureTarget.Texture2D));
             }
             if(texId > 0)
             {

@@ -43,7 +43,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             KWEngine.LoadModel("ubot", @"./Models/JumpAndRunPhysics/ubot.fbx");
-            SetBackground2D(@"./textures/spacebackground.dds");
+            SetBackground2D(@"./textures/tiles_albedo.jpg");
             SetBackground2DRepeat(2, 2);
             SetColorAmbient(0.5f, 0.5f, 0.5f);
 

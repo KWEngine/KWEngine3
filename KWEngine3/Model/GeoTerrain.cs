@@ -141,7 +141,7 @@ namespace KWEngine3.Model
             _heightMapName = heightMap;
             if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
             {
-                _texHeight = KWEngine.CurrentWorld._customTextures[heightMap];
+                _texHeight = KWEngine.CurrentWorld._customTextures[heightMap].ID;
             }
             else
             {
@@ -150,7 +150,7 @@ namespace KWEngine3.Model
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
-                KWEngine.CurrentWorld._customTextures.Add(heightMap, _texHeight);
+                KWEngine.CurrentWorld._customTextures.Add(heightMap, new KWTexture(_texHeight, TextureTarget.Texture2D));
             }
 
             mmp.Primitive = PrimitiveType.Patches;

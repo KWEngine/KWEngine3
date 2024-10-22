@@ -86,12 +86,9 @@ namespace KWEngine3.Editor
                 RendererEditor.SetGlobals();
                 RendererEditor.Draw(SelectedGameObject);
 
-                //if (SelectedGameObject.IsCollisionObject)
-                //{
-                    RendererEditorHitboxes.Bind();
-                    RendererEditorHitboxes.SetGlobals();
-                    RendererEditorHitboxes.Draw(SelectedGameObject);
-                //}
+                RendererEditorHitboxes.Bind();
+                RendererEditorHitboxes.SetGlobals();
+                RendererEditorHitboxes.Draw(SelectedGameObject);
             }
             else if(SelectedTerrainObject != null)
             {
@@ -1051,9 +1048,10 @@ namespace KWEngine3.Editor
             ImGui.PlotLines("Frame times", ref ftimes[0], _frameTimes.Count, 0, "", 1f, 100f);
             ImGui.LabelText(KWEngine.LastFrameTime.ToString("000.##") + " ms", "Last render cycle time:");
             ImGui.LabelText(_fpsValue.ToString("D5") + " fps", "Average fps:");
-            ImGui.LabelText(KWEngine.LastSimulationUpdateCycleCount.ToString(), "Last update cycle count:");
-            ImGui.LabelText(_lastUpdateCycleTime.ToString("000.##") + " ms", "Last update cycle time:");
-            ImGui.LabelText(_lastRenderCallsTime.ToString("000.##") + " ms", "Last render calls time:");
+            //ImGui.LabelText(KWEngine.LastSimulationUpdateCycleCount.ToString(), "Last update cycle count:");
+            //ImGui.LabelText(_lastUpdateCycleTime.ToString("000.##") + " ms", "Last update cycle time:");
+            //ImGui.LabelText(_lastRenderCallsTime.ToString("000.##") + " ms", "Last render calls time:");
+            ImGui.LabelText((HelperGeneral.GetTextureStorageSize() / 1000000f).ToString("000.##") + "MB", "Texture memory:");
             ImGui.EndChild();
 
             // Object list:
