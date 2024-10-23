@@ -374,6 +374,7 @@ namespace KWEngine3.Helper
             return MemoryMarshal.Cast<byte, float>(myArray).ToArray();
         }
 
+        /*
         internal static T CastToStruct<T>(this byte[] data) where T : struct
         {
             var pData = GCHandle.Alloc(data, GCHandleType.Pinned);
@@ -381,6 +382,7 @@ namespace KWEngine3.Helper
             pData.Free();
             return result;
         }
+        */
 
         internal static Vector3 Get3DMouseCoords(Vector2 mc)
         {
@@ -530,6 +532,41 @@ namespace KWEngine3.Helper
             return rayOrigin;
         }
         */
+
+        internal static Vector3 UnProject(Vector3 mouse, Matrix4 projection, Matrix4 view, int width, int height)
+        {
+            Vector4 vec;
+
+            vec.X = 2.0f * mouse.X / (float)width - 1;
+            vec.Y = -(2.0f * mouse.Y / (float)height - 1);
+            vec.Z = mouse.Z;
+            vec.W = 1.0f;
+            Matrix4 viewInv;
+            Matrix4 projInv;
+            try
+            {
+                viewInv = Matrix4.Invert(view);
+                projInv = Matrix4.Invert(projection);
+            }
+            catch (Exception)
+            {
+                return Vector3.Zero;
+            }
+
+            Vector4.TransformRow(vec, projInv, out vec);
+            Vector4.TransformRow(vec, viewInv, out vec);
+
+            if (vec.W == 0)
+            {
+                vec.W += 0.000001f;
+            }
+            vec.X /= vec.W;
+            vec.Y /= vec.W;
+            vec.Z /= vec.W;
+            return vec.Xyz;
+        }
+
+        /*
         internal static Vector3 UnProject(this Vector3 mouse, Matrix4 projection, Matrix4 view, int width, int height)
         {
             Vector4 vec;
@@ -562,6 +599,7 @@ namespace KWEngine3.Helper
             vec.Z /= vec.W;
             return vec.Xyz;
         }
+        */
         #endregion
     }
    

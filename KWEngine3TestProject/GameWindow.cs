@@ -13,7 +13,7 @@ namespace KWEngine3TestProject
             WindowMode.Default
             )
         {
-            SetWorld(new GameWorldJumpAndRunPhysics());
+            SetWorld(new GameWorldEmpty());
         }
     }
 }

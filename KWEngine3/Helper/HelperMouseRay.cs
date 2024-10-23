@@ -13,8 +13,8 @@ namespace KWEngine3.Helper
 
         public HelperMouseRay(float x, float y, Matrix4 viewMatrix, Matrix4 projectionMatrix)
         {
-            mStart = new Vector3(x, y, 0.0f).UnProject(projectionMatrix, viewMatrix, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
-            mEnd = new Vector3(x, y, 1.0f).UnProject(projectionMatrix, viewMatrix, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
+            mStart = HelperGeneral.UnProject(new Vector3(x, y, 0.0f), projectionMatrix, viewMatrix, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
+            mEnd = HelperGeneral.UnProject(new Vector3(x, y, 1.0f), projectionMatrix, viewMatrix, KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
         }
     }
 }

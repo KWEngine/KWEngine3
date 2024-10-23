@@ -43,6 +43,7 @@
   <Class Name="KWEngine3.KWEngine">
     <Position X="0.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_geometryMemUsed" Hidden="true" />
       <Field Name="_glowRadius" Hidden="true" />
       <Field Name="_glowUpsampleF1" Hidden="true" />
       <Field Name="_glowUpsampleF2" Hidden="true" />
@@ -50,6 +51,7 @@
       <Field Name="_screenInfo" Hidden="true" />
       <Field Name="_stateCameraGameBeforeToggle" Hidden="true" />
       <Field Name="_swpruneTolerance" Hidden="true" />
+      <Field Name="_texMemUsed" Hidden="true" />
       <Field Name="_uniformOffsetMultiplier" Hidden="true" />
       <Field Name="BLOOMHEIGHT" Hidden="true" />
       <Field Name="BLOOMWIDTH" Hidden="true" />
@@ -114,7 +116,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgAR7BBAoSJALEMpApqARAAVCgCQioQjHn2Sv2KEIE=</HashCode>
+      <HashCode>BcgAR7BJAoSJALEMpApqARAAVCgCQioQjHn2Sv2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -316,7 +318,6 @@
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
       <Field Name="_stateRender" Hidden="true" />
-      <Method Name="GenerateMaterial" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
@@ -325,7 +326,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QCAAIQACDAQgkAAIACCAIEQEACBAAxAhAAgAEABAQMQ=</HashCode>
+      <HashCode>QCAAIQACDAQgkAAIACCAIEQEACBAAxAhAAgAEABAQIQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -591,6 +592,36 @@
     <TypeIdentifier>
       <HashCode>AUQEAhCAAMAEFBQIAgMACgAAQAgADBgWCAAAAEAYAAI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Helper.HelperGeneral">
+    <Position X="21.5" Y="15.75" Width="2.75" />
+    <Members>
+      <Method Name="CheckGLErrors" Hidden="true" />
+      <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
+      <Method Name="ConvertByteArrayToQuaternionList" Hidden="true" />
+      <Method Name="ConvertByteArrayToVector3List" Hidden="true" />
+      <Method Name="EqualizePathDividers" Hidden="true" />
+      <Method Name="FlushAndFinish" Hidden="true" />
+      <Method Name="Get3DMouseCoords" Hidden="true" />
+      <Method Name="GetBufferSizeOfVBO" Hidden="true" />
+      <Method Name="GetGeometryStorageSize" Hidden="true" />
+      <Method Name="GetMeshGeometrySizeInBytes" Hidden="true" />
+      <Method Name="GetTextureSizeInBytes" Hidden="true" />
+      <Method Name="GetTextureStorageSize" Hidden="true" />
+      <Method Name="IsAssemblyDebugBuild" Hidden="true" />
+      <Method Name="IsObjectClassOfType" Hidden="true" />
+      <Method Name="IsObjectClassOrSubclassOfType" Hidden="true" />
+      <Method Name="IsObjectClassOrSubclassOfTypes" Hidden="true" />
+      <Method Name="IsTypeClassOrSubclassOfGameObject" Hidden="true" />
+      <Method Name="SwitchToBufferAndClear" Hidden="true" />
+      <Method Name="ToQuaternion" Hidden="true" />
+      <Method Name="ToVector3" Hidden="true" />
+      <Method Name="UnProject" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AQAAARABAAAAAAAAAARSASEggAAEIAABAEAIAgQAUAE=</HashCode>
+      <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
