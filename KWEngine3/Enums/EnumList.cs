@@ -761,7 +761,8 @@
         RG8,
         RG32I,
         DEPTH32F,
-        DEPTH16F
+        DEPTH16F,
+        R8
     }
 
     internal enum HUDObjectType

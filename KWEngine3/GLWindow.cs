@@ -415,6 +415,15 @@ namespace KWEngine3
                 RenderManager.FramebufferLightingPass.Bind(false);
 
                 GL.Disable(EnableCap.DepthTest);
+
+                // SSAO pass
+                if(KWEngine.Window._ppQuality == PostProcessingQuality.High)
+                {
+                    RendererSSAO.Bind();
+                    RendererSSAO.Draw(RenderManager.FramebufferDeferred);
+                }
+                
+
                 RendererLightingPass.Bind();
                 RendererLightingPass.SetGlobals();
                 RendererLightingPass.Draw(RenderManager.FramebufferDeferred);

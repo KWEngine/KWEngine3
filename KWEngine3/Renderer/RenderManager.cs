@@ -11,6 +11,7 @@ namespace KWEngine3.Renderer
     {
         public static FramebufferDeferred FramebufferDeferred { get; set; }
         public static FramebufferLighting FramebufferLightingPass { get; set; }
+        public static FramebufferSSAO FramebufferSSAO { get; set; }
         public static FramebufferBloom[] FramebuffersBloom { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public const int LQPENALTY_W = 160;
@@ -40,6 +41,7 @@ namespace KWEngine3.Renderer
             FramebufferQuad.Init();
             FramebufferDeferred = new FramebufferDeferred(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
             FramebufferLightingPass = new FramebufferLighting(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
+            FramebufferSSAO = KWEngine.Window._ppQuality == PostProcessingQuality.High ? new FramebufferSSAO(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point) : null;
 
             // Bloom
             if ((int)KWEngine.Window._ppQuality > 1) // high only
@@ -86,6 +88,7 @@ namespace KWEngine3.Renderer
             RendererForwardText.Init();
             RendererEditorHitboxes.Init();
             RendererTerrainCollision.Init();
+            RendererSSAO.Init();
 
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();

@@ -161,6 +161,8 @@
 		<None Remove="Shaders\shader.octree.frag" />
 		<None Remove="Shaders\shader.octree.geom" />
 		<None Remove="Shaders\shader.octree.vert" />
+		<None Remove="Shaders\shader.ssao.frag" />
+		<None Remove="Shaders\shader.ssao.vert" />
 		<None Remove="Shaders\shader.terrain.gbuffer.frag" />
 		<None Remove="Shaders\shader.terrain.gbuffer.vert" />
 		<None Remove="Shaders\shader.terrainDebug.frag" />
@@ -243,6 +245,12 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.ssao.frag">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.ssao.vert">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.geom" />
 		<EmbeddedResource Include="Shaders\shader.editorTriangles.geom" />
 		<EmbeddedResource Include="Shaders\shader.editorTriangles.frag" />
