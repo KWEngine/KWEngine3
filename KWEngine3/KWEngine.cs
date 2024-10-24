@@ -166,6 +166,12 @@ namespace KWEngine3
             KWBuilderOverlay.SelectedTerrainObject = null;
         }
 
+
+        // SSAO settings
+        internal static float _ssaoRadius = 0.5f;
+        internal static float _ssaoBias = 0.025f;
+
+
         internal static CursorState _stateCameraGameBeforeToggle = CursorState.Normal;
         internal static float _texMemUsed = 0f;
         internal static float _geometryMemUsed = 0f;

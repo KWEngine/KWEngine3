@@ -10,6 +10,7 @@ uniform sampler2D uTextureNormal;
 uniform sampler2D uTexturePBR; //x=metallic, y = roughness, z = metallic type
 uniform sampler2D uTextureDepth;
 uniform isampler2D uTextureId;
+uniform sampler2D uTextureSSAO;
 
 uniform sampler2D uShadowMap[3];
 uniform samplerCube uShadowMapCube[3];
@@ -377,7 +378,7 @@ void main()
         vec3 kDW = 1.0 - F;
         kDW *= (1.0 - pbr.x); // x = metallic	
         vec3 specularW = reflectionColor * F * uColorAmbient; 
-        vec3 ambient = uColorAmbient * kDW * albedo + specularW + emissive;
+        vec3 ambient = uColorAmbient * texture(uTextureSSAO, vTexture).r * kDW * albedo + specularW + emissive;
         colorTemp = ambient + Lo;
         color = vec4(colorTemp, 1.0);
     }

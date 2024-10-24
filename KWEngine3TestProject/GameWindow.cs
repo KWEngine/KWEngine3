@@ -9,11 +9,11 @@ namespace KWEngine3TestProject
             1280, 
             720, 
             true, 
-            PostProcessingQuality.Standard, 
+            PostProcessingQuality.High, 
             WindowMode.Default
             )
         {
-            SetWorld(new GameWorldEmpty());
+            SetWorld(new GameWorldJumpAndRunPhysics());
         }
     }
 }

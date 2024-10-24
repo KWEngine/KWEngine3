@@ -408,22 +408,21 @@ namespace KWEngine3
                 // clear inbetween:
                 GL.UseProgram(0);
 
-                // Lighting pass:
-                GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
-                RenderManager.FramebufferLightingPass.BindAndClearColor();
-                RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
-                RenderManager.FramebufferLightingPass.Bind(false);
-
                 GL.Disable(EnableCap.DepthTest);
+                GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
 
                 // SSAO pass
-                if(KWEngine.Window._ppQuality == PostProcessingQuality.High)
+                if (KWEngine.Window._ppQuality == PostProcessingQuality.High)
                 {
+                    RenderManager.FramebufferSSAO.Bind(true);
                     RendererSSAO.Bind();
                     RendererSSAO.Draw(RenderManager.FramebufferDeferred);
                 }
-                
 
+                // Lighting pass:
+                RenderManager.FramebufferLightingPass.BindAndClearColor();
+                RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
+                RenderManager.FramebufferLightingPass.Bind(false);
                 RendererLightingPass.Bind();
                 RendererLightingPass.SetGlobals();
                 RendererLightingPass.Draw(RenderManager.FramebufferDeferred);

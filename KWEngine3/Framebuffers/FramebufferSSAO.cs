@@ -11,11 +11,11 @@ namespace KWEngine3.Framebuffers
         public override void Init(int width, int height)
         {
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R8, width, height, 0));   // SSAO
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R8, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // SSAO
             SizeInBytes = width * height * 1 * sizeof(byte);
 
-            DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
-            for(int i = 0; i < Attachments.Count - 1; i++)
+            DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];
+            for(int i = 0; i < Attachments.Count; i++)
             {
                 dbe[i] = DrawBuffersEnum.ColorAttachment0 + i;
             }

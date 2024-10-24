@@ -875,7 +875,7 @@ namespace KWEngine3.Editor
                 float fov = (float)Math.Round(KWEngine.CurrentWorld._cameraEditor._stateCurrent._fov * 2);
                 
                 ImGui.Begin("World settings", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(512, 256));
+                ImGui.SetWindowSize(new System.Numerics.Vector2(768, 256));
                 ImGui.SetWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y - 256), ImGuiCond.Once);
 
                 ImGui.LabelText(KWEngine.CurrentWorld._gameObjects.Count.ToString() + " / " + KWEngine.CurrentWorld._lightObjects.Count.ToString(), "GameObject/LightObject instances:");
@@ -915,19 +915,25 @@ namespace KWEngine3.Editor
                 ImGui.SliderFloat("Safety Zone", ref KWEngine._octreeSafetyZone, 0f, 10f);
                 ImGui.Separator();
                 */
-                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Camera:");
-                ImGui.PushItemWidth(200);
-                if (ImGui.SliderFloat("FOV", ref fov, 20f, 180f))
+                ImGui.PushItemWidth(96);
+                if (ImGui.SliderFloat("Camera FOV", ref fov, 20f, 180f))
                 {
                     KWEngine.CurrentWorld._cameraEditor.SetFOVForPerspectiveProjection(fov);
                 }
                 ImGui.PopItemWidth();
                 ImGui.PushItemWidth(72);
-                ImGui.SliderFloat("Glow Radius", ref KWEngine._glowRadius, 0f, 1f);
+                ImGui.SameLine();
+                ImGui.SliderFloat("Glow Size", ref KWEngine._glowRadius, 0f, 1f);
                 ImGui.SameLine();
                 ImGui.SliderFloat("Glow #1", ref KWEngine._glowUpsampleF1, 0.01f, 1f);
                 ImGui.SameLine();
                 ImGui.SliderFloat("Glow #2", ref KWEngine._glowUpsampleF2, 0.01f, 1f);
+
+                //SSAO
+                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Screen-Space Ambient Occlusion (SSAO, HQ only):");
+                ImGui.SliderFloat("Radius", ref KWEngine._ssaoRadius, 0.01f, 2.0f);
+                ImGui.SliderFloat("Bias", ref KWEngine._ssaoBias, 0.00f, 0.5f);
+
                 ImGui.PopItemWidth();
 
                 /*ImGui.SameLine();
@@ -938,7 +944,6 @@ namespace KWEngine3.Editor
                     KWEngine.CurrentWorld._cameraGame._statePrevious = KWEngine.CurrentWorld._cameraGame._stateCurrent;
                 }
                 */
-                ImGui.Separator();
                 ImGui.NewLine();
                 if(ImGui.Button("Export world & objects"))
                 {

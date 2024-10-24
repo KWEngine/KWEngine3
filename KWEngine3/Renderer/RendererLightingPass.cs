@@ -14,6 +14,7 @@ namespace KWEngine3.Renderer
         public static int UTextureAlbedo { get; private set; } = -1;
         public static int UTextureNormal { get; private set; } = -1;
         public static int UTextureID { get; private set; } = -1;
+        public static int UTextureSSAO { get; private set; } = -1;
         public static int UTextureMetallicRoughnessMetallicType { get; private set; } = -1;
         public static int ULights { get; private set; } = -1;
         public static int ULightCount { get; private set; } = -1;
@@ -70,7 +71,7 @@ namespace KWEngine3.Renderer
                 UShadowMap = GL.GetUniformLocation(ProgramID, "uShadowMap");
                 UShadowMapCube = GL.GetUniformLocation(ProgramID, "uShadowMapCube");
 
-                
+                UTextureSSAO = GL.GetUniformLocation(ProgramID, "uTextureSSAO");
                 UTextureSkybox = GL.GetUniformLocation(ProgramID, "uTextureSkybox");
                 UTextureBackground = GL.GetUniformLocation(ProgramID, "uTextureBackground");
                 UUseTextureReflection = GL.GetUniformLocation(ProgramID, "uUseTextureReflectionQuality");
@@ -90,7 +91,7 @@ namespace KWEngine3.Renderer
         public static void SetGlobals()
         {
             TextureUnit currentTextureUnit = TextureUnit.Texture5;
-            int currentTextureNumber = 5;
+            int currentTextureNumber = 6;
             // upload shadow maps (tex2d):
             int i = 0;
             for (i = 0; i < KWEngine.CurrentWorld._preparedTex2DIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
@@ -213,6 +214,11 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture4);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[3].ID);
             GL.Uniform1(UTextureID, 4);
+
+            // ssao:
+            GL.ActiveTexture(TextureUnit.Texture5);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.Window._ppQuality == PostProcessingQuality.High ? RenderManager.FramebufferSSAO.Attachments[0].ID : KWEngine.TextureWhite);
+            GL.Uniform1(UTextureSSAO, 5);
 
             // lights array:
             GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * 17, KWEngine.CurrentWorld._preparedLightsArray);
