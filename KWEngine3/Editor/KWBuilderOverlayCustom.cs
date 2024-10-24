@@ -930,10 +930,13 @@ namespace KWEngine3.Editor
                 ImGui.SliderFloat("Glow #2", ref KWEngine._glowUpsampleF2, 0.01f, 1f);
 
                 //SSAO
-                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Screen-Space Ambient Occlusion (SSAO, HQ only):");
-                ImGui.SliderFloat("Radius", ref KWEngine._ssaoRadius, 0.01f, 2.0f);
-                ImGui.SliderFloat("Bias", ref KWEngine._ssaoBias, 0.00f, 0.5f);
-
+                if (KWEngine.Window._ppQuality == PostProcessingQuality.High)
+                {
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Screen-Space Ambient Occlusion (SSAO):");
+                    ImGui.SliderFloat("Radius", ref KWEngine._ssaoRadius, 0.01f, 2.0f);
+                    ImGui.SameLine();
+                    ImGui.SliderFloat("Bias", ref KWEngine._ssaoBias, 0.00f, 0.5f);
+                }
                 ImGui.PopItemWidth();
 
                 /*ImGui.SameLine();

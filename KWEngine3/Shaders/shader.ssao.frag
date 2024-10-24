@@ -48,7 +48,7 @@ void main()
         offset.xyz /= offset.w;               // perspective divide
         offset.xyz  = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0  
 
-        float sampleDepth = texture(uTextureDepth, offset.xy).x;
+        float sampleDepth = getFragmentPosition(offset.xy).z;
 
         float rangeCheck = smoothstep(0.0, 1.0, uRadiusBias.x / abs(fragmentPosWorldSpace.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + uRadiusBias.y ? 1.0 : 0.0) * rangeCheck; // 0.025 = optional bias (uniform?)

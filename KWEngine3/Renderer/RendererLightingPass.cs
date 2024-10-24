@@ -217,7 +217,7 @@ namespace KWEngine3.Renderer
 
             // ssao:
             GL.ActiveTexture(TextureUnit.Texture5);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.Window._ppQuality == PostProcessingQuality.High ? RenderManager.FramebufferSSAO.Attachments[0].ID : KWEngine.TextureWhite);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.Window._ppQuality == PostProcessingQuality.High ? RenderManager.FramebufferSSAOBlur.Attachments[0].ID : KWEngine.TextureWhite);
             GL.Uniform1(UTextureSSAO, 5);
 
             // lights array:

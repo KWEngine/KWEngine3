@@ -417,6 +417,10 @@ namespace KWEngine3
                     RenderManager.FramebufferSSAO.Bind(true);
                     RendererSSAO.Bind();
                     RendererSSAO.Draw(RenderManager.FramebufferDeferred);
+
+                    RenderManager.FramebufferSSAOBlur.Bind(true);
+                    RendererSSAOBlur.Bind();
+                    RendererSSAOBlur.Draw(RenderManager.FramebufferSSAO);
                 }
 
                 // Lighting pass:
