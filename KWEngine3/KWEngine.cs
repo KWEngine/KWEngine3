@@ -38,6 +38,11 @@ namespace KWEngine3
         public const int MAXADDITIONALINSTANCECOUNT = 1024 - 1; // -1 because the main instance does not count here
 
         /// <summary>
+        /// Erfragt oder setzt den aktuellen Debug-Modus für den Viewport
+        /// </summary>
+        public static DebugMode DebugMode { get; set; } = DebugMode.None;
+
+        /// <summary>
         /// Aktuelles Fenster
         /// </summary>
         public static GLWindow Window { get; internal set; } = null;

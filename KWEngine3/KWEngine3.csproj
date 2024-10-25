@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2024-10-25)</Product>
+		<Product>KWEngine3 (updated: 2024-10-26)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.3.7</Version>
-		<AssemblyVersion>3.0.3.7</AssemblyVersion>
-		<FileVersion>3.0.3.7</FileVersion>
-		<ProductVersion>3.0.3.7</ProductVersion>
+		<Version>3.0.3.8</Version>
+		<AssemblyVersion>3.0.3.8</AssemblyVersion>
+		<FileVersion>3.0.3.8</FileVersion>
+		<ProductVersion>3.0.3.8</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -98,6 +98,10 @@
 		<None Remove="Shaders\shader.bloom.vert" />
 		<None Remove="Shaders\shader.copy.frag" />
 		<None Remove="Shaders\shader.copy.vert" />
+		<None Remove="Shaders\shader.debug.frag" />
+		<None Remove="Shaders\shader.debug.vert" />
+		<None Remove="Shaders\shader.debugcube.frag" />
+		<None Remove="Shaders\shader.debugcube.vert" />
 		<None Remove="Shaders\shader.editor.frag" />
 		<None Remove="Shaders\shader.editor.geom" />
 		<None Remove="Shaders\shader.editor.light.frag" />
@@ -247,6 +251,18 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.debugcube.frag">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.debugcube.vert">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.debug.frag">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.debug.vert">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.ssaoblur.frag">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

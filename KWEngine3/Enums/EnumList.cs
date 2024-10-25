@@ -20,6 +20,53 @@
     }
 
     /// <summary>
+    /// Debug-Modus für den Viewport
+    /// </summary>
+    public enum DebugMode
+    {
+        /// <summary>
+        /// Keine Debugging-Darstellung (Standard)
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Zeige Tiefenpufferwerte
+        /// </summary>
+        DepthBufferLinearized = 1,
+        /// <summary>
+        /// Zeige Farbwerte (vor der Lichtberechnung)
+        /// </summary>
+        Colors = 2,
+        /// <summary>
+        /// Zeige Oberflächenvektoren (farbkodiert)
+        /// </summary>
+        SurfaceNormals = 3,
+        /// <summary>
+        /// Zeige SSAO-Post-Processing-Effekt
+        /// </summary>
+        ScreenSpaceAmbientOcclusion = 4,
+        /// <summary>
+        /// Zeige Glow-Post-Processing-Effekt
+        /// </summary>
+        Glow = 5,
+        /// <summary>
+        /// Zeige Metallic/Roughness-Werte für die Lichtberechnung
+        /// </summary>
+        MetallicRoughness = 6,
+        /// <summary>
+        /// Zeige Tiefenpuffer für die erste Shadow-Map (falls vorhanden)
+        /// </summary>
+        DepthBufferShadowMap1 = 7,
+        /// <summary>
+        /// Zeige Tiefenpuffer für die zweite Shadow-Map (falls vorhanden)
+        /// </summary>
+        DepthBufferShadowMap2 = 8,
+        /// <summary>
+        /// Zeige Tiefenpuffer für die dritte Shadow-Map (falls vorhanden)
+        /// </summary>
+        DepthBufferShadowMap3 = 9
+    }
+
+    /// <summary>
     /// Fenstermodus der Anwendung
     /// </summary>
     public enum WindowMode

@@ -93,6 +93,9 @@ namespace KWEngine3.Renderer
             RendererSSAO.Init();
             RendererSSAOBlur.Init();
 
+            RendererDebug.Init();
+            RendererDebugCube.Init();
+
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();
 

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using KWEngine3.Audio;
@@ -8,6 +9,7 @@ using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Renderer;
+using OpenTK.Audio.OpenAL;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -517,7 +519,65 @@ namespace KWEngine3
             RendererCopy.Bind();
             RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0], fadeColor);
 
-            if (KWEngine.CurrentWorld._flowField != null && KWEngine.CurrentWorld._flowField.IsVisible)
+            if((int)KWEngine.DebugMode > 0)
+            {
+                RenderManager.BindScreen();
+
+                List<FramebufferShadowMap> maps = new();
+                bool isCubeMap = false;
+                if ((int)KWEngine.DebugMode >= 7 && (int)KWEngine.DebugMode <= 9)
+                {
+                    foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
+                    {
+                        if (l._fbShadowMap != null)
+                        {
+                            maps.Add(l._fbShadowMap);
+                        }
+                    }
+
+                    if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap1)
+                    {
+                        if (maps.Count >= 1)
+                        {
+                            if (maps[0]._lightType == LightType.Point)
+                            {
+                                isCubeMap = true;
+                            }
+                        }
+                    }
+                    else if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap2)
+                    {
+                        if (maps.Count >= 2)
+                        {
+                            if (maps[1]._lightType == LightType.Point)
+                            {
+                                isCubeMap = true;
+                            }
+                        }
+                    }
+                    else if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap2)
+                    {
+                        if (maps.Count >= 3)
+                        {
+                            if (maps[2]._lightType == LightType.Point)
+                            {
+                                isCubeMap = true;
+                            }
+                        }
+                    }
+                }
+                if(isCubeMap)
+                {
+                    RendererDebugCube.Bind();
+                    RendererDebugCube.Draw(maps);
+                }
+                else
+                {
+                    RendererDebug.Bind();
+                    RendererDebug.Draw(maps);
+                }
+            }
+            else if (KWEngine.CurrentWorld._flowField != null && KWEngine.CurrentWorld._flowField.IsVisible)
             {
                 if (KWEngine.CurrentWorld._flowField.Destination != null)
                 {

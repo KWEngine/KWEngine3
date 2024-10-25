@@ -60,6 +60,12 @@ namespace KWEngine3TestProject.Worlds
             sun.SetColor(1, 0.9f, 0.8f, 2.5f);
             AddLightObject(sun);
 
+            LightObject pointTest = new LightObject(LightType.Point, ShadowQuality.Low);
+            pointTest.SetPosition(0, 3, 0);
+            pointTest.SetNearFar(0.1f, 3f);
+            pointTest.SetColor(1, 1, 1, 3.5f);
+            AddLightObject(pointTest);
+
             Floor f = new Floor();
             f.Name = "Floor";
             f.SetModel("KWPlatform");

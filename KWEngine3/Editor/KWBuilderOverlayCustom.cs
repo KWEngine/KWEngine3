@@ -798,11 +798,10 @@ namespace KWEngine3.Editor
         {
             if (SelectedLightObject != null)
             {
-                GL.Disable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.DepthTest);
                 RendererLightFrustum.Bind();
                 RendererLightFrustum.SetGlobals();
                 RendererLightFrustum.Draw(SelectedLightObject);
-                GL.Enable(EnableCap.DepthTest);
             }
         }
 
@@ -972,6 +971,72 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.CurrentWorld._cameraGame = KWEngine.CurrentWorld._cameraEditor;
                     KWEngine.CurrentWorld._cameraGame._statePrevious = KWEngine.CurrentWorld._cameraGame._stateCurrent;
+                }
+                ImGui.EndMenu();
+            }
+
+            if(ImGui.BeginMenu("Debug Mode"))
+            {
+                // Debug Modes:
+                // 1 = Depth
+                // 2 = Color
+                // 3 = Normals
+                // 4 = SSAO
+                // 5 = Bloom
+                // 6 = MetallicRoughness
+                // 7 = SM1
+                // 8 = SM2
+                // 9 = SM3
+                if (ImGui.MenuItem("Deactivate", "", KWEngine.DebugMode == DebugMode.None))
+                {
+                    KWEngine.DebugMode = DebugMode.None;
+                }
+                if (ImGui.MenuItem("Albedo shader", "", KWEngine.DebugMode == DebugMode.Colors))
+                {
+                    KWEngine.DebugMode = DebugMode.Colors;
+                }
+                if (ImGui.MenuItem("Depth buffer", "", KWEngine.DebugMode == DebugMode.DepthBufferLinearized))
+                {
+                    KWEngine.DebugMode = DebugMode.DepthBufferLinearized;
+                }
+                if (ImGui.MenuItem("Surface normals", "", KWEngine.DebugMode == DebugMode.SurfaceNormals))
+                {
+                    KWEngine.DebugMode = DebugMode.SurfaceNormals;
+                }
+                if (ImGui.MenuItem("Ambient occlusion", "", KWEngine.DebugMode == DebugMode.ScreenSpaceAmbientOcclusion))
+                {
+                    KWEngine.DebugMode = DebugMode.ScreenSpaceAmbientOcclusion;
+                }
+                if (ImGui.MenuItem("Glow", "", KWEngine.DebugMode == DebugMode.Glow))
+                {
+                    KWEngine.DebugMode = DebugMode.Glow;
+                }
+                if (ImGui.MenuItem("Metallic/Roughness", "", KWEngine.DebugMode == DebugMode.MetallicRoughness))
+                {
+                    KWEngine.DebugMode = DebugMode.MetallicRoughness;
+                }
+
+
+                // shadow maps
+                List<FramebufferShadowMap> maps = new();
+                foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
+                {
+                    if (l._fbShadowMap != null)
+                    {
+                        maps.Add(l._fbShadowMap);
+                    }
+                }
+                if (maps.Count >= 1 && ImGui.MenuItem("Shadow map #1", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap1))
+                {
+                    KWEngine.DebugMode = DebugMode.DepthBufferShadowMap1;
+                }
+                if (ImGui.MenuItem("Shadow map #2", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap2))
+                {
+                    KWEngine.DebugMode = DebugMode.DepthBufferShadowMap2;
+                }
+                if (ImGui.MenuItem("Shadow map #3", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap3))
+                {
+                    KWEngine.DebugMode = DebugMode.DepthBufferShadowMap3;
                 }
                 ImGui.EndMenu();
             }
