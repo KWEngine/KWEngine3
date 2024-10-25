@@ -61,14 +61,14 @@ namespace KWEngine3.Framebuffers
                     : mode == FramebufferTextureMode.RG8 ? PixelInternalFormat.Rg8
                     : mode == FramebufferTextureMode.RG32I ? PixelInternalFormat.Rg32i
                     : mode == FramebufferTextureMode.R32F ? PixelInternalFormat.R32f
+                    : mode == FramebufferTextureMode.R8 ? PixelInternalFormat.R8
                     : PixelInternalFormat.Rgba8,
                     width,
                     height,
                     0,
-                    mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH16F ? PixelFormat.DepthComponent : (mode == FramebufferTextureMode.RGB8 || mode == FramebufferTextureMode.RGB16F) ? PixelFormat.Rgb : mode == FramebufferTextureMode.RG8 ? PixelFormat.Rg : mode == FramebufferTextureMode.RG32I ? PixelFormat.RgInteger : mode == FramebufferTextureMode.R32F ? PixelFormat.Red : PixelFormat.Rgba,
-                    mode == FramebufferTextureMode.RGBA16UI ? PixelType.UnsignedShort : (mode == FramebufferTextureMode.RGBA8 || mode == FramebufferTextureMode.RG8) ? PixelType.UnsignedByte : (mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat : mode == FramebufferTextureMode.RG32I ? PixelType.Int : PixelType.Float,
+                    mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH16F ? PixelFormat.DepthComponent : (mode == FramebufferTextureMode.RGB8 || mode == FramebufferTextureMode.RGB16F) ? PixelFormat.Rgb : mode == FramebufferTextureMode.RG8 ? PixelFormat.Rg : mode == FramebufferTextureMode.RG32I ? PixelFormat.RgInteger : mode == FramebufferTextureMode.R8 ? PixelFormat.Red : mode == FramebufferTextureMode.R32F ? PixelFormat.Red : PixelFormat.Rgba,
+                    mode == FramebufferTextureMode.RGBA16UI ? PixelType.UnsignedShort : (mode == FramebufferTextureMode.RGBA8 || mode == FramebufferTextureMode.RG8 || mode == FramebufferTextureMode.R8) ? PixelType.UnsignedByte : (mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat : mode == FramebufferTextureMode.RG32I ? PixelType.Int : PixelType.Float,
                     IntPtr.Zero);
-                
             }
             
             GL.TexParameterI(_target, TextureParameterName.TextureWrapS, ref wrapmode);

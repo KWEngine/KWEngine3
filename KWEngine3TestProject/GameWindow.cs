@@ -13,7 +13,7 @@ namespace KWEngine3TestProject
             WindowMode.Default
             )
         {
-            SetWorld(new GameWorldPlatformerPack());
+            SetWorld(new GameWorldEmpty());
         }
     }
 }

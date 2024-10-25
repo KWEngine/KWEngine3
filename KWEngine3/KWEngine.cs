@@ -159,6 +159,19 @@ namespace KWEngine3
         /// </summary>
         public static float SweepAndPruneTolerance { get { return _swpruneTolerance; } set { _swpruneTolerance = MathHelper.Max(0f, value); } }
 
+        /// <summary>
+        /// Aktiviert oder deaktiviert den Post-Processing-Effekt "Screen-Space Ambient Occlusion" (Standard: false)
+        /// </summary>
+        public static bool SSAO_Enabled { get { return _ssaoEnabled; } set { _ssaoEnabled = value; } }
+        /// <summary>
+        /// Weite des SSAO-Effekts (Standard: 0.4f, Bereich: 0.01f bis 1.0f)
+        /// </summary>
+        public static float SSAO_Radius { get { return _ssaoRadius; } set { _ssaoRadius = Math.Clamp(value, 0.01f, 1.0f); } }
+        /// <summary>
+        /// Intensität des SSAO-Effekts (Standard: 0.1f, Bereich: 0.00f bis 0.5f)
+        /// </summary>
+        public static float SSAO_Bias { get { return _ssaoBias; } set { _ssaoBias = Math.Clamp(value, 0.0f, 0.5f); } }
+
         internal static void DeselectAll()
         {
             KWBuilderOverlay.SelectedGameObject = null;
@@ -166,11 +179,10 @@ namespace KWEngine3
             KWBuilderOverlay.SelectedTerrainObject = null;
         }
 
-
         // SSAO settings
-        internal static float _ssaoRadius = 0.5f;
-        internal static float _ssaoBias = 0.025f;
-
+        internal static float _ssaoRadius = 0.40f;
+        internal static float _ssaoBias = 0.10f;
+        internal static bool _ssaoEnabled = false;
 
         internal static CursorState _stateCameraGameBeforeToggle = CursorState.Normal;
         internal static float _texMemUsed = 0f;

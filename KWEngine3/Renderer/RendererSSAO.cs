@@ -73,12 +73,15 @@ namespace KWEngine3.Renderer
             Random rng = new Random();
 
             // generate sample kernel:
-            for (uint i = 0; i < 64 * 3; i+=3)
+            for (uint i = 0; i < Kernel.Length; i+=3)
             {
-                Vector3 kernelTmp = new Vector3(rng.NextSingle() * 2.0f - 1.0f, rng.NextSingle() * 2.0f - 1.0f, rng.NextSingle());
+                Vector3 kernelTmp = Vector3.Normalize(new Vector3(rng.NextSingle() * 2.0f - 1.0f, rng.NextSingle() * 2.0f - 1.0f, rng.NextSingle()));
+                kernelTmp *= rng.NextSingle();
+
                 float scale = i / 64.0f;
                 scale = MathHelper.Lerp(0.1f, 1.0f, scale * scale);
                 kernelTmp *= scale;
+
                 Kernel[i + 0] = kernelTmp.X;
                 Kernel[i + 1] = kernelTmp.Y;
                 Kernel[i + 2] = kernelTmp.Z;
@@ -100,14 +103,12 @@ namespace KWEngine3.Renderer
             GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, new int[] { (int)TextureWrapMode.Repeat });
             GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, new int[] { (int)TextureWrapMode.Repeat });
             GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            HelperGeneral.CheckGLErrors();
         }
     
 
         public static void Draw(Framebuffer fbSource)
         {
-            Matrix4 vpInv = Matrix4.Invert(KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
+            Matrix4 vpInv = Matrix4.Invert(KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ProjectionMatrix);
             GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vpInv);
 
             Matrix4 proj = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ProjectionMatrix;

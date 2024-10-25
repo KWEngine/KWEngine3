@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="7.5" Width="2.75" />
+    <Position X="0.5" Y="8.25" Width="2.75" />
     <Members>
       <Field Name="_keyboard" Hidden="true" />
       <Field Name="_mouse" Hidden="true" />
@@ -49,6 +49,9 @@
       <Field Name="_glowUpsampleF2" Hidden="true" />
       <Field Name="_octreeSafetyZone" Hidden="true" />
       <Field Name="_screenInfo" Hidden="true" />
+      <Field Name="_ssaoBias" Hidden="true" />
+      <Field Name="_ssaoEnabled" Hidden="true" />
+      <Field Name="_ssaoRadius" Hidden="true" />
       <Field Name="_stateCameraGameBeforeToggle" Hidden="true" />
       <Field Name="_swpruneTolerance" Hidden="true" />
       <Field Name="_texMemUsed" Hidden="true" />
@@ -116,7 +119,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgAR7BJAoSJALEMpApqARAAVCgCQioQjHn2Sv2KEIE=</HashCode>
+      <HashCode>BcgAR7BNAqSJALEcpApqARABVCgCQioQjHn2Sv2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -200,7 +203,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="13.75" Width="2.75" />
+    <Position X="0.5" Y="14.5" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -416,7 +419,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="11.25" Width="2.75" />
+    <Position X="0.5" Y="12" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>

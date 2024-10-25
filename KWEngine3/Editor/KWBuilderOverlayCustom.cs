@@ -875,7 +875,7 @@ namespace KWEngine3.Editor
                 float fov = (float)Math.Round(KWEngine.CurrentWorld._cameraEditor._stateCurrent._fov * 2);
                 
                 ImGui.Begin("World settings", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(768, 256));
+                ImGui.SetWindowSize(new System.Numerics.Vector2(640, 256));
                 ImGui.SetWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y - 256), ImGuiCond.Once);
 
                 ImGui.LabelText(KWEngine.CurrentWorld._gameObjects.Count.ToString() + " / " + KWEngine.CurrentWorld._lightObjects.Count.ToString(), "GameObject/LightObject instances:");
@@ -930,13 +930,13 @@ namespace KWEngine3.Editor
                 ImGui.SliderFloat("Glow #2", ref KWEngine._glowUpsampleF2, 0.01f, 1f);
 
                 //SSAO
-                if (KWEngine.Window._ppQuality == PostProcessingQuality.High)
-                {
-                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Screen-Space Ambient Occlusion (SSAO):");
-                    ImGui.SliderFloat("Radius", ref KWEngine._ssaoRadius, 0.01f, 2.0f);
-                    ImGui.SameLine();
-                    ImGui.SliderFloat("Bias", ref KWEngine._ssaoBias, 0.00f, 0.5f);
-                }
+                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Screen-Space Ambient Occlusion (SSAO):");
+                ImGui.Checkbox("Enabled?", ref KWEngine._ssaoEnabled);
+                ImGui.SameLine();
+                ImGui.SliderFloat("Radius", ref KWEngine._ssaoRadius, 0.01f, 1.0f);
+                ImGui.SameLine();
+                ImGui.SliderFloat("Bias", ref KWEngine._ssaoBias, 0.00f, 0.5f);
+                
                 ImGui.PopItemWidth();
 
                 /*ImGui.SameLine();
@@ -953,7 +953,7 @@ namespace KWEngine3.Editor
                     World.Export();
                 }
                 ImGui.SameLine();
-                ImGui.Indent(440);
+                ImGui.Indent(578);
                 if (ImGui.Button("Close"))
                 {
                     _worldMenuActive = false;

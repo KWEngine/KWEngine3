@@ -42,8 +42,8 @@ namespace KWEngine3.Renderer
             FramebufferQuad.Init();
             FramebufferDeferred = new FramebufferDeferred(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
             FramebufferLightingPass = new FramebufferLighting(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
-            FramebufferSSAO = KWEngine.Window._ppQuality == PostProcessingQuality.High ? new FramebufferSSAO(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point) : null;
-            FramebufferSSAOBlur = KWEngine.Window._ppQuality == PostProcessingQuality.High ? new FramebufferSSAOBlur(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point) : null;
+            FramebufferSSAO = new FramebufferSSAO(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point);
+            FramebufferSSAOBlur = new FramebufferSSAOBlur(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point);
 
             // Bloom
             if ((int)KWEngine.Window._ppQuality > 1) // high only

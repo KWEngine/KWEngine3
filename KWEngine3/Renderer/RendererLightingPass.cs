@@ -62,6 +62,7 @@ namespace KWEngine3.Renderer
                 UTextureMetallicRoughnessMetallicType = GL.GetUniformLocation(ProgramID, "uTexturePBR");
                 UTextureID = GL.GetUniformLocation(ProgramID, "uTextureId");
                 UTextureDepth = GL.GetUniformLocation(ProgramID, "uTextureDepth");
+                UTextureSSAO = GL.GetUniformLocation(ProgramID, "uTextureSSAO");
 
                 ULights = GL.GetUniformLocation(ProgramID, "uLights");
                 ULightCount = GL.GetUniformLocation(ProgramID, "uLightCount");
@@ -71,7 +72,6 @@ namespace KWEngine3.Renderer
                 UShadowMap = GL.GetUniformLocation(ProgramID, "uShadowMap");
                 UShadowMapCube = GL.GetUniformLocation(ProgramID, "uShadowMapCube");
 
-                UTextureSSAO = GL.GetUniformLocation(ProgramID, "uTextureSSAO");
                 UTextureSkybox = GL.GetUniformLocation(ProgramID, "uTextureSkybox");
                 UTextureBackground = GL.GetUniformLocation(ProgramID, "uTextureBackground");
                 UUseTextureReflection = GL.GetUniformLocation(ProgramID, "uUseTextureReflectionQuality");
@@ -90,7 +90,7 @@ namespace KWEngine3.Renderer
 
         public static void SetGlobals()
         {
-            TextureUnit currentTextureUnit = TextureUnit.Texture5;
+            TextureUnit currentTextureUnit = TextureUnit.Texture6;
             int currentTextureNumber = 6;
             // upload shadow maps (tex2d):
             int i = 0;
@@ -217,7 +217,7 @@ namespace KWEngine3.Renderer
 
             // ssao:
             GL.ActiveTexture(TextureUnit.Texture5);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.Window._ppQuality == PostProcessingQuality.High ? RenderManager.FramebufferSSAOBlur.Attachments[0].ID : KWEngine.TextureWhite);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.SSAO_Enabled ? RenderManager.FramebufferSSAOBlur.Attachments[0].ID : KWEngine.TextureWhite);
             GL.Uniform1(UTextureSSAO, 5);
 
             // lights array:

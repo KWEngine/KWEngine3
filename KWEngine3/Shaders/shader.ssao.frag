@@ -17,10 +17,19 @@ uniform vec2 uRadiusBias;
 //const float radius = 0.5;
 //const float bias = 0.025;
 
-vec3 getFragmentPosition(vec2 offset)
+vec3 getFragmentPosition()
 {
-    float depth = texture(uTextureDepth, vTexture + offset).r * 2.0 - 1.0;
-    vec4 clipSpaceCoordinate = vec4((vTexture + offset) * 2.0 - 1.0, depth, 1.0);
+    float depth = texture(uTextureDepth, vTexture).r * 2.0 - 1.0;
+    vec4 clipSpaceCoordinate = vec4((vTexture) * 2.0 - 1.0, depth, 1.0);
+    vec4 worldSpaceCoordinate = uViewProjectionMatrixInverted * clipSpaceCoordinate;
+    worldSpaceCoordinate.xyz /= worldSpaceCoordinate.w;
+    return worldSpaceCoordinate.xyz;
+}
+
+vec3 getFragmentPositionOffset(vec2 offset)
+{
+    float depth = texture(uTextureDepth, offset).r * 2.0 - 1.0;
+    vec4 clipSpaceCoordinate = vec4((offset) * 2.0 - 1.0, depth, 1.0);
     vec4 worldSpaceCoordinate = uViewProjectionMatrixInverted * clipSpaceCoordinate;
     worldSpaceCoordinate.xyz /= worldSpaceCoordinate.w;
     return worldSpaceCoordinate.xyz;
@@ -28,9 +37,9 @@ vec3 getFragmentPosition(vec2 offset)
 
 void main()
 {
-    vec3 fragmentPosWorldSpace = getFragmentPosition(vec2(0.0,0.0));
-    vec3 normal    = texture(uTextureNormal, vTexture).xyz;
-    vec3 randomVec = texture(uTextureNoise, vTexture * uNoiseScale).xyz;  
+    vec3 fragmentPosWorldSpace = getFragmentPosition();
+    vec3 normal    = normalize(texture(uTextureNormal, vTexture).xyz);
+    vec3 randomVec = normalize(texture(uTextureNoise, vTexture * uNoiseScale).xyz);  
 
     vec3 tangent   = normalize(randomVec - normal * dot(randomVec, normal));
     vec3 bitangent = cross(normal, tangent);
@@ -48,7 +57,7 @@ void main()
         offset.xyz /= offset.w;               // perspective divide
         offset.xyz  = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0  
 
-        float sampleDepth = getFragmentPosition(offset.xy).z;
+        float sampleDepth = getFragmentPositionOffset(offset.xy).z;
 
         float rangeCheck = smoothstep(0.0, 1.0, uRadiusBias.x / abs(fragmentPosWorldSpace.z - sampleDepth));
         occlusion += (sampleDepth >= samplePos.z + uRadiusBias.y ? 1.0 : 0.0) * rangeCheck; // 0.025 = optional bias (uniform?)

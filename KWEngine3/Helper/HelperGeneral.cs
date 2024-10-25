@@ -21,29 +21,22 @@ namespace KWEngine3.Helper
         {
             int currentSizeInBytes = 0;
             GL.BindTexture(t.Target, t.ID);
-            CheckGLErrors();
-
 
             // mipmaps?
             GL.GetTexParameter(t.Target, GetTextureParameter.TextureMaxLevel, out int mipmapCount);
-            CheckGLErrors();
             if (t.Target == TextureTarget.Texture2D)
             {
                 // compression?
                 GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureCompressed, out int compressed);
-                CheckGLErrors();
                 if (compressed > 0)
                 {
                     GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureCompressedImageSize, out currentSizeInBytes);
-                    CheckGLErrors();
                 }
                 else
                 {
                     // get resolution:
                     GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureWidth, out int width);
-                    CheckGLErrors();
                     GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureHeight, out int height);
-                    CheckGLErrors();
                     int pixels = width * height;
 
                     // get number of color channels:
@@ -59,27 +52,22 @@ namespace KWEngine3.Helper
                         channels = 4;
                     }
                     currentSizeInBytes = channels * pixels;
-                    CheckGLErrors();
                 }
             }
             else if (t.Target == TextureTarget.TextureCubeMap)
             {
                 // compression?
                 GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureCompressed, out int compressed);
-                CheckGLErrors();
                 if (compressed > 0)
                 {
                     GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureCompressedImageSize, out currentSizeInBytes);
-                    CheckGLErrors();
                     currentSizeInBytes *= 6;
                 }
                 else
                 {
                     // get resolution:
                     GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureWidth, out int width);
-                    CheckGLErrors();
                     GL.GetTexLevelParameter(TextureTarget.TextureCubeMapPositiveX, 0, GetTextureParameter.TextureHeight, out int height);
-                    CheckGLErrors();
                     int pixels = width * height;
 
                     // get number of color channels:
@@ -95,7 +83,6 @@ namespace KWEngine3.Helper
                         channels = 4;
                     }
                     currentSizeInBytes = channels * pixels * 6;
-                    CheckGLErrors();
                 }
             }
             GL.BindTexture(t.Target, 0);
@@ -141,6 +128,8 @@ namespace KWEngine3.Helper
             // Framebuffers:
             bytes += RenderManager.FramebufferDeferred.SizeInBytes;
             bytes += RenderManager.FramebufferLightingPass.SizeInBytes;
+            bytes += RenderManager.FramebufferSSAO.SizeInBytes;
+            bytes += RenderManager.FramebufferSSAOBlur.SizeInBytes;
             foreach(FramebufferBloom fbb in RenderManager.FramebuffersBloom)
             {
                 if(fbb != null)
@@ -175,7 +164,6 @@ namespace KWEngine3.Helper
                     }
                 }
             }
-            CheckGLErrors();
             return bytes;
         }
 

@@ -412,7 +412,7 @@ namespace KWEngine3
                 GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
 
                 // SSAO pass
-                if (KWEngine.Window._ppQuality == PostProcessingQuality.High)
+                if (KWEngine.SSAO_Enabled)
                 {
                     RenderManager.FramebufferSSAO.Bind(true);
                     RendererSSAO.Bind();
