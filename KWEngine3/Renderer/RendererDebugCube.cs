@@ -14,8 +14,9 @@ namespace KWEngine3.Renderer
     {
         public static int ProgramID { get; private set; } = -1;
         public static int UTexture { get; private set; } = -1;
-        //public static int UOptions { get; private set; } = -1;
-        public static int UCameraLookAtVector { get; private set; } = -1;
+        public static int UTextureDepth { get; private set; } = -1;
+        public static int UViewProjectionMatrixInverted { get; private set; } = -1;
+        public static int UCameraPosition { get; private set; } = -1;
 
         public static void Init()
         {
@@ -43,8 +44,9 @@ namespace KWEngine3.Renderer
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
-                //UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
-                UCameraLookAtVector = GL.GetUniformLocation(ProgramID, "uCameraLookAtVector");
+                UTextureDepth = GL.GetUniformLocation(ProgramID, "uTextureDepth");
+                UCameraPosition = GL.GetUniformLocation(ProgramID, "uCameraPosition");
+                UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
             }
         }
 
@@ -97,15 +99,7 @@ namespace KWEngine3.Renderer
                 return;
             }
 
-            if(KWEngine.DebugMode == DebugMode.DepthBufferShadowMap1 && maps.Count < 1)
-            {
-                return;
-            }
-            if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap2 && maps.Count < 2)
-            {
-                return;
-            }
-            if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap3 && maps.Count < 3)
+            if(attachmentID < 0)
             {
                 return;
             }
@@ -113,16 +107,22 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.TextureCubeMap, attachmentID);
             GL.Uniform1(UTexture, 0);
-            
-            GL.Uniform3(UCameraLookAtVector, KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector);
+
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, RenderManager.FramebufferDeferred.Attachments[4].ID);
+            GL.Uniform1(UTextureDepth, 1);
+
+            Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
+            vp.Invert();
+            GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vp);
+
+            GL.Uniform3(UCameraPosition, KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender._position : KWEngine.CurrentWorld._cameraGame._stateRender._position);
             
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
             GL.BindVertexArray(0);
 
             GL.BindTexture(TextureTarget.TextureCubeMap, 0);
-
-            HelperGeneral.CheckGLErrors();
         }
 
     }

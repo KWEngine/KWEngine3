@@ -13,9 +13,7 @@ namespace KWEngine3.Renderer
     {
         public static int ProgramID { get; private set; } = -1;
         public static int UTexture { get; private set; } = -1;
-        public static int UTextureCube { get; private set; } = -1;
         public static int UOptions { get; private set; } = -1;
-        public static int UCameraLookAtVector { get; private set; } = -1;
 
         public static void Init()
         {
@@ -142,8 +140,6 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            HelperGeneral.CheckGLErrors();
         }
 
     }

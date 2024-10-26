@@ -646,25 +646,30 @@ namespace KWEngine3
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
             base.OnMouseMove(e);
+            bool shadowMapDebugMode = (int)KWEngine.DebugMode >= 7 && (int)KWEngine.DebugMode <= 9;
+
             if (KWEngine.Mode == EngineMode.Edit &&
-                KWBuilderOverlay.IsButtonActive(MouseButton.Middle)
-                && !KWBuilderOverlay.IsCursorOnAnyControl())
+                KWBuilderOverlay.IsButtonActive(MouseButton.Middle) &&
+                !KWBuilderOverlay.IsCursorOnAnyControl() && 
+                !shadowMapDebugMode)
             {
                 KWEngine.CurrentWorld._cameraEditor.MoveUpDown(-e.DeltaY * KWEngine.MouseSensitivity * 2f);
                 KWEngine.CurrentWorld._cameraEditor.Strafe(e.DeltaX * KWEngine.MouseSensitivity * 2f);
             }
 
-            if (KWEngine.Mode == EngineMode.Edit &&
-                KWBuilderOverlay.IsButtonActive(MouseButton.Left)
-                )
+            if (KWEngine.Mode == EngineMode.Edit && KWBuilderOverlay.IsButtonActive(MouseButton.Left))
             {
                 bool result1 = KWBuilderOverlay.IsCursorOnAnyControl();
                 bool result2 = KWBuilderOverlay.IsCursorPressedOnAnyControl(MouseButton.Left);
                 if (!result1 && !result2)
                 {
+                    if (shadowMapDebugMode)
+                    {
+                        if (!RenderManager.IsCurrentDebugMapACubeMap())
+                            return;
+                    }
                     KWEngine.CurrentWorld._cameraEditor.ArcBallEditor(e.Delta * KWEngine.MouseSensitivity * 20f, KWBuilderOverlay.SelectedGameObject);
                 }
-
             }
         }
 
@@ -684,8 +689,11 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
+            bool shadowMapDebugMode = (int)KWEngine.DebugMode >= 7 && (int)KWEngine.DebugMode <= 9;
             base.OnMouseWheel(e);
-            if (KWEngine.Mode == EngineMode.Edit && !KWBuilderOverlay.IsCursorOnAnyControl())
+            if (KWEngine.Mode == EngineMode.Edit && 
+                !KWBuilderOverlay.IsCursorOnAnyControl() &&
+                shadowMapDebugMode == false)
             {
                 KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * 2f);
             }

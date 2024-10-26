@@ -75,6 +75,8 @@ namespace KWEngine3.Editor
 
         private static void DrawGridAndBoundingBox()
         {
+            if (!RenderManager.IsCurrentDebugMapACubeMap()) return;
+
             GL.Disable(EnableCap.DepthTest);
             RendererGrid.Bind();
             RendererGrid.SetGlobals();
@@ -798,10 +800,11 @@ namespace KWEngine3.Editor
         {
             if (SelectedLightObject != null)
             {
-                GL.Enable(EnableCap.DepthTest);
+                GL.Disable(EnableCap.DepthTest);
                 RendererLightFrustum.Bind();
                 RendererLightFrustum.SetGlobals();
                 RendererLightFrustum.Draw(SelectedLightObject);
+                GL.Enable(EnableCap.DepthTest);
             }
         }
 

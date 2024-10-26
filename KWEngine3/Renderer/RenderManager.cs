@@ -1,5 +1,6 @@
 ﻿using KWEngine3.Editor;
 using KWEngine3.Framebuffers;
+using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
@@ -36,7 +37,7 @@ namespace KWEngine3.Renderer
             if (clear)
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         }
-
+        
         public static void InitializeFramebuffers()
         {
             FramebufferQuad.Init();
@@ -258,6 +259,54 @@ namespace KWEngine3.Renderer
                      (KWEngine.BLOOMHEIGHT - LQPENALTY_H * (i - 0)) >> (i - 1)
                     );
             }
+        }
+
+        public static bool IsCurrentDebugMapACubeMap()
+        {
+            if ((int)KWEngine.DebugMode < 7 || (int)KWEngine.DebugMode > 9)
+                return false;
+
+            List<FramebufferShadowMap> maps = new();
+            bool isCubeMap = false;
+            foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
+            {
+                if (l._fbShadowMap != null)
+                {
+                    maps.Add(l._fbShadowMap);
+                }
+            }
+
+            if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap1)
+            {
+                if (maps.Count >= 1)
+                {
+                    if (maps[0]._lightType == LightType.Point)
+                    {
+                        isCubeMap = true;
+                    }
+                }
+            }
+            else if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap2)
+            {
+                if (maps.Count >= 2)
+                {
+                    if (maps[1]._lightType == LightType.Point)
+                    {
+                        isCubeMap = true;
+                    }
+                }
+            }
+            else if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap2)
+            {
+                if (maps.Count >= 3)
+                {
+                    if (maps[2]._lightType == LightType.Point)
+                    {
+                        isCubeMap = true;
+                    }
+                }
+            }
+            return isCubeMap;
         }
     }
 }

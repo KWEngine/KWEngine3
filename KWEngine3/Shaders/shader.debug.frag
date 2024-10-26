@@ -36,7 +36,8 @@ void main()
 	}
 	else if(uOptions.x == 3)
 	{
-		color = color2D; // TODO: negative values?
+		vec3 tmp = (color2D * 0.5 + 0.5).xyz;
+		color = vec4(tmp.x, tmp.y, tmp.z, 1.0);
 	}
 	else if(uOptions.x == 4)
 	{
