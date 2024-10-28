@@ -10,13 +10,13 @@ void main()
 {
     vec2 texelSize = 1.0 / vec2(textureSize(uTextureSSAO, 0));
     float result = 0.0;
-    for (int x = -2; x < 2; x++) 
+    for (int x = -1; x < 2; x++) 
     {
-        for (int y = -2; y < 2; y++) 
+        for (int y = -1; y < 2; y++) 
         {
             vec2 offset = vec2(float(x), float(y)) * texelSize;
             result += texture(uTextureSSAO, vTexture + offset).r;
         }
     }
-    shade = result / (4.0 * 4.0);
+    shade = result / (3.0 * 3.0);
 }

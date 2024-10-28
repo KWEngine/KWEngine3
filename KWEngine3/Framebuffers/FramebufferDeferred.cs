@@ -13,11 +13,11 @@ namespace KWEngine3.Framebuffers
         public override void Init(int width, int height)
         {
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 0));   // Albedo
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 1));   // Normal
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2));     // Metallic, Roughness, MetallicType attachment
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG32I, width, height, 3));     // ID, ShadowCaster
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4)); // Depth
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Albedo
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Normal
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // Metallic, Roughness, MetallicType attachment
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG32I, width, height, 3, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // ID, ShadowCaster
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
             SizeInBytes =
                 width * height * 3 * sizeof(float) +
                 width * height * 3 * sizeof(float) +

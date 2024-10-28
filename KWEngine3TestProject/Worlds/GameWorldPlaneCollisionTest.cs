@@ -36,6 +36,7 @@ namespace KWEngine3TestProject.Worlds
         {
             SetCameraPosition(0, 10, 10);
             SetColorAmbient(0.5f, 0.5f, 0.5f);
+            //KWEngine.SSAO_Enabled = true;
 
             KWEngine.LoadModel("Beach_Render", "./Models/GLTFTest/WorldADV03_Beach_Map.obj");
             KWEngine.LoadCollider("Beach_Planes", "./Models/OBJTest/WorldADV03_Beach_Planes.obj", ColliderType.PlaneCollider);
@@ -76,7 +77,7 @@ namespace KWEngine3TestProject.Worlds
             _player.SetHitboxToCapsule();
             _player.SetHitboxScale(0.5f, 0.75f, 1f);
             _player.IsShadowCaster = true;
-            _player.SetOpacity(0.5f);
+            //_player.SetOpacity(0.5f);
             AddGameObject(_player);
             
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.Medium);

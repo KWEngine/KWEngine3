@@ -75,7 +75,7 @@ namespace KWEngine3.Editor
 
         private static void DrawGridAndBoundingBox()
         {
-            if (!RenderManager.IsCurrentDebugMapACubeMap()) return;
+            if (KWEngine.DebugMode != DebugMode.None && !RenderManager.IsCurrentDebugMapACubeMap()) return;
 
             GL.Disable(EnableCap.DepthTest);
             RendererGrid.Bind();
@@ -1006,7 +1006,7 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.DebugMode = DebugMode.SurfaceNormals;
                 }
-                if (ImGui.MenuItem("Ambient occlusion", "", KWEngine.DebugMode == DebugMode.ScreenSpaceAmbientOcclusion))
+                if (ImGui.MenuItem("Ambient occlusion" + (!KWEngine.SSAO_Enabled ? " (currently disabled)" : ""), "", KWEngine.DebugMode == DebugMode.ScreenSpaceAmbientOcclusion))
                 {
                     KWEngine.DebugMode = DebugMode.ScreenSpaceAmbientOcclusion;
                 }
@@ -1368,23 +1368,31 @@ namespace KWEngine3.Editor
             {
                 if (id > 0)
                 {
-                    SelectedLightObject = null;
-                    GameObject pickedGameObject = GetGameObjectForId(id);
-                    if (pickedGameObject != null)
+                    if (id < ushort.MaxValue)
                     {
-                        SelectedGameObject = pickedGameObject;
                         SelectedLightObject = null;
-                        SelectedTerrainObject = null;
+                        GameObject pickedGameObject = GetGameObjectForId(id);
+                        if (pickedGameObject != null)
+                        {
+                            SelectedGameObject = pickedGameObject;
+                            SelectedLightObject = null;
+                            SelectedTerrainObject = null;
+                        }
+                        else
+                        {
+                            // maybe terrain?
+                            SelectedTerrainObject = GetTerrainObjectForId(id);
+                            if (SelectedTerrainObject != null)
+                            {
+                                SelectedGameObject = null;
+                                SelectedLightObject = null;
+                            }
+                        }
                     }
                     else
                     {
-                        // maybe terrain?
-                        SelectedTerrainObject = GetTerrainObjectForId(id);
-                        if (SelectedTerrainObject != null)
-                        {
-                            SelectedGameObject = null;
-                            SelectedLightObject = null;
-                        }
+                        // deselect
+                        DeselectAll();
                     }
                 }
                 else
@@ -1392,6 +1400,7 @@ namespace KWEngine3.Editor
                     // LightObject
                     SelectedGameObject = null;
                     SelectedTerrainObject = null;
+                    SelectedLightObject = null;
                     LightObject pickedLightObject = GetLightObjectForId(id);
                     if (pickedLightObject != null)
                     {
