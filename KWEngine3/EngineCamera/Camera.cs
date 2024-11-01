@@ -270,8 +270,8 @@ namespace KWEngine3.EngineCamera
             float x = KWEngine.Window.MousePosition.X;
             float y = KWEngine.Window.MousePosition.Y;
 
-            x = (2.0f * x) / KWEngine.Window.Size.X - 1.0f;
-            y = 1.0f - (2.0f * y) / KWEngine.Window.Size.Y;
+            x = (2.0f * x) / KWEngine.Window.ClientSize.X - 1.0f;
+            y = 1.0f - (2.0f * y) / KWEngine.Window.ClientSize.Y;
 
             Vector4 ray_clip = new(x, y, -1, 1);
             Matrix4 viewInv = Matrix4.Invert(_stateCurrent.ViewMatrix);

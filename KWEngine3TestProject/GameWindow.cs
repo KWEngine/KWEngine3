@@ -8,12 +8,12 @@ namespace KWEngine3TestProject
         public GameWindow() : base(
             1280,                           // Window width
             720,                            // Window height
-            false,                           // VSync on?
+            true,                           // VSync on?
             PostProcessingQuality.Standard, // Quality level (Standard recommended for iGPUs)
             WindowMode.Default              // Window mode
             )
         {
-            SetWorld(new GameWorldRayHitboxTest());
+            SetWorld(new GameWorldEmpty());
         }
     }
 }

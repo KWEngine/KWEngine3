@@ -164,6 +164,24 @@ namespace KWEngine3.Helper
                     }
                 }
             }
+
+            // Internal textures:
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureCheckerboard, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureDefault, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFlowFieldArrow, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFlowFieldCross, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageFern, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrass1, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrass2, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrass3, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrassMinecraft, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrassNormal, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureNoise, TextureTarget.Texture2D));
+            foreach(int id in KWEngine.FontTextureArray)
+            {
+                bytes += GetTextureSizeInBytes(new KWTexture(id, TextureTarget.Texture2D));
+            }
+
             return bytes;
         }
 
@@ -172,12 +190,9 @@ namespace KWEngine3.Helper
             int bytes = 0;
             foreach (KeyValuePair<string, GeoModel> entry in KWEngine.Models)
             {
-                if (entry.Value.AssemblyMode == SceneImporter.AssemblyMode.File)
+                foreach (GeoMesh mesh in entry.Value.Meshes.Values)
                 {
-                    foreach (GeoMesh mesh in entry.Value.Meshes.Values)
-                    {
-                        bytes += GetMeshGeometrySizeInBytes(mesh);
-                    }
+                    bytes += GetMeshGeometrySizeInBytes(mesh);
                 }
             }
             return bytes;

@@ -7,6 +7,7 @@ namespace KWEngine3.Helper
     {
         public Vector3[] Vertices;
         public Vector3 Normal;
+        public bool NormalFlip;
         public GameObjectHitbox Owner;
     }
 }

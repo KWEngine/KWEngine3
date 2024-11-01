@@ -185,13 +185,13 @@ namespace KWEngine3.GameObjects
             {
                 vertices[i] = _vertices[face.Vertices[i]];
             }
-            normal = _normals[_mesh.Faces[faceIndex].Normal];
+            normal = _normals[_mesh.Faces[faceIndex].Normal] * (face.Flip ? -1f : 1f);
         }
 
         internal bool GetVerticesFromFaceAndCheckAngle(int faceIndex, Vector3 dir, ref Span<Vector3> vertices, out HitboxFace hitboxface)
         {
             GeoMeshFace face = _mesh.Faces[faceIndex];
-            Vector3 n = _normals[_mesh.Faces[faceIndex].Normal];
+            Vector3 n = _normals[_mesh.Faces[faceIndex].Normal] * (face.Flip ? -1f : 1f);
             float dot = Vector3.Dot(dir, n);
             if (dot >= 0)
             {
@@ -206,82 +206,11 @@ namespace KWEngine3.GameObjects
             hitboxface = new HitboxFace()
             {
                 Normal = n,
+                NormalFlip = face.Flip,
                 Vertices = vertices.ToArray()
             };
             return true;
         }
-        /*
-        internal void GetVerticesForTriangleFace(int faceIndex, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 normal)
-        {
-            v1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]];
-            v2 = _vertices[_mesh.Faces[faceIndex].Vertices[1]];
-            v3 = _vertices[_mesh.Faces[faceIndex].Vertices[2]];
-            normal = _normals[_mesh.Faces[faceIndex].Normal];
-        }
-
-        internal bool GetVerticesForTriangleFaceAndCheckAngle(int faceIndex, Vector3 dir, out HitboxFace face)
-        {
-            face = new HitboxFace()
-            {
-                Normal = _normals[_mesh.Faces[faceIndex].Normal],
-                V1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]],
-                V2 = _vertices[_mesh.Faces[faceIndex].Vertices[1]],
-                V3 = _vertices[_mesh.Faces[faceIndex].Vertices[2]],
-            };
-
-            float dot = Vector3.Dot(dir, face.Normal);
-            return dot < 0;            
-        }
-        */
-
-        /*
-        internal void GetVerticesForCubeFace(int faceIndex, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 normal)
-        {
-            Vector3 qv1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]];
-            Vector3 qv2 = _vertices[_mesh.Faces[faceIndex].Vertices[1]];
-            Vector3 qv3 = _vertices[_mesh.Faces[faceIndex].Vertices[2]];
-            Vector3 qv4 = _vertices[_mesh.Faces[faceIndex].Vertices[3]];
-
-            v1 = qv1;
-            v2 = qv3;
-            v3 = qv4;
-
-            v4 = qv1;
-            v5 = qv2;
-            v6 = qv3;
-
-            normal = _mesh.Faces[faceIndex].Flip ? -_normals[_mesh.Faces[faceIndex].Normal] : _normals[_mesh.Faces[faceIndex].Normal];
-        }
-        */
-
-        /*
-        internal bool GetVerticesForCubeFaceAndCheckAngle(int faceIndex, Vector3 dir, out HitboxFace face1, out HitboxFace face2)
-        {
-            Vector3 qv1 = _vertices[_mesh.Faces[faceIndex].Vertices[0]];
-            Vector3 qv2 = _vertices[_mesh.Faces[faceIndex].Vertices[1]];
-            Vector3 qv3 = _vertices[_mesh.Faces[faceIndex].Vertices[2]];
-            Vector3 qv4 = _vertices[_mesh.Faces[faceIndex].Vertices[3]];
-
-            face1 = new HitboxFace()
-            {
-                V1 = qv1,
-                V2 = qv3,
-                V3 = qv4,
-                Normal = _mesh.Faces[faceIndex].Flip ? -_normals[_mesh.Faces[faceIndex].Normal] : _normals[_mesh.Faces[faceIndex].Normal]
-            };
-
-            face2 = new HitboxFace()
-            {
-                V1 = qv1,
-                V2 = qv2,
-                V3 = qv3,
-                Normal = _mesh.Faces[faceIndex].Flip ? -_normals[_mesh.Faces[faceIndex].Normal] : _normals[_mesh.Faces[faceIndex].Normal]
-            };
-
-            float dot = Vector3.Dot(dir, face1.Normal);
-            return dot < 0;
-        }
-        */
 
         internal const float ONETHIRD = 1f / 3f;
     }

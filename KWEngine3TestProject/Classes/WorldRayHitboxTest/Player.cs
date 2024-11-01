@@ -23,9 +23,13 @@ namespace KWEngine3TestProject.Classes.WorldRayHitboxTest
                 forward += 1;
             if (Keyboard.IsKeyDown(Keys.S))
                 forward -= 1;
+            if(Keyboard.IsKeyDown(Keys.Q))
+                MoveOffset(0, -0.02f, 0);
+            if (Keyboard.IsKeyDown(Keys.E))
+                MoveOffset(0, +0.02f, 0);
 
             CurrentWorld.AddCameraRotationFromMouseDelta();
-            MoveAndStrafeAlongCameraXZ(forward, strafe, 0.01f);
+            MoveAndStrafeAlongCameraXZ(forward, strafe, 0.02f);
             CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0.5f);
             TurnTowardsXZ(CurrentWorld.CameraPosition + CurrentWorld.CameraLookAtVector);
 

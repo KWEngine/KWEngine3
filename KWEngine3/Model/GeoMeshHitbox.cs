@@ -259,7 +259,7 @@ namespace KWEngine3.Model
                 Faces[2] = new GeoMeshFace(0, true, 3, 0, 4, 7);  // left
                 Faces[3] = new GeoMeshFace(0, false, 1, 2, 6, 5); // right
                 Faces[4] = new GeoMeshFace(1, false, 4, 5, 6, 7); // top
-                Faces[5] = new GeoMeshFace(1, true, 0, 1, 2, 3);  // bottom
+                Faces[5] = new GeoMeshFace(1, true, 3, 2, 1, 0);  // bottom
 
                 indexLeftRightMostVertex.X = 0;
                 indexLeftRightMostVertex.Y = 1;
