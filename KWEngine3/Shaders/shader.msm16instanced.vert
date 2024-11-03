@@ -36,6 +36,7 @@ void main()
 	{
 		totalLocalPos = vec4(aPosition, 1.0);
 	}
+	totalLocalPos.w = 1.0;
 
 	vec4 transformedPosition = uViewProjectionMatrix * instanceModelMatrix[gl_InstanceID] * uModelMatrix * totalLocalPos;
 	vZ = transformedPosition.z;

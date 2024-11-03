@@ -1301,7 +1301,6 @@ namespace KWEngine3.Model
         private static int FillGeoVertexWithBoneIdsAndWeights(uint b0, uint b1, uint b2, uint b3, float w0, float w1, float w2, float w3, ref GeoVertex vertex, out List<int> boneIds)
         {
             Vector3 weight = new Vector3(w0, w1, w2);
-            weight.Normalize();
             boneIds = new List<int>();
 
             vertex.BoneIDs[0] = b0;

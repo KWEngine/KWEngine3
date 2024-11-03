@@ -29,16 +29,18 @@ namespace KWEngine3TestProject.Classes.WorldPointLightTest
             
 
             
+            
             _torch = new LightObject(LightType.Point, ShadowQuality.Medium);
             _torch.Name = "Kopffackel";
             _torch.SetPosition(0.0f, 3.0f, 0.0f);
-            _torch.SetNearFar(0.01f, 10f);                  // 0,5m ab licht entstehen Schatten, licht reicht 37,1m weit
+            _torch.SetNearFar(0.01f, 20f);                  // 0,5m ab licht entstehen Schatten, licht reicht 37,1m weit
             _torch.SetColor(1.0f, 0.05f, 1.0f, 5f);
+            
             /*
             _torch = new LightObject(LightType.Directional, ShadowQuality.Medium);
             _torch.Name = "Kopffackel";
             _torch.SetPosition(0.0f, 3.0f, 0.0f);
-            _torch.SetNearFar(0.01f, 10f);                  // 0,5m ab licht entstehen Schatten, licht reicht 37,1m weit
+            _torch.SetNearFar(0.01f, 20f);                  // 0,5m ab licht entstehen Schatten, licht reicht 37,1m weit
             _torch.SetColor(1.0f, 0.05f, 1.0f, 5f);
             */
             CurrentWorld.AddLightObject(_torch);
@@ -118,10 +120,10 @@ namespace KWEngine3TestProject.Classes.WorldPointLightTest
                 }
             }
 
-            CurrentWorld.SetCameraPosition(this.Position.X - 5, this.Position.Y + 2.5f, this.Position.Z + 5.0f);
+            CurrentWorld.SetCameraPosition(this.Position.X - 0, this.Position.Y + 7.5f * 2, this.Position.Z + 10.0f * 2);
             CurrentWorld.SetCameraTarget(this.Position);
 
-            _torch.SetPosition(this.Position.X + 2.5f, this.Position.Y + 4.0f, this.Position.Z - 5.0f);
+            _torch.SetPosition(this.Position.X - 0.0f, this.Position.Y + 8.0f, this.Position.Z - 5f);
             _torch.SetTarget(this.Position);
         }
     }
