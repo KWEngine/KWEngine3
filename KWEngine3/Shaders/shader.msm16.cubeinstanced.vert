@@ -22,19 +22,17 @@ out vec2 vTexture;
 
 void main()
 {
-	mat4 BoneTransform = mat4(0.0);
+	vec4 totalLocalPos = vec4(0.0);
 	if(uUseAnimations > 0)
 	{	
-		BoneTransform += uBoneTransforms[aBoneIds[0]] * aBoneWeights[0];
-		BoneTransform += uBoneTransforms[aBoneIds[1]] * aBoneWeights[1];
-		BoneTransform += uBoneTransforms[aBoneIds[2]] * aBoneWeights[2];
+		totalLocalPos += aBoneWeights[0] * uBoneTransforms[aBoneIds[0]] * vec4(aPosition, 1.0);
+		totalLocalPos += aBoneWeights[1] * uBoneTransforms[aBoneIds[1]] * vec4(aPosition, 1.0);
+		totalLocalPos += aBoneWeights[2] * uBoneTransforms[aBoneIds[2]] * vec4(aPosition, 1.0);
 	}
 	else
 	{
-		BoneTransform = mat4(1.0);
+		totalLocalPos = vec4(aPosition, 1.0);
 	}
-
-	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
 
 	vTexture = vec2(uTextureTransformOpacity.x < 0.0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransformOpacity.y < 0.0 ? 1.0 - aTexture.y : aTexture.y) * abs(uTextureTransformOpacity.xy) + uTextureOffset;
 	vec2 uvCenter = uTextureOffset * abs(uTextureTransformOpacity.xy) + abs(uTextureTransformOpacity.xy) * 0.5;

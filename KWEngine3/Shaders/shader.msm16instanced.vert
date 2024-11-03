@@ -25,18 +25,18 @@ layout (std140) uniform uInstanceBlock
 
 void main()
 {
-	mat4 BoneTransform = mat4(0.0);
+	vec4 totalLocalPos = vec4(0.0);
 	if(uUseAnimations > 0)
 	{	
-		BoneTransform += uBoneTransforms[aBoneIds[0]] * aBoneWeights[0];
-		BoneTransform += uBoneTransforms[aBoneIds[1]] * aBoneWeights[1];
-		BoneTransform += uBoneTransforms[aBoneIds[2]] * aBoneWeights[2];
+		totalLocalPos += aBoneWeights[0] * uBoneTransforms[aBoneIds[0]] * vec4(aPosition, 1.0);
+		totalLocalPos += aBoneWeights[1] * uBoneTransforms[aBoneIds[1]] * vec4(aPosition, 1.0);
+		totalLocalPos += aBoneWeights[2] * uBoneTransforms[aBoneIds[2]] * vec4(aPosition, 1.0);
 	}
 	else
 	{
-		BoneTransform = mat4(1.0);
+		totalLocalPos = vec4(aPosition, 1.0);
 	}
-	vec4 totalLocalPos = BoneTransform * vec4(aPosition, 1.0);
+
 	vec4 transformedPosition = uViewProjectionMatrix * instanceModelMatrix[gl_InstanceID] * uModelMatrix * totalLocalPos;
 	vZ = transformedPosition.z;
 	vW = transformedPosition.w;

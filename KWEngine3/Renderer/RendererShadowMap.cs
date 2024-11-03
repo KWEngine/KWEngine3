@@ -92,6 +92,7 @@ namespace KWEngine3.Renderer
         public static void Draw(GameObject g)
         {
             GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
+            GL.Uniform2(UTextureClip, g._stateRender._uvClip);
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];
@@ -117,7 +118,6 @@ namespace KWEngine3.Renderer
                 GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * g._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y, material.ColorAlbedo.W * g._stateRender._opacity));
                 GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * g._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * g._stateRender._uvTransform.W));
-                GL.Uniform2(UTextureClip, g._stateRender._uvClip);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureAlbedo, 0);

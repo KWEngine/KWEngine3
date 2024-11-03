@@ -228,11 +228,11 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Nah- und Ferngrenze (Reichweite) des Lichts
         /// </summary>
-        /// <param name="near">Nahgrenze (mind. 0.1f)</param>
+        /// <param name="near">Nahgrenze (mind. 0.01f)</param>
         /// <param name="far">Ferngrenze (muss größer als die Nahgrenze sein, Standardwert: 100)</param>
         public void SetNearFar(float near, float far)
         {
-            near = Math.Max(Math.Abs(near), 0.1f);
+            near = Math.Max(Math.Abs(near), 0.01f);
             if(far - near < 1)
                 far = near + 1;
             _stateCurrent._nearFarFOVType = new Vector4(near, far, _stateCurrent._nearFarFOVType.Z, _stateCurrent._nearFarFOVType.W);

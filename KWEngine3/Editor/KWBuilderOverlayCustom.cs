@@ -798,7 +798,7 @@ namespace KWEngine3.Editor
 
         public static void DrawLightFrustum()
         {
-            if (SelectedLightObject != null)
+            if (SelectedLightObject != null && KWEngine.DebugMode == DebugMode.None)
             {
                 GL.Disable(EnableCap.DepthTest);
                 RendererLightFrustum.Bind();

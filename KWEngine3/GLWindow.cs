@@ -341,13 +341,13 @@ namespace KWEngine3
                     {
                         if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
                         {
-                            l._fbShadowMap.Bind();
+                            l._fbShadowMap.Bind(true);
                             if (l.Type == LightType.Point)
                             {
                                 pointLights.Add(l);
                                 continue;
                             }
-                            
+
                             RendererShadowMap.RenderSceneForLight(l);
                         }
                     }
@@ -388,16 +388,32 @@ namespace KWEngine3
 
                     if (pointLights.Count > 0)
                     {
+                        foreach(LightObject l in pointLights)
+                        {
+                            l._fbShadowMap.Bind(true);
+                        }
+                        /*
+                        // TODO: This should be needed but it works either way... need more testing in the near future!
+                        if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
+                        {
+                            RendererShadowMapTerrainCube.Bind();
+                            foreach (LightObject l in pointLights)
+                            {
+                                l._fbShadowMap.Bind(false);
+                                RendererShadowMapTerrainCube.RenderSceneForLight(l); // Renders TerrainObject instances only
+                            }
+                        }
+                        */
                         RendererShadowMapCube.Bind();
                         foreach (LightObject l in pointLights)
                         {
                             l._fbShadowMap.Bind(false);
-                            RendererShadowMapCube.RenderSceneForLight(l);
+                            RendererShadowMapCube.RenderSceneForLight(l); // Renders GameObject and VSGO instances only
                         }
 
                         if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                         {
-                            RendererShadowMapCubeInstanced.Bind();
+                            RendererShadowMapCubeInstanced.Bind(); // Renders RenderObject instances only
                             foreach (LightObject l in pointLights)
                             {
                                 l._fbShadowMap.Bind(false);

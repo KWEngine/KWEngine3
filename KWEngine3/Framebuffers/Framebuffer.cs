@@ -39,7 +39,7 @@ namespace KWEngine3.Framebuffers
             if (ID > 0)
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, ID);
-                if(clear) Clear();
+                if(clear) Clear(keepDepth);
             }
             else
                 throw new EngineException("Framebuffer::Bind() -> Framebuffer ID invalid.");

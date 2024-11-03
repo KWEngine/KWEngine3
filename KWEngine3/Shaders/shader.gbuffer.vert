@@ -48,8 +48,8 @@ void main()
 		totalBiTangent = vec4(aBiTangent, 0.0);
 	}
 
-	gl_Position = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
 	vPosition = uModelMatrix * totalLocalPos;
+	gl_Position = uViewProjectionMatrix * vPosition;
 	vNormal = normalize((uNormalMatrix * totalNormal).xyz);
 	vTangent = normalize((uNormalMatrix * totalTangent).xyz);
 	vBiTangent = normalize((uNormalMatrix * totalBiTangent).xyz);

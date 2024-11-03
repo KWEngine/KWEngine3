@@ -161,10 +161,11 @@ namespace KWEngine3.Renderer
                 GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);
                 GL.UniformMatrix4(UNormalMatrix, false, ref g._stateRender._normalMatrices[i]);
                 Vector4 uvTrans = new Vector4(
-                material.TextureAlbedo.UVTransform.X * g._stateRender._uvTransform.X,
-                material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y,
-                material.TextureAlbedo.UVTransform.Z + g._stateRender._uvTransform.Z,
-                material.TextureAlbedo.UVTransform.W + g._stateRender._uvTransform.W);
+                    material.TextureAlbedo.UVTransform.X * g._stateRender._uvTransform.X,
+                    material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y,
+                    material.TextureAlbedo.UVTransform.Z + g._stateRender._uvTransform.Z,
+                    material.TextureAlbedo.UVTransform.W + g._stateRender._uvTransform.W
+                    );
                 GL.Uniform4(UTextureTransform, uvTrans);
                 GL.Uniform2(UTextureClip, g._stateRender._uvClip);
 

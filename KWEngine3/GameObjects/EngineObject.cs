@@ -784,14 +784,15 @@ namespace KWEngine3.GameObjects
         /// <param name="p">Stand (Werte zwischen 0 und 1)</param>
         public void SetAnimationPercentage(float p)
         {
-            if (Math.Abs(p - _stateCurrent._animationPercentage) > 0.25f)
+            p = MathHelper.Clamp(p, 0f, 1f);
+            if (Math.Abs(p - _stateCurrent._animationPercentage) > 0.5f)
             {
-                _stateCurrent._animationPercentage = MathHelper.Clamp(p, 0f, 1f);
+                _stateCurrent._animationPercentage = p;
                 _statePrevious._animationPercentage = _stateCurrent._animationPercentage;
             }
             else
             {
-                _stateCurrent._animationPercentage = MathHelper.Clamp(p, 0f, 1f);
+                _stateCurrent._animationPercentage = p;
             }
         }
 

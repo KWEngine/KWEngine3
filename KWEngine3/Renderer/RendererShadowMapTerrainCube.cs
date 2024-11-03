@@ -94,7 +94,9 @@ namespace KWEngine3.Renderer
                 foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
                 {
                     if (t.IsShadowCaster)
+                    {
                         Draw(t);
+                    }
                 }
             }
         }

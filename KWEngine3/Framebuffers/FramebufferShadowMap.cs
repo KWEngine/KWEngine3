@@ -21,21 +21,21 @@ namespace KWEngine3.Framebuffers
 
         public override void Init(int width, int height)
         {
-            //GL.GetInteger(GetPName.MaxCubeMapTextureSize, out int size);
+            SizeInBytes = width * height * 4 * sizeof(ushort);
+            if (_lightType == LightType.Point)
+                SizeInBytes *= 6;
 
-            bool hq = (int)KWEngine.Window._ppQuality >= 1;
+            bool hq = (int)KWEngine.Window._ppQuality > 1;
             Bind(false); 
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
-            SizeInBytes = width * height * 4 * sizeof(ushort);
-            if(_lightType == LightType.Point)
-                SizeInBytes *= 6;
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, _lightType == LightType.Point ? TextureWrapMode.ClampToEdge : TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
+            
                 
             FramebufferErrorCode status;
 
             if(_lightType == LightType.Point)
             {
-                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToBorder, true, true));
+                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
             }
             else
             {
