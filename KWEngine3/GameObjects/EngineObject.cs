@@ -228,6 +228,30 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Enthält die aktuelle Farbtönung des Objekts
+        /// </summary>
+        /// <returns>Farbtönung (normalisierte RGB-Werte) als Vector3-Instanz</returns>
+        public Vector3 Color
+        {
+            get
+            {
+                return _stateCurrent._colorTint;
+            }
+        }
+
+        /// <summary>
+        /// Enthält die aktuelle Leuchtfarbe und -intensität des Objekts
+        /// </summary>
+        /// <returns>Leuchtfarbe (normalisierte RGB-Werte) als Vector4-Instanz</returns>
+        public Vector4 ColorEmissive
+        {
+            get
+            {
+                return _stateCurrent._colorEmissive;
+            }
+        }
+
+        /// <summary>
         /// Setzt die Farbtönung des Objekts
         /// </summary>
         /// <param name="r">Rotanteil (zwischen 0 und 1)</param>

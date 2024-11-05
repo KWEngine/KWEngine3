@@ -190,6 +190,11 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Gibt die aktuelle Anzahl der Frames-Per-Second (FPS) an
+        /// </summary>
+        public int FPS { get { return KWEngine.FPS; } }
+
+        /// <summary>
         /// Prüft, ob der Mauszeiger aktuell innerhalb des Fensters ist
         /// </summary>
         public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }

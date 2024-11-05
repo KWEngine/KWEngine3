@@ -36,7 +36,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiFBAAABQAAAQyAUAkBgEACAhIABCQAYAEAUAEuAgA=</HashCode>
+      <HashCode>AAiFBAAABQAAAQyAUAkBgEASAhIABCQAYAEAUAEuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -119,7 +119,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgAR7BNAqSJALEcpApqARABVCgCQioQjHn2Sv2KEIE=</HashCode>
+      <HashCode>BcgAR7BNAqSJALEcpApqARARVCgCQioQjHn2Sv2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>

@@ -14,7 +14,7 @@ namespace KWEngine3.GameObjects
         internal FramebufferShadowMap _fbShadowMap = null;
         internal int _shadowMapSize;
         internal float _shadowBias = 0.00002f;
-        internal float _shadowOffset = 0.001f;
+        internal float _shadowOffset = 0.0001f;
 
         /// <summary>
         /// Befinden sich das Lichtobjekt und seine Lichtstrahlen aktuell auf dem Bildschirm?
@@ -59,7 +59,7 @@ namespace KWEngine3.GameObjects
             }
 
             if (lightType == LightType.Point)
-                _shadowBias = 0.0006f;
+                _shadowBias = 0.0002f;
 
             _stateCurrent = new LightObjectState(this, lightType);
             _statePrevious = _stateCurrent;
@@ -77,7 +77,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Feintuning für die Position des Schatteneffekts (Standardwert: 0.001f)
+        /// Feintuning für die Position des Schatteneffekts (Standardwert: 0.0001f)
         /// </summary>
         /// <param name="offset">Erlaubte Werte zwischen 0.0f und 0.1f</param>
         public void SetShadowOffset(float offset)

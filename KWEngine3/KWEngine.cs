@@ -228,6 +228,12 @@ namespace KWEngine3
         /// </summary>
         public static float ApplicationTime { get; internal set; } = 0.0f;
         internal static float LastFrameTime { get; set; } = 0.0f;
+
+        /// <summary>
+        /// Gibt die aktuelle Anzahl der Frames-Per-Second (FPS) an
+        /// </summary>
+        public static int FPS { get { return (int)(1000f / LastFrameTime); } }
+
         internal static int LastSimulationUpdateCycleCount { get; set; } = 0;
 
         /// <summary>
