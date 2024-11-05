@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="8.25" Width="2.75" />
+    <Position X="0.5" Y="8.5" Width="2.75" />
     <Members>
       <Field Name="_keyboard" Hidden="true" />
       <Field Name="_mouse" Hidden="true" />
@@ -198,12 +198,12 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQt0OI6AJDRKdBUdzpGghbliTK5ZD6YcUaGCH/EeA/k=</HashCode>
+      <HashCode>SQt0OI6AJDRKdBUdzpGghbliTK5ZD6YcUeGCH/EeA/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="14.5" Width="2.75" />
+    <Position X="0.5" Y="14.75" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -419,7 +419,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="12" Width="2.75" />
+    <Position X="0.5" Y="12.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>

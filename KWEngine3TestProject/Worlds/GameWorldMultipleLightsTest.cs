@@ -15,6 +15,7 @@ namespace KWEngine3TestProject.Worlds
         private HUDObjectText _hudFPS;
         private HUDObjectText _hudDespawn;
         private HUDObjectText _hudSpawn1000Cubes;
+        private HUDObjectText _hudSpawn1000CubesInstanced;
         private HUDObjectText _hudSpawn50Lights;
         private HUDObjectText _hudSpawn66Cubes;
         private HUDObjectText _hudSpawn05Lights;
@@ -69,7 +70,7 @@ namespace KWEngine3TestProject.Worlds
             // 66 Cubes:
             if (_hudSpawn66Cubes.IsMouseCursorOnMe())
             {
-                if (GetGameObjects().Count == 0)
+                if (GetGameObjects().Count == 0 && GetRenderObjects().Count == 0)
                 {
                     _hudSpawn66Cubes.SetColorEmissiveIntensity(0.7f);
                     if (Mouse.IsButtonPressed(MouseButton.Left)) Spawn66Cubes();
@@ -83,7 +84,7 @@ namespace KWEngine3TestProject.Worlds
             // 1000 Cubes:
             if (_hudSpawn1000Cubes.IsMouseCursorOnMe())
             {
-                if (GetGameObjects().Count == 0)
+                if (GetGameObjects().Count == 0 && GetRenderObjects().Count == 0)
                 {
                     _hudSpawn1000Cubes.SetColorEmissiveIntensity(0.7f);
                     if (Mouse.IsButtonPressed(MouseButton.Left)) Spawn1000Cubes();
@@ -92,6 +93,20 @@ namespace KWEngine3TestProject.Worlds
             else
             {
                 _hudSpawn1000Cubes.SetColorEmissiveIntensity(0.0f);
+            }
+
+            // 1000 Cubes instanced:
+            if (_hudSpawn1000CubesInstanced.IsMouseCursorOnMe())
+            {
+                if (GetGameObjects().Count == 0 && GetRenderObjects().Count == 0)
+                {
+                    _hudSpawn1000CubesInstanced.SetColorEmissiveIntensity(0.7f);
+                    if (Mouse.IsButtonPressed(MouseButton.Left)) Spawn1000CubesInstanced();
+                }
+            }
+            else
+            {
+                _hudSpawn1000CubesInstanced.SetColorEmissiveIntensity(0.0f);
             }
         }
 
@@ -104,6 +119,10 @@ namespace KWEngine3TestProject.Worlds
             foreach(LightObject l in GetLightObjects())
             {
                 RemoveLightObject(l);
+            }
+            foreach(RenderObject r in GetRenderObjects())
+            {
+                RemoveRenderObject(r);
             }
         }
 
@@ -134,6 +153,7 @@ namespace KWEngine3TestProject.Worlds
 
         private void Spawn66Cubes()
         {
+            int i = 0;
             // Objects
             for (int x = -25; x <= 25; x+=5)
             {
@@ -145,16 +165,19 @@ namespace KWEngine3TestProject.Worlds
                     cube.SetColor(Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f);
                     cube.SetPosition(x, y, 0);
                     AddGameObject(cube);
+                    i++;
                 }
             }
+            Console.WriteLine(i);
         }
 
         private void Spawn1000Cubes()
         {
+            int i = 0;
             // Objects
-            for (int x = -25; x <= 25; x += 1)
+            for (int x = -24; x <= 24; x += 1)
             {
-                for (int y = 20; y >= 0; y -= 1)
+                for (int y = 19; y >= 0; y -= 1)
                 {
                     Immovable cube = new Immovable();
                     cube.IsShadowCaster = true;
@@ -162,8 +185,41 @@ namespace KWEngine3TestProject.Worlds
                     cube.SetColor(Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f);
                     cube.SetPosition(x, y, 0);
                     AddGameObject(cube);
+                    i++;
                 }
             }
+            Console.WriteLine(i);
+        }
+
+        private void Spawn1000CubesInstanced()
+        {
+            InstancedObject cubes = new InstancedObject();
+            cubes.SetAdditionalInstanceCount(999);
+            cubes.SetPosition(-24, 19, 0);
+            cubes.SetScale(0.75f);
+            cubes.SetColor(1, 1, 1);
+
+            // Objects
+            int i = 1;
+            bool firstRun = true;
+            for (int x = -24; x <= 24; x += 1)
+            {
+                for (int y = 19; y >= 0; y -= 1)
+                {
+                    if (!firstRun)
+                    {
+                        cubes.SetPositionRotationScaleForInstance(i, new Vector3(x, y, 0), Quaternion.Identity, new Vector3(0.75f));
+                        i++;
+                    }
+                    else
+                    {
+                        firstRun = false;
+                    }
+                    
+                }
+            }
+            Console.WriteLine(i);
+            AddRenderObject(cubes);
         }
 
         public override void Prepare()
@@ -216,6 +272,14 @@ namespace KWEngine3TestProject.Worlds
             _hudSpawn1000Cubes.SetTextAlignment(TextAlignMode.Right);
             _hudSpawn1000Cubes.SetScale(16);
             AddHUDObject(_hudSpawn1000Cubes);
+
+            _hudSpawn1000CubesInstanced = new HUDObjectText("Spawn 1000 cubes (i)");
+            _hudSpawn1000CubesInstanced.Name = "1000 cubes instanced";
+            _hudSpawn1000CubesInstanced.SetPosition(Window.Width - 128, 192);
+            _hudSpawn1000CubesInstanced.SetColorEmissive(1, 1, 1);
+            _hudSpawn1000CubesInstanced.SetTextAlignment(TextAlignMode.Right);
+            _hudSpawn1000CubesInstanced.SetScale(16);
+            AddHUDObject(_hudSpawn1000CubesInstanced);
         }
     }
 }

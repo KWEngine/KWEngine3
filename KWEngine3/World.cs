@@ -1491,6 +1491,35 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Durchsucht die Liste der RenderObject-Instanzen nach einem Objekt des gegebenen Typs mit dem gegebenen Namen
+        /// </summary>
+        /// <typeparam name="T">Klasse des gesuchten Objekts</typeparam>
+        /// <param name="name">Name des gesuchten Objekts</param>
+        /// <returns>Gesuchtes Objekt oder null (falls nicht gefunden)</returns>
+        public T GetRenderObjectByName<T>(string name) where T : class
+        {
+            name = name.Trim();
+            RenderObject g = _renderObjects.FirstOrDefault(go => go is T && go.Name == name);
+            if (g != null)
+            {
+                return (T)(object)g;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Liefert eine Liste aller sich aktuell in der Welt befindenden RenderObject-Instanzen
+        /// </summary>
+        /// <returns>Liste aller RenderObject-Instanzen</returns>
+        public IReadOnlyCollection<RenderObject> GetRenderObjects()
+        {
+            return _renderObjects.AsReadOnly();
+        }
+
+        /// <summary>
         /// Durchsucht die Liste der GameObject-Instanzen nach einem Objekt mit dem gegebenen Namen
         /// </summary>
         /// <param name="name">Name des gesuchten Objekts</param>
