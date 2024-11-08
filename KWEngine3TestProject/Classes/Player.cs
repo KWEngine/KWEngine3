@@ -16,8 +16,8 @@ namespace KWEngine3TestProject.Classes
         {
             if(IsFirstPersonObject)
             {
-                CurrentWorld.SetCameraPosition(Center, 0);
-                CurrentWorld.AddCameraRotation(MouseMovement);
+                CurrentWorld.AddCameraRotationFromMouseDelta();
+
                 int move = 0;
                 int strafe = 0;
                 if (Keyboard.IsKeyDown(Keys.A))
@@ -46,18 +46,8 @@ namespace KWEngine3TestProject.Classes
                     MoveAlongVector(CurrentWorld.CameraLookAtVectorLocalUp, +_speed);
                 }
 
-               
-                
-                bool hit = HelperIntersection.GetMouseIntersectionPointOnAnyTerrain(out Vector3 terrainIntersection);
-                if(hit)
-                {
-                    GameObject g = CurrentWorld.GetGameObjectByName("PointerSphere");
-                    if(g != null)
-                    {
-                        g.SetPosition(terrainIntersection);
-                    }
-                }
-                
+                CurrentWorld.UpdateCameraPositionForFirstPersonView(this.Center, 0.6f);
+
             }
             else
             {
@@ -86,7 +76,7 @@ namespace KWEngine3TestProject.Classes
                     MoveOffset(0f, +_speed, 0f);
                 }
             }
-
+            /*
             if (IsCollisionObject)
             {
                 List<Intersection> intersections = GetIntersections();
@@ -96,6 +86,7 @@ namespace KWEngine3TestProject.Classes
                     i.Object.SetColorEmissive(0, 1, 1, 2);
                 }
             }
+            */
 
             if(!IsFirstPersonObject && LetCamFollowMe)
             {

@@ -20,6 +20,25 @@
     }
 
     /// <summary>
+    /// Gibt die Projektionsrichtung für die Maperstellungshilfsmethode HelperVector.GetScreenCoordinatesNormalizedFor()
+    /// </summary>
+    public enum ProjectionDirection
+    {
+        /// <summary>
+        /// Kamera blickt entlang der negativen Y-Achse
+        /// </summary>
+        NegativeY,
+        /// <summary>
+        /// Kamera blickt entlang der negativen Z-Achse
+        /// </summary>
+        NegativeZ,
+        /// <summary>
+        /// Kamera blickt entlang der positiven Z-Achse
+        /// </summary>
+        PositiveZ
+    }
+
+    /// <summary>
     /// Debug-Modus für den Viewport
     /// </summary>
     public enum DebugMode
