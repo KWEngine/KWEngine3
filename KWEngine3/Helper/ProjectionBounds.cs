@@ -8,6 +8,10 @@ namespace KWEngine3.Helper
     public struct ProjectionBounds
     {
         /// <summary>
+        /// Mitte der Projektion
+        /// </summary>
+        public Vector2 Center { get; internal set; }
+        /// <summary>
         /// Obere Grenzkoordinate
         /// </summary>
         public float Top { get; internal set; }

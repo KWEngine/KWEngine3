@@ -30,6 +30,11 @@ namespace KWEngine3.GameObjects
         public string Name { get; set; } = "undefined HUD object.";
 
         /// <summary>
+        /// Gibt den aktuellen Z-Index des Objekts an (Standard: -1)
+        /// </summary>
+        public float ZIndex { get { return _zIndex; } }
+
+        /// <summary>
         /// Setzt die Position
         /// </summary>
         /// <param name="x">Breite in Pixeln</param>
@@ -47,6 +52,15 @@ namespace KWEngine3.GameObjects
         public void SetPosition(Vector2 p)
         {
             SetPosition(p.X, p.Y);
+        }
+
+        /// <summary>
+        /// Setzt die Draw-Priorität
+        /// </summary>
+        /// <param name="index"></param>
+        public void SetZIndex(float index)
+        {
+            _zIndex = index;
         }
 
         /// <summary>
@@ -161,7 +175,7 @@ namespace KWEngine3.GameObjects
         internal Vector4 _glow = new Vector4(0, 0, 0, 1);
         internal Vector3 _scale = new Vector3(24f, 24f, 1f);
         internal Matrix4 _modelMatrix = Matrix4.Identity;
-
+        internal float _zIndex = -1;
         internal void UpdateMVP()
         {
             Vector3 p = new Vector3(Position.X, Position.Y, 0);

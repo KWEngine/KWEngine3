@@ -2,7 +2,7 @@
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
-using System.Globalization;
+using OpenTK.Mathematics;
 using System.Reflection;
 
 namespace KWEngine3.Renderer
@@ -22,6 +22,7 @@ namespace KWEngine3.Renderer
         public static int UMode { get; private set; } = -1;
         public static int UId { get; private set; } = -1;
         public static int UCharacterWidth { get; private set; } = -1;
+        public static int UTextureRepeat { get; private set; } = -1;
         
 
         public static void Init()
@@ -58,6 +59,7 @@ namespace KWEngine3.Renderer
                 UCharacterWidth = GL.GetUniformLocation(ProgramID, "uCharacterWidth");
                 UTextAlign = GL.GetUniformLocation(ProgramID, "uTextAlign");
                 UMode = GL.GetUniformLocation(ProgramID, "uMode"); // 0 = text, 1 = image, 2 = sliderhorizontal, etc.
+                UTextureRepeat = GL.GetUniformLocation(ProgramID, "uTextureRepeat");
             }
         }
 
@@ -92,8 +94,11 @@ namespace KWEngine3.Renderer
             if (ho == null || !ho.IsVisible)
                 return;
 
+            Vector2 txR = (ho is HUDObjectImage) ? (ho as HUDObjectImage)._textureRepeat : Vector2.One;
+
             GL.Uniform4(UColorTint, ho._tint);
             GL.Uniform4(UColorGlow, ho._glow);
+            GL.Uniform2(UTextureRepeat, txR);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDNew);
             GL.BindVertexArray(mesh.VAO);

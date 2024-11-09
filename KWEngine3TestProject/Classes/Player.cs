@@ -46,7 +46,7 @@ namespace KWEngine3TestProject.Classes
                     MoveAlongVector(CurrentWorld.CameraLookAtVectorLocalUp, +_speed);
                 }
 
-                CurrentWorld.UpdateCameraPositionForFirstPersonView(this.Center, 0.6f);
+                CurrentWorld.UpdateCameraPositionForFirstPersonView(this.Center,0f);
 
             }
             else

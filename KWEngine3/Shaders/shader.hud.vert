@@ -12,6 +12,7 @@ uniform int uOffsetCount;
 uniform int uMode;
 uniform int uTextAlign;
 uniform float uCharacterDistance;
+uniform vec2 uTextureRepeat;
  
 void main()
 {
@@ -39,8 +40,8 @@ void main()
 	}
 	else if(uMode == 1) // Image
 	{
-		vTexture.x = aTexture.x;
-		vTexture.y = 1.0 - aTexture.y;
+		vTexture.x = aTexture.x * uTextureRepeat.x;
+		vTexture.y = 1.0 - aTexture.y * uTextureRepeat.y;
 		pos = vec4(aPosition, 1.0);
 	}
 	

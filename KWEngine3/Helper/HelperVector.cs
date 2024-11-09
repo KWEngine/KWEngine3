@@ -1,5 +1,6 @@
 ﻿using KWEngine3.GameObjects;
 using OpenTK.Mathematics;
+using SkiaSharp;
 
 namespace KWEngine3.Helper
 {
@@ -295,22 +296,35 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Konvertiert die normalisierten Projektionsgrenzwerte zu tatsächlichen Bildschirmkoordinaten
+        /// </summary>
+        /// <param name="bounds">normalisierte Projektionswerte</param>
+        /// <param name="scale">Skalierfaktor für die Konvertierung (Standard: 1f)</param>
+        /// <param name="offsetX">Verchiebung in X-Richtung</param>
+        /// <param name="offsetY">Verchiebung in Y-Richtung</param>
+        /// <returns>Pixelkoordinaten</returns>
+        public static ProjectionBoundsScreen ConvertProjectionBoundsToScreenSpace(ProjectionBounds bounds, float scale = 1f, int offsetX = 0, int offsetY = 0)
+        {
+            ProjectionBoundsScreen pbs = new ProjectionBoundsScreen(bounds, scale, offsetX, offsetY);
+            return pbs;
+        }
+
+        /// <summary>
         /// Ermittelt die Grenzen der AABB-Hitbox eines Objekts in normalisierten (frei wählbaren) Bildschirmkoordinaten 
         /// </summary>
         /// <param name="g">zu projizierendes Objekt</param>
         /// <param name="cameraPosition">Kameraposition für die Projektion</param>
         /// <param name="direction">Blickrichtung der Kamera</param>
-        /// <param name="aspectRatio">Seitenverhältnis der Projektion (Standard: 1.0f für 1:1)</param>
-        /// <param name="width">Blickweite nach links/rechts (ausgehend von der Kameraposition)</param>
-        /// <param name="height">Blickweite nach oben/unten (ausgehend von der Kameraposition)</param>
+        /// <param name="radius">Radius der Blickweite (ausgehend von der Kameraposition, gültiger Bereich [1;10000])</param>
         /// <param name="near">Naheinstellgrenze der Kamera (Standard: 1f, gültiger Bereich [1;far - 1])</param>
         /// <param name="far">Blickweite der Kamera in die Ferne (Standard: 100f, gültiger Bereich [near;10000])</param>
-        /// <returns></returns>
-        public static ProjectionBounds GetScreenCoordinatesNormalizedFor(GameObject g, Vector3 cameraPosition, ProjectionDirection direction, float aspectRatio, float width, float height, float near = 1f, float far = 100f)
+        /// <returns>Grenzwerte des projizierten Objekts in normalisierter Form</returns>
+        public static ProjectionBounds GetScreenCoordinatesNormalizedFor(GameObject g, Vector3 cameraPosition, ProjectionDirection direction, float radius, float near = 1f, float far = 100f)
         {
             far = Math.Min(10000, Math.Abs(far));
             near = Math.Clamp(Math.Abs(near), 1f, far);
-            Matrix4 projection = Matrix4.CreateOrthographic(Math.Max(1f, width), Math.Max(1f, height), near, far);
+            radius = Math.Clamp(radius, 1f, 10000f);
+            Matrix4 projection = Matrix4.CreateOrthographic((KWEngine.Window.Width / (float)KWEngine.Window.Height) * radius, radius, near, far);
             Matrix4 view = Matrix4.LookAt(
                 cameraPosition,
                 cameraPosition + (direction == ProjectionDirection.NegativeY ? -Vector3.UnitY : direction == ProjectionDirection.NegativeZ ? -Vector3.UnitZ : Vector3.UnitZ),
@@ -360,6 +374,7 @@ namespace KWEngine3.Helper
             screenCoordinates.Right = right;
             screenCoordinates.Back = back;
             screenCoordinates.Front = front;
+            screenCoordinates.Center = new Vector2((left + right) * 0.5f, (top + bottom) * 0.5f);
 
             return screenCoordinates;
         }
@@ -369,17 +384,16 @@ namespace KWEngine3.Helper
         /// </summary>
         /// <param name="t">zu projizierendes Terrain-Objekt</param>
         /// <param name="cameraPosition">Kameraposition für die Projektion (und die Blickrichtung ist stets in Richtung der negativen Y-Achse)</param>
-        /// <param name="aspectRatio">Seitenverhältnis der Projektion (Standard: 1.0f für 1:1)</param>
-        /// <param name="width">Blickweite nach links/rechts (ausgehend von der Kameraposition)</param>
-        /// <param name="height">Blickweite nach oben/unten (ausgehend von der Kameraposition)</param>
+        /// <param name="radius">Radius der Blickweite (ausgehend von der Kameraposition, gültiger Bereich [1;10000])</param>
         /// <param name="near">Naheinstellgrenze der Kamera (Standard: 1f, gültiger Bereich [1;far - 1])</param>
         /// <param name="far">Blickweite der Kamera in die Ferne (Standard: 100f, gültiger Bereich [near;10000])</param>
         /// <returns></returns>
-        public static ProjectionBounds GetScreenCoordinatesNormalizedFor(TerrainObject t, Vector3 cameraPosition, float aspectRatio, float width, float height, float near = 1f, float far = 100f)
+        public static ProjectionBounds GetScreenCoordinatesNormalizedFor(TerrainObject t, Vector3 cameraPosition, float radius, float near = 1f, float far = 100f)
         {
             far = Math.Min(10000, Math.Abs(far));
             near = Math.Clamp(Math.Abs(near), 1f, far);
-            Matrix4 projection = Matrix4.CreateOrthographic(Math.Max(1f, width), Math.Max(1f, height), near, far);
+            radius = Math.Clamp(radius, 1f, 10000f);
+            Matrix4 projection = Matrix4.CreateOrthographic((KWEngine.Window.Width / (float)KWEngine.Window.Height) * radius, radius, near, far);
             Matrix4 view = Matrix4.LookAt(
                 cameraPosition,
                 cameraPosition - Vector3.UnitY,
@@ -425,6 +439,7 @@ namespace KWEngine3.Helper
             screenCoordinates.Right = right;
             screenCoordinates.Back = back;
             screenCoordinates.Front = front;
+            screenCoordinates.Center = new Vector2((left + right) * 0.5f, (top + bottom) * 0.5f);
 
             return screenCoordinates;
         }

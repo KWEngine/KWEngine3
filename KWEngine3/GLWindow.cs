@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using KWEngine3.Audio;
@@ -9,7 +8,6 @@ using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Renderer;
-using OpenTK.Audio.OpenAL;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
@@ -884,6 +882,9 @@ namespace KWEngine3
                     KWEngine.CurrentWorld._cameraEditor._stateCurrent.ViewMatrix
                     );
             }
+
+            // Sort HUDObjects by their z indices:
+            KWEngine.CurrentWorld._hudObjects.Sort((x, y) => x._zIndex.CompareTo(y._zIndex));
 
             return alpha;
         }

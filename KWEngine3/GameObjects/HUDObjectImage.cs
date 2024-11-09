@@ -12,14 +12,15 @@ namespace KWEngine3.GameObjects
         #region Internals
         internal int _textureId = KWEngine.TextureAlpha;
         internal string _textureName = "";
+        internal Vector2 _textureRepeat = new Vector2(1f, 1f);
         #endregion
 
         /// <summary>
-        /// Standardkonstruktor für bildbasierte HUD-Objekte, der noch keine Bilddatei festlegt
+        /// Standardkonstruktor für bildbasierte HUD-Objekte, der noch keine Bilddatei festlegt (Standardfarbe: weiß)
         /// </summary>
         public HUDObjectImage()
         {
-
+            _textureId = KWEngine.TextureWhite;
         }
 
         /// <summary>
@@ -29,6 +30,45 @@ namespace KWEngine3.GameObjects
         public HUDObjectImage(string filename)
         {
             SetTexture(filename);
+        }
+
+        /// <summary>
+        /// Gibt den aktuellen Texturwiederholungsfaktor an
+        /// </summary>
+        public Vector2 TextureRepeat
+        {
+            get
+            {
+                return _textureRepeat;
+            }
+        }
+
+        /// <summary>
+        /// Gibt an, wie oft die gewählte Textur im HUDObject wiederholt werden soll
+        /// </summary>
+        /// <param name="x">Wiederholungsfaktor in x-Richtung</param>
+        /// <param name="y">Wiederholungsfaktor in y-Richtung</param>
+        public void SetTextureRepeat(float x, float y)
+        {
+            _textureRepeat.X = x;
+            _textureRepeat.Y = y;
+        }
+
+        /// <summary>
+        /// Gibt die aktuelle Skalierung in Pixeln zurück
+        /// </summary>
+        public new Vector2i Scale
+        {
+            get
+            {
+                int left, right, top, bottom;
+                left = (int)(Position.X - _scale.X * 0.5f);
+                right = (int)(Position.X + _scale.X * 0.5f);
+                top = (int)(Position.Y - _scale.Y * 0.5f);
+                bottom = (int)(Position.Y + _scale.Y * 0.5f);
+
+                return new Vector2i(right - left, bottom - top);
+            }
         }
 
         /// <summary>
