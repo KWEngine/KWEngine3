@@ -127,6 +127,7 @@ namespace KWEngine3
         {
             _ppQuality = PostProcessingQuality.Standard;
             KWEngine.InitializeFontsAndDefaultTextures();
+            CenterWindow();
         }
 
         /// <summary>
@@ -155,6 +156,7 @@ namespace KWEngine3
         {
             _ppQuality = ppQuality;
             KWEngine.InitializeFontsAndDefaultTextures();
+            CenterWindow();
         }
 
         /// <summary>
@@ -185,6 +187,7 @@ namespace KWEngine3
         {
             _ppQuality = ppQuality;
             KWEngine.InitializeFontsAndDefaultTextures();
+            CenterWindow();
         }
 
         /// <summary>
@@ -227,6 +230,12 @@ namespace KWEngine3
             // MacOS:   Vector4(0, 1, 2, 3) wird im Uniform Array als vier separate floats gesehen [0][1][2][3].
             KWEngine._uniformOffsetMultiplier = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? 4 : 1;
 
+            unsafe
+            {
+                GLFW.GetCursorPos(this.WindowPtr, out var xPos, out var yPos);
+                Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
+            }
+            
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
             RenderManager.InitializeClearColor();
@@ -249,7 +258,6 @@ namespace KWEngine3
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
-
         }
 
         /// <summary>
@@ -913,6 +921,13 @@ namespace KWEngine3
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
                 _stopwatch.Restart();
+
+                unsafe
+                {
+                    GLFW.PollEvents();
+                    GLFW.GetCursorPos(this.WindowPtr, out var xPos, out var yPos);
+                    Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
+                }
 
                 if (KWEngine.CurrentWorld != null && _worldNew == null)
                 {

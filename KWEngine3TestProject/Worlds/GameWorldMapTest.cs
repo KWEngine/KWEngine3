@@ -15,7 +15,6 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldMapTest : World
     {
-        private HUDObjectImage[] _mapEntries = new HUDObjectImage[2];
         private Player _player;
 
         public override void Act()
@@ -23,31 +22,34 @@ namespace KWEngine3TestProject.Worlds
             List<Immovable> walls = GetGameObjectsByType<Immovable>();
             for(int i = 0; i < walls.Count; i++)
             {
-                ProjectionBounds bounds = HelperVector.GetScreenCoordinatesNormalizedFor(walls[i], new Vector3(_player.Position.X, 25, _player.Position.Z), ProjectionDirection.NegativeY, 50, 1, 100);
-                ProjectionBoundsScreen bs = HelperVector.ConvertProjectionBoundsToScreenSpace(bounds, 1f, 0, 0);
-                _mapEntries[i].SetPosition(bs.Center);
-                _mapEntries[i].SetScale(bs.Width, bs.Height);
-                _mapEntries[i].SetTextureRepeat(bs.Width / 10f, bs.Height / 10f);
-                _mapEntries[i].SetZIndex(bs.Front);
+                Map.SetCamera(new Vector3(_player.Position.X, 25, _player.Position.Z));
+                ProjectionBounds bounds = Map.GetScreenCoordinatesNormalizedFor(walls[i]);
+                ProjectionBoundsScreen bs = Map.ConvertNormalizedCoordinatesToScreenSpace(bounds, 0.25f, Window.Width / 4 * 2, Window.Height / 4 * 2);
+                if (bs.IsInsideRectangle(Window.Width / 4 * 3, Window.Width, Window.Height / 4 * 3, Window.Height))
+                {
+                    Map.Add(bs.Center, bs.Width, bs.Height, bs.Front);
+                }
             }
         }
 
         public override void Prepare()
         {
-            _mapEntries[0] = new HUDObjectImage("./Textures/Rock_02_512.png");
-            _mapEntries[0].SetColor(1, 0, 0);
-            _mapEntries[0].SetTextureRepeat(1, 1);
-            AddHUDObject(_mapEntries[0]);
-
-            _mapEntries[1] = new HUDObjectImage("./Textures/Rock_02_512.png");
-            _mapEntries[1].SetColor(1, 0, 0);
-            _mapEntries[1].SetTextureRepeat(1, 1);
-            AddHUDObject(_mapEntries[1]);
-
             KWEngine.MouseSensitivity = 0.05f;
             //KWEngine.DebugMode = DebugMode.SurfaceNormals;
             KWEngine.BuildTerrainModel("T", "./Textures/heightmap.png", 32, 32, 5);
             KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
+
+            HUDObject testBack = new HUDObjectImage();
+            testBack.SetZIndex(-5f);
+            testBack.SetPosition(300, 300);
+            testBack.SetColor(1, 0, 0);
+            AddHUDObject(testBack);
+
+            HUDObject testFront = new HUDObjectImage();
+            testFront.SetZIndex(5f);
+            testFront.SetPosition(500, 300);
+            testFront.SetColor(0, 1, 1);
+            AddHUDObject(testFront);
 
             TerrainObject t = new TerrainObject("T");
             t.SetTexture("./Textures/sand_diffuse.dds");
@@ -86,10 +88,12 @@ namespace KWEngine3TestProject.Worlds
 
             Immovable wall2 = new Immovable();
             wall2.SetScale(4, 1, 4);
-            wall2.SetPosition(10, 3, 0);
+            wall2.SetPosition(10, 5, 0);
             wall2.IsCollisionObject = true;
             wall2.IsShadowCaster = true;
             AddGameObject(wall2);
+
+            Map.SetCamera(_player.Position, ProjectionDirection.NegativeY, 5, 1, 100);
         }
     }
 }

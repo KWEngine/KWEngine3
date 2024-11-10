@@ -23,7 +23,7 @@ namespace KWEngine3.Helper
                     SweepAndPrune();
                     WorldTimeLast = KWEngine.WorldTime;
                 }
-                Thread.Sleep(0);
+                Thread.Sleep(1);
             }
         }
 

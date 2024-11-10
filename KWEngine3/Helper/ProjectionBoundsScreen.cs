@@ -61,5 +61,18 @@ namespace KWEngine3.Helper
             Front = bounds.Front;
             Center = new Vector2i((Left + Right) / 2, (Top + Bottom) / 2);
         }
+
+        /// <summary>
+        /// Prüft ob die Projektion innerhalb der festgelegten Grenzen liegt
+        /// </summary>
+        /// <param name="left">Linke Grenze (in relativen Pixelkoordinaten)</param>
+        /// <param name="right">Rechte Grenze (in relativen Pixelkoordinaten)</param>
+        /// <param name="top">Obere Grenze (in relativen Pixelkoordinaten)</param>
+        /// <param name="bottom">Untere Grenze (in relativen Pixelkoordinaten)</param>
+        /// <returns>true, wenn das Objekt innerhalb des Bereichs liegt</returns>
+        public bool IsInsideRectangle(int left, int right, int top, int bottom)
+        {
+            return !(Left > right || Right < left || Bottom < top || Top > bottom);
+        }
     }
 }

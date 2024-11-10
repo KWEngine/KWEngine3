@@ -267,8 +267,8 @@ namespace KWEngine3.EngineCamera
 
         internal readonly Vector3 Get3DMouseCoords()
         {
-            float x = KWEngine.Window.MousePosition.X;
-            float y = KWEngine.Window.MousePosition.Y;
+            float x = KWEngine.Window.Mouse.Position.X;
+            float y = KWEngine.Window.Mouse.Position.Y;
 
             x = (2.0f * x) / KWEngine.Window.ClientSize.X - 1.0f;
             y = 1.0f - (2.0f * y) / KWEngine.Window.ClientSize.Y;

@@ -96,6 +96,51 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Prüft, ob diese Instanz aktuell auf dem Bildschirm zu sehen ist
+        /// </summary>
+        /// <returns>true, wenn das Objekt zu sehen ist</returns>
+        public override bool IsInsideScreenSpace()
+        {
+            float left, right, top, bottom;
+            float characterWidth = _scale.X;
+
+            left = Position.X;
+            right = Position.X + (_text.Length - 1) * Math.Abs(_spread) * characterWidth + characterWidth;
+            float diff = right - left;
+
+            if (TextAlignment == TextAlignMode.Left)
+            {
+                if (_spread < 0)
+                {
+                    left -= (diff - characterWidth);
+                    right -= (diff - characterWidth);
+                }
+            }
+            if (TextAlignment == TextAlignMode.Center)
+            {
+                left -= diff / 2f;
+                right -= diff / 2f;
+            }
+            else if (TextAlignment == TextAlignMode.Right)
+            {
+                if (_spread >= 0)
+                {
+                    right -= diff;
+                    left -= diff;
+                }
+                else
+                {
+                    right -= characterWidth;
+                    left -= characterWidth;
+                }
+            }
+            top = Position.Y - _scale.Y * 0.5f;
+            bottom = Position.Y + _scale.Y * 0.5f;
+
+            return !(right < 0 || left > KWEngine.Window.Width || bottom < 0 || top > KWEngine.Window.Height);
+        }
+
+        /// <summary>
         /// Prüft, ob der Mauszeiger auf dem Textobjekt liegt
         /// </summary>
         /// <returns>true, wenn Mauszeiger über dem Textobjekt liegt</returns>

@@ -2,12 +2,10 @@
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
-using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Mathematics;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace KWEngine3
 {
@@ -20,6 +18,8 @@ namespace KWEngine3
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
         internal List<WorldEvent> _eventQueue = new();
+
+        internal WorldMap _map = null;
 
         internal List<FoliageObject> _foliageObjects = new();
         internal List<FoliageObject> _foliageObjectsToBeAdded = new();
@@ -174,6 +174,9 @@ namespace KWEngine3
         {
             _availableGameObjectIDs.Clear();
             _availableLightObjectIDs.Clear();
+
+            _map = new WorldMap();
+
             for (ushort i = 1; i < ushort.MaxValue - 1; i++)
             {
                 _availableLightObjectIDs.Enqueue(i);
@@ -200,15 +203,16 @@ namespace KWEngine3
 
         internal void AddRemoveTerrainObjects()
         {
-            foreach (TerrainObject g in _terrainObjectsToBeRemoved)
+            foreach (TerrainObject t in _terrainObjectsToBeRemoved)
             {
-                _availableGameObjectIDs.Enqueue((ushort)g.ID);
-                g.ID = 0;
+                _availableGameObjectIDs.Enqueue((ushort)t.ID);
+                t.ID = 0;
+                t._myWorld = null;
 
-                _terrainObjects.Remove(g);
+                _terrainObjects.Remove(t);
                 foreach (FoliageObject f in _foliageObjects)
                 {
-                    if (f._terrainObject == g)
+                    if (f._terrainObject == t)
                     {
                         f.DetachFromTerrain();
                     }
@@ -216,9 +220,10 @@ namespace KWEngine3
             }
             _terrainObjectsToBeRemoved.Clear();
 
-            foreach (TerrainObject g in _terrainObjectsToBeAdded)
+            foreach (TerrainObject t in _terrainObjectsToBeAdded)
             {
-                _terrainObjects.Add(g);
+                _terrainObjects.Add(t);
+                t._myWorld = this;
             }
             _terrainObjectsToBeAdded.Clear();
         }
@@ -264,6 +269,7 @@ namespace KWEngine3
                 _hudObjects.Add(h);
             }
             _hudObjectsToBeAdded.Clear();
+            Map.Reset();
         }
 
         internal void AddRemoveTextObjects()
@@ -319,12 +325,14 @@ namespace KWEngine3
             foreach (RenderObject r in _renderObjectsToBeRemoved)
             {
                 _renderObjects.Remove(r);
+                r._myWorld = null;
             }
             _gameObjectsToBeRemoved.Clear();
 
             foreach (RenderObject r in _renderObjectsToBeAdded)
             {
                 _renderObjects.Add(r);
+                r._myWorld = this;
             }
             _renderObjectsToBeAdded.Clear();
         }
@@ -412,6 +420,7 @@ namespace KWEngine3
                 {
                     _availableGameObjectIDs.Enqueue((ushort)g.ID);
                     g.ID = 0;
+                    g._myWorld = null;
 
                     HelperGameObjectAttachment.CleanAttachments(g);
 
@@ -426,6 +435,7 @@ namespace KWEngine3
                 foreach (GameObject g in _gameObjectsToBeAdded)
                 {
                     _gameObjects.Add(g);
+                    g._myWorld = this;
                     if (g.IsCollisionObject)
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
@@ -485,6 +495,7 @@ namespace KWEngine3
                 RemoveHUDObject(h);
             }
             AddRemoveHUDObjects();
+            _map.Reset();
 
             foreach (TextObject t in _textObjects)
             {
@@ -589,6 +600,11 @@ namespace KWEngine3
             _lightObjectsToBeAdded.Clear();
         }
         #endregion
+
+        /// <summary>
+        /// Gibt die Referenz auf die (optionale) Karte zurück
+        /// </summary>
+        public WorldMap Map { get { return _map;} }
 
         /// <summary>
         /// Gibt die globale Mischfarbe an, mit der der Bildschirminhalt gemischt wird, wenn FadeFactor kleiner als 1.0 ist

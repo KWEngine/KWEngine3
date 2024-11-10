@@ -14,10 +14,13 @@ namespace KWEngine3
             _buttonsPressed.Clear();
         }
 
+        internal Vector2 _mousePositionFromGLFW = new Vector2(0, 0);
+
         /// <summary>
         /// Gibt die aktuelle Mauscursorposition an
         /// </summary>
-        public Vector2 Position { get { return KWEngine.Window.MouseState.Position; } }
+        public Vector2 Position { get { return _mousePositionFromGLFW; } }
+        //public Vector2 Position { get { return KWEngine.Window.MouseState.Position; } }
 
         /// <summary>
         /// Prüft, ob die angegebene Maustaste gerade gedrückt wird

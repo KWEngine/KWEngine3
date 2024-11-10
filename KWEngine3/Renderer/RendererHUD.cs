@@ -80,10 +80,34 @@ namespace KWEngine3.Renderer
             GL.Enable(EnableCap.Blend);
             GL.Disable(EnableCap.CullFace);
             GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
-            foreach (HUDObject h in KWEngine.CurrentWorld._hudObjects)
+
+            int index = 0;
+            for(int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
             {
+                HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
+                if (h._zIndex > -2f)
+                {
+                    break;
+                }
+                Draw(h, mesh);
+                index++;
+            }
+
+            // Render Mapentries:
+            Array.Sort(KWEngine.CurrentWorld.Map._items);
+            for (int i = 0; i < KWEngine.CurrentWorld.Map._indexFree; i++)
+            {
+                HUDObjectImage h = KWEngine.CurrentWorld.Map._items[i];
                 Draw(h, mesh);
             }
+
+            for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
+            {
+                HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
+                Draw(h, mesh);
+                index++;
+            }
+
             GL.Disable(EnableCap.Blend);
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
@@ -91,7 +115,7 @@ namespace KWEngine3.Renderer
 
         public static void Draw(HUDObject ho, GeoMesh mesh)
         {
-            if (ho == null || !ho.IsVisible)
+            if (ho == null || !ho.IsVisible || !ho.IsInsideScreenSpace())
                 return;
 
             Vector2 txR = (ho is HUDObjectImage) ? (ho as HUDObjectImage)._textureRepeat : Vector2.One;

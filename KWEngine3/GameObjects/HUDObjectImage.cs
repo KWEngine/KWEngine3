@@ -33,6 +33,20 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Prüft, ob diese Instanz aktuell auf dem Bildschirm zu sehen ist
+        /// </summary>
+        /// <returns>true, wenn das Objekt zu sehen ist</returns>
+        public override bool IsInsideScreenSpace()
+        {
+            float left, right, top, bottom;
+            left = Position.X - _scale.X * 0.5f;
+            right = Position.X + _scale.X * 0.5f;
+            top = Position.Y - _scale.Y * 0.5f;
+            bottom = Position.Y + _scale.Y * 0.5f;
+            return !(right < 0 || left > KWEngine.Window.Width || bottom < 0 || top > KWEngine.Window.Height);
+        }
+
+        /// <summary>
         /// Gibt den aktuellen Texturwiederholungsfaktor an
         /// </summary>
         public Vector2 TextureRepeat
@@ -89,6 +103,44 @@ namespace KWEngine3.GameObjects
                 return (mouseCoords.X >= left && mouseCoords.X <= right && mouseCoords.Y >= top && mouseCoords.Y <= bottom);
             }
             return false;
+        }
+
+        internal void Reset()
+        {
+            SetTextureForMap(null);
+        }
+
+        internal void SetTextureForMap(string filename)
+        {
+            if (filename == null)
+            {
+                _textureId = KWEngine.TextureWhite;
+                return;
+            }
+
+            filename = filename.Trim();
+            if (File.Exists(filename))
+            {
+                if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
+                {
+                    _textureId = KWEngine.CurrentWorld._customTextures[filename].ID;
+                }
+                else
+                {
+                    _textureId = HelperTexture.LoadTextureForBackgroundExternal(filename, out int mipMapLevels);
+                    KWEngine.CurrentWorld._customTextures.Add(filename, new KWTexture(_textureId, OpenTK.Graphics.OpenGL4.TextureTarget.Texture2D));
+                }
+                if (HelperTexture.GetTextureDimensions(_textureId, out int width, out int height))
+                {
+                    _textureName = filename;
+                    SetScale(width, height);
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[Map] Texture file not found");
+                _textureId = KWEngine.TextureWhite;
+            }
         }
 
         /// <summary>

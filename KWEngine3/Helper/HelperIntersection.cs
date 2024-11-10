@@ -11,6 +11,14 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperIntersection
     {
+        /*
+        public static Vector3 ProjectMouseCoordinatesToXZPlane(float height = 0f)
+        {
+            Matrix4 tmp = Matrix4.Invert(KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrix);
+            tmp.
+        }
+        */
+
         /// <summary>
         /// Ermittelt für die angegebenen Bildschirmkoordinaten, wo diese Koordinaten in der 3D-Welt liegen
         /// </summary>
@@ -303,7 +311,7 @@ namespace KWEngine3.Helper
             }
             else
             {
-                mc = KWEngine.Window.MousePosition;
+                mc = KWEngine.Window.Mouse.Position;
             }
 
             return HelperGeneral.Get3DMouseCoords(mc);
@@ -379,7 +387,7 @@ namespace KWEngine3.Helper
             }
             else
             {
-                mc = KWEngine.Window.MousePosition;
+                mc = KWEngine.Window.Mouse.Position;
             }
 
             Vector3 worldRay = HelperGeneral.Get3DMouseCoords(mc);
@@ -410,7 +418,7 @@ namespace KWEngine3.Helper
             }
             else
             {
-                mc = KWEngine.Window.MousePosition;
+                mc = KWEngine.Window.Mouse.Position;
             }
             Vector3 worldRay = HelperGeneral.Get3DMouseCoords(mc);
             Vector3 normal;

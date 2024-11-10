@@ -6,7 +6,7 @@ namespace KWEngine3.GameObjects
     /// <summary>
     /// HUD-Oberklasse
     /// </summary>
-    public abstract class HUDObject
+    public abstract class HUDObject : IComparable<HUDObject>
     {
         /// <summary>
         /// Gibt an, ob das HUDObject sichtbar ist oder nicht (Standard: true)
@@ -30,9 +30,30 @@ namespace KWEngine3.GameObjects
         public string Name { get; set; } = "undefined HUD object.";
 
         /// <summary>
-        /// Gibt den aktuellen Z-Index des Objekts an (Standard: -1)
+        /// Gibt den aktuellen Z-Index des Objekts an (Standard: -2f)
         /// </summary>
+        /// <remarks>
+        /// Der Z-Index kann verwendet werden, wenn sich HUD-Objekte überlappen. In diesem Fall wird das Objekt mit dem höheren Index im Vordergrund gezeichnet
+        /// </remarks>
         public float ZIndex { get { return _zIndex; } }
+
+        /// <summary>
+        /// Setzt die Draw-Priorität des Objekts (Standardwert: -2f)
+        /// </summary>
+        /// <remarks>Der Indexbereich [-2f;2f] ist für Map-Objekte reserviert und darf nicht verwendet werden</remarks>
+        /// <param name="index">Indexwert (gültige Bereiche: [-100f; -2f] und [2f;100f])</param>
+        public void SetZIndex(float index)
+        {
+            if(index < 0)
+            {
+                index = Math.Clamp(index, -100f, -2f);
+            }
+            else if(index >= 0)
+            {
+                index = Math.Clamp(index, 2f, 100f);
+            }
+            _zIndex = index;
+        }
 
         /// <summary>
         /// Setzt die Position
@@ -55,13 +76,10 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Draw-Priorität
+        /// Prüft, ob diese Instanz aktuell auf dem Bildschirm zu sehen ist
         /// </summary>
-        /// <param name="index"></param>
-        public void SetZIndex(float index)
-        {
-            _zIndex = index;
-        }
+        /// <returns>true, wenn das Objekt zu sehen ist</returns>
+        public abstract bool IsInsideScreenSpace();
 
         /// <summary>
         /// Zentriert das Objekt im Fenster
@@ -170,18 +188,28 @@ namespace KWEngine3.GameObjects
             SetScale(scale, scale);
         }
 
+        /// <summary>
+        /// Vergleicht diese Instanz mit einer anderen hinsichtlich des Z-Index (nur für interne Zwecke benötigt)
+        /// </summary>
+        /// <param name="other">andere Instanz</param>
+        /// <returns>Vergleichsergebnis (-1, 0 oder 1)</returns>
+        public int CompareTo(HUDObject other)
+        {
+            return other._zIndex.CompareTo(this._zIndex);
+        }
+
         #region Internals
         internal Vector4 _tint = new Vector4(1, 1, 1, 1);
         internal Vector4 _glow = new Vector4(0, 0, 0, 1);
         internal Vector3 _scale = new Vector3(24f, 24f, 1f);
         internal Matrix4 _modelMatrix = Matrix4.Identity;
-        internal float _zIndex = -1;
+        internal float _zIndex = -2f;
+
         internal void UpdateMVP()
         {
             Vector3 p = new Vector3(Position.X, Position.Y, 0);
             _modelMatrix = HelperMatrix.CreateModelMatrixForHUD(ref _scale, ref p);
         }
         #endregion
-
     }
 }

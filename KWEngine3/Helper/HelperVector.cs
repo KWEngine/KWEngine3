@@ -310,20 +310,26 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Ermittelt die Grenzen der AABB-Hitbox eines Objekts in normalisierten (frei wählbaren) Bildschirmkoordinaten 
+        /// Ermittelt die Grenzen einer AABB-Hitbox zu der angegebenen Position in normalisierten (frei wählbaren) Bildschirmkoordinaten 
         /// </summary>
-        /// <param name="g">zu projizierendes Objekt</param>
+        /// <param name="p">zu projizierende Position</param>
+        /// <param name="width">Breite des zu projezierenden Kubus</param>
+        /// <param name="height">Höhe des zu projezierenden Kubus</param>
+        /// <param name="depth">Tiefe des zu projezierenden Kubus</param>
         /// <param name="cameraPosition">Kameraposition für die Projektion</param>
         /// <param name="direction">Blickrichtung der Kamera</param>
         /// <param name="radius">Radius der Blickweite (ausgehend von der Kameraposition, gültiger Bereich [1;10000])</param>
         /// <param name="near">Naheinstellgrenze der Kamera (Standard: 1f, gültiger Bereich [1;far - 1])</param>
         /// <param name="far">Blickweite der Kamera in die Ferne (Standard: 100f, gültiger Bereich [near;10000])</param>
         /// <returns>Grenzwerte des projizierten Objekts in normalisierter Form</returns>
-        public static ProjectionBounds GetScreenCoordinatesNormalizedFor(GameObject g, Vector3 cameraPosition, ProjectionDirection direction, float radius, float near = 1f, float far = 100f)
+        public static ProjectionBounds GetScreenCoordinatesNormalizedFor(Vector3 p, float width, float height, float depth, Vector3 cameraPosition, ProjectionDirection direction, float radius, float near = 1f, float far = 100f)
         {
             far = Math.Min(10000, Math.Abs(far));
             near = Math.Clamp(Math.Abs(near), 1f, far);
             radius = Math.Clamp(radius, 1f, 10000f);
+            width = Math.Max(0.01f, width);
+            height = Math.Max(0.01f, height);
+            depth = Math.Max(0.01f, depth);
             Matrix4 projection = Matrix4.CreateOrthographic((KWEngine.Window.Width / (float)KWEngine.Window.Height) * radius, radius, near, far);
             Matrix4 view = Matrix4.LookAt(
                 cameraPosition,
@@ -335,14 +341,14 @@ namespace KWEngine3.Helper
             ProjectionBounds screenCoordinates = new ProjectionBounds();
 
             // get all 8 boundaries of the GameObjects AABB:
-            AABBProjectionList[0] = new Vector4(g.AABBLeft, g.AABBHigh, g.AABBBack, 1.0f); // left top back
-            AABBProjectionList[1] = new Vector4(g.AABBRight, g.AABBHigh, g.AABBBack, 1.0f); // right top back
-            AABBProjectionList[2] = new Vector4(g.AABBLeft, g.AABBLow, g.AABBBack, 1.0f); // left bottom back
-            AABBProjectionList[3] = new Vector4(g.AABBRight, g.AABBLow, g.AABBBack, 1.0f); // right bottom back
-            AABBProjectionList[4] = new Vector4(g.AABBLeft, g.AABBHigh, g.AABBFront, 1.0f); // left top front
-            AABBProjectionList[5] = new Vector4(g.AABBRight, g.AABBHigh, g.AABBFront, 1.0f); // right top front
-            AABBProjectionList[6] = new Vector4(g.AABBLeft, g.AABBLow, g.AABBFront, 1.0f); // left bottom front
-            AABBProjectionList[7] = new Vector4(g.AABBRight, g.AABBLow, g.AABBFront, 1.0f); // right bottom front
+            AABBProjectionList[0] = new Vector4(p.X - width / 2f, p.Y + height / 2f, p.Z - depth / 2f, 1.0f); // left top back
+            AABBProjectionList[1] = new Vector4(p.X + width / 2f, p.Y + height / 2f, p.Z - depth / 2f, 1.0f); // right top back
+            AABBProjectionList[2] = new Vector4(p.X - width / 2f, p.Y - height / 2f, p.Z - depth / 2f, 1.0f); // left bottom back
+            AABBProjectionList[3] = new Vector4(p.X + width / 2f, p.Y - height / 2f, p.Z - depth / 2f, 1.0f); // right bottom back
+            AABBProjectionList[4] = new Vector4(p.X - width / 2f, p.Y + height / 2f, p.Z + depth / 2f, 1.0f); // left top front
+            AABBProjectionList[5] = new Vector4(p.X + width / 2f, p.Y + height / 2f, p.Z + depth / 2f, 1.0f); // right top front
+            AABBProjectionList[6] = new Vector4(p.X - width / 2f, p.Y - height / 2f, p.Z + depth / 2f, 1.0f); // left bottom front
+            AABBProjectionList[7] = new Vector4(p.X + width / 2f, p.Y - height / 2f, p.Z + depth / 2f, 1.0f); // right bottom front
 
             float top = float.MinValue;
             float bottom = float.MaxValue;
@@ -352,71 +358,6 @@ namespace KWEngine3.Helper
             float front = float.MaxValue;
 
             for (int i = 0; i < AABBProjectionList.Length; i++)
-            {
-                AABBProjectionList[i] = Vector4.TransformRow(AABBProjectionList[i], viewProjection);
-                if (AABBProjectionList[i].X < left)
-                    left = AABBProjectionList[i].X;
-                if (AABBProjectionList[i].X > right)
-                    right = AABBProjectionList[i].X;
-                if (AABBProjectionList[i].Y > top)
-                    top = AABBProjectionList[i].Y;
-                if(AABBProjectionList[i].Y < bottom)
-                    bottom = AABBProjectionList[i].Y;
-                if (AABBProjectionList[i].Z < front)
-                    front = AABBProjectionList[i].Z;
-                if (AABBProjectionList[i].Z > back)
-                    back = AABBProjectionList[i].Z;
-            }
-
-            screenCoordinates.Top = top;
-            screenCoordinates.Bottom = bottom;
-            screenCoordinates.Left = left;
-            screenCoordinates.Right = right;
-            screenCoordinates.Back = back;
-            screenCoordinates.Front = front;
-            screenCoordinates.Center = new Vector2((left + right) * 0.5f, (top + bottom) * 0.5f);
-
-            return screenCoordinates;
-        }
-
-        /// <summary>
-        /// Ermittelt die Grenzen der AABB-Hitbox eines Objekts in normalisierten (frei wählbaren) Bildschirmkoordinaten 
-        /// </summary>
-        /// <param name="t">zu projizierendes Terrain-Objekt</param>
-        /// <param name="cameraPosition">Kameraposition für die Projektion (und die Blickrichtung ist stets in Richtung der negativen Y-Achse)</param>
-        /// <param name="radius">Radius der Blickweite (ausgehend von der Kameraposition, gültiger Bereich [1;10000])</param>
-        /// <param name="near">Naheinstellgrenze der Kamera (Standard: 1f, gültiger Bereich [1;far - 1])</param>
-        /// <param name="far">Blickweite der Kamera in die Ferne (Standard: 100f, gültiger Bereich [near;10000])</param>
-        /// <returns></returns>
-        public static ProjectionBounds GetScreenCoordinatesNormalizedFor(TerrainObject t, Vector3 cameraPosition, float radius, float near = 1f, float far = 100f)
-        {
-            far = Math.Min(10000, Math.Abs(far));
-            near = Math.Clamp(Math.Abs(near), 1f, far);
-            radius = Math.Clamp(radius, 1f, 10000f);
-            Matrix4 projection = Matrix4.CreateOrthographic((KWEngine.Window.Width / (float)KWEngine.Window.Height) * radius, radius, near, far);
-            Matrix4 view = Matrix4.LookAt(
-                cameraPosition,
-                cameraPosition - Vector3.UnitY,
-                -Vector3.UnitZ
-                );
-            Matrix4 viewProjection = view * projection;
-
-            ProjectionBounds screenCoordinates = new ProjectionBounds();
-
-            // get all 4 boundaries of the TerrainObject AABB:
-            AABBProjectionList[0] = new Vector4(t._stateCurrent._position.X - t.Width / 2, t._stateCurrent._position.Y, t._stateCurrent._position.Z - t.Depth / 2, 1.0f); // left back
-            AABBProjectionList[1] = new Vector4(t._stateCurrent._position.X + t.Width / 2, t._stateCurrent._position.Y, t._stateCurrent._position.Z - t.Depth / 2, 1.0f); // right back
-            AABBProjectionList[2] = new Vector4(t._stateCurrent._position.X - t.Width / 2, t._stateCurrent._position.Y, t._stateCurrent._position.Z + t.Depth / 2, 1.0f); // left front
-            AABBProjectionList[3] = new Vector4(t._stateCurrent._position.X + t.Width / 2, t._stateCurrent._position.Y, t._stateCurrent._position.Z + t.Depth / 2, 1.0f); // right front
-
-            float top = float.MinValue;
-            float bottom = float.MaxValue;
-            float left = float.MaxValue;
-            float right = float.MinValue;
-            float back = float.MinValue;
-            float front = float.MaxValue;
-
-            for (int i = 0; i < 4; i++)
             {
                 AABBProjectionList[i] = Vector4.TransformRow(AABBProjectionList[i], viewProjection);
                 if (AABBProjectionList[i].X < left)

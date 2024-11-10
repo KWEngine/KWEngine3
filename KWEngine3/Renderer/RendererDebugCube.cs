@@ -66,7 +66,6 @@ namespace KWEngine3.Renderer
             // 7 = SM1
             // 8 = SM2
             // 9 = SM3
-            int val = 0;
             int attachmentID = -1;
             int mode = (int)KWEngine.DebugMode;
 

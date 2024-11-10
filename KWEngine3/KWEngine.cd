@@ -153,6 +153,7 @@
       <Field Name="_lightObjects" Hidden="true" />
       <Field Name="_lightObjectsToBeAdded" Hidden="true" />
       <Field Name="_lightObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_map" Hidden="true" />
       <Field Name="_particleAndExplosionObjects" Hidden="true" />
       <Field Name="_preparedCubeMapIndices" Hidden="true" />
       <Field Name="_preparedLightsArray" Hidden="true" />
@@ -239,7 +240,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAEABGGIwqwiSAwIAOEABEAUQyA0EBQEACBA0CEIE=</HashCode>
+      <HashCode>jAiAEABGGIwqwiSAwIAOEABEAUQyA0EBQEACBA0CUIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -283,7 +284,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="13.5" Width="2.75" />
+    <Position X="9.5" Y="13.75" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -317,6 +318,7 @@
       <Field Name="_idFromImport" Hidden="true" />
       <Field Name="_isCollisionObject" Hidden="true" />
       <Field Name="_isShadowCaster" Hidden="true" />
+      <Field Name="_myWorld" Hidden="true" />
       <Field Name="_name" Hidden="true" />
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
@@ -329,7 +331,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QCAAIQACDAQgkAAIACCAIEQEACBAAxAhAAgAEABAQIQ=</HashCode>
+      <HashCode>QCABIUACDAQgkAAIACCAIEQEACBAAxAhAAgAEABAQIQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -410,11 +412,12 @@
   <Class Name="KWEngine3.Helper.HelperVector">
     <Position X="21.5" Y="10.75" Width="2.75" />
     <Members>
+      <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAEAEABAAAQAAAAAFiAAAGABABCCAAgAAACAAAAAAEA=</HashCode>
+      <HashCode>EAEAEABAAAQAAAAAFiAAAGADABCCAAgAAACAAAAAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -450,18 +453,21 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectImage">
-    <Position X="15.5" Y="8.5" Width="2.75" />
+    <Position X="15.5" Y="9.5" Width="2.75" />
     <Members>
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
+      <Field Name="_textureRepeat" Hidden="true" />
+      <Method Name="Reset" Hidden="true" />
+      <Method Name="SetTextureForMap" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAAAQAAAAAAQAAAAAAAAAACAAAAAAAAAAAAAAAAE=</HashCode>
+      <HashCode>QAAAAAAQAAAABAQAAAIAAAAAACAAQAAAAAEAAQAAAAU=</HashCode>
       <FileName>GameObjects\HUDObjectImage.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectText">
-    <Position X="15.5" Y="5" Width="2.75" />
+    <Position X="15.5" Y="5.75" Width="2.75" />
     <Members>
       <Field Name="_offsets" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
@@ -470,7 +476,7 @@
       <Method Name="UpdateOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>UAAAAAAQAAAAAAAAEIAAAACAAAAAAAAIQAAASAASIAE=</HashCode>
+      <HashCode>UAAAAAAQAAAAAAAAEIAAAACAAAAAAAAIQAAASAASIAU=</HashCode>
       <FileName>GameObjects\HUDObjectText.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -481,13 +487,15 @@
       <Field Name="_modelMatrix" Hidden="true" />
       <Field Name="_scale" Hidden="true" />
       <Field Name="_tint" Hidden="true" />
+      <Field Name="_zIndex" Hidden="true" />
       <Method Name="IsMouseCursorOnMe" Hidden="true" />
       <Method Name="UpdateMVP" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAEIBAAAAAEAAgAAIARQQAAAABAgAAACgAggDAACE=</HashCode>
+      <HashCode>AAAIEIBAAAAAEAQgAAIAVQQAAAABAgABACgAggDAACU=</HashCode>
       <FileName>GameObjects\HUDObject.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.EngineObject">
     <Position X="6.5" Y="0.5" Width="2.75" />
@@ -498,6 +506,7 @@
       <Field Name="_isShadowCaster" Hidden="true" />
       <Field Name="_model" Hidden="true" />
       <Field Name="_modelNameInDB" Hidden="true" />
+      <Field Name="_myWorld" Hidden="true" />
       <Field Name="_name" Hidden="true" />
       <Field Name="_positionCenterDelta" Hidden="true" />
       <Field Name="_positionLowerThanCenter" Hidden="true" />
@@ -519,12 +528,12 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyNCJ1oOGJygUIBuAgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
+      <HashCode>QyNDJ1oOGJygUIBuAgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="10.25" Width="2.75" />
+    <Position X="9.5" Y="10.5" Width="2.75" />
     <Members>
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
@@ -568,7 +577,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowField">
-    <Position X="15.5" Y="10.5" Width="2.75" />
+    <Position X="15.5" Y="12.5" Width="2.75" />
     <Members>
       <Field Name="_cellDiametre" Hidden="true" />
       <Field Name="_ffback" Hidden="true" />
@@ -598,7 +607,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="21.5" Y="15.75" Width="2.75" />
+    <Position X="21.5" Y="16" Width="2.75" />
     <Members>
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
@@ -625,6 +634,26 @@
     <TypeIdentifier>
       <HashCode>AQAAARABAAAAAAAAAARSASEggAAEIAABAEAIAgQAUAE=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.WorldMap">
+    <Position X="3.5" Y="19" Width="2.75" />
+    <Members>
+      <Field Name="_AABBProjectionList" Hidden="true" />
+      <Field Name="_direction" Hidden="true" />
+      <Field Name="_far" Hidden="true" />
+      <Field Name="_indexFree" Hidden="true" />
+      <Field Name="_items" Hidden="true" />
+      <Field Name="_near" Hidden="true" />
+      <Field Name="_radius" Hidden="true" />
+      <Field Name="_viewProjection" Hidden="true" />
+      <Field Name="MAXITEMCOUNT" Hidden="true" />
+      <Method Name="Reset" Hidden="true" />
+      <Method Name="WorldMap" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>CAIAAAAAAAAABAAQACACFQAAABAAAEAAAAIIABAAAAA=</HashCode>
+      <FileName>WorldMap.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">

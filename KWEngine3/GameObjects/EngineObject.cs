@@ -16,6 +16,17 @@ namespace KWEngine3.GameObjects
     public abstract class EngineObject
     {
         /// <summary>
+        /// Gibt an, ob sich das Objekt aktuell in der Welt befindet
+        /// </summary>
+        public bool IsInCurrentWorld
+        {
+            get
+            {
+                return _myWorld == KWEngine.CurrentWorld;
+            }
+        }
+
+        /// <summary>
         /// Names des Objekts
         /// </summary>
         public string Name { get { return _name; } set { if (value != null && value.Length > 0) _name = value; } }
@@ -987,6 +998,8 @@ namespace KWEngine3.GameObjects
                 return false;
             }
         }
+
+        internal World _myWorld = null;
 
         internal abstract void InitHitboxes();
 

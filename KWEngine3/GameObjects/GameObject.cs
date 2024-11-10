@@ -15,6 +15,11 @@ namespace KWEngine3.GameObjects
         public int ID { get; internal set; } = -1;
 
         /// <summary>
+        /// Ermöglicht das Anhängen individueller Informationen an das Objekt
+        /// </summary>
+        public object Tag { get; set; } = null;
+
+        /// <summary>
         /// Gibt die Kosten dieser Instanz auf einem (optionalen) Flowfield an (1 = kein Hindernis, 255 = unüberwindbares Hindernis; Standardwert: 1)
         /// </summary>
         public byte FlowFieldCost {
@@ -218,6 +223,14 @@ namespace KWEngine3.GameObjects
             return this.Center + LookAtVectorLocalUp * _obbRadii.Y;
         }
 
+        /// <summary>
+        /// Erzwingt das sofortige Aktualisieren des Objekts für den Render-Durchgang
+        /// </summary>
+        /// <remarks>Sollte in der Regel nicht verwendet werden</remarks>
+        public void ForceUpdate()
+        {
+            this._statePrevious = this._stateCurrent;
+        }
 
         /// <summary>
         /// Setzt die Position des Objekts

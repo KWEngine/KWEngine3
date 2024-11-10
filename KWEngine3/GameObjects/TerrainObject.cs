@@ -14,6 +14,17 @@ namespace KWEngine3.GameObjects
     public sealed class TerrainObject
     {
         /// <summary>
+        /// Gibt an, ob sich das Objekt aktuell in der Welt befindet
+        /// </summary>
+        public bool IsInCurrentWorld
+        {
+            get
+            {
+                return _myWorld == KWEngine.CurrentWorld;
+            }
+        }
+
+        /// <summary>
         /// Interne ID des Objekts
         /// </summary>
         public int ID { get; internal set; } = 0;
@@ -290,6 +301,8 @@ namespace KWEngine3.GameObjects
         {
             _stateRender._modelMatrix = Matrix4.Identity;
         }
+
+        internal World _myWorld = null;
 
         /*
         internal GeoMaterial GenerateMaterial(string texture)
