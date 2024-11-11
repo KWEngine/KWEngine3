@@ -11,14 +11,6 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperIntersection
     {
-        /*
-        public static Vector3 ProjectMouseCoordinatesToXZPlane(float height = 0f)
-        {
-            Matrix4 tmp = Matrix4.Invert(KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrix);
-            tmp.
-        }
-        */
-
         /// <summary>
         /// Ermittelt für die angegebenen Bildschirmkoordinaten, wo diese Koordinaten in der 3D-Welt liegen
         /// </summary>

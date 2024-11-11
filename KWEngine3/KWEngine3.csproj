@@ -42,6 +42,8 @@
 		<None Remove="Assets\Models\kwcube6.obj" />
 		<None Remove="Assets\Models\kwgrass_fern.obj" />
 		<None Remove="Assets\Models\kwgrass_minecraft.obj" />
+		<None Remove="Assets\Models\kwmapquadxy.obj" />
+		<None Remove="Assets\Models\kwmapquadxz.obj" />
 		<None Remove="Assets\Models\kwplatform.mtl" />
 		<None Remove="Assets\Models\kwplatform.obj" />
 		<None Remove="Assets\Models\kwquad.obj" />
@@ -196,6 +198,8 @@
 		<EmbeddedResource Include="Assets\Models\kwcube6.obj" />
 		<EmbeddedResource Include="Assets\Models\kwgrass_fern.obj" />
 		<EmbeddedResource Include="Assets\Models\kwgrass_minecraft.obj" />
+		<EmbeddedResource Include="Assets\Models\kwmapquadxy.obj" />
+		<EmbeddedResource Include="Assets\Models\kwmapquadxz.obj" />
 		<EmbeddedResource Include="Assets\Models\kwplatform.mtl" />
 		<EmbeddedResource Include="Assets\Models\kwplatform.obj" />
 		<EmbeddedResource Include="Assets\Models\kwquad.obj" />

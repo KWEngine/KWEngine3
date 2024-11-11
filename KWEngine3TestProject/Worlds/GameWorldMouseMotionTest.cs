@@ -20,7 +20,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(0, 25, 0);
 
             MouseCube c = new MouseCube();
-            c.SetScale(5);
+            c.SetScale(2, 0.001f, 2);
             AddGameObject(c);
 
         }

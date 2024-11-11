@@ -28,6 +28,22 @@ namespace KWEngine3.Helper
             return m;
         }
 
+        public static Matrix4 CreateModelMatrix(float sX, float sY, float sZ, ref Quaternion r, float tX, float tY, float tZ)
+        {
+            Matrix4 m = Matrix4.CreateFromQuaternion(r);
+
+            m.Row0 *= sX;
+            m.Row1 *= sY;
+            m.Row2 *= sZ;
+
+            m.Row3.X = tX;
+            m.Row3.Y = tY;
+            m.Row3.Z = tZ;
+            m.Row3.W = 1.0f;
+
+            return m;
+        }
+
         public static Matrix4 CreateModelMatrixForHUD(ref Vector3 s, ref Vector3 t)
         {
             Matrix4 m = Matrix4.Identity;
@@ -39,6 +55,22 @@ namespace KWEngine3.Helper
             m.Row3.X = t.X;
             m.Row3.Y = t.Y;
             m.Row3.Z = t.Z;
+            m.Row3.W = 1.0f;
+
+            return m;
+        }
+
+        public static Matrix4 CreateModelMatrixForHUD(float sX, float sY, float sZ, float tX, float tY, float tZ)
+        {
+            Matrix4 m = Matrix4.Identity;
+
+            m.Row0 *= sX;
+            m.Row1 *= sY;
+            m.Row2 *= sZ;
+
+            m.Row3.X = tX;
+            m.Row3.Y = tY;
+            m.Row3.Z = tZ;
             m.Row3.W = 1.0f;
 
             return m;

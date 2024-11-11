@@ -1,6 +1,7 @@
 ﻿using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
+using System.Buffers;
 
 
 namespace KWEngine3
@@ -10,26 +11,36 @@ namespace KWEngine3
     /// </summary>
     public class WorldMap
     {
-        internal HUDObjectImage[] _items;
+        internal HUDObjectMap[] _items;
         internal int _indexFree;
-        internal Matrix4 _viewProjection;
+        internal Matrix4 _camViewProjection;
+        internal Matrix4 _camView;
+        internal Matrix4 _camProjection;
+        internal Matrix4 _camPreRotation;
         internal ProjectionDirection _direction;
-        internal float _radius;
+        internal Vector2 _cameraDimensions;
         internal float _near;
         internal float _far;
         internal static Vector4[] _AABBProjectionList;
         internal const int MAXITEMCOUNT = 1024;
+        internal bool _drawAsCircle = false;
+        internal Vector2i _targetCenter;
+        internal Vector2i _targetDimensions;
+        internal HUDObjectMap _background;
 
         internal WorldMap()
         {
             _AABBProjectionList = new Vector4[8];
-            _items = new HUDObjectImage[MAXITEMCOUNT];
+            _items = new HUDObjectMap[MAXITEMCOUNT];
             for(int i = 0; i < MAXITEMCOUNT; i++)
             {
-                _items[i] = new HUDObjectImage();
+                _items[i] = new HUDObjectMap();
             }
             _indexFree = 0;
-            SetCamera(0, 100, 0, ProjectionDirection.NegativeY, 50, 1, 100);
+            SetCamera(0, 100, 0, ProjectionDirection.NegativeY, 50, 50, 1, 100);
+            SetViewport(KWEngine.Window.Center, 128, 128);
+            _camPreRotation = Matrix4.Identity;
+            _background = null;
         }
 
         internal void Reset()
@@ -38,27 +49,112 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Löscht das ggf. gesetzte Hintergrundobjekt der Map
+        /// </summary>
+        public void ResetBackground()
+        {
+            _background = null;
+        }
+
+        /// <summary>
+        /// Setzt das Hintergrundbild der Map
+        /// </summary>
+        /// <param name="filename">Dateiname (inkl. relativem Pfad)</param>
+        /// <param name="width">Weite der Map (in Weltkoordinaten)</param>
+        /// <param name="height">Höhe der Map (in Weltkoordinaten)</param>
+        /// <param name="opacity">Sichtbarkeit (zwischen 0f und 1f)</param>
+        /// <param name="textureRepeatX">Texturwiederholung in x-Richtung</param>
+        /// <param name="textureRepeatY">Texturwiederholung in y-Richtung</param>
+        public void SetBackground(string filename, float width, float height, float opacity = 1f, float textureRepeatX = 1f, float textureRepeatY = 1f)
+        {
+            _background = CreateHUDObjectMapForBackground(Vector3.Zero, Math.Max(1f, width), Math.Max(1f, height), 0f, Vector3.One, opacity, filename, textureRepeatX, textureRepeatY);
+        }
+
+        /// <summary>
+        /// Gibt die Position und Größe der Map an
+        /// </summary>
+        /// <param name="center">Mittelpunkt der Map in Fensterpixelkoordinaten</param>
+        /// <param name="width">Breite der Map auf dem Bildschirm (in Pixeln, Mindestwert: 32)</param>
+        /// <param name="height">Höhe der Map auf dem Bildschirm (in Pixeln, Mindestwert: 32)</param>
+        /// <param name="drawAsCircle">Zeichnet die Map kreisrund statt quadratisch</param>
+        public void SetViewport(Vector2i center, int width, int height, bool drawAsCircle = false)
+        {
+            _drawAsCircle = drawAsCircle;
+            _targetCenter = center;
+            _targetDimensions = new Vector2i(width, height);
+        }
+
+        /// <summary>
+        /// Gibt die Position und Größe der Map an
+        /// </summary>
+        /// <param name="center">Mittelpunkt der Map in Fensterpixelkoordinaten</param>
+        /// <param name="width">Breite der Map auf dem Bildschirm (in Pixeln, Mindestwert: 32)</param>
+        /// <param name="height">Höhe der Map auf dem Bildschirm (in Pixeln, Mindestwert: 32)</param>
+        /// <param name="drawAsCircle">Zeichnet die Map kreisrund statt quadratisch</param>
+        public void SetViewport(Vector2 center, int width, int height, bool drawAsCircle = false)
+        {
+            _drawAsCircle = drawAsCircle;
+            _targetCenter = new Vector2i((int)center.X, (int)center.Y);
+            _targetDimensions = new Vector2i(width, height);
+        }
+
+        /// <summary>
+        /// Gibt die Position und Größe der Map an
+        /// </summary>
+        /// <param name="centerX">Mittelpunkt (x-Achse) der Map in Fensterpixelkoordinaten</param>
+        /// <param name="centerY">Mittelpunkt (y-Achse) der Map in Fensterpixelkoordinaten</param>
+        /// <param name="width">Breite der Map auf dem Bildschirm (in Pixeln, Mindestwert: 32)</param>
+        /// <param name="height">Höhe der Map auf dem Bildschirm (in Pixeln, Mindestwert: 32)</param>
+        /// <param name="drawAsCircle">Zeichnet die Map kreisrund statt quadratisch</param>
+        public void SetViewport(int centerX, int centerY, int width, int height, bool drawAsCircle = false)
+        {
+            SetViewport(new Vector2i(centerX, centerY), width, height, drawAsCircle);
+        }
+
+
+        /// <summary>
         /// Setzt die Kameraeinstellungen für die Map-Kamera
         /// </summary>
         /// <param name="position">Position der Kamera</param>
         /// <param name="direction">Blickrichtung der Kamera</param>
-        /// <param name="radius">Sichtradius der Kamera</param>
-        /// <param name="near">Naheinstellgrenze</param>
-        /// <param name="far">Ferneinstellgrenze</param>
-        public void SetCamera(Vector3 position, ProjectionDirection direction, float radius, float near, float far)
+        /// <param name="width">Sichtbreite der Kamera (Mindestwert: 1f, Maximalwert: 10000f)</param>
+        /// <param name="height">Sichthöhe der Kamera (Mindestwert: 1f, Maximalwert: 10000f)</param>
+        /// <param name="near">Naheinstellgrenze (Mindestwert: 1f)</param>
+        /// <param name="far">Ferneinstellgrenze (Maximalwert: 10000f)</param>
+        public void SetCamera(Vector3 position, ProjectionDirection direction, float width, float height, float near, float far)
         {
             _direction = direction;
             _far = Math.Min(10000, Math.Abs(far));
             _near = Math.Clamp(Math.Abs(near), 1f, far);
-            _radius = Math.Clamp(radius, 1f, 10000f);
-
-            Matrix4 projection = Matrix4.CreateOrthographic((KWEngine.Window.Width / (float)KWEngine.Window.Height) * (_radius * 2f), (_radius * 2f), _near, _far);
-            Matrix4 view = Matrix4.LookAt(
+            _cameraDimensions = new Vector2(Math.Clamp(width, 1f, 10000f), Math.Clamp(height, 1f, 10000f));
+            _camProjection = Matrix4.CreateOrthographic(_cameraDimensions.X, _cameraDimensions.Y, _near, _far);
+            _camView = Matrix4.LookAt(
                 position,
                 position + (direction == ProjectionDirection.NegativeY ? -Vector3.UnitY : _direction == ProjectionDirection.NegativeZ ? -Vector3.UnitZ : Vector3.UnitZ),
                 _direction == ProjectionDirection.NegativeY ? -Vector3.UnitZ : Vector3.UnitY
                 );
-            _viewProjection = view * projection;
+            _camViewProjection = _camView * _camProjection;
+        }
+
+        /// <summary>
+        /// Rotiert die Kamera um ihre Blickachse gemäß des angegebenen Look-At-Vector
+        /// </summary>
+        /// <param name="lookAtVector">Look-At-Vector der die Rotation enthält</param>
+        public void UpdateCameraRotation(Vector3 lookAtVector)
+        {
+            if (_direction == ProjectionDirection.NegativeY)
+            {
+                float dot = Vector3.Dot(Vector3.UnitX, lookAtVector);
+                float rotation = (lookAtVector.Z <= 0)
+                                 ? (dot) * (MathF.PI * 0.25f)
+                                 : (1f - dot) * (MathF.PI * 0.25f);
+                Console.WriteLine(rotation);
+                _camPreRotation = Matrix4.CreateRotationZ(-rotation);
+            }
+            else
+            {
+
+            }
         }
 
         /// <summary>
@@ -68,12 +164,13 @@ namespace KWEngine3
         /// <param name="y">Kameraposition auf der Y-Achse</param>
         /// <param name="z">Kameraposition auf der Z-Achse</param>
         /// <param name="direction">Blickrichtung der Kamera</param>
-        /// <param name="radius">Sichtradius der Kamera</param>
+        /// <param name="width">Sichtbreite der Kamera (Mindestwert: 1f, Maximalwert: 10000f)</param>
+        /// <param name="height">Sichtbreite der Kamera (Mindestwert: 1f, Maximalwert: 10000f)</param>
         /// <param name="near">Naheinstellgrenze</param>
         /// <param name="far">Ferneinstellgrenze</param>
-        public void SetCamera(float x, float y, float z, ProjectionDirection direction, float radius, float near, float far)
+        public void SetCamera(float x, float y, float z, ProjectionDirection direction, float width, float height, float near, float far)
         {
-            SetCamera(new Vector3(x, y, z), direction, radius, near, far);
+            SetCamera(new Vector3(x, y, z), direction, width, height, near, far);
         }
 
         /// <summary>
@@ -82,264 +179,127 @@ namespace KWEngine3
         /// <param name="x">Kameraposition auf der X-Achse</param>
         /// <param name="y">Kameraposition auf der Y-Achse</param>
         /// <param name="z">Kameraposition auf der Z-Achse</param>
-        public void SetCamera(float x, float y, float z)
+        public void UpdateCamera(float x, float y, float z)
         {
-            SetCamera(x, y, z, _direction, _radius, _near, _far);
+            SetCamera(x, y, z, _direction, _cameraDimensions.X, _cameraDimensions.Y, _near, _far);
         }
 
         /// <summary>
         /// Setzt die Kameraeinstellungen (hier nur: Position) für die Map-Kamera
         /// </summary>
         /// <param name="position">Kameraposition</param>
-        public void SetCamera(Vector3 position)
+        public void UpdateCamera(Vector3 position)
         {
-            SetCamera(position.X, position.Y, position.Z);
+            UpdateCamera(position.X, position.Y, position.Z);
         }
 
         /// <summary>
-        /// Fügt einen neuen Karteneintrag hinzu, der dann im aktuellen Frame als Overlay gezeichnet wird
+        /// Fügt die aktuelle Projektion der Map für den aktuellen Frame hinzu
         /// </summary>
-        /// <param name="position">Position auf dem Bildschirm</param>
-        /// <param name="scaleX">Breite</param>
-        /// <param name="scaleY">Höhe</param>
-        /// <param name="zIndex">Z-Index</param>
-        /// <param name="r">Rotfärbung (zwischen 0f und 1f)</param>
-        /// <param name="g">Grünfärbung (zwischen 0f und 1f)</param>
-        /// <param name="b">Blaufärbung (zwischen 0f und 1f)</param>
-        /// <param name="alpha">Sichtbarkeit (zwischen 0f und 1f)</param>
-        /// <param name="emissiveR">Rote Leuchtfärbung (zwischen 0f und 1f)</param>
-        /// <param name="emissiveG">Grüne Leuchtfärbung (zwischen 0f und 1f)</param>
-        /// <param name="emissiveB">Blaue Leuchtfärbung (zwischen 0f und 1f)</param>
+        /// <param name="go">Zu zeichnendes Objekt</param>
+        /// <param name="zIndex">Z-Index für das Objekt</param>
+        /// <param name="color">Färbung (jeder Wert zwischen 0f und 1f)</param>
+        /// <param name="colorEmissive">Leuchtfärbung jeder Wert zwischen 0f und 1f)</param>
         /// <param name="emissiveIntensity">Leuchtintensität (zwischen 0f und 1f)</param>
+        /// <param name="opacity">Sichtbarkeit (zwischen 0f und 1f)</param>
+        /// <param name="scaleOverride">Wenn > 0, wird die Skalierung des eigentlichen Objekts mit dem angegebenen Wert überschrieben</param>
         /// <param name="texture">Texturdateiname (darf null sein, wenn keine Textur verwendet werden soll)</param>
         /// <param name="textureRepeatX">Texturwiederholung in X-Richtung (Standard: 1f)</param>
         /// <param name="textureRepeatY">Texturwiederholung in Y-Richtung (Standard: 1f)</param>
-        public void Add(Vector2i position, int scaleX, int scaleY, float zIndex, float r = 1f, float g = 1f, float b = 1f, float alpha = 1f, float emissiveR = 1f, float emissiveG = 1f, float emissiveB = 1f, float emissiveIntensity = 0f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
+        public void Add(GameObject go, float zIndex, Vector3 color, Vector3 colorEmissive, float emissiveIntensity = 0f, float opacity = 1f, float scaleOverride = 0f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
         {
-            if(_indexFree >= _items.Length)
+            if (_indexFree >= _items.Length)
             {
                 KWEngine.LogWriteLine("[Map] Map item could not be added - too many items already");
                 return;
             }
-            HUDObjectImage h = _items[_indexFree++];
+            foreach (GameObjectHitbox hb in go._colliderModel._hitboxes)
+            {
+                if (hb._colliderType == ColliderType.ConvexHull)
+                {
+                    HUDObjectMap h = _items[_indexFree++];
+                    h._scaleOverride = Math.Max(0f, scaleOverride);
+                    if(h._scaleOverride > 0f)
+                    {
+                        Vector3 tmpS = hb.Owner._stateRender._scale;
+                        Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref tmpS, ref hb.Owner._stateRender._rotation, ref hb.Owner._stateRender._position);
+                        h._modelMatrix = hb._mesh._mapPreTransform * tmp;
+                    }
+                    else
+                    {
+                        h._modelMatrix = hb._mesh._mapPreTransform * hb._modelMatrixFinal;
+                    }
+                    
+                    h.SetTextureForMap(texture);
+                    h.SetTextureRepeat(textureRepeatX, textureRepeatY);
+                    h.SetColor(color.X, color.Y, color.Z, opacity);
+                    h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
+                    h.SetZIndex(Math.Clamp(zIndex, -100f, 100f));
+                    
+                }
+            }
+        }
+
+        /// <summary>
+        /// Fügt die aktuelle Projektion der Map für den aktuellen Frame hinzu
+        /// </summary>
+        /// <param name="position">Position des zu zeichnenden Objekts</param>
+        /// <param name="width">Breite des zu zeichnenden Objekts</param>
+        /// <param name="height">Breite des zu zeichnenden Objekts</param>
+        /// <param name="zIndex">Z-Index für das Objekt</param>
+        /// <param name="color">Färbung (jeder Wert zwischen 0f und 1f)</param>
+        /// <param name="colorEmissive">Leuchtfärbung jeder Wert zwischen 0f und 1f)</param>
+        /// <param name="emissiveIntensity">Leuchtintensität (zwischen 0f und 1f)</param>
+        /// <param name="opacity">Sichtbarkeit (zwischen 0f und 1f)</param>
+        /// <param name="texture">Texturdateiname (darf null sein, wenn keine Textur verwendet werden soll)</param>
+        /// <param name="textureRepeatX">Texturwiederholung in X-Richtung (Standard: 1f)</param>
+        /// <param name="textureRepeatY">Texturwiederholung in Y-Richtung (Standard: 1f)</param>
+        public void Add(Vector3 position, float width, float height, float zIndex, Vector3 color, Vector3 colorEmissive, float emissiveIntensity = 0f, float opacity = 1f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
+        {
+            if (_indexFree >= _items.Length)
+            {
+                KWEngine.LogWriteLine("[Map] Map item could not be added - too many items already");
+                return;
+            }
+
+            HUDObjectMap h = _items[_indexFree++];
+            if(_direction == ProjectionDirection.NegativeY)
+            {
+                h._modelMatrix = HelperMatrix.CreateModelMatrixForHUD(position.X, position.Y, position.Z, width, 1f, height);
+            }
+            else
+            {
+                h._modelMatrix = HelperMatrix.CreateModelMatrixForHUD(position.X, position.Y, position.Z, width, height, 1f);
+            }
+            
             h.SetTextureForMap(texture);
             h.SetTextureRepeat(textureRepeatX, textureRepeatY);
-            h.SetScale(scaleX, scaleY);
-            h.SetPosition(position.X, position.Y);
-            h.SetColor(r, g, b);
-            h.SetOpacity(alpha);
-            h.SetColorEmissive(emissiveR, emissiveG, emissiveB);
-            h.SetColorEmissiveIntensity(emissiveIntensity);
-            h._zIndex = Math.Clamp(zIndex, -100f, 100f);
+            h.SetColor(color.X, color.Y, color.Z, opacity);
+            h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
+            h.SetZIndex(Math.Clamp(zIndex, -100f, 100f));
+            h._scaleOverride = 0f;
+
         }
 
-        /// <summary>
-        /// Fügt einen neuen Karteneintrag hinzu, der dann im aktuellen Frame als Overlay gezeichnet wird
-        /// </summary>
-        /// <param name="m"></param>
-        public void Add(MapEntry m)
+        internal HUDObjectMap CreateHUDObjectMapForBackground(Vector3 position, float width, float height, float zIndex, Vector3 color, float opacity = 1f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
         {
-            Add(
-                m.Position,
-                m.Scale.X,
-                m.Scale.Y,
-                m.ZIndex,
-                m.Color.X,
-                m.Color.Y,
-                m.Color.Z,
-                m.Opacity,
-                m.ColorEmissive.X,
-                m.ColorEmissive.Y,
-                m.ColorEmissive.Z, 
-                m.ColorEmissiveIntensity, 
-                m.Texture, 
-                m.TextureRepeatX, 
-                m.TextureRepeatY
-                );
-        }
-
-        /// <summary>
-        /// Erzeugt eine neue MapObject-Instanz
-        /// </summary>
-        /// <returns>neue Instanz</returns>
-        public MapEntry GetNewMapObject()
-        {
-            return new MapEntry();
-        }
-
-        /// <summary>
-        /// Ermittelt die Grenzen einer AABB-Hitbox zu der angegebenen Position in normalisierten (frei wählbaren) Bildschirmkoordinaten 
-        /// </summary>
-        /// <param name="p">zu projizierende Position</param>
-        /// <param name="width">Breite des zu projezierenden Kubus</param>
-        /// <param name="height">Höhe des zu projezierenden Kubus</param>
-        /// <param name="depth">Tiefe des zu projezierenden Kubus</param>
-        /// <returns>Grenzwerte des projizierten Objekts in normalisierter Form</returns>
-        public ProjectionBounds GetScreenCoordinatesNormalizedFor(Vector3 p, float width, float height, float depth)
-        {
-            ProjectionBounds screenCoordinates = new ProjectionBounds();
-
-            // get all 8 boundaries of the GameObjects AABB:
-            _AABBProjectionList[0] = new Vector4(p.X - width / 2f, p.Y + height / 2f, p.Z - depth / 2f, 1.0f); // left top back
-            _AABBProjectionList[1] = new Vector4(p.X + width / 2f, p.Y + height / 2f, p.Z - depth / 2f, 1.0f); // right top back
-            _AABBProjectionList[2] = new Vector4(p.X - width / 2f, p.Y - height / 2f, p.Z - depth / 2f, 1.0f); // left bottom back
-            _AABBProjectionList[3] = new Vector4(p.X + width / 2f, p.Y - height / 2f, p.Z - depth / 2f, 1.0f); // right bottom back
-            _AABBProjectionList[4] = new Vector4(p.X - width / 2f, p.Y + height / 2f, p.Z + depth / 2f, 1.0f); // left top front
-            _AABBProjectionList[5] = new Vector4(p.X + width / 2f, p.Y + height / 2f, p.Z + depth / 2f, 1.0f); // right top front
-            _AABBProjectionList[6] = new Vector4(p.X - width / 2f, p.Y - height / 2f, p.Z + depth / 2f, 1.0f); // left bottom front
-            _AABBProjectionList[7] = new Vector4(p.X + width / 2f, p.Y - height / 2f, p.Z + depth / 2f, 1.0f); // right bottom front
-
-            float top = float.MinValue;
-            float bottom = float.MaxValue;
-            float left = float.MaxValue;
-            float right = float.MinValue;
-            float back = float.MinValue;
-            float front = float.MaxValue;
-
-            for (int i = 0; i < _AABBProjectionList.Length; i++)
+            HUDObjectMap h = new HUDObjectMap();
+            if (_direction == ProjectionDirection.NegativeY)
             {
-                _AABBProjectionList[i] = Vector4.TransformRow(_AABBProjectionList[i], _viewProjection);
-                if (_AABBProjectionList[i].X < left)
-                    left = _AABBProjectionList[i].X;
-                if (_AABBProjectionList[i].X > right)
-                    right = _AABBProjectionList[i].X;
-                if (_AABBProjectionList[i].Y > top)
-                    top = _AABBProjectionList[i].Y;
-                if (_AABBProjectionList[i].Y < bottom)
-                    bottom = _AABBProjectionList[i].Y;
-                if (_AABBProjectionList[i].Z < front)
-                    front = _AABBProjectionList[i].Z;
-                if (_AABBProjectionList[i].Z > back)
-                    back = _AABBProjectionList[i].Z;
+                h._modelMatrix = HelperMatrix.CreateModelMatrixForHUD(width, 1f, height, position.X, position.Y, position.Z);
+            }
+            else
+            {
+                h._modelMatrix = HelperMatrix.CreateModelMatrixForHUD(width, height, 1f, position.X, position.Y, position.Z);
             }
 
-            screenCoordinates.Top = top;
-            screenCoordinates.Bottom = bottom;
-            screenCoordinates.Left = left;
-            screenCoordinates.Right = right;
-            screenCoordinates.Back = back;
-            screenCoordinates.Front = front;
-            screenCoordinates.Center = new Vector2((left + right) * 0.5f, (top + bottom) * 0.5f);
-
-            return screenCoordinates;
-        }
-
-        /// <summary>
-        /// Ermittelt die Grenzen der AABB-Hitbox eines Objekts in normalisierten (frei wählbaren) Bildschirmkoordinaten 
-        /// </summary>
-        /// <param name="t">zu projizierendes Terrain-Objekt</param>
-        /// <returns>Projizierte Grenzwerte in normalisierten Bildschirmkoordinaten</returns>
-        public ProjectionBounds GetScreenCoordinatesNormalizedFor(TerrainObject t)
-        {
-            ProjectionBounds screenCoordinates = new ProjectionBounds();
-
-            // get all 4 boundaries of the TerrainObject AABB:
-            _AABBProjectionList[0] = new Vector4(t._stateCurrent._position.X - t.Width / 2, t._stateCurrent._position.Y, t._stateCurrent._position.Z - t.Depth / 2, 1.0f); // left back
-            _AABBProjectionList[1] = new Vector4(t._stateCurrent._position.X + t.Width / 2, t._stateCurrent._position.Y, t._stateCurrent._position.Z - t.Depth / 2, 1.0f); // right back
-            _AABBProjectionList[2] = new Vector4(t._stateCurrent._position.X - t.Width / 2, t._stateCurrent._position.Y, t._stateCurrent._position.Z + t.Depth / 2, 1.0f); // left front
-            _AABBProjectionList[3] = new Vector4(t._stateCurrent._position.X + t.Width / 2, t._stateCurrent._position.Y, t._stateCurrent._position.Z + t.Depth / 2, 1.0f); // right front
-
-            float top = float.MinValue;
-            float bottom = float.MaxValue;
-            float left = float.MaxValue;
-            float right = float.MinValue;
-            float back = float.MinValue;
-            float front = float.MaxValue;
-
-            for (int i = 0; i < 4; i++)
-            {
-                _AABBProjectionList[i] = Vector4.TransformRow(_AABBProjectionList[i], _viewProjection);
-                if (_AABBProjectionList[i].X < left)
-                    left = _AABBProjectionList[i].X;
-                if (_AABBProjectionList[i].X > right)
-                    right = _AABBProjectionList[i].X;
-                if (_AABBProjectionList[i].Y > top)
-                    top = _AABBProjectionList[i].Y;
-                if (_AABBProjectionList[i].Y < bottom)
-                    bottom = _AABBProjectionList[i].Y;
-                if (_AABBProjectionList[i].Z < front)
-                    front = _AABBProjectionList[i].Z;
-                if (_AABBProjectionList[i].Z > back)
-                    back = _AABBProjectionList[i].Z;
-            }
-
-            screenCoordinates.Top = top;
-            screenCoordinates.Bottom = bottom;
-            screenCoordinates.Left = left;
-            screenCoordinates.Right = right;
-            screenCoordinates.Back = back;
-            screenCoordinates.Front = front;
-            screenCoordinates.Center = new Vector2((left + right) * 0.5f, (top + bottom) * 0.5f);
-
-            return screenCoordinates;
-        }
-
-        /// <summary>
-        /// Ermittelt die Grenzen der AABB-Hitbox eines Objekts in normalisierten Bildschirmkoordinaten 
-        /// </summary>
-        /// <param name="g">zu projizierendes Objekt</param>
-        /// <returns>Grenzwerte des projizierten Objekts in normalisierter Form</returns>
-        public ProjectionBounds GetScreenCoordinatesNormalizedFor(GameObject g)
-        {
-            ProjectionBounds screenCoordinates = new ProjectionBounds();
-
-            // get all 8 boundaries of the GameObjects AABB:
-            _AABBProjectionList[0] = new Vector4(g.AABBLeft, g.AABBHigh, g.AABBBack, 1.0f); // left top back
-            _AABBProjectionList[1] = new Vector4(g.AABBRight, g.AABBHigh, g.AABBBack, 1.0f); // right top back
-            _AABBProjectionList[2] = new Vector4(g.AABBLeft, g.AABBLow, g.AABBBack, 1.0f); // left bottom back
-            _AABBProjectionList[3] = new Vector4(g.AABBRight, g.AABBLow, g.AABBBack, 1.0f); // right bottom back
-            _AABBProjectionList[4] = new Vector4(g.AABBLeft, g.AABBHigh, g.AABBFront, 1.0f); // left top front
-            _AABBProjectionList[5] = new Vector4(g.AABBRight, g.AABBHigh, g.AABBFront, 1.0f); // right top front
-            _AABBProjectionList[6] = new Vector4(g.AABBLeft, g.AABBLow, g.AABBFront, 1.0f); // left bottom front
-            _AABBProjectionList[7] = new Vector4(g.AABBRight, g.AABBLow, g.AABBFront, 1.0f); // right bottom front
-
-            float top = float.MinValue;
-            float bottom = float.MaxValue;
-            float left = float.MaxValue;
-            float right = float.MinValue;
-            float back = float.MinValue;
-            float front = float.MaxValue;
-
-            for (int i = 0; i < _AABBProjectionList.Length; i++)
-            {
-                _AABBProjectionList[i] = Vector4.TransformRow(_AABBProjectionList[i], _viewProjection);
-                if (_AABBProjectionList[i].X < left)
-                    left = _AABBProjectionList[i].X;
-                if (_AABBProjectionList[i].X > right)
-                    right = _AABBProjectionList[i].X;
-                if (_AABBProjectionList[i].Y > top)
-                    top = _AABBProjectionList[i].Y;
-                if (_AABBProjectionList[i].Y < bottom)
-                    bottom = _AABBProjectionList[i].Y;
-                if (_AABBProjectionList[i].Z < front)
-                    front = _AABBProjectionList[i].Z;
-                if (_AABBProjectionList[i].Z > back)
-                    back = _AABBProjectionList[i].Z;
-            }
-
-            screenCoordinates.Top = top;
-            screenCoordinates.Bottom = bottom;
-            screenCoordinates.Left = left;
-            screenCoordinates.Right = right;
-            screenCoordinates.Back = back;
-            screenCoordinates.Front = front;
-            screenCoordinates.Center = new Vector2((left + right) * 0.5f, (top + bottom) * 0.5f);
-
-            return screenCoordinates;
-        }
-
-        /// <summary>
-        /// Konvertiert normalisierte Projektionsgrenzwerte zu tatsächlichen Bildschirmkoordinaten
-        /// </summary>
-        /// <param name="bounds">normalisierte Projektionswerte</param>
-        /// <param name="scale">Skalierfaktor für die Konvertierung (Standard: 1f)</param>
-        /// <param name="offsetX">Verchiebung in X-Richtung</param>
-        /// <param name="offsetY">Verchiebung in Y-Richtung</param>
-        /// <returns>Pixelkoordinaten</returns>
-        public ProjectionBoundsScreen ConvertNormalizedCoordinatesToScreenSpace(ProjectionBounds bounds, float scale = 1f, int offsetX = 0, int offsetY = 0)
-        {
-            ProjectionBoundsScreen pbs = new ProjectionBoundsScreen(bounds, scale, offsetX, offsetY);
-            return pbs;
+            h.SetTextureForMap(texture);
+            h.SetTextureRepeat(textureRepeatX, textureRepeatY);
+            h.SetColor(color.X, color.Y, color.Z, opacity);
+            h.SetColorEmissive(0f, 0f, 0f, 0f);
+            h.SetZIndex(-99f);
+            h._scaleOverride = 0f;
+            return h;
         }
     }
 }

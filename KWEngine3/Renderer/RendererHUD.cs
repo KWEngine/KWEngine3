@@ -23,6 +23,7 @@ namespace KWEngine3.Renderer
         public static int UId { get; private set; } = -1;
         public static int UCharacterWidth { get; private set; } = -1;
         public static int UTextureRepeat { get; private set; } = -1;
+        public static int UOptions { get; private set; } = -1;
         
 
         public static void Init()
@@ -60,6 +61,7 @@ namespace KWEngine3.Renderer
                 UTextAlign = GL.GetUniformLocation(ProgramID, "uTextAlign");
                 UMode = GL.GetUniformLocation(ProgramID, "uMode"); // 0 = text, 1 = image, 2 = sliderhorizontal, etc.
                 UTextureRepeat = GL.GetUniformLocation(ProgramID, "uTextureRepeat");
+                UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
             }
         }
 
@@ -80,6 +82,7 @@ namespace KWEngine3.Renderer
             GL.Enable(EnableCap.Blend);
             GL.Disable(EnableCap.CullFace);
             GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
+            GeoMesh meshMap = KWEngine.CurrentWorld.Map._direction == ProjectionDirection.NegativeY ? KWEngine.KWMapItemXZ.Meshes.Values.ElementAt(0) : KWEngine.KWMapItemXY.Meshes.Values.ElementAt(0);
 
             int index = 0;
             for(int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
@@ -93,14 +96,27 @@ namespace KWEngine3.Renderer
                 index++;
             }
 
-            // Render Mapentries:
+            // Render map entries:
+            GL.Viewport(
+                KWEngine.CurrentWorld.Map._targetCenter.X - KWEngine.CurrentWorld.Map._targetDimensions.X / 2,
+                (KWEngine.Window.ClientSize.Y - KWEngine.CurrentWorld.Map._targetCenter.Y) - KWEngine.CurrentWorld.Map._targetDimensions.Y / 2,
+                KWEngine.CurrentWorld.Map._targetDimensions.X,
+                KWEngine.CurrentWorld.Map._targetDimensions.Y
+                );
+            
             Array.Sort(KWEngine.CurrentWorld.Map._items);
+            if(KWEngine.CurrentWorld.Map._background != null)
+            {
+                DrawMapBackground(KWEngine.CurrentWorld.Map._background, meshMap);
+            }
             for (int i = 0; i < KWEngine.CurrentWorld.Map._indexFree; i++)
             {
-                HUDObjectImage h = KWEngine.CurrentWorld.Map._items[i];
-                Draw(h, mesh);
+                DrawMapItem(KWEngine.CurrentWorld.Map._items[i], meshMap);
             }
 
+
+            // Render the rest of the HUDObject instances:
+            GL.Viewport(KWEngine.Window.ClientRectangle);
             for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
             {
                 HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
@@ -113,6 +129,56 @@ namespace KWEngine3.Renderer
             GL.Enable(EnableCap.CullFace);
         }
 
+        public static void DrawMapItem(HUDObjectMap ho, GeoMesh mesh)
+        {
+            if (ho == null || ho._color.W <= 0)
+                return;
+
+            GL.Uniform4(UColorTint, ho._color);
+            GL.Uniform4(UColorGlow, ho._colorE);
+            GL.Uniform2(UTextureRepeat, ho._textureRepeat);
+            GL.Uniform1(UMode, 2);
+            GL.Uniform1(UOptions, KWEngine.CurrentWorld.Map._drawAsCircle ? 1 : 0);
+            GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
+            //GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.CurrentWorld.Map._camViewProjection);
+            Matrix4 tmp = KWEngine.CurrentWorld.Map._camView * KWEngine.CurrentWorld.Map._camPreRotation * KWEngine.CurrentWorld.Map._camProjection;
+            GL.UniformMatrix4(UViewProjectionMatrix, false, ref tmp);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
+            GL.Uniform1(UTexture, 0);
+
+            GL.BindVertexArray(mesh.VAO);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+            GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
+        }
+
+        public static void DrawMapBackground(HUDObjectMap ho, GeoMesh mesh)
+        {
+            GL.Uniform4(UColorTint, ho._color);
+            GL.Uniform4(UColorGlow, ho._colorE);
+            GL.Uniform2(UTextureRepeat, ho._textureRepeat);
+            GL.Uniform1(UMode, 2);
+            GL.Uniform1(UOptions, KWEngine.CurrentWorld.Map._drawAsCircle ? 1 : 0);
+            GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
+            Matrix4 tmp = KWEngine.CurrentWorld.Map._camView * KWEngine.CurrentWorld.Map._camPreRotation * KWEngine.CurrentWorld.Map._camProjection;
+            GL.UniformMatrix4(UViewProjectionMatrix, false, ref tmp);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
+            GL.Uniform1(UTexture, 0);
+
+            GL.BindVertexArray(mesh.VAO);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+            GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
+        }
+
         public static void Draw(HUDObject ho, GeoMesh mesh)
         {
             if (ho == null || !ho.IsVisible || !ho.IsInsideScreenSpace())
@@ -123,6 +189,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._tint);
             GL.Uniform4(UColorGlow, ho._glow);
             GL.Uniform2(UTextureRepeat, txR);
+            GL.Uniform1(UOptions, 0);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDNew);
             GL.BindVertexArray(mesh.VAO);
@@ -148,6 +215,7 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, KWEngine.FontTextureArray[(int)ho.Font]);
             GL.Uniform1(UTexture, 0);
             GL.Uniform1(UMode, 0);
+            GL.Uniform1(UOptions, 0);
             GL.Uniform1(UOffsets, ho._offsets.Length, ho._offsets);
             GL.Uniform1(UOffsetCount, ho._offsets.Length);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
@@ -163,6 +231,7 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
             GL.Uniform1(UTexture, 0);
             GL.Uniform1(UMode, 1);
+            GL.Uniform1(UOptions, 0);
             GL.Uniform1(UOffsets, 0, _arrayEmptyInt32);
             GL.Uniform1(UOffsetCount, 0);
             GL.Uniform1(UTextAlign, 0);

@@ -1721,7 +1721,7 @@ namespace KWEngine3
         public void MouseCursorGrab()
         {
             Window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
-            Window.MousePosition = Window.ClientSize / 2;
+            Window.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
             _startingFrameActive = true;
         }
         /// <summary>
@@ -1743,7 +1743,7 @@ namespace KWEngine3
         /// </summary>
         public void MouseCursorResetPosition()
         {
-            Window.MousePosition = Window.ClientRectangle.HalfSize;
+            Window.Mouse._mousePositionFromGLFW = Window.ClientRectangle.HalfSize;
         }
 
         /// <summary>

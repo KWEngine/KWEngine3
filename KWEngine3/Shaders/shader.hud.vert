@@ -4,6 +4,7 @@ layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec2 aTexture;
 
 out		vec2 vTexture;
+out		vec4 vNDC;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
@@ -37,13 +38,23 @@ void main()
 			offset = -((uOffsetCount - 1) * uCharacterDistance) - 1.0;
 
 		pos.x += offset;
+		vNDC = uViewProjectionMatrix * uModelMatrix * pos;
+		gl_Position = vNDC.xyww; 
 	}
 	else if(uMode == 1) // Image
 	{
 		vTexture.x = aTexture.x * uTextureRepeat.x;
 		vTexture.y = 1.0 - aTexture.y * uTextureRepeat.y;
 		pos = vec4(aPosition, 1.0);
+		vNDC = uViewProjectionMatrix * uModelMatrix * pos;
+		gl_Position = vNDC.xyww; 
 	}
-	
-	gl_Position = (uViewProjectionMatrix * uModelMatrix * pos).xyww; 
+	else
+	{
+		vTexture.x = aTexture.x * uTextureRepeat.x;
+		vTexture.y = 1.0 - aTexture.y * uTextureRepeat.y;
+		pos = vec4(aPosition, 1.0);
+		vNDC = uViewProjectionMatrix * uModelMatrix * pos;
+		gl_Position = vNDC.xyww; 
+	}
 }

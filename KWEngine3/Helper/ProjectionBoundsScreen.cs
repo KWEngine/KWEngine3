@@ -72,7 +72,7 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn das Objekt innerhalb des Bereichs liegt</returns>
         public bool IsInsideRectangle(int left, int right, int top, int bottom)
         {
-            return !(Left > right || Right < left || Bottom < top || Top > bottom);
+            return !(Left > right || Right < left || Bottom < top || Top > bottom || Front < -1f || Back > 1f);
         }
     }
 }

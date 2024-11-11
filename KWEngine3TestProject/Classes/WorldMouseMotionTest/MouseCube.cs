@@ -9,6 +9,7 @@ namespace KWEngine3TestProject.Classes.WorldMouseMotionTest
         public override void Act()
         {
             Vector3 pos = HelperIntersection.GetMouseIntersectionPointOnPlane(KWEngine3.Plane.XZ, 0f);
+            //Vector3 pos = HelperIntersection.ProjectMouseCoordinatesToXZPlane();
             SetPosition(pos);
             ForceUpdate();
         }

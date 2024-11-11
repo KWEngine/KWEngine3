@@ -35,5 +35,14 @@ namespace KWEngine3.Helper
         /// Vordere Grenzkoordinate
         /// </summary>
         public float Front { get; internal set; }
+
+        /// <summary>
+        /// Prüft ob die Projektion auf der Map sichtbar wäre
+        /// </summary>
+        /// <returns>true, wenn das Objekt sichtbar wäre</returns>
+        public bool IsVisibleOnMap()
+        {
+            return !(Left > 1f || Right < -1f || Bottom > 1f || Top < -1f || Front < -1f || Back > 1f);
+        }
     }
 }

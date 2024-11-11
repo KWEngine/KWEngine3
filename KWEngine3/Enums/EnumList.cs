@@ -31,11 +31,7 @@
         /// <summary>
         /// Kamera blickt entlang der negativen Z-Achse
         /// </summary>
-        NegativeZ,
-        /// <summary>
-        /// Kamera blickt entlang der positiven Z-Achse
-        /// </summary>
-        PositiveZ
+        NegativeZ
     }
 
     /// <summary>

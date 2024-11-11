@@ -401,6 +401,8 @@ namespace KWEngine3
         internal static GeoMeshCollider KWSphereCollider;
         internal static GeoModel KWFoliageMinecraft;
         internal static GeoModel KWFoliageFern;
+        internal static GeoModel KWMapItemXZ;
+        internal static GeoModel KWMapItemXY;
 
         internal static void InitializeModels()
         {
@@ -419,6 +421,8 @@ namespace KWEngine3
             KWCapsule2 = SceneImporter.LoadColliderInternal("capsulehitbox2.obj", ColliderType.ConvexHull);
             KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
             KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
+            KWMapItemXZ = SceneImporter.LoadModel("kwmapquadxz.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWMapItemXY = SceneImporter.LoadModel("kwmapquadxy.obj", false, SceneImporter.AssemblyMode.Internal);
 
             KWFoliageGrass.Init();
             KWTerrainQuad.Init();

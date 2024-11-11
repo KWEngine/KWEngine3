@@ -466,7 +466,7 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Skaliert einen Wert dahingehend, dass er in den durch lowerBound und upperBound angegebenen Bereich passt
+        /// Skaliert einen Wert dahingehend, dass er in den durch outputLow und outputHigh angegebenen Bereich passt
         /// </summary>
         /// <param name="inputValue">zu skalierender Wert</param>
         /// <param name="inputLow">Minimalwert des nicht-skalierten Werts</param>

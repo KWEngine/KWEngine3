@@ -171,6 +171,28 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// (Normalisierter) Blickrichtungsvektor des Objekts auf der XZ-Ebene
+        /// </summary>
+        public Vector3 LookAtVectorXZ
+        {
+            get
+            {
+                return Vector3.NormalizeFast(new Vector3(_stateCurrent._lookAtVector.X, 0f, _stateCurrent._lookAtVector.Z));
+            }
+        }
+
+        /// <summary>
+        /// (Normalisierter) Blickrichtungsvektor des Objekts auf der XY-Ebene
+        /// </summary>
+        public Vector3 LookAtVectorXY
+        {
+            get
+            {
+                return Vector3.NormalizeFast(new Vector3(_stateCurrent._lookAtVector.X, _stateCurrent._lookAtVector.Y, 0f));
+            }
+        }
+
+        /// <summary>
         /// (Normalisierter) Lokaler Oben-Vektor des Objekts
         /// </summary>
         public Vector3 LookAtVectorLocalUp

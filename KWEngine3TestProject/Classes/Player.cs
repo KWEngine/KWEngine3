@@ -8,7 +8,7 @@ namespace KWEngine3TestProject.Classes
 {
     public class Player : GameObject
     {
-        private float _speed = 0.025f;
+        private float _speed = 0.05f;
 
         public bool IsFirstPersonObject { get; set; } = false; // don't change yet!
         public bool LetCamFollowMe { get; set; } = false;
@@ -47,7 +47,7 @@ namespace KWEngine3TestProject.Classes
                 }
 
                 CurrentWorld.UpdateCameraPositionForFirstPersonView(this.Center,0f);
-
+                TurnTowardsXZ(CurrentWorld.CameraPosition + CurrentWorld.CameraLookAtVector);
             }
             else
             {

@@ -911,6 +911,11 @@ namespace KWEngine3
         /// </summary>
         public Vector2 Center { get { return ClientRectangle.HalfSize; } }
 
+        /// <summary>
+        /// Erfragt die aktuelle Mauscursorposition (relativ zum Fenster)
+        /// </summary>
+        public new Vector2 MousePosition { get { return Mouse.Position; } }
+
         internal int UpdateCurrentWorldAndObjects(out double elapsedUpdateTimeForCallInMS)
         {
             int n = 0;
