@@ -1,8 +1,6 @@
 ﻿using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
-using System.Buffers;
-
 
 namespace KWEngine3
 {
@@ -19,6 +17,7 @@ namespace KWEngine3
         internal Matrix4 _camPreRotation;
         internal ProjectionDirection _direction;
         internal Vector2 _cameraDimensions;
+        internal Vector3 _cameraPosition;
         internal float _near;
         internal float _far;
         internal static Vector4[] _AABBProjectionList;
@@ -27,6 +26,7 @@ namespace KWEngine3
         internal Vector2i _targetCenter;
         internal Vector2i _targetDimensions;
         internal HUDObjectMap _background;
+        internal bool _setupComplete = false;
 
         internal WorldMap()
         {
@@ -47,6 +47,71 @@ namespace KWEngine3
         {
             _indexFree = 0;
         }
+
+        internal bool CheckIfInsideFrustum(GameObject g)
+        {
+            float _camDiameter = _cameraDimensions.LengthFast;
+            if(_direction == ProjectionDirection.NegativeY)
+            {
+                float camLeft = _cameraPosition.X - _camDiameter;
+                float camRight = _cameraPosition.X + _camDiameter;
+                float camTop = _cameraPosition.Z - _camDiameter;
+                float camBottom = _cameraPosition.Z + _camDiameter;
+
+                return !(g.AABBRight < camLeft || g.AABBLeft > camRight || g.AABBFront < camTop || g.AABBBack > camBottom);
+            }
+            else
+            {
+                float camLeft = _cameraPosition.X - _camDiameter;
+                float camRight = _cameraPosition.X + _camDiameter;
+                float camTop = _cameraPosition.Y + _camDiameter;
+                float camBottom = _cameraPosition.Y - _camDiameter;
+                return !(g.AABBRight < camLeft || g.AABBLeft > camRight || g.AABBHigh < camBottom || g.AABBLow > camTop);
+            }
+        }
+
+        internal bool CheckIfInsideFrustum(TerrainObject t)
+        {
+            float _camDiameter = _cameraDimensions.LengthFast;
+            if (_direction == ProjectionDirection.NegativeY)
+            {
+                float camLeft = _cameraPosition.X - _camDiameter;
+                float camRight = _cameraPosition.X + _camDiameter;
+                float camTop = _cameraPosition.Z - _camDiameter;
+                float camBottom = _cameraPosition.Z + _camDiameter;
+                return !(t._stateCurrent._position.X + t.Width / 2f < camLeft || t._stateCurrent._position.X - t.Width / 2f > camRight || t._stateCurrent._position.Z - t.Depth / 2f < camTop || t._stateCurrent._position.Z + t.Depth / 2f > camBottom);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal bool CheckIfInsideFrustum(Vector3 p, float x, float y)
+        {
+            float _camDiameter = _cameraDimensions.LengthFast;
+            if (_direction == ProjectionDirection.NegativeY)
+            {
+                float camLeft = _cameraPosition.X - _camDiameter;
+                float camRight = _cameraPosition.X + _camDiameter;
+                float camTop = _cameraPosition.Z - _camDiameter;
+                float camBottom = _cameraPosition.Z + _camDiameter;
+                return !(p.X + x / 2f < camLeft || p.X - x / 2f > camRight || p.Z + y / 2f < camTop || p.Z - y / 2f > camBottom);
+            }
+            else
+            {
+                float camLeft = _cameraPosition.X - _camDiameter;
+                float camRight = _cameraPosition.X + _camDiameter;
+                float camTop = _cameraPosition.Y + _camDiameter;
+                float camBottom = _cameraPosition.Y - _camDiameter;
+                return !(p.X + x / 2f < camLeft || p.X - x / 2f > camRight || p.Y - y / 2f > camTop || p.Z + y / 2f < camBottom);
+            }
+        }
+
+        /// <summary>
+        /// Aktiviert/Deaktiviert das Overlay der Map
+        /// </summary>
+        public bool Enabled { get; set; } = false;
 
         /// <summary>
         /// Löscht das ggf. gesetzte Hintergrundobjekt der Map
@@ -127,6 +192,7 @@ namespace KWEngine3
             _far = Math.Min(10000, Math.Abs(far));
             _near = Math.Clamp(Math.Abs(near), 1f, far);
             _cameraDimensions = new Vector2(Math.Clamp(width, 1f, 10000f), Math.Clamp(height, 1f, 10000f));
+            _cameraPosition = position;
             _camProjection = Matrix4.CreateOrthographic(_cameraDimensions.X, _cameraDimensions.Y, _near, _far);
             _camView = Matrix4.LookAt(
                 position,
@@ -134,6 +200,7 @@ namespace KWEngine3
                 _direction == ProjectionDirection.NegativeY ? -Vector3.UnitZ : Vector3.UnitY
                 );
             _camViewProjection = _camView * _camProjection;
+            _setupComplete = true;
         }
 
         /// <summary>
@@ -142,18 +209,28 @@ namespace KWEngine3
         /// <param name="lookAtVector">Look-At-Vector der die Rotation enthält</param>
         public void UpdateCameraRotation(Vector3 lookAtVector)
         {
+            if(!_setupComplete)
+            {
+                KWEngine.LogWriteLine("[Map] Please setup map camera first before changing rotation");
+                return;
+            }
+
             if (_direction == ProjectionDirection.NegativeY)
             {
-                float dot = Vector3.Dot(Vector3.UnitX, lookAtVector);
-                float rotation = (lookAtVector.Z <= 0)
-                                 ? (dot) * (MathF.PI * 0.25f)
-                                 : (1f - dot) * (MathF.PI * 0.25f);
-                Console.WriteLine(rotation);
-                _camPreRotation = Matrix4.CreateRotationZ(-rotation);
+                if(lookAtVector.Z <= 0)
+                {
+                    float rotation = Vector3.Dot(Vector3.UnitX, lookAtVector) * (MathF.PI * 0.5f);
+                    _camPreRotation = Matrix4.CreateRotationZ(rotation);
+                }
+                else
+                {
+                    float rotation = MathF.PI + Vector3.Dot(-Vector3.UnitX, lookAtVector) * (MathF.PI * 0.5f);
+                    _camPreRotation = Matrix4.CreateRotationZ(rotation);
+                }
             }
             else
             {
-
+                KWEngine.LogWriteLine("[Map] Camera rotation update not supported for -Z direction");
             }
         }
 
@@ -181,7 +258,7 @@ namespace KWEngine3
         /// <param name="z">Kameraposition auf der Z-Achse</param>
         public void UpdateCamera(float x, float y, float z)
         {
-            SetCamera(x, y, z, _direction, _cameraDimensions.X, _cameraDimensions.Y, _near, _far);
+            UpdateCamera(new Vector3(x, y, z));
         }
 
         /// <summary>
@@ -190,54 +267,180 @@ namespace KWEngine3
         /// <param name="position">Kameraposition</param>
         public void UpdateCamera(Vector3 position)
         {
-            UpdateCamera(position.X, position.Y, position.Z);
+            if (!_setupComplete)
+            {
+                KWEngine.LogWriteLine("[Map] Please setup map camera first before setting its position");
+                return;
+            }
+
+            _camView = Matrix4.LookAt(
+                position,
+                position + (_direction == ProjectionDirection.NegativeY ? -Vector3.UnitY : -Vector3.UnitZ),
+                _direction == ProjectionDirection.NegativeY ? -Vector3.UnitZ : Vector3.UnitY
+                );
+            _camViewProjection = _camView * _camProjection;
         }
 
         /// <summary>
         /// Fügt die aktuelle Projektion der Map für den aktuellen Frame hinzu
         /// </summary>
         /// <param name="go">Zu zeichnendes Objekt</param>
-        /// <param name="zIndex">Z-Index für das Objekt</param>
+        /// <param name="zIndex">Z-Index für das Objekt (darf zwischen -2f und +2f liegen)</param>
         /// <param name="color">Färbung (jeder Wert zwischen 0f und 1f)</param>
         /// <param name="colorEmissive">Leuchtfärbung jeder Wert zwischen 0f und 1f)</param>
         /// <param name="emissiveIntensity">Leuchtintensität (zwischen 0f und 1f)</param>
         /// <param name="opacity">Sichtbarkeit (zwischen 0f und 1f)</param>
-        /// <param name="scaleOverride">Wenn > 0, wird die Skalierung des eigentlichen Objekts mit dem angegebenen Wert überschrieben</param>
+        /// <param name="scaleOverride">Wenn > 0, wird die Skalierung des eigentlichen Objekts mit dem angegebenen Wert überschrieben (deaktiviert zusätzlich die Rotation des Objekts)</param>
         /// <param name="texture">Texturdateiname (darf null sein, wenn keine Textur verwendet werden soll)</param>
         /// <param name="textureRepeatX">Texturwiederholung in X-Richtung (Standard: 1f)</param>
         /// <param name="textureRepeatY">Texturwiederholung in Y-Richtung (Standard: 1f)</param>
         public void Add(GameObject go, float zIndex, Vector3 color, Vector3 colorEmissive, float emissiveIntensity = 0f, float opacity = 1f, float scaleOverride = 0f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
         {
+            if (!Enabled || !_setupComplete)
+            {
+                KWEngine.LogWriteLine("[Map] Map is disabled or setup not incomplete");
+                return;
+            }
+
             if (_indexFree >= _items.Length)
             {
                 KWEngine.LogWriteLine("[Map] Map item could not be added - too many items already");
                 return;
             }
-            foreach (GameObjectHitbox hb in go._colliderModel._hitboxes)
+
+            if (KWEngine.Mode != EngineMode.Play || !CheckIfInsideFrustum(go))
             {
-                if (hb._colliderType == ColliderType.ConvexHull)
-                {
-                    HUDObjectMap h = _items[_indexFree++];
-                    h._scaleOverride = Math.Max(0f, scaleOverride);
-                    if(h._scaleOverride > 0f)
-                    {
-                        Vector3 tmpS = hb.Owner._stateRender._scale;
-                        Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref tmpS, ref hb.Owner._stateRender._rotation, ref hb.Owner._stateRender._position);
-                        h._modelMatrix = hb._mesh._mapPreTransform * tmp;
-                    }
-                    else
-                    {
-                        h._modelMatrix = hb._mesh._mapPreTransform * hb._modelMatrixFinal;
-                    }
-                    
-                    h.SetTextureForMap(texture);
-                    h.SetTextureRepeat(textureRepeatX, textureRepeatY);
-                    h.SetColor(color.X, color.Y, color.Z, opacity);
-                    h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
-                    h.SetZIndex(Math.Clamp(zIndex, -100f, 100f));
-                    
-                }
+                return;
             }
+            if (scaleOverride > 0f)
+            {
+                Vector3 pos = go.Center;
+                Vector3 scale = new Vector3(scaleOverride);
+
+                HUDObjectMap h = _items[_indexFree++];
+                h._modelMatrix =  HelperMatrix.CreateModelMatrixForHUD(ref scale, ref pos);
+                h.SetTextureForMap(texture);
+                h.SetTextureRepeat(textureRepeatX, textureRepeatY);
+                h.SetColor(color.X, color.Y, color.Z, opacity);
+                h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
+                h.SetZIndex(Math.Clamp(zIndex, -1.99999f, 1.99999f));
+                h._scaleOverride = Math.Max(0f, scaleOverride);
+            }
+            else
+            {
+                Vector3 pos = go.Center;
+                Vector3 scale;
+                if(_direction == ProjectionDirection.NegativeY)
+                {
+                   scale = new Vector3(go.AABBRight - go.AABBLeft, 1f, go.AABBFront - go.AABBBack);
+                }
+                else
+                {
+                    scale = new Vector3(go.AABBRight - go.AABBLeft, go.AABBHigh - go.AABBLow, 1f);
+                }
+
+                HUDObjectMap h = _items[_indexFree++];
+                h._scaleOverride = Math.Max(0f, scaleOverride);
+                h._modelMatrix = HelperMatrix.CreateModelMatrixForHUD(ref scale, ref pos);
+                h.SetTextureForMap(texture);
+                h.SetTextureRepeat(textureRepeatX, textureRepeatY);
+                h.SetColor(color.X, color.Y, color.Z, opacity);
+                h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
+                h.SetZIndex(Math.Clamp(zIndex, -1.99999f, 1.99999f));
+
+            }
+        }
+
+        /// <summary>
+        /// Fügt die aktuelle Projektion der Map für den aktuellen Frame hinzu
+        /// </summary>
+        /// <param name="go">Zu zeichnendes Objekt</param>
+        /// <param name="zIndex">Z-Index für das Objekt (darf zwischen -2f und +2f liegen)</param>
+        /// <param name="color">Färbung (jeder Wert zwischen 0f und 1f)</param>
+        /// <param name="colorEmissive">Leuchtfärbung jeder Wert zwischen 0f und 1f)</param>
+        /// <param name="emissiveIntensity">Leuchtintensität (zwischen 0f und 1f)</param>
+        /// <param name="opacity">Sichtbarkeit (zwischen 0f und 1f)</param>
+        /// <param name="texture">Texturdateiname (darf null sein, wenn keine Textur verwendet werden soll)</param>
+        /// <param name="textureRepeatX">Texturwiederholung in X-Richtung (Standard: 1f)</param>
+        /// <param name="textureRepeatY">Texturwiederholung in Y-Richtung (Standard: 1f)</param>
+        public void AddAsRealModel(GameObject go, float zIndex, Vector3 color, Vector3 colorEmissive, float emissiveIntensity = 0f, float opacity = 1f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
+        {
+            if (!Enabled || !_setupComplete)
+            {
+                KWEngine.LogWriteLine("[Map] Map is disabled or setup not incomplete");
+                return;
+            }
+
+            if (_indexFree >= _items.Length)
+            {
+                KWEngine.LogWriteLine("[Map] Map item could not be added - too many items already");
+                return;
+            }
+
+            if (KWEngine.Mode != EngineMode.Play || !CheckIfInsideFrustum(go))
+            {
+                return;
+            }
+
+            Vector3 pos = go.Center;
+            Vector3 scale;
+            if (_direction == ProjectionDirection.NegativeY)
+            {
+                scale = new Vector3(go.AABBRight - go.AABBLeft, 1f, go.AABBFront - go.AABBBack);
+            }
+            else
+            {
+                scale = new Vector3(go.AABBRight - go.AABBLeft, go.AABBHigh - go.AABBLow, 1f);
+            }
+
+            HUDObjectMap h = _items[_indexFree++];
+            h._scaleOverride = 0f;
+            h._go = go;
+            h._modelMatrix = go._stateCurrent._modelMatrix;
+            h.SetTextureForMap(texture);
+            h.SetTextureRepeat(textureRepeatX, textureRepeatY);
+            h.SetColor(color.X, color.Y, color.Z, opacity);
+            h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
+            h.SetZIndex(Math.Clamp(zIndex, -1.99999f, 1.99999f));
+
+            
+        }
+
+        /// <summary>
+        /// Fügt die Instanz des TerrainObject der Map für den aktuellen Frame hinzu
+        /// </summary>
+        /// <param name="t">Zu zeichnendes Terrain</param>
+        /// <param name="zIndex">Z-Index für das Objekt (darf zwischen -2f und +2f liegen)</param>
+        /// <param name="color">Färbung (jeder Wert zwischen 0f und 1f)</param>
+        /// <param name="opacity">Sichtbarkeit (zwischen 0f und 1f)</param>
+        /// <param name="texture">Texturdateiname (darf null sein, wenn keine Textur verwendet werden soll)</param>
+        /// <param name="textureRepeatX">Texturwiederholung in X-Richtung (Standard: 1f)</param>
+        /// <param name="textureRepeatY">Texturwiederholung in Y-Richtung (Standard: 1f)</param>
+        public void Add(TerrainObject t, float zIndex, Vector3 color, float opacity = 1f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
+        {
+            if (!Enabled || !_setupComplete)
+            {
+                KWEngine.LogWriteLine("[Map] Map is disabled or setup not incomplete");
+                return;
+            }
+
+            if (_indexFree >= _items.Length)
+            {
+                KWEngine.LogWriteLine("[Map] Map item could not be added - too many items already");
+                return;
+            }
+
+            if (KWEngine.Mode != EngineMode.Play || !CheckIfInsideFrustum(t))
+                return;
+
+            HUDObjectMap h = _items[_indexFree++];
+            h._scaleOverride = 0f;
+            h._modelMatrix = HelperMatrix.CreateModelMatrix(t.Width, 1f, t.Depth, ref HelperVector.QIdentity, t._stateCurrent._position.X, t._stateCurrent._position.Y, t._stateCurrent._position.Z);
+            h.SetTextureForMap(texture);
+            h.SetTextureRepeat(textureRepeatX, textureRepeatY);
+            h.SetColor(color.X, color.Y, color.Z, opacity);
+            h.SetColorEmissive(0f, 0f, 0f, 0f);
+            h.SetZIndex(Math.Clamp(zIndex, -1.99999f, 1.99999f));
         }
 
         /// <summary>
@@ -246,7 +449,7 @@ namespace KWEngine3
         /// <param name="position">Position des zu zeichnenden Objekts</param>
         /// <param name="width">Breite des zu zeichnenden Objekts</param>
         /// <param name="height">Breite des zu zeichnenden Objekts</param>
-        /// <param name="zIndex">Z-Index für das Objekt</param>
+        /// <param name="zIndex">Z-Index für das Objekt (darf zwischen -2f und +2f liegen)</param>
         /// <param name="color">Färbung (jeder Wert zwischen 0f und 1f)</param>
         /// <param name="colorEmissive">Leuchtfärbung jeder Wert zwischen 0f und 1f)</param>
         /// <param name="emissiveIntensity">Leuchtintensität (zwischen 0f und 1f)</param>
@@ -256,11 +459,20 @@ namespace KWEngine3
         /// <param name="textureRepeatY">Texturwiederholung in Y-Richtung (Standard: 1f)</param>
         public void Add(Vector3 position, float width, float height, float zIndex, Vector3 color, Vector3 colorEmissive, float emissiveIntensity = 0f, float opacity = 1f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
         {
+            if (!Enabled || !_setupComplete)
+            {
+                KWEngine.LogWriteLine("[Map] Map is disabled or setup not incomplete");
+                return;
+            }
+
             if (_indexFree >= _items.Length)
             {
                 KWEngine.LogWriteLine("[Map] Map item could not be added - too many items already");
                 return;
             }
+
+            if (KWEngine.Mode != EngineMode.Play || !CheckIfInsideFrustum(position, width, height))
+                return;
 
             HUDObjectMap h = _items[_indexFree++];
             if(_direction == ProjectionDirection.NegativeY)
@@ -276,13 +488,19 @@ namespace KWEngine3
             h.SetTextureRepeat(textureRepeatX, textureRepeatY);
             h.SetColor(color.X, color.Y, color.Z, opacity);
             h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
-            h.SetZIndex(Math.Clamp(zIndex, -100f, 100f));
+            h.SetZIndex(Math.Clamp(zIndex, -1.99999f, 1.99999f));
             h._scaleOverride = 0f;
 
         }
 
         internal HUDObjectMap CreateHUDObjectMapForBackground(Vector3 position, float width, float height, float zIndex, Vector3 color, float opacity = 1f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
         {
+            if (!_setupComplete)
+            {
+                KWEngine.LogWriteLine("[Map] Map setup is incomplete - cannot create background");
+                return null;
+            }
+
             HUDObjectMap h = new HUDObjectMap();
             if (_direction == ProjectionDirection.NegativeY)
             {
@@ -297,7 +515,7 @@ namespace KWEngine3
             h.SetTextureRepeat(textureRepeatX, textureRepeatY);
             h.SetColor(color.X, color.Y, color.Z, opacity);
             h.SetColorEmissive(0f, 0f, 0f, 0f);
-            h.SetZIndex(-99f);
+            h.SetZIndex(-99.9f);
             h._scaleOverride = 0f;
             return h;
         }

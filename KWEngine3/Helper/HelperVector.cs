@@ -446,7 +446,7 @@ namespace KWEngine3.Helper
 
         internal static Vector3 VectorZero = Vector3.Zero;
         internal static Vector4[] AABBProjectionList = new Vector4[8];
-
+        internal static Quaternion QIdentity = Quaternion.Identity;
         internal static Quaternion LookRotation(Vector3 forward, Vector3 up)
         {
             Vector3 vector = Vector3.NormalizeFast(forward);

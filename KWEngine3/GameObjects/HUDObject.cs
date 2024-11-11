@@ -30,7 +30,7 @@ namespace KWEngine3.GameObjects
         public string Name { get; set; } = "undefined HUD object.";
 
         /// <summary>
-        /// Gibt den aktuellen Z-Index des Objekts an (Standard: -2f)
+        /// Gibt den aktuellen Z-Index des Objekts an (Standard: -10f)
         /// </summary>
         /// <remarks>
         /// Der Z-Index kann verwendet werden, wenn sich HUD-Objekte überlappen. In diesem Fall wird das Objekt mit dem höheren Index im Vordergrund gezeichnet
@@ -38,7 +38,7 @@ namespace KWEngine3.GameObjects
         public float ZIndex { get { return _zIndex; } }
 
         /// <summary>
-        /// Setzt die Draw-Priorität des Objekts (Standardwert: -2f)
+        /// Setzt die Draw-Priorität des Objekts (Standardwert: -10f)
         /// </summary>
         /// <remarks>Der Indexbereich [-2f;2f] ist für Map-Objekte reserviert und darf nicht verwendet werden</remarks>
         /// <param name="index">Indexwert (gültige Bereiche: [-100f; -2f] und [2f;100f])</param>
@@ -48,7 +48,7 @@ namespace KWEngine3.GameObjects
             {
                 index = Math.Clamp(index, -100f, -2f);
             }
-            else if(index >= 0)
+            else
             {
                 index = Math.Clamp(index, 2f, 100f);
             }
@@ -203,7 +203,7 @@ namespace KWEngine3.GameObjects
         internal Vector4 _glow = new Vector4(0, 0, 0, 1);
         internal Vector3 _scale = new Vector3(24f, 24f, 1f);
         internal Matrix4 _modelMatrix = Matrix4.Identity;
-        internal float _zIndex = -2f;
+        internal float _zIndex = -10f;
 
         internal void UpdateMVP()
         {

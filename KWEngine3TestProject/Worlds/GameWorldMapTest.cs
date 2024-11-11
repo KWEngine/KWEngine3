@@ -2,14 +2,8 @@
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes;
-using KWEngine3TestProject.Classes.WorldFoliageTest;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -27,18 +21,7 @@ namespace KWEngine3TestProject.Worlds
                 Map.UpdateCameraRotation(_player.LookAtVectorXZ);
                 Map.Add(walls[i], 0, new Vector3(1, 0, 1), Vector3.One, 0, 1, 0, "./Textures/fx_boom.png");
             }
-            /*
-            ProjectionBounds boundsT = Map.GetScreenCoordinatesNormalizedFor(_t);
-            if(boundsT.IsVisibleOnMap())
-            {
-                //ProjectionBoundsScreen bs = Map.ConvertNormalizedCoordinatesToScreenSpace(boundsT, 0.25f, Window.Width / 4 * 1, Window.Height / 4 * 1);
-                Map.Add(boundsT);
-            }
-            else
-            {
-                Console.WriteLine("t not visible");
-            }
-            */
+            Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
         }
 
         public override void Prepare()
@@ -47,7 +30,7 @@ namespace KWEngine3TestProject.Worlds
 
             KWEngine.MouseSensitivity = 0.05f;
             //KWEngine.DebugMode = DebugMode.SurfaceNormals;
-            KWEngine.BuildTerrainModel("T", "./Textures/heightmap.png", 32, 32, 5);
+            KWEngine.BuildTerrainModel("T", "./Textures/heightmap.png", 32, 32, 2);
             KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
 
             HUDObject testBack = new HUDObjectImage();
@@ -77,7 +60,7 @@ namespace KWEngine3TestProject.Worlds
             AddTerrainObject(_t);
 
             _player = new Player();
-            _player.SetPosition(0, 5, 5);
+            _player.SetPosition(0, 5, 0);
             _player.SetRotation(0, 180, 0);
             _player.IsCollisionObject = true;
             _player.IsFirstPersonObject = true;
@@ -97,13 +80,11 @@ namespace KWEngine3TestProject.Worlds
             SetColorAmbient(0.25f, 0.25f, 0.25f);
 
             Immovable wall1 = new Immovable();
-            //wall1.SetModel("Test");
             wall1.SetAnimationID(1);
             wall1.SetAnimationPercentage(0);
-            wall1.SetScale(16);
-            //wall1.SetHitboxScale(0.5f, 1, 1f);
-            wall1.SetPosition(0, 3, 0);
-            //wall1.AddRotationY(45);
+            wall1.SetScale(5);
+            wall1.SetPosition(0, 1, 0);
+            wall1.AddRotationY(45);
             wall1.IsCollisionObject = true;
             wall1.IsShadowCaster = true;
             AddGameObject(wall1);
@@ -115,9 +96,31 @@ namespace KWEngine3TestProject.Worlds
             wall2.IsShadowCaster = true;
             AddGameObject(wall2);
             */
-            Map.SetBackground("./Textures/uvpattern.png", 100, 100, 1f, 1f, 1f);
-            Map.SetViewport(1216, 656, 128, 128, true);
+            /*
+            Immovable west = new Immovable();
+            west.SetColor(1, 0, 0);
+            west.SetScale(4);
+            west.SetPosition(-30, 5, 0);
+            AddGameObject(west);
+
+            Immovable north = new Immovable();
+            north.SetColor(0, 1, 0);
+            north.SetColorEmissive(0, 1, 0, 1.5f);
+            north.SetScale(4);
+            north.SetPosition(0, 5, -30);
+            AddGameObject(north);
+
+            Immovable east = new Immovable();
+            east.SetColor(0, 0, 1);
+            east.SetScale(4);
+            east.SetPosition(30, 5, 0);
+            AddGameObject(east);
+            */
+            
             Map.SetCamera(_player.Position, ProjectionDirection.NegativeY, 50, 50, 1, 100);
+            Map.SetViewport(1216, 656, 128, 128, false);
+            Map.SetBackground("./Textures/uvpattern.png", 100, 100, 1f, 1f, 1f);
+            Map.Enabled = true;
         }
     }
 }

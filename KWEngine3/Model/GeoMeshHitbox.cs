@@ -15,7 +15,6 @@ namespace KWEngine3.Model
         internal Vector2i indexLeftRightMostVertex = new Vector2i(0);
         internal Vector2i indexBackFrontMostVertex = new Vector2i(0);
         internal Vector2i indexBottomTopMostVertex = new Vector2i(0);
-        internal Matrix4 _mapPreTransform = Matrix4.Identity;
         internal GeoMeshFace[] Faces { get; private set; }
 
         internal bool IsExtended { get; private set; } = false;
@@ -56,8 +55,6 @@ namespace KWEngine3.Model
             width = maxX - minX;
             height = maxY - minY;
             depth = maxZ - minZ;
-
-            _mapPreTransform = Matrix4.CreateScale(width, height, depth);
 
             if (IsExtended)
             {
@@ -191,7 +188,7 @@ namespace KWEngine3.Model
             height = maxY - minY;
             depth = maxZ - minZ;
 
-            _mapPreTransform = Matrix4.CreateScale(width, height, depth);
+            //_mapPreTransform = Matrix4.CreateScale(width, height, depth);
 
             if (IsExtended)
             {

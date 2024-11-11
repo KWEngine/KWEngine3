@@ -14,10 +14,11 @@ namespace KWEngine3.GameObjects
         internal Vector2 _textureRepeat = new Vector2(1f, 1f);
         internal Vector4 _color;
         internal Vector4 _colorE;
-        internal float _zIndex = 1f;
+        internal float _zIndex = 2f;
         internal Matrix4 _modelMatrix = Matrix4.Identity;
         internal Quaternion _rotation = Quaternion.Identity;
         internal float _scaleOverride = 0f;
+        internal GameObject _go = null;
         
         #endregion
 
@@ -68,6 +69,7 @@ namespace KWEngine3.GameObjects
         public void Reset()
         {
             SetTextureForMap(null);
+            _go = null;
         }
 
         public void SetTextureForMap(string filename)
