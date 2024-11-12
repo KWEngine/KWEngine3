@@ -21,7 +21,7 @@ namespace KWEngine3TestProject.Worlds
                 Map.UpdateCameraRotation(_player.LookAtVectorXZ);
                 Map.Add(walls[i], 0, new Vector3(1, 0, 1), Vector3.One, 0, 1, 0, "./Textures/fx_boom.png");
             }
-            Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
+            //Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
         }
 
         public override void Prepare()
@@ -45,10 +45,10 @@ namespace KWEngine3TestProject.Worlds
             testBack2.SetColor(1, 1, 0);
             AddHUDObject(testBack2);
 
-            HUDObject testFront = new HUDObjectImage();
+            HUDObject testFront = new HUDObjectImage("./Textures/mapcircle.png");
             testFront.SetZIndex(5f);
-            testFront.SetPosition(500, 300);
-            testFront.SetColor(0, 1, 1);
+            testFront.SetPosition(Window.Width - 384 / 2, Window.Height - 384 / 2);
+            //testFront.SetColor(0, 1, 1);
             AddHUDObject(testFront);
 
             _t = new TerrainObject("T");
@@ -118,8 +118,8 @@ namespace KWEngine3TestProject.Worlds
             
             
             Map.SetCamera(_player.Position, ProjectionDirection.NegativeY, 50, 50, 1, 100);
-            Map.SetViewport(1216, 656, 128, 128, true);
-            Map.SetBackground("./Textures/uvpattern.png", 100, 100, 1f, 1f, 1f);
+            Map.SetViewport(Window.Width - 384 / 2, Window.Height - 384 / 2, 274, 274, true);
+            Map.SetBackground("./Textures/mapgrid.png", 100, 100, 1.0f, 1f, 1f);
             Map.Enabled = true;
         }
     }
