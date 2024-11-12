@@ -97,6 +97,8 @@ namespace KWEngine3.Renderer
             RendererDebug.Init();
             RendererDebugCube.Init();
 
+            RendererMapKiller.Init();
+
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();
 
@@ -240,7 +242,6 @@ namespace KWEngine3.Renderer
                     
                 }
             }
-            GL.Enable(EnableCap.DepthTest);
         }
 
         public static Vector2i GetBloomSize(int i = 0, bool downsample = true)

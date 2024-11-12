@@ -117,6 +117,8 @@ void main()
                 t03 * v * (1.0 - u) +
                 t02 * u * v;
 
+    //float tSpeedUp = 1.0 / max(0.001, abs(dot(normalLighting, vec3(0, 1, 0))));
+    //t.y *= clamp(tSpeedUp, 1, 2);
     // ----------------------------------------------------------------------
 
     gl_Position = uViewProjectionMatrix * positionWorldSpace;

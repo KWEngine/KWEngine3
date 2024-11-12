@@ -8,7 +8,7 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2024-11-11)</Product>
+		<Product>KWEngine3 (updated: 2024-11-12)</Product>
 		<PackageId>KWEngine3</PackageId>
 		<Version>3.0.3.9</Version>
 		<AssemblyVersion>3.0.3.9</AssemblyVersion>
@@ -143,6 +143,8 @@
 		<None Remove="Shaders\shader.lighting.forwardinstanced.vert" />
 		<None Remove="Shaders\shader.lighting.gbuffer.frag" />
 		<None Remove="Shaders\shader.lighting.gbuffer.vert" />
+		<None Remove="Shaders\shader.mapkiller.frag" />
+		<None Remove="Shaders\shader.mapkiller.vert" />
 		<None Remove="Shaders\shader.msm16.blur.frag" />
 		<None Remove="Shaders\shader.msm16.blur.vert" />
 		<None Remove="Shaders\shader.msm16.cube.frag" />
@@ -255,6 +257,8 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.mapkiller.frag" />
+		<EmbeddedResource Include="Shaders\shader.mapkiller.vert" />
 		<EmbeddedResource Include="Shaders\shader.debugcube.frag">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

@@ -1315,6 +1315,18 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Erzwing die sofortige Aktualisierung der Kamera hinsichtlich Position und Ziel
+        /// </summary>
+        /// <remarks>Sollte nur dann verwendet werden, wenn die Kamera direkt durch den Mauscursor verändert wird (ausgenommen: First-Person-Mode)</remarks>
+        public void ForceCameraUpdate()
+        {
+            if (KWEngine.Mode == EngineMode.Play)
+            {
+                _cameraGame._statePrevious = _cameraGame._stateCurrent;
+            }
+        }
+
+        /// <summary>
         /// Setzt die Kameraposition
         /// </summary>
         /// <param name="x">x</param>

@@ -76,67 +76,68 @@ namespace KWEngine3.Renderer
             // ?
         }
 
-        public static void RenderHUDObjects()
+        public static int RenderHUDObjects(int index, bool back)
         {
-            GL.Disable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Blend);
-            GL.Disable(EnableCap.CullFace);
+            GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
             GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
-            GeoMesh meshMap = KWEngine.CurrentWorld.Map._direction == ProjectionDirection.NegativeY ? KWEngine.KWMapItemXZ.Meshes.Values.ElementAt(0) : KWEngine.KWMapItemXY.Meshes.Values.ElementAt(0);
-
-            int index = 0;
-            for(int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
+            if (back)
             {
-                HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
-                if (h._zIndex > -2f)
+                GL.Disable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.Blend);
+                GL.Disable(EnableCap.CullFace);
+                for (int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
                 {
-                    break;
+                    HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
+                    if (h._zIndex > -2f)
+                    {
+                        break;
+                    }
+                    Draw(h, mesh);
+                    index++;
                 }
-                Draw(h, mesh);
-                index++;
+                return index;
             }
+            else
+            {
+                GL.Disable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.Blend);
+                GL.Disable(EnableCap.CullFace);
+                // Render the rest of the HUDObject instances:
+                for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
+                {
+                    HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
+                    Draw(h, mesh);
+                    index++;
+                }
 
+                GL.Disable(EnableCap.Blend);
+                GL.Enable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.CullFace);
+                return -1;
+            }
+        }
+
+        public static void DrawMap()
+        {
             // Render map entries:
-            GL.Viewport(
-                KWEngine.CurrentWorld.Map._targetCenter.X - KWEngine.CurrentWorld.Map._targetDimensions.X / 2,
-                (KWEngine.Window.ClientSize.Y - KWEngine.CurrentWorld.Map._targetCenter.Y) - KWEngine.CurrentWorld.Map._targetDimensions.Y / 2,
-                KWEngine.CurrentWorld.Map._targetDimensions.X,
-                KWEngine.CurrentWorld.Map._targetDimensions.Y
-                );
-            
-            if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
+            GeoMesh meshMap = KWEngine.CurrentWorld.Map._direction == ProjectionDirection.NegativeY ? KWEngine.KWMapItemXZ.Meshes.Values.ElementAt(0) : KWEngine.KWMapItemXY.Meshes.Values.ElementAt(0);
+            Array.Sort(KWEngine.CurrentWorld.Map._items);
+            if(KWEngine.CurrentWorld.Map._background != null)
             {
-                Array.Sort(KWEngine.CurrentWorld.Map._items);
-                if(KWEngine.CurrentWorld.Map._background != null)
-                {
-                    DrawMapBackground(KWEngine.CurrentWorld.Map._background, meshMap);
-                }
-                for (int i = 0; i < KWEngine.CurrentWorld.Map._indexFree; i++)
-                {
-                    if (KWEngine.CurrentWorld.Map._items[i]._go != null)
-                    {
-                        DrawMapModel(KWEngine.CurrentWorld.Map._items[i]);
-                    }
-                    else
-                    {
-                        DrawMapItem(KWEngine.CurrentWorld.Map._items[i], meshMap);
-                    }
-                    KWEngine.CurrentWorld.Map._items[i]._go = null;
-                }
+                DrawMapBackground(KWEngine.CurrentWorld.Map._background, meshMap);
             }
-
-            // Render the rest of the HUDObject instances:
-            GL.Viewport(KWEngine.Window.ClientRectangle);
-            for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
+            for (int i = 0; i < KWEngine.CurrentWorld.Map._indexFree; i++)
             {
-                HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
-                Draw(h, mesh);
-                index++;
+                if (KWEngine.CurrentWorld.Map._items[i]._go != null)
+                {
+                    DrawMapModel(KWEngine.CurrentWorld.Map._items[i]);
+                }
+                else
+                {
+                    DrawMapItem(KWEngine.CurrentWorld.Map._items[i], meshMap);
+                }
+                KWEngine.CurrentWorld.Map._items[i]._go = null;
             }
-
-            GL.Disable(EnableCap.Blend);
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
         }
 
         public static void DrawMapItem(HUDObjectMap ho, GeoMesh mesh)

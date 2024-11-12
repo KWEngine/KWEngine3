@@ -80,6 +80,8 @@
       <Field Name="KWFoliageMinecraft" Hidden="true" />
       <Field Name="KWHeart" Hidden="true" />
       <Field Name="KWLightBulb" Hidden="true" />
+      <Field Name="KWMapItemXY" Hidden="true" />
+      <Field Name="KWMapItemXZ" Hidden="true" />
       <Field Name="KWSkull" Hidden="true" />
       <Field Name="KWSphereCollider" Hidden="true" />
       <Field Name="KWStar" Hidden="true" />
@@ -119,7 +121,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgAR7BNAqSJALEcpApqARARVCgCQioQjHn2Sv2KEIE=</HashCode>
+      <HashCode>BcgAR7BNAqSJALEcpApqARARVCgCQioSjHn2Sv2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -204,7 +206,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="14.75" Width="2.75" />
+    <Position X="0.5" Y="15" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -310,7 +312,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.TerrainObject">
-    <Position X="12.5" Y="11" Width="2.75" />
+    <Position X="12.5" Y="11.25" Width="2.75" />
     <Members>
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_heightmap" Hidden="true" />
@@ -414,15 +416,16 @@
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="LookRotation" Hidden="true" />
+      <Field Name="QIdentity" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAEAEABAAAQAAAAAFiAAAGADABCCAAgAAACAAAAAAEA=</HashCode>
+      <HashCode>EAEAEABAAAQAAAAEFiAAAGADABCCAAgAAACAAAAAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="12.25" Width="2.75" />
+    <Position X="0.5" Y="12.5" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -637,22 +640,33 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="3.5" Y="19" Width="2.75" />
+    <Position X="3.5" Y="19.25" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
+      <Field Name="_background" Hidden="true" />
+      <Field Name="_cameraDimensions" Hidden="true" />
+      <Field Name="_cameraPosition" Hidden="true" />
+      <Field Name="_camPreRotation" Hidden="true" />
+      <Field Name="_camProjection" Hidden="true" />
+      <Field Name="_camView" Hidden="true" />
+      <Field Name="_camViewProjection" Hidden="true" />
       <Field Name="_direction" Hidden="true" />
+      <Field Name="_drawAsCircle" Hidden="true" />
       <Field Name="_far" Hidden="true" />
       <Field Name="_indexFree" Hidden="true" />
       <Field Name="_items" Hidden="true" />
       <Field Name="_near" Hidden="true" />
-      <Field Name="_radius" Hidden="true" />
-      <Field Name="_viewProjection" Hidden="true" />
+      <Field Name="_setupComplete" Hidden="true" />
+      <Field Name="_targetCenter" Hidden="true" />
+      <Field Name="_targetDimensions" Hidden="true" />
+      <Method Name="CheckIfInsideFrustum" Hidden="true" />
+      <Method Name="CreateHUDObjectMapForBackground" Hidden="true" />
       <Field Name="MAXITEMCOUNT" Hidden="true" />
       <Method Name="Reset" Hidden="true" />
       <Method Name="WorldMap" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CAIAAAAAAAAABAAQACACFQAAABAAAEAAAAIIABAAAAA=</HashCode>
+      <HashCode>ACIAQAAABAEABYAAAAAiHQAgAFABCEAEAEoIQQKAAAA=</HashCode>
       <FileName>WorldMap.cs</FileName>
     </TypeIdentifier>
   </Class>

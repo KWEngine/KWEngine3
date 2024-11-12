@@ -529,8 +529,22 @@ namespace KWEngine3
 
             // HUD objects pass:
             RendererHUD.Bind();
-            RendererHUD.SetGlobals();
-            RendererHUD.RenderHUDObjects();
+            int hudrenderindex = RendererHUD.RenderHUDObjects(0, true);
+            if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
+            {
+                // RENDER MAP
+                RendererMapKiller.Bind();
+                RendererMapKiller.KillBloomForMap();
+
+                RendererHUD.Bind();
+                RendererHUD.DrawMap();
+
+                RendererHUD.Bind();
+            }
+
+            // HUD objects second pass:
+            RendererHUD.RenderHUDObjects(hudrenderindex, false);
+
 
             // Bloom pass:
             RenderManager.DoBloomPass();

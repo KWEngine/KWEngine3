@@ -88,15 +88,14 @@ namespace KWEngine3TestProject.Worlds
             wall1.IsCollisionObject = true;
             wall1.IsShadowCaster = true;
             AddGameObject(wall1);
-            /*
+            
             Immovable wall2 = new Immovable();
             wall2.SetScale(4, 1, 4);
             wall2.SetPosition(10, 5, 0);
             wall2.IsCollisionObject = true;
             wall2.IsShadowCaster = true;
             AddGameObject(wall2);
-            */
-            /*
+
             Immovable west = new Immovable();
             west.SetColor(1, 0, 0);
             west.SetScale(4);
@@ -113,12 +112,13 @@ namespace KWEngine3TestProject.Worlds
             Immovable east = new Immovable();
             east.SetColor(0, 0, 1);
             east.SetScale(4);
+            east.SetColorEmissive(1, 1, 0, 4);
             east.SetPosition(30, 5, 0);
             AddGameObject(east);
-            */
+            
             
             Map.SetCamera(_player.Position, ProjectionDirection.NegativeY, 50, 50, 1, 100);
-            Map.SetViewport(1216, 656, 128, 128, false);
+            Map.SetViewport(1216, 656, 128, 128, true);
             Map.SetBackground("./Textures/uvpattern.png", 100, 100, 1f, 1f, 1f);
             Map.Enabled = true;
         }

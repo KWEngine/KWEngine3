@@ -148,7 +148,7 @@ namespace KWEngine3.GameObjects
         {
             if (KWEngine.Window.IsMouseInWindow)
             {
-                Vector2 mouseCoords = KWEngine.Window.MouseState.Position;
+                Vector2 mouseCoords = KWEngine.Window.Mouse.Position;
                 float left, right, top, bottom;
                 float characterWidth = _scale.X;
 
