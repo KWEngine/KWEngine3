@@ -102,7 +102,6 @@ namespace KWEngine3.Renderer
                 {
                     if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpace)
                     {
-                        Console.WriteLine(  "skipping");
                         continue;
                     }
                     Draw(f);

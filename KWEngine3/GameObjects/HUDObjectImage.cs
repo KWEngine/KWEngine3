@@ -10,7 +10,7 @@ namespace KWEngine3.GameObjects
     public class HUDObjectImage : HUDObject
     {
         #region Internals
-        internal int _textureId = KWEngine.TextureAlpha;
+        internal int _textureId = KWEngine.TextureWhite;
         internal string _textureName = "";
         internal Vector2 _textureRepeat = new Vector2(1f, 1f);
         #endregion

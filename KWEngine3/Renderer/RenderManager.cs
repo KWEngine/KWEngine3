@@ -97,8 +97,6 @@ namespace KWEngine3.Renderer
             RendererDebug.Init();
             RendererDebugCube.Init();
 
-            RendererMapKiller.Init();
-
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();
 

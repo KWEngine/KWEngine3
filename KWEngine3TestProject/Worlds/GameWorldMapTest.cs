@@ -21,7 +21,7 @@ namespace KWEngine3TestProject.Worlds
                 Map.UpdateCameraRotation(_player.LookAtVectorXZ);
                 Map.Add(walls[i], 0, new Vector3(1, 0, 1), Vector3.One, 0, 1, 0, "./Textures/fx_boom.png");
             }
-            //Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
+            Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
         }
 
         public override void Prepare()
@@ -36,13 +36,19 @@ namespace KWEngine3TestProject.Worlds
             HUDObject testBack = new HUDObjectImage();
             testBack.SetZIndex(-5f);
             testBack.SetPosition(300, 300);
+            testBack.SetScale(128, 128);
             testBack.SetColor(1, 0, 0);
+            testBack.SetColorEmissive(1, 0, 1);
+            testBack.SetColorEmissiveIntensity(1.5f);
             AddHUDObject(testBack);
-
-            HUDObject testBack2 = new HUDObjectImage();
+            
+            HUDObjectText testBack2 = new HUDObjectText("Test");
             testBack2.SetZIndex(-100f);
-            testBack2.SetPosition(290, 310);
+            testBack2.SetPosition(450, 310);
+            testBack2.SetScale(48);
             testBack2.SetColor(1, 1, 0);
+            testBack2.SetColorEmissive(0, 1, 1);
+            testBack2.SetColorEmissiveIntensity(2);
             AddHUDObject(testBack2);
 
             HUDObject testFront = new HUDObjectImage("./Textures/mapcircle.png");
@@ -115,11 +121,14 @@ namespace KWEngine3TestProject.Worlds
             east.SetColorEmissive(1, 1, 0, 4);
             east.SetPosition(30, 5, 0);
             AddGameObject(east);
-            
+
+            SetBackgroundSkybox("./Textures/skybox.png");
+            SetBackgroundBrightnessMultiplier(4);
+
             
             Map.SetCamera(_player.Position, ProjectionDirection.NegativeY, 50, 50, 1, 100);
             Map.SetViewport(Window.Width - 384 / 2, Window.Height - 384 / 2, 274, 274, true);
-            Map.SetBackground("./Textures/mapgrid.png", 100, 100, 1.0f, 1f, 1f);
+            Map.SetBackground("./Textures/mapgrid.png", 100, 100, 0.9f, 1f, 1f);
             Map.Enabled = true;
         }
     }

@@ -527,34 +527,35 @@ namespace KWEngine3
             }
             */
 
-            // HUD objects pass:
+            // HUD objects:
             RendererHUD.Bind();
+            GL.Disable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.Blend);
+            GL.Disable(EnableCap.CullFace);
+
+            // HUD objects first pass:
             int hudrenderindex = RendererHUD.RenderHUDObjects(0, true);
             if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
             {
-                // RENDER MAP
-                RendererMapKiller.Bind();
-                RendererMapKiller.KillBloomForMap();
-
-                RendererHUD.Bind();
+                // map pass:
                 RendererHUD.DrawMap();
-
-                RendererHUD.Bind();
             }
 
             // HUD objects second pass:
             RendererHUD.RenderHUDObjects(hudrenderindex, false);
 
+            GL.Disable(EnableCap.Blend);
+            GL.Disable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.CullFace);
 
             // Bloom pass:
             RenderManager.DoBloomPass();
 
-            // Final screen pass
+            // Final screen pass:
             Vector4 fadeColor = new Vector4(
                 Vector3.Lerp(KWEngine.CurrentWorld._fadeStatePrevious.Color, KWEngine.CurrentWorld._fadeStateCurrent.Color, alpha),
                 KWEngine.CurrentWorld._fadeStatePrevious.Factor * alpha + KWEngine.CurrentWorld._fadeStatePrevious.Factor * (1f - alpha)
                 );
-
 
             RenderManager.BindScreen();
             RendererCopy.Bind();

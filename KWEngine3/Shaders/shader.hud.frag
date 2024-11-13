@@ -22,10 +22,9 @@ void main()
     }
     vec4 tex = texture(uTexture, vTexture);
 
-    bloom = vec4(0,0,0,1);
     color = tex * uColorTint * uColorTint.w * globalVisibility;
     bloom.x = uColorGlow.x * uColorGlow.w;
     bloom.y = uColorGlow.y * uColorGlow.w;
     bloom.z = uColorGlow.z * uColorGlow.w;
-    bloom.w = uColorGlow.w * tex.w * globalVisibility;
+    bloom.w = uColorTint.w * tex.w * globalVisibility;
 }

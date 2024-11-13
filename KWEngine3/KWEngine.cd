@@ -495,7 +495,7 @@
       <Method Name="UpdateMVP" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAIEIBAAAAAEAQgAAIAVQQAAAABAgABACgAggDAACU=</HashCode>
+      <HashCode>AABIEABAAAAIEAQgAAIAVQQAAAABAgABACgAggDAACU=</HashCode>
       <FileName>GameObjects\HUDObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

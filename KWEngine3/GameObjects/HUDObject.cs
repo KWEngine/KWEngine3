@@ -108,12 +108,12 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// AKtuelle Glühfarbe des Objekts
         /// </summary>
-        public Vector3 GlowColor { get { return _glow.Xyz; } }
+        public Vector3 ColorEmissive { get { return _glow.Xyz; } }
 
         /// <summary>
         /// Aktuelle Glühintensität des Objekts
         /// </summary>
-        public float GlowIntensity { get { return _glow.W; } }
+        public float ColorEmissiveIntensity { get { return _glow.W; } }
 
         /// <summary>
         /// Aktuelle Größe des Objekts (bei Text gilt die Größe je Zeichen)
@@ -160,10 +160,10 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Glühintensität des Objekts
         /// </summary>
-        /// <param name="intensity">Intensität (zwischen 0 und 1)</param>
+        /// <param name="intensity">Intensität (zwischen 0 und 10)</param>
         public void SetColorEmissiveIntensity(float intensity)
         {
-            _glow.W = HelperGeneral.Clamp(intensity, 0, 1);
+            _glow.W = HelperGeneral.Clamp(intensity, 0, 10);
         }
 
         /// <summary>

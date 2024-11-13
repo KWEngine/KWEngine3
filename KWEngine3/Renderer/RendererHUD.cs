@@ -82,9 +82,6 @@ namespace KWEngine3.Renderer
             GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
             if (back)
             {
-                GL.Disable(EnableCap.DepthTest);
-                GL.Enable(EnableCap.Blend);
-                GL.Disable(EnableCap.CullFace);
                 for (int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
                 {
                     HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
@@ -99,9 +96,6 @@ namespace KWEngine3.Renderer
             }
             else
             {
-                GL.Disable(EnableCap.DepthTest);
-                GL.Enable(EnableCap.Blend);
-                GL.Disable(EnableCap.CullFace);
                 // Render the rest of the HUDObject instances:
                 for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
                 {
@@ -109,16 +103,19 @@ namespace KWEngine3.Renderer
                     Draw(h, mesh);
                     index++;
                 }
-
-                GL.Disable(EnableCap.Blend);
-                GL.Enable(EnableCap.DepthTest);
-                GL.Enable(EnableCap.CullFace);
                 return -1;
             }
         }
 
         public static void DrawMap()
         {
+            GL.Viewport(
+                KWEngine.CurrentWorld.Map._targetCenter.X - KWEngine.CurrentWorld.Map._targetDimensions.X / 2,
+                (KWEngine.Window.ClientSize.Y - KWEngine.CurrentWorld.Map._targetCenter.Y) - KWEngine.CurrentWorld.Map._targetDimensions.Y / 2,
+                KWEngine.CurrentWorld.Map._targetDimensions.X,
+                KWEngine.CurrentWorld.Map._targetDimensions.Y
+                );
+
             // Render map entries:
             GeoMesh meshMap = KWEngine.CurrentWorld.Map._direction == ProjectionDirection.NegativeY ? KWEngine.KWMapItemXZ.Meshes.Values.ElementAt(0) : KWEngine.KWMapItemXY.Meshes.Values.ElementAt(0);
             Array.Sort(KWEngine.CurrentWorld.Map._items);
