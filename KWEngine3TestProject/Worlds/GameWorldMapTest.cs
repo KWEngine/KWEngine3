@@ -14,14 +14,19 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
-            List<Immovable> walls = GetGameObjectsByType<Immovable>();
-            for(int i = 0; i < walls.Count; i++)
+            if(Map.Enabled)
             {
-                Map.UpdateCamera(new Vector3(_player.Position.X, _player.Position.Y, _player.Position.Z));
+                Map.UpdateCamera(new Vector3(_player.Position.X, _player.Position.Y + 10, _player.Position.Z));
                 Map.UpdateCameraRotation(_player.LookAtVectorXZ);
-                Map.Add(walls[i], 0, new Vector3(1, 0, 1), Vector3.One, 0, 1, 0, "./Textures/fx_boom.png");
+
+                List<Immovable> walls = GetGameObjectsByType<Immovable>();
+                for (int i = 0; i < walls.Count; i++)
+                {
+                    Map.Add(walls[i], 0, new Vector3(1, 0, 1), Vector3.One, 0, 1, 0, "./Textures/fx_boom.png");
+                }
+                Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
             }
-            Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
+            
         }
 
         public override void Prepare()
