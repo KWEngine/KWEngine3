@@ -18,6 +18,7 @@ namespace KWEngine3.EngineCamera
 
         internal Vector3 _position = KWEngine.DefaultCameraPosition;
         internal Vector3 _target = Vector3.Zero;
+        internal Vector3 _shakeOffset = Vector3.Zero;
         internal Quaternion _rotation = Quaternion.Identity;
         internal float _fov = 45;
 

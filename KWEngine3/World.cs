@@ -1339,6 +1339,24 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="localX">Stärke der Shake-Verschiebung relativ zur lokalen x-Achse der Kamera</param>
+        /// <param name="localY">Stärke der Shake-Verschiebung relativ zur lokalen y-Achse der Kamera</param>
+        /// <param name="localZ">Stärke der Shake-Verschiebung relativ zur lokalen z-Achse der Kamera</param>
+        public void SetCameraShakeOffset(float localX, float localY, float localZ)
+        {
+            if (KWEngine.Mode == EngineMode.Play)
+            {
+                _cameraGame._stateCurrent._shakeOffset = new Vector3(localX, localY, localZ);
+            }
+            else
+            {
+                _cameraEditor._stateCurrent._shakeOffset = new Vector3(localX, localY, localZ);
+            }
+        }
+
+        /// <summary>
         /// Setzt die Kameraposition
         /// </summary>
         /// <param name="position">Positionswert in 3D</param>

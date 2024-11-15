@@ -218,6 +218,7 @@ namespace KWEngine3.Helper
         {
             camGame._stateRender._fov = camGame._statePrevious._fov * alpha + camGame._stateCurrent._fov * (1f - alpha);
             camGame._stateRender._position = Vector3.Lerp(camGame._statePrevious._position, camGame._stateCurrent._position, alpha);
+            camGame._stateRender._shakeOffset = Vector3.Lerp(camGame._statePrevious._shakeOffset, camGame._stateCurrent._shakeOffset, alpha);
             camGame._stateRender._target = Vector3.Lerp(camGame._statePrevious._target, camGame._stateCurrent._target, alpha);
             camGame._stateRender._rotation = Quaternion.Slerp(camGame._statePrevious._rotation, camGame._stateCurrent._rotation, alpha);
             camGame._stateRender.UpdateViewMatrixAndLookAtVector();
