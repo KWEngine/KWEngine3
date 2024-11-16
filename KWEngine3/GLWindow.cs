@@ -252,15 +252,6 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Wird für Änderungen der Tastatureingaben und Mauseingaben verwendet
-        /// </summary>
-        /// <param name="args">aktuelle Angaben</param>
-        protected override void OnUpdateFrame(FrameEventArgs args)
-        {
-            base.OnUpdateFrame(args);
-        }
-
-        /// <summary>
         /// Wird ausgeführt, wenn sich das Fenster vergrößert/verkleinert
         /// </summary>
         /// <param name="e">Parameter</param>
@@ -489,7 +480,7 @@ namespace KWEngine3
                         {
                             GL.Disable(EnableCap.DepthTest);
                         }
-                        RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
+                        RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, true);
                         if (KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
                         {
                             GL.Enable(EnableCap.DepthTest);
@@ -891,10 +882,10 @@ namespace KWEngine3
 
             if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
             {
-                HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha);
+                HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha, true);
                 foreach (GameObject att in postponedViewSpaceAttachments)
                 {
-                    HelperSimulation.BlendGameObjectStates(att, 1f);
+                    HelperSimulation.BlendGameObjectStates(att, 1f, true);
                 }
             }
 

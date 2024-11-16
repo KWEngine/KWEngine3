@@ -132,8 +132,6 @@ namespace KWEngine3.Renderer
             else
                 GL.Uniform3(UCameraPos, KWEngine.CurrentWorld._cameraEditor._stateRender._position);
 
-            Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-            GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
 
             TextureUnit currentTextureUnit = TextureUnit.Texture6;
             int currentTextureNumber = 6;
@@ -241,15 +239,26 @@ namespace KWEngine3.Renderer
                     {
                         Draw(g);
                     }
-                    else if(!g.SkipRender && g.IsInsideScreenSpace)
-                        Draw(g);
+                    else if(!g.SkipRender && g.IsInsideScreenSpaceForRenderPass)
+                        Draw(g, g.IsAttachedToViewSpaceGameObject);
                 }
                 GL.Disable(EnableCap.Blend);
             }
         }
 
-        public static void Draw(GameObject g)
+        public static void Draw(GameObject g, bool isVSG = false)
         {
+            if(isVSG)
+            {
+                Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrixNoShake : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
+                GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
+            }
+            else
+            {
+                Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
+                GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
+            }
+
             GL.Uniform4(UColorTint, new Vector4(g._stateRender._colorTint, g._stateRender._opacity));
             GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
             GL.Uniform1(UMetallicType, (int)g._model._metallicType);

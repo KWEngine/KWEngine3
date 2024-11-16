@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="8.5" Width="2.75" />
+    <Position X="0.5" Y="8.75" Width="2.75" />
     <Members>
       <Field Name="_keyboard" Hidden="true" />
       <Field Name="_mouse" Hidden="true" />
@@ -27,7 +27,6 @@
       <Method Name="OnRenderFrame" Hidden="true" />
       <Method Name="OnResize" Hidden="true" />
       <Method Name="OnTextInput" Hidden="true" />
-      <Method Name="OnUpdateFrame" Hidden="true" />
       <Property Name="Overlay" Hidden="true" />
       <Method Name="RenderOverlay" Hidden="true" />
       <Method Name="SetWorldInternal" Hidden="true" />
@@ -36,7 +35,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiFBAAABQAAAQyAUAkBgEASAhIABCQAYAEAUAEuAgA=</HashCode>
+      <HashCode>AAiEBAAABQAAAQyAUAkBgEASAhIABCQAYAEAUAEuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -56,6 +55,7 @@
       <Field Name="_swpruneTolerance" Hidden="true" />
       <Field Name="_texMemUsed" Hidden="true" />
       <Field Name="_uniformOffsetMultiplier" Hidden="true" />
+      <Field Name="_vsgShakeFactor" Hidden="true" />
       <Field Name="BLOOMHEIGHT" Hidden="true" />
       <Field Name="BLOOMWIDTH" Hidden="true" />
       <Method Name="CollectScreenInfo" Hidden="true" />
@@ -121,7 +121,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgAR7BNAqSJALEcpApqARARVCgCQioSjHn2Sv2KEIE=</HashCode>
+      <HashCode>BcgAR7BNAqSJgLEcpApqAZARVCgCQioSjHn2Sv2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -201,12 +201,12 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQt0OI6AJDRKdBUdzpGghbliTK5ZD6YcUeGCH/EeA/0=</HashCode>
+      <HashCode>SQt0OI6AJDRKdBUdzpGghb1iTK5ZD6YcUeGCH/EeA/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="15" Width="2.75" />
+    <Position X="0.5" Y="15.25" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -281,7 +281,7 @@
       <Method Name="UpdateLookAtVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ACAIAQAAAAQA4AAqAICAFSwAAgAQCgAAAQgAgIAEAAY=</HashCode>
+      <HashCode>ACAIAQAAAAQA4AQqAICAFSwAAgAQCgAAAQgAgIAEAAY=</HashCode>
       <FileName>GameObjects\LightObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -328,12 +328,13 @@
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
+      <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Property Name="IsVisible" Hidden="true" />
       <Method Name="SetModel" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QCABIUACDAQgkAAIACCAIEQEACBAAxAhAAgAEABAQIQ=</HashCode>
+      <HashCode>QCABIUACDAQgkAQIACCAIEQEACBAAxAhAAgAEABAQIQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -383,12 +384,13 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="12.5" Width="2.75" />
+    <Position X="21.5" Y="17.75" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
+      <Field Name="pnoise" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAABAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAABAQAACAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Helper\HelperRandom.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -412,7 +414,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="10.75" Width="2.75" />
+    <Position X="21.5" Y="10.5" Width="2.75" />
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="LookRotation" Hidden="true" />
@@ -425,7 +427,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="12.5" Width="2.75" />
+    <Position X="0.5" Y="12.75" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -447,6 +449,7 @@
       <Field Name="_text" Hidden="true" />
       <Method Name="GenerateOffsetsForText" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
+      <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Method Name="UpdateWidth" Hidden="true" />
     </Members>
     <TypeIdentifier>
@@ -526,12 +529,13 @@
       <Method Name="InitPreRotationQuaternions" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
+      <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Method Name="SetTextureOffsetForMaterial" Hidden="true" />
       <Method Name="SetTextureRepeatForMaterial" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyNDJ1oOGJygUIBuAgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
+      <HashCode>QyNDJ1oOGJygUIRuAgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -571,11 +575,12 @@
       <Field Name="_swayFactor" Hidden="true" />
       <Field Name="_terrainObject" Hidden="true" />
       <Field Name="_textureId" Hidden="true" />
+      <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Method Name="UpdateInstanceCountForPatchSize" Hidden="true" />
       <Method Name="UpdateModelMatrix" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QABAIAAwAAAIACAxAgAADCQKAEAAAkgIAQgIogBCbSQ=</HashCode>
+      <HashCode>QABAIAAwAAAIACQxAgAADCQKAEAAAkgIAQgIogBCbSQ=</HashCode>
       <FileName>GameObjects\FoliageObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -610,7 +615,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="21.5" Y="16" Width="2.75" />
+    <Position X="21.5" Y="15.75" Width="2.75" />
     <Members>
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />

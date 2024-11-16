@@ -14,6 +14,11 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
+            if(HelperRandom.GetRandomNumber(0, 100) == 0)
+            {
+                StartCameraShake(2.5f, 2.5f, 2.5f, 1.0f, 100f, ShakeMode.Additive);
+            }
+
             if(Map.Enabled)
             {
                 Map.UpdateCamera(new Vector3(_player.Position.X, _player.Position.Y + 10, _player.Position.Z));

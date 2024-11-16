@@ -330,6 +330,7 @@ namespace KWEngine3.GameObjects
         /// Gibt an, ob sich das Objekt aktuell im Blickfeld der Kamera befindet
         /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
+        internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
 
         /// <summary>
         /// Erfragt die aktuelle Breite des Objekts (mit Rücksicht auf CharacterSpreadFactor und Skalierung)

@@ -32,6 +32,7 @@ namespace KWEngine3.GameObjects
         /// Gibt an, ob das Objekt gerade auf dem Bildschirm zu sehen ist
         /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
+        internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
         /// <summary>
         /// Gibt an, ob das Objekt Schatten werfen und empfangen kann
         /// </summary>

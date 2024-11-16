@@ -64,6 +64,7 @@ namespace KWEngine3.GameObjects
         /// Gibt an, ob sich das Objekt im Sichtbereich der Kamera befindet
         /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
+        internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
 
         /// <summary>
         /// Gibt die Tönung und Leuchtkraft des Bodengewächses an

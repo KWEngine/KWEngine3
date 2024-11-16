@@ -7,10 +7,28 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperRandom
     {
+        internal static Random generator = new Random(DateTime.Now.Millisecond);
+        internal static float pnoise = -1.0f;
+
         /// <summary>
-        /// Generatorfeldvariable
+        /// Generiert eine Zufallszahl nach Ken Perlins Noise Generator
         /// </summary>
-        private static Random generator = new Random(DateTime.Now.Millisecond);
+        /// <param name="speed">Steigung der Zufallszahlenänderung</param>
+        /// <param name="min">Untergrenze</param>
+        /// <param name="max">Obergrenze</param>
+        /// <returns>Zufallszahl</returns>
+        public static float GetRandomNumberFromPerlinNoise(float speed = 0.1f, float min = 0f, float max = 1f)
+        {
+            speed = Math.Clamp(speed, 0f, 1f);
+            float rand = ((HelperPerlinNoise.GradientNoise(pnoise, pnoise, 3) * 2f) + 1f) * 0.5f * (max - min) + min;
+            pnoise = pnoise + speed;
+            if(pnoise > 1f)
+            {
+                float delta = pnoise - 1f;
+                pnoise = -1f + delta;
+            }
+            return rand;
+        }
 
         /// <summary>
         /// Berechnet eine Zufallszahl zwischen zwei Werten (beide inklusive)
@@ -20,7 +38,7 @@ namespace KWEngine3.Helper
         /// <returns>Zufallszahl</returns>
         public static float GetRandomNumber(float min, float max)
         {
-            return (float)((generator.NextDouble() * (max - min)) + min);
+            return generator.NextSingle() * (max - min) + min;
         }
 
         /// <summary>

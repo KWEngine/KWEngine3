@@ -26,6 +26,23 @@ namespace KWEngine3
         internal const float RAYTRACE_SAFETY = 0.1f;
         internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
         internal const int TERRAIN_PATCH_SIZE = 16;
+        
+        
+        /// <summary>
+        /// Gibt an oder setzt den Faktor, der bei der Berechnung des Kameraschüttelns einer ViewSpaceGameObject-Instanz zugerechnet wird (Standard: 0.1f, gültiger Wertebereich liegt zwischen 0f und 1f)
+        /// </summary>
+        public static float ViewSpaceGameObjectShakeFactor
+        {
+            get
+            {
+                return _vsgShakeFactor;
+            }
+            set
+            {
+                _vsgShakeFactor = Math.Clamp(value, 0f, 1f);
+            }
+        }
+       
 
         /// <summary>
         /// Gibt an, ab welcher Entfernung Terrain-Geometrie weniger detailliert dargestellt werden soll (Standard: 32 Einheiten)
@@ -794,5 +811,6 @@ namespace KWEngine3
         }
 
         internal static ScreenInfo _screenInfo = CollectScreenInfo();
+        internal static float _vsgShakeFactor = 0.1f;
     }
 }

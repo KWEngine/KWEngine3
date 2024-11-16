@@ -20,12 +20,14 @@ namespace KWEngine3.Helper
         internal void UpdateScreenSpaceStatus(TextObject t)
         {
             t.IsInsideScreenSpace = SphereVsFrustum(t.Position, t._stateCurrent._width / 2f);
+            t.IsInsideScreenSpaceForRenderPass = SphereVsFrustum(t.Position, t._stateCurrent._width / 2f * 1.25f);
         }
         internal void UpdateScreenSpaceStatus(EngineObject e)
         {
             if (e is GameObject)
             {
                 e.IsInsideScreenSpace = VolumeVsFrustum(e.Center, e._stateCurrent._dimensions.X / 2, e._stateCurrent._dimensions.Y / 2, e._stateCurrent._dimensions.Z / 2);
+                e.IsInsideScreenSpaceForRenderPass = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast * 1.25f);
             }
             else if(e is RenderObject)
             {
@@ -35,6 +37,7 @@ namespace KWEngine3.Helper
         internal void UpdateScreenSpaceStatus(TerrainObject t)
         {
             t.IsInsideScreenSpace = VolumeVsFrustum(t._stateCurrent._center, t._stateCurrent._dimensions.X / 2, t._stateCurrent._dimensions.Y / 2, t._stateCurrent._dimensions.Z / 2);
+            t.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(t._stateCurrent._center, t._stateCurrent._dimensions.X * 1.25f / 2, t._stateCurrent._dimensions.Y * 1.25f / 2, t._stateCurrent._dimensions.Z * 1.25f / 2);
         }
 
         internal void UpdateScreenSpaceStatus(FoliageObject f)
@@ -42,10 +45,12 @@ namespace KWEngine3.Helper
             if(f._terrainObject != null)
             {
                 f.IsInsideScreenSpace = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f, f._patchSize.Y * 0.5f);
+                f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f * 1.25f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f * 1.25f, f._patchSize.Y * 0.5f * 1.25f);
             }
             else
             {
                 f.IsInsideScreenSpace = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X, f._scale.Y, f._patchSize.Y);
+                f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 1.25f, f._scale.Y * 1.25f, f._patchSize.Y * 1.25f);
             }
         }
 
@@ -53,6 +58,7 @@ namespace KWEngine3.Helper
         {
             l.GetVolume(out Vector3 center, out Vector3 dimensions);
             l.IsInsideScreenSpace = VolumeVsFrustum(center, dimensions.X, dimensions.Y, dimensions.Z);
+            l.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(center, dimensions.X * 1.25f, dimensions.Y * 1.25f, dimensions.Z * 1.25f);
         }
 
         internal enum ClippingPlane : int

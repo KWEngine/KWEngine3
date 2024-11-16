@@ -55,6 +55,7 @@ namespace KWEngine3.GameObjects
         /// Gibt an, ob sich das Objekt gerade auf dem Bildschirm befindet
         /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
+        internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
 
 
         /// <summary>

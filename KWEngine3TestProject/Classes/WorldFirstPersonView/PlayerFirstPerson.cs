@@ -10,15 +10,40 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
 {
     public class PlayerFirstPerson : GameObject
     {
-        private float _lastKeyPress = float.MinValue;
+        //private float _lastKeyPress = float.MinValue;
+        private float bobX = 0f;
+        private float bobTime = 0f;
 
         public override void Act()
         {
-            ViewSpaceGameObject vsg = CurrentWorld.GetViewSpaceGameObject();
-            if (vsg != null && (Keyboard.IsKeyDown(Keys.D1) || Keyboard.IsKeyDown(Keys.D2)))
+            
+            if(HelperRandom.GetRandomNumber(0, 256) == 0)
             {
-                if (WorldTime - _lastKeyPress > 0.125f)
+                CurrentWorld.StartCameraShake(3, 3, 3);
+            }
+            
+
+            if(Keyboard.IsKeyPressed(Keys.F5))
+            {
+                if (Window.VSync == OpenTK.Windowing.Common.VSyncMode.On)
                 {
+                    Window.VSync = OpenTK.Windowing.Common.VSyncMode.Off;
+                    Console.WriteLine("VSYNC OFF");
+                }
+                else
+                {
+                    Window.VSync = OpenTK.Windowing.Common.VSyncMode.On;
+                    Console.WriteLine("VSYNC ON");
+                }
+            }
+
+
+
+            ViewSpaceGameObject vsg = CurrentWorld.GetViewSpaceGameObject();
+            if (vsg != null && (Keyboard.IsKeyPressed(Keys.D1) || Keyboard.IsKeyPressed(Keys.D2)))
+            {
+                //if (WorldTime - _lastKeyPress > 0.125f)
+                //{
                     Attachment att = CurrentWorld.GetGameObjectByName<Attachment>("Attachment");
                     if (att != null)
                     {
@@ -31,8 +56,8 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
                             vsg.DetachGameObjectFromBone("hand.R");
                         }
                     }
-                    _lastKeyPress = WorldTime;
-                }
+                //    _lastKeyPress = WorldTime;
+                //}
             }
 
             CurrentWorld.AddCameraRotationFromMouseDelta();
@@ -47,18 +72,34 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
                 strafe--;
             if (Keyboard.IsKeyDown(Keys.D))
                 strafe++;
-
+            
             if (move != 0 || strafe != 0)
             {
                 MoveAndStrafeAlongCameraXZ(move, strafe, 0.025f);
+                
+                bobX = MathF.Sin(bobTime) * 0.1f;
+                bobTime += 0.025f;
             }
+            else
+            {
+                bobTime = 0f;
+                bobX =bobX * 0.9f;
+                if (bobX < 0.00001f)
+                    bobX = 0f;
+            }
+            
 
             foreach(Intersection i in GetIntersections<Wall>())
             {
                 MoveOffset(i.MTV);
             }
-
-            CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0.5f);
+            
+            CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0.5f + bobX, bobX * 0.5f);
+            if(vsg != null)
+            {
+                //vsw.SetOffset(0.25f, -0.25f, 0.75f);
+                vsg.SetOffset(0.25f + bobX * 0.2f, -0.25f -bobX * 0.1f, 0.75f);
+            }
         }
     }
 }

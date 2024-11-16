@@ -107,7 +107,7 @@ namespace KWEngine3.Renderer
                 SetGlobals();
                 foreach (RenderObject r in KWEngine.CurrentWorld._renderObjects)
                 {
-                    if (KWEngine.Mode != EngineMode.Edit && (r.SkipRender || !r.IsInsideScreenSpace))
+                    if (KWEngine.Mode != EngineMode.Edit && (r.SkipRender || !r.IsInsideScreenSpaceForRenderPass))
                         continue;
                     if (r.IsTransparent || r.IsDepthTesting == false)
                     {

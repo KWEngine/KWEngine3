@@ -20,6 +20,7 @@ namespace KWEngine3.GameObjects
         /// Befinden sich das Lichtobjekt und seine Lichtstrahlen aktuell auf dem Bildschirm?
         /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
+        internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
         /// <summary>
         /// Engine-interne ID
         /// </summary>

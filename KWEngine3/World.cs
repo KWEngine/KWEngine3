@@ -531,7 +531,7 @@ namespace KWEngine3
             _preparedLightsCount = 0;
             foreach (LightObject l in _lightObjects)
             {
-                if (KWEngine.Mode == EngineMode.Play && !l.IsInsideScreenSpace)
+                if (KWEngine.Mode == EngineMode.Play && !l.IsInsideScreenSpaceForRenderPass)
                 {
                     offsetTex += KWEngine.LIGHTINDEXDIVIDER;
                     continue;
@@ -1339,20 +1339,32 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// 
+        /// Startet ein zeitbegrenztes Schütteln der Kamera
         /// </summary>
-        /// <param name="localX">Stärke der Shake-Verschiebung relativ zur lokalen x-Achse der Kamera</param>
-        /// <param name="localY">Stärke der Shake-Verschiebung relativ zur lokalen y-Achse der Kamera</param>
-        /// <param name="localZ">Stärke der Shake-Verschiebung relativ zur lokalen z-Achse der Kamera</param>
-        public void SetCameraShakeOffset(float localX, float localY, float localZ)
+        /// <param name="shakeX">Stärke der Verschiebung relativ zur lokalen x-Achse der Kamera</param>
+        /// <param name="shakeY">Stärke der Verschiebung relativ zur lokalen y-Achse der Kamera</param>
+        /// <param name="shakeZ">Stärke der Verschiebung relativ zur lokalen z-Achse der Kamera</param>
+        /// <param name="duration">Dauer des Effekts (in Sekunden, Standard: 1f)</param>
+        /// <param name="speed">Geschwindigkeit des Effekts (Standard: 100f)</param>
+        /// <param name="mode">Modus, der festlegt, wie mit den neuen Werten umgegangen wird</param>
+        public void StartCameraShake(float shakeX, float shakeY, float shakeZ, float duration = 1f, float speed = 100f, ShakeMode mode = ShakeMode.Additive)
         {
-            if (KWEngine.Mode == EngineMode.Play)
+            shakeX = Math.Max(0f, shakeX);
+            shakeY = Math.Max(0f, shakeY);
+            shakeZ = Math.Max(0f, shakeZ);
+            _cameraGame._stateCurrent._shakeTimestamp = WorldTime;
+            if (mode == ShakeMode.Additive)
             {
-                _cameraGame._stateCurrent._shakeOffset = new Vector3(localX, localY, localZ);
+                _cameraGame._stateCurrent._shakeOffset = new Vector3(
+                    Math.Max(_cameraGame._stateCurrent._shakeOffset.X ,shakeX),
+                    Math.Max(_cameraGame._stateCurrent._shakeOffset.Y, shakeY),
+                    Math.Max(_cameraGame._stateCurrent._shakeOffset.Z, shakeZ));
+                _cameraGame._stateCurrent._shakeDuration = Math.Max(_cameraGame._stateCurrent._shakeDuration, duration);
             }
             else
             {
-                _cameraEditor._stateCurrent._shakeOffset = new Vector3(localX, localY, localZ);
+                _cameraGame._stateCurrent._shakeOffset = new Vector3(shakeX, shakeY, shakeZ);
+                _cameraGame._stateCurrent._shakeDuration = Math.Max(0f, duration);
             }
         }
 
@@ -1378,7 +1390,8 @@ namespace KWEngine3
         /// </summary>
         /// <param name="position">Zielposition</param>
         /// <param name="offsetY">optionaler vertikaler Offset</param>
-        public void UpdateCameraPositionForFirstPersonView(Vector3 position, float offsetY = 0)
+        /// <param name="offsetX">optionaler horizontaler Offset</param>
+        public void UpdateCameraPositionForFirstPersonView(Vector3 position, float offsetY = 0, float offsetX = 0)
         {
             Vector3 newPos = position + new Vector3(0f, offsetY, 0f);
             _cameraGame.SetPositionAndTarget(newPos, newPos + CameraLookAtVector);

@@ -1,6 +1,21 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Gibt an, ob die für das Kamerazittern festgelegten Werte zusätzlich zum ggf. bestehenden Zittern addiert werden oder die bisherigen Werte ersetzen.
+    /// </summary>
+    public enum ShakeMode
+    {
+        /// <summary>
+        /// Addiert die Werte zu ggf. gerade aktiven Werten
+        /// </summary>
+        Additive = 0,
+        /// <summary>
+        /// Ersetzt bisher ggf. festgelegte Werte
+        /// </summary>
+        Absolute = 1
+    }
+
+    /// <summary>
     /// Gibt an, ab welcher Entfernung Terrain-Objekte weniger detailliert gezeichnet werden
     /// </summary>
     public enum TerrainThresholdValue

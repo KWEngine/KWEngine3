@@ -102,15 +102,15 @@ namespace KWEngine3.Renderer
             SetGlobals();
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || !g.IsInsideScreenSpace))
+                if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || !g.IsInsideScreenSpaceForRenderPass))
                     continue;
-                if (g.IsTransparent || g.IsDepthTesting == false)
+                if (g.IsTransparent || g.IsDepthTesting == false || g.IsAttachedToViewSpaceGameObject)
                 {
                     forwardObjects.Add(g);
                     continue;
                 }
                 Draw(g);
-                }
+            }
             
             return forwardObjects;
         }

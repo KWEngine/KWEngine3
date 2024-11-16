@@ -25,8 +25,6 @@ namespace KWEngine3.Helper
         public float[] Background2DClip { get; set; }
         public float[] BackgroundFillColor { get; set; }
 
-        // IMPORTED MODELS
-        // ???
 
         // GAMEOBJECTS
         public List<SerializedGameObject> GameObjects { get; set; }

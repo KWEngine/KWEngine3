@@ -106,7 +106,7 @@ namespace KWEngine3.Helper
             t._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(t._stateRender._modelMatrix));
         }
 
-        public static void BlendGameObjectStates(GameObject g, float alpha)
+        public static void BlendGameObjectStates(GameObject g, float alpha, bool isVSG = false)
         {
             g._stateRender._scale = Vector3.Lerp(g._statePrevious._scale, g._stateCurrent._scale, alpha);
             g._stateRender._position = Vector3.Lerp(g._statePrevious._position, g._stateCurrent._position, alpha);
@@ -218,11 +218,14 @@ namespace KWEngine3.Helper
         {
             camGame._stateRender._fov = camGame._statePrevious._fov * alpha + camGame._stateCurrent._fov * (1f - alpha);
             camGame._stateRender._position = Vector3.Lerp(camGame._statePrevious._position, camGame._stateCurrent._position, alpha);
-            camGame._stateRender._shakeOffset = Vector3.Lerp(camGame._statePrevious._shakeOffset, camGame._stateCurrent._shakeOffset, alpha);
             camGame._stateRender._target = Vector3.Lerp(camGame._statePrevious._target, camGame._stateCurrent._target, alpha);
             camGame._stateRender._rotation = Quaternion.Slerp(camGame._statePrevious._rotation, camGame._stateCurrent._rotation, alpha);
-            camGame._stateRender.UpdateViewMatrixAndLookAtVector();
-            camGame._stateRender.UpdateViewProjectionMatrix(camGame._zNear, camGame._zFar);
+            camGame._stateRender._shakeOffset = camGame._stateCurrent._shakeOffset;
+            camGame._stateRender._shakeDuration = camGame._stateCurrent._shakeDuration;
+            camGame._stateRender._shakeTimestamp = camGame._stateCurrent._shakeTimestamp;
+
+            camGame._stateRender.UpdateViewMatrixAndLookAtVectorRenderPass();
+            camGame._stateRender.UpdateViewProjectionMatrix(camGame._zNear, camGame._zFar, true);
 
             camEditor._stateRender._fov = camEditor._statePrevious._fov * alpha + camEditor._stateCurrent._fov * (1f - alpha);
             camEditor._stateRender._position = Vector3.Lerp(camEditor._statePrevious._position, camEditor._stateCurrent._position, alpha);

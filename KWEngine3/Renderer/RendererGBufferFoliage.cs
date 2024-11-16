@@ -100,7 +100,7 @@ namespace KWEngine3.Renderer
                 SetGlobals();
                 foreach (FoliageObject f in KWEngine.CurrentWorld._foliageObjects)
                 {
-                    if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpace)
+                    if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpaceForRenderPass)
                     {
                         continue;
                     }
