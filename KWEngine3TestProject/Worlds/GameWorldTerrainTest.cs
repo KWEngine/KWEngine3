@@ -39,25 +39,25 @@ namespace KWEngine3TestProject.Worlds
             sun.Name = "Sun";
             AddLightObject(sun);
            
-            
+            /*
             LightObject plight = new LightObject(LightType.Point, ShadowQuality.Low);
             plight.SetPosition(0, 5, 0);
             plight.SetColor(1, 1, 0, 3);
             plight.SetNearFar(1, 10);
             AddLightObject(plight);
-            
+            */
 
             Player p = new Player();
             //p.SetModel("Player");
             p.Name = "Player";
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            p.SetPosition(1, 0.5f, 1);
+            p.SetPosition(1, 10f, 1);
             //p.SetOpacity(0.9f);
             AddGameObject(p);
 
             
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 32, 32, 5);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 32, 32, 8);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
@@ -67,7 +67,8 @@ namespace KWEngine3TestProject.Worlds
             t.SetTextureRepeat(4f, 4f);
             t.SetPosition(0, 0, 0);
             AddTerrainObject(t);
-            
+
+            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
             
         }
     }

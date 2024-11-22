@@ -12,8 +12,10 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
 {
     internal class Player : GameObject
     {
-        private const int NORMALCOUNT = 30;
-        private List<Vector3> _surfaceNormals = new();
+        //private const int NORMALCOUNT = 30;
+        //private List<Vector3> _surfaceNormals = new();
+        private int mode = 1; // 0 = stand, 1 = fall
+        private float velocityY = 0;
         
         public override void Act()
         {
@@ -33,13 +35,72 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 MoveOffset(0, +0.01f, 0);
             
 
+            if(Keyboard.IsKeyPressed(Keys.Space) && mode == 0)
+            {
+                mode = 1;
+                velocityY = 0.1f;
+            }
+
+            if(mode == 1)
+            {
+                velocityY -= 0.001f;
+                velocityY = Math.Max(-0.2f, velocityY);
+                MoveOffset(0, velocityY, 0);
+            }
+
+            RayTerrainIntersection rti = RaytraceTerrainBelowPosition(new Vector3(Position.X, AABBLow, Position.Z));
+            if(rti.IsValid)
+            {
+                if (mode == 1)
+                {
+                    if (rti.Distance < 0.05f)
+                    {
+                        mode = 0;
+                        SetPositionY(rti.IntersectionPoint.Y, KWEngine3.PositionMode.BottomOfAABBHitbox);
+                    }
+                }
+                else
+                {
+                    SetPositionY(rti.IntersectionPoint.Y, KWEngine3.PositionMode.BottomOfAABBHitbox);
+                }
+            }
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             if (movementVector.LengthSquared > 0)
             {
                 movementVector.NormalizeFast();
                 TurnTowardsXZ(Position + movementVector);
                 MoveAlongVector(movementVector, 0.01f);
             }
-            
+
+
+
+
+
+
+
+
+
+
+
+
+            /*
             RayTerrainIntersectionSet rti = RaytraceTerrainBelowPositionExt(GetOBBBottom(), KWEngine3.RayMode.FourRaysY, 1f);
             if (rti.IsValid)
             {
@@ -66,7 +127,7 @@ namespace KWEngine3TestProject.Classes.WorldTerrainTest
                 avg /= NORMALCOUNT;
                 SetRotationToMatchSurfaceNormal(Vector3.Normalize(avg));
             }
-            
+            */
         }
     }
 }

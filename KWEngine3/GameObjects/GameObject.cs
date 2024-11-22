@@ -387,6 +387,8 @@ namespace KWEngine3.GameObjects
                             if (hit)
                             {
                                 float distance = (untranslatedPosition - offset - contactPoint).LengthFast;
+                                if (position.Y - contactPoint.Y < 0)
+                                    distance *= -1;
 
                                 contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
                                 distanceAvg += distance;
@@ -413,7 +415,7 @@ namespace KWEngine3.GameObjects
 
             return resultSet;
         }
-        
+
         /// <summary>
         /// Prüft, ob das Objekt gerade mit anderen Objekten kollidiert und gibt die erstbeste Kollision zurück
         /// </summary>
@@ -1438,6 +1440,11 @@ namespace KWEngine3.GameObjects
         internal Vector3 _positionOffsetForAttachment = Vector3.Zero;
         internal Vector3 _scaleOffsetForAttachment = Vector3.One;
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
+
+        internal bool IsRayModeY(RayMode mode)
+        {
+            return mode == RayMode.SingleY || mode == RayMode.TwoRays2DPlatformerY || mode == RayMode.FourRaysY || mode == RayMode.FiveRaysY;
+        }
         internal bool IsAttachedToViewSpaceGameObject { get { return _attachedTo != null && KWEngine.CurrentWorld._viewSpaceGameObject != null && _attachedTo == KWEngine.CurrentWorld._viewSpaceGameObject._gameObject; } }
 
         internal string GetBoneNameForAttachedGameObject(GameObject g)
