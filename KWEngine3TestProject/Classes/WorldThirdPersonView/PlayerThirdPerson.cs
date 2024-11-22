@@ -1,6 +1,7 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
+using KWEngine3TestProject.Worlds;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
@@ -39,11 +40,18 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
 
         public override void Act()
         {
+            if ((CurrentWorld as GameWorldThirdPersonView).IsPaused())
+            {
+                return;
+            }
+
             if (Position.Y < -25)
             {
                 SetPosition(0, 0, 0);
                 return;
             }
+
+            
 
             // Wenn sich die Spielfigur mitdrehen soll, muss hier
             // die Mausbewegung auch zur Player-Rotation addiert werden!

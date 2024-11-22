@@ -3,7 +3,8 @@ using KWEngine3.GameObjects;
 using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldThirdPersonView;
 using OpenTK.Mathematics;
-using SkiaSharp;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,18 @@ namespace KWEngine3TestProject.Worlds
 {
     public class GameWorldThirdPersonView : World
     {
+        private bool _paused = false;
+
+        public bool IsPaused()
+        {
+            return _paused;
+        }
         public override void Act()
         {
-            
+            if(Keyboard.IsKeyPressed(Keys.P))
+            {
+                _paused = !_paused;
+            }
         }
 
         public override void Prepare()
