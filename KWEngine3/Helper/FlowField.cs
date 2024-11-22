@@ -387,8 +387,7 @@ namespace KWEngine3.Helper
             {
                 x = (int)(GridCellCount.X * percentX);
                 z = (int)(GridCellCount.Z * percentZ);
-                Console.WriteLine(x + "|" + z);
-                if (x < 0 || x >= GridCellCount.X || z < 0 && z >= GridCellCount.Z)
+                if (x < 0 || x >= GridCellCount.X || z < 0 || z >= GridCellCount.Z)
                     return null;
                 else
                     return Grid[x, z];

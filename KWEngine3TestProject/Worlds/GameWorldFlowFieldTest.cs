@@ -34,13 +34,13 @@ namespace KWEngine3TestProject.Worlds
                     Console.WriteLine("Cursor not inside flow field");
                 }
 
-                /*
+                
                 if (Mouse.IsButtonPressed(MouseButton.Left))
                 {
 
                     f.SetTarget(cursorPosWorld);
                 }
-                */
+                
             }
             /*
             if (Keyboard.IsKeyPressed(Keys.F2))
