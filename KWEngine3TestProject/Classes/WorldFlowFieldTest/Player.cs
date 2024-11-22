@@ -47,6 +47,8 @@ namespace KWEngine3TestProject.Classes.WorldFlowFieldTest
                 FlowField f = CurrentWorld.GetFlowField();
                 if (f != null)
                 {
+                    
+
                     if (f.Contains(this))
                     {
                         f.SetTarget(this.Position);

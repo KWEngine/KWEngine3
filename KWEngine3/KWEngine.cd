@@ -610,7 +610,7 @@
       <Method Name="UpdateFlowField" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQEAhCAAMAEFBQIAgMACgAAQAgADBgWCAAAAEAYAAI=</HashCode>
+      <HashCode>AUQEAhCAAMAEFBQIAgMACgAAQAgADBgWCAAAAEAYABI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -673,6 +673,23 @@
     <TypeIdentifier>
       <HashCode>ACIAQAAABAEABYAAAAAiHQAgAFABCEAEAEoIQQKAAAA=</HashCode>
       <FileName>WorldMap.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Helper.FlowFieldCell">
+    <Position X="15.5" Y="17" Width="2.75" />
+    <Members>
+      <Field Name="_bestCost" Hidden="true" />
+      <Field Name="_cost" Hidden="true" />
+      <Field Name="_gridIndex" Hidden="true" />
+      <Property Name="BestCost" Hidden="true" />
+      <Property Name="BestDirection" Hidden="true" />
+      <Method Name="FlowFieldCell" Hidden="true" />
+      <Property Name="Parent" Hidden="true" />
+      <Method Name="SetCostTo" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAACBAAAAgAAAAQBgAAAAAAAABAEEAAAAAAgA=</HashCode>
+      <FileName>Helper\FlowFieldCell.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">

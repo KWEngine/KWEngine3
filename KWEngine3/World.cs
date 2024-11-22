@@ -4,6 +4,7 @@ using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Renderer;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -1764,8 +1765,12 @@ namespace KWEngine3
         public void MouseCursorGrab()
         {
             Window.CursorState = OpenTK.Windowing.Common.CursorState.Grabbed;
+            unsafe
+            {
+                GLFW.SetCursorPos(Window.WindowPtr, Window.ClientSize.X / 2, Window.ClientSize.Y / 2);
+            }
             Window.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
-            _startingFrameActive = true;
+            //_startingFrameActive = true;
         }
         /// <summary>
         /// Verstecke den Mauszeiger
@@ -1786,7 +1791,27 @@ namespace KWEngine3
         /// </summary>
         public void MouseCursorResetPosition()
         {
-            Window.Mouse._mousePositionFromGLFW = Window.ClientRectangle.HalfSize;
+            unsafe
+            {
+                GLFW.SetCursorPos(Window.WindowPtr, Window.ClientSize.X / 2, Window.ClientSize.Y / 2);
+            }
+            Window.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
+            //_startingFrameActive = true;
+        }
+
+        /// <summary>
+        /// Setzt den Mauszeiger in seiner Position auf die angegebene Koordinate (relativ zum Fenster)
+        /// </summary>
+        /// <param name="x">X-Position im Fenster</param>
+        /// <param name="y">Y-Position im Fenster</param>
+        public void MouseCursorResetPosition(int x, int y)
+        {
+            x = Math.Clamp(x, 0, Window.ClientSize.X - 1);
+            y = Math.Clamp(y, 0, Window.ClientSize.Y - 1);
+            unsafe
+            {
+                GLFW.SetCursorPos(Window.WindowPtr, x, y);
+            }
         }
 
         /// <summary>

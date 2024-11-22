@@ -2,12 +2,43 @@
 
 namespace KWEngine3.Helper
 {
-    internal class FlowFieldCell
+    /// <summary>
+    /// Bildet eine einzelne Zelle einer FlowField-Instanz ab
+    /// </summary>
+    public class FlowFieldCell
     {
-        internal Vector2i _gridIndex;
+        /// <summary>
+        /// Gibt die Position der Zelle in Weltkoordinaten an
+        /// </summary>
+        public Vector3 Position { get; internal set; }
 
-        public Vector3 WorldPos { get; private set; }
-        public Vector3 BestDirection { get; internal set; }
+        /// <summary>
+        /// Gibt den horizontalen Index der Zelle im FlowField an (nullbasiert)
+        /// </summary>
+        public int IndexX { get { return _gridIndex.X; } }
+        /// <summary>
+        /// Gibt den vertikalen Index der Zelle im FlowField an (nullbasiert)
+        /// </summary>
+        public int IndexZ { get { return _gridIndex.Y; } }
+
+        /// <summary>
+        /// Erfragt die Zelle, die von der aktuellen Zelle ausgehend am angegebenen Offset liegt
+        /// </summary>
+        /// <param name="offsetX">Offset in X-Richtung</param>
+        /// <param name="offsetZ">Offset in Z-Richtung</param>
+        /// <returns>Benachbarte Zelle gemäß Offset. Gibt null zurück, falls es keine benachbarte Zelle für den angegebenen Offset gibt.</returns>
+        public FlowFieldCell GetNeighbourCellAtOffset(int offsetX, int offsetZ)
+        {
+            Vector2i giWithOffset = _gridIndex + new Vector2i(offsetX, offsetZ);
+            if (giWithOffset.X >= Parent.GridCellCount.X || giWithOffset.X < 0 || giWithOffset.Y >= Parent.GridCellCount.Z || giWithOffset.Y < 0)
+                return null;
+            else
+                return Parent.Grid[giWithOffset.X, giWithOffset.Y];
+        }
+
+        /// <summary>
+        /// Gibt die aktuell gemessenen Kosten der Zelle an
+        /// </summary>
         public byte Cost
         {
             get
@@ -21,12 +52,16 @@ namespace KWEngine3.Helper
                     return _cost;
                 }
             }
-            set
+            internal set
             {
                 _cost = value;
             }
         }
-        public uint BestCost
+
+        internal Vector3 BestDirection { get; set; }
+        internal Vector2i _gridIndex;
+
+        internal uint BestCost
         {
             get
             {
@@ -44,7 +79,8 @@ namespace KWEngine3.Helper
                 _bestCost = value;
             }
         }
-        public FlowField Parent { get; internal set; }
+
+        internal FlowField Parent { get; set; }
 
         internal byte _cost;
         internal uint _bestCost;
@@ -52,7 +88,7 @@ namespace KWEngine3.Helper
         internal FlowFieldCell(Vector3 worldpos, Vector2i gridIndex, FlowField parent)
         {
             Parent = parent;
-            WorldPos = worldpos;
+            Position = worldpos;
             _gridIndex = gridIndex;
             Cost = 1;
             //CostForFlowField = 1;

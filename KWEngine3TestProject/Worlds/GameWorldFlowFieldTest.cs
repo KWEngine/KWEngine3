@@ -12,19 +12,42 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            /*
-           if(Mouse.IsButtonPressed(MouseButton.Left))
-           {
-                Vector3 cursorPosWorld = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 0);
-                FlowField f = GetFlowField();
-                if(f != null)
+            Vector3 cursorPosWorld = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 0);
+            FlowField f = GetFlowField();
+            if (f != null)
+            {
+                FlowFieldCell ffc = f.GetCellForWorldPosition(cursorPosWorld);
+                if (ffc != null)
+                {
+                    FlowFieldCell ffc2 = ffc.GetNeighbourCellAtOffset(-1, -1);
+                    if(ffc2 != null)
+                    {
+                        Console.WriteLine(ffc2.IndexX + "|" + ffc2.IndexZ + ": " + ffc2.Cost);
+                    }
+                    else
+                    {
+                        Console.WriteLine("offset invalid");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Cursor not inside flow field");
+                }
+
+                /*
+                if (Mouse.IsButtonPressed(MouseButton.Left))
+                {
+
                     f.SetTarget(cursorPosWorld);
-           }
-            */
+                }
+                */
+            }
+            /*
             if (Keyboard.IsKeyPressed(Keys.F2))
             {
                 Window.SetWorld(new GameWorldFlowFieldTest2());
             }
+            */
         }
 
         public override void Prepare()

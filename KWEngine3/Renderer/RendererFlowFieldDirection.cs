@@ -96,7 +96,7 @@ namespace KWEngine3.Renderer
             {
                 for (int z = 0; z < f.Grid.GetLength(1); z++)
                 {
-                    GL.Uniform3(UCenter, f.Grid[x, z].WorldPos);
+                    GL.Uniform3(UCenter, f.Grid[x, z].Position);
 
                     Matrix4 rm = Matrix4.CreateRotationX((float)(Math.PI / 2));
                     GL.ActiveTexture(TextureUnit.Texture0);
@@ -115,7 +115,7 @@ namespace KWEngine3.Renderer
                         {
                             GL.Uniform3(UColor, new Vector3(0, 0, 1));
                         }
-                        rm *= GetRotationMatrixForDirection(f.Grid[x,z].WorldPos, f.Grid[x, z].BestDirection);
+                        rm *= GetRotationMatrixForDirection(f.Grid[x,z].Position, f.Grid[x, z].BestDirection);
                         GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureFlowFieldArrow);
                     }
                     GL.Uniform1(UTexture, 0);

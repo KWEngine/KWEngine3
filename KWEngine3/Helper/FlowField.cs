@@ -229,6 +229,16 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Erfragt Details zu der FlowField-Zelle, die der übergebenen Weltposition entspricht
+        /// </summary>
+        /// <param name="position">Position in Weltkoordinaten</param>
+        /// <returns>Zell-Instanz falls das FlowField diese Position abdeckt - null, falls die Position außerhalb des FlowFields liegt</returns>
+        public FlowFieldCell GetCellForWorldPosition(Vector3 position)
+        {
+            return GetCellFromWorldPosition(position, false);
+        }
+
+        /// <summary>
         /// Gibt an, ob die übergebene Position in der Zielzelle liegt (falls festgelegt)
         /// </summary>
         /// <param name="position">Zu prüfende Position</param>
@@ -303,7 +313,7 @@ namespace KWEngine3.Helper
                     {
                         if (_updateCostField == 1)
                         {
-                            Vector3 rayStart = new Vector3(cell.WorldPos.X, cell.WorldPos.Y + GridCellCount.Y * 0.5f + KWEngine.RAYTRACE_SAFETY_SQ, cell.WorldPos.Z);
+                            Vector3 rayStart = new Vector3(cell.Position.X, cell.Position.Y + GridCellCount.Y * 0.5f + KWEngine.RAYTRACE_SAFETY_SQ, cell.Position.Z);
                             if (HelperIntersection.RaytraceObjectFast(g, rayStart, -Vector3.UnitY))
                             {
                                 if (!hasIncreasedCost)
@@ -315,7 +325,7 @@ namespace KWEngine3.Helper
                         }
                         else
                         {
-                            _hitbox.Update(cell.WorldPos.X, cell.WorldPos.Y, cell.WorldPos.Z);
+                            _hitbox.Update(cell.Position.X, cell.Position.Y, cell.Position.Z);
 
                             foreach(GameObjectHitbox ghb in g._colliderModel._hitboxes)
                             {
@@ -358,18 +368,32 @@ namespace KWEngine3.Helper
             }
         }
 
-        internal FlowFieldCell GetCellFromWorldPosition(Vector3 worldPosition)
+        internal FlowFieldCell GetCellFromWorldPosition(Vector3 worldPosition, bool clampToGrid = true)
         {
-            float percentX = (worldPosition.X - Center.X) / ((GridCellCount.X) * _cellDiametre);
-            float percentZ = (worldPosition.Z - Center.Z) / ((GridCellCount.Z) * _cellDiametre);
+            float percentX = (worldPosition.X - Center.X) / (GridCellCount.X * _cellDiametre);
+            float percentZ = (worldPosition.Z - Center.Z) / (GridCellCount.Z * _cellDiametre);
 
             percentX = MathHelper.Clamp(percentX + 0.5f, 0f, 1f);
             percentZ = MathHelper.Clamp(percentZ + 0.5f, 0f, 1f);
 
-            int x = MathHelper.Clamp((int)(GridCellCount.X * percentX), 0, GridCellCount.X - 1);
-            int z = MathHelper.Clamp((int)(GridCellCount.Z * percentZ), 0, GridCellCount.Z - 1);
-
-            return Grid[x, z];
+            int x, z = -1;
+            if (clampToGrid)
+            {
+                x = MathHelper.Clamp((int)(GridCellCount.X * percentX), 0, GridCellCount.X - 1);
+                z = MathHelper.Clamp((int)(GridCellCount.Z * percentZ), 0, GridCellCount.Z - 1);
+                return Grid[x, z];
+            }
+            else
+            {
+                x = (int)(GridCellCount.X * percentX);
+                z = (int)(GridCellCount.Z * percentZ);
+                Console.WriteLine(x + "|" + z);
+                if (x < 0 || x >= GridCellCount.X || z < 0 && z >= GridCellCount.Z)
+                    return null;
+                else
+                    return Grid[x, z];
+            }
+            
         }
 
         internal void CreateFlowField()

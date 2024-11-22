@@ -17,18 +17,26 @@ namespace KWEngine3TestProject.Classes.WorldFlowFieldTest
             FlowField f = CurrentWorld.GetFlowField();
             if(f != null)
             {
-                if(f.ContainsXZ(this) && f.HasTarget)
+                if(f.ContainsXZ(this) )
                 {
-                    _lastDirections.Enqueue(f.GetBestDirectionForPosition(this.Position));
-                    if (_lastDirections.Count > 60)
-                        _lastDirections.Dequeue();
-
-                    foreach(Vector3 v in _lastDirections)
+                    if (f.HasTarget)
                     {
-                        myNewDirection += v;
+                        _lastDirections.Enqueue(f.GetBestDirectionForPosition(this.Position));
+                        if (_lastDirections.Count > 60)
+                            _lastDirections.Dequeue();
+
+                        foreach (Vector3 v in _lastDirections)
+                        {
+                            myNewDirection += v;
+                        }
+                        myNewDirection = myNewDirection / 60f;
                     }
-                    myNewDirection = myNewDirection / 60f;
+                    else
+                    {
+
+                    }
                 }
+                
             }
 
             if(myNewDirection != Vector3.Zero)
