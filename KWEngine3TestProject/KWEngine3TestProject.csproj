@@ -1203,6 +1203,9 @@
     <None Update="Textures\heightmap3.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Textures\heightmap3x3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Textures\heightmapArena.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

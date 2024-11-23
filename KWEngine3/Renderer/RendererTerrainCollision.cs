@@ -87,30 +87,28 @@ namespace KWEngine3.Renderer
             Sector[,] map = t._gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.mSectorMap;
             foreach (Sector sector in map)
             {
-                if (sector != null)
+                foreach (GeoTerrainTriangle tri in sector.Triangles)
                 {
-                    foreach (GeoTerrainTriangle tri in sector.Triangles)
-                    {
-                        GL.Uniform3(UPosition0, tri.Vertices[0]);
-                        GL.Uniform3(UPosition1, tri.Vertices[1]);
-                        GL.Uniform3(UPosition2, tri.Vertices[2]);
-                        GL.Uniform3(UPosition3, Vector3.Zero);
-                        GL.Uniform1(UIsSector, 0);
-                        GL.DrawArrays(PrimitiveType.Points, 0, 1);
-                    }
-
-                    Vector3 sectorLeftBack = new Vector3(sector.Left, 0, sector.Back);
-                    Vector3 sectorLeftFront = new Vector3(sector.Left, 0, sector.Front);
-                    Vector3 sectorRightFront = new Vector3(sector.Right, 0, sector.Front);
-                    Vector3 sectorRightBack = new Vector3(sector.Right, 0, sector.Back);
-
-                    GL.Uniform3(UPosition0, sectorLeftBack);
-                    GL.Uniform3(UPosition1, sectorLeftFront);
-                    GL.Uniform3(UPosition2, sectorRightFront);
-                    GL.Uniform3(UPosition3, sectorRightBack);
-                    GL.Uniform1(UIsSector, 1);
+                    GL.Uniform3(UPosition0, tri.Vertices[0]);
+                    GL.Uniform3(UPosition1, tri.Vertices[1]);
+                    GL.Uniform3(UPosition2, tri.Vertices[2]);
+                    GL.Uniform3(UPosition3, Vector3.Zero);
+                    GL.Uniform1(UIsSector, 0);
                     GL.DrawArrays(PrimitiveType.Points, 0, 1);
                 }
+
+                Vector3 sectorLeftBack = new Vector3(sector.Left, 0, sector.Back);
+                Vector3 sectorLeftFront = new Vector3(sector.Left, 0, sector.Front);
+                Vector3 sectorRightFront = new Vector3(sector.Right, 0, sector.Front);
+                Vector3 sectorRightBack = new Vector3(sector.Right, 0, sector.Back);
+
+                GL.Uniform3(UPosition0, sectorLeftBack);
+                GL.Uniform3(UPosition1, sectorLeftFront);
+                GL.Uniform3(UPosition2, sectorRightFront);
+                GL.Uniform3(UPosition3, sectorRightBack);
+                GL.Uniform1(UIsSector, 1);
+                GL.DrawArrays(PrimitiveType.Points, 0, 1);
+                
             }
             GL.BindVertexArray(0);
         }

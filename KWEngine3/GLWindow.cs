@@ -30,6 +30,12 @@ namespace KWEngine3
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
         internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
 
+        internal void ResetMouseDeltas()
+        {
+            _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
+            _mouseDeltaToUse = Vector2.Zero;
+        }
+
         // quality related:
         internal PostProcessingQuality _ppQuality = PostProcessingQuality.Standard;
         internal int AnisotropicFilteringLevel { get; set; } = 4;
@@ -279,7 +285,6 @@ namespace KWEngine3
 
             UpdateDeltaTime(e.Time);
             _mouseDeltaToUse = GatherWeightedMovingAvg(MouseState.Delta, (float)(e.Time * 1000.0));
-
             float alpha = UpdateScene();
 
             List<LightObject> pointLights = new();
@@ -822,11 +827,11 @@ namespace KWEngine3
 
         internal float UpdateScene()
         {
-
             List<GameObject> postponedViewSpaceAttachments = new();
             if (KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
             {
                 KWEngine.CurrentWorld._startingFrameActive = false;
+                
             }
             int n = 0;
             if (KWEngine.CurrentWorld._startingFrameActive == false)

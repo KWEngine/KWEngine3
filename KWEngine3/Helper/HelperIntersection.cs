@@ -147,8 +147,7 @@ namespace KWEngine3.Helper
             foreach(TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
             {
                 Vector3 untranslatedPosition = position - new Vector3(t._hitboxes[0]._center.X, 0, t._hitboxes[0]._center.Z);
-                Sector s = t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
-                if (s != null)
+                if (t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                 {
                     GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
                     if (tris.HasValue)
@@ -1295,8 +1294,8 @@ namespace KWEngine3.Helper
             contactPoint = Vector3.Zero;
             GeoModel model = t._gModel.ModelOriginal;
             Vector3 untranslatedPosition = rayOrigin - new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
-            Sector s = model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
-            if (s != null)
+
+            if (model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
             {
                 GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
                 if(tris.HasValue)
@@ -1326,8 +1325,7 @@ namespace KWEngine3.Helper
             surfaceNormal = Vector3.UnitY;
             GeoModel model = t._gModel.ModelOriginal;
             Vector3 untranslatedPosition = rayOrigin - new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
-            Sector s = model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
-            if (s != null)
+            if (model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
             {
                 GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
                 if (tris.HasValue)

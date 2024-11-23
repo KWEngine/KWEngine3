@@ -16,7 +16,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
         private float _limitYUp = 5;
         private float _limitYDown = -75;
         private PlayerState _state = PlayerState.Fall;
-        private float _gravity = 0.005f;
+        private float _gravity = 0.0025f;
         private float _speed = 0.025f;
         private float _momentum = 0;
         private bool _upKeyPressed = false;
@@ -47,7 +47,9 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
 
             if (Position.Y < -25)
             {
-                SetPosition(0, 0, 0);
+                _state = PlayerState.Fall;
+                _momentum = 0f;
+                SetPosition(0, 10, 0);
                 return;
             }
 
@@ -90,7 +92,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 {
                     _state = PlayerState.Jump;
                     SetAnimationPercentage(0);
-                    _momentum = 0.25f;
+                    _momentum = 0.15f;
                     _upKeyPressed = true;
                 }
             }
@@ -128,8 +130,20 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             }
           
             DoStates();
-            DoCollisionDetection();
+            DoCollisionDetectionTerrain();
+            //DoCollisionDetection();
             DoAnimation(running);
+            DoMoveSun();
+        }
+
+        private void DoMoveSun()
+        {
+            LightObject sun = CurrentWorld.GetLightObjectByName("Sun");
+            if(sun != null)
+            {
+                sun.SetPosition(Position.X + 50, 15, Position.Z + 20);
+                sun.SetTarget(Position.X, 0, Position.Z);
+            }
         }
 
         private void DoShoot()
@@ -190,47 +204,28 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
 
         private void DoCollisionDetection()
         {
-            List<Intersection> collisionlist = GetIntersections();
-            bool upCorrection = false;
-            float maxYUpCorrection = 0;
-            foreach (Intersection i in collisionlist)
+            
+        }
+
+        private void DoCollisionDetectionTerrain()
+        {
+            RayTerrainIntersection x = RaytraceTerrainBelowPosition(GetOBBBottom(), true);
+            if(x.IsValid)
             {
-                if (i.Object is Shot)
-                    continue;
-
-                if (i.MTV.Y > maxYUpCorrection)
-                    maxYUpCorrection = i.MTV.Y;
-
-                MoveOffset(new Vector3(i.MTV.X, 0, i.MTV.Z));
-                if (i.MTV.Y > 0)
+                if(_state == PlayerState.OnFloor)
                 {
-                    if (_state == PlayerState.OnFloor)
-                    {
-                        upCorrection = true;
-                    }
-                    else if (_state == PlayerState.Fall)
-                    {
-                        upCorrection = true;
-                        _state = PlayerState.OnFloor;
-                    }
+                    SetPositionY(x.IntersectionPoint.Y);
                 }
-                else if (i.MTV.Y < 0 && Math.Abs(i.MTV.Y) > Math.Abs(i.MTV.X) && Math.Abs(i.MTV.Y) > Math.Abs(i.MTV.Z))
+                else if(_state == PlayerState.Fall)
                 {
-                    if (_state == PlayerState.Jump)
+                    Console.WriteLine(x.Distance);
+                    if (x.Distance < 0.01f)
                     {
-                        _state = PlayerState.Fall;
                         _momentum = 0;
-                        SetAnimationPercentage(0.5f);
+                        _state = PlayerState.OnFloor;
+                        SetPositionY(x.IntersectionPoint.Y);
                     }
                 }
-            }
-            MoveOffset(0, maxYUpCorrection, 0);
-
-            if (_state == PlayerState.OnFloor && !upCorrection)
-            {
-                _state = PlayerState.Fall;
-                _momentum = 0;
-                SetAnimationPercentage(0.5f);
             }
         }
         private void DoAnimation(bool running)

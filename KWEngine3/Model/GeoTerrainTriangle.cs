@@ -88,11 +88,11 @@ namespace KWEngine3.Model
             Normal = CalculateSurfaceNormal(v1, v2, v3);
 
             // Find other 2 normals:
-            Normals[2] = Vector3.Normalize(Vector3.Cross(Normal, Vector3.UnitZ));
+            Normals[2] = Vector3.NormalizeFast(Vector3.Cross(Normal, Vector3.UnitZ));
             if (Normals[2].X < 0)
                 Normals[2] = -Normals[2];
             Normals[1] = Normal;
-            Normals[0] = Vector3.Normalize(Vector3.Cross(Normal, Vector3.UnitX));
+            Normals[0] = Vector3.NormalizeFast(Vector3.Cross(Normal, Vector3.UnitX));
             if (Normals[0].Z < 0)
                 Normals[0] = -Normals[0];
         }

@@ -294,10 +294,11 @@ namespace KWEngine3.GameObjects
         /// Prüft auf eine Strahlenkollision mit einem Terrain-Objekt direkt unterhalb der angegebenen Position
         /// </summary>
         /// <param name="position">Startposition des nach unten gerichteten Teststrahls</param>
+        /// <param name="scanBothDirections">Soll ein weiterer Teststrahl nach oben geschossen werden, falls ein nach unten gerichteter Strahl keinen Treffer findet? (Standard: false)</param>
         /// <returns>Ergebnis der Strahlenkollisionsmessung</returns>
-        public RayTerrainIntersection RaytraceTerrainBelowPosition(Vector3 position)
+        public RayTerrainIntersection RaytraceTerrainBelowPosition(Vector3 position, bool scanBothDirections = false)
         {
-            RayTerrainIntersectionSet set = RaytraceTerrainBelowPositionExt(position, RayMode.SingleY, 1f);
+            RayTerrainIntersectionSet set = RaytraceTerrainBelowPositionExt(position, RayMode.SingleY, 1f, scanBothDirections);
             RayTerrainIntersection result = new RayTerrainIntersection();
             if (set.IsValid)
             {
@@ -315,8 +316,9 @@ namespace KWEngine3.GameObjects
         /// <param name="position">Startposition des nach unten gerichteten Teststrahls</param>
         /// <param name="rayMode">Art der Messung (Standard: SingleY)</param>
         /// <param name="sizeFactor">Skalierungsfaktor der Strahlen (falls mehrere Strahlen verwendet werden)</param>
+        /// <param name="scanBothDirections">Soll ein weiterer Teststrahl nach oben geschossen werden, falls ein nach unten gerichteter Strahl keinen Treffer findet? (Standard: false)</param>
         /// <returns>Ergebnis der Strahlenkollisionsmessung</returns>
-        public RayTerrainIntersectionSet RaytraceTerrainBelowPositionExt(Vector3 position, RayMode rayMode = RayMode.SingleY, float sizeFactor = 1f)
+        public RayTerrainIntersectionSet RaytraceTerrainBelowPositionExt(Vector3 position, RayMode rayMode = RayMode.SingleY, float sizeFactor = 1f, bool scanBothDirections = false)
         {
             RayTerrainIntersectionSet resultSet = new RayTerrainIntersectionSet();
             if (rayMode == RayMode.SingleZ || rayMode == RayMode.FourRaysZ)
@@ -377,8 +379,7 @@ namespace KWEngine3.GameObjects
                 foreach (Vector3 ray in rayOrigins)
                 {
                     Vector3 untranslatedPosition = ray - new Vector3(to._hitboxes[0]._center.X, 0, to._hitboxes[0]._center.Z);
-                    Sector s = to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition);
-                    if(s != null)
+                    if(to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                     {
                         GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
                         if (tris.HasValue)
@@ -387,8 +388,6 @@ namespace KWEngine3.GameObjects
                             if (hit)
                             {
                                 float distance = (untranslatedPosition - offset - contactPoint).LengthFast;
-                                if (position.Y - contactPoint.Y < 0)
-                                    distance *= -1;
 
                                 contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
                                 distanceAvg += distance;
@@ -403,6 +402,32 @@ namespace KWEngine3.GameObjects
                                     resultSet.DistanceMin = distance;
                                     resultSet.SurfaceNormalNearest = tris.Value.Normal;
                                     resultSet.IntersectionPointNearest = contactPoint;
+                                }
+                            }
+                            else
+                            {
+                                if (scanBothDirections)
+                                {
+                                    hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out contactPoint);
+                                    if (hit)
+                                    {
+                                        float distance = (untranslatedPosition - offset - contactPoint).LengthFast * -1f;
+
+                                        contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
+                                        distanceAvg += distance;
+                                        interAvg += contactPoint;
+                                        normalAvg += tris.Value.Normal;
+                                        resultSet.AddSurfaceNormal(tris.Value.Normal);
+                                        resultSet.AddIntersectionPoint(contactPoint);
+                                        resultSet.AddObject(to);
+
+                                        if (distance < distanceMin)
+                                        {
+                                            resultSet.DistanceMin = distance;
+                                            resultSet.SurfaceNormalNearest = tris.Value.Normal;
+                                            resultSet.IntersectionPointNearest = contactPoint;
+                                        }
+                                    }
                                 }
                             }
                         }

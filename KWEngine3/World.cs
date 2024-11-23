@@ -1770,7 +1770,8 @@ namespace KWEngine3
                 GLFW.SetCursorPos(Window.WindowPtr, Window.ClientSize.X / 2, Window.ClientSize.Y / 2);
             }
             Window.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
-            //_startingFrameActive = true;
+            Window.ResetMouseDeltas();
+            _startingFrameActive = true;
         }
         /// <summary>
         /// Verstecke den Mauszeiger
@@ -1796,7 +1797,8 @@ namespace KWEngine3
                 GLFW.SetCursorPos(Window.WindowPtr, Window.ClientSize.X / 2, Window.ClientSize.Y / 2);
             }
             Window.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
-            //_startingFrameActive = true;
+            Window.ResetMouseDeltas();
+            _startingFrameActive = true;
         }
 
         /// <summary>
@@ -1812,6 +1814,11 @@ namespace KWEngine3
             {
                 GLFW.SetCursorPos(Window.WindowPtr, x, y);
             }
+            Window.Mouse._mousePositionFromGLFW = new Vector2(x, y);
+            Window.ResetMouseDeltas();
+            _startingFrameActive = true;
+            Keyboard.DeleteKeys();
+            Mouse.DeleteButtons();
         }
 
         /// <summary>

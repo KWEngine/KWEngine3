@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
 using SkiaSharp;
+using System.Diagnostics;
 
 namespace KWEngine3.Model
 {
@@ -50,12 +51,19 @@ namespace KWEngine3.Model
                     {
                         if (image == null || image.Width % 16 != 0 || image.Height % 16 != 0 || image.Width < 16 || image.Height < 16 || image.Height > 1024 || image.Width > 1024)
                         {
-                            throw new Exception();
+                            throw new Exception("[KWEngine] Height map too small or of invalid type");
+                        }
+
+                        if(image.Width < width || image.Height < depth)
+                        {
+                            KWEngine.LogWriteLine("[KWEngine] WARNING: height map resolution too low for the given width and depth - collision model might be inaccurate");
                         }
 
                         mWidth = width; // terrain width
                         mDepth = depth; // terrain depth
                         mHeight = pHeight;
+
+                        byte[] pixelData = image.GetPixelSpan().ToArray();
 
                         float triangleWidth = 0.5f;
                         float triangleDepth = 0.5f;
@@ -66,29 +74,31 @@ namespace KWEngine3.Model
 
                         mCompleteDiameter = MathF.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
 
-                        List<Vector3> vertices = new();
-
                         int sectorCountX = mWidth / sectorLength;
                         int sectorCountZ = mDepth / sectorLength;
 
                         mSectorMap = new Sector[sectorCountX, sectorCountZ];
-
-                        for (int i = 0; i < mSectorMap.GetLength(0); i++)
+                        for (int i = 0; i < sectorCountX; i++)
                         {
-                            for(int j = 0; j < mSectorMap.GetLength(1); j++)
+                            for(int j = 0; j < sectorCountZ; j++)
                             {
+                                
                                 float sectorLeft = startX + i * sectorLength;
                                 float sectorRight = startX + (i + 1) * sectorLength;
                                 float sectorFront = startZ + (j + 1) * sectorLength;
                                 float sectorBack = startZ + j * sectorLength;
 
+                                float trianglesCountX = (sectorRight - sectorLeft);
+                                float trianglesCountZ = (sectorFront - sectorBack);
+                                int trianglesCountPerSector = (int)((trianglesCountX * trianglesCountZ) / (triangleWidth * triangleDepth) * 2);
+
                                 Sector currentSector = new Sector(
                                     sectorLeft,
                                     sectorRight,
                                     sectorBack,
-                                    sectorFront
+                                    sectorFront,
+                                    trianglesCountPerSector
                                     );
-
 
                                 // generate triangles for this sector:
                                 float h = 0;
@@ -96,23 +106,22 @@ namespace KWEngine3.Model
                                 {
                                     for(float z = sectorBack; z < sectorFront; z += triangleDepth)
                                     {
-                                        h = GetHeightForVertex(x + triangleWidth, z, mWidth, mDepth, mHeight, image);
+                                        h = GetHeightForVertex(x + triangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
                                         Vector3 t0 = new Vector3(x + triangleWidth, h, z);                  // right back
 
-                                        h = GetHeightForVertex(x, z, mWidth, mDepth, mHeight, image);
+                                        h = GetHeightForVertex(x, z, mWidth, mDepth, mHeight, image, pixelData);
                                         Vector3 t1 = new Vector3(x, h, z);                                  // left back
 
-                                        h = GetHeightForVertex(x, z + triangleDepth, mWidth, mDepth, mHeight, image);
+                                        h = GetHeightForVertex(x, z + triangleDepth, mWidth, mDepth, mHeight, image, pixelData);
                                         Vector3 t2 = new Vector3(x, h, z + triangleDepth);                  // left front
 
-
-                                        h = GetHeightForVertex(x, z + triangleDepth, mWidth, mDepth, mHeight, image);
+                                        h = GetHeightForVertex(x, z + triangleDepth, mWidth, mDepth, mHeight, image, pixelData);
                                         Vector3 t3 = new Vector3(x, h, z + triangleDepth);                  // left front
 
-                                        h = GetHeightForVertex(x + triangleWidth, z + triangleDepth, mWidth, mDepth, mHeight, image);
+                                        h = GetHeightForVertex(x + triangleWidth, z + triangleDepth, mWidth, mDepth, mHeight, image, pixelData);
                                         Vector3 t4 = new Vector3(x + triangleWidth, h, z + triangleDepth);  // right front
 
-                                        h = GetHeightForVertex(x + triangleWidth, z, mWidth, mDepth, mHeight, image);
+                                        h = GetHeightForVertex(x + triangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
                                         Vector3 t5 = new Vector3(x + triangleWidth, h, z);                  // right back
 
                                         GeoTerrainTriangle tri0 = new GeoTerrainTriangle(t0, t1, t2);
@@ -120,12 +129,11 @@ namespace KWEngine3.Model
                                         currentSector.AddTriangle(tri0);
                                         currentSector.AddTriangle(tri1);
                                     }
-                                   
                                 }
-
                                 mSectorMap[i, j] = currentSector;
                             }
                         }
+
                         mmp = new GeoMesh();
                         mmp.Name = terrainName;
                         mmp.Transform = Matrix4.Identity;
@@ -156,167 +164,22 @@ namespace KWEngine3.Model
             mmp.Primitive = PrimitiveType.Patches;
             return mmp;
         }
-        /*
-        private List<SectorTuple> GetSectorTuplesForTriangle(GeoTerrainTriangle t)
-        {
-            List<SectorTuple> indices = new List<SectorTuple>();
 
-            float dividerWidth = MathF.Max(mWidth / mSectorMap.GetLength(0), 1f);
-            float dividerDepth = MathF.Max(mDepth / mSectorMap.GetLength(1), 1f);
-
-            foreach (Vector3 v in t.Vertices)
-            {
-                float tmpF1, tmpF2;
-                tmpF1 = v.X + (mWidth / 2);
-                int tmpIndexX1 = Math.Min((int)(tmpF1 / dividerWidth), mSectorMap.GetLength(0) - 1);
-                int tmpIndexX2 = Math.Min((int)Math.Round(tmpF1 / dividerWidth, 0), mSectorMap.GetLength(0) - 1);
-                tmpF2 = v.Z + (mDepth / 2);
-                int tmpIndexZ1 = Math.Min((int)(tmpF2 / dividerDepth), mSectorMap.GetLength(1) - 1);
-                int tmpIndexZ2 = Math.Min((int)Math.Round(tmpF2 / dividerDepth, 0), mSectorMap.GetLength(1) - 1);
-                SectorTuple st1 = new SectorTuple() { X = tmpIndexX1, Y = tmpIndexZ1 };
-                SectorTuple st2 = new SectorTuple() { X = tmpIndexX1, Y = tmpIndexZ2 };
-                SectorTuple st3 = new SectorTuple() { X = tmpIndexX2, Y = tmpIndexZ1 };
-                SectorTuple st4 = new SectorTuple() { X = tmpIndexX2, Y = tmpIndexZ2 };
-
-                if (!indices.Contains(st1))
-                {
-                    indices.Add(st1);
-                }
-                if (!indices.Contains(st2))
-                {
-                    indices.Add(st2);
-                }
-                if (!indices.Contains(st3))
-                {
-                    indices.Add(st3);
-                }
-                if (!indices.Contains(st4))
-                {
-                    indices.Add(st4);
-                }
-            }
-            return indices;
-        }
-        */
-
-        public Sector GetSectorForUntranslatedPosition(Vector3 position)
+        public bool GetSectorForUntranslatedPosition(Vector3 position, out Sector s)
         {
             float tmpF;
             tmpF = position.X + (mWidth / 2);
             int tmpIndexX = Math.Min((int)(tmpF * 0.5f), mSectorMap.GetLength(0) - 1);
             tmpF = position.Z + (mDepth / 2);
             int tmpIndexZ = Math.Min((int)(tmpF * 0.5f), mSectorMap.GetLength(1) - 1);
-
-            if (tmpIndexX < 0 || tmpIndexX >= mSectorMap.GetLength(0)
-                || tmpIndexZ < 0 || tmpIndexZ >= mSectorMap.GetLength(1))
-                return null;
-
-            return mSectorMap[tmpIndexX, tmpIndexZ];
-        }
-
-        /*
-        private void GenerateFaceVertices(
-            List<Vector3> pointList,
-            SideFaceType sideFaceType,
-            ref int vboCounter,
-            ref int normalCounter,
-            ref int uvCounter,
-            ref uint indexCounter,
-            float[] VBOVerticesBufferSideMesh,
-            float[] VBONormalsBufferSideMesh,
-            float[] VBOUVBufferSideMesh,
-            float[] VBOTangentBufferSideMesh,
-            float[] VBOBiTangentBufferSideMesh,
-            List<uint> indicesSideMesh)
-        {
-            for (int i = 0; i < pointList.Count; i++, vboCounter += 6, normalCounter += 6, uvCounter += 4)
+            s = new Sector();
+            if (tmpIndexX < 0 || tmpIndexX >= mSectorMap.GetLength(0) || tmpIndexZ < 0 || tmpIndexZ >= mSectorMap.GetLength(1))
             {
-                Vector3 tmpVertex = pointList[i];
-
-                VBOVerticesBufferSideMesh[vboCounter + 0] = tmpVertex.X;
-                VBOVerticesBufferSideMesh[vboCounter + 1] = tmpVertex.Y;
-                VBOVerticesBufferSideMesh[vboCounter + 2] = tmpVertex.Z;
-                VBOVerticesBufferSideMesh[vboCounter + 3] = tmpVertex.X;
-                VBOVerticesBufferSideMesh[vboCounter + 4] = 0f;
-                VBOVerticesBufferSideMesh[vboCounter + 5] = tmpVertex.Z;
-                if (sideFaceType == SideFaceType.Front || sideFaceType == SideFaceType.Back)
-                {
-                    VBOUVBufferSideMesh[uvCounter + 0] = (tmpVertex.X + mWidth / 2) / mWidth;
-                    VBOUVBufferSideMesh[uvCounter + 1] = tmpVertex.Y / mWidth;
-                    VBOUVBufferSideMesh[uvCounter + 2] = (tmpVertex.X + mWidth / 2) / mWidth;
-                    VBOUVBufferSideMesh[uvCounter + 3] = 0f;
-                }
-                else
-                {
-                    VBOUVBufferSideMesh[uvCounter + 0] = (tmpVertex.Z + mDepth / 2) / mDepth;
-                    VBOUVBufferSideMesh[uvCounter + 1] = tmpVertex.Y / mDepth;
-                    VBOUVBufferSideMesh[uvCounter + 2] = (tmpVertex.Z + mDepth / 2) / mDepth;
-                    VBOUVBufferSideMesh[uvCounter + 3] = 0f;
-                }
-
-                Vector3 n;
-                Vector3 t;
-                Vector3 b;
-                if (sideFaceType == SideFaceType.Front)
-                {
-                    n = Vector3.UnitZ;
-                    t = Vector3.UnitX;
-                    b = Vector3.UnitY;
-                }
-                else if (sideFaceType == SideFaceType.Back)
-                {
-                    n = -Vector3.UnitZ;
-                    t = Vector3.UnitX;
-                    b = Vector3.UnitY;
-                }
-                else if (sideFaceType == SideFaceType.Left)
-                {
-                    n = -Vector3.UnitX;
-                    t = Vector3.UnitZ;
-                    b = Vector3.UnitY;
-                }
-                else
-                {
-                    n = Vector3.UnitX;
-                    t = Vector3.UnitZ;
-                    b = Vector3.UnitY;
-                }
-
-                VBONormalsBufferSideMesh[normalCounter + 0] = n.X;
-                VBONormalsBufferSideMesh[normalCounter + 1] = n.Y;
-                VBONormalsBufferSideMesh[normalCounter + 2] = n.Z;
-                VBONormalsBufferSideMesh[normalCounter + 3] = n.X;
-                VBONormalsBufferSideMesh[normalCounter + 4] = n.Y;
-                VBONormalsBufferSideMesh[normalCounter + 5] = n.Z;
-
-                VBOTangentBufferSideMesh[normalCounter + 0] = t.X;
-                VBOTangentBufferSideMesh[normalCounter + 1] = t.Y;
-                VBOTangentBufferSideMesh[normalCounter + 2] = t.Z;
-                VBOTangentBufferSideMesh[normalCounter + 3] = t.X;
-                VBOTangentBufferSideMesh[normalCounter + 4] = t.Y;
-                VBOTangentBufferSideMesh[normalCounter + 5] = t.Z;
-
-                VBOBiTangentBufferSideMesh[normalCounter + 0] = b.X;
-                VBOBiTangentBufferSideMesh[normalCounter + 1] = b.Y;
-                VBOBiTangentBufferSideMesh[normalCounter + 2] = b.Z;
-                VBOBiTangentBufferSideMesh[normalCounter + 3] = b.X;
-                VBOBiTangentBufferSideMesh[normalCounter + 4] = b.Y;
-                VBOBiTangentBufferSideMesh[normalCounter + 5] = b.Z;
+                return false;
             }
-
-            for (uint i = 0; i < (pointList.Count * 2) - 3; i += 2)
-            {
-                indicesSideMesh.Add(indexCounter + i);
-                indicesSideMesh.Add(indexCounter + i + 1);
-                indicesSideMesh.Add(indexCounter + i + 2);
-
-                indicesSideMesh.Add(indexCounter + i + 1);
-                indicesSideMesh.Add(indexCounter + i + 3);
-                indicesSideMesh.Add(indexCounter + i + 2);
-            }
-            indexCounter += (uint)pointList.Count * 2;
+            s = mSectorMap[tmpIndexX, tmpIndexZ];
+            return true;
         }
-        */
 
         internal void Dispose()
         {
@@ -324,7 +187,7 @@ namespace KWEngine3.Model
             {
                 for (int j = 0; j < mSectorMap.GetLength(1); j++)
                 {
-                    mSectorMap[i, j].Triangles.Clear();
+                    mSectorMap[i, j].Triangles = null;
                 }
             }
             mSectorMap = null;
@@ -345,38 +208,30 @@ namespace KWEngine3.Model
             }
         }
 
-        internal static float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image)
+        internal static float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image, byte[] pixelData)
         {
             float xScaledToImageSize = HelperGeneral.ScaleToRange(x + terrainWidth / 2, 0, terrainWidth, 0, image.Width - 1);
             float zScaledToImageSize = HelperGeneral.ScaleToRange(z + terrainDepth / 2, 0, terrainDepth, 0, image.Height - 1);
-            /*
-            //Console.WriteLine((int)xScaledToImageSize + "||" + (int)zScaledToImageSize);
+            int ix = (int)xScaledToImageSize;
+            int iz = (int)zScaledToImageSize;
 
-            float xPartLeft = 1f - xScaledToImageSize - (int)xScaledToImageSize;
-            float xPartRight = 1f - xPartLeft;
+            int ixNeighbour = Math.Min(ix + 1, image.Width - 1);
+            int izNeighbour = Math.Min(iz + 1, image.Height - 1);
 
-            float zPartUpper = 1f - zScaledToImageSize - (int)zScaledToImageSize;
-            float zPartLower = 1f - zPartUpper;
+            float blendX = xScaledToImageSize - ix;
+            float blendZ = zScaledToImageSize - iz;
 
-            SKColor colorUpperLeft = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
-            float colorUpperLeftNormalized = ((colorUpperLeft.Red + colorUpperLeft.Green + colorUpperLeft.Blue) / 3f) / 255f;
+            int offsetX = iz * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
+            int offsetNeighbourX = iz * image.Width * image.BytesPerPixel + ixNeighbour * image.BytesPerPixel;
+            int offsetNeighbourZ = izNeighbour * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
 
-            SKColor colorUpperRight = image.GetPixel(Math.Min((int)xScaledToImageSize + 1, image.Width - 1), (int)zScaledToImageSize);
-            float colorUpperRightNormalized = ((colorUpperRight.Red + colorUpperRight.Green + colorUpperRight.Blue) / 3f) / 255f;
+            byte colorLoc = pixelData[offsetX];
+            byte colorNX = pixelData[offsetNeighbourX];
+            byte colorNZ = pixelData[offsetNeighbourZ];
 
-            SKColor colorLowerLeft = image.GetPixel((int)xScaledToImageSize, Math.Min((int)zScaledToImageSize + 1, image.Height - 1));
-            float colorLowerLeftNormalized = ((colorLowerLeft.Red + colorLowerLeft.Green + colorLowerLeft.Blue) / 3f) / 255f;
+            float vertexColor = ((colorLoc * (1f - blendX) + colorNX * blendX) + (colorLoc * (1f - blendZ) + colorNZ * blendZ)) * 0.5f;
 
-            SKColor colorLowerRight = image.GetPixel(Math.Min((int)xScaledToImageSize + 1, image.Width - 1), Math.Min((int)zScaledToImageSize + 1, image.Height - 1));
-            float colorLowerRightNormalized = ((colorLowerRight.Red + colorLowerRight.Green + colorLowerRight.Blue) / 3f) / 255f;
-
-            // calculate weighted average of these four colors:
-            float colorLeftRight = colorUpperLeft * 
-            */
-
-            SKColor tmpColor = image.GetPixel((int)xScaledToImageSize, (int)zScaledToImageSize);
-            float normalizedRGB = ((tmpColor.Red + tmpColor.Green + tmpColor.Blue) / 3f) / 255f;
-
+            float normalizedRGB = vertexColor / 255f;
             return normalizedRGB * terrainHeight;
         }
     }

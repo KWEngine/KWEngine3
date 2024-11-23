@@ -3,7 +3,7 @@ using OpenTK.Mathematics;
 
 namespace KWEngine3.Helper
 {
-    internal class Sector
+    internal struct Sector
     {
         internal bool IsValid { get; set; }
         public float Left { get; set; }
@@ -13,7 +13,8 @@ namespace KWEngine3.Helper
 
         public Vector2 Center { get;  set; }
 
-        internal List<GeoTerrainTriangle> Triangles { get; set; }
+        internal GeoTerrainTriangle[] Triangles { get; set; }
+        internal int tcounter = 0;
 
         public Sector()
         {
@@ -22,12 +23,13 @@ namespace KWEngine3.Helper
             Back = 0;
             Front = 0;
 
-            Center = new Vector2(0,0);
+            Center = new Vector2(0, 0);
 
             IsValid = true; // for overhaul!
-            Triangles = new List<GeoTerrainTriangle>();
+            Triangles = new GeoTerrainTriangle[0];
         }
-        public Sector(float l, float r, float b, float f)
+
+        public Sector(float l, float r, float b, float f, int tCount)
         {
             Left = l;
             Right = r;
@@ -37,13 +39,13 @@ namespace KWEngine3.Helper
             Center = new Vector2((l + r) / 2f, (b + f) / 2f);
 
             IsValid = true;
-            Triangles = new List<GeoTerrainTriangle>();
+            Triangles = new GeoTerrainTriangle[tCount]; // !!!!!!
         }
+        
 
         public void AddTriangle(GeoTerrainTriangle t)
         {
-            if(Triangles.Contains(t) == false)
-                Triangles.Add(t);
+            Triangles[tcounter++] = t;
         }
 
         public GeoTerrainTriangle? GetTriangle(ref Vector3 untranslatedPosition)

@@ -39,7 +39,7 @@ namespace KWEngine3
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
         public bool IsButtonPressed(MouseButton button)
         {
-            bool down = KWEngine.Window.MouseState.IsButtonDown(button);
+            bool down = KWEngine.Window.MouseState.IsButtonPressed(button);
             if (down)
             {
                 bool result = _buttonsPressed.TryGetValue(button, out MouseExtState t);
