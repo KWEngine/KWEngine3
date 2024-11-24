@@ -184,7 +184,7 @@ namespace KWEngine3.Helper
             {
                 if(!usedterrainNames.Contains(st.ModelName))
                 {
-                    KWEngine.BuildTerrainModel(st.ModelName, st.ModelPath, st.Width, st.Depth, st.Height);
+                    KWEngine.BuildTerrainModel(st.ModelName, st.ModelPath, st.Height);
                     usedterrainNames.Add(st.ModelName);
                 }
             }

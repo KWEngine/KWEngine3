@@ -42,11 +42,11 @@ namespace KWEngine3TestProject.Worlds
         {
             KWEngine.LoadModel("UBot", @".\Models\ThirdPersonView\ubot.fbx");
 
-            SetColorAmbient(0.25f, 0.25f, 0.25f);
+           
             SetBackgroundBrightnessMultiplier(4);
             SetBackgroundSkybox(@".\Textures\skybox.dds");
 
-            /*
+            
             Floor f01 = new Floor();
             f01.Name = "Floor";
             f01.SetModel("KWCube");
@@ -55,7 +55,7 @@ namespace KWEngine3TestProject.Worlds
             f01.IsShadowCaster = true;                                                // does the object cast and receive shadows? (default: false)
             f01.IsCollisionObject = true;
             AddGameObject(f01);
-            */
+            
 
             PlayerThirdPerson p01 = new PlayerThirdPerson();
             p01.SetModel("UBot");
@@ -81,22 +81,33 @@ namespace KWEngine3TestProject.Worlds
             crosshair.SetTexture(@".\textures\crosshair.dds");
             AddHUDObject(crosshair);
             */
+
+            
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.Name = "Sun";
             sun.SetFOV(32);
-            sun.SetNearFar(20, 100);
+            sun.SetNearFar(1, 200);
             sun.SetPosition(50, 15, 20);
             sun.SetColor(1, 0.9f, 0.8f, 2.5f);
             AddLightObject(sun);
-
-            KWEngine.BuildTerrainModel("t", "./Textures/heightmap.png", 64, 64, 5);
+            
+            
+            SetColorAmbient(0.25f, 0.25f, 0.25f);
+            KWEngine.BuildTerrainModel("t", "./Textures/heightmap512.png", 25);
             TerrainObject t = new TerrainObject("t");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
+            t.SetColor(1, 0, 0);
             t.Name = "t";
             AddTerrainObject(t);
 
+            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T32;
+            //KWEngine.DebugMode = DebugMode.TerrainCollisionModel;
+
             MouseCursorGrab();
+
+            SetCameraPosition(0, 150, 0);
+            SetCameraTarget(0, 0, 0);
         }
     }
 }

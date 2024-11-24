@@ -93,7 +93,12 @@
         /// <summary>
         /// Zeige Tiefenpuffer für die dritte Shadow-Map (falls vorhanden)
         /// </summary>
-        DepthBufferShadowMap3 = 9
+        DepthBufferShadowMap3 = 9,
+        /// <summary>
+        /// Zeige Kollisionsmodell aller TerrainObjekt-Instanzen (falls vorhanden)
+        /// </summary>
+        TerrainCollisionModel = 10
+        
     }
 
     /// <summary>

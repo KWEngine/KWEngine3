@@ -528,11 +528,9 @@ namespace KWEngine3
         /// Baut ein Terrain-Modell
         /// </summary>
         /// <param name="name">Name des Modells</param>
-        /// <param name="heightmap">Heightmap Textur</param>
-        /// <param name="width">Breite (x-Achse, gültige Werte in 16er-Schritten bis max. 1024)</param>
-        /// <param name="depth">Tiefe (z-Achse, gültige Werte in 16er-Schritten bis max. 1024)</param>
-        /// <param name="height">Höhe (y-Achse, gültige Werte von 0 bis 64)</param>
-        public static void BuildTerrainModel(string name, string heightmap, int width, int depth, int height)
+        /// <param name="heightmap">Heightmap Textur (maximal: 1024x1024px)</param>
+        /// <param name="height">Höhe (y-Achse, gültige Werte von 0 bis 128)</param>
+        public static void BuildTerrainModel(string name, string heightmap, int height)
         {
             if (name == null || name.Trim().Length == 0)
             {
@@ -545,10 +543,7 @@ namespace KWEngine3
                 return;
             }
             
-
-            width = Math.Clamp(width - (width % 16), 16, 1024);
-            depth = Math.Clamp(depth - (depth % 16), 16, 1024);
-            height = Math.Clamp(height, 0, 64);
+            height = Math.Clamp(height, 0, 128);
 
             if (Models.ContainsKey(name))
             {
@@ -563,31 +558,34 @@ namespace KWEngine3
             };
 
             GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain(name, heightmap, width, height, depth);
-            terrainMesh.Terrain = t;
-            GeoMaterial mat = new()
+            GeoMesh terrainMesh = t.BuildTerrain(name, heightmap, height, out int width, out int depth);
+            if (terrainMesh != null)
             {
-                BlendMode = BlendingFactor.OneMinusSrcAlpha,
-                ColorAlbedo = new Vector4(1, 1, 1, 1),
-                ColorEmissive = new Vector4(0, 0, 0, 0),
-                Metallic = 0,
-                Roughness = 1
-            };
-            terrainMesh.Material = mat;
-            terrainModel.Meshes.Add("Terrain", terrainMesh);
+                terrainMesh.Terrain = t;
+                GeoMaterial mat = new()
+                {
+                    BlendMode = BlendingFactor.OneMinusSrcAlpha,
+                    ColorAlbedo = new Vector4(1, 1, 1, 1),
+                    ColorEmissive = new Vector4(0, 0, 0, 0),
+                    Metallic = 0,
+                    Roughness = 1
+                };
+                terrainMesh.Material = mat;
+                terrainModel.Meshes.Add("Terrain", terrainMesh);
 
-            GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null)
-            {
-                Model = terrainModel,
-                Name = name
-            };
+                GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null)
+                {
+                    Model = terrainModel,
+                    Name = name
+                };
 
-            terrainModel.MeshCollider.MeshHitboxes = new()
-            {
-                meshHitBox
-            };
+                terrainModel.MeshCollider.MeshHitboxes = new()
+                {
+                    meshHitBox
+                };
 
-            KWEngine.Models.Add(name, terrainModel);
+                KWEngine.Models.Add(name, terrainModel);
+            }
         }
 
         /// <summary>

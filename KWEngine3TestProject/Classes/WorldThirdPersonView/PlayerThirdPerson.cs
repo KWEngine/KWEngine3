@@ -134,6 +134,27 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             //DoCollisionDetection();
             DoAnimation(running);
             DoMoveSun();
+
+            if(Keyboard.IsKeyPressed(Keys.F1))
+            {
+                CurrentWorld.SetCameraPosition(-150, 75, -150);
+                CurrentWorld.SetCameraTarget(0, 10, 0);
+            }
+            if (Keyboard.IsKeyPressed(Keys.F2))
+            {
+                CurrentWorld.SetCameraPosition(150, 75, -150);
+                CurrentWorld.SetCameraTarget(0, 10, 0);
+            }
+            if (Keyboard.IsKeyPressed(Keys.F3))
+            {
+                CurrentWorld.SetCameraPosition(-150, 75, 150);
+                CurrentWorld.SetCameraTarget(0, 10, 0);
+            }
+            if (Keyboard.IsKeyPressed(Keys.F4))
+            {
+                CurrentWorld.SetCameraPosition(150, 75, 150);
+                CurrentWorld.SetCameraTarget(0, 10, 0);
+            }
         }
 
         private void DoMoveSun()
@@ -141,8 +162,8 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             LightObject sun = CurrentWorld.GetLightObjectByName("Sun");
             if(sun != null)
             {
-                sun.SetPosition(Position.X + 50, 15, Position.Z + 20);
-                sun.SetTarget(Position.X, 0, Position.Z);
+                sun.SetPosition(Position.X + 50, Position.Y + 25, Position.Z + 20);
+                sun.SetTarget(Position.X, Position.Y, Position.Z);
             }
         }
 
@@ -218,7 +239,6 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
                 }
                 else if(_state == PlayerState.Fall)
                 {
-                    Console.WriteLine(x.Distance);
                     if (x.Distance < 0.01f)
                     {
                         _momentum = 0;
@@ -281,7 +301,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             // Berechne die neue Kameraposition anhand der gesammelten Infos:
             Vector3 newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
                     playerPosition,                  // Drehpunkt
-                    10f,                             // Distanz zum Drehpunkt
+                    20f,                             // Distanz zum Drehpunkt
                     _currentCameraRotation.X,        // Drehung links/rechts
                     _currentCameraRotation.Y,        // Drehung oben/unten
                     false,                           // invertiere links/rechts?
@@ -290,6 +310,8 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             // Setze die neue Kameraposition und das Kameraziel:
             CurrentWorld.SetCameraPosition(newCamPos + offsetCamPos);
             CurrentWorld.SetCameraTarget(playerPosition + offsetCamTarget);
+
+            
         }
     }
 }

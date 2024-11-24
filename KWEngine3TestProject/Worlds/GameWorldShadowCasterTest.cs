@@ -23,7 +23,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(5, 1, 5);
             SetCameraTarget(0, 0, 0);
             SetColorAmbient(0.1f, 0.1f, 0.1f);
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 16, 16, 2);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 2);
             
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(-10, 25, 10);

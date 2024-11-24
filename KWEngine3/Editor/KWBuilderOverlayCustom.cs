@@ -75,7 +75,7 @@ namespace KWEngine3.Editor
 
         private static void DrawGridAndBoundingBox()
         {
-            if (KWEngine.DebugMode != DebugMode.None && !RenderManager.IsCurrentDebugMapACubeMap()) return;
+            if ((int)KWEngine.DebugMode > 0 && (int)KWEngine.DebugMode <= 9 && !RenderManager.IsCurrentDebugMapACubeMap()) return;
 
             GL.Disable(EnableCap.DepthTest);
             RendererGrid.Bind();
@@ -990,7 +990,7 @@ namespace KWEngine3.Editor
                 ImGui.EndMenu();
             }
 
-            if(ImGui.BeginMenu("Debug Mode"))
+            if (ImGui.BeginMenu("Debug Mode"))
             {
                 // Debug Modes:
                 // 1 = Depth
@@ -1030,7 +1030,10 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.DebugMode = DebugMode.MetallicRoughness;
                 }
-
+                if (ImGui.MenuItem("Terrain collision" + (!(KWEngine.CurrentWorld._terrainObjects.Count > 0) ? " (no terrains found)" : ""), "", KWEngine.DebugMode == DebugMode.TerrainCollisionModel))
+                {
+                    KWEngine.DebugMode = DebugMode.TerrainCollisionModel;
+                }
 
                 // shadow maps
                 List<FramebufferShadowMap> maps = new();
@@ -1041,18 +1044,28 @@ namespace KWEngine3.Editor
                         maps.Add(l._fbShadowMap);
                     }
                 }
-                if (maps.Count >= 1 && ImGui.MenuItem("Shadow map #1", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap1))
+                if (maps.Count >= 1)
                 {
-                    KWEngine.DebugMode = DebugMode.DepthBufferShadowMap1;
+                    if (ImGui.MenuItem("Shadow map #1", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap1))
+                    {
+                        KWEngine.DebugMode = DebugMode.DepthBufferShadowMap1;
+                    }
                 }
-                if (ImGui.MenuItem("Shadow map #2", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap2))
+                if (maps.Count >= 2)
                 {
-                    KWEngine.DebugMode = DebugMode.DepthBufferShadowMap2;
+                    if (ImGui.MenuItem("Shadow map #2", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap2))
+                    {
+                        KWEngine.DebugMode = DebugMode.DepthBufferShadowMap2;
+                    }
                 }
-                if (ImGui.MenuItem("Shadow map #3", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap3))
-                {
-                    KWEngine.DebugMode = DebugMode.DepthBufferShadowMap3;
+                if (maps.Count >= 3) 
+                { 
+                    if (ImGui.MenuItem("Shadow map #3", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap3))
+                    {
+                        KWEngine.DebugMode = DebugMode.DepthBufferShadowMap3;
+                    }
                 }
+
                 ImGui.EndMenu();
             }
 

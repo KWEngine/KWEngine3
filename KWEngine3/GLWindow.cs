@@ -511,17 +511,17 @@ namespace KWEngine3
                     RendererParticle.RenderParticles(KWEngine.CurrentWorld._particleAndExplosionObjects);
                 }
             }
-            GL.Disable(EnableCap.DepthTest);
 
-            // Terrain collision patch debug pass:
-            /*
-            RendererTerrainCollision.Bind();
-            RendererTerrainCollision.SetGlobals();
-            foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+            if (KWEngine.DebugMode == DebugMode.TerrainCollisionModel && KWEngine.CurrentWorld._terrainObjects.Count > 0)
             {
-                RendererTerrainCollision.Draw(t);
+                // Terrain collision patch debug pass:
+                RendererTerrainCollision.Bind();
+                RendererTerrainCollision.SetGlobals();
+                foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+                {
+                    RendererTerrainCollision.Draw(t);
+                }
             }
-            */
 
             // HUD objects:
             RendererHUD.Bind();
@@ -557,7 +557,7 @@ namespace KWEngine3
             RendererCopy.Bind();
             RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0], fadeColor);
 
-            if((int)KWEngine.DebugMode > 0)
+            if((int)KWEngine.DebugMode > 0 && (int)KWEngine.DebugMode < 10)
             {
                 RenderManager.BindScreen();
 

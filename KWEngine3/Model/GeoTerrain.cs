@@ -19,7 +19,9 @@ namespace KWEngine3.Model
         private int mWidth = 0;
         private int mDepth = 0;
         private int mHeight = 0;
-        //private int mSectorSize = 2;
+        private int mSectorLength = 2;
+        private float mTriangleWidth = 0.5f;
+        private float mTriangleDepth = 0.5f;
         internal int _texHeight = -1;
         internal Sector[,] mSectorMap;
         private float mCompleteDiameter;
@@ -40,8 +42,10 @@ namespace KWEngine3.Model
             return mDepth;
         }
 
-        internal GeoMesh BuildTerrain(string terrainName, string heightMap, int width, int pHeight, int depth)
+        internal GeoMesh BuildTerrain(string terrainName, string heightMap, int pHeight, out int width, out int depth)
         {
+            width = -1;
+            depth = -1;
             GeoMesh mmp;
             try
             {
@@ -51,31 +55,29 @@ namespace KWEngine3.Model
                     {
                         if (image == null || image.Width % 16 != 0 || image.Height % 16 != 0 || image.Width < 16 || image.Height < 16 || image.Height > 1024 || image.Width > 1024)
                         {
-                            throw new Exception("[KWEngine] Height map too small or of invalid type");
+                            throw new Exception();
                         }
 
-                        if(image.Width < width || image.Height < depth)
-                        {
-                            KWEngine.LogWriteLine("[KWEngine] WARNING: height map resolution too low for the given width and depth - collision model might be inaccurate");
-                        }
+                        mWidth = image.Width; // terrain width
+                        mDepth = image.Height; // terrain depth
+                        width = mWidth;
+                        depth = mDepth;
 
-                        mWidth = width; // terrain width
-                        mDepth = depth; // terrain depth
                         mHeight = pHeight;
 
                         byte[] pixelData = image.GetPixelSpan().ToArray();
 
-                        float triangleWidth = 0.5f;
-                        float triangleDepth = 0.5f;
-                        int sectorLength = 2;
+                        mTriangleWidth = 1;
+                        mTriangleDepth = 1;
+                        mSectorLength = 8;
 
                         int startX = -mWidth / 2;
                         int startZ = -mDepth / 2;
 
                         mCompleteDiameter = MathF.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
 
-                        int sectorCountX = mWidth / sectorLength;
-                        int sectorCountZ = mDepth / sectorLength;
+                        int sectorCountX = mWidth / mSectorLength;
+                        int sectorCountZ = mDepth / mSectorLength;
 
                         mSectorMap = new Sector[sectorCountX, sectorCountZ];
                         for (int i = 0; i < sectorCountX; i++)
@@ -83,14 +85,14 @@ namespace KWEngine3.Model
                             for(int j = 0; j < sectorCountZ; j++)
                             {
                                 
-                                float sectorLeft = startX + i * sectorLength;
-                                float sectorRight = startX + (i + 1) * sectorLength;
-                                float sectorFront = startZ + (j + 1) * sectorLength;
-                                float sectorBack = startZ + j * sectorLength;
+                                float sectorLeft = startX + i * mSectorLength;
+                                float sectorRight = startX + (i + 1) * mSectorLength;
+                                float sectorFront = startZ + (j + 1) * mSectorLength;
+                                float sectorBack = startZ + j * mSectorLength;
 
-                                float trianglesCountX = (sectorRight - sectorLeft);
-                                float trianglesCountZ = (sectorFront - sectorBack);
-                                int trianglesCountPerSector = (int)((trianglesCountX * trianglesCountZ) / (triangleWidth * triangleDepth) * 2);
+                                float trianglesCountX = (sectorRight - sectorLeft) / mTriangleWidth;
+                                float trianglesCountZ = (sectorFront - sectorBack) / mTriangleDepth;
+                                int trianglesCountPerSector = (int)(trianglesCountX * trianglesCountZ) * 2;
 
                                 Sector currentSector = new Sector(
                                     sectorLeft,
@@ -102,27 +104,27 @@ namespace KWEngine3.Model
 
                                 // generate triangles for this sector:
                                 float h = 0;
-                                for (float x = sectorLeft; x < sectorRight; x += triangleWidth)
+                                for (float x = sectorLeft; x < sectorRight; x += mTriangleWidth)
                                 {
-                                    for(float z = sectorBack; z < sectorFront; z += triangleDepth)
+                                    for(float z = sectorBack; z < sectorFront; z += mTriangleDepth)
                                     {
-                                        h = GetHeightForVertex(x + triangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t0 = new Vector3(x + triangleWidth, h, z);                  // right back
+                                        h = GetHeightForVertex(x + mTriangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
+                                        Vector3 t0 = new Vector3(x + mTriangleWidth, h, z);                  // right back
 
                                         h = GetHeightForVertex(x, z, mWidth, mDepth, mHeight, image, pixelData);
                                         Vector3 t1 = new Vector3(x, h, z);                                  // left back
 
-                                        h = GetHeightForVertex(x, z + triangleDepth, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t2 = new Vector3(x, h, z + triangleDepth);                  // left front
+                                        h = GetHeightForVertex(x, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                                        Vector3 t2 = new Vector3(x, h, z + mTriangleDepth);                  // left front
 
-                                        h = GetHeightForVertex(x, z + triangleDepth, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t3 = new Vector3(x, h, z + triangleDepth);                  // left front
+                                        h = GetHeightForVertex(x, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                                        Vector3 t3 = new Vector3(x, h, z + mTriangleDepth);                  // left front
 
-                                        h = GetHeightForVertex(x + triangleWidth, z + triangleDepth, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t4 = new Vector3(x + triangleWidth, h, z + triangleDepth);  // right front
+                                        h = GetHeightForVertex(x + mTriangleWidth, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                                        Vector3 t4 = new Vector3(x + mTriangleWidth, h, z + mTriangleDepth);  // right front
 
-                                        h = GetHeightForVertex(x + triangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t5 = new Vector3(x + triangleWidth, h, z);                  // right back
+                                        h = GetHeightForVertex(x + mTriangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
+                                        Vector3 t5 = new Vector3(x + mTriangleWidth, h, z);                  // right back
 
                                         GeoTerrainTriangle tri0 = new GeoTerrainTriangle(t0, t1, t2);
                                         GeoTerrainTriangle tri1 = new GeoTerrainTriangle(t3, t4, t5);
@@ -143,7 +145,8 @@ namespace KWEngine3.Model
             catch (Exception)
             {
                 KWEngine.LogWriteLine("[KWEngine] Height map image invalid or its width/height is not a multiple of 16 (range is from 16 - 1024px)");
-                //DeleteOpenGLHeightMap(heightMap);
+                width = -1;
+                depth = -1;
                 return null;
             }
             _heightMapName = heightMap;
@@ -169,9 +172,9 @@ namespace KWEngine3.Model
         {
             float tmpF;
             tmpF = position.X + (mWidth / 2);
-            int tmpIndexX = Math.Min((int)(tmpF * 0.5f), mSectorMap.GetLength(0) - 1);
+            int tmpIndexX = Math.Min((int)(tmpF / mSectorLength), mSectorMap.GetLength(0) - 1);
             tmpF = position.Z + (mDepth / 2);
-            int tmpIndexZ = Math.Min((int)(tmpF * 0.5f), mSectorMap.GetLength(1) - 1);
+            int tmpIndexZ = Math.Min((int)(tmpF / mSectorLength), mSectorMap.GetLength(1) - 1);
             s = new Sector();
             if (tmpIndexX < 0 || tmpIndexX >= mSectorMap.GetLength(0) || tmpIndexZ < 0 || tmpIndexZ >= mSectorMap.GetLength(1))
             {
@@ -208,20 +211,19 @@ namespace KWEngine3.Model
             }
         }
 
-        internal static float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image, byte[] pixelData)
+        internal float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image, byte[] pixelData)
         {
-            float xScaledToImageSize = HelperGeneral.ScaleToRange(x + terrainWidth / 2, 0, terrainWidth, 0, image.Width - 1);
-            float zScaledToImageSize = HelperGeneral.ScaleToRange(z + terrainDepth / 2, 0, terrainDepth, 0, image.Height - 1);
-            int ix = (int)xScaledToImageSize;
-            int iz = (int)zScaledToImageSize;
+            float xScaledToImageSize = Math.Clamp(HelperGeneral.ScaleToRange(x, -terrainWidth / 2f + 0.5f, terrainWidth / 2f - 0.5f, 0, image.Width - 1), 0f, image.Width - 1f);
+            float zScaledToImageSize = Math.Clamp(HelperGeneral.ScaleToRange(z, -terrainDepth / 2f + 0.5f, terrainDepth / 2f - 0.5f, 0, image.Height - 1), 0f, image.Height - 1f);
+
+            int ix = (int)(xScaledToImageSize);
+            int iz = (int)(zScaledToImageSize);
+            int offsetX = iz * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
 
             int ixNeighbour = Math.Min(ix + 1, image.Width - 1);
             int izNeighbour = Math.Min(iz + 1, image.Height - 1);
-
             float blendX = xScaledToImageSize - ix;
             float blendZ = zScaledToImageSize - iz;
-
-            int offsetX = iz * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
             int offsetNeighbourX = iz * image.Width * image.BytesPerPixel + ixNeighbour * image.BytesPerPixel;
             int offsetNeighbourZ = izNeighbour * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
 
@@ -230,7 +232,6 @@ namespace KWEngine3.Model
             byte colorNZ = pixelData[offsetNeighbourZ];
 
             float vertexColor = ((colorLoc * (1f - blendX) + colorNX * blendX) + (colorLoc * (1f - blendZ) + colorNZ * blendZ)) * 0.5f;
-
             float normalizedRGB = vertexColor / 255f;
             return normalizedRGB * terrainHeight;
         }

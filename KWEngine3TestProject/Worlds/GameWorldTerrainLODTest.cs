@@ -21,7 +21,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             
-            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap3.png", 32, 32, 5);
+            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap3.png", 5);
 
             SetCameraFOV(90);
             SetColorAmbient(0.25f, 0.25f, 0.25f);

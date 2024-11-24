@@ -235,6 +235,7 @@
       <Method Name="InitHitboxes" Hidden="true" />
       <Property Name="IsAttachedToGameObject" Hidden="true" />
       <Property Name="IsAttachedToViewSpaceGameObject" Hidden="true" />
+      <Method Name="IsRayModeY" Hidden="true" />
       <Method Name="RemoveHitboxesFromWorldHitboxList" Hidden="true" />
       <Method Name="ResetBoneAttachments" Hidden="true" />
       <Method Name="SetScaleRotationAndTranslation" Hidden="true" />

@@ -17,6 +17,9 @@ namespace KWEngine3.Renderer
         public static int UPosition1 { get; private set; } = -1;
         public static int UPosition2 { get; private set; } = -1;
         public static int UPosition3 { get; private set; } = -1;
+        public static int UPositions { get; private set; } = -1;
+        public static int UPositionsCount { get; private set; } = -1;
+
         public static int UModelViewProjection { get; private set; } = -1;
         public static int UIsSector { get; private set; } = -1;
 
@@ -64,6 +67,8 @@ namespace KWEngine3.Renderer
                 UPosition1 = GL.GetUniformLocation(ProgramID, "uPosition1");
                 UPosition2 = GL.GetUniformLocation(ProgramID, "uPosition2");
                 UPosition3 = GL.GetUniformLocation(ProgramID, "uPosition3");
+                UPositions = GL.GetUniformLocation(ProgramID, "uPositions");
+                UPositionsCount = GL.GetUniformLocation(ProgramID, "uPositionsCount");
                 UModelViewProjection = GL.GetUniformLocation(ProgramID, "uModelViewProjection");
                 UIsSector = GL.GetUniformLocation(ProgramID, "uIsSector");
             }
@@ -87,15 +92,47 @@ namespace KWEngine3.Renderer
             Sector[,] map = t._gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.mSectorMap;
             foreach (Sector sector in map)
             {
+                List<float> tripositions = new();
+                List<float> tripositions2 = new();
+                int c = 0;
                 foreach (GeoTerrainTriangle tri in sector.Triangles)
                 {
-                    GL.Uniform3(UPosition0, tri.Vertices[0]);
-                    GL.Uniform3(UPosition1, tri.Vertices[1]);
-                    GL.Uniform3(UPosition2, tri.Vertices[2]);
-                    GL.Uniform3(UPosition3, Vector3.Zero);
-                    GL.Uniform1(UIsSector, 0);
-                    GL.DrawArrays(PrimitiveType.Points, 0, 1);
+                    if (c > sector.Triangles.Length / 2)
+                    {
+                        tripositions2.Add(tri.Vertices[0].X);
+                        tripositions2.Add(tri.Vertices[0].Y);
+                        tripositions2.Add(tri.Vertices[0].Z);
+                        tripositions2.Add(tri.Vertices[1].X);
+                        tripositions2.Add(tri.Vertices[1].Y);
+                        tripositions2.Add(tri.Vertices[1].Z);
+                        tripositions2.Add(tri.Vertices[2].X);
+                        tripositions2.Add(tri.Vertices[2].Y);
+                        tripositions2.Add(tri.Vertices[2].Z);
+                    }
+                    else
+                    {
+                        tripositions.Add(tri.Vertices[0].X);
+                        tripositions.Add(tri.Vertices[0].Y);
+                        tripositions.Add(tri.Vertices[0].Z);
+                        tripositions.Add(tri.Vertices[1].X);
+                        tripositions.Add(tri.Vertices[1].Y);
+                        tripositions.Add(tri.Vertices[1].Z);
+                        tripositions.Add(tri.Vertices[2].X);
+                        tripositions.Add(tri.Vertices[2].Y);
+                        tripositions.Add(tri.Vertices[2].Z);
+                    }
+
+                    c++;
                 }
+
+                GL.Uniform1(UPositionsCount, tripositions.Count / 3);
+                GL.Uniform3(UPositions, tripositions.Count / 3, tripositions.ToArray());
+                GL.Uniform1(UIsSector, 0);
+                GL.DrawArrays(PrimitiveType.Points, 0, 1);
+                GL.Uniform1(UPositionsCount, tripositions2.Count / 3);
+                GL.Uniform3(UPositions, tripositions2.Count / 3, tripositions2.ToArray());
+                GL.Uniform1(UIsSector, 0);
+                GL.DrawArrays(PrimitiveType.Points, 0, 1);
 
                 Vector3 sectorLeftBack = new Vector3(sector.Left, 0, sector.Back);
                 Vector3 sectorLeftFront = new Vector3(sector.Left, 0, sector.Front);

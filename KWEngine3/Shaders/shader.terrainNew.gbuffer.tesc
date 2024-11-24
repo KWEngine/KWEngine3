@@ -30,7 +30,8 @@ uniform int uTerrainThreshold;
 
 int getTLevel(vec3 dir, float dp)
 {
-    dp = step(0, dp); // if dp < 0 => 0, else 1
+    //dp = step(0, dp); // if dp < 0 => 0, else 1
+    dp = 1.0;
     float l = dot(dir, dir) + ((1 - dp) * (uTerrainThreshold * 32));
 
     if(l < uTerrainThreshold) // 1024
