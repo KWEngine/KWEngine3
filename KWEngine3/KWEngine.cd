@@ -19,6 +19,7 @@
       <Field Name="MOUSEDELTAMAXSAMPLECOUNT" Hidden="true" />
       <Method Name="OnClosing" Hidden="true" />
       <Method Name="OnKeyDown" Hidden="true" />
+      <Method Name="OnKeyUp" Hidden="true" />
       <Method Name="OnLoad" Hidden="true" />
       <Method Name="OnMouseDown" Hidden="true" />
       <Method Name="OnMouseMove" Hidden="true" />
@@ -29,13 +30,14 @@
       <Method Name="OnTextInput" Hidden="true" />
       <Property Name="Overlay" Hidden="true" />
       <Method Name="RenderOverlay" Hidden="true" />
+      <Method Name="ResetMouseDeltas" Hidden="true" />
       <Method Name="SetWorldInternal" Hidden="true" />
       <Method Name="UpdateCurrentWorldAndObjects" Hidden="true" />
       <Method Name="UpdateDeltaTime" Hidden="true" />
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiEBAAABQAAAQyAUAkBgEASAhIABCQAYAEAUAEuAgA=</HashCode>
+      <HashCode>AAiEBAAABQCAAQyAUAkBgEASAhIABCQAYAEAUAEuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>

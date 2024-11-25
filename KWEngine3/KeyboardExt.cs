@@ -30,7 +30,7 @@ namespace KWEngine3
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
         public bool IsKeyPressed(Keys key)
         {
-            bool down = KWEngine.Window.KeyboardState.IsKeyPressed(key);
+            bool down = KWEngine.Window.KeyboardState.IsKeyDown(key);
             if (down)
             {
                 bool result = _keysPressed.TryGetValue(key, out KeyboardExtState t);
@@ -49,13 +49,7 @@ namespace KWEngine3
                     return true;
                 }
             }
-            else
-            {
-                bool result = _keysPressed.TryGetValue(key, out KeyboardExtState t);
-                if (result)
-                    _keysPressed.Remove(key);
-                return false;
-            }
+            return false;
         }
 
         internal void ChangeToOldWorld(Keys k)

@@ -719,6 +719,12 @@ namespace KWEngine3
         {
             base.OnMouseUp(e);
             KWBuilderOverlay.HandleMouseButtonStatus(e.Button, false);
+
+            if (_mouse._buttonsPressed.TryGetValue(e.Button, out MouseExtState m))
+            {
+                if (m.OldWorld)
+                    _mouse._buttonsPressed.Remove(e.Button);
+            }
         }
 
         /// <summary>
@@ -750,7 +756,7 @@ namespace KWEngine3
         /// <summary>
         /// Event-Handler, der ausgelöst wird, wenn eine Taste im Fenster gedrückt wird
         /// </summary>
-        /// <param name="e"></param>
+        /// <param name="e">Event-Infos</param>
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -758,6 +764,20 @@ namespace KWEngine3
             {
                 HelperSweepAndPrune.StopThread();
                 HelperFlowField.StopThread();
+            }
+        }
+
+        /// <summary>
+        /// Event-Handler, der ausgelöst wird, wenn eine Taste im Fenster losgelassen wird
+        /// </summary>
+        /// <param name="e">Event-Infos</param>
+        protected override void OnKeyUp(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+            if (_keyboard._keysPressed.TryGetValue(e.Key, out KeyboardExtState k))
+            {
+                if (k.OldWorld)
+                    _keyboard._keysPressed.Remove(e.Key);
             }
         }
 

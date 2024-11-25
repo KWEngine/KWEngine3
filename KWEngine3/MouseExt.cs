@@ -39,7 +39,7 @@ namespace KWEngine3
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
         public bool IsButtonPressed(MouseButton button)
         {
-            bool down = KWEngine.Window.MouseState.IsButtonPressed(button);
+            bool down = KWEngine.Window.MouseState.IsButtonDown(button);
             if (down)
             {
                 bool result = _buttonsPressed.TryGetValue(button, out MouseExtState t);
@@ -62,12 +62,7 @@ namespace KWEngine3
                 }
             }
             else
-            {
-                bool result = _buttonsPressed.TryGetValue(button, out MouseExtState t);
-                if (result)
-                    _buttonsPressed.Remove(button);
                 return false;
-            }
         }
 
         internal void ChangeToOldWorld(MouseButton b)
