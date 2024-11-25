@@ -722,8 +722,7 @@ namespace KWEngine3
 
             if (_mouse._buttonsPressed.TryGetValue(e.Button, out MouseExtState m))
             {
-                if (m.OldWorld)
-                    _mouse._buttonsPressed.Remove(e.Button);
+                _mouse._buttonsPressed.Remove(e.Button);
             }
         }
 
@@ -774,11 +773,8 @@ namespace KWEngine3
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
             base.OnKeyUp(e);
-            if (_keyboard._keysPressed.TryGetValue(e.Key, out KeyboardExtState k))
-            {
-                if (k.OldWorld)
-                    _keyboard._keysPressed.Remove(e.Key);
-            }
+            _keyboard._keysPressed.Remove(e.Key);
+            
         }
 
         internal World _worldNew = null;
