@@ -230,7 +230,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
 
         private void DoCollisionDetectionTerrain()
         {
-            RayTerrainIntersection x = RaytraceTerrainBelowPosition(GetOBBBottom(), true);
+            RayTerrainIntersection x = RaytraceTerrainBelowPosition(GetOBBBottom(), false);
             if(x.IsValid)
             {
                 if(_state == PlayerState.OnFloor)
