@@ -31,6 +31,9 @@ const float offsetZero = 0.035955884801;
 
 float calculateShadow(vec4 bQuantized, float fragmentDepth, float alpha, float hardness)
 {
+    if(bQuantized == vec4(1.0, 1.0, 1.0, 1.0))
+        return 1.0;
+
 	bQuantized.x -= offsetZero;
 	vec4 _4Moments = quantizationMatrix3Inv * bQuantized;
 

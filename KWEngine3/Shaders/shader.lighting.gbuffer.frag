@@ -80,6 +80,9 @@ vec3 getF0(int type)
 
 float calculateShadow(vec4 bQuantized, float fragmentDepth, float alpha, float hardness)
 {
+    if(bQuantized == vec4(1.0, 1.0, 1.0, 1.0))
+        return 1.0;
+
 	bQuantized.x -= offsetZero;
 	vec4 _4Moments = quantizationMatrix3Inv * bQuantized;
 

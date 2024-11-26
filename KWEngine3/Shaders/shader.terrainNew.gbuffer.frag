@@ -56,7 +56,7 @@ void main()
 	{
 		n = vNormal;
 	}
-	normal = vec3(normalize(n));
+	normal = normalize(n);
 	idShadowCaster = uIdShadowCaster;
 
 	//Metallic/Roughness

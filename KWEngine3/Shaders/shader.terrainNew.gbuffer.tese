@@ -97,7 +97,7 @@ void main()
     vec3 p_to_o2 = normalize(cross(cross((po2 + BASENORMAL * heighto2) - (p + BASENORMAL * height), BASENORMAL), (po2 + BASENORMAL * heighto2) - (p + BASENORMAL * height)));
     vec3 p_to_o3 = normalize(cross(cross((po3 + BASENORMAL * heighto3) - (p + BASENORMAL * height), BASENORMAL), (po3 + BASENORMAL * heighto3) - (p + BASENORMAL * height)));
     vec3 p_to_o4 = normalize(cross(cross((po4 + BASENORMAL * heighto4) - (p + BASENORMAL * height), BASENORMAL), (po4 + BASENORMAL * heighto4) - (p + BASENORMAL * height)));
-    vec3 normalLighting = (p_to_o1 + p_to_o2 + p_to_o3 + p_to_o4) / 4.0;
+    vec3 normalLighting = normalize((p_to_o1 + p_to_o2 + p_to_o3 + p_to_o4) / 4.0 + vec3(0, 0.001, 0));
 
     // calculate tangent and bitangent:
     vec3 tangent = vec3(1.0, 0.0, 0.0);

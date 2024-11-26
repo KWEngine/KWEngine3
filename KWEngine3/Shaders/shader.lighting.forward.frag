@@ -128,6 +128,9 @@ vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fra
 
 float calculateShadow(vec4 bQuantized, float fragmentDepth, float alpha, float hardness)
 {
+    if(bQuantized == vec4(1.0, 1.0, 1.0, 1.0))
+        return 1.0;
+
 	bQuantized.x -= offsetZero;
 	vec4 _4Moments = quantizationMatrix3Inv * bQuantized;
 
