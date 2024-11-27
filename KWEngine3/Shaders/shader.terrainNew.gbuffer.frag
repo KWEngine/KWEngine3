@@ -65,9 +65,9 @@ void main()
 	// Albedo color:
 	if(uUseTexturesAlbedoNormalEmissive.x > 0)
 	{
-		vec3 xaxis = texture2D(uTextureAlbedo, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb;
-		vec3 yaxis = texture2D(uTextureAlbedo, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).rgb;
-		vec3 zaxis = texture2D(uTextureAlbedo, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb;
+		vec3 xaxis = texture(uTextureAlbedo, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb;
+		vec3 yaxis = texture(uTextureAlbedo, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).rgb;
+		vec3 zaxis = texture(uTextureAlbedo, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb;
 		albedo = (xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z) * uColorTint  + emissive;
 	}
 	else
@@ -79,9 +79,9 @@ void main()
 	vec3 n;
 	if(uUseTexturesAlbedoNormalEmissive.y > 0)
 	{
-		vec3 xaxis = texture2D(uTextureNormal, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb * 2.0 - 1.0;
-		vec3 yaxis = texture2D(uTextureNormal, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).rgb * 2.0 - 1.0;
-		vec3 zaxis = texture2D(uTextureNormal, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb * 2.0 - 1.0;
+		vec3 xaxis = texture(uTextureNormal, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb * 2.0 - 1.0;
+		vec3 yaxis = texture(uTextureNormal, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).rgb * 2.0 - 1.0;
+		vec3 zaxis = texture(uTextureNormal, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb * 2.0 - 1.0;
 		n = xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z;
 		n = vTBN * n;
 	}
@@ -98,16 +98,16 @@ void main()
 	bool roughnessThroughMetallic = false;
 	if(uUseTexturesMetallicRoughness.x > 0)
 	{
-		float xaxis = texture2D(uTextureMetallic, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
-		float yaxis = texture2D(uTextureMetallic, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).r;
-		float zaxis = texture2D(uTextureMetallic, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
+		float xaxis = texture(uTextureMetallic, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
+		float yaxis = texture(uTextureMetallic, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).r;
+		float zaxis = texture(uTextureMetallic, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
 		metallic = xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z;
 	}
 	if(uUseTexturesMetallicRoughness.y > 0)
 	{
-		float xaxis = texture2D(uTextureRoughness, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
-		float yaxis = texture2D(uTextureRoughness, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).r;
-		float zaxis = texture2D(uTextureRoughness, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
+		float xaxis = texture(uTextureRoughness, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
+		float yaxis = texture(uTextureRoughness, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).r;
+		float zaxis = texture(uTextureRoughness, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
 		roughness = xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z;
 	}
 
