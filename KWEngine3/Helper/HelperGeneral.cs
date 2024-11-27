@@ -17,28 +17,44 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
-        internal static string ProcessInputs()
+        internal static string ProcessInputs(out Keys specialKey)
         {
-            string result = GetStringForCurrentlyPressedKeys();
-            if(World.Keyboard.IsKeyDown(Keys.LeftShift) || World.Keyboard.IsKeyDown(Keys.RightShift))
+            GetStringForCurrentlyPressedKeys(out string result, out specialKey);
+            if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftShift) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightShift))
             {
                 result = result.ToUpper();   
             }
             return result;
         }
 
-        internal static string GetStringForCurrentlyPressedKeys()
+        internal static void GetStringForCurrentlyPressedKeys(out string result, out Keys specialKey)
         {
-            string result = "";
+            result = "";
+            specialKey = Keys.Unknown;
             foreach (Keys key in Enum.GetValues<Keys>())
             {
-                if((char)key >= 32 && (char)key <= 93 && World.Keyboard.IsKeyPressed(key))
+                if(key == Keys.Backspace) // backspace
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.Delete)
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.Home)
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.End)
+                {
+                    specialKey = key;
+                }
+                else if ((char)key >= 32 && (char)key <= 93 && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 { 
                     string c = "" + (char)key;
                     result += c.ToLower();
                 }
             }
-            return result;
         }
 
 

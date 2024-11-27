@@ -15,7 +15,9 @@
         /// </summary>
         public void GetFocus()
         {
-            foreach(HUDObject h in KWEngine.CurrentWorld._hudObjects)
+            KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
+
+            foreach (HUDObject h in KWEngine.CurrentWorld._hudObjects)
             {
                 if(h is HUDObjectTextInput)
                 {
@@ -26,6 +28,7 @@
                 }
             }
             HasFocus = true;
+            KWEngine.CurrentWorld._hudObjectInputWithFocus = this;
         }
 
         /// <summary>
@@ -94,12 +97,14 @@
                 if (_cursorPos >= Text.Length)
                 {
                     SetText(Text + characters, false);
+                    _cursorPos = Text.Length;
                 }
                 else
                 {
                     string substringFront = Text.Substring(0, _cursorPos);
                     string substringBack = Text.Substring(_cursorPos);
                     SetText(substringFront + characters + substringBack, false);
+                    _cursorPos += characters.Length;
                 }
             }
         }

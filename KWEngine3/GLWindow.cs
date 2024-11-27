@@ -399,18 +399,7 @@ namespace KWEngine3
                         {
                             l._fbShadowMap.Bind(true);
                         }
-                        /*
-                        // TODO: This should be needed but it works either way... need more testing in the near future!
-                        if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
-                        {
-                            RendererShadowMapTerrainCube.Bind();
-                            foreach (LightObject l in pointLights)
-                            {
-                                l._fbShadowMap.Bind(false);
-                                RendererShadowMapTerrainCube.RenderSceneForLight(l); // Renders TerrainObject instances only
-                            }
-                        }
-                        */
+
                         RendererShadowMapCube.Bind();
                         foreach (LightObject l in pointLights)
                         {
@@ -961,9 +950,7 @@ namespace KWEngine3
                     Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
                 }
 
-                HUDObjectTextInput hudInput = KWEngine.CurrentWorld.GetHUDObjectTextInputWithFocus();
-
-                if (KWEngine.CurrentWorld != null && _worldNew == null && hudInput == null)
+                if (KWEngine.CurrentWorld != null && _worldNew == null)
                 {
                     KWEngine.CurrentWorld.ResetWorldDimensions();
                     List<GameObject> postponedObjects = new();
@@ -1148,24 +1135,25 @@ namespace KWEngine3
                     tmpTimeAdd = (float)elapsedTimeForIterationInSeconds;
                     tmpTimeAddSum += tmpTimeAdd;
                     KWEngine.WorldTime += tmpTimeAdd;
-                    
-                    if(hudInput == null)
-                        break;
-                    else
-                    {
-                        ProcessKeysForHUDObjectTextInput(hudInput);
-                    }
+
+                    break;
                 }
             }
             KWEngine.WorldTime -= tmpTimeAddSum;
+
+            if (KWEngine.CurrentWorld._hudObjectInputWithFocus != null)
+            {
+                ProcessKeysForHUDObjectTextInput(KWEngine.CurrentWorld._hudObjectInputWithFocus);
+            }
+            
             return n;
         }
 
         internal void ProcessKeysForHUDObjectTextInput(HUDObjectTextInput h)
         {
-            string result = HelperGeneral.ProcessInputs();
             if(h != null && h.HasFocus)
             {
+                string result = HelperGeneral.ProcessInputs();
                 h.AddCharacters(result);
             }
         }

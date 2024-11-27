@@ -16,6 +16,7 @@ namespace KWEngine3
     public abstract class World
     {
         #region Internals
+        internal HUDObjectTextInput _hudObjectInputWithFocus = null;
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
         internal List<WorldEvent> _eventQueue = new();
@@ -261,6 +262,10 @@ namespace KWEngine3
         {
             foreach (HUDObject h in _hudObjectsToBeRemoved)
             {
+                if(h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
+                {
+                    _hudObjectInputWithFocus = null;
+                }
                 _hudObjects.Remove(h);
             }
             _hudObjectsToBeRemoved.Clear();
