@@ -13,7 +13,7 @@ namespace KWEngine3TestProject
             WindowMode.Default              // Window mode
             )
         {
-            SetWorld(new GameWorldTerrainLODTest());
+            SetWorld(new GameWorldInputTest());
         }
     }
 }

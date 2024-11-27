@@ -1163,7 +1163,11 @@ namespace KWEngine3
 
         internal void ProcessKeysForHUDObjectTextInput(HUDObjectTextInput h)
         {
-            HelperGeneral.ProcessInputs();
+            string result = HelperGeneral.ProcessInputs();
+            if(h != null && h.HasFocus)
+            {
+                h.AddCharacters(result);
+            }
         }
 
         internal void RenderOverlay(float t)

@@ -19,22 +19,24 @@ namespace KWEngine3.Helper
     {
         internal static string ProcessInputs()
         {
-            string result = GetStringForKey();
+            string result = GetStringForCurrentlyPressedKeys();
             if(World.Keyboard.IsKeyDown(Keys.LeftShift) || World.Keyboard.IsKeyDown(Keys.RightShift))
             {
                 result = result.ToUpper();   
             }
-
             return result;
         }
 
-        internal static string GetStringForKey()
+        internal static string GetStringForCurrentlyPressedKeys()
         {
             string result = "";
-            foreach(Keys key in Enum.GetValues<Keys>())
+            foreach (Keys key in Enum.GetValues<Keys>())
             {
-                //if(World.Keyboard.IsKeyPressed(key))
-                    //result += key.
+                if((char)key >= 32 && (char)key <= 93 && World.Keyboard.IsKeyPressed(key))
+                { 
+                    string c = "" + (char)key;
+                    result += c.ToLower();
+                }
             }
             return result;
         }
