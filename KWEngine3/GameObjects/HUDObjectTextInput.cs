@@ -71,7 +71,7 @@
         /// <summary>
         /// Erfragt oder setzt die Position des Eingabecursors
         /// </summary>
-        public int CursorPos
+        public int CursorPosition
         {
             get
             {
@@ -105,9 +105,18 @@
         }
 
         /// <summary>
+        /// Bewegt den Cursor relativ zu seiner jetztigen Position
+        /// </summary>
+        /// <param name="offset"></param>
+        public void MoveCursor(int offset)
+        {
+            CursorPosition = CursorPosition + offset;
+        }
+
+        /// <summary>
         /// Erstellt eine Instanz der Klasse mit einem Text
         /// </summary>
-        /// <param name="text"></param>
+        /// <param name="text">Anzuzeigender Text</param>
         public HUDObjectTextInput(string text) : base(text)
         {
         }

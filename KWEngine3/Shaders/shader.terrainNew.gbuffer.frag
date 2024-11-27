@@ -54,7 +54,10 @@ void main()
 	// Emissive color:
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
 	{
-		vec3 emissiveFromTexture = texture(uTextureEmissive, vTexture).xyz * 5.0;
+		vec3 xaxis = texture(uTextureAlbedo, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb* 5.0;
+		vec3 yaxis = texture(uTextureAlbedo, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).rgb* 5.0;
+		vec3 zaxis = texture(uTextureAlbedo, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb* 5.0;
+		vec3 emissiveFromTexture = (xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z);
 		emissive = emissiveFromTexture + uColorEmissive.xyz * uColorEmissive.w;
 	}
 	else

@@ -23,7 +23,7 @@ namespace KWEngine3TestProject.Worlds
             AddHUDObject(h);
 
             HUDObjectTextInput inputTest = new HUDObjectTextInput("Input");
-            inputTest.CursorPos = 0;
+            inputTest.CursorPosition = 0;
             inputTest.GetFocus();
             inputTest.CenterOnScreen();
             AddHUDObject(inputTest);
