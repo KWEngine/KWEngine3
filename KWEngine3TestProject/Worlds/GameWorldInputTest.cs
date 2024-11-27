@@ -19,8 +19,14 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             HUDObject h = new HUDObjectText("World 1");
-            h.CenterOnScreen();
+            h.SetPosition(200, 100);
             AddHUDObject(h);
+
+            HUDObjectTextInput inputTest = new HUDObjectTextInput("Input");
+            inputTest.CursorPos = 0;
+            inputTest.GetFocus();
+            inputTest.CenterOnScreen();
+            AddHUDObject(inputTest);
         }
     }
 }

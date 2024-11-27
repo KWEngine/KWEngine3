@@ -608,6 +608,20 @@ namespace KWEngine3
         public WorldMap Map { get { return _map;} }
 
         /// <summary>
+        /// Erfragt die HUDObjectTextInput-Instanz, die gerade den Eingabefokus hat
+        /// </summary>
+        /// <returns>Instanz (oder null, falls gerade kein Objekt den Eingabefokus hat)</returns>
+        public HUDObjectTextInput GetHUDObjectTextInputWithFocus()
+        {
+            foreach (HUDObject h in _hudObjects)
+            {
+                if (h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
+                    return (h as HUDObjectTextInput);
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Gibt die globale Mischfarbe an, mit der der Bildschirminhalt gemischt wird, wenn FadeFactor kleiner als 1.0 ist
         /// </summary>
         public Vector3 FadeColor { 

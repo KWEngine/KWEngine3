@@ -961,7 +961,9 @@ namespace KWEngine3
                     Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
                 }
 
-                if (KWEngine.CurrentWorld != null && _worldNew == null)
+                HUDObjectTextInput hudInput = KWEngine.CurrentWorld.GetHUDObjectTextInputWithFocus();
+
+                if (KWEngine.CurrentWorld != null && _worldNew == null && hudInput == null)
                 {
                     KWEngine.CurrentWorld.ResetWorldDimensions();
                     List<GameObject> postponedObjects = new();
@@ -1146,11 +1148,25 @@ namespace KWEngine3
                     tmpTimeAdd = (float)elapsedTimeForIterationInSeconds;
                     tmpTimeAddSum += tmpTimeAdd;
                     KWEngine.WorldTime += tmpTimeAdd;
-                    break;
+                    
+                    if(hudInput == null)
+                        break;
+                    else
+                    {
+                        ProcessKeysForHUDObjectTextInput(hudInput);
+                    }
                 }
             }
             KWEngine.WorldTime -= tmpTimeAddSum;
             return n;
+        }
+
+        internal void ProcessKeysForHUDObjectTextInput(HUDObjectTextInput h)
+        {
+            if(Keyboard.IsKeyPressed(Keys.A))
+            {
+                h.AddCharacters("a");
+            }
         }
 
         internal void RenderOverlay(float t)
