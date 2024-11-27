@@ -1163,10 +1163,7 @@ namespace KWEngine3
 
         internal void ProcessKeysForHUDObjectTextInput(HUDObjectTextInput h)
         {
-            if(Keyboard.IsKeyPressed(Keys.A))
-            {
-                h.AddCharacters("a");
-            }
+            HelperGeneral.ProcessInputs();
         }
 
         internal void RenderOverlay(float t)

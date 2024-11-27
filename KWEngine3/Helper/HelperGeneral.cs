@@ -5,9 +5,10 @@ using KWEngine3.GameObjects;
 using System.Diagnostics;
 using System.Reflection;
 using KWEngine3.Model;
-using static Assimp.Metadata;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using KWEngine3.Renderer;
 using KWEngine3.Framebuffers;
+using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
 
 namespace KWEngine3.Helper
 {
@@ -16,8 +17,30 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
+        internal static string ProcessInputs()
+        {
+            string result = GetStringForKey();
+            if(World.Keyboard.IsKeyDown(Keys.LeftShift) || World.Keyboard.IsKeyDown(Keys.RightShift))
+            {
+                result = result.ToUpper();   
+            }
 
-        private static int GetTextureSizeInBytes(KWTexture t)
+            return result;
+        }
+
+        internal static string GetStringForKey()
+        {
+            string result = "";
+            foreach(Keys key in Enum.GetValues<Keys>())
+            {
+                //if(World.Keyboard.IsKeyPressed(key))
+                    //result += key.
+            }
+            return result;
+        }
+
+
+        internal static int GetTextureSizeInBytes(KWTexture t)
         {
             int currentSizeInBytes = 0;
             GL.BindTexture(t.Target, t.ID);
