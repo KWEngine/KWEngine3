@@ -3,6 +3,7 @@ using KWEngine3.Helper;
 using KWEngine3.GameObjects;
 using OpenTK;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using KWEngine3TestProject.Classes.WorldTerrainLOD;
 
 
@@ -12,7 +13,7 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            if(Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Q))
+            if(Keyboard.IsKeyPressed(Keys.F1))
             {
                 Window.SetWorld(new GameWorldTerrainTest());
             }
@@ -21,7 +22,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             
-            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap3.png", 5);
+            KWEngine.BuildTerrainModel("KarauTest", "./Textures/heightmap16.png", 5);
 
             SetCameraFOV(90);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
@@ -32,13 +33,14 @@ namespace KWEngine3TestProject.Worlds
             p.SetRotation(0, 180, 0);
             p.SetPosition(0, 10, 25);
             AddGameObject(p);
-
+            /*
             Immovable i1 = new Immovable();
             i1.SetColor(1, 1, 0);
             i1.SetPosition(0, 2.5f, 0);
             i1.SetScale(5f);
             i1.IsShadowCaster = true;
             AddGameObject(i1);
+            */
 
             TerrainObject t = new TerrainObject("KarauTest");
             t.SetTexture("./Textures/uvpattern.png");
@@ -71,7 +73,7 @@ namespace KWEngine3TestProject.Worlds
 
             MouseCursorGrab();
 
-            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T32;
+            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
         }
     }
 }

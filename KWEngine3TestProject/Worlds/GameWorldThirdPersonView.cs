@@ -95,13 +95,16 @@ namespace KWEngine3TestProject.Worlds
             SetColorAmbient(0.25f, 0.25f, 0.25f);
             KWEngine.BuildTerrainModel("t", "./Textures/heightmap512.png", 25);
             TerrainObject t = new TerrainObject("t");
+            t.SetTexture("./Textures/sand_diffuse.dds");
+            t.SetTexture("./Textures/sand_normal.dds", TextureType.Normal);
+            t.SetTextureRepeat(1, 1);
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
             t.SetColor(1, 0, 0);
             t.Name = "t";
             AddTerrainObject(t);
 
-            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T32;
+            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T64;
             //KWEngine.DebugMode = DebugMode.TerrainCollisionModel;
 
             MouseCursorGrab();

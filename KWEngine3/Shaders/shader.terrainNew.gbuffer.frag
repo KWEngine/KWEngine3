@@ -3,6 +3,7 @@
 in vec2 vTexture;
 in vec3 vNormal;
 in mat3 vTBN;
+in vec3 vPos;
 
 layout(location = 0) out vec3 albedo;
 layout(location = 1) out vec3 normal;
@@ -21,9 +22,34 @@ uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureEmissive;
 uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = 1 means: object has transparency (not used yet)!
 uniform ivec3 uUseTexturesAlbedoNormalEmissive; // x = albedo, y = normal, z = emissive
+uniform vec4 uTextureTransform;
+
+const float HALF_PI = 1.57079632680;
+
+vec3 getTriPlanarBlend(vec3 n){
+	vec3 blending = abs(n);
+	blending = normalize(max(blending, 0.00001));
+	float b = (blending.x + blending.y + blending.z);
+	blending /= vec3(b, b, b);
+	return blending;
+}
+
+vec2 rotateUV(vec2 uv, float rotation)
+{
+    float mid = 0.0;
+    float cosAngle = cos(rotation);
+    float sinAngle = sin(rotation);
+    return vec2(
+        cosAngle * (uv.x - mid) + sinAngle * (uv.y - mid) + mid,
+        cosAngle * (uv.y - mid) - sinAngle * (uv.x - mid) + mid
+    );
+}
 
 void main()
 {
+	vec3 blendfactors = getTriPlanarBlend(vNormal);
+	vec2 xaxisUV = rotateUV(vPos.yz, HALF_PI);
+
 	vec3 emissive;
 	// Emissive color:
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
@@ -39,7 +65,10 @@ void main()
 	// Albedo color:
 	if(uUseTexturesAlbedoNormalEmissive.x > 0)
 	{
-		albedo = texture(uTextureAlbedo, vTexture).xyz * uColorTint  + emissive;
+		vec3 xaxis = texture2D(uTextureAlbedo, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb;
+		vec3 yaxis = texture2D(uTextureAlbedo, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).rgb;
+		vec3 zaxis = texture2D(uTextureAlbedo, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb;
+		albedo = (xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z) * uColorTint  + emissive;
 	}
 	else
 	{
@@ -50,7 +79,11 @@ void main()
 	vec3 n;
 	if(uUseTexturesAlbedoNormalEmissive.y > 0)
 	{
-		n = vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0);
+		vec3 xaxis = texture2D(uTextureNormal, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb * 2.0 - 1.0;
+		vec3 yaxis = texture2D(uTextureNormal, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).rgb * 2.0 - 1.0;
+		vec3 zaxis = texture2D(uTextureNormal, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb * 2.0 - 1.0;
+		n = xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z;
+		n = vTBN * n;
 	}
 	else
 	{
@@ -65,11 +98,17 @@ void main()
 	bool roughnessThroughMetallic = false;
 	if(uUseTexturesMetallicRoughness.x > 0)
 	{
-		metallic = texture(uTextureMetallic, vTexture).r;
+		float xaxis = texture2D(uTextureMetallic, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
+		float yaxis = texture2D(uTextureMetallic, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).r;
+		float zaxis = texture2D(uTextureMetallic, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
+		metallic = xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z;
 	}
 	if(uUseTexturesMetallicRoughness.y > 0)
 	{
-		roughness = texture(uTextureRoughness, vTexture).r;
+		float xaxis = texture2D(uTextureRoughness, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
+		float yaxis = texture2D(uTextureRoughness, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).r;
+		float zaxis = texture2D(uTextureRoughness, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).r;
+		roughness = xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z;
 	}
 
 	metallicRoughnessMetallicType = vec3(metallic, max(roughness, 0.00001), uMetallicRoughness.z / 9.0);

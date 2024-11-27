@@ -17,6 +17,7 @@ uniform sampler2D uTextureHeightMap;
 out vec2 vTexture;
 out vec3 vNormal;
 out mat3 vTBN;
+out vec3 vPos;
 
 const vec3 BASENORMAL = vec3(0.0, 1.0, 0.0);
 
@@ -89,15 +90,15 @@ void main()
 
 
 
-    vec4 positionWorldSpace = uModelMatrix * vec4(p, 1.0);
-    positionWorldSpace.xyz += BASENORMAL * height;
+    vPos = (uModelMatrix * vec4(p, 1.0)).xyz;
+    vPos += BASENORMAL * height;
 
     // compute patch surface normal
     vec3 p_to_o1 = normalize(cross(cross((po1 + BASENORMAL * heighto1) - (p + BASENORMAL * height), BASENORMAL), (po1 + BASENORMAL * heighto1) - (p + BASENORMAL * height)));
     vec3 p_to_o2 = normalize(cross(cross((po2 + BASENORMAL * heighto2) - (p + BASENORMAL * height), BASENORMAL), (po2 + BASENORMAL * heighto2) - (p + BASENORMAL * height)));
     vec3 p_to_o3 = normalize(cross(cross((po3 + BASENORMAL * heighto3) - (p + BASENORMAL * height), BASENORMAL), (po3 + BASENORMAL * heighto3) - (p + BASENORMAL * height)));
     vec3 p_to_o4 = normalize(cross(cross((po4 + BASENORMAL * heighto4) - (p + BASENORMAL * height), BASENORMAL), (po4 + BASENORMAL * heighto4) - (p + BASENORMAL * height)));
-    vec3 normalLighting = normalize((p_to_o1 + p_to_o2 + p_to_o3 + p_to_o4) / 4.0 + vec3(0, 0.001, 0));
+    vec3 normalLighting = normalize((p_to_o1 + p_to_o2 + p_to_o3 + p_to_o4) / 4.0 + vec3(0, 0.0001, 0));
 
     // calculate tangent and bitangent:
     vec3 tangent = vec3(1.0, 0.0, 0.0);
@@ -117,11 +118,7 @@ void main()
                 t03 * v * (1.0 - u) +
                 t02 * u * v;
 
-    //float tSpeedUp = 1.0 / max(0.001, abs(dot(normalLighting, vec3(0, 1, 0))));
-    //t.y *= clamp(tSpeedUp, 1, 2);
-    // ----------------------------------------------------------------------
-
-    gl_Position = uViewProjectionMatrix * positionWorldSpace;
+    gl_Position = uViewProjectionMatrix * vec4(vPos, 1.0);
     vTexture = t;
     vNormal = normalLighting;
 	vTBN = mat3(tangent, -bitangent, vNormal);
