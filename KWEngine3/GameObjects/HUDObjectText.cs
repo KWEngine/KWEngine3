@@ -21,7 +21,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Schriftart des HUD-Objekts
         /// </summary>
-        public FontFace Font { get; private set; } = FontFace.Anonymous;
+        public FontFace Font { get; internal set; } = FontFace.Anonymous;
 
         /// <summary>
         /// Setzt die Schriftart der Instanz
@@ -197,6 +197,7 @@ namespace KWEngine3.GameObjects
         internal float _spread = 1f;
         internal string _text = "";
         
+
         internal void UpdateOffsetList()
         {
             _offsets = new int[_text.Length];

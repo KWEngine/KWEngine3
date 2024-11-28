@@ -20,10 +20,6 @@ namespace KWEngine3.Helper
         internal static string ProcessInputs(out Keys specialKey)
         {
             GetStringForCurrentlyPressedKeys(out string result, out specialKey);
-            if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftShift) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightShift))
-            {
-                result = result.ToUpper();   
-            }
             return result;
         }
 
@@ -31,28 +27,51 @@ namespace KWEngine3.Helper
         {
             result = "";
             specialKey = Keys.Unknown;
+            bool shift = KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftShift) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightShift);
+
+
             foreach (Keys key in Enum.GetValues<Keys>())
             {
-                if(key == Keys.Backspace) // backspace
+                if(key == Keys.Backspace && KWEngine.Window.KeyboardState.IsKeyPressed(key)) // backspace
                 {
                     specialKey = key;
                 }
-                else if(key == Keys.Delete)
+                else if(key == Keys.Delete && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = key;
                 }
-                else if(key == Keys.Home)
+                else if(key == Keys.Home && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = key;
                 }
-                else if(key == Keys.End)
+                else if(key == Keys.End && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.Left && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.Right && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = key;
                 }
                 else if ((char)key >= 32 && (char)key <= 93 && KWEngine.Window.KeyboardState.IsKeyPressed(key))
-                { 
-                    string c = "" + (char)key;
-                    result += c.ToLower();
+                {
+                    int offset = 0;
+                    
+                    if(key >= Keys.D0 && key <= Keys.D9 || key >= Keys.KeyPad0 && key <= Keys.KeyPad9)
+                    {
+                        if(shift)
+                        {
+                            offset = -16;
+                        }
+                    }
+                    string c = "" + (char)(key + offset);
+                    if (shift)
+                        result += c;
+                    else
+                        result += c.ToLower();
                 }
             }
         }

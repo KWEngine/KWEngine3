@@ -1931,5 +1931,13 @@ namespace KWEngine3
                 KWEngine.LogWriteLine("[World] Ungültiges WorldEvent-Objekt");
             }
         }
+
+        /// <summary>
+        /// Gibt an, ob es gerade eine HUDObject-Instanz gibt, die den Eingabefokus hat
+        /// </summary>
+        public bool HasObjectWithActiveInputFocus
+        {
+            get { return _hudObjectInputWithFocus != null; }
+        }
     }
 }

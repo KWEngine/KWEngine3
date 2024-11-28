@@ -1141,7 +1141,7 @@ namespace KWEngine3
             }
             KWEngine.WorldTime -= tmpTimeAddSum;
 
-            if (KWEngine.CurrentWorld._hudObjectInputWithFocus != null)
+            if (KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
             {
                 ProcessKeysForHUDObjectTextInput(KWEngine.CurrentWorld._hudObjectInputWithFocus);
             }
@@ -1153,8 +1153,42 @@ namespace KWEngine3
         {
             if(h != null && h.HasFocus)
             {
-                string result = HelperGeneral.ProcessInputs();
-                h.AddCharacters(result);
+                string result = HelperGeneral.ProcessInputs(out Keys specialKey);
+                if (specialKey == Keys.Backspace)
+                {
+                    h.Backspace();
+                }
+                else if (specialKey == Keys.Delete)
+                {
+                    h.Delete();
+                }
+                else if (specialKey == Keys.Home)
+                {
+                    h.MoveCursorToStart();
+                }
+                else if (specialKey == Keys.End)
+                {
+                    h.MoveCursorToEnd();
+                }
+                else if (specialKey == Keys.Left)
+                {
+                    if (h._cursorPos > 0)
+                    {
+                        h.MoveCursor(-1);
+                    }
+                }
+                else if (specialKey == Keys.Right)
+                {
+                    if (h._cursorPos < h.Text.Length)
+                    {
+                        h.MoveCursor(+1);
+                    }
+                }
+                else
+                {
+                    if(result.Length > 0)
+                        h.AddCharacters(result);
+                }
             }
         }
 
