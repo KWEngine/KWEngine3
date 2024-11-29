@@ -23,7 +23,6 @@ namespace KWEngine3.GameObjects
         public void GetFocus()
         {
             KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
-
             foreach (HUDObject h in KWEngine.CurrentWorld._hudObjects)
             {
                 if(h is HUDObjectTextInput)
@@ -35,6 +34,7 @@ namespace KWEngine3.GameObjects
                 }
             }
             HasFocus = true;
+            _textBeforeAbort = Text;
             KWEngine.CurrentWorld._hudObjectInputWithFocus = this;
         }
 
@@ -88,14 +88,32 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt den Eingabefokus wieder frei
         /// </summary>
-        public void ReleaseFocus()
+        /// <param name="reason">Gibt optional den Grund für das Verlassen des Fokus an</param>
+        public void ReleaseFocus(string reason = "")
         {
             HasFocus = false;
-            WorldEvent e = new WorldEvent(KWEngine.WorldTime, "[HUDObjectTextInput]", this);
+            WorldEvent e = new WorldEvent(KWEngine.WorldTime, "[HUDObjectTextInput|" + reason + "]", this);
             e.GeneratedByInputFocusLost = true;
             KWEngine.CurrentWorld.AddWorldEvent(e);
+            KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
         }
 
+        /// <summary>
+        /// Bestätigt die aktuelle Eingabe
+        /// </summary>
+        public void ConfirmAndReleaseFocus()
+        {
+            ReleaseFocus("CONFIRM");
+        }
+
+        /// <summary>
+        /// Bricht die aktuelle Eingabe ab
+        /// </summary>
+        public void AbortAndReleaseFocus()
+        {
+            SetText(_textBeforeAbort);
+            ReleaseFocus("ABORT");
+        }
 
         /// <summary>
         /// Erfragt oder setzt die Position des Eingabecursors
@@ -120,6 +138,7 @@ namespace KWEngine3.GameObjects
         public HUDObjectTextInput(string text) : base(text)
         {
             SetText(text);
+            _textBeforeAbort = text;
         }
 
         /// <summary>
@@ -152,6 +171,7 @@ namespace KWEngine3.GameObjects
 
         #region Internals
         internal int _cursorPos = 0;
+        internal string _textBeforeAbort = "";
         /// <summary>
         /// Fügt die angegebenen Zeichen dem Text ab der Cursorposition hinzu
         /// </summary>

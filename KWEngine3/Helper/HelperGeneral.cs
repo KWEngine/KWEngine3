@@ -31,7 +31,15 @@ namespace KWEngine3.Helper
 
             foreach (Keys key in Enum.GetValues<Keys>())
             {
-                if(key == Keys.Backspace && KWEngine.Window.KeyboardState.IsKeyPressed(key)) // backspace
+                if(key == Keys.Enter || key == Keys.KeyPadEnter)
+                {
+                    specialKey = Keys.Enter;
+                }
+                if (key == Keys.Escape)
+                {
+                    specialKey = Keys.Escape;
+                }
+                else if(key == Keys.Backspace && KWEngine.Window.KeyboardState.IsKeyPressed(key)) // backspace
                 {
                     specialKey = key;
                 }
@@ -55,24 +63,90 @@ namespace KWEngine3.Helper
                 {
                     specialKey = key;
                 }
-                else if ((char)key >= 32 && (char)key <= 93 && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                else if ((char)key >= 32 && (char)key <= 128 && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
-                    int offset = 0;
-                    
-                    if(key >= Keys.D0 && key <= Keys.D9 || key >= Keys.KeyPad0 && key <= Keys.KeyPad9)
+                    char ch = GetCharForKey(key, shift, out bool changed);
+                    if (changed)
                     {
-                        if(shift)
-                        {
-                            offset = -16;
-                        }
+                        result += ch;
                     }
-                    string c = "" + (char)(key + offset);
-                    if (shift)
-                        result += c;
                     else
-                        result += c.ToLower();
+                    {
+                        string temp = "" + (char)(key);
+                        if (shift)
+                            result += temp;
+                        else
+                            result += temp.ToLower();
+                    }
                 }
             }
+        }
+
+        internal static char GetCharForKey(Keys key, bool shift, out bool changed)
+        {
+            //Console.WriteLine(key + " (" + (shift ? "SHIFT" : "NO SHIFT") + ")");
+            changed = true;
+            if (shift)
+            {
+                if (key == Keys.Z) return 'Y';
+                else if (key == Keys.Y) return 'Z';
+
+                else if (key == Keys.D1) return '!';
+                else if (key == Keys.D2) return '"';
+                else if (key == Keys.D3) return ' ';
+                else if (key == Keys.D4) return '$';
+                else if (key == Keys.D5) return '%';
+                else if (key == Keys.D6) return '&';
+                else if (key == Keys.D7) return '/';
+                else if (key == Keys.D8) return '(';
+                else if (key == Keys.D9) return ')';
+                else if (key == Keys.D0) return '=';
+
+                else if (key == Keys.Backslash) return '\'';
+                else if (key == Keys.Apostrophe) return 'Ä';
+                else if (key == Keys.Semicolon) return 'Ö';
+                else if (key == Keys.RightBracket) return '*';
+                else if (key == Keys.LeftBracket) return 'Ü';
+                else if (key == Keys.Minus) return '?';
+                else if (key == Keys.Equal) return ' ';
+                else if (key == Keys.GraveAccent) return ' ';
+                else if (key == Keys.Comma) return ';';
+                else if (key == Keys.Period) return ':';
+                else if (key == Keys.Slash) return '_';
+            }
+            else
+            {
+                if (key == Keys.Z) return 'y';
+                else if (key == Keys.Y) return 'z';
+
+                else if (key == Keys.Q && KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightAlt))
+                    return '@';
+
+                else if (key == Keys.D1) return '1';
+                else if (key == Keys.D2) return '2';
+                else if (key == Keys.D3) return '3';
+                else if (key == Keys.D4) return '4';
+                else if (key == Keys.D5) return '5';
+                else if (key == Keys.D6) return '6';
+                else if (key == Keys.D7) return '7';
+                else if (key == Keys.D8) return '8';
+                else if (key == Keys.D9) return '9';
+                else if (key == Keys.D0) return '0';
+
+                else if (key == Keys.Backslash) return '#';
+                else if (key == Keys.Apostrophe) return 'ä';
+                else if (key == Keys.Semicolon) return 'ö';
+                else if (key == Keys.RightBracket) return '+';
+                else if (key == Keys.LeftBracket) return 'ü';
+                else if (key == Keys.Minus) return 'ß';
+                else if (key == Keys.Equal) return ' ';
+                else if (key == Keys.GraveAccent) return ' ';
+                else if (key == Keys.Comma) return ',';
+                else if (key == Keys.Period) return '.';
+                else if (key == Keys.Slash) return '-';
+            }
+            changed = false;
+            return (char)key;
         }
 
 

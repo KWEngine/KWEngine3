@@ -16,23 +16,6 @@ namespace KWEngine3.Helper
             {'ü', 101 },
         };
 
-        public static int GetOffsetForKey(Keys key, bool shift)
-        {
-            Console.WriteLine(key + " (" + (shift ? "SHIFT" : "NO SHIFT") + ")");
-
-            if(shift)
-            {
-
-            }
-            else
-            {
-                if (key == Keys.Backslash) // Hashtag
-                    return 50; 
-            }
-
-            return 0;
-        }
-
         public static int GenerateTexture(string resourceName, Assembly a)
         {
             Stream resourceStream = a.GetManifestResourceStream(resourceName);

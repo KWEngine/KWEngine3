@@ -1154,7 +1154,15 @@ namespace KWEngine3
             if(h != null && h.HasFocus)
             {
                 string result = HelperGeneral.ProcessInputs(out Keys specialKey);
-                if (specialKey == Keys.Backspace)
+                if(specialKey == Keys.Enter)
+                {
+                    h.ConfirmAndReleaseFocus();
+                }
+                else if (specialKey == Keys.Escape)
+                {
+                    h.AbortAndReleaseFocus();
+                }
+                else if (specialKey == Keys.Backspace)
                 {
                     h.Backspace();
                 }
