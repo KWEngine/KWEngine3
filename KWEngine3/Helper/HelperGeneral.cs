@@ -5,9 +5,10 @@ using KWEngine3.GameObjects;
 using System.Diagnostics;
 using System.Reflection;
 using KWEngine3.Model;
-using static Assimp.Metadata;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using KWEngine3.Renderer;
 using KWEngine3.Framebuffers;
+using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
 
 namespace KWEngine3.Helper
 {
@@ -16,8 +17,139 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
+        internal static string ProcessInputs(out Keys specialKey)
+        {
+            GetStringForCurrentlyPressedKeys(out string result, out specialKey);
+            return result;
+        }
 
-        private static int GetTextureSizeInBytes(KWTexture t)
+        internal static void GetStringForCurrentlyPressedKeys(out string result, out Keys specialKey)
+        {
+            result = "";
+            specialKey = Keys.Unknown;
+            bool shift = KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftShift) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightShift);
+
+            foreach (Keys key in Enum.GetValues<Keys>())
+            {
+                if((key == Keys.Enter || key == Keys.KeyPadEnter) && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = Keys.Enter;
+                }
+                if (key == Keys.Escape && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = Keys.Escape;
+                }
+                else if(key == Keys.Backspace && KWEngine.Window.KeyboardState.IsKeyPressed(key)) // backspace
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.Delete && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.Home && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.End && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.Left && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = key;
+                }
+                else if(key == Keys.Right && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    specialKey = key;
+                }
+                else if ((char)key >= 32 && (char)key <= 128 && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                {
+                    char ch = GetCharForKey(key, shift, out bool changed);
+                    if (changed)
+                    {
+                        result += ch;
+                    }
+                    else
+                    {
+                        string temp = "" + (char)(key);
+                        if (shift)
+                            result += temp;
+                        else
+                            result += temp.ToLower();
+                    }
+                }
+            }
+        }
+
+        internal static char GetCharForKey(Keys key, bool shift, out bool changed)
+        {
+            changed = true;
+            if (shift)
+            {
+                if (key == Keys.Z) return 'Y';
+                else if (key == Keys.Y) return 'Z';
+
+                else if (key == Keys.D1) return '!';
+                else if (key == Keys.D2) return '"';
+                else if (key == Keys.D3) return ' ';
+                else if (key == Keys.D4) return '$';
+                else if (key == Keys.D5) return '%';
+                else if (key == Keys.D6) return '&';
+                else if (key == Keys.D7) return '/';
+                else if (key == Keys.D8) return '(';
+                else if (key == Keys.D9) return ')';
+                else if (key == Keys.D0) return '=';
+
+                else if (key == Keys.Backslash) return '\'';
+                else if (key == Keys.Apostrophe) return 'Ä';
+                else if (key == Keys.Semicolon) return 'Ö';
+                else if (key == Keys.RightBracket) return '*';
+                else if (key == Keys.LeftBracket) return 'Ü';
+                else if (key == Keys.Minus) return '?';
+                else if (key == Keys.Equal) return ' ';
+                else if (key == Keys.GraveAccent) return ' ';
+                else if (key == Keys.Comma) return ';';
+                else if (key == Keys.Period) return ':';
+                else if (key == Keys.Slash) return '_';
+            }
+            else
+            {
+                if (key == Keys.Z) return 'y';
+                else if (key == Keys.Y) return 'z';
+
+                else if (key == Keys.Q && KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightAlt))
+                    return '@';
+
+                else if (key == Keys.D1) return '1';
+                else if (key == Keys.D2) return '2';
+                else if (key == Keys.D3) return '3';
+                else if (key == Keys.D4) return '4';
+                else if (key == Keys.D5) return '5';
+                else if (key == Keys.D6) return '6';
+                else if (key == Keys.D7) return '7';
+                else if (key == Keys.D8) return '8';
+                else if (key == Keys.D9) return '9';
+                else if (key == Keys.D0) return '0';
+
+                else if (key == Keys.Backslash) return '#';
+                else if (key == Keys.Apostrophe) return 'ä';
+                else if (key == Keys.Semicolon) return 'ö';
+                else if (key == Keys.RightBracket) return '+';
+                else if (key == Keys.LeftBracket) return 'ü';
+                else if (key == Keys.Minus) return 'ß';
+                else if (key == Keys.Equal) return ' ';
+                else if (key == Keys.GraveAccent) return ' ';
+                else if (key == Keys.Comma) return ',';
+                else if (key == Keys.Period) return '.';
+                else if (key == Keys.Slash) return '-';
+            }
+            changed = false;
+            return (char)key;
+        }
+
+
+        internal static int GetTextureSizeInBytes(KWTexture t)
         {
             int currentSizeInBytes = 0;
             GL.BindTexture(t.Target, t.ID);

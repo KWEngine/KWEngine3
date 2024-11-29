@@ -18,13 +18,13 @@ namespace KWEngine3.Renderer
         public static int UOffsets { get; private set; } = -1;
         public static int UOffsetCount { get; private set; } = -1;
         public static int UTextAlign { get; private set; } = -1;
+        public static int UCursorInfo { get; private set; } = -1;
         public static int UCharacterDistance { get; private set; } = -1;
         public static int UMode { get; private set; } = -1;
         public static int UId { get; private set; } = -1;
         public static int UCharacterWidth { get; private set; } = -1;
         public static int UTextureRepeat { get; private set; } = -1;
         public static int UOptions { get; private set; } = -1;
-        
 
         public static void Init()
         {
@@ -59,9 +59,10 @@ namespace KWEngine3.Renderer
                 UOffsetCount = GL.GetUniformLocation(ProgramID, "uOffsetCount");
                 UCharacterWidth = GL.GetUniformLocation(ProgramID, "uCharacterWidth");
                 UTextAlign = GL.GetUniformLocation(ProgramID, "uTextAlign");
-                UMode = GL.GetUniformLocation(ProgramID, "uMode"); // 0 = text, 1 = image, 2 = sliderhorizontal, etc.
+                UMode = GL.GetUniformLocation(ProgramID, "uMode"); // 0 = text, 1 = image, 2 = textInput, etc.
                 UTextureRepeat = GL.GetUniformLocation(ProgramID, "uTextureRepeat");
                 UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
+                UCursorInfo = GL.GetUniformLocation(ProgramID, "uCursorInfo");
             }
         }
 
@@ -228,6 +229,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorGlow, ho._glow);
             GL.Uniform2(UTextureRepeat, txR);
             GL.Uniform1(UOptions, 0);
+            GL.Uniform3(UCursorInfo, 0f, 0f, 0f);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDNew);
             GL.BindVertexArray(mesh.VAO);
@@ -247,6 +249,8 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
         }
 
+        
+
         internal static void DrawText(HUDObjectText ho, GeoMesh mesh)
         {
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -261,6 +265,19 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UCharacterDistance, ho._spread);
 
             GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, ho._offsets.Length);
+
+            if(ho is HUDObjectTextInput)
+            {
+                HUDObjectTextInput i = (HUDObjectTextInput)ho;
+                if(i.HasFocus && i._offsetsCursor != null)
+                {
+                    GL.Uniform1(UMode, i.CursorType == KeyboardCursorType.Pipe ? 3 : i.CursorType == KeyboardCursorType.Underscore ? 4 : 5);
+                    GL.Uniform3(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed);
+                    GL.Uniform1(UOffsets, i._offsetsCursor.Length, i._offsetsCursor);
+                    GL.Uniform1(UOffsetCount, i._offsetsCursor.Length);
+                    GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, i._offsetsCursor.Length);
+                }
+            }
         }
 
         internal static void DrawImage(HUDObjectImage ho, GeoMesh mesh)

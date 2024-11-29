@@ -20,6 +20,8 @@ namespace KWEngine3
         /// <returns>true, wenn Taste gedrückt wird</returns>
         public bool IsKeyDown(Keys key)
         {
+            if (KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
+                return false;
             return KWEngine.Window.KeyboardState.IsKeyDown(key);
         }
 
@@ -30,6 +32,9 @@ namespace KWEngine3
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
         public bool IsKeyPressed(Keys key)
         {
+            if (KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
+                return false;
+
             bool down = KWEngine.Window.KeyboardState.IsKeyDown(key);
             if (down)
             {

@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using KWEngine3.Helper;
+using OpenTK.Mathematics;
 using System.Security.Cryptography;
 
 namespace KWEngine3.GameObjects
@@ -21,7 +22,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Schriftart des HUD-Objekts
         /// </summary>
-        public FontFace Font { get; private set; } = FontFace.Anonymous;
+        public FontFace Font { get; internal set; } = FontFace.Anonymous;
 
         /// <summary>
         /// Setzt die Schriftart der Instanz
@@ -197,12 +198,19 @@ namespace KWEngine3.GameObjects
         internal float _spread = 1f;
         internal string _text = "";
         
+
         internal void UpdateOffsetList()
         {
             _offsets = new int[_text.Length];
             for (int i = 0; i < _text.Length; i++)
             {
-                int offset = _text[i] - 32;
+                int offset;
+                if (HelperFont.TextToOffsetDict.TryGetValue(_text[i], out offset))
+                {
+                    // ;-)
+                }
+                else
+                    offset = _text[i] - 32;
                 _offsets[i] = offset;
             }
         }

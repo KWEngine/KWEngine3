@@ -399,18 +399,7 @@ namespace KWEngine3
                         {
                             l._fbShadowMap.Bind(true);
                         }
-                        /*
-                        // TODO: This should be needed but it works either way... need more testing in the near future!
-                        if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
-                        {
-                            RendererShadowMapTerrainCube.Bind();
-                            foreach (LightObject l in pointLights)
-                            {
-                                l._fbShadowMap.Bind(false);
-                                RendererShadowMapTerrainCube.RenderSceneForLight(l); // Renders TerrainObject instances only
-                            }
-                        }
-                        */
+
                         RendererShadowMapCube.Bind();
                         foreach (LightObject l in pointLights)
                         {
@@ -774,6 +763,11 @@ namespace KWEngine3
         {
             base.OnKeyUp(e);
             _keyboard._keysPressed.Remove(e.Key);
+            if((e.Key == Keys.Enter || e.Key == Keys.KeyPadEnter || e.Key == Keys.Escape) && KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
+            {
+                KWEngine.CurrentWorld._hudObjectInputWithFocus.HasFocus = false;
+                KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
+            }
             
         }
 
@@ -1094,8 +1088,6 @@ namespace KWEngine3
                         KWEngine.CurrentWorld.Act();
                     }
 
-                    KWEngine.CurrentWorld.ProcessWorldEventQueue();
-
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                     {
                         KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._statePrevious = KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._stateCurrent;
@@ -1131,6 +1123,8 @@ namespace KWEngine3
                         }
                     }
 
+                    KWEngine.CurrentWorld.ProcessWorldEventQueue();
+
                     double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
@@ -1146,11 +1140,69 @@ namespace KWEngine3
                     tmpTimeAdd = (float)elapsedTimeForIterationInSeconds;
                     tmpTimeAddSum += tmpTimeAdd;
                     KWEngine.WorldTime += tmpTimeAdd;
+
                     break;
                 }
             }
             KWEngine.WorldTime -= tmpTimeAddSum;
+
+            if (KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
+            {
+                ProcessKeysForHUDObjectTextInput(KWEngine.CurrentWorld._hudObjectInputWithFocus);
+            }
+
             return n;
+        }
+
+        internal void ProcessKeysForHUDObjectTextInput(HUDObjectTextInput h)
+        {
+            if(h != null && h.HasFocus)
+            {
+                string result = HelperGeneral.ProcessInputs(out Keys specialKey);
+                if(specialKey == Keys.Enter)
+                {
+                    h.ConfirmAndReleaseFocus();
+                }
+                else if (specialKey == Keys.Escape)
+                {
+                    h.AbortAndReleaseFocus();
+                }
+                else if (specialKey == Keys.Backspace)
+                {
+                    h.Backspace();
+                }
+                else if (specialKey == Keys.Delete)
+                {
+                    h.Delete();
+                }
+                else if (specialKey == Keys.Home)
+                {
+                    h.MoveCursorToStart();
+                }
+                else if (specialKey == Keys.End)
+                {
+                    h.MoveCursorToEnd();
+                }
+                else if (specialKey == Keys.Left)
+                {
+                    if (h._cursorPos > 0)
+                    {
+                        h.MoveCursor(-1);
+                    }
+                }
+                else if (specialKey == Keys.Right)
+                {
+                    if (h._cursorPos < h.Text.Length)
+                    {
+                        h.MoveCursor(+1);
+                    }
+                }
+                else
+                {
+                    if(result.Length > 0)
+                        h.AddCharacters(result);
+                }
+            }
         }
 
         internal void RenderOverlay(float t)

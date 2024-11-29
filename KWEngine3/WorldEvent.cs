@@ -12,6 +12,11 @@ namespace KWEngine3
     public class WorldEvent : IComparable<WorldEvent>
     {
         /// <summary>
+        /// Gibt an, ob das Event durch ein Eingabeelement (Texteingabefeld) ausgelöst wurde
+        /// </summary>
+        public bool GeneratedByInputFocusLost { get; internal set; }
+
+        /// <summary>
         /// Zeitstempel (in Sekunden) seit Beginn der aktuellen Weltzeit. Zu diesem Zeitpunkt wird das Event ausgeführt.
         /// </summary>
         public float Timestamp { get; private set; }

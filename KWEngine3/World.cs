@@ -16,6 +16,7 @@ namespace KWEngine3
     public abstract class World
     {
         #region Internals
+        internal HUDObjectTextInput _hudObjectInputWithFocus = null;
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
         internal List<WorldEvent> _eventQueue = new();
@@ -261,6 +262,10 @@ namespace KWEngine3
         {
             foreach (HUDObject h in _hudObjectsToBeRemoved)
             {
+                if(h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
+                {
+                    _hudObjectInputWithFocus = null;
+                }
                 _hudObjects.Remove(h);
             }
             _hudObjectsToBeRemoved.Clear();
@@ -1694,6 +1699,32 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Erfragt die HUDObjectTextInput-Instanz, die gerade den Eingabefokus hat
+        /// </summary>
+        /// <returns>Instanz (oder null, falls gerade kein Objekt den Eingabefokus hat)</returns>
+        public HUDObjectTextInput GetHUDObjectTextInputWithFocus()
+        {
+            foreach (HUDObject h in _hudObjects)
+            {
+                if (h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
+                    return (h as HUDObjectTextInput);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der HUDObject-Instanzen nach einem Textobjekt mit Eingabefunktion und dem angegebenen Namen
+        /// </summary>
+        /// <param name="name">Name des gesuchten Objekts</param>
+        /// <returns>Gesuchtes Objekt oder null (falls nicht gefunden)</returns>
+        public HUDObjectTextInput GetHUDObjectTextInputByName(string name)
+        {
+            name = name.Trim();
+            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectTextInput && ho.Name == name);
+            return h as HUDObjectTextInput;
+        }
+
+        /// <summary>
         /// Zeit in Sekunden, die die Applikation bereits geöffnet ist
         /// </summary>
         public float ApplicationTime { get { return KWEngine.ApplicationTime; } }
@@ -1911,6 +1942,14 @@ namespace KWEngine3
             {
                 KWEngine.LogWriteLine("[World] Ungültiges WorldEvent-Objekt");
             }
+        }
+
+        /// <summary>
+        /// Gibt an, ob es gerade eine HUDObject-Instanz gibt, die den Eingabefokus hat
+        /// </summary>
+        public bool HasObjectWithActiveInputFocus
+        {
+            get { return _hudObjectInputWithFocus != null; }
         }
     }
 }

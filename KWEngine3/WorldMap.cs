@@ -298,7 +298,7 @@ namespace KWEngine3
         {
             if (!Enabled || !_setupComplete)
             {
-                KWEngine.LogWriteLine("[Map] Map is disabled or setup not incomplete");
+                KWEngine.LogWriteLine("[Map] Map is disabled or setup is incomplete");
                 return;
             }
 

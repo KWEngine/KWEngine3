@@ -1,5 +1,40 @@
 ﻿namespace KWEngine3
 {
+
+    /// <summary>
+    /// Listet die Anzeigemöglichkeiten für Eingabecursor auf
+    /// </summary>
+    public enum KeyboardCursorType
+    {
+        /// <summary>
+        /// Vertikaler Trennstrich (Standard)
+        /// </summary>
+        Pipe = 0,
+        /// <summary>
+        /// Unterstrich
+        /// </summary>
+        Underscore = 1,
+        /// <summary>
+        /// Block
+        /// </summary>
+        Block = 2
+    }
+
+    /// <summary>
+    /// Listet die Blinkmodi für Eingabecursor auf
+    /// </summary>
+    public enum KeyboardCursorBehaviour
+    {
+        /// <summary>
+        /// Blendet den Cursor abwechselnd ein und aus
+        /// </summary>
+        Blink = -1,
+        /// <summary>
+        /// Blendet den Cursor langsam ein und aus
+        /// </summary>
+        Fade = 1
+    }
+
     /// <summary>
     /// Gibt an, ob die für das Kamerazittern festgelegten Werte zusätzlich zum ggf. bestehenden Zittern addiert werden oder die bisherigen Werte ersetzen.
     /// </summary>
@@ -285,15 +320,15 @@
         /// <summary>
         /// Linksbündig
         /// </summary>
-        Left,
+        Left = 0,
         /// <summary>
         /// Zentriert
         /// </summary>
-        Center,
+        Center = 1,
         /// <summary>
         /// Rechtsbündig
         /// </summary>
-        Right
+        Right = 2
     }
 
     /// <summary>

@@ -29,6 +29,7 @@
       <Method Name="OnResize" Hidden="true" />
       <Method Name="OnTextInput" Hidden="true" />
       <Property Name="Overlay" Hidden="true" />
+      <Method Name="ProcessKeysForHUDObjectTextInput" Hidden="true" />
       <Method Name="RenderOverlay" Hidden="true" />
       <Method Name="ResetMouseDeltas" Hidden="true" />
       <Method Name="SetWorldInternal" Hidden="true" />
@@ -37,7 +38,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiEBAAABQCAAQyAUAkBgEASAhIABCQAYAEAUAEuAgA=</HashCode>
+      <HashCode>AAiEBAAABQCAAQyAUAkBgEASAhIABCQAYAEAUAUuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -151,6 +152,7 @@
       <Field Name="_gameObjectsColliderChange" Hidden="true" />
       <Field Name="_gameObjectsToBeAdded" Hidden="true" />
       <Field Name="_gameObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_hudObjectInputWithFocus" Hidden="true" />
       <Field Name="_hudObjects" Hidden="true" />
       <Field Name="_hudObjectsToBeAdded" Hidden="true" />
       <Field Name="_hudObjectsToBeRemoved" Hidden="true" />
@@ -203,7 +205,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQt0OI6AJDRKdBUdzpGghb1iTK5ZD6YcUeGCH/EeA/0=</HashCode>
+      <HashCode>SQt0OI6AJHRKdBUdzpGihb1iTK5ZD6YcUeGCH/EeA/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -435,7 +437,7 @@
       <Property Name="Owner" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAACAAAAgAAQAAAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAACAAAAgAAQAQAACAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>WorldEvent.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -588,7 +590,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowField">
-    <Position X="15.5" Y="12.5" Width="2.75" />
+    <Position X="18.5" Y="14.75" Width="2.75" />
     <Members>
       <Field Name="_cellDiametre" Hidden="true" />
       <Field Name="_ffback" Hidden="true" />
@@ -643,12 +645,12 @@
       <Method Name="UnProject" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AQAAARABAAAAAAAAAARSASEggAAEIAABAEAIAgQAUAE=</HashCode>
+      <HashCode>AQAAARABAAAAAAAAAAxSASEgggAEIAABAEAIAgQAUAE=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="3.5" Y="19.25" Width="2.75" />
+    <Position X="0.5" Y="17.5" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />
@@ -679,7 +681,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowFieldCell">
-    <Position X="15.5" Y="17" Width="2.75" />
+    <Position X="18.5" Y="19.25" Width="2.75" />
     <Members>
       <Field Name="_bestCost" Hidden="true" />
       <Field Name="_cost" Hidden="true" />
@@ -693,6 +695,26 @@
     <TypeIdentifier>
       <HashCode>ACAAAAAAACBAAAAgAAAAQBgAAAAAAAABAEEAAAAAAgA=</HashCode>
       <FileName>Helper\FlowFieldCell.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.HUDObjectTextInput">
+    <Position X="15.5" Y="12.5" Width="2.75" />
+    <Members>
+      <Field Name="_cursorBlinkSpeed" Hidden="true" />
+      <Field Name="_cursorPos" Hidden="true" />
+      <Field Name="_cursorType" Hidden="true" />
+      <Field Name="_offsetsCursor" Hidden="true" />
+      <Field Name="_textBeforeAbort" Hidden="true" />
+      <Method Name="AddCharacters" Hidden="true" />
+      <Method Name="Backspace" Hidden="true" />
+      <Method Name="Delete" Hidden="true" />
+      <Method Name="KeepENTERESCKeyPressedForOneSimulationStep" Hidden="true" />
+      <Method Name="MoveCursor" Hidden="true" />
+      <Method Name="UpdateCursorOffsetList" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>CAAkQAAACEAAIEEQAIAAAACAAAUAAIAEAAUEBASAAAA=</HashCode>
+      <FileName>GameObjects\HUDObjectTextInput.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
