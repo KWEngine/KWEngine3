@@ -69,5 +69,14 @@ namespace KWEngine3
         {
             _buttonsPressed[b].SwitchToOldWorld();
         }
+
+        /// <summary>
+        /// Gibt die Mausbewegung als Delta-Wert für beide Achsen zurück (Unterschied der Mausposition zum letzten Frame)
+        /// </summary>
+        /// <returns>Delta-Wert der Mauszeigerbewegung (Unterschied zum letzten Frame)</returns>
+        public Vector2 GetDelta()
+        {
+            return KWEngine.Window._mouseDeltaToUse;
+        }
     }
 }
