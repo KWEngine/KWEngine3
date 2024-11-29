@@ -630,8 +630,10 @@
       <Method Name="FlushAndFinish" Hidden="true" />
       <Method Name="Get3DMouseCoords" Hidden="true" />
       <Method Name="GetBufferSizeOfVBO" Hidden="true" />
+      <Method Name="GetCharForKey" Hidden="true" />
       <Method Name="GetGeometryStorageSize" Hidden="true" />
       <Method Name="GetMeshGeometrySizeInBytes" Hidden="true" />
+      <Method Name="GetStringForCurrentlyPressedKeys" Hidden="true" />
       <Method Name="GetTextureSizeInBytes" Hidden="true" />
       <Method Name="GetTextureStorageSize" Hidden="true" />
       <Method Name="IsAssemblyDebugBuild" Hidden="true" />
@@ -639,6 +641,7 @@
       <Method Name="IsObjectClassOrSubclassOfType" Hidden="true" />
       <Method Name="IsObjectClassOrSubclassOfTypes" Hidden="true" />
       <Method Name="IsTypeClassOrSubclassOfGameObject" Hidden="true" />
+      <Method Name="ProcessInputs" Hidden="true" />
       <Method Name="SwitchToBufferAndClear" Hidden="true" />
       <Method Name="ToQuaternion" Hidden="true" />
       <Method Name="ToVector3" Hidden="true" />
