@@ -15,6 +15,8 @@ uniform int uTextAlign;
 uniform float uCharacterDistance;
 uniform vec2 uTextureRepeat;
  
+const float letterSize = 128.0;
+
 void main()
 {
 	vec4 pos = vec4(0);
@@ -22,7 +24,7 @@ void main()
 	{
 		float offset = 0;
 		vTexture.y = 1.0 - aTexture.y;
-		vTexture.x = aTexture.x / 256.0 + (uOffsets[gl_InstanceID] / 256.0);
+		vTexture.x = aTexture.x / letterSize + (uOffsets[gl_InstanceID] / letterSize);
 
 		float left = aPosition.x + 0.5 + gl_InstanceID * uCharacterDistance;
 		pos = vec4(aPosition, 1.0);
@@ -41,11 +43,11 @@ void main()
 		vNDC = uViewProjectionMatrix * uModelMatrix * pos;
 		gl_Position = vNDC.xyww; 
 	}
-	else if(uMode == 2)
+	else if(uMode == 3)
 	{
 		float offset = 0;
 		vTexture.y = 1.0 - aTexture.y;
-		vTexture.x = aTexture.x / 256.0 + (uOffsets[gl_InstanceID] / 256.0);
+		vTexture.x = aTexture.x / letterSize + (uOffsets[gl_InstanceID] / letterSize);
 
 		float left = aPosition.x + 0.5 + gl_InstanceID * uCharacterDistance;
 		pos = vec4(aPosition, 1.0);
@@ -64,11 +66,11 @@ void main()
 		vNDC = uViewProjectionMatrix * uModelMatrix * pos;
 		gl_Position = vNDC.xyww; 
 	}
-	else if(uMode == 3)
+	else if(uMode == 4)
 	{
 		float offset = 0;
 		vTexture.y = 1.0 - aTexture.y;
-		vTexture.x = aTexture.x / 256.0 + (uOffsets[gl_InstanceID] / 256.0);
+		vTexture.x = aTexture.x / letterSize + (uOffsets[gl_InstanceID] / letterSize);
 
 		float left = aPosition.x + 0.5 + gl_InstanceID * uCharacterDistance;
 		pos = vec4(aPosition, 1.0);
@@ -85,6 +87,7 @@ void main()
 
 		pos.x += (offset);
 		pos.y += 0.1f;
+		pos.x += -0.05f;
 		vNDC = uViewProjectionMatrix * uModelMatrix * pos;
 		gl_Position = vNDC.xyww; 
 	}

@@ -24,7 +24,7 @@ void main()
     }
     vec4 tex = texture(uTexture, vTexture);
 
-    if(uMode >= 2)
+    if(uMode >= 3)
     {
         // blink = -1
         // fade  = +1

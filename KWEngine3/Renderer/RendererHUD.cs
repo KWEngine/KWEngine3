@@ -271,7 +271,7 @@ namespace KWEngine3.Renderer
                 HUDObjectTextInput i = (HUDObjectTextInput)ho;
                 if(i.HasFocus && i._offsetsCursor != null)
                 {
-                    GL.Uniform1(UMode, i.CursorType == KeyboardCursorType.Pipe ? 2 : 3);
+                    GL.Uniform1(UMode, i.CursorType == KeyboardCursorType.Pipe ? 3 : 4);
                     GL.Uniform3(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed);
                     GL.Uniform1(UOffsets, i._offsetsCursor.Length, i._offsetsCursor);
                     GL.Uniform1(UOffsetCount, i._offsetsCursor.Length);
