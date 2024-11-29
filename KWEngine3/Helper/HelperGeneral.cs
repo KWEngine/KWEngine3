@@ -29,7 +29,6 @@ namespace KWEngine3.Helper
             specialKey = Keys.Unknown;
             bool shift = KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftShift) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightShift);
 
-
             foreach (Keys key in Enum.GetValues<Keys>())
             {
                 if(key == Keys.Backspace && KWEngine.Window.KeyboardState.IsKeyPressed(key)) // backspace

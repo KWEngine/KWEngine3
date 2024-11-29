@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using KWEngine3.Helper;
+using OpenTK.Mathematics;
 using System.Security.Cryptography;
 
 namespace KWEngine3.GameObjects
@@ -203,7 +204,13 @@ namespace KWEngine3.GameObjects
             _offsets = new int[_text.Length];
             for (int i = 0; i < _text.Length; i++)
             {
-                int offset = _text[i] - 32;
+                int offset;
+                if (HelperFont.TextToOffsetDict.TryGetValue(_text[i], out offset))
+                {
+                    // ;-)
+                }
+                else
+                    offset = _text[i] - 32;
                 _offsets[i] = offset;
             }
         }

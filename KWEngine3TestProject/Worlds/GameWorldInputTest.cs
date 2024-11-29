@@ -18,11 +18,11 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            HUDObject h = new HUDObjectText("World 1");
+            HUDObject h = new HUDObjectText("äÄüÜöÖß");
             h.SetPosition(200, 100);
             AddHUDObject(h);
 
-            HUDObjectTextInput inputTest = new HUDObjectTextInput("In put");
+            HUDObjectTextInput inputTest = new HUDObjectTextInput("");
             inputTest.CursorBehaviour = KeyboardCursorBehaviour.Fade;
             inputTest.CursorType = KeyboardCursorType.Underscore;
             inputTest.CursorPosition = 0;
