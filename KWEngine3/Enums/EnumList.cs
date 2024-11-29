@@ -13,7 +13,11 @@
         /// <summary>
         /// Unterstrich
         /// </summary>
-        Underscore = 1
+        Underscore = 1,
+        /// <summary>
+        /// Block
+        /// </summary>
+        Block = 2
     }
 
     /// <summary>
@@ -316,15 +320,15 @@
         /// <summary>
         /// Linksbündig
         /// </summary>
-        Left,
+        Left = 0,
         /// <summary>
         /// Zentriert
         /// </summary>
-        Center,
+        Center = 1,
         /// <summary>
         /// Rechtsbündig
         /// </summary>
-        Right
+        Right = 2
     }
 
     /// <summary>

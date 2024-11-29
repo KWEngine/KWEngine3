@@ -763,6 +763,11 @@ namespace KWEngine3
         {
             base.OnKeyUp(e);
             _keyboard._keysPressed.Remove(e.Key);
+            if((e.Key == Keys.Enter || e.Key == Keys.KeyPadEnter || e.Key == Keys.Escape) && KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
+            {
+                KWEngine.CurrentWorld._hudObjectInputWithFocus.HasFocus = false;
+                KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
+            }
             
         }
 
@@ -1083,8 +1088,6 @@ namespace KWEngine3
                         KWEngine.CurrentWorld.Act();
                     }
 
-                    KWEngine.CurrentWorld.ProcessWorldEventQueue();
-
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                     {
                         KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._statePrevious = KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._stateCurrent;
@@ -1120,6 +1123,8 @@ namespace KWEngine3
                         }
                     }
 
+                    KWEngine.CurrentWorld.ProcessWorldEventQueue();
+
                     double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
@@ -1145,7 +1150,7 @@ namespace KWEngine3
             {
                 ProcessKeysForHUDObjectTextInput(KWEngine.CurrentWorld._hudObjectInputWithFocus);
             }
-            
+
             return n;
         }
 

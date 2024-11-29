@@ -31,11 +31,11 @@ namespace KWEngine3.Helper
 
             foreach (Keys key in Enum.GetValues<Keys>())
             {
-                if(key == Keys.Enter || key == Keys.KeyPadEnter)
+                if((key == Keys.Enter || key == Keys.KeyPadEnter) && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = Keys.Enter;
                 }
-                if (key == Keys.Escape)
+                if (key == Keys.Escape && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = Keys.Escape;
                 }
@@ -84,7 +84,6 @@ namespace KWEngine3.Helper
 
         internal static char GetCharForKey(Keys key, bool shift, out bool changed)
         {
-            //Console.WriteLine(key + " (" + (shift ? "SHIFT" : "NO SHIFT") + ")");
             changed = true;
             if (shift)
             {

@@ -1,4 +1,4 @@
-﻿
+﻿using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3.GameObjects
 {
@@ -20,7 +20,8 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Sorgt dafür, dass die Instanz den Eingabefokus erhält
         /// </summary>
-        public void GetFocus()
+        /// <param name="moveCursorToEnd">gibt an, ob der Cursor beim Erlangen des Fokus an das Ende der Zeichenkette gesetzt werden soll (Standard: true)</param> 
+        public void GetFocus(bool moveCursorToEnd = true)
         {
             KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
             foreach (HUDObject h in KWEngine.CurrentWorld._hudObjects)
@@ -35,6 +36,7 @@ namespace KWEngine3.GameObjects
             }
             HasFocus = true;
             _textBeforeAbort = Text;
+            if(moveCursorToEnd) MoveCursorToEnd();
             KWEngine.CurrentWorld._hudObjectInputWithFocus = this;
         }
 
@@ -77,7 +79,18 @@ namespace KWEngine3.GameObjects
             {
                 _offsetsCursor[i] = 0;
             }
-            _offsetsCursor[_cursorPos] = CursorType == KeyboardCursorType.Pipe ? '|' - 32 : '_' - 32;
+            if(CursorType == KeyboardCursorType.Pipe)
+            {
+                _offsetsCursor[_cursorPos] = '|' - 32;
+            }
+            else if(CursorType == KeyboardCursorType.Underscore)
+            {
+                _offsetsCursor[_cursorPos] = '_' - 32;
+            }
+            else
+            {
+                _offsetsCursor[_cursorPos] = 102;
+            }
             for (int i = _cursorPos + 1; i < _text.Length + 1; i++)
             {
                 _offsetsCursor[i] = 0;
@@ -86,20 +99,41 @@ namespace KWEngine3.GameObjects
 
 
         /// <summary>
-        /// Gibt den Eingabefokus wieder frei
+        /// Gibt den Eingabefokus für den kommenden Simulatiosschritt wieder frei
         /// </summary>
-        /// <param name="reason">Gibt optional den Grund für das Verlassen des Fokus an</param>
+        /// <param name="reason">Gibt optional den Grund für das Verlassen des Fokus an. Dieser wird der Event-Beschreibung angehängt.</param>
         public void ReleaseFocus(string reason = "")
         {
-            HasFocus = false;
             WorldEvent e = new WorldEvent(KWEngine.WorldTime, "[HUDObjectTextInput|" + reason + "]", this);
             e.GeneratedByInputFocusLost = true;
             KWEngine.CurrentWorld.AddWorldEvent(e);
-            KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
+            
+            
+        }
+
+        internal void KeepENTERESCKeyPressedForOneSimulationStep()
+        {
+            if(KWEngine.Window._keyboard._keysPressed.ContainsKey(Keys.Enter))
+            {
+                KWEngine.Window._keyboard._keysPressed[Keys.Enter].Time = KWEngine.WorldTime + 1.0f;
+            }
+            else
+            {
+                KWEngine.Window._keyboard._keysPressed.Add(Keys.Enter, new KeyboardExtState() { OldWorld = false, Time = KWEngine.WorldTime + 1.0f });
+            }
+
+            if (KWEngine.Window._keyboard._keysPressed.ContainsKey(Keys.Escape))
+            {
+                KWEngine.Window._keyboard._keysPressed[Keys.Escape].Time = KWEngine.WorldTime + 1.0f;
+            }
+            else
+            {
+                KWEngine.Window._keyboard._keysPressed.Add(Keys.Escape, new KeyboardExtState() { OldWorld = false, Time = KWEngine.WorldTime + 1.0f });
+            }
         }
 
         /// <summary>
-        /// Bestätigt die aktuelle Eingabe
+        /// Bestätigt die aktuelle Eingabe und gibt den Eingabefokus für den kommenden Simulatiosschritt wieder frei
         /// </summary>
         public void ConfirmAndReleaseFocus()
         {
@@ -107,7 +141,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Bricht die aktuelle Eingabe ab
+        /// Bricht die aktuelle Eingabe ab und gibt den Eingabefokus für den kommenden Simulatiosschritt wieder frei
         /// </summary>
         public void AbortAndReleaseFocus()
         {
@@ -132,12 +166,29 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Bewegt den Cursor an den Anfang des Texts
+        /// </summary>
+        public void MoveCursorToEnd()
+        {
+            CursorPosition = Text.Length;
+        }
+
+        /// <summary>
+        /// Bewegt den Cursor an den Anfang des Texts
+        /// </summary>
+        public void MoveCursorToStart()
+        {
+            CursorPosition = 0;
+        }
+
+        /// <summary>
         /// Erstellt eine Instanz der Klasse mit einem Text
         /// </summary>
         /// <param name="text">Anzuzeigender Text</param>
         public HUDObjectTextInput(string text) : base(text)
         {
             SetText(text);
+            CursorPosition = Text.Length;
             _textBeforeAbort = text;
         }
 
@@ -201,7 +252,7 @@ namespace KWEngine3.GameObjects
             {
                 string substringFront = Text.Substring(0, _cursorPos - 1);
                 string substringBack = Text.Substring(_cursorPos);
-                SetText(substringFront + substringBack);
+                SetText(substringFront + substringBack, false);
                 if (CursorPosition != Text.Length)
                 {
                     MoveCursor(-1);
@@ -220,7 +271,7 @@ namespace KWEngine3.GameObjects
             {
                 string substringFront = Text.Substring(0, _cursorPos);
                 string substringBack = Text.Substring(_cursorPos + 1);
-                SetText(substringFront + substringBack);
+                SetText(substringFront + substringBack, false);
                 UpdateCursorOffsetList();
             }
         }
@@ -232,16 +283,6 @@ namespace KWEngine3.GameObjects
         internal void MoveCursor(int offset)
         {
             CursorPosition = CursorPosition + offset;
-        }
-
-        internal void MoveCursorToEnd()
-        {
-            CursorPosition = Text.Length;
-        }
-
-        internal void MoveCursorToStart()
-        {
-            CursorPosition = 0;
         }
         #endregion
     }
