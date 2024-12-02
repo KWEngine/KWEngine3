@@ -573,7 +573,7 @@ namespace KWEngine3.Helper
         /// <param name="value">zu normalisierender Wert</param>
         /// <param name="rangeMin">Bereichsminimum</param>
         /// <param name="rangeMax">Bereichsmaximum</param>
-        /// <returns></returns>
+        /// <returns>Normalisierter Wert</returns>
         public static float NormalizeValueToRange(float value, float rangeMin, float rangeMax)
         {
             float normalizedValue = (value - rangeMin) / (rangeMax - rangeMin);
