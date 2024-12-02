@@ -16,6 +16,8 @@ out vec2 vTexture;
 out vec3 vNormal;
 out vec4 vShadowCoord[3];
 
+const float letterSize = 128.0;
+
 void main()
 {
 	vec4 totalLocalPos = vec4(0.0);
@@ -31,6 +33,6 @@ void main()
 		vShadowCoord[i] = uViewProjectionMatrixShadowMap[i] * uModelMatrix * totalLocalPos;
 	}
 	vNormal = normalize((uModelMatrix * totalNormal).xyz);
-	vTexture.x = aTexture.x / 256.0 + (uCharacterOffsets[gl_InstanceID] / 256.0);
+	vTexture.x = aTexture.x / letterSize + (uCharacterOffsets[gl_InstanceID] / letterSize);
 	vTexture.y = aTexture.y;
 }
