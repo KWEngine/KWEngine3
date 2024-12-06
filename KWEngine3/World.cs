@@ -66,6 +66,7 @@ namespace KWEngine3
         internal Camera _cameraGame;
         internal Camera _cameraEditor;
         internal bool _startingFrameActive = false;
+        internal bool _mouseCursorJustGrabbed = false;
 
         internal Vector2 _xMinMax = new(float.MaxValue, float.MinValue);
         internal Vector2 _yMinMax = new(float.MaxValue, float.MinValue);
@@ -1447,6 +1448,8 @@ namespace KWEngine3
         /// </summary>
         public void AddCameraRotationFromMouseDelta()
         {
+            if (_mouseCursorJustGrabbed)
+                return;
             _cameraGame.YawAndPitch(new Vector2(KWEngine.Window._mouseDeltaToUse.X * Math.Abs(KWEngine.MouseSensitivity), KWEngine.Window._mouseDeltaToUse.Y * KWEngine.MouseSensitivity));
             //_cameraGame.YawAndPitch(new Vector2(KWEngine.Window.MouseState.Delta.X * Math.Abs(KWEngine.MouseSensitivity), KWEngine.Window.MouseState.Delta.Y * KWEngine.MouseSensitivity));
         }
@@ -1802,7 +1805,7 @@ namespace KWEngine3
             }
             Window.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
             Window.ResetMouseDeltas();
-            _startingFrameActive = true;
+            _mouseCursorJustGrabbed = true;
         }
         /// <summary>
         /// Verstecke den Mauszeiger

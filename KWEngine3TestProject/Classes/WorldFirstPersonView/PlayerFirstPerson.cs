@@ -4,6 +4,7 @@ using KWEngine3.Helper;
 using KWEngine3.GameObjects;
 using System;
 using System.Collections.Generic;
+using KWEngine3TestProject.Worlds;
 
 
 namespace KWEngine3TestProject.Classes.WorldFirstPersonView
@@ -17,11 +18,12 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
         public override void Act()
         {
             
+            /*
             if(HelperRandom.GetRandomNumber(0, 256) == 0)
             {
                 CurrentWorld.StartCameraShake(3, 3, 3);
             }
-            
+            */
 
             if(Keyboard.IsKeyPressed(Keys.F5))
             {
@@ -37,6 +39,10 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
                 }
             }
 
+            if(CurrentWorld is GameWorldFirstPersonView && (CurrentWorld as GameWorldFirstPersonView).IsPaused())
+            {
+                return;
+            }
 
 
             ViewSpaceGameObject vsg = CurrentWorld.GetViewSpaceGameObject();

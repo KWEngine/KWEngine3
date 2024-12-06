@@ -4,15 +4,33 @@ using KWEngine3.Helper;
 using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldFirstPersonView;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 
 namespace KWEngine3TestProject.Worlds
 {
     public class GameWorldFirstPersonView : World
     {
+        public bool IsPaused()
+        {
+            return _paused;
+        }
+
+        private bool _paused = false;
         public override void Act()
         {
-          
+            if (!_paused && Keyboard.IsKeyPressed(Keys.Escape))
+            {
+                _paused = true;
+                MouseCursorReset();
+                Console.WriteLine("paused");
+            }
+            else if (_paused && Keyboard.IsKeyPressed(Keys.Escape))
+            {
+                _paused = false;
+                MouseCursorGrab();
+                Console.WriteLine("unpaused");
+            }
         }
 
         public override void Prepare()

@@ -49,7 +49,7 @@ namespace KWEngine3
 
         internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
         {
-            if (KWEngine.CurrentWorld._startingFrameActive)
+            if (KWEngine.CurrentWorld._mouseCursorJustGrabbed)
                 return Vector2.Zero;
 
             _mouseDeltas.Add(mouseDelta * (1f / dt_ms));
@@ -285,6 +285,10 @@ namespace KWEngine3
 
             UpdateDeltaTime(e.Time);
             _mouseDeltaToUse = GatherWeightedMovingAvg(MouseState.Delta, (float)(e.Time * 1000.0));
+
+            if (KWEngine.CurrentWorld._mouseCursorJustGrabbed)
+                KWEngine.CurrentWorld._mouseCursorJustGrabbed = false;
+
             float alpha = UpdateScene();
 
             List<LightObject> pointLights = new();
@@ -841,7 +845,7 @@ namespace KWEngine3
             if (KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
             {
                 KWEngine.CurrentWorld._startingFrameActive = false;
-                
+
             }
             int n = 0;
             if (KWEngine.CurrentWorld._startingFrameActive == false)

@@ -7,20 +7,37 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldInputTest : World
     {
+        private bool _paused = false;
         public override void Act()
         {
+            /*
             if(Keyboard.IsKeyPressed(Keys.Enter) || Keyboard.IsKeyPressed(Keys.Escape))
             {
                 Console.WriteLine("ENTER on World1 pressed");
                 Window.SetWorld(new GameWorldInputTest2());
             }
+            */
 
+            if(!_paused && Keyboard.IsKeyPressed(Keys.Escape))
+            {
+                _paused = true;
+                MouseCursorReset();
+                Console.WriteLine("paused");
+            }
+            else if(_paused && Keyboard.IsKeyPressed(Keys.Escape))
+            {
+                _paused = false;
+                MouseCursorGrab();
+                Console.WriteLine("unpaused");
+            }
+            
             HUDObjectTextInput h = GetHUDObjectTextInputByName("InputTest");
             if(h != null && h.IsMouseCursorOnMe() && Mouse.IsButtonPressed(MouseButton.Left))
             {
                 h.SetColor(1, 1, 0);
                 h.GetFocus();
             }
+            
         }
 
         public override void Prepare()
@@ -38,6 +55,8 @@ namespace KWEngine3TestProject.Worlds
             inputTest.GetFocus();
             inputTest.CenterOnScreen();
             AddHUDObject(inputTest);
+
+            MouseCursorGrab();
         }
 
         protected override void OnWorldEvent(WorldEvent e)
