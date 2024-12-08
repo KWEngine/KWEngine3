@@ -24,7 +24,7 @@ namespace KWEngine3.Helper
                     UpdateFlowField();
                     WorldTimeLast = KWEngine.WorldTime;
                 }
-                Thread.Sleep(1);
+                Thread.Sleep(33);
             }
         }
 

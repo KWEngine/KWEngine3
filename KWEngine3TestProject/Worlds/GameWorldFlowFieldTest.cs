@@ -16,22 +16,32 @@ namespace KWEngine3TestProject.Worlds
             FlowField f = GetFlowField();
             if (f != null)
             {
+                if (Keyboard.IsKeyDown(Keys.Left))
+                {
+                    f.SetPosition(f.Center.X - 0.005f, f.Center.Z - 0.005f);
+                }
+                else if(Keyboard.IsKeyDown(Keys.Right))
+                {
+                    f.SetPosition(f.Center.X + 0.005f, f.Center.Z + 0.005f);
+                }
+
                 FlowFieldCell ffc = f.GetCellForWorldPosition(cursorPosWorld);
+                //Console.WriteLine(ffc.IndexX + "|" + ffc.IndexZ);
                 if (ffc != null)
                 {
-                    FlowFieldCell ffc2 = ffc.GetNeighbourCellAtOffset(-1, -1);
+                    FlowFieldCell ffc2 = ffc.GetNeighbourCellAtOffset(0, 0);
                     if(ffc2 != null)
                     {
-                        Console.WriteLine(ffc2.IndexX + "|" + ffc2.IndexZ + ": " + ffc2.Cost);
+                        //Console.WriteLine(ffc2.IndexX + "|" + ffc2.IndexZ + ": " + ffc2.Cost);
                     }
                     else
                     {
-                        Console.WriteLine("offset invalid");
+                        //Console.WriteLine("offset invalid");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Cursor not inside flow field");
+                   // Console.WriteLine("Cursor not inside flow field");
                 }
 
                 

@@ -31,9 +31,12 @@ namespace KWEngine3TestProject.Classes.WorldFlowFieldTest
                         }
                         myNewDirection = myNewDirection / 60f;
                     }
-                    else
+                }
+                else
+                {
+                    if(f.HasTarget)
                     {
-
+                        myNewDirection = f.GetLinearDirectionForPosition(this.Position);
                     }
                 }
                 
@@ -41,7 +44,7 @@ namespace KWEngine3TestProject.Classes.WorldFlowFieldTest
 
             if(myNewDirection != Vector3.Zero)
             {
-                MoveAlongVector(myNewDirection, 0.01f);
+                MoveAlongVector(myNewDirection, 0.02f);
             }
 
             List<Intersection> intersections = GetIntersections();

@@ -31,9 +31,13 @@ namespace KWEngine3.Helper
         {
             Vector2i giWithOffset = _gridIndex + new Vector2i(offsetX, offsetZ);
             if (giWithOffset.X >= Parent.GridCellCount.X || giWithOffset.X < 0 || giWithOffset.Y >= Parent.GridCellCount.Z || giWithOffset.Y < 0)
+            {
                 return null;
+            }
             else
+            {
                 return Parent.Grid[giWithOffset.X, giWithOffset.Y];
+            }
         }
 
         /// <summary>
@@ -91,10 +95,15 @@ namespace KWEngine3.Helper
             Position = worldpos;
             _gridIndex = gridIndex;
             Cost = 1;
-            //CostForFlowField = 1;
             BestCost = uint.MaxValue;
             BestDirection = Vector3.Zero;
         }
+
+        internal void SetPosition(Vector3 worldPos)
+        {
+            Position = worldPos;
+        }
+
 
         internal void SetCostTo(byte cost)
         {

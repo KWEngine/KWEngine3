@@ -160,6 +160,7 @@
       <Field Name="_lightObjectsToBeAdded" Hidden="true" />
       <Field Name="_lightObjectsToBeRemoved" Hidden="true" />
       <Field Name="_map" Hidden="true" />
+      <Field Name="_mouseCursorJustGrabbed" Hidden="true" />
       <Field Name="_particleAndExplosionObjects" Hidden="true" />
       <Field Name="_preparedCubeMapIndices" Hidden="true" />
       <Field Name="_preparedLightsArray" Hidden="true" />
@@ -205,7 +206,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQt0OI6AJHRKdBUdzpGihb1iTK5ZD6YcUeGCH/EeA/0=</HashCode>
+      <HashCode>SQt0OI6AJHRKdBUdzpGihb1iTK5ZD6YcUeGCH/EeB/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -611,11 +612,13 @@
       <Method Name="GetCellFromWorldPosition" Hidden="true" />
       <Method Name="GetNeighbourCells" Hidden="true" />
       <Property Name="Grid" Hidden="true" />
+      <Method Name="SetTargetAfterRepositioning" Hidden="true" />
       <Method Name="UpdateCostField" Hidden="true" />
       <Method Name="UpdateFlowField" Hidden="true" />
+      <Method Name="UpdateGridAndTarget" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQEAhCAAMAEFBQIAgMACgAAQAgADBgWCAAAAEAYABI=</HashCode>
+      <HashCode>AUQEAhCAAMAEFBQIAgMAigAAQAgADhgWSAAAAEAYABI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -684,7 +687,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowFieldCell">
-    <Position X="18.5" Y="19.25" Width="2.75" />
+    <Position X="18.5" Y="19.5" Width="2.75" />
     <Members>
       <Field Name="_bestCost" Hidden="true" />
       <Field Name="_cost" Hidden="true" />
@@ -694,9 +697,10 @@
       <Method Name="FlowFieldCell" Hidden="true" />
       <Property Name="Parent" Hidden="true" />
       <Method Name="SetCostTo" Hidden="true" />
+      <Method Name="SetPosition" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ACAAAAAAACBAAAAgAAAAQBgAAAAAAAABAEEAAAAAAgA=</HashCode>
+      <HashCode>ACAAAAAAACBAAAAgAAAAQBgAAAAAAgABAEEAAAAAAgA=</HashCode>
       <FileName>Helper\FlowFieldCell.cs</FileName>
     </TypeIdentifier>
   </Class>

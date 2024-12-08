@@ -17,15 +17,15 @@ namespace KWEngine3.Helper
         /// <summary>
         /// Anzahl der Zellen im Feld (in allen drei Dimensionen, wobei nur X- und Z-Dimension zählen)
         /// </summary>
-        public Vector3i GridCellCount { get; private set; }
+        public Vector3i GridCellCount { get; internal set; }
         /// <summary>
         /// Radius einer Zelle
         /// </summary>
-        public float CellRadius { get; private set; }
+        public float CellRadius { get; internal set; }
         /// <summary>
         /// Mittelpunkt der FlowField-Instanz
         /// </summary>
-        public Vector3 Center { get; private set; }
+        public Vector3 Center { get; internal set; }
         /// <summary>
         /// Gibt an, ob die Instanz zu Debugging-Zwecken sichtbar gemacht werden soll
         /// </summary>
@@ -34,12 +34,12 @@ namespace KWEngine3.Helper
         /// <summary>
         /// Gibt die letztbekannte Zielposition innerhalb des Feldes an
         /// </summary>
-        public Vector3 TargetPosition { get { return _target; } }
+        public Vector3 TargetPosition { get { return _target.Xyz; } }
 
         /// <summary>
         /// Messmodus für die Erstellung der Streckenkosten (Simple oder Box)
         /// </summary>
-        public FlowFieldMode Mode { get; private set; }
+        public FlowFieldMode Mode { get; internal set; }
 
         /// <summary>
         /// Erzeugt ein FlowField für die angegebenen GameObject-Typen
@@ -189,21 +189,44 @@ namespace KWEngine3.Helper
         /// Berechnet die Richungsanweisungen im gesamten FlowField für die neue Zielposition
         /// </summary>
         /// <param name="position">Neue Positionsangabe</param>
-        public void SetTarget(Vector3 position)
+        /// <param name="clampToGrid">Gibt an, ob die Zielposition auf die nächstgelegene FlowField-Zelle angepasst werden soll, wenn es außerhalb der FlowField-Instanz liegt (Standard: false)</param>
+        public void SetTarget(Vector3 position, bool clampToGrid = false)
         {
+            bool contains = this.Contains(position);
+            if (!clampToGrid && !contains)
+            {
+                UnsetTarget();
+                return;
+            }
+
             if (Destination != null)
             {
                 lock (Destination)
                 {
-                    _target = position;
+                    _target = new Vector4(position, 1f);
                     _targetIsUpdated = true;
                 }
             }
             else
             {
-                _target = position;
+                _target = new Vector4(position, 1f);
                 _targetIsUpdated = true;
             }
+
+        }
+
+        /// <summary>
+        /// Gibt die (normalisierte) Luftlinienrichtung von der angegebenen Position zum aktuellen Ziel zurück.
+        /// </summary>
+        /// <param name="position">Zielposition</param>
+        /// <returns>Luftlinienrichtung</returns>
+        public Vector3 GetLinearDirectionForPosition(Vector3 position)
+        {
+            if(HasTarget)
+            {
+                return Vector3.NormalizeFast(new Vector3(_target.X - position.X, 0, _target.Z - position.Z));
+            }
+            return Vector3.Zero;
         }
 
         /// <summary>
@@ -232,10 +255,11 @@ namespace KWEngine3.Helper
         /// Erfragt Details zu der FlowField-Zelle, die der übergebenen Weltposition entspricht
         /// </summary>
         /// <param name="position">Position in Weltkoordinaten</param>
+        /// <param name="clampToGrid">Gibt an, ob die Position auf die nächstgelegene Zelle angepasst werden soll, wenn sie eigentlich außerhalb des Grids liegt (Standard: false)</param>
         /// <returns>Zell-Instanz falls das FlowField diese Position abdeckt - null, falls die Position außerhalb des FlowFields liegt</returns>
-        public FlowFieldCell GetCellForWorldPosition(Vector3 position)
+        public FlowFieldCell GetCellForWorldPosition(Vector3 position, bool clampToGrid = false)
         {
-            return GetCellFromWorldPosition(position, false);
+            return GetCellFromWorldPosition(position, clampToGrid);
         }
 
         /// <summary>
@@ -247,10 +271,27 @@ namespace KWEngine3.Helper
         {
             if (Destination != null)
             {
-                FlowFieldCell result = GetCellFromWorldPosition(position);
+                FlowFieldCell result = GetCellFromWorldPosition(position, false);
                 return result == Destination;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Aktualisiert den Mittelpunkt der FlowField-Instanz (erzeugt eine Verschiebung des FlowFields)
+        /// </summary>
+        /// <param name="x">Verschiebung des FlowField in x-Richtung</param>
+        /// <param name="z">Verschiebung des FlowField in z-Richtung</param>
+        public void SetPosition(float x, float z)
+        {
+            Center = new Vector3(x, Center.Y, z);
+            _ffleft = Center.X - GridCellCount.X * CellRadius;
+            _ffright = Center.X + GridCellCount.X * CellRadius;
+            _ffback = Center.Z - GridCellCount.Z * CellRadius;
+            _fffront = Center.Z + GridCellCount.Z * CellRadius;
+            _fftop = Center.Y + GridCellCount.Y * 0.5f;
+            _ffbottom = Center.Y - GridCellCount.Y * 0.5f;
+            UpdateGridAndTarget();
         }
 
         /// <summary>
@@ -274,13 +315,15 @@ namespace KWEngine3.Helper
                 lock (Destination)
                 {
                     Destination = null;
-                    _targetIsUpdated = false;
+                    _targetIsUpdated = true;
+                    _target.W = 0f;
                 }
             }
             else
             {
                 Destination = null;
-                _targetIsUpdated = false;
+                _targetIsUpdated = true;
+                _target.W = 0f;
             }
         }
 
@@ -343,6 +386,19 @@ namespace KWEngine3.Helper
             }
         }
 
+        internal void UpdateGridAndTarget()
+        {
+            for (int x = 0; x < GridCellCount.X; x++)
+            {
+                for (int z = 0; z < GridCellCount.Z; z++)
+                {
+                    Vector3 worldPos = new Vector3(Center.X - (GridCellCount.X / 2f) * _cellDiametre, Center.Y, Center.Z - (GridCellCount.Z / 2f) * _cellDiametre) + new Vector3(_cellDiametre * x + CellRadius, 0, _cellDiametre * z + CellRadius);
+                    Grid[x, z].SetPosition(worldPos);
+                }
+            }
+            SetTargetAfterRepositioning();
+        }
+
         internal void CreateGrid()
         {
             Grid = new FlowFieldCell[GridCellCount.X, GridCellCount.Z];
@@ -373,10 +429,18 @@ namespace KWEngine3.Helper
             float percentX = (worldPosition.X - Center.X) / (GridCellCount.X * _cellDiametre);
             float percentZ = (worldPosition.Z - Center.Z) / (GridCellCount.Z * _cellDiametre);
 
-            percentX = MathHelper.Clamp(percentX + 0.5f, 0f, 1f);
-            percentZ = MathHelper.Clamp(percentZ + 0.5f, 0f, 1f);
+            if(clampToGrid)
+            {
+                percentX = MathHelper.Clamp(percentX + 0.5f, 0f, 1f);
+                percentZ = MathHelper.Clamp(percentZ + 0.5f, 0f, 1f);
+            }
+            else
+            {
+                percentX = percentX + 0.5f;
+                percentZ = percentZ + 0.5f;
+            }
 
-            int x, z = -1;
+            int x, z;
             if (clampToGrid)
             {
                 x = MathHelper.Clamp((int)(GridCellCount.X * percentX), 0, GridCellCount.X - 1);
@@ -385,14 +449,19 @@ namespace KWEngine3.Helper
             }
             else
             {
+                if (percentX > 1f || percentX < 0f || percentZ > 1f || percentZ < 0f)
+                    return null;
                 x = (int)(GridCellCount.X * percentX);
                 z = (int)(GridCellCount.Z * percentZ);
                 if (x < 0 || x >= GridCellCount.X || z < 0 || z >= GridCellCount.Z)
+                {
                     return null;
+                }
                 else
+                {
                     return Grid[x, z];
+                }
             }
-            
         }
 
         internal void CreateFlowField()
@@ -430,17 +499,29 @@ namespace KWEngine3.Helper
         {
             if (_targetIsUpdated)
             {
-                FlowFieldCell destination = GetCellFromWorldPosition(_target);
-                if (destination == null)
+                if (_target.W > 0f)
                 {
-                    Destination = null;
+                    FlowFieldCell destination = GetCellFromWorldPosition(_target.Xyz, false);
+                    if (destination == null)
+                    {
+                        Destination = null;
+                    }
+                    else
+                    {
+                        Destination = destination;
+                    }
                 }
                 else
                 {
-                    Destination = destination;
+                    Destination = null;
                 }
                 _targetIsUpdated = false;
             }
+            else
+            {
+                return;
+            }
+            
 
 
             if (Destination != null)
@@ -474,10 +555,29 @@ namespace KWEngine3.Helper
             }
         }
 
+        internal void SetTargetAfterRepositioning()
+        {
+            bool contains = this.Contains(_target.Xyz);
+            if (!contains)
+            {
+                UnsetTarget();
+                return;
+            }
+
+            if (Destination != null)
+            {
+                lock (Destination)
+                {
+                    _targetIsUpdated = true;
+                    _target.W = 1f;
+                }
+            }
+        }
+
         internal FlowFieldHitbox _hitbox;
         internal FlowFieldCell[,] Grid { get; private set; }
         internal FlowFieldCell Destination { get; private set; }
-        internal Vector3 _target = Vector3.Zero;
+        internal Vector4 _target = Vector4.Zero;
         internal bool _targetIsUpdated = false;
         internal int _updateCostField = 0;
         internal Type[] _types;
