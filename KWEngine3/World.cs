@@ -54,7 +54,7 @@ namespace KWEngine3
         internal List<TextObject> _textObjectsToBeAdded = new();
         internal List<TextObject> _textObjectsToBeRemoved = new();
 
-        internal FlowField _flowField = null;
+        internal List<FlowField> _flowFields = new List<FlowField>();
 
         internal List<TimeBasedObject> _particleAndExplosionObjects = new();
 
@@ -460,6 +460,11 @@ namespace KWEngine3
 
         internal void Dispose()
         {
+            lock (_flowFields)
+            {
+                _flowFields.Clear();
+            }
+
             foreach (LightObject l in _lightObjectsToBeAdded)
             {
                 l.DeleteShadowMap();
@@ -910,19 +915,60 @@ namespace KWEngine3
         /// <summary>
         /// Setzt das FlowField-Objekt (es kann aktuell immer nur ein FlowField pro Welt existieren)
         /// </summary>
-        /// <param name="f">FlowField-Objekt</param>
+        /// <param name="f">FlowField-Instanz</param>
+        [Obsolete("SetFlowField is deprecated, please use AddFlowField instead.")]
         public void SetFlowField(FlowField f)
         {
-            _flowField = f;
+            AddFlowField(f);
         }
 
         /// <summary>
-        /// Erfragt die Referenz auf das aktuelle FlowField
+        /// Fügt der aktuellen Welt die angegebene FlowField-Instanz hinzu
         /// </summary>
-        /// <returns>Referenz auf das FlowField - wenn keines vorhanden ist: null</returns>
-        public FlowField GetFlowField()
+        /// <param name="f">FlowField-Instanz</param>
+        public void AddFlowField(FlowField f)
         {
-            return _flowField;
+            lock (_flowFields)
+            {
+                if (!_flowFields.Contains(f))
+                {
+                    _flowFields.Add(f);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Entfernt die angegebene FlowField-Instanz aus der Welt
+        /// </summary>
+        /// <param name="f">zu löschende Instanz</param>
+        public void RemoveFlowField(FlowField f)
+        {
+            lock (_flowFields)
+            {
+                _flowFields.Remove(f);
+            }
+        }
+
+        /// <summary>
+        /// Erfragt die Referenz auf das aktuelle FlowField mit dem angegebenen Index (Standardwert: 0)
+        /// </summary>
+        /// <returns>FlowField-Instanz - wenn keine gefunden wird: null</returns>
+        public FlowField GetFlowField(int index = 0)
+        {
+            if (_flowFields.Count > 0 && _flowFields.Count > index)
+                return _flowFields[index];
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der aktuell aktiven FlowField-Instanzen nach einem Namen und gibt die erste Instanz, die mit diesem Namen übereinstimmt zurück
+        /// </summary>
+        /// <param name="name">gesuchter Name</param>
+        /// <returns>gefundene FlowField-Instanz (null, falls keine Instanz mit dem angegebenen Namen gefunden werden kann)</returns>
+        public FlowField GetFlowFieldByName(string name)
+        {
+            return _flowFields.Find(ff => ff.Name == name);
         }
 
         /// <summary>
@@ -1494,7 +1540,7 @@ namespace KWEngine3
         public List<GameObject> GetGameObjectsByName(string name)
         {
             name = name.Trim();
-            List<GameObject> os = _gameObjects.FindAll(go => go.Name == name);
+            List<GameObject> os = _gameObjects.FindAll(go => go.Name == name).ToList();
             return os;
         }
 

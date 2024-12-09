@@ -32,16 +32,16 @@ namespace KWEngine3TestProject.Worlds
                     FlowFieldCell ffc2 = ffc.GetNeighbourCellAtOffset(0, 0);
                     if(ffc2 != null)
                     {
-                        //Console.WriteLine(ffc2.IndexX + "|" + ffc2.IndexZ + ": " + ffc2.Cost);
+                        Console.WriteLine(ffc2.IndexX + "|" + ffc2.IndexZ + ": " + ffc2.Cost);
                     }
                     else
                     {
-                        //Console.WriteLine("offset invalid");
+                        Console.WriteLine("offset invalid");
                     }
                 }
                 else
                 {
-                   // Console.WriteLine("Cursor not inside flow field");
+                    Console.WriteLine("Cursor not inside flow field");
                 }
 
                 
@@ -104,9 +104,15 @@ namespace KWEngine3TestProject.Worlds
             floor.SetColor(0.25f, 0.5f, 0);
             AddGameObject(floor);
 
-            FlowField f = new FlowField(0, 0, 0, 6, 4, 1.0f, 1, FlowFieldMode.Simple, typeof(Impassable));
-            f.IsVisible = true;
-            SetFlowField(f);
+            FlowField f1 = new FlowField(-7.5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
+            f1.Name = "F1";
+            f1.IsVisible = true;
+            AddFlowField(f1);
+
+            FlowField f2 = new FlowField(7.5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
+            f2.Name = "F2";
+            f2.IsVisible = true;
+            AddFlowField(f2);
         }
     }
 }

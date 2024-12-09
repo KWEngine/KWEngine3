@@ -15,6 +15,11 @@ namespace KWEngine3.Helper
     public class FlowField
     {
         /// <summary>
+        /// Erfragt oder setzt den Namen der Instanz
+        /// </summary>
+        public string Name { get; set; } = "undefined FlowField name";
+
+        /// <summary>
         /// Anzahl der Zellen im Feld (in allen drei Dimensionen, wobei nur X- und Z-Dimension zählen)
         /// </summary>
         public Vector3i GridCellCount { get; internal set; }

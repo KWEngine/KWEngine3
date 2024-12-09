@@ -143,7 +143,7 @@
       <Field Name="_eventQueue" Hidden="true" />
       <Field Name="_fadeStateCurrent" Hidden="true" />
       <Field Name="_fadeStatePrevious" Hidden="true" />
-      <Field Name="_flowField" Hidden="true" />
+      <Field Name="_flowFields" Hidden="true" />
       <Field Name="_foliageObjects" Hidden="true" />
       <Field Name="_foliageObjectsToBeAdded" Hidden="true" />
       <Field Name="_foliageObjectsToBeRemoved" Hidden="true" />
@@ -618,7 +618,7 @@
       <Method Name="UpdateGridAndTarget" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQEAhCAAMAEFBQIAgMAigAAQAgADhgWSAAAAEAYABI=</HashCode>
+      <HashCode>AUQEAhCAAMAEFBQIAgMAigQAQAgADhgWSAAAAEAYABI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -687,7 +687,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowFieldCell">
-    <Position X="18.5" Y="19.5" Width="2.75" />
+    <Position X="18.5" Y="19.75" Width="2.75" />
     <Members>
       <Field Name="_bestCost" Hidden="true" />
       <Field Name="_cost" Hidden="true" />

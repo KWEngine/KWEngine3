@@ -4,5 +4,5 @@ layout(location = 0) out vec4 fragmentColor;
 uniform vec3 uColor;
 void main()
 {
-	fragmentColor = vec4(uColor, 1.0);
+	fragmentColor = vec4(uColor, 0.75);
 }

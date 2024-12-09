@@ -608,20 +608,24 @@ namespace KWEngine3
                     RendererDebug.Draw(maps);
                 }
             }
-            else if (KWEngine.CurrentWorld._flowField != null && KWEngine.CurrentWorld._flowField.IsVisible)
+            else if (KWEngine.CurrentWorld._flowFields.Count > 0)
             {
-                if (KWEngine.CurrentWorld._flowField.Destination != null)
-                {
-                    GL.Enable(EnableCap.Blend);
-                    RendererFlowFieldDirection.Bind();
-                    RendererFlowFieldDirection.SetGlobals();
-                    RendererFlowFieldDirection.Draw(KWEngine.CurrentWorld._flowField);
-                    RendererFlowFieldDirection.UnsetGlobals();
-                    GL.Disable(EnableCap.Blend);
-                }
-                RendererFlowField.Bind();
+                GL.Enable(EnableCap.Blend);
                 Matrix4 vp = KWEngine.Mode != EngineMode.Edit ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-                RendererFlowField.Draw(KWEngine.CurrentWorld._flowField, ref vp);
+                foreach (FlowField f in KWEngine.CurrentWorld._flowFields)
+                {
+                    if (f.Destination != null)
+                    {
+                        RendererFlowFieldDirection.Bind();
+                        RendererFlowFieldDirection.SetGlobals();
+                        RendererFlowFieldDirection.Draw(f);
+                        RendererFlowFieldDirection.UnsetGlobals();
+                    }
+                    RendererFlowField.Bind();
+                    RendererFlowField.Draw(f, ref vp);
+                }
+                GL.Disable(EnableCap.Blend);
+
             }
 #if DEBUG
             HelperGeneral.CheckGLErrors();

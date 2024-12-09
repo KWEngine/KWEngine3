@@ -50,10 +50,13 @@ namespace KWEngine3.Helper
 
         internal static void UpdateFlowField()
         {
-            if(KWEngine.CurrentWorld._flowField != null)
+            lock (KWEngine.CurrentWorld._flowFields)
             {
-                KWEngine.CurrentWorld._flowField.UpdateCostField();
-                KWEngine.CurrentWorld._flowField.UpdateFlowField();
+                foreach (FlowField f in KWEngine.CurrentWorld._flowFields)
+                {
+                    f.UpdateCostField();
+                    f.UpdateFlowField();
+                }
             }
         }
     }
