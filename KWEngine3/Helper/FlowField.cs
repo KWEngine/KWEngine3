@@ -344,7 +344,7 @@ namespace KWEngine3.Helper
                         if (_updateCostField == 1)
                         {
                             Vector3 rayStart = new Vector3(cell.Position.X, cell.Position.Y + GridCellCount.Y * 0.5f + KWEngine.RAYTRACE_SAFETY_SQ, cell.Position.Z);
-                            if (HelperIntersection.RaytraceObjectFastest(g, rayStart, -Vector3.UnitY))
+                            if (HelperIntersection.RaytraceObjectFast(g, rayStart, -Vector3.UnitY))
                             {
                                 if (!hasIncreasedCost)
                                 {
