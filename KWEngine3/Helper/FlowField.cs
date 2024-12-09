@@ -310,21 +310,8 @@ namespace KWEngine3.Helper
         /// </summary>
         public void UnsetTarget()
         {
-            if (Destination != null)
-            {
-                lock (Destination)
-                {
-                    Destination = null;
-                    _targetIsUpdated = true;
-                    _target.W = 0f;
-                }
-            }
-            else
-            {
-                Destination = null;
-                _targetIsUpdated = true;
-                _target.W = 0f;
-            }
+            _targetIsUpdated = true;
+            _target.W = 0f;
         }
 
         #region Internals
@@ -357,7 +344,7 @@ namespace KWEngine3.Helper
                         if (_updateCostField == 1)
                         {
                             Vector3 rayStart = new Vector3(cell.Position.X, cell.Position.Y + GridCellCount.Y * 0.5f + KWEngine.RAYTRACE_SAFETY_SQ, cell.Position.Z);
-                            if (HelperIntersection.RaytraceObjectFast(g, rayStart, -Vector3.UnitY))
+                            if (HelperIntersection.RaytraceObjectFastest(g, rayStart, -Vector3.UnitY))
                             {
                                 if (!hasIncreasedCost)
                                 {
@@ -369,7 +356,6 @@ namespace KWEngine3.Helper
                         else
                         {
                             _hitbox.Update(cell.Position.X, cell.Position.Y, cell.Position.Z);
-
                             foreach(GameObjectHitbox ghb in g._colliderModel._hitboxes)
                             {
                                 if(HelperIntersection.TestIntersection(_hitbox, ghb))
@@ -557,6 +543,7 @@ namespace KWEngine3.Helper
 
         internal void SetTargetAfterRepositioning()
         {
+            Update();
             bool contains = this.Contains(_target.Xyz);
             if (!contains)
             {
@@ -566,11 +553,8 @@ namespace KWEngine3.Helper
 
             if (Destination != null)
             {
-                lock (Destination)
-                {
-                    _targetIsUpdated = true;
-                    _target.W = 1f;
-                }
+                _targetIsUpdated = true;
+                _target.W = 1f;
             }
         }
 

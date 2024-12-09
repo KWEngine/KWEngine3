@@ -52,12 +52,12 @@ namespace KWEngine3TestProject.Worlds
                 }
                 
             }
-            /*
+            
             if (Keyboard.IsKeyPressed(Keys.F2))
             {
                 Window.SetWorld(new GameWorldFlowFieldTest2());
             }
-            */
+            
         }
 
         public override void Prepare()
