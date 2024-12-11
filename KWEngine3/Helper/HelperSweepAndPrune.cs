@@ -73,8 +73,8 @@ namespace KWEngine3.Helper
                 }
             }
 
-            try
-            {
+            //try
+            //{
                 axisList.Sort(
                     (x, y) =>
                     {
@@ -92,12 +92,12 @@ namespace KWEngine3.Helper
                         }
                     }
                 );
-            }
-            catch(Exception ex)
-            {
-                Debug.WriteLine("[Sweep&Prune] Sorting failed due to bad comparer value (" + ex.Message + ")");
-                return;
-            }
+            //}
+            //catch(Exception ex)
+            //{
+            //    Debug.WriteLine("[Sweep&Prune] Sorting failed due to bad comparer value (" + ex.Message + ")");
+            //    return;
+            //}
                 
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);

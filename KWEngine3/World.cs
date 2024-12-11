@@ -962,6 +962,15 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Erfragt die aktuelle Anzahl an aktiven FlowField-Instanzen in der Welt
+        /// </summary>
+        /// <returns>Anzahl der FlowField-Instanzen</returns>
+        public int GetFlowFieldCount()
+        {
+            return _flowFields.Count;
+        }
+
+        /// <summary>
         /// Durchsucht die Liste der aktuell aktiven FlowField-Instanzen nach einem Namen und gibt die erste Instanz, die mit diesem Namen übereinstimmt zurück
         /// </summary>
         /// <param name="name">gesuchter Name</param>
@@ -1913,10 +1922,18 @@ namespace KWEngine3
         /// <summary>
         /// Erfragt die Liste der aktuellen GameObject-Instanzen der Welt
         /// </summary>
-        /// <returns>Liste</returns>
-        public IReadOnlyCollection<GameObject> GetGameObjects()
+        /// <returns>Liste der aktuell aktiven Objekte</returns>
+        public List<GameObject> GetGameObjects()
         {
-            return _gameObjects.AsReadOnly();
+            List<GameObject> gos = new();
+            lock(_gameObjects)
+            {
+                foreach (GameObject gameObject in _gameObjects)
+                {
+                    gos.Add(gameObject);
+                }
+            }
+            return gos;
         }
 
         /// <summary>

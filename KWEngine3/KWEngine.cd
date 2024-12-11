@@ -206,7 +206,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQt0OI6AJHRKdBUdzpGihb1iTK5ZD6YcUeGCH/EeB/0=</HashCode>
+      <HashCode>SQt0OI6AJHRKdBUdzpGihb1iTK5ZD6YcUeGSH/EeB/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>

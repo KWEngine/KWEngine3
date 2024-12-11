@@ -316,6 +316,20 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die selbstleuchtende Farbtönung des Objekts
+        /// </summary>
+        /// <param name="color">Rot-/Grün-/Blauanteil (zwischen 0 und 2)</param>
+        /// <param name="intensity">Helligkeit (zwischen 0 und 10)</param>
+        public void SetColorEmissive(Vector3 color, float intensity)
+        {
+            _stateCurrent._colorEmissive = new Vector4(
+                MathHelper.Clamp(color.X, 0, 2),
+                MathHelper.Clamp(color.Y, 0, 2),
+                MathHelper.Clamp(color.Z, 0, 2),
+                MathHelper.Clamp(intensity, 0, 10));
+        }
+
+        /// <summary>
         /// Setzt fest, wie metallisch das Objekt ist
         /// </summary>
         /// <param name="m">Metallwert (zwischen 0 und 1)</param>

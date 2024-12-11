@@ -188,6 +188,7 @@ namespace KWEngine3.Helper
         public void Update()
         {
             _updateCostField = Mode == FlowFieldMode.Simple ? 1 : 2;
+            _targetIsUpdated = true;
         }
 
         /// <summary>
@@ -203,21 +204,8 @@ namespace KWEngine3.Helper
                 UnsetTarget();
                 return;
             }
-
-            if (Destination != null)
-            {
-                lock (Destination)
-                {
-                    _target = new Vector4(position, 1f);
-                    _targetIsUpdated = true;
-                }
-            }
-            else
-            {
-                _target = new Vector4(position, 1f);
-                _targetIsUpdated = true;
-            }
-
+            _target = new Vector4(position, 1f);
+            _targetIsUpdated = true;
         }
 
         /// <summary>
@@ -324,20 +312,19 @@ namespace KWEngine3.Helper
         {
             if (_updateCostField > 0)
             {
+                IReadOnlyCollection<GameObject> gameobjects = KWEngine.CurrentWorld.GetGameObjects();
                 List<GameObject> checkObjects = new List<GameObject>();
-                lock (KWEngine.CurrentWorld._gameObjects)
+                foreach (GameObject g in gameobjects)
                 {
-                    foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+                    if (HelperGeneral.IsObjectClassOrSubclassOfTypes(_types, g))
                     {
-                        if (HelperGeneral.IsObjectClassOrSubclassOfTypes(_types, g))
+                        if (g.FlowFieldCost > 1 && Contains(g))
                         {
-                            if (g.FlowFieldCost > 1 && Contains(g))
-                            {
-                                checkObjects.Add(g);
-                            }
+                            checkObjects.Add(g);
                         }
                     }
                 }
+                
                 foreach (FlowFieldCell cell in Grid)
                 {
                     bool hasIncreasedCost = false;
@@ -512,37 +499,39 @@ namespace KWEngine3.Helper
             {
                 return;
             }
-            
 
 
+            FlowFieldCell dest = null;
             if (Destination != null)
             {
                 lock (Destination)
                 {
-                    foreach (FlowFieldCell cell in Grid)
-                    {
-                        cell.BestCost = uint.MaxValue;
-                    }
+                    dest = HelperFlowField.CopyCell(Destination);
+                }
+            
+                foreach (FlowFieldCell cell in Grid)
+                {
+                    cell.BestCost = uint.MaxValue;
+                }
 
-                    Queue<FlowFieldCell> cellsToCheck = new Queue<FlowFieldCell>();
-                    cellsToCheck.Enqueue(Destination);
+                Queue<FlowFieldCell> cellsToCheck = new Queue<FlowFieldCell>();
+                cellsToCheck.Enqueue(dest);
 
-                    while (cellsToCheck.Count > 0)
+                while (cellsToCheck.Count > 0)
+                {
+                    FlowFieldCell currentCell = cellsToCheck.Dequeue();
+                    List<FlowFieldCell> currentNeighbours = GetNeighbourCells(currentCell._gridIndex, FlowFieldCellDirection.CardinalDirections);
+                    foreach (FlowFieldCell currentNeighbour in currentNeighbours)
                     {
-                        FlowFieldCell currentCell = cellsToCheck.Dequeue();
-                        List<FlowFieldCell> currentNeighbours = GetNeighbourCells(currentCell._gridIndex, FlowFieldCellDirection.CardinalDirections);
-                        foreach (FlowFieldCell currentNeighbour in currentNeighbours)
+                        if (currentNeighbour.Cost == byte.MaxValue) { continue; }
+                        if (currentNeighbour.Cost + currentCell.BestCost < currentNeighbour.BestCost)
                         {
-                            if (currentNeighbour.Cost == byte.MaxValue) { continue; }
-                            if (currentNeighbour.Cost + currentCell.BestCost < currentNeighbour.BestCost)
-                            {
-                                currentNeighbour.BestCost = currentNeighbour.Cost + currentCell.BestCost;
-                                cellsToCheck.Enqueue(currentNeighbour);
-                            }
+                            currentNeighbour.BestCost = currentNeighbour.Cost + currentCell.BestCost;
+                            cellsToCheck.Enqueue(currentNeighbour);
                         }
                     }
-                    CreateFlowField();
                 }
+                CreateFlowField();
             }
         }
 

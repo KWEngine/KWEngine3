@@ -13,9 +13,46 @@ namespace KWEngine3TestProject.Worlds
         public override void Act()
         {
             Vector3 cursorPosWorld = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 0);
+
+            int r = HelperRandom.GetRandomNumber(1, 60);
+            if(r == 1)
+            {
+                Impassable i = new Impassable();
+                i.SetScale(4, 1, 2);
+                i.SetColor(1, 1, 1);
+                i.SetPosition(HelperRandom.GetRandomNumber(-10f, 10f), 0, HelperRandom.GetRandomNumber(-10f, 10f));
+                i.FlowFieldCost = 255;
+                i.IsCollisionObject = true;
+                AddGameObject(i);
+
+                for (int j = 0; j < GetFlowFieldCount(); j++)
+                {
+                    GetFlowField(j).Update();
+                }
+            }
+            if(r == 2)
+            {
+                List<Impassable> i = GetGameObjectsByType<Impassable>();
+                if(i.Count > 0)
+                {
+                    RemoveGameObject(i[0]);
+                    for (int j = 0; j < GetFlowFieldCount(); j++)
+                    {
+                        GetFlowField(j).Update();
+                    }
+                }
+            }
+            if(r == 3)
+            {
+
+            }
+
+
+            
             FlowField f = GetFlowField();
             if (f != null)
             {
+                
                 if (Keyboard.IsKeyDown(Keys.Left))
                 {
                     f.SetPosition(f.Center.X - 0.005f, f.Center.Z - 0.005f);
@@ -25,6 +62,7 @@ namespace KWEngine3TestProject.Worlds
                     f.SetPosition(f.Center.X + 0.005f, f.Center.Z + 0.005f);
                 }
 
+                /*
                 FlowFieldCell ffc = f.GetCellForWorldPosition(cursorPosWorld);
                 //Console.WriteLine(ffc.IndexX + "|" + ffc.IndexZ);
                 if (ffc != null)
@@ -43,8 +81,8 @@ namespace KWEngine3TestProject.Worlds
                 {
                     Console.WriteLine("Cursor not inside flow field");
                 }
+                */
 
-                
                 if (Mouse.IsButtonPressed(MouseButton.Left))
                 {
 
@@ -52,6 +90,7 @@ namespace KWEngine3TestProject.Worlds
                 }
                 
             }
+            
             
             if (Keyboard.IsKeyPressed(Keys.F2))
             {
@@ -104,12 +143,12 @@ namespace KWEngine3TestProject.Worlds
             floor.SetColor(0.25f, 0.5f, 0);
             AddGameObject(floor);
 
-            FlowField f1 = new FlowField(-7.5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
+            FlowField f1 = new FlowField(-5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f1.Name = "F1";
             f1.IsVisible = true;
             AddFlowField(f1);
 
-            FlowField f2 = new FlowField(7.5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
+            FlowField f2 = new FlowField(5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f2.Name = "F2";
             f2.IsVisible = true;
             AddFlowField(f2);

@@ -59,5 +59,16 @@ namespace KWEngine3.Helper
                 }
             }
         }
+
+        internal static FlowFieldCell CopyCell(FlowFieldCell ffc)
+        {
+            FlowFieldCell copy = new FlowFieldCell(ffc.Position, ffc._gridIndex, ffc.Parent)
+            {
+                BestCost = ffc.BestCost,
+                BestDirection = ffc.BestDirection,
+                Cost = ffc.Cost
+            };
+            return copy;
+        }
     }
 }

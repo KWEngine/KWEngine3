@@ -1,5 +1,6 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using KWEngine3TestProject.Classes;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -10,13 +11,34 @@ namespace KWEngine3TestProject.Worlds
     {
         private float _timestampLastExplosion = 0;
         private float _timestampLastParticle = 0;
+        private HUDObjectText t1;
+        private HUDObjectText t2;
+        private float emissive = 5f;
+
         public override void Act()
         {
-           if(WorldTime - _timestampLastExplosion > 1.5f)
+            List<Immovable> iss = GetGameObjectsByType<Immovable>();
+
+            if(Keyboard.IsKeyDown(Keys.Left))
+            {
+                emissive = MathF.Round(emissive - 0.05f, 2);
+                foreach(Immovable m in iss)
+                    m.SetColorEmissive(m.ColorEmissive.Xyz, emissive);
+                Console.WriteLine("emissive: " + emissive);
+            }
+            if (Keyboard.IsKeyDown(Keys.Right))
+            {
+                emissive = MathF.Round(emissive + 0.05f, 2);
+                foreach (Immovable m in iss)
+                    m.SetColorEmissive(m.ColorEmissive.Xyz, emissive);
+                Console.WriteLine("emissive: " + emissive);
+            }
+
+            if (WorldTime - _timestampLastExplosion > 1.25f)
            {
                 ExplosionObject e = new ExplosionObject(64, 0.5f, 5f, 1f, ExplosionType.Cube);
                 e.SetColorEmissive(1, 1, 1, 2);
-                e.SetPosition(-5, 8, 0);
+                e.SetPosition(HelperRandom.GetRandomNumber(-12, -8), 8, 0);
                 AddExplosionObject(e);
                 _timestampLastExplosion = WorldTime;
            }
@@ -72,12 +94,21 @@ namespace KWEngine3TestProject.Worlds
             i05.SetColorEmissive(1, 0.5f, 0.25f, 5f);
             AddGameObject(i05);
 
-            HUDObjectText t1 = new HUDObjectText("a TEST this is.");
+            t1 = new HUDObjectText("a TEST this is.");
             t1.SetColor(1, 0, 1);
             t1.SetPosition(Window.Center.X, Window.Center.Y / 3);
+            t1.SetScale(64);
             t1.SetColorEmissive(1, 1, 1);
             t1.SetColorEmissiveIntensity(1);
             AddHUDObject(t1);
+
+            t2 = new HUDObjectText("a TEST this is.");
+            t2.SetColor(1, 0, 1);
+            t2.SetPosition(Window.Center.X, Window.Center.Y / 2);
+            t2.SetScale(16);
+            t2.SetColorEmissive(1, 1, 1);
+            t2.SetColorEmissiveIntensity(1);
+            AddHUDObject(t2);
         }
     }
 }
