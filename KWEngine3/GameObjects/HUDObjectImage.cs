@@ -91,7 +91,7 @@ namespace KWEngine3.GameObjects
         /// <returns>true, wenn dies der Fall ist</returns>
         public override bool IsMouseCursorOnMe()
         {
-            if (KWEngine.Window.IsMouseInWindow)
+            if (KWEngine.Window.IsMouseInWindow && IsInWorld)
             {
                 Vector2 mouseCoords = KWEngine.Window.MouseState.Position;
                 float left, right, top, bottom;

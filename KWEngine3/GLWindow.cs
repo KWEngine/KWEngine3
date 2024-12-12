@@ -204,7 +204,7 @@ namespace KWEngine3
         /// <summary>
         /// Prüft, ob der Mauszeiger aktuell innerhalb des Fensters ist
         /// </summary>
-        public bool IsMouseInWindow { get { return MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
+        public bool IsMouseInWindow { get { return IsFocused && MouseState.X >= 0 && MouseState.X < ClientSize.X && MouseState.Y >= 0 && MouseState.Y < ClientSize.Y; } }
 
         /// <summary>
         /// Verweis auf Keyboardeingaben

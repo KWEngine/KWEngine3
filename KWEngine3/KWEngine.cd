@@ -465,7 +465,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectImage">
-    <Position X="15.5" Y="9.5" Width="2.75" />
+    <Position X="15.5" Y="9.75" Width="2.75" />
     <Members>
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
@@ -479,7 +479,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectText">
-    <Position X="15.5" Y="5.75" Width="2.75" />
+    <Position X="15.5" Y="6" Width="2.75" />
     <Members>
       <Field Name="_offsets" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
@@ -495,6 +495,7 @@
   <Class Name="KWEngine3.GameObjects.HUDObject">
     <Position X="15.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_currentWorld" Hidden="true" />
       <Field Name="_glow" Hidden="true" />
       <Field Name="_modelMatrix" Hidden="true" />
       <Field Name="_scale" Hidden="true" />
@@ -504,7 +505,7 @@
       <Method Name="UpdateMVP" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AABIEABAAAAIEAQgAAIAVQQAAAABAgABACgAggDAACU=</HashCode>
+      <HashCode>AABIEABAAAIIEAQgAAIAVQQAAAABAgABACgCggDAACU=</HashCode>
       <FileName>GameObjects\HUDObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -705,7 +706,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectTextInput">
-    <Position X="15.5" Y="12.5" Width="2.75" />
+    <Position X="15.5" Y="12.75" Width="2.75" />
     <Members>
       <Field Name="_cursorBlinkSpeed" Hidden="true" />
       <Field Name="_cursorPos" Hidden="true" />

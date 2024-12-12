@@ -147,7 +147,7 @@ namespace KWEngine3.GameObjects
         /// <returns>true, wenn Mauszeiger über dem Textobjekt liegt</returns>
         public override bool IsMouseCursorOnMe()
         {
-            if (KWEngine.Window.IsMouseInWindow)
+            if (KWEngine.Window.IsMouseInWindow && IsInWorld)
             {
                 Vector2 mouseCoords = KWEngine.Window.Mouse.Position;
                 float left, right, top, bottom;

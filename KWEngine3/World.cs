@@ -267,6 +267,7 @@ namespace KWEngine3
                 {
                     _hudObjectInputWithFocus = null;
                 }
+                h._currentWorld = null;
                 _hudObjects.Remove(h);
             }
             _hudObjectsToBeRemoved.Clear();
@@ -274,6 +275,7 @@ namespace KWEngine3
             foreach (HUDObject h in _hudObjectsToBeAdded)
             {
                 _hudObjects.Add(h);
+                h._currentWorld = this;
             }
             _hudObjectsToBeAdded.Clear();
             Map.Reset();

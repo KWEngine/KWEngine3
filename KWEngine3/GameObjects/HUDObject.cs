@@ -90,6 +90,18 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Gibt an, ob die HUDObject-Instanz Teil der aktuellen Welt ist
+        /// </summary>
+        public bool IsInWorld
+        {
+            get
+            {
+                return _currentWorld == KWEngine.CurrentWorld;
+            }
+        }
+
+
+        /// <summary>
         /// Prüft, ob der Mauszeiger auf dem HUD-Objekt ist
         /// </summary>
         /// <returns>true, wenn die Maus auf dem HUD-Objekt ist</returns>
@@ -204,7 +216,7 @@ namespace KWEngine3.GameObjects
         internal Vector3 _scale = new Vector3(24f, 24f, 1f);
         internal Matrix4 _modelMatrix = Matrix4.Identity;
         internal float _zIndex = -10f;
-
+        internal World _currentWorld = null;
         internal void UpdateMVP()
         {
             Vector3 p = new Vector3(Position.X, Position.Y, 0);
