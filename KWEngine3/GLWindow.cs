@@ -612,19 +612,22 @@ namespace KWEngine3
             {
                 GL.Enable(EnableCap.Blend);
                 Matrix4 vp = KWEngine.Mode != EngineMode.Edit ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-                foreach (FlowField f in KWEngine.CurrentWorld._flowFields)
+                lock (KWEngine.CurrentWorld._flowFields)
                 {
-                    if (f.IsVisible)
+                    foreach (FlowField f in KWEngine.CurrentWorld._flowFields)
                     {
-                        if (f.Destination != null)
+                        if (f != null && f.IsVisible)
                         {
-                            RendererFlowFieldDirection.Bind();
-                            RendererFlowFieldDirection.SetGlobals();
-                            RendererFlowFieldDirection.Draw(f);
-                            RendererFlowFieldDirection.UnsetGlobals();
+                            if (f.Destination != null)
+                            {
+                                RendererFlowFieldDirection.Bind();
+                                RendererFlowFieldDirection.SetGlobals();
+                                RendererFlowFieldDirection.Draw(f);
+                                RendererFlowFieldDirection.UnsetGlobals();
+                            }
+                            RendererFlowField.Bind();
+                            RendererFlowField.Draw(f, ref vp);
                         }
-                        RendererFlowField.Bind();
-                        RendererFlowField.Draw(f, ref vp);
                     }
                 }
                 GL.Disable(EnableCap.Blend);
