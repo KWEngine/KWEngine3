@@ -479,7 +479,7 @@ namespace KWEngine3.Helper
             {
                 if (_target.W > 0f)
                 {
-                    FlowFieldCell destination = GetCellFromWorldPosition(_target.Xyz, false);
+                    FlowFieldCell destination = GetCellFromWorldPosition(_target.Xyz, true);
                     if (destination == null)
                     {
                         Destination = null;
