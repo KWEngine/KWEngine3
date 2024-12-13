@@ -1942,9 +1942,17 @@ namespace KWEngine3
         /// Erfragt die Liste der aktuellen LightObject-Instanzen der Welt
         /// </summary>
         /// <returns>Liste</returns>
-        public IReadOnlyCollection<LightObject> GetLightObjects()
+        public List<LightObject> GetLightObjects()
         {
-            return _lightObjects.AsReadOnly();
+            List<LightObject> los = new();
+            lock (_lightObjects)
+            {
+                foreach (LightObject lightObject in _lightObjects)
+                {
+                    los.Add(lightObject);
+                }
+            }
+            return los;
         }
 
         /// <summary>
