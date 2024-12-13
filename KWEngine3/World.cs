@@ -1330,7 +1330,7 @@ namespace KWEngine3
         /// <param name="h">Objekt</param>
         public void AddHUDObject(HUDObject h)
         {
-            if (!_hudObjects.Contains(h) && !_hudObjectsToBeAdded.Contains(h))
+            if (h != null && !_hudObjects.Contains(h) && !_hudObjectsToBeAdded.Contains(h))
                 _hudObjectsToBeAdded.Add(h);
         }
 
@@ -1340,7 +1340,7 @@ namespace KWEngine3
         /// <param name="h">Objekt</param>
         public void RemoveHUDObject(HUDObject h)
         {
-            if (!_hudObjectsToBeRemoved.Contains(h))
+            if (h != null && !_hudObjectsToBeRemoved.Contains(h))
                 _hudObjectsToBeRemoved.Add(h);
         }
 
@@ -1351,7 +1351,7 @@ namespace KWEngine3
         /// <param name="t">Objekt</param>
         public void AddTextObject(TextObject t)
         {
-            if (!_textObjects.Contains(t) && !_textObjectsToBeAdded.Contains(t))
+            if (t != null && !_textObjects.Contains(t) && !_textObjectsToBeAdded.Contains(t))
                 _textObjectsToBeAdded.Add(t);
         }
         /// <summary>
@@ -1360,7 +1360,7 @@ namespace KWEngine3
         /// <param name="t">Objekt</param>
         public void RemoveTextObject(TextObject t)
         {
-            if(!_textObjectsToBeRemoved.Contains(t))
+            if(t != null && !_textObjectsToBeRemoved.Contains(t))
                 _textObjectsToBeRemoved.Add(t);
         }
 
