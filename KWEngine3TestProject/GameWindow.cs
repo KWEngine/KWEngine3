@@ -6,14 +6,14 @@ namespace KWEngine3TestProject
     public class GameWindow : GLWindow
     {
         public GameWindow() : base(
-            //1920,                           // Window width
-            //1080,                            // Window height
+            1280,                           // Window width
+            720,                            // Window height
             true,                           // VSync on?
-            PostProcessingQuality.Standard // Quality level (Standard recommended for iGPUs)
-            //WindowMode.BorderlessWindow              // Window mode
+            PostProcessingQuality.Standard, // Quality level (Standard recommended for iGPUs)
+            WindowMode.Default              // Window mode
             )
         {
-            SetWorld(new GameWorldGPUDebug());
+            SetWorld(new GameWorldEmpty());
         }
     }
 }
