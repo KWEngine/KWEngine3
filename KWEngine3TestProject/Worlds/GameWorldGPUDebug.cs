@@ -30,7 +30,6 @@ namespace KWEngine3TestProject.Worlds
                     RemoveLightObject(light);
                 SetColorAmbient(1f, 1f, 1f);
                 SetBackgroundBrightnessMultiplier(1f);
-
             }
             else
             {
@@ -50,6 +49,13 @@ namespace KWEngine3TestProject.Worlds
             sun.SetFOV(25);
             sun.SetNearFar(20, 200);
             AddLightObject(sun);
+
+            LightObject point = new LightObject(LightType.Point, q == 0 ? ShadowQuality.Low : q == 1 ? ShadowQuality.Medium : ShadowQuality.High);
+            point.Name = "Point";
+            point.SetPosition(0, 3, 0);
+            point.SetColor(0, 1, 0, 3);
+            point.SetNearFar(1f, 25f);
+            AddLightObject(point);
         }
 
         private void AddRemoveBarn()
@@ -109,6 +115,9 @@ namespace KWEngine3TestProject.Worlds
             t.SetTextureRepeat(1f, 1f);
             t.IsShadowCaster = true;
             AddTerrainObject(t);
+
+            AddRemoveBarn();
+            AddRemoveLights(2);
 
             SetCameraPosition(_camPos);
             SetCameraTarget(_camPos.X, _camPos.Y, 0);
