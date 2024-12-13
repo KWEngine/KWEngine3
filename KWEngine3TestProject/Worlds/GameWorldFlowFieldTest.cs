@@ -4,12 +4,12 @@ using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldFlowFieldTest;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.ComponentModel.Design.Serialization;
 
 namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldFlowFieldTest : World
     {
+        private Vector3 _lastTarget = Vector3.Zero;
         public override void Act()
         {
             Vector3 cursorPosWorld = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 0);
@@ -56,10 +56,12 @@ namespace KWEngine3TestProject.Worlds
                 if (Keyboard.IsKeyDown(Keys.Left))
                 {
                     f.SetPosition(f.Center.X - 0.005f, f.Center.Z - 0.005f);
+                    //if (_lastTarget != Vector3.Zero) f.SetTarget(_lastTarget, true);
                 }
                 else if(Keyboard.IsKeyDown(Keys.Right))
                 {
                     f.SetPosition(f.Center.X + 0.005f, f.Center.Z + 0.005f);
+                    //if(_lastTarget != Vector3.Zero) f.SetTarget(_lastTarget, true);
                 }
 
                 /*
@@ -85,8 +87,8 @@ namespace KWEngine3TestProject.Worlds
 
                 if (Mouse.IsButtonPressed(MouseButton.Left))
                 {
-
-                    f.SetTarget(cursorPosWorld);
+                    _lastTarget = cursorPosWorld;
+                    f.SetTarget(_lastTarget);
                 }
                 
             }
