@@ -656,15 +656,15 @@
         /// <summary>
         /// Niedrige Qualität
         /// </summary>
-        Low = 512 * 2,
+        Low = 512,
         /// <summary>
         /// Mittlere Qualität (Standard)
         /// </summary>
-        Medium = 1024 * 2,
+        Medium = 1024,
         /// <summary>
         /// Hohe Qualität
         /// </summary>
-        High = 2048 * 2
+        High = 4096
     }
 
     /// <summary>

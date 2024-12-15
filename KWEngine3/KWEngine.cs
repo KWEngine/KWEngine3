@@ -304,7 +304,7 @@ namespace KWEngine3
         internal static float _glowUpsampleF2 = 0.70f;
 
         /// <summary>
-        /// Steuert das Ausmaß des durch Überbelichtung erzeugten Glow-Effekts (von 0 bis 1, Standard: 1.0)
+        /// Steuert das Ausmaß des durch Überbelichtung erzeugten Glow-Effekts (von 0 bis 1, Standard: 0.75)
         /// </summary>
         public static float GlowRadius
         {
@@ -319,13 +319,13 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Steuert den Stil des Glühens (Faktor 1, erlaubte Werte zwischen 0 und 1, Standard: 0.2)
+        /// Steuert den Stil des Glühens (Faktor 1, erlaubte Werte zwischen 0 und 1, Standard: 0.15)
         /// </summary>
-        public static float GlowStyleFactor1 { get { return _glowUpsampleF1; } set { _glowUpsampleF1 = Math.Clamp(value, 0.01f, 1.0f); } }
+        public static float GlowStyleFactor1 { get { return _glowUpsampleF1; } set { _glowUpsampleF1 = Math.Clamp(value, 0.001f, 1.0f); } }
         /// <summary>
-        /// Steuert den Stil des Glühens (Faktor 2, erlaubte Werte zwischen 0 und 1, Standard: 0.8)
+        /// Steuert den Stil des Glühens (Faktor 2, erlaubte Werte zwischen 0 und 1, Standard: 0.75)
         /// </summary>
-        public static float GlowStyleFactor2 { get { return _glowUpsampleF2; } set { _glowUpsampleF2 = Math.Clamp(value, 0.01f, 1.0f); } }
+        public static float GlowStyleFactor2 { get { return _glowUpsampleF2; } set { _glowUpsampleF2 = Math.Clamp(value, 0.001f, 1.0f); } }
 
         internal static Matrix4 Matrix4Dummy = Matrix4.Identity;
 

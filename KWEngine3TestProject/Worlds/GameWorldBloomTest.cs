@@ -14,6 +14,9 @@ namespace KWEngine3TestProject.Worlds
         private HUDObjectText t1;
         private HUDObjectText t2;
         private float emissive = 5f;
+        private float glow1 = 0f;
+        private float glow2 = 0f;
+        private float glowr = 0f;
 
         public override void Act()
         {
@@ -21,17 +24,62 @@ namespace KWEngine3TestProject.Worlds
 
             if(Keyboard.IsKeyDown(Keys.Left))
             {
-                emissive = MathF.Round(emissive - 0.05f, 2);
+                emissive = MathF.Round(emissive - 0.025f, 3);
                 foreach(Immovable m in iss)
                     m.SetColorEmissive(m.ColorEmissive.Xyz, emissive);
                 Console.WriteLine("emissive: " + emissive);
             }
             if (Keyboard.IsKeyDown(Keys.Right))
             {
-                emissive = MathF.Round(emissive + 0.05f, 2);
+                emissive = MathF.Round(emissive + 0.025f, 3);
                 foreach (Immovable m in iss)
                     m.SetColorEmissive(m.ColorEmissive.Xyz, emissive);
                 Console.WriteLine("emissive: " + emissive);
+            }
+
+            if (Keyboard.IsKeyDown(Keys.Insert))
+            {
+                glowr += 0.0025f;
+                glowr = Math.Clamp(glowr, 0, 1);
+                KWEngine.GlowRadius = glowr;
+                Console.WriteLine("Glow radius: " + MathF.Round(glowr, 4));
+            }
+            else if (Keyboard.IsKeyDown(Keys.Delete))
+            {
+                glowr -= 0.0025f;
+                glowr = Math.Clamp(glowr, 0, 1);
+                KWEngine.GlowRadius = glowr;
+                Console.WriteLine("Glow radius: " + MathF.Round(glowr, 4));
+            }
+
+            if (Keyboard.IsKeyDown(Keys.Home))
+            {
+                glow1 += 0.0025f;
+                glow1 = Math.Clamp(glow1, 0, 1);
+                KWEngine.GlowStyleFactor1 = glow1;
+                Console.WriteLine("Glow #1: " + MathF.Round(glow1, 4));
+            }
+            else if (Keyboard.IsKeyDown(Keys.End))
+            {
+                glow1 -= 0.0025f;
+                glow1 = Math.Clamp(glow1, 0, 1);
+                KWEngine.GlowStyleFactor1 = glow1;
+                Console.WriteLine("Glow #1: " + MathF.Round(glow1, 4));
+            }
+
+            if (Keyboard.IsKeyDown(Keys.PageUp))
+            {
+                glow2 += 0.0025f;
+                glow2 = Math.Clamp(glow2, 0, 1);
+                KWEngine.GlowStyleFactor2 = glow2;
+                Console.WriteLine("Glow #2: " + MathF.Round(glow2, 4));
+            }
+            else if (Keyboard.IsKeyDown(Keys.PageDown))
+            {
+                glow2 -= 0.0025f;
+                glow2 = Math.Clamp(glow2, 0, 1);
+                KWEngine.GlowStyleFactor2 = glow2;
+                Console.WriteLine("Glow #2: " + MathF.Round(glow2, 4));
             }
 
             if (WorldTime - _timestampLastExplosion > 1.25f)
@@ -58,6 +106,10 @@ namespace KWEngine3TestProject.Worlds
             SetBackground2D(@"./Textures/greenmountains.dds");
             SetCameraFOV(90);
             SetCameraPosition(0, 0, 25);
+
+            glow1 = KWEngine.GlowStyleFactor1;
+            glow2 = KWEngine.GlowStyleFactor2;
+            glowr = KWEngine.GlowRadius;
 
             Immovable i01 = new Immovable();
             i01.SetPosition(-6, 0, 0);

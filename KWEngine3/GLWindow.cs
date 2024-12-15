@@ -1267,6 +1267,11 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Gibt die bei Programmstart gewählte Qualität für Post-Processing-Effekte zurück
+        /// </summary>
+        public PostProcessingQuality Quality { get { return _ppQuality; } }
+
         internal static MonitorHandle GetMonitorHandleForPointer(IntPtr ptr)
         {
             foreach (MonitorInfo mInfo in Monitors.GetMonitors())

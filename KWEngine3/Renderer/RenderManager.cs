@@ -16,8 +16,8 @@ namespace KWEngine3.Renderer
         public static FramebufferSSAOBlur FramebufferSSAOBlur { get; set; }
         public static FramebufferBloom[] FramebuffersBloom { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
-        public const int LQPENALTY_W = 160;
-        public const int LQPENALTY_H = 96;
+        public const int LQPENALTY_W = 192;
+        public const int LQPENALTY_H = 112;
 
         public static void UpdateFramebufferClearColor(Vector3 newFillColor)
         {
@@ -246,17 +246,21 @@ namespace KWEngine3.Renderer
         {
             if (downsample)
             {
-                return new Vector2i(
+                Vector2i result = new Vector2i(
                      (KWEngine.BLOOMWIDTH - LQPENALTY_W * (i + 1)) >> i,
                      (KWEngine.BLOOMHEIGHT - LQPENALTY_H * (i + 1)) >> i
                     );
+                //Console.WriteLine(result + " (down)");
+                return result;
             }
             else
             {
-                return new Vector2i(
+                Vector2i result = new Vector2i(
                      (KWEngine.BLOOMWIDTH - LQPENALTY_W * (i - 0)) >> (i - 1),
                      (KWEngine.BLOOMHEIGHT - LQPENALTY_H * (i - 0)) >> (i - 1)
                     );
+                //Console.WriteLine(result + " (up)");
+                return result;
             }
         }
 

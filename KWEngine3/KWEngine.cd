@@ -38,7 +38,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiEBAAABQCAAQyAUAkBgEASAhIABCQAYAEAUAUuAgA=</HashCode>
+      <HashCode>AAiEBAAABQCAAQzAUAkBgEASAhIABCQAYAEAUAUuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -211,7 +211,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="15.25" Width="2.75" />
+    <Position X="0.5" Y="18.5" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -433,7 +433,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="12.75" Width="2.75" />
+    <Position X="0.5" Y="13" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -657,7 +657,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="0.5" Y="17.5" Width="2.75" />
+    <Position X="0.5" Y="15.5" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />
