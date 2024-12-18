@@ -19,7 +19,7 @@ namespace KWEngine3.Helper
         public static int GenerateTexture(string resourceName, Assembly a)
         {
             Stream resourceStream = a.GetManifestResourceStream(resourceName);
-            return HelperTexture.LoadTextureCompressedNoMipMap(resourceStream);
+            return HelperTexture.LoadFontTextureCompressedNoMipMap(resourceStream);
         }
 
     }

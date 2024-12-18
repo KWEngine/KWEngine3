@@ -108,7 +108,7 @@ namespace KWEngine3TestProject.Worlds
             _h1.SetTextAlignment(TextAlignMode.Left);
             _h1.SetColorEmissive(1, 0, 1);
             _h1.SetColorEmissiveIntensity(0);
-            _h1.SetScale(24, 24);
+            _h1.SetScale(16, 16);
             AddHUDObject(_h1);
 
             _h2 = new HUDObjectText("LeftMinus2");
@@ -117,7 +117,7 @@ namespace KWEngine3TestProject.Worlds
             _h2.SetTextAlignment(TextAlignMode.Left);
             _h2.SetColorEmissive(1, 0, 1);
             _h2.SetColorEmissiveIntensity(0);
-            _h2.SetScale(24, 24);
+            _h2.SetScale(16, 24);
             AddHUDObject(_h2);
 
             _h3 = new HUDObjectText("CenterPlus2");
@@ -126,7 +126,7 @@ namespace KWEngine3TestProject.Worlds
             _h3.SetTextAlignment(TextAlignMode.Center);
             _h3.SetColorEmissive(1, 0, 1);
             _h3.SetColorEmissiveIntensity(0);
-            _h3.SetScale(24, 24);
+            _h3.SetScale(24, 16);
             AddHUDObject(_h3);
 
             _h4 = new HUDObjectText("CenterMinus3");
@@ -135,7 +135,7 @@ namespace KWEngine3TestProject.Worlds
             _h4.SetTextAlignment(TextAlignMode.Center);
             _h4.SetColorEmissive(1, 0, 1);
             _h4.SetColorEmissiveIntensity(0);
-            _h4.SetScale(24, 24);
+            _h4.SetScale(12, 12);
             AddHUDObject(_h4);
 
             _h5 = new HUDObjectText("RightPlus2");
@@ -144,7 +144,7 @@ namespace KWEngine3TestProject.Worlds
             _h5.SetTextAlignment(TextAlignMode.Right);
             _h5.SetColorEmissive(1, 0, 1);
             _h5.SetColorEmissiveIntensity(0);
-            _h5.SetScale(24, 24);
+            _h5.SetScale(10, 10);
             AddHUDObject(_h5);
 
             _h6 = new HUDObjectText("RightMinus3");
@@ -153,13 +153,13 @@ namespace KWEngine3TestProject.Worlds
             _h6.SetTextAlignment(TextAlignMode.Right);
             _h6.SetColorEmissive(1, 0, 1);
             _h6.SetColorEmissiveIntensity(0);
-            _h6.SetScale(24, 24);
+            _h6.SetScale(64, 64);
             AddHUDObject(_h6);
 
             _hCrosshair = new HUDObjectImage();
             _hCrosshair.SetPosition(768, 196);
             _hCrosshair.SetTexture(@".\Textures\crosshair.dds");
-            _hCrosshair.SetScale(128, 64);
+            _hCrosshair.SetScale(64, 64);
             _hCrosshair.SetColorEmissive(1, 1, 0);
             _hCrosshair.SetColorEmissiveIntensity(0);
             AddHUDObject(_hCrosshair);
