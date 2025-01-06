@@ -917,20 +917,15 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
         /// </summary>
-        /// <param name="adjustFootLevelToZero">Legt die Höhe der Unterkante stets auf Y=0 fest (wenn true)</param>
-        /// <param name="type">Variation der Kapsel</param>
-        public void SetHitboxToCapsule(bool adjustFootLevelToZero = true, CapsuleHitboxType type = CapsuleHitboxType.Default)
+        /// <param name="offset">Verschiebt die Kapsel-Hitbox bei Bedarf. Hier sollte als Standardwert zunächst Vector3.Zero probiert werden.</param>
+        /// <param name="type">Variation der Kapsel (CapsuleHitboxType.Default oder CapsuleHitboxType.Sloped)</param>
+        public void SetHitboxToCapsule(Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
-            float yOffset = 0;
-            if(adjustFootLevelToZero && _model.DimensionsMin.Y < 0)
-            {
-                yOffset = 0 - _model.DimensionsMin.Y;
-            }
             SetHitboxToCapsule(
                 _model.DimensionsMax.X - _model.DimensionsMin.X,
                 _model.DimensionsMax.Y - _model.DimensionsMin.Y,
                 _model.DimensionsMax.Z - _model.DimensionsMin.Z,
-                new Vector3(_model.Center.Xyz + new Vector3(0, yOffset, 0)), 
+                new Vector3(_model.Center.Xyz + offset),
                 type
                 );
         }
