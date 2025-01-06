@@ -31,7 +31,7 @@ namespace KWEngine3TestProject.Worlds
             p.SetTexture("./Textures/uvpattern.png");
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            p.SetHitboxToCapsule(true, CapsuleHitboxType.Sloped);
+            p.SetHitboxToCapsule(Vector3.Zero, CapsuleHitboxType.Sloped);
             p.SetPosition(Player.PLAYER_START);
             p.SetScale(0.5f);
             p.SetHitboxScale(0.75f, 1.0f, 1.5f);

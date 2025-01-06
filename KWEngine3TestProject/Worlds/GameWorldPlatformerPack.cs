@@ -144,7 +144,7 @@ namespace KWEngine3TestProject.Worlds
             p.SetModel("Toon");
             p.IsShadowCaster = true;
             p.IsCollisionObject = true;
-            p.SetHitboxToCapsule();
+            p.SetHitboxToCapsule(Vector3.Zero);
             p.SetHitboxScale(0.75f, 1f, 1f);
             p.SetAnimationID(0);
             AddGameObject(p);

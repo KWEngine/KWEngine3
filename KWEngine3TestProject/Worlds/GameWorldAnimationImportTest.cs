@@ -33,7 +33,7 @@ namespace KWEngine3TestProject.Worlds
             
             test.SetAnimationID(0);
             test.SetAnimationPercentage(0.0f);
-            test.SetHitboxToCapsule();
+            test.SetHitboxToCapsule(Vector3.Zero);
             test.SetScale(0.01f);
             AddGameObject(test);
 
