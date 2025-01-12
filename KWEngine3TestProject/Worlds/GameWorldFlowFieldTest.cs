@@ -93,6 +93,10 @@ namespace KWEngine3TestProject.Worlds
                 }
                 
             }
+
+            GameObject g = GetGameObjectByName("Map");
+            if (g != null)
+                Map.AddAsRealModel(g, -1f, Vector3.One, Vector3.Zero, 0f, 1f);
             
             
             if (Keyboard.IsKeyPressed(Keys.F2))
@@ -153,13 +157,19 @@ namespace KWEngine3TestProject.Worlds
 
             FlowField f1 = new FlowField(-5f, 0.5f, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f1.Name = "F1";
-            f1.IsVisible = true;
+            //f1.IsVisible = true;
             AddFlowField(f1);
 
             /*FlowField f2 = new FlowField(5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f2.Name = "F2";
             f2.IsVisible = true;
             AddFlowField(f2);*/
+
+            Map.SetCamera(0, 25, 0, ProjectionDirection.NegativeY, 25, 25, 0.1f, 25f);
+            Map.SetViewport(128, 128, 256, 256, true);
+            Map.Enabled = true;
+            Map.SetBackground("./Textures/mapgrid.png", 256, 256, 1, 64, 64);
+            
         }
     }
 }
