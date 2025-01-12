@@ -120,15 +120,29 @@ namespace KWEngine3.Helper
         /// Prüft anhand der XZ-Achsen, ob ein Objekt ansatzweise innerhalb des Feldes liegt
         /// </summary>
         /// <param name="g">zu prüfendes Objekt</param>
+        /// <param name="partial">wenn true, zählen auch teilweise enthaltene Objekte (Standard: true)</param>
         /// <returns>true, wenn das Objekt im Feld liegt</returns>
-        public bool ContainsXZ(GameObject g)
+        public bool ContainsXZ(GameObject g, bool partial = true)
         {
-            bool overlapX = (g.AABBRight >= _ffleft && g.AABBRight <= _ffright) || (g.AABBLeft >= _ffleft && g.AABBLeft <= _ffright);
-            if(overlapX)
+            if(partial)
             {
-                bool overlapZ = (g.AABBFront >= _ffback && g.AABBFront <= _fffront) || (g.AABBBack >= _ffback && g.AABBBack <= _fffront);
-                return overlapZ;
+                bool overlapX = ((_ffleft <= g.AABBLeft && _ffright >= g.AABBLeft) || (_ffleft <= g.AABBRight && _ffright >= g.AABBRight) || (_ffleft <= g.AABBLeft && _ffright >= g.AABBRight) || (_ffleft >= g.AABBLeft && _ffright <= g.AABBRight));
+                if(overlapX)
+                {
+                    bool overlapZ = ((_ffback <= g.AABBBack && _fffront >= g.AABBBack) || (_fffront >= g.AABBFront && _ffback <= g.AABBFront) || (_fffront >= g.AABBFront && _ffback <= g.AABBBack) || (_fffront <= g.AABBFront && _ffback >= g.AABBBack));
+                    return overlapZ;
+                }
             }
+            else
+            {
+                bool overlapX = (g.AABBRight >= _ffleft && g.AABBRight <= _ffright) || (g.AABBLeft >= _ffleft && g.AABBLeft <= _ffright);
+                if (overlapX)
+                {
+                    bool overlapZ = (g.AABBFront >= _ffback && g.AABBFront <= _fffront) || (g.AABBBack >= _ffback && g.AABBBack <= _fffront);
+                    return overlapZ;
+                }
+            }
+           
             return false;
         }
 
@@ -152,13 +166,25 @@ namespace KWEngine3.Helper
         /// Prüft, ob ein Objekt ansatzweise innerhalb des Feldes liegt
         /// </summary>
         /// <param name="g">zu prüfendes Objekt</param>
+        /// <param name="partial">wenn true, zählen auch teilweise enthaltene Objekte (Standard: true)</param>
         /// <returns>true, wenn das Objekt im Feld liegt</returns>
-        public bool Contains(GameObject g)
+        public bool Contains(GameObject g, bool partial = true)
         {
-            bool overlapY = (g.AABBHigh >= _ffbottom && g.AABBHigh <= _fftop) || (g.AABBLow <= _fftop && g.AABBLow >= _ffbottom) || (g.AABBLow <= _ffbottom && g.AABBHigh >= _fftop);
-            if (overlapY)
+            if(partial)
             {
-                return ContainsXZ(g);
+                bool overlapY = ((_fftop >= g.AABBHigh && _ffbottom <= g.AABBHigh) || (_fftop >= g.AABBLow && _ffbottom <= g.AABBLow) || (_fftop >= g.AABBHigh && _ffbottom <= g.AABBLow) || (_fftop <= g.AABBHigh && _ffbottom >= g.AABBLow));
+                if(overlapY)
+                {
+                    return ContainsXZ(g, partial);
+                }
+            }
+            else
+            {
+                bool overlapY = (g.AABBHigh >= _ffbottom && g.AABBHigh <= _fftop) || (g.AABBLow <= _fftop && g.AABBLow >= _ffbottom) || (g.AABBLow <= _ffbottom && g.AABBHigh >= _fftop);
+                if (overlapY)
+                {
+                    return ContainsXZ(g, partial);
+                }
             }
             return false;
         }

@@ -13,7 +13,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Act()
         {
             Vector3 cursorPosWorld = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 0);
-
+            /*
             int r = HelperRandom.GetRandomNumber(1, 60);
             if(r == 1)
             {
@@ -42,13 +42,14 @@ namespace KWEngine3TestProject.Worlds
                     }
                 }
             }
+            
             if(r == 3)
             {
 
             }
+            */
 
 
-            
             FlowField f = GetFlowField();
             if (f != null)
             {
@@ -103,18 +104,22 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            KWEngine.LoadModel("Knezi", "./Models/knezi1.glb");
+
             SetCameraPosition(0, 15, 0);
             SetCameraTarget(0, 0, 0);
             SetColorAmbient(1, 1, 1);
 
             Impassable i1 = new Impassable();
-            i1.SetScale(4, 1, 2);
-            i1.SetColor(1, 1, 1);
+            i1.SetModel("Knezi");
+//            i1.SetScale(4, 1, 2);
+//            i1.SetColor(1, 1, 1);
             i1.FlowFieldCost = 255;
+            i1.Name = "Map";
             i1.IsCollisionObject = true;
             AddGameObject(i1);
 
-            
+            /*
             Impassable i2 = new Impassable();
             i2.SetScale(4, 1, 2);
             i2.SetColor(1, 1, 1);
@@ -122,6 +127,7 @@ namespace KWEngine3TestProject.Worlds
             i2.FlowFieldCost = 255;
             i2.IsCollisionObject = true;
             AddGameObject(i2);
+*/
             
 
             Player p = new Player();
@@ -145,15 +151,15 @@ namespace KWEngine3TestProject.Worlds
             floor.SetColor(0.25f, 0.5f, 0);
             AddGameObject(floor);
 
-            FlowField f1 = new FlowField(-5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
+            FlowField f1 = new FlowField(-5f, 2, 0, 20, 20, 0.25f, 5, FlowFieldMode.Box, typeof(Impassable));
             f1.Name = "F1";
             f1.IsVisible = true;
             AddFlowField(f1);
 
-            FlowField f2 = new FlowField(5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
+            /*FlowField f2 = new FlowField(5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f2.Name = "F2";
             f2.IsVisible = true;
-            AddFlowField(f2);
+            AddFlowField(f2);*/
         }
     }
 }

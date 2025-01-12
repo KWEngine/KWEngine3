@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2025-01-06)</Product>
+		<Product>KWEngine3 (updated: 2025-01-12)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.4.0</Version>
-		<AssemblyVersion>3.0.4.0</AssemblyVersion>
-		<FileVersion>3.0.4.0</FileVersion>
-		<ProductVersion>3.0.4.0</ProductVersion>
+		<Version>3.0.4.1</Version>
+		<AssemblyVersion>3.0.4.1</AssemblyVersion>
+		<FileVersion>3.0.4.1</FileVersion>
+		<ProductVersion>3.0.4.1</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
