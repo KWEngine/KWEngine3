@@ -261,11 +261,11 @@
     public enum FlowFieldMode
     {
         /// <summary>
-        /// Pro Zelle wird ein Strahl in der Zellenmitte verwendet, um Hindernisse zu finden (ungenau, aber schneller)
+        /// Pro Zelle wird eine Kollisionsmessung der AABB-Hitboxen vorgenommen (kann ungenau sein)
         /// </summary>
         Simple = 1,
         /// <summary>
-        /// Pro Zelle wird die gesamte Zelle als Hitbox mit den Hitboxen anderer Objekte verglichen (genauer, aber langsamer)
+        /// Pro Zelle wird die OBB (oriented bounding-box) der Objekte geprüft
         /// </summary>
         Box = 2
     }

@@ -353,34 +353,39 @@ namespace KWEngine3.Helper
                 
                 foreach (FlowFieldCell cell in Grid)
                 {
-                    bool hasIncreasedCost = false;
                     cell.Cost = 1;
                     cell.BestCost = uint.MaxValue;
 
                     foreach (GameObject g in checkObjects)
                     {
+                        _hitbox.Update(cell.Position.X, cell.Position.Y, cell.Position.Z);
                         if (_updateCostField == 1)
                         {
-                            Vector3 rayStart = new Vector3(cell.Position.X, cell.Position.Y + GridCellCount.Y * 0.5f + KWEngine.RAYTRACE_SAFETY_SQ, cell.Position.Z);
-                            if (HelperIntersection.RaytraceObjectFast(g, rayStart, -Vector3.UnitY))
+                            foreach (GameObjectHitbox ghb in g._colliderModel._hitboxes)
                             {
-                                if (!hasIncreasedCost)
+                                if (Overlaps(_hitbox, ghb._low, ghb._high, ghb._left, ghb._right, ghb._back, ghb._front))
                                 {
-                                    cell.SetCostTo(g.FlowFieldCost);
-                                    hasIncreasedCost = true;
+                                    if (cell.Cost < g.FlowFieldCost)
+                                    {
+                                        cell.SetCostTo(g.FlowFieldCost);
+                                    }
+                                    if (cell.Cost == 255)
+                                        break;
                                 }
                             }
                         }
                         else
                         {
-                            _hitbox.Update(cell.Position.X, cell.Position.Y, cell.Position.Z);
                             foreach(GameObjectHitbox ghb in g._colliderModel._hitboxes)
                             {
                                 if(HelperIntersection.TestIntersection(_hitbox, ghb))
                                 {
-                                    cell.SetCostTo(g.FlowFieldCost);
-                                    hasIncreasedCost = true;
-                                    break;
+                                    if (cell.Cost < g.FlowFieldCost)
+                                    {
+                                        cell.SetCostTo(g.FlowFieldCost);
+                                    }
+                                    if (cell.Cost == 255)
+                                        break;
                                 }
                             }
                         }
@@ -466,6 +471,32 @@ namespace KWEngine3.Helper
                     return Grid[x, z];
                 }
             }
+        }
+
+        internal bool Overlaps(FlowFieldHitbox cell, float bottom, float top, float left, float right, float back, float front)
+        {
+            if(OverlapsY(cell, bottom, top))
+            {
+                return OverlapsXZ(cell, left, right, back, front);
+            }
+            return false;
+        }
+
+        internal bool OverlapsXZ(FlowFieldHitbox cell, float left, float right, float back, float front)
+        {
+            bool overlapX = ((cell._left <= left && cell._right >= left) || (cell._left <= right && cell._right >= right) || (cell._left <= left && cell._right >= right) || (cell._left >= left && cell._right <= right));
+            if (overlapX)
+            {
+                bool overlapZ = ((cell._back <= back && cell._front >= back) || (cell._front >= front && cell._back <= front) || (cell._front >= front && cell._back <= back) || (cell._front <= front && cell._back >= back));
+                return overlapZ;
+            }
+            return false;
+        }
+
+        internal bool OverlapsY(FlowFieldHitbox cell, float bottom, float top)
+        {
+            bool overlapY = ((cell._high >= top && cell._low <= top) || (cell._high >= bottom && cell._low <= bottom) || (cell._high >= top && cell._low <= bottom) || (cell._high <= top && cell._low >= bottom));
+            return overlapY;
         }
 
         internal void CreateFlowField()
