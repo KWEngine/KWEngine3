@@ -13,6 +13,7 @@ namespace KWEngine3TestProject
             WindowMode.Default              // Window mode
             )
         {
+            SetWindowIcon("./Textures/uvpattern.png");
             SetWorld(new GameWorldEmpty());
         }
     }

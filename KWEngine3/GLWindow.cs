@@ -14,6 +14,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SkiaSharp;
 
 namespace KWEngine3
 {
@@ -1264,6 +1265,29 @@ namespace KWEngine3
             if (!HelperCursor.Import(name, filename, tipX, tipY))
             {
                 KWEngine.LogWriteLine("[Cursor] Import of " + filename + " failed: File missing or not of type PNG/CUR");
+            }
+        }
+
+        /// <summary>
+        /// Setzt das Anwendungs-Icon
+        /// </summary>
+        /// <param name="iconFile">Icon-Dateiname</param>
+        public void SetWindowIcon(string iconFile)
+        {
+            SKBitmap bitmap;
+            try
+            {
+                bitmap = SKBitmap.Decode(iconFile);
+                if(bitmap != null)
+                {
+                    OpenTK.Windowing.Common.Input.Image i = new OpenTK.Windowing.Common.Input.Image(bitmap.Width, bitmap.Height, bitmap.Bytes);
+                    this.Icon = new WindowIcon(i);
+                    bitmap.Dispose();
+                }
+            }
+            catch(Exception)
+            {
+                KWEngine.LogWriteLine("[Window] Invalid window icon");
             }
         }
 
