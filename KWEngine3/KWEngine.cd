@@ -38,7 +38,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiEBAAABQCAAQzAUAkBgEASAhIABCQAYAEAUAUuAgA=</HashCode>
+      <HashCode>AAiEBAAABQCAAQzAUAkBgEASAhoABCQAYAEAUEUuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -211,7 +211,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="18.5" Width="2.75" />
+    <Position X="0.5" Y="19" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -284,6 +284,7 @@
       <Method Name="CheckForIllegalAngles" Hidden="true" />
       <Method Name="DeleteShadowMap" Hidden="true" />
       <Method Name="GetVolume" Hidden="true" />
+      <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Method Name="UpdateLookAtVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
@@ -390,7 +391,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="17" Width="2.75" />
+    <Position X="21.5" Y="17.25" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -428,12 +429,12 @@
       <Field Name="VectorZero" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAEAEABAAAQAAAAEFiAAAGADABCCAAgAAACAAAAAAEA=</HashCode>
+      <HashCode>EAEAEABAAAQAAAEEFiAAAGADABCCAAgAAACAAAAAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="13" Width="2.75" />
+    <Position X="0.5" Y="13.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -613,18 +614,21 @@
       <Method Name="GetCellFromWorldPosition" Hidden="true" />
       <Method Name="GetNeighbourCells" Hidden="true" />
       <Property Name="Grid" Hidden="true" />
+      <Method Name="Overlaps" Hidden="true" />
+      <Method Name="OverlapsXZ" Hidden="true" />
+      <Method Name="OverlapsY" Hidden="true" />
       <Method Name="SetTargetAfterRepositioning" Hidden="true" />
       <Method Name="UpdateCostField" Hidden="true" />
       <Method Name="UpdateFlowField" Hidden="true" />
       <Method Name="UpdateGridAndTarget" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQEAhCAAMAEFBQIAgMAigQAQAgADhgWSAAAAEAYABI=</HashCode>
+      <HashCode>AUQEAhCAAMAEFBQIAgMAigQARAgADhgWSAAAAEAYABI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="21.5" Y="15.25" Width="2.75" />
+    <Position X="21.5" Y="15.5" Width="2.75" />
     <Members>
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
@@ -657,7 +661,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="0.5" Y="15.5" Width="2.75" />
+    <Position X="0.5" Y="15.75" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />
@@ -688,7 +692,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowFieldCell">
-    <Position X="18.5" Y="20" Width="2.75" />
+    <Position X="18.5" Y="19.75" Width="2.75" />
     <Members>
       <Field Name="_bestCost" Hidden="true" />
       <Field Name="_cost" Hidden="true" />

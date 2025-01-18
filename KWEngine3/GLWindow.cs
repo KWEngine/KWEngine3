@@ -14,7 +14,6 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using SkiaSharp;
 
 namespace KWEngine3
 {
@@ -91,7 +90,11 @@ namespace KWEngine3
         /// </summary>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
-        public GLWindow(bool vSync = true, PostProcessingQuality ppQuality = PostProcessingQuality.Standard)
+        /// <param name="icon">Fenstersymbol</param>
+        public GLWindow(
+            bool vSync = true, 
+            PostProcessingQuality ppQuality = PostProcessingQuality.Standard,
+            WindowIcon icon = null)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -102,7 +105,9 @@ namespace KWEngine3
                      WindowState = WindowState.Fullscreen,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
-                     CurrentMonitor = Monitors.GetPrimaryMonitor().Handle
+                     Icon = icon,
+                     CurrentMonitor = Monitors.GetPrimaryMonitor().Handle,
+                     StartVisible = false
                  }
                  )
         {
@@ -116,7 +121,8 @@ namespace KWEngine3
         /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
         /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
-        public GLWindow(int width, int height, bool vSync = true)
+        /// <param name="icon">Fenstersymbol</param>
+        public GLWindow(int width, int height, bool vSync = true, WindowIcon icon = null)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -128,7 +134,10 @@ namespace KWEngine3
                      Size = new Vector2i(width, height),
                      WindowBorder = WindowBorder.Fixed,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
-                     Title = ""
+                     Title = "",
+                     Icon = icon,
+                     Location = new Vector2i(KWEngine.ScreenInformation.PrimaryScreen.Width / 2 - width / 2, KWEngine.ScreenInformation.PrimaryScreen.Height / 2 - height / 2),
+                     StartVisible = false
                  }
         )
         {
@@ -145,7 +154,8 @@ namespace KWEngine3
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
         /// <param name="windowMode">Art des Fensters (Standard oder rahmenlos)</param>
-        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode)
+        /// <param name="icon">Fenstersymbol</param>
+        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode, WindowIcon icon = null)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -157,7 +167,10 @@ namespace KWEngine3
                      Size = new Vector2i(width, height),
                      WindowBorder = windowMode == WindowMode.Default ? WindowBorder.Fixed : WindowBorder.Hidden,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
-                     Title = ""
+                     Title = "",
+                     Icon = icon,
+                     Location = new Vector2i(KWEngine.ScreenInformation.PrimaryScreen.Width / 2 - width / 2, KWEngine.ScreenInformation.PrimaryScreen.Height / 2 - height / 2),
+                     StartVisible = false
                  }
         )
         {
@@ -175,7 +188,8 @@ namespace KWEngine3
         /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
         /// <param name="windowMode">Art des Fensters (Standard oder rahmenlos)</param>
         /// <param name="monitorHandle">Handle des Monitors, auf dem das Fenster geöffnet werden soll</param>
-        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode, IntPtr monitorHandle)
+        /// <param name="icon">Fenstersymbol</param>
+        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode, IntPtr monitorHandle, WindowIcon icon = null)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -188,7 +202,10 @@ namespace KWEngine3
                      WindowBorder = windowMode == WindowMode.Default ? WindowBorder.Fixed : WindowBorder.Hidden,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
-                     CurrentMonitor = GetMonitorHandleForPointer(monitorHandle)
+                     CurrentMonitor = GetMonitorHandleForPointer(monitorHandle),
+                     Icon = icon,
+                     Location = new Vector2i(KWEngine.ScreenInformation.PrimaryScreen.Width / 2 - width / 2, KWEngine.ScreenInformation.PrimaryScreen.Height / 2 - height / 2),
+                     StartVisible = false
                  }
         )
         {
@@ -256,6 +273,8 @@ namespace KWEngine3
             //GL.LineWidth(2f); // not available on core profile
 
             KWBuilderOverlay.InitFrameTimeQueue();
+
+            IsVisible = true;
         }
 
         /// <summary>
@@ -1269,25 +1288,29 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Setzt das Anwendungs-Icon
+        /// Setzt bzw. ändert das Anwendungsfenstersymbol
         /// </summary>
-        /// <param name="iconFile">Icon-Dateiname</param>
-        public void SetWindowIcon(string iconFile)
+        /// <param name="icon">WindowIcon-Instanz</param>
+        public void SetWindowIcon(WindowIcon icon)
         {
-            SKBitmap bitmap;
-            try
+            Icon = icon;
+        }
+
+        /// <summary>
+        /// Konvertiert eine Grafikdatei in das WindowIcon-Format
+        /// </summary>
+        /// <remarks>Method output may be null if file is invalid</remarks>
+        /// <param name="iconFile">Dateiname</param>
+        /// <returns>WindowIcon-Instanz</returns>
+        public static WindowIcon CreateWindowIconFromFile(string iconFile)
+        {
+            if(HelperTexture.LoadBitmapForWindowIcon(iconFile, out int width, out int height, out byte[] data))
             {
-                bitmap = SKBitmap.Decode(iconFile);
-                if(bitmap != null)
-                {
-                    OpenTK.Windowing.Common.Input.Image i = new OpenTK.Windowing.Common.Input.Image(bitmap.Width, bitmap.Height, bitmap.Bytes);
-                    this.Icon = new WindowIcon(i);
-                    bitmap.Dispose();
-                }
+                return new WindowIcon(new OpenTK.Windowing.Common.Input.Image(width, height, data));
             }
-            catch(Exception)
+            else
             {
-                KWEngine.LogWriteLine("[Window] Invalid window icon");
+                return null;
             }
         }
 

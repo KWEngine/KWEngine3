@@ -1,6 +1,5 @@
 ﻿using KWEngine3.GameObjects;
 using OpenTK.Mathematics;
-using SkiaSharp;
 
 namespace KWEngine3.Helper
 {
@@ -9,6 +8,51 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperVector
     {
+        /// <summary>
+        /// Spiegelt einen zweidimensionalen Punkt an einer durch zwei zweidimensionale Punkte definierten Geraden
+        /// </summary>
+        /// <param name="pX">X-Koordinate des zu spiegelnden Punkts</param>
+        /// <param name="pY">Y-Koordinate des zu spiegelnden Punkts</param>
+        /// <param name="linepoint1X">X-Koordinate von Punkt #1 auf der Geraden</param>
+        /// <param name="linepoint1Y">Y-Koordinate von Punkt #1 auf der Geraden</param>
+        /// <param name="linepoint2X">X-Koordinate von Punkt #2 auf der Geraden</param>
+        /// <param name="linepoint2Y">Y-Koordinate von Punkt #2 auf der Geraden</param>
+        /// <returns>Gespiegelter Punkt als Vector2-Instanz</returns>
+        public static Vector2 Mirror2DPointOverLine(float pX, float pY, float linepoint1X, float linepoint1Y, float linepoint2X, float linepoint2Y)
+        {
+            float vx = linepoint2X - linepoint1X;
+            float vy = linepoint2Y - linepoint1Y;
+            float x = linepoint1X - pX;
+            float y = linepoint1Y - pY;
+            float r = 1f / (vx * vx + vy * vy);
+
+            float mirrorX = pX + 2f * (x - x * vx * vx * r - y * vx * vy * r);
+            float mirrorY = pY + 2f * (y - y * vy * vy * r - x * vx * vy * r);
+
+            return new Vector2(mirrorX, mirrorY);
+        }
+
+        /// <summary>
+        /// Spiegelt einen zweidimensionalen Punkt an einer durch zwei zweidimensionale Punkte definierten Geraden
+        /// </summary>
+        /// <param name="p">zu spiegelnder Punkt</param>
+        /// <param name="linepoint1">Punkt #1 der Geraden</param>
+        /// <param name="linepoint2">Punkt #2 der Geraden</param>
+        /// <returns>Gespiegelter Punkt als Vector2-Instanz</returns>
+        public static Vector2 Mirror2DPointOverLine(Vector2 p, Vector2 linepoint1, Vector2 linepoint2)
+        {
+            float vx = linepoint2.X - linepoint1.X;
+            float vy = linepoint2.Y - linepoint1.Y;
+            float x = linepoint1.X - p.X;
+            float y = linepoint1.Y - p.Y;
+            float r = 1f / (vx * vx + vy * vy);
+
+            float mirrorX = p.X + 2f * (x - x * vx * vx * r - y * vx * vy * r);
+            float mirrorY = p.Y + 2f * (y - y * vy * vy * r - x * vx * vy * r);
+
+            return new Vector2(mirrorX, mirrorY);
+        }
+
         /// <summary>
         /// Prüft, ob die Richtung dieses Vektors hauptsächlich in die positive Y-Achse zeigt (also aufwärts)
         /// </summary>

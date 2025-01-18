@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.Common.Input;
 using SkiaSharp;
 
 namespace KWEngine3.Helper
@@ -45,6 +46,45 @@ namespace KWEngine3.Helper
         private static readonly Regex rxNonDigits = new Regex(@"[^\d]+");
         private static readonly string replaceSymbol = "|KWEngine|";
 
+        internal static bool LoadBitmapForWindowIcon(string file, out int width, out int height, out byte[] data)
+        {
+            width = -1;
+            height = -1;
+            data = null;
+            string tmp = file.ToLower().Trim();
+            if (!tmp.EndsWith(".png") && !tmp.EndsWith(".jpeg") && !tmp.EndsWith(".jpg"))
+            {
+                KWEngine.LogWriteLine("[HelperTexture] Invalid window icon file type - please use JPG or PNG");
+                return false;
+            }
+
+            SKBitmap bitmap;
+            try
+            {
+                bitmap = SKBitmap.Decode(file);
+                if (bitmap != null && bitmap.Width >= 16 && bitmap.Height >= 16 && bitmap.Width <= 64 && bitmap.Height <= 64 && bitmap.Width == bitmap.Height)
+                {
+                    width = bitmap.Width;
+                    height = bitmap.Height;
+                    data = new byte[bitmap.Bytes.Length];
+                    SKBitmap bitmapRGBA = bitmap.Copy(SKColorType.Rgba8888);
+                    Array.Copy(bitmapRGBA.Bytes, data, bitmapRGBA.Bytes.Length);
+                    bitmap.Dispose();
+                    bitmapRGBA.Dispose();
+                    return true;
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[HelperTexture] Invalid window icon - width and height need to be between 16-64px and of equal dimension length");
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                KWEngine.LogWriteLine("[Window] Invalid window icon - unknown error occured");
+                return false;
+            }
+        }
 
         internal static string GetFileEnding(string path)
         {

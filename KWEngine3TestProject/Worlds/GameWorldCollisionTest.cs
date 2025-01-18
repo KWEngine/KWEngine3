@@ -59,6 +59,7 @@ namespace KWEngine3TestProject.Worlds
             left.IsCollisionObject = true;
             left.SetPosition(-5, 0.5f, 0);
             left.SetColor(0, 1, 1);
+            left.SetHitboxToCapsule();
             AddGameObject(left);
 
             Immovable right = new Immovable();

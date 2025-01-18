@@ -1254,6 +1254,9 @@
     <None Update="Textures\equirectangular_example.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Textures\icontest.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Textures\fx_boom.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
