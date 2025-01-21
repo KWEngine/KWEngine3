@@ -7,6 +7,8 @@ namespace KWEngine3.Framebuffers
 {
     internal abstract class Framebuffer
     {
+
+        internal static int _fbRenderBufferDepthStencil = 0;
         internal static int _fbShadowMapCounter = 0;
         public int ID { get; set; } = -1;
         public LightType _lightType = LightType.Point;
@@ -27,7 +29,7 @@ namespace KWEngine3.Framebuffers
         }
         
         public Dictionary<int, float[]> ClearColorValues = new Dictionary<int, float[]>();
-        public Dictionary<int, float[]> ClearDepthValues = new Dictionary<int, float[]>();
+        //public Dictionary<int, float[]> ClearDepthValues = new Dictionary<int, float[]>();
 
         public void Unbind()
         {

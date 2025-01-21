@@ -262,6 +262,7 @@ namespace KWEngine3.Helper
             bytes += RenderManager.FramebufferLightingPass.SizeInBytes;
             bytes += RenderManager.FramebufferSSAO.SizeInBytes;
             bytes += RenderManager.FramebufferSSAOBlur.SizeInBytes;
+            bytes += RenderManager.FramebufferGlyphs.SizeInBytes;
             foreach(FramebufferBloom fbb in RenderManager.FramebuffersBloom)
             {
                 if(fbb != null)

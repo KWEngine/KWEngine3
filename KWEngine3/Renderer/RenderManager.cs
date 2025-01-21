@@ -14,6 +14,7 @@ namespace KWEngine3.Renderer
         public static FramebufferLighting FramebufferLightingPass { get; set; }
         public static FramebufferSSAO FramebufferSSAO { get; set; }
         public static FramebufferSSAOBlur FramebufferSSAOBlur { get; set; }
+        public static FramebufferGlyph FramebufferGlyphs { get; set; }
         public static FramebufferBloom[] FramebuffersBloom { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public const int LQPENALTY_W = 192;
@@ -35,7 +36,7 @@ namespace KWEngine3.Renderer
             GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             if (clear)
-                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
         
         public static void InitializeFramebuffers()
@@ -45,6 +46,7 @@ namespace KWEngine3.Renderer
             FramebufferLightingPass = new FramebufferLighting(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
             FramebufferSSAO = new FramebufferSSAO(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point);
             FramebufferSSAOBlur = new FramebufferSSAOBlur(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point);
+            FramebufferGlyphs = new FramebufferGlyph(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
 
             // Bloom
             if ((int)KWEngine.Window._ppQuality > 1) // high only
