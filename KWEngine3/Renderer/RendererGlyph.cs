@@ -66,7 +66,7 @@ namespace KWEngine3.Renderer
 
         public static void Draw(ParticleObject po)
         {
-
+            
                 GL.Uniform4(UColorTint, ref po._tint);
                 Matrix4 mvp = po._modelMatrix * (KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
                 GL.UniformMatrix4(UModelViewProjectionMatrix, false, ref mvp);

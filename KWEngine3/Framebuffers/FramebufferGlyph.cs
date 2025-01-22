@@ -31,18 +31,8 @@ namespace KWEngine3.Framebuffers
             GL.DrawBuffers(Attachments.Count, dbe);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            /*
-            Framebuffer._fbRenderBufferDepthStencil = GL.GenRenderbuffer();
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Framebuffer._fbRenderBufferDepthStencil);
-            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.Depth24Stencil8, width, height);
-            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.StencilAttachment, RenderbufferTarget.Renderbuffer, ID);
-            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
-            */
-
             ClearColorValues.Add(0, new float[] { 0 });
             ClearColorValues.Add(1, new float[] { 0, 0, 0, 0 });
-
-            //ClearDepthValues.Add(0, new float[] { 0, 0, 0, 0 });
         }
 
         public override void Clear(bool keepDepth = false)
