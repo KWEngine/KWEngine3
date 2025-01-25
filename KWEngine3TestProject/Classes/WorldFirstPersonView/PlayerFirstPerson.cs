@@ -13,6 +13,7 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
     {
         //private float _lastKeyPress = float.MinValue;
         private float bobX = 0f;
+        private float bobY = 0f;
         private float bobTime = 0f;
 
         public override void Act()
@@ -83,8 +84,9 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
             {
                 MoveAndStrafeAlongCameraXZ(move, strafe, 0.025f);
                 
-                bobX = MathF.Sin(bobTime) * 0.1f;
-                bobTime += 0.025f;
+                bobX = MathF.Sin(bobTime) * 1f;
+                bobTime += 0.025f * 2;
+                bobY = (bobX - 1f) * 0.5f;
             }
             else
             {
@@ -99,12 +101,12 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
             {
                 MoveOffset(i.MTV);
             }
-            
-            CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0.5f + bobX, bobX * 0.5f);
+            Console.WriteLine(bobX);
+            CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0, 0.5f + bobY * 0.125f, bobX * 0.125f * 0.5f);
             if(vsg != null)
             {
                 //vsw.SetOffset(0.25f, -0.25f, 0.75f);
-                vsg.SetOffset(0.25f + bobX * 0.2f, -0.25f -bobX * 0.1f, 0.75f);
+                //vsg.SetOffset(0.25f + bobX * 0.2f, -0.25f -bobX * 0.1f, 0.75f);
             }
         }
     }
