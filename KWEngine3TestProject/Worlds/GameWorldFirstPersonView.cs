@@ -99,7 +99,7 @@ namespace KWEngine3TestProject.Worlds
 
             LightObject lo = new LightObject(LightType.Point, ShadowQuality.High);
             lo.SetPosition(0, 3, -2);
-            lo.SetColor(1, 1, 0, 3);
+            lo.SetColor(1, 1, 0, 2);
             AddLightObject(lo);
         }
     }
