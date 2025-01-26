@@ -12,8 +12,9 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
     public class PlayerFirstPerson : GameObject
     {
         //private float _lastKeyPress = float.MinValue;
-        private float bobX = 0f;
+        private float bobZ = 0f;
         private float bobY = 0f;
+        private float bobX = 0f;
         private float bobTime = 0f;
 
         public override void Act()
@@ -83,17 +84,24 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
             if (move != 0 || strafe != 0)
             {
                 MoveAndStrafeAlongCameraXZ(move, strafe, 0.025f);
-                
-                bobX = MathF.Sin(bobTime) * 1f;
+                bobX = MathF.Sin(bobTime) * 0.25f;
+                bobY = (bobZ - 1f) * 0.5f;
+                bobZ = MathF.Sin(bobTime) * 1f;
+
                 bobTime += 0.025f * 2;
-                bobY = (bobX - 1f) * 0.5f;
             }
             else
             {
                 bobTime = 0f;
-                bobX =bobX * 0.9f;
+                bobX *= 0.9f;
+                bobY *= 0.9f;
+                bobZ *= 0.9f;
                 if (bobX < 0.00001f)
                     bobX = 0f;
+                if (bobY < 0.00001f)
+                    bobY = 0f;
+                if (bobZ < 0.00001f)
+                    bobZ = 0f;
             }
             
 
@@ -101,12 +109,12 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
             {
                 MoveOffset(i.MTV);
             }
-            Console.WriteLine(bobX);
-            CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, 0, 0.5f + bobY * 0.125f, bobX * 0.125f * 0.5f);
+            CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, bobX * 0.125f * 0.5f, 0.5f + bobY * 0.125f * 1, bobZ * 0.125f * 0.5f * 0);
             if(vsg != null)
             {
                 //vsw.SetOffset(0.25f, -0.25f, 0.75f);
-                //vsg.SetOffset(0.25f + bobX * 0.2f, -0.25f -bobX * 0.1f, 0.75f);
+                vsg.SetOffset(0.25f * 0 + bobX * 0.05f, -0.25f -bobY * 0.1f, 0 + bobZ * 0.1f);
+                vsg.SetAnimationPercentageAdvance(0.005f);
             }
         }
     }

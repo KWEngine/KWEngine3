@@ -90,9 +90,9 @@ namespace KWEngine3TestProject.Worlds
             ViewSpaceWeapon vsw = new ViewSpaceWeapon();
             vsw.SetModel("fpsArms");
             vsw.SetAnimationID(0);
-            vsw.SetOffset(0.25f, -0.25f, 0.75f);
-            vsw.SetRotation(0, 15, 0);
-            vsw.SetScale(0.25f);
+            vsw.SetOffset(0, -0.25f, 0f);
+            vsw.SetRotation(-20, 0, 0);
+            vsw.SetScale(0.5f);
             vsw.IsShadowCaster = true;
             vsw.DepthTestingEnabled = false;
             SetViewSpaceGameObject(vsw);
