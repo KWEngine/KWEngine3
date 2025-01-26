@@ -474,7 +474,7 @@ namespace KWEngine3.Model
                     Texture tinfo = scene.Textures[material.PbrMetallicRoughness.BaseColorTexture.Index];
                     int sourceId = tinfo.Source != null ? (int)tinfo.Source : -1;
                     int sampleId = tinfo.Sampler != null ? (int)tinfo.Sampler : -1;
-                    if (sourceId >= 0)
+                    if (sourceId >= 0 && sourceId < scene.Images.Length)
                     {
                         Image i = scene.Images[sourceId];
                         bool texFoundInSameFile = false;
@@ -517,6 +517,10 @@ namespace KWEngine3.Model
                         }
                         geoMaterial.TextureAlbedo = tex;
                     }
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Import] Invalid texture index found in model, skipping texture");
+                    }
                 }
 
                 // Normal map:
@@ -524,49 +528,57 @@ namespace KWEngine3.Model
                 {
                     MaterialNormalTextureInfo tinfo = material.NormalTexture;
                     int sourceId = tinfo.Index;
-                    glTFLoader.Schema.Image i = scene.Images[sourceId];
-                    bool texFoundInSameFile = false;
-                    if (i.Name != null)
+                    if (sourceId >= 0 && sourceId < scene.Images.Length)
                     {
-                        texFoundInSameFile = glbTextures.TryGetValue(i.Name, out glTexIdTemp);
-                    }
-                    else
-                    {
-                        i.Name = "GLTF-nrmmat-" + materialId;
-                    }
-                    GeoTexture tex = new GeoTexture();
-                    bool duplicateFound = CheckIfOtherModelsShareTexture(i.Uri, model.Path, out tex);
-                    if (!duplicateFound)
-                    {
-                        string filename = "";
-                        int glTextureId;
-                        if (texFoundInSameFile)
+                        glTFLoader.Schema.Image i = scene.Images[sourceId];
+                        bool texFoundInSameFile = false;
+                        if (i.Name != null)
                         {
-                            glTextureId = glTexIdTemp;
+                            texFoundInSameFile = glbTextures.TryGetValue(i.Name, out glTexIdTemp);
                         }
                         else
                         {
-                            byte[] rawTextureData = GetTextureDataFromAccessor(scene, i, ref model, out filename);
-                            glTextureId = HelperTexture.LoadTextureForModelGLB(rawTextureData, out int mipMaps);
-                            glbTextures.Add(i.Name, glTextureId);
+                            i.Name = "GLTF-nrmmat-" + materialId;
                         }
-                        tex.UVTransform = GetTextureRepeatValues(material.PbrMetallicRoughness.BaseColorTexture);
-                        tex.Filename = texFoundInSameFile ? i.Name : filename;
-                        tex.UVMapIndex = material.NormalTexture.TexCoord;
-                        tex.Type = TextureType.Normal;
-                        tex.OpenGLID = glTextureId;
+                        GeoTexture tex = new GeoTexture();
+                        bool duplicateFound = CheckIfOtherModelsShareTexture(i.Uri, model.Path, out tex);
+                        if (!duplicateFound)
+                        {
+                            string filename = "";
+                            int glTextureId;
+                            if (texFoundInSameFile)
+                            {
+                                glTextureId = glTexIdTemp;
+                            }
+                            else
+                            {
+                                byte[] rawTextureData = GetTextureDataFromAccessor(scene, i, ref model, out filename);
+                                glTextureId = HelperTexture.LoadTextureForModelGLB(rawTextureData, out int mipMaps);
+                                glbTextures.Add(i.Name, glTextureId);
+                            }
+                            tex.UVTransform = GetTextureRepeatValues(material.PbrMetallicRoughness.BaseColorTexture);
+                            tex.Filename = texFoundInSameFile ? i.Name : filename;
+                            tex.UVMapIndex = material.NormalTexture.TexCoord;
+                            tex.Type = TextureType.Normal;
+                            tex.OpenGLID = glTextureId;
+                        }
+                        geoMaterial.TextureNormal = tex;
                     }
-                    geoMaterial.TextureNormal = tex;
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Import] Invalid texture index found in model, skipping texture");
+                    }
                 }
 
                 // Metallic/roughness texture:
                 if (material.PbrMetallicRoughness.MetallicRoughnessTexture != null)
                 {
+
                     geoMaterial.TextureRoughnessInMetallic = true;
                     Texture tinfo = scene.Textures[material.PbrMetallicRoughness.MetallicRoughnessTexture.Index];
                     int sourceId = tinfo.Source != null ? (int)tinfo.Source : -1;
                     int sampleId = tinfo.Sampler != null ? (int)tinfo.Sampler : -1;
-                    if (sourceId >= 0)
+                    if (sourceId >= 0 && sourceId < scene.Images.Length)
                     {
                         Image i = scene.Images[sourceId];
                         bool texFoundInSameFile = false;
@@ -604,6 +616,10 @@ namespace KWEngine3.Model
                         geoMaterial.TextureRoughnessInMetallic = true;
                         geoMaterial.TextureRoughnessIsSpecular = true;
                     }
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Import] Invalid texture index found in model, skipping texture");
+                    }
                 }
 
                 // Emissive texture
@@ -611,39 +627,46 @@ namespace KWEngine3.Model
                 {
                     TextureInfo tinfo = material.EmissiveTexture;
                     int sourceId = tinfo.Index;
-                    Image i = scene.Images[sourceId];
-                    bool texFoundInSameFile = false;
-                    if (i.Name != null)
+                    if (sourceId >= 0 && sourceId < scene.Images.Length)
                     {
-                        texFoundInSameFile = glbTextures.TryGetValue(i.Name, out glTexIdTemp);
-                    }
-                    else
-                    {
-                        i.Name = "GLTF-emimat-" + materialId;
-                    }
-                    GeoTexture tex = new GeoTexture();
-                    bool duplicateFound = CheckIfOtherModelsShareTexture(i.Uri, model.Path, out tex);
-                    if (!duplicateFound)
-                    {
-                        string filename = "";
-                        int glTextureId;
-                        if (texFoundInSameFile)
+                        Image i = scene.Images[sourceId];
+                        bool texFoundInSameFile = false;
+                        if (i.Name != null)
                         {
-                            glTextureId = glTexIdTemp;
+                            texFoundInSameFile = glbTextures.TryGetValue(i.Name, out glTexIdTemp);
                         }
                         else
                         {
-                            byte[] rawTextureData = GetTextureDataFromAccessor(scene, i, ref model, out filename);
-                            glTextureId = HelperTexture.LoadTextureForModelGLB(rawTextureData, out int mipMaps);
-                            glbTextures.Add(i.Name, glTextureId);
+                            i.Name = "GLTF-emimat-" + materialId;
                         }
-                        tex.UVTransform = GetTextureRepeatValues(material.EmissiveTexture);
-                        tex.Filename = texFoundInSameFile ? i.Name : filename;
-                        tex.UVMapIndex = material.PbrMetallicRoughness.BaseColorTexture.TexCoord;
-                        tex.Type = TextureType.Emissive;
-                        tex.OpenGLID = glTextureId;
+                        GeoTexture tex = new GeoTexture();
+                        bool duplicateFound = CheckIfOtherModelsShareTexture(i.Uri, model.Path, out tex);
+                        if (!duplicateFound)
+                        {
+                            string filename = "";
+                            int glTextureId;
+                            if (texFoundInSameFile)
+                            {
+                                glTextureId = glTexIdTemp;
+                            }
+                            else
+                            {
+                                byte[] rawTextureData = GetTextureDataFromAccessor(scene, i, ref model, out filename);
+                                glTextureId = HelperTexture.LoadTextureForModelGLB(rawTextureData, out int mipMaps);
+                                glbTextures.Add(i.Name, glTextureId);
+                            }
+                            tex.UVTransform = GetTextureRepeatValues(material.EmissiveTexture);
+                            tex.Filename = texFoundInSameFile ? i.Name : filename;
+                            tex.UVMapIndex = material.PbrMetallicRoughness.BaseColorTexture.TexCoord;
+                            tex.Type = TextureType.Emissive;
+                            tex.OpenGLID = glTextureId;
+                        }
+                        geoMaterial.TextureEmissive = tex;
                     }
-                    geoMaterial.TextureEmissive = tex;
+                    else
+                    {
+                        KWEngine.LogWriteLine("[Import] Invalid texture index found in model, skipping texture");
+                    }
                 }
             }
             geoMesh.Material = geoMaterial;
