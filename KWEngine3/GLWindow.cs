@@ -796,7 +796,7 @@ namespace KWEngine3
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
             base.OnKeyUp(e);
-            _keyboard._keysPressed.Remove(e.Key);            
+            _keyboard._keysPressed.Remove(e.Key);
         }
 
         internal World _worldNew = null;
@@ -975,7 +975,7 @@ namespace KWEngine3
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
                 _stopwatch.Restart();
-
+                
                 unsafe
                 {
                     GLFW.PollEvents();
@@ -1111,6 +1111,12 @@ namespace KWEngine3
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(r);
                     }
 
+                    bool hudobjectlostfocus = KWEngine.CurrentWorld.ProcessWorldEventQueue();
+                    if (hudobjectlostfocus)
+                    {
+                        KWEngine.CurrentWorld._textinputLostFocusTimout = KWEngine.CurrentWorld.WorldTime + HUDObjectTextInput.TimeoutDuration;
+                    }
+
                     if (!KWEngine.EditModeActive)
                     {
                         KWEngine.CurrentWorld.Act();
@@ -1151,8 +1157,7 @@ namespace KWEngine3
                         }
                     }
 
-                    KWEngine.CurrentWorld.ProcessWorldEventQueue();
-
+                    
                     double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
@@ -1189,11 +1194,11 @@ namespace KWEngine3
                 string result = HelperGeneral.ProcessInputs(out Keys specialKey);
                 if(specialKey == Keys.Enter)
                 {
-                    h.ConfirmAndReleaseFocus();
+                    h.ConfirmAndRaiseWorldEvent();
                 }
                 else if (specialKey == Keys.Escape)
                 {
-                    h.AbortAndReleaseFocus();
+                    h.AbortAndRaiseWorldEvent();
                 }
                 else if (specialKey == Keys.Backspace)
                 {

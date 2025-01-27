@@ -7,6 +7,25 @@ namespace KWEngine3.GameObjects
     /// </summary>
     public class HUDObjectTextInput : HUDObjectText
     {
+
+        /// <summary>
+        /// Erfragt oder setzt die Zeit, in der nach dem Fokusverlust des Eingabefeldes keine Tastaturbefehle entgegengenommen werden sollen (Standardwert: 0.5f)
+        /// </summary>
+        public static float TimeoutDuration
+        {
+            get
+            {
+                return _timeout;
+            }
+            set
+            {
+                if(_timeout >= 0)
+                {
+                    _timeout = value;
+                }
+            }
+        }
+
         /// <summary>
         /// Regelt das Blinkverhalten des Eingabecursors
         /// </summary>
@@ -41,7 +60,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Veranlasst die Instanz, den erzwungenen Keyboard-Eingabefokus zu verlassen
+        /// Veranlasst die Instanz, den erzwungenen Keyboard-Eingabefokus sofort zu verlassen - ohne ein Event zu generieren
         /// </summary>
         public void ReleaseFocus()
         {
@@ -82,7 +101,7 @@ namespace KWEngine3.GameObjects
             UpdateOffsetList();
         }
 
-
+        internal static float _timeout = 0.5f;
         internal int[] _offsetsCursor = null;
         internal void UpdateCursorOffsetList()
         {
@@ -114,13 +133,11 @@ namespace KWEngine3.GameObjects
         /// Gibt den Eingabefokus für den kommenden Simulatiosschritt wieder frei
         /// </summary>
         /// <param name="reason">Gibt optional den Grund für das Verlassen des Fokus an. Dieser wird der Event-Beschreibung angehängt.</param>
-        public void ReleaseFocus(string reason = "")
+        internal void ReleaseFocus(string reason = "")
         {
             WorldEvent e = new WorldEvent(KWEngine.WorldTime, "[HUDObjectTextInput|" + reason + "]", this);
             e.GeneratedByInputFocusLost = true;
             KWEngine.CurrentWorld.AddWorldEvent(e);
-            
-            
         }
 
         internal void KeepENTERESCKeyPressedForOneSimulationStep()
@@ -145,17 +162,17 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Bestätigt die aktuelle Eingabe und gibt den Eingabefokus für den kommenden Simulatiosschritt wieder frei
+        /// Bestätigt die aktuelle Eingabe und erzeugt ein WorldEvent, das in der jeweiligen OnWorldEvent()-Methode der Welt-Klasse abgefangen werden kann
         /// </summary>
-        public void ConfirmAndReleaseFocus()
+        internal void ConfirmAndRaiseWorldEvent()
         {
             ReleaseFocus("CONFIRM");
         }
 
         /// <summary>
-        /// Bricht die aktuelle Eingabe ab und gibt den Eingabefokus für den kommenden Simulatiosschritt wieder frei
+        /// Bricht die aktuelle Eingabe ab und erzeugt ein WorldEvent, das in der jeweiligen OnWorldEvent()-Methode der Welt-Klasse abgefangen werden kann
         /// </summary>
-        public void AbortAndReleaseFocus()
+        internal void AbortAndRaiseWorldEvent()
         {
             SetText(_textBeforeAbort);
             ReleaseFocus("ABORT");

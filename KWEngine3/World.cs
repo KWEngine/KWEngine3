@@ -16,6 +16,8 @@ namespace KWEngine3
     public abstract class World
     {
         #region Internals
+        internal float _textinputLostFocusTimout = 0f;
+
         internal HUDObjectTextInput _hudObjectInputWithFocus = null;
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
 
@@ -88,11 +90,14 @@ namespace KWEngine3
             return myTempList;
         }
 
-        internal void ProcessWorldEventQueue()
+        internal bool ProcessWorldEventQueue()
         {
+            bool inputlosteventprocessed = false;
             for (int i = _eventQueue.Count - 1; i >= 0; i--)
             {
                 WorldEvent e = _eventQueue[i];
+                if (e.GeneratedByInputFocusLost)
+                    inputlosteventprocessed = true;
                 if (e.Owner == KWEngine.CurrentWorld)
                 {
                     if (e.Timestamp <= WorldTime)
@@ -110,6 +115,7 @@ namespace KWEngine3
                     _eventQueue.Remove(e);
                 }
             }
+            return inputlosteventprocessed;
         }
 
         internal GameObject GetGameObjectByID(int id)

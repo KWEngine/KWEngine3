@@ -10,13 +10,13 @@ namespace KWEngine3TestProject.Worlds
         private bool _paused = false;
         public override void Act()
         {
-            /*
+            
             if(Keyboard.IsKeyPressed(Keys.Enter) || Keyboard.IsKeyPressed(Keys.Escape))
             {
                 Console.WriteLine("ENTER on World1 pressed");
                 Window.SetWorld(new GameWorldInputTest2());
             }
-            */
+            
 
             if(!_paused && Keyboard.IsKeyPressed(Keys.Escape))
             {
@@ -56,7 +56,7 @@ namespace KWEngine3TestProject.Worlds
             inputTest.CenterOnScreen();
             AddHUDObject(inputTest);
 
-            MouseCursorGrab();
+            //MouseCursorGrab();
         }
 
         protected override void OnWorldEvent(WorldEvent e)
@@ -65,6 +65,10 @@ namespace KWEngine3TestProject.Worlds
             {
                 HUDObjectTextInput h = e.Tag as HUDObjectTextInput;
                 h.SetColor(1, 0, 0);
+                if(e.Description.Contains("ABORT"))
+                    h.ReleaseFocus();
+                else
+                    h.ReleaseFocus();
             }
         }
     }

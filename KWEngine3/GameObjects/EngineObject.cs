@@ -712,11 +712,32 @@ namespace KWEngine3.GameObjects
         /// <returns>Rotation (als Quaternion)</returns>
         public Quaternion GetRotationToTarget(Vector3 target)
         {
-            Matrix3 lookat = new(Matrix4.LookAt(target, Center, KWEngine.WorldUp));
+            Matrix3 lookat;
+            if (EngineCamera.Camera.IsCameraLookAtPossiblyNaN(Center, target, out Vector3 targetNew))
+            {
+                lookat = new(Matrix4.LookAt(targetNew, Center, KWEngine.WorldUp));
+            }
+            else
+            {
+                lookat = new(Matrix4.LookAt(target, Center, KWEngine.WorldUp));
+            }
+
+            
             lookat = Matrix3.Transpose(lookat);
             Quaternion q = Quaternion.FromMatrix(lookat);
             q.Invert();
             return q;
+        }
+
+        /// <summary>
+        /// Dreht das Objekt, so dass es zur Zielkoordinate blickt
+        /// </summary>
+        /// <param name="x">x-Zielkoordinate</param>
+        /// <param name="y">y-Zielkoordinate</param>
+        /// <param name="z">z-Zielkoordinate</param>
+        public void TurnTowardsXYZ(float x, float y, float z)
+        {
+            TurnTowardsXYZ(new Vector3(x, y, z));
         }
 
         /// <summary>
@@ -810,6 +831,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Rotation passend zum übergebenen Ebenenvektor (surface normal), um z.B. das Objekt zu kippen, wenn es auf einer Schräge steht.
         /// </summary>
+        /// <remarks>Hinweis: Kann bei KWQuad-Modellen zu fehlerhaften Rotationen führen. Hier muss ggf. manuell mit AddRotation...() nachgebessert werden.</remarks>
         /// <param name="surfaceNormal">Ebenenvektor</param>
         public void SetRotationToMatchSurfaceNormal(Vector3 surfaceNormal)
         {

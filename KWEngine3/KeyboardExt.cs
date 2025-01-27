@@ -1,4 +1,5 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using KWEngine3.GameObjects;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3
 {
@@ -34,6 +35,11 @@ namespace KWEngine3
         {
             if (KWEngine.CurrentWorld == null || KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
                 return false;
+
+            if (KWEngine.CurrentWorld.WorldTime - KWEngine.CurrentWorld._textinputLostFocusTimout < HUDObjectTextInput.TimeoutDuration)
+            {
+                return false;
+            }
 
             bool down = KWEngine.Window.KeyboardState.IsKeyDown(key);
             if (down)

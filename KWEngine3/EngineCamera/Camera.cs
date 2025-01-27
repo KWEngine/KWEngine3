@@ -91,7 +91,7 @@ namespace KWEngine3.EngineCamera
         }
 
         
-        private static bool IsCameraLookAtPossiblyNaN(Vector3 position, Vector3 target, out Vector3 targetNew)
+        internal static bool IsCameraLookAtPossiblyNaN(Vector3 position, Vector3 target, out Vector3 targetNew)
         {
             targetNew = target;
             bool wasCorrected = false;

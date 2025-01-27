@@ -814,6 +814,72 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Berechnet den Schnittpunkt eines Strahls mit dem angegebenen GameObject
+        /// </summary>
+        /// <param name="g">zu prüfendes GameObject</param>
+        /// <param name="rayOrigin">Ursprungsposition des Strahls</param>
+        /// <param name="rayDirection">Richtung des Strahls (MUSS normalisiert sein!)</param>
+        /// <param name="intersectionPoint">Schnittpunkt (Ausgabe)</param>
+        /// <param name="faceNormal">Ebene des Schnittpunkts (Ausgabe)</param>
+        /// <param name="hitboxname">Name der getroffenen Hitbox</param>
+        /// <param name="distance">Gemessene Distanz bis zum Schnittpunkt</param>
+        /// <param name="includeNonCollisionObjects">Sollen Objekte berücksichtigt werden, die NICHT als Kollisionsobjekt markiert sind?</param>
+        /// <returns>true, wenn der Strahl das GameObject getroffen hat</returns>
+        public static bool RaytraceObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal, out string hitboxname, out float distance, bool includeNonCollisionObjects = true)
+        {
+            faceNormal = KWEngine.WorldUp;
+            intersectionPoint = new Vector3();
+            hitboxname = "";
+            if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
+            {
+                distance = 0f;
+                return false;
+            }
+
+            int resultSum = 0;
+            float minDistance = float.MaxValue;
+
+            for (int i = 0; i < g._colliderModel._hitboxes.Count; i++)
+            {
+                GameObjectHitbox currentHitbox = g._colliderModel._hitboxes[i];
+                for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
+                {
+                    GeoMeshFace face = currentHitbox._mesh.Faces[j];
+                    Span<Vector3> faceVertices = stackalloc Vector3[face.Vertices.Length];
+                    currentHitbox.GetVerticesFromFace(j, ref faceVertices, out Vector3 currentFaceNormal);
+                    float dot = Vector3.Dot(rayDirection, currentFaceNormal);
+                    if (dot < 0)
+                    {
+                        bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFaceNormal, ref faceVertices, out Vector3 currentContact);
+                        if (hit)
+                        {
+                            float currentDistance = (rayOrigin - currentContact).LengthSquared;
+                            if (currentDistance < minDistance)
+                            {
+                                resultSum++;
+                                hitboxname = currentHitbox._mesh.Name;
+                                faceNormal = currentFaceNormal;
+                                intersectionPoint = currentContact;
+                                minDistance = currentDistance;
+                            }
+                        }
+                    }
+                }
+            }
+            if(resultSum > 0)
+            {
+                distance = minDistance;
+                return true;
+            }
+            else
+            {
+                distance = 0;
+                return false;
+            }
+            
+        }
+
+        /// <summary>
         /// Prüft, ob ein Strahl die Hitbox der angegebenen GameObject-Instanz trifft
         /// </summary>
         /// <remarks>
@@ -839,6 +905,34 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Prüft, ob ein Strahl die Hitbox der angegebenen GameObject-Instanz trifft
+        /// </summary>
+        /// <remarks>
+        /// Diese Methode ist schnell aber unpräzise, da sie sich an der quaderförmigen Hitbox des Objekts orientiert.
+        /// </remarks>
+        /// <param name="g">zu prüfendes GameObject</param>
+        /// <param name="rayOrigin">Ursprungsposition des Strahls</param>
+        /// <param name="rayDirection">Richtung des Strahls (MUSS normalisiert sein!)</param>
+        /// <param name="distance">Gibt die Distanz zum Schnittpunkt an</param>
+        /// <returns>true, wenn der Strahl das GameObject trifft</returns>
+        public static bool RaytraceObjectFast(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out float distance)
+        {
+            ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
+            Vector3 directionTransformedInv = new Vector3(1f / (directionTransformed.X == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.X), 1f / (directionTransformed.Y == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Y), 1f / (directionTransformed.Z == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Z));
+            foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
+            {
+                bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
+                if (result == true)
+                {
+                    distance = currentDistance;
+                    return result;
+                }
+            }
+            distance = 0f;
+            return false;
+        }
+
+        /// <summary>
         /// Prüft, ob ein Strahl die achsenparallele Hitbox der angegebenen GameObject-Instanz trifft
         /// </summary>
         /// <remarks>
@@ -860,6 +954,34 @@ namespace KWEngine3.Helper
             {
                 return true;
             }
+            return false;
+        }
+
+        /// <summary>
+        /// Prüft, ob ein Strahl die achsenparallele Hitbox der angegebenen GameObject-Instanz trifft
+        /// </summary>
+        /// <remarks>
+        /// Diese Methode ist schnell aber sehr unpräzise, da sie die Rotation von Objekten nur näherungsweise einbezieht.
+        /// Es kann vermehrt zu falsch-positiven Rückmeldungen kommen.
+        /// </remarks>
+        /// <param name="g">zu prüfendes GameObject</param>
+        /// <param name="rayOrigin">Ursprungsposition des Strahls</param>
+        /// <param name="rayDirection">Richtung des Strahls (MUSS normalisiert sein!)</param>
+        /// <param name="distance">Gibt die Distanz zum Schnittpunkt an</param>
+        /// <returns>true, wenn der Strahl das GameObject trifft</returns>
+        public static bool RaytraceObjectFastest(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out float distance)
+        {
+            rayDirection.X = 1f / rayDirection.X;
+            rayDirection.Y = 1f / rayDirection.Y;
+            rayDirection.Z = 1f / rayDirection.Z;
+
+            bool result = RayAABBIntersection(rayOrigin, rayDirection, g._stateCurrent._center, g._stateCurrent._dimensions, out float d);
+            if (result == true && d >= 0)
+            {
+                distance = d;
+                return true;
+            }
+            distance = 0f;
             return false;
         }
 
