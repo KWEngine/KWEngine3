@@ -41,6 +41,18 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Veranlasst die Instanz, den erzwungenen Keyboard-Eingabefokus zu verlassen
+        /// </summary>
+        public void ReleaseFocus()
+        {
+            if (KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
+            {
+                KWEngine.CurrentWorld._hudObjectInputWithFocus.HasFocus = false;
+                KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
+            }
+        }
+
+        /// <summary>
         /// Setzt den Text für die Instanz
         /// </summary>
         /// <param name="text">zu setzender Text</param>

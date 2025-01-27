@@ -796,13 +796,7 @@ namespace KWEngine3
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
             base.OnKeyUp(e);
-            _keyboard._keysPressed.Remove(e.Key);
-            if((e.Key == Keys.Enter || e.Key == Keys.KeyPadEnter || e.Key == Keys.Escape) && KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
-            {
-                KWEngine.CurrentWorld._hudObjectInputWithFocus.HasFocus = false;
-                KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
-            }
-            
+            _keyboard._keysPressed.Remove(e.Key);            
         }
 
         internal World _worldNew = null;
