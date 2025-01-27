@@ -173,6 +173,7 @@
       <Field Name="_terrainObjects" Hidden="true" />
       <Field Name="_terrainObjectsToBeAdded" Hidden="true" />
       <Field Name="_terrainObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_textinputLostFocusTimout" Hidden="true" />
       <Field Name="_textObjects" Hidden="true" />
       <Field Name="_textObjectsToBeAdded" Hidden="true" />
       <Field Name="_textObjectsToBeRemoved" Hidden="true" />
@@ -391,7 +392,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="17.25" Width="2.75" />
+    <Position X="21.5" Y="18.25" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -402,7 +403,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="21.5" Y="6.5" Width="2.75" />
+    <Position X="21.5" Y="6.75" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -421,7 +422,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="10.25" Width="2.75" />
+    <Position X="21.5" Y="10.75" Width="2.75" />
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="LookRotation" Hidden="true" />
@@ -628,7 +629,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="21.5" Y="15.5" Width="2.75" />
+    <Position X="21.5" Y="16.25" Width="2.75" />
     <Members>
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
@@ -717,15 +718,18 @@
       <Field Name="_cursorType" Hidden="true" />
       <Field Name="_offsetsCursor" Hidden="true" />
       <Field Name="_textBeforeAbort" Hidden="true" />
+      <Field Name="_timeout" Hidden="true" />
+      <Method Name="AbortAndRaiseWorldEvent" Hidden="true" />
       <Method Name="AddCharacters" Hidden="true" />
       <Method Name="Backspace" Hidden="true" />
+      <Method Name="ConfirmAndRaiseWorldEvent" Hidden="true" />
       <Method Name="Delete" Hidden="true" />
       <Method Name="KeepENTERESCKeyPressedForOneSimulationStep" Hidden="true" />
       <Method Name="MoveCursor" Hidden="true" />
       <Method Name="UpdateCursorOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CAAkQAAACEAAIEEQAIAAAACAAAUAAIAEAAUEBASAAAA=</HashCode>
+      <HashCode>CAAkQAAACEQAAUEQAIAAAACAAAUAAQAEAAUERASAAAA=</HashCode>
       <FileName>GameObjects\HUDObjectTextInput.cs</FileName>
     </TypeIdentifier>
   </Class>
