@@ -50,42 +50,32 @@ namespace KWEngine3.Renderer
             GL.UseProgram(ProgramID);
         }
 
-        public static void RenderParticles(List<TimeBasedObject> objects)
+        public static void RenderHUDObjectTextInstances(List<HUDObjectText> objects)
         {
             GL.Enable(EnableCap.Blend);
-            foreach (TimeBasedObject tbo in objects)
+            GL.BlendFunc(BlendingFactor.One, BlendingFactor.One);
+            foreach (HUDObjectText txt in objects)
             {
-                if (tbo is ParticleObject)
-                {
-                    ParticleObject po = (ParticleObject)tbo;
-                    Draw(po);
-                }
+                Draw(txt);
             }
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.Disable(EnableCap.Blend);
         }
 
-        public static void Draw(ParticleObject po)
+        public static void Draw(HUDObjectText text)
         {
             
-                GL.Uniform4(UColorTint, ref po._tint);
-                Matrix4 mvp = po._modelMatrix * (KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
-                GL.UniformMatrix4(UModelViewProjectionMatrix, false, ref mvp);
+            GL.Uniform4(UColorTint, ref text._tint);
+            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
 
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, po._info.Texture);
-                GL.Uniform1(UTexture, 0);
+            foreach(char c in text._text)
+            {
+                //GL.BindVertexArray(...);
+                //GL.DrawArrays(...);
 
-                GL.Uniform1(UAnimationState, po._frame);
-                GL.Uniform1(UAnimationStates, po._info.Images);
-
-                GeoMesh mesh = po._model.Meshes.Values.ElementAt(0);
-                GL.BindVertexArray(mesh.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.BindVertexArray(0);
+               
+            }
+            GL.BindVertexArray(0);
         }
     }
 }
