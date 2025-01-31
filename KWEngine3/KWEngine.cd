@@ -716,6 +716,7 @@
       <Field Name="_cursorBlinkSpeed" Hidden="true" />
       <Field Name="_cursorPos" Hidden="true" />
       <Field Name="_cursorType" Hidden="true" />
+      <Field Name="_maxInputLength" Hidden="true" />
       <Field Name="_offsetsCursor" Hidden="true" />
       <Field Name="_textBeforeAbort" Hidden="true" />
       <Field Name="_timeout" Hidden="true" />
@@ -729,7 +730,7 @@
       <Method Name="UpdateCursorOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CAAkQAAACEQAAUEQAIAAAACAAAUAAQAEAAUERASAAAA=</HashCode>
+      <HashCode>CEAkQAAACEQAAUEQAIAAAACAAAUAAQAECAUERASAAAA=</HashCode>
       <FileName>GameObjects\HUDObjectTextInput.cs</FileName>
     </TypeIdentifier>
   </Class>

@@ -249,8 +249,24 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt oder erfragt die Anzahl maximal einzugebender Zeichen im Bereich [1, 128] (Standardwert: 128)
+        /// </summary>
+        public int MaxInputLength
+        {
+            get
+            {
+                return _maxInputLength;
+            }
+            set
+            {
+                _maxInputLength = Math.Clamp(value, 1, 128);
+            }
+        }
+
         #region Internals
         internal int _cursorPos = 0;
+        internal int _maxInputLength = 128;
         internal string _textBeforeAbort = "";
         /// <summary>
         /// Fügt die angegebenen Zeichen dem Text ab der Cursorposition hinzu
@@ -258,7 +274,7 @@ namespace KWEngine3.GameObjects
         /// <param name="characters">Hinzuzufügende Zeichen</param>
         internal void AddCharacters(string characters)
         {
-            if (characters != null)
+            if (characters != null && Text.Length < MaxInputLength)
             {
                 if (_cursorPos >= Text.Length)
                 {
