@@ -4,6 +4,8 @@ namespace KWEngine3.Framebuffers
 {
     internal class FramebufferGlyph : Framebuffer
     {
+
+
         public FramebufferGlyph(int width, int height)
             : base(width, height, false, LightType.Point)
         {
@@ -14,6 +16,7 @@ namespace KWEngine3.Framebuffers
         {
             width = width * 2;
             height = height * 2;
+            
 
             Bind(false);
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R8, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge));   // Glyphs

@@ -54,6 +54,9 @@ namespace KWEngine3.Renderer
         {
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.One, BlendingFactor.One);
+
+            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
+
             foreach (HUDObjectText txt in objects)
             {
                 Draw(txt);
@@ -64,9 +67,8 @@ namespace KWEngine3.Renderer
 
         public static void Draw(HUDObjectText text)
         {
-            
             GL.Uniform4(UColorTint, ref text._tint);
-            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
+            
 
             foreach(char c in text._text)
             {

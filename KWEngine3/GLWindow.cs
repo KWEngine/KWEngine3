@@ -259,7 +259,9 @@ namespace KWEngine3
                 GLFW.GetCursorPos(this.WindowPtr, out var xPos, out var yPos);
                 Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
             }
-            
+
+            HelperFont.LoadFontFromAssembly("OpenSans.ttf");
+
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
             RenderManager.InitializeClearColor();

@@ -1,7 +1,6 @@
 ﻿using KWEngine3.Exceptions;
-using KWEngine3.Helper;
 using OpenTK.Graphics.OpenGL4;
-using System.Numerics;
+using OpenTK.Mathematics;
 
 namespace KWEngine3.Framebuffers
 {
@@ -15,6 +14,7 @@ namespace KWEngine3.Framebuffers
         public bool _isLight = false;
         public Vector3 _clearColor = Vector3.Zero;
         public int SizeInBytes = 0;
+        public Vector2i _size = new Vector2i();
 
         public static int ShadowMapCount { get { return _fbShadowMapCounter; } }
         public List<FramebufferTexture> Attachments { get; set; } = new List<FramebufferTexture>();
@@ -25,7 +25,8 @@ namespace KWEngine3.Framebuffers
             ID = GL.GenFramebuffer();
             _isLight = isLight;
             _lightType = lightType;
-            Init(width, height);
+            _size = new Vector2i(width, height);
+            Init();
         }
         
         public Dictionary<int, float[]> ClearColorValues = new Dictionary<int, float[]>();
@@ -47,7 +48,7 @@ namespace KWEngine3.Framebuffers
                 throw new EngineException("Framebuffer::Bind() -> Framebuffer ID invalid.");
         }
 
-        public abstract void Init(int width, int height);
+        public abstract void Init();
 
         public void Dispose()
         {

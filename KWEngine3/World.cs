@@ -46,9 +46,13 @@ namespace KWEngine3
         internal List<LightObject> _lightObjectsToBeAdded = new();
         internal List<LightObject> _lightObjectsToBeRemoved = new();
 
-        internal List<HUDObject> _hudObjects = new();
-        internal List<HUDObject> _hudObjectsToBeAdded = new();
-        internal List<HUDObject> _hudObjectsToBeRemoved = new();
+        internal List<HUDObjectImage> _hudObjectsImage = new();
+        internal List<HUDObjectImage> _hudObjectsImageToBeAdded = new();
+        internal List<HUDObjectImage> _hudObjectsImageToBeRemoved = new();
+
+        internal List<HUDObjectText> _hudObjectsText = new();
+        internal List<HUDObjectText> _hudObjectsTextToBeAdded = new();
+        internal List<HUDObjectText> _hudObjectsTextToBeRemoved = new();
 
         internal List<TextObject> _textObjects = new();
         internal List<TextObject> _textObjectsToBeAdded = new();
@@ -261,24 +265,40 @@ namespace KWEngine3
 
         internal void AddRemoveHUDObjects()
         {
-            foreach (HUDObject h in _hudObjectsToBeRemoved)
+            // IMAGE OBJECTS:
+            foreach (HUDObjectImage h in _hudObjectsImageToBeRemoved)
             {
-                if(h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
+                _hudObjectsImage.Remove(h);
+            }
+            _hudObjectsImageToBeRemoved.Clear();
+
+            foreach (HUDObjectImage h in _hudObjectsImageToBeAdded)
+            {
+                _hudObjectsImage.Add(h);
+            }
+            _hudObjectsImageToBeAdded.Clear();
+
+
+            // MAP:
+            Map.Reset();
+
+
+            // TEXT OBJECTS:
+            foreach (HUDObjectText h in _hudObjectsTextToBeRemoved)
+            {
+                if (h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
                 {
                     _hudObjectInputWithFocus = null;
                 }
-                h._currentWorld = null;
-                _hudObjects.Remove(h);
+                _hudObjectsText.Remove(h);
             }
-            _hudObjectsToBeRemoved.Clear();
+            _hudObjectsTextToBeRemoved.Clear();
 
-            foreach (HUDObject h in _hudObjectsToBeAdded)
+            foreach (HUDObjectText h in _hudObjectsTextToBeAdded)
             {
-                _hudObjects.Add(h);
-                h._currentWorld = this;
+                _hudObjectsText.Add(h);
             }
-            _hudObjectsToBeAdded.Clear();
-            Map.Reset();
+            _hudObjectsTextToBeAdded.Clear();
         }
 
         internal void AddRemoveTextObjects()
@@ -504,7 +524,11 @@ namespace KWEngine3
             }
             AddRemoveTerrainObjects();
 
-            foreach (HUDObject h in _hudObjects)
+            foreach (HUDObjectImage h in _hudObjectsImage)
+            {
+                RemoveHUDObject(h);
+            }
+            foreach (HUDObjectText h in _hudObjectsText)
             {
                 RemoveHUDObject(h);
             }
@@ -1327,21 +1351,61 @@ namespace KWEngine3
         /// <summary>
         /// Fügt ein HUD-Objekt der Welt hinzu
         /// </summary>
-        /// <param name="h">Objekt</param>
+        /// <param name="h">hinzuzufügendes Objekt</param>
         public void AddHUDObject(HUDObject h)
         {
-            if (h != null && !_hudObjects.Contains(h) && !_hudObjectsToBeAdded.Contains(h))
-                _hudObjectsToBeAdded.Add(h);
+            //if (h != null && !_hudObjects.Contains(h) && !_hudObjectsToBeAdded.Contains(h))
+            //    _hudObjectsToBeAdded.Add(h);
+            if (h == null)
+            {
+                return;
+            }
+
+            if (h is HUDObjectImage)
+            {
+                if (!_hudObjectsImageToBeAdded.Contains(h))
+                {
+                    _hudObjectsImageToBeAdded.Add(h as HUDObjectImage);
+                    h._currentWorld = KWEngine.CurrentWorld;
+                }
+            }
+            else if (h is HUDObjectText)
+            {
+                if (!_hudObjectsTextToBeAdded.Contains(h))
+                {
+                    _hudObjectsTextToBeAdded.Add(h as HUDObjectText);
+                    h._currentWorld = KWEngine.CurrentWorld;
+                }
+            }
         }
 
         /// <summary>
         /// Löscht das angegebene HUD-Objekt aus der Welt
         /// </summary>
-        /// <param name="h">Objekt</param>
+        /// <param name="h">zu löschendes Objekt</param>
         public void RemoveHUDObject(HUDObject h)
         {
-            if (h != null && !_hudObjectsToBeRemoved.Contains(h))
-                _hudObjectsToBeRemoved.Add(h);
+            if(h == null)
+            {
+                return;
+            }
+
+            if(h is HUDObjectImage)
+            {
+                if (!_hudObjectsImageToBeRemoved.Contains(h))
+                {
+                    h._currentWorld = null;
+                    _hudObjectsImageToBeRemoved.Add(h as HUDObjectImage);
+                }
+            }
+            else if(h is HUDObjectText) 
+            {
+                if (!_hudObjectsTextToBeRemoved.Contains(h))
+                {
+                    h._currentWorld = null;
+                    _hudObjectsTextToBeRemoved.Add(h as HUDObjectText);
+                }
+            }
         }
 
 
@@ -1688,8 +1752,14 @@ namespace KWEngine3
         public HUDObject GetHUDObjectByName(string name)
         {
             name = name.Trim();
-            HUDObject h = _hudObjects.FirstOrDefault(ho => ho.Name == name);
-            return h;
+            HUDObject h = _hudObjectsImage.FirstOrDefault(ho => ho.Name == name);
+            if(h != null)
+                return h;
+            else
+            {
+                h = _hudObjectsText.FirstOrDefault(ho => ho.Name == name);
+                return h;
+            }
         }
 
         /// <summary>
@@ -1700,13 +1770,21 @@ namespace KWEngine3
         public List<HUDObject> GetHUDObjectsByName(string name)
         {
             List<HUDObject> list = new();
-            foreach(HUDObject h in _hudObjects)
+            foreach(HUDObject h in _hudObjectsImage)
             {
                 if(h.Name != null && h.Name.Contains(name))
                 {
                     list.Add(h);
                 }
             }
+            foreach (HUDObject h in _hudObjectsText)
+            {
+                if (h.Name != null && h.Name.Contains(name))
+                {
+                    list.Add(h);
+                }
+            }
+
             return list;
         }
 
@@ -1718,7 +1796,7 @@ namespace KWEngine3
         public HUDObjectText GetHUDObjectTextByName(string name)
         {
             name = name.Trim();
-            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectText && ho.Name == name);
+            HUDObjectText h = _hudObjectsText.FirstOrDefault(ho => ho is HUDObjectText && ho.Name == name);
             return h as HUDObjectText;
         }
 
@@ -1730,9 +1808,9 @@ namespace KWEngine3
         public List<HUDObjectText> GetHUDObjectTextsByName(string name)
         {
             List<HUDObjectText> list = new();
-            foreach (HUDObject h in _hudObjects)
+            foreach (HUDObject h in _hudObjectsText)
             {
-                if (h is HUDObjectText && h.Name != null && h.Name.Contains(name))
+                if (h.Name != null && h.Name.Contains(name))
                 {
                     list.Add(h as HUDObjectText);
                 }
@@ -1748,7 +1826,7 @@ namespace KWEngine3
         public HUDObjectImage GetHUDObjectImageByName(string name)
         {
             name = name.Trim();
-            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectImage && ho.Name == name);
+            HUDObject h = _hudObjectsImage.FirstOrDefault(ho => ho.Name == name);
             return h as HUDObjectImage;
         }
 
@@ -1760,9 +1838,9 @@ namespace KWEngine3
         public List<HUDObjectImage> GetHUDObjectImagesByName(string name)
         {
             List<HUDObjectImage> list = new();
-            foreach (HUDObject h in _hudObjects)
+            foreach (HUDObject h in _hudObjectsImage)
             {
-                if (h is HUDObjectImage && h.Name != null && h.Name.Contains(name))
+                if (h.Name != null && h.Name.Contains(name))
                 {
                     list.Add(h as HUDObjectImage);
                 }
@@ -1776,7 +1854,7 @@ namespace KWEngine3
         /// <returns>Instanz (oder null, falls gerade kein Objekt den Eingabefokus hat)</returns>
         public HUDObjectTextInput GetHUDObjectTextInputWithFocus()
         {
-            foreach (HUDObject h in _hudObjects)
+            foreach (HUDObject h in _hudObjectsText)
             {
                 if (h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
                     return (h as HUDObjectTextInput);
@@ -1792,7 +1870,7 @@ namespace KWEngine3
         public HUDObjectTextInput GetHUDObjectTextInputByName(string name)
         {
             name = name.Trim();
-            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectTextInput && ho.Name == name);
+            HUDObject h = _hudObjectsText.FirstOrDefault(ho => ho is HUDObjectTextInput && ho.Name == name);
             return h as HUDObjectTextInput;
         }
 

@@ -30,6 +30,7 @@
 		<None Remove="Assets\Fonts\anonymous2.dds" />
 		<None Remove="Assets\Fonts\anonymous3.dds" />
 		<None Remove="Assets\Fonts\anonymous4.dds" />
+		<None Remove="Assets\Fonts\OpenSans.ttf" />
 		<None Remove="Assets\Models\capsulehitbox.obj" />
 		<None Remove="Assets\Models\capsulehitbox2.obj" />
 		<None Remove="Assets\Models\dollar.mtl" />
@@ -187,6 +188,9 @@
 		<EmbeddedResource Include="Assets\Fonts\anonymous2.dds" />
 		<EmbeddedResource Include="Assets\Fonts\anonymous3.dds" />
 		<EmbeddedResource Include="Assets\Fonts\anonymous4.dds" />
+		<EmbeddedResource Include="Assets\Fonts\OpenSans.ttf">
+		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</EmbeddedResource>
 		<EmbeddedResource Include="Assets\Models\capsulehitbox.obj" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox2.obj" />
 		<EmbeddedResource Include="Assets\Models\dollar.mtl" />

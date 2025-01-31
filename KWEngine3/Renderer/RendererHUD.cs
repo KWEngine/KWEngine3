@@ -79,7 +79,10 @@ namespace KWEngine3.Renderer
 
         public static int RenderHUDObjects(int index, bool back)
         {
-            GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
+            //TODO: Remove depth test because of z-fighting!
+
+
+            GL.Viewport(0, 0, RenderManager.FramebufferGlyphs._size.X, RenderManager.FramebufferGlyphs._size.Y);
             GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
             if (back)
             {
