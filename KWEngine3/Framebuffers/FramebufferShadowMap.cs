@@ -19,34 +19,34 @@ namespace KWEngine3.Framebuffers
         {
         }
 
-        public override void Init(int width, int height)
+        public override void Init()
         {
-            SizeInBytes = width * height * 4 * sizeof(ushort);
+            SizeInBytes = _size.X * _size.Y * 4 * sizeof(ushort);
             if (_lightType == LightType.Point)
                 SizeInBytes *= 6;
 
             bool hq = (int)KWEngine.Window._ppQuality > 1;
             Bind(false); 
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, _lightType == LightType.Point ? TextureWrapMode.ClampToEdge : TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, _size.X, _size.Y, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, _lightType == LightType.Point ? TextureWrapMode.ClampToEdge : TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
             
                 
             FramebufferErrorCode status;
 
             if(_lightType == LightType.Point)
             {
-                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
+                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, _size.X, _size.Y, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
             }
             else
             {
                 // TODO: Check why this has to be included for directional lights!
                 Renderbuffers.Add(GL.GenRenderbuffer());
                 GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, width, height);
+                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, _size.X, _size.Y);
                 GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
                 
             }
-            SizeInBytes += width * height * (hq ? sizeof(float) : sizeof(short));
+            SizeInBytes += _size.X * _size.Y * (hq ? sizeof(float) : sizeof(short));
 
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
 

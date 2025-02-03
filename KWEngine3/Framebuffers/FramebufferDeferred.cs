@@ -10,20 +10,20 @@ namespace KWEngine3.Framebuffers
 
         }
 
-        public override void Init(int width, int height)
+        public override void Init()
         {
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Albedo
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Normal
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // Metallic, Roughness, MetallicType attachment
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG32I, width, height, 3, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // ID, ShadowCaster
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, _size.X, _size.Y, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Albedo
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, _size.X, _size.Y, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Normal
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, _size.X, _size.Y, 2, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // Metallic, Roughness, MetallicType attachment
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG32I, _size.X, _size.Y, 3, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // ID, ShadowCaster
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, _size.X, _size.Y, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
             SizeInBytes =
-                width * height * 3 * sizeof(float) +
-                width * height * 3 * sizeof(float) +
-                width * height * 3 * sizeof(byte) +
-                width * height * 2 * sizeof(int) +
-                width * height * 1 * sizeof(float);
+                _size.X * _size.Y * 3 * sizeof(float) +
+                _size.X * _size.Y * 3 * sizeof(float) +
+                _size.X * _size.Y * 3 * sizeof(byte) +
+                _size.X * _size.Y * 2 * sizeof(int) +
+                _size.X * _size.Y * 1 * sizeof(float);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
             for(int i = 0; i < Attachments.Count - 1; i++)

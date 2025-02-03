@@ -447,9 +447,9 @@ namespace KWEngine3
 
                 // clear inbetween:
                 GL.UseProgram(0);
-
                 GL.Disable(EnableCap.DepthTest);
                 GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+
 
                 // SSAO pass
                 if (KWEngine.SSAO_Enabled)
@@ -463,6 +463,7 @@ namespace KWEngine3
                     RendererSSAOBlur.Draw(RenderManager.FramebufferSSAO);
                 }
 
+
                 // Lighting pass:
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
                 RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
@@ -470,7 +471,10 @@ namespace KWEngine3
                 RendererLightingPass.Bind();
                 RendererLightingPass.SetGlobals();
                 RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
+
+
                 GL.Enable(EnableCap.DepthTest);
+
 
                 if (KWEngine.CurrentWorld._background.Type != BackgroundType.None)
                 {
@@ -487,6 +491,8 @@ namespace KWEngine3
                         RendererBackgroundStandard.Draw();
                     }
                 }
+
+
                 // Forward rendering pass:
                 if (gameObjectsForForwardRendering.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
@@ -540,21 +546,19 @@ namespace KWEngine3
 
             // HUD objects:
             RendererHUD.Bind();
-            GL.Disable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             GL.Disable(EnableCap.CullFace);
 
             // HUD objects first pass:
-            int hudrenderindex = RendererHUD.RenderHUDObjects(0, true);
-            if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
+            RendererHUD.RenderHUDObjectImages();
+
+            /*if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
             {
                 // map pass:
                 RendererHUD.DrawMap();
             }
-
-            // HUD objects second pass:
-            RendererHUD.RenderHUDObjects(hudrenderindex, false);
-
+            */
             GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
@@ -949,7 +953,7 @@ namespace KWEngine3
             }
 
             // Sort HUDObjects by their z indices:
-            KWEngine.CurrentWorld._hudObjects.Sort((x, y) => x._zIndex.CompareTo(y._zIndex));
+            // KWEngine.CurrentWorld._hudObjects.Sort((x, y) => x._zIndex.CompareTo(y._zIndex));
 
             return alpha;
         }

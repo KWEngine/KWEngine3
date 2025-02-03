@@ -25,6 +25,7 @@ namespace KWEngine3.Renderer
         public static int UCharacterWidth { get; private set; } = -1;
         public static int UTextureRepeat { get; private set; } = -1;
         public static int UOptions { get; private set; } = -1;
+        public static int UDepth { get; private set; } = -1;
 
         public static void Init()
         {
@@ -63,6 +64,7 @@ namespace KWEngine3.Renderer
                 UTextureRepeat = GL.GetUniformLocation(ProgramID, "uTextureRepeat");
                 UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
                 UCursorInfo = GL.GetUniformLocation(ProgramID, "uCursorInfo");
+                UDepth = GL.GetUniformLocation(ProgramID, "uDepth");
             }
         }
 
@@ -77,38 +79,19 @@ namespace KWEngine3.Renderer
             // ?
         }
 
-        public static int RenderHUDObjects(int index, bool back)
+        public static void RenderHUDObjectImages()
         {
-            //TODO: Remove depth test because of z-fighting!
-
-
-            GL.Viewport(0, 0, RenderManager.FramebufferGlyphs._size.X, RenderManager.FramebufferGlyphs._size.Y);
             GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
-            if (back)
+            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDNew);
+            GL.BindVertexArray(mesh.VAO);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+
+            for (int i = 0; i < KWEngine.CurrentWorld._hudObjectsImage.Count; i++)
             {
-                for (int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
-                {
-                    HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
-                    if (h._zIndex > -2f)
-                    {
-                        break;
-                    }
-                    Draw(h, mesh);
-                    index++;
-                }
-                return index;
+                HUDObjectImage h = KWEngine.CurrentWorld._hudObjectsImage[i];
+                Draw(h, mesh);
             }
-            else
-            {
-                // Render the rest of the HUDObject instances:
-                for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
-                {
-                    HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
-                    Draw(h, mesh);
-                    index++;
-                }
-                return -1;
-            }
+
         }
 
         public static void DrawMap()
@@ -221,35 +204,26 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
         }
 
-        public static void Draw(HUDObject ho, GeoMesh mesh)
+        public static void Draw(HUDObjectImage ho, GeoMesh mesh)
         {
             if (ho == null || !ho.IsVisible || !ho.IsInsideScreenSpace())
                 return;
 
-            Vector2 txR = (ho is HUDObjectImage) ? (ho as HUDObjectImage)._textureRepeat : Vector2.One;
+            Vector2 txR = ho._textureRepeat;
 
             GL.Uniform4(UColorTint, ho._tint);
             GL.Uniform4(UColorGlow, ho._glow);
             GL.Uniform2(UTextureRepeat, txR);
             GL.Uniform1(UOptions, 0);
             GL.Uniform3(UCursorInfo, 0f, 0f, 0f);
+            GL.Uniform1(UDepth, ho.ZIndex);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
-            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDNew);
-            GL.BindVertexArray(mesh.VAO);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+            
 
-            if (ho is HUDObjectText)
-            {
-                DrawText(ho as HUDObjectText, mesh);
-            }
-            else if(ho is HUDObjectImage)
-            {
-                DrawImage(ho as HUDObjectImage, mesh);
-            }
+            DrawImage(ho, mesh);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-            GL.BindVertexArray(0);
+            
         }
 
         

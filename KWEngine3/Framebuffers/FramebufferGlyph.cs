@@ -12,19 +12,19 @@ namespace KWEngine3.Framebuffers
 
         }
 
-        public override void Init(int width, int height)
+        public override void Init()
         {
-            width = width * 2;
-            height = height * 2;
+            _size.X = _size.X * 2;
+            _size.Y = _size.Y * 2;
             
 
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R8, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge));   // Glyphs
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA8, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge));   // Color/Alpha
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R8, _size.X, _size.Y, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge));   // Glyphs
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA8, _size.X, _size.Y, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge));   // Color/Alpha
 
             SizeInBytes =
-                width * height * 1 * sizeof(byte) +
-                width * height * 4 * sizeof(byte);
+                _size.X * _size.Y * 1 * sizeof(byte) +
+                _size.X * _size.Y * 4 * sizeof(byte);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
             for(int i = 0; i < Attachments.Count - 1; i++)

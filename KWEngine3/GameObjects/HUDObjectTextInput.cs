@@ -24,7 +24,7 @@ namespace KWEngine3.GameObjects
         public void GetFocus(bool moveCursorToEnd = true)
         {
             KWEngine.CurrentWorld._hudObjectInputWithFocus = null;
-            foreach (HUDObject h in KWEngine.CurrentWorld._hudObjects)
+            foreach (HUDObject h in KWEngine.CurrentWorld._hudObjectsText)
             {
                 if(h is HUDObjectTextInput)
                 {
