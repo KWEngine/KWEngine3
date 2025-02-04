@@ -1812,6 +1812,7 @@ namespace KWEngine3.Model
                 meshHitBox.Model = model;
                 meshHitBox.Name = mesh.Name;
                 meshHitBox.Transform = currentNodeTransform;
+                meshHitBox.TransformInverse = Matrix4.Invert(currentNodeTransform);
                 if(!currentNodeName.ToLower().Contains("_nohitbox"))
                     model.MeshCollider.MeshHitboxes.Add(meshHitBox);
             }
@@ -2118,6 +2119,7 @@ namespace KWEngine3.Model
                 if(hb != null)
                 {
                     hb.Transform = geoNode.Transform;
+                    hb.TransformInverse = Matrix4.Invert(hb.Transform);
                     collider.MeshHitboxes.Add(hb);
                 }
                 foreach(GeoNode child in geoNode.Children)

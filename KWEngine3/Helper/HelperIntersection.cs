@@ -567,15 +567,17 @@ namespace KWEngine3.Helper
             {
                 if (g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
-                    ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
-                    Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
-
                     foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
+                        Matrix4 tmp = hb._mesh.TransformInverse * g._stateCurrent._modelMatrixInverse;
+                        ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
+                        Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
+
                         bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                         if (result == true)
                         {
-                            ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref g._stateCurrent._modelMatrix, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                            tmp = hb._mesh.Transform * g._stateCurrent._modelMatrix;
+                            ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref tmp, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
                             if (distanceWorldspace >= 0 && distanceWorldspace <= maxDistance)
                             {
                                 RayIntersection gd = new RayIntersection()
@@ -894,10 +896,12 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Strahl das GameObject trifft</returns>
         public static bool RaytraceObjectFast(GameObject g, Vector3 rayOrigin, Vector3 rayDirection)
         {
-            ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
-            Vector3 directionTransformedInv = new Vector3(1f / (directionTransformed.X == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.X), 1f / (directionTransformed.Y == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Y), 1f / (directionTransformed.Z == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Z));
             foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
             {
+                Matrix4 tmp = hb._mesh.TransformInverse * g._stateCurrent._modelMatrixInverse;
+                ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
+                Vector3 directionTransformedInv = new Vector3(1f / (directionTransformed.X == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.X), 1f / (directionTransformed.Y == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Y), 1f / (directionTransformed.Z == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Z));
+
                 bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                 if(result == true)
                 {
@@ -920,10 +924,12 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Strahl das GameObject trifft</returns>
         public static bool RaytraceObjectFast(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out float distance)
         {
-            ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
-            Vector3 directionTransformedInv = new Vector3(1f / (directionTransformed.X == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.X), 1f / (directionTransformed.Y == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Y), 1f / (directionTransformed.Z == 0f ? KWEngine.RAYTRACE_EPSILON : directionTransformed.Z));
             foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
             {
+                Matrix4 tmp = hb._mesh.TransformInverse * g._stateCurrent._modelMatrixInverse;
+                ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
+                Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
+
                 bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                 if (result == true)
                 {
@@ -1099,40 +1105,6 @@ namespace KWEngine3.Helper
                             return true;
                         }
                     }
-
-
-                    /*
-                    if (currentHitbox.IsExtended)
-                    {
-                        currentHitbox.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
-                        float dot = Vector3.Dot(rayDirection, currentFaceNormal);
-                        if (dot < 0)
-                        {
-                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
-                            if (hit)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        currentHitbox.GetVerticesForCubeFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 currentFaceNormal);
-                        float dot = Vector3.Dot(rayDirection, currentFaceNormal);
-                        if (dot < 0)
-                        {
-                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
-                            if (!hit)
-                            {
-                                hit = RayTriangleIntersection(rayOrigin, rayDirection, v4, v5, v6, out currentContact);
-                            }
-                            if (hit)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    */
                 }
             }
             return false;
@@ -1154,9 +1126,9 @@ namespace KWEngine3.Helper
             Vector3 rayDirection = GetMouseRay();
             Vector3 rayOrigin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
 
-            rayDirection.X = 1f / rayDirection.X;
-            rayDirection.Y = 1f / rayDirection.Y;
-            rayDirection.Z = 1f / rayDirection.Z;
+            rayDirection.X = 1f / (rayDirection.X == 0 ? KWEngine.RAYTRACE_EPSILON : rayDirection.X);
+            rayDirection.Y = 1f / (rayDirection.Y == 0 ? KWEngine.RAYTRACE_EPSILON : rayDirection.Y);
+            rayDirection.Z = 1f / (rayDirection.Z == 0 ? KWEngine.RAYTRACE_EPSILON : rayDirection.Z);
             bool result = RayAABBIntersection(rayOrigin, rayDirection, g._stateCurrent._center, g._stateCurrent._dimensions, out float distance);
             return result && distance >= 0;
         }
@@ -1192,39 +1164,6 @@ namespace KWEngine3.Helper
                             return true;
                         }
                     }
-
-                    /*
-                    if (currentHitbox.IsExtended)
-                    {
-                        currentHitbox.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
-                        float dot = Vector3.Dot(rayDirection, currentFaceNormal);
-                        if (dot < 0)
-                        {
-                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
-                            if (hit)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        currentHitbox.GetVerticesForCubeFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 v4, out Vector3 v5, out Vector3 v6, out Vector3 currentFaceNormal);
-                        float dot = Vector3.Dot(rayDirection, currentFaceNormal);
-                        if (dot < 0)
-                        {
-                            bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
-                            if (!hit)
-                            {
-                                hit = RayTriangleIntersection(rayOrigin, rayDirection, v4, v5, v6, out currentContact);
-                            }
-                            if (hit)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                    */
                 }
             }
             return false;
@@ -1476,32 +1415,6 @@ namespace KWEngine3.Helper
             }
             return false;
         }
-
-        /*
-        internal static IntersectionTerrain TestIntersectionForTerrain(GeoTerrainTriangle triangle, GameObjectHitbox caller, TerrainObjectHitbox collider)
-        {
-            Vector3 MTVTemp;
-            Vector3 MTVTempUp = Vector3.Zero;
-
-            IntersectionTerrain tempIntersection;
-            Vector3 rayPos = caller.Owner.Center + KWEngine.WorldUp * caller.Owner.Dimensions.Y;
-            bool rayHasContact = HelperIntersection.RayTriangleIntersection(rayPos, -KWEngine.WorldUp, triangle.Vertices[0], triangle.Vertices[1], triangle.Vertices[2], out Vector3 contactPoint);
-            if (rayHasContact)
-            {
-                MTVTempUp.Y = contactPoint.Y - caller._low;
-                if (MTVTempUp.Y > 0)
-                {
-                    float dot = Vector3.Dot(MTVTempUp, triangle.Normal);
-                    MTVTemp = triangle.Normal * dot;
-
-                    tempIntersection = new IntersectionTerrain(collider.Owner, MTVTemp, MTVTempUp, triangle.Normal);
-                    return tempIntersection;
-                }
-
-            }
-            return null;
-        }
-        */
 
         internal static bool TestIntersection(FlowFieldHitbox ffhb, GameObjectHitbox collider)
         {
@@ -2101,13 +2014,15 @@ namespace KWEngine3.Helper
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
-                            ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref g._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
+                            Matrix4 tmp = hb._mesh.TransformInverse * g._stateCurrent._modelMatrixInverse;
+                            ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
                             Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
 
                             bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                             if (result == true)
                             {
-                                ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref g._stateCurrent._modelMatrix, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                                tmp = hb._mesh.Transform * g._stateCurrent._modelMatrix;
+                                ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref tmp, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
 
                                 if (distanceWorldspace <= maxDistance)
                                 {
@@ -2187,36 +2102,15 @@ namespace KWEngine3.Helper
         {
             originTransformed = Vector4.TransformRow(new Vector4(origin, 1.0f), matInv).Xyz;
             directionTransformed = Vector3.NormalizeFast(Vector4.TransformRow(new Vector4(direction, 0.0f), matInv).Xyz);
+            if (directionTransformed.X == 0) directionTransformed.X = 0.000001f;
+            if (directionTransformed.Y == 0) directionTransformed.Y = 0.000001f;
+            if (directionTransformed.Z == 0) directionTransformed.Z = 0.000001f;
         }
         internal static void ConvertRayToWorldSpaceAfterAABBTest(ref Vector3 originTransformed, ref Vector3 dirctnTransformedNormalized, float currentDistance, ref Matrix4 mat, ref Vector3 originWorldspace, out Vector3 intersectionPoint, out float distanceWorldspace)
         {
             intersectionPoint = Vector4.TransformRow(new Vector4(originTransformed + dirctnTransformedNormalized * currentDistance, 1.0f), mat).Xyz;
             distanceWorldspace = (originWorldspace - intersectionPoint).LengthFast;
         }
-        /*
-        internal static Intersection TestIntersectionWithPlaneCollider(GameObjectHitbox hbCaller, GameObjectHitbox hbCollider, Vector3 offset)
-        {
-            foreach (GeoMeshFace face in hbCollider._mesh.Faces)
-            {
-                Vector3 n = hbCollider._normals[face.Normal] * (face.Flip ? -1f : 1f);
-                List<Vector3> faceVertices = new();
-                Vector3 centerTemp = Vector3.Zero;
-                foreach (int fvi in face.Vertices)
-                {
-                    faceVertices.Add(hbCollider._vertices[fvi]);
-                    centerTemp += faceVertices[faceVertices.Count - 1];
-                }
-                centerTemp /= face.VertexCount;
-
-                Intersection i = TestIntersectionForPlaneFace(hbCaller, faceVertices, n, centerTemp, offset, hbCollider);
-                if (i != null)
-                {
-                    return i;
-                }
-            }
-            return null;
-        }
-        */
         #endregion
     }
 }

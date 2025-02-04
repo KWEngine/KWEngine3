@@ -30,6 +30,7 @@ namespace KWEngine3.Model
         internal Vector3 Center = new Vector3(0, 0, 0);
 
         internal Matrix4 Transform = Matrix4.Identity;
+        internal Matrix4 TransformInverse = Matrix4.Identity;
 
         public GeoModel Model { get; internal set; } = null;
 

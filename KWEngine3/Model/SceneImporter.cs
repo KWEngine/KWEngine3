@@ -920,6 +920,7 @@ namespace KWEngine3.Model
                         meshHitBox.Model = model;
                         meshHitBox.Name = currentNodeName;
                         meshHitBox.Transform = currentNodeTransform;
+                        meshHitBox.TransformInverse = Matrix4.Invert(currentNodeTransform);
                         if(!currentNodeName.ToLower().Contains("_nohitbox"))
                             model.MeshCollider.MeshHitboxes.Add(meshHitBox);
 
@@ -1093,6 +1094,7 @@ namespace KWEngine3.Model
                 meshHitBox.Model = model;
                 meshHitBox.Name = currentNodeName;
                 meshHitBox.Transform = nodeTransform;
+                meshHitBox.TransformInverse = Matrix4.Invert(nodeTransform);
                 if(!currentNodeName.ToLower().Contains("_nohitbox"))
                     model.MeshCollider.MeshHitboxes.Add(meshHitBox);
 
@@ -1336,6 +1338,7 @@ namespace KWEngine3.Model
                 hitbox.Transform = Matrix4.Identity;
                 hitbox._colliderType = colliderType;
                 FindTransformForMesh(ref collider, collider.Root, currentNode.Name, ref hitbox.Transform);
+                hitbox.TransformInverse = hitbox.Transform;
                 if (!currentNode.Name.ToLower().Contains("_nohitbox"))
                     collider.MeshHitboxes.Add(hitbox);
             }
