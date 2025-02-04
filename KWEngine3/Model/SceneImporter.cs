@@ -159,7 +159,7 @@ namespace KWEngine3.Model
                             | PostProcessSteps.ValidateDataStructure
                             | PostProcessSteps.GenerateUVCoords
                             | PostProcessSteps.CalculateTangentSpace;
-                            
+
                         if (filename != "kwcube.obj" && filename != "kwcube6.obj" && filename != "kwplatform.obj")
                             steps |= PostProcessSteps.JoinIdenticalVertices;
                         if(filename == "kwsphere.obj")
@@ -206,7 +206,7 @@ namespace KWEngine3.Model
                 GeoModel model = ProcessScene(scene, filename, am);
                 scene.Clear();
                 importer.Dispose();
-                
+
                 return model;
             }
         }
@@ -252,7 +252,7 @@ namespace KWEngine3.Model
             returnModel.Meshes = new();
             returnModel.TransformGlobalInverse = Matrix4.Invert(HelperMatrix.ConvertAssimpToOpenTKMatrix(scene.RootNode.Transform));
             returnModel.Textures = new Dictionary<string, GeoTexture>();
-            
+
             GenerateNodeHierarchy(scene.RootNode, ref returnModel);
             bool result;
             result = ProcessBones(scene, ref returnModel);
@@ -629,7 +629,11 @@ namespace KWEngine3.Model
                         geoMaterial.Metallic = 0;
                         geoMaterial.TextureRoughnessIsSpecular = false;
                         geoMaterial.ColorAlbedo.W = 1;
-                        if (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                        if (
+                            (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                            ||
+                            (geoMesh != null && geoMesh.Name.ToLower().Contains("_invisible"))
+                        )
                         {
                             geoMaterial.ColorAlbedo.W = 0;
                         }
@@ -662,13 +666,17 @@ namespace KWEngine3.Model
                         geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
                         geoMaterial.TextureRoughnessIsSpecular = false;
                         geoMaterial.ColorAlbedo.W = material.HasOpacity ? material.Opacity : 1;
-                        if(mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                        if (
+                            (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                            ||
+                            (geoMesh != null && geoMesh.Name.ToLower().Contains("_invisible"))
+                        )
                         {
                             geoMaterial.ColorAlbedo.W = 0;
                         }
                     }
 
-                    
+
                 }
                 else
                 {
@@ -680,7 +688,11 @@ namespace KWEngine3.Model
                     geoMaterial.ColorAlbedo = new Vector4(1, 1, 1, 1);
                     geoMaterial.ColorEmissive = new Vector4(0, 0, 0, 1);
                     geoMaterial.TextureRoughnessIsSpecular = false;
-                    if (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                    if (
+                            (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                            ||
+                            (geoMesh != null && geoMesh.Name.ToLower().Contains("_invisible"))
+                        )
                     {
                         geoMaterial.ColorAlbedo.W = 0;
                     }
@@ -720,7 +732,7 @@ namespace KWEngine3.Model
                         }
                         model.HasTransparencyTexture = true;
                     }
-                    
+
                 }
 
                 if(material.HasTextureNormal)
@@ -796,7 +808,7 @@ namespace KWEngine3.Model
                 {
                     geoMaterial.Roughness = rVal;
                 }
-                
+
 
                 // Look for metallic texture:
                 tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Metallic, ref model, out rVal, out mVal);
@@ -880,7 +892,7 @@ namespace KWEngine3.Model
                 {
                     return false;
                 }
-                
+
                 if (isNewMesh)
                 {
                     if (currentMeshName != null)
@@ -896,9 +908,9 @@ namespace KWEngine3.Model
                                 Vector3 normal = uniqueNormalsForWholeMesh[indexNormal];
                                 //if (!faceNormals.Contains(normal))
                                 //{
-                                    faceNormals.Add(normal);
-                                    GeoMeshFace tmpFace = new GeoMeshFace(indexNormal, false, indexVertex1, indexVertex2, indexVertex3);
-                                    facesForHitbox.Add(tmpFace);
+                                faceNormals.Add(normal);
+                                GeoMeshFace tmpFace = new GeoMeshFace(indexNormal, false, indexVertex1, indexVertex2, indexVertex3);
+                                facesForHitbox.Add(tmpFace);
                                 //}
                             }
                         }
@@ -925,7 +937,7 @@ namespace KWEngine3.Model
                 }
 
                 currentMeshName = mesh.Name;
-                
+
                 GeoMesh geoMesh = new GeoMesh();
                 //Matrix4 parentTransform = Matrix4.Identity;
                 //bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, ref nodeTransform, out string nodeName, ref parentTransform);
@@ -1017,7 +1029,7 @@ namespace KWEngine3.Model
                             geoMesh.Vertices[vw.VertexID].BoneIDs[weightIndexToBeSet] = (uint)i;
                             geoMesh.Vertices[vw.VertexID].WeightSet++;
                         }
-                        
+
                     }
                 }
 
@@ -1046,7 +1058,7 @@ namespace KWEngine3.Model
                 }
 
                 geoMesh.VBOGenerateTangents(mesh);
-                 geoMesh.VBOGenerateTextureCoords1(mesh);
+                geoMesh.VBOGenerateTextureCoords1(mesh);
                 //geoMesh.VBOGenerateTextureCoords2(mesh);
 
                 ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh, model.Filename == "kwcube.obj" || model.Filename == "kwcube6.obj");
@@ -1220,7 +1232,7 @@ namespace KWEngine3.Model
                     KWEngine.LogWriteLine("[Import] Invalid collider file type");
                     return null;
                 }
-                
+
                 if (scene == null)
                 {
                     KWEngine.LogWriteLine("[Import] Invalid collider file");
@@ -1367,7 +1379,7 @@ namespace KWEngine3.Model
         {
             GeoNode gNode = new GeoNode();
             gNode.Name = n.Name;
-            gNode.Parent = callingNode;           
+            gNode.Parent = callingNode;
             gNode.Transform = gNode.Transform * HelperMatrix.ConvertAssimpToOpenTKMatrix(n.Transform);
             foreach (Node child in n.Children)
             {

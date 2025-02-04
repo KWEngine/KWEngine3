@@ -609,9 +609,11 @@ namespace KWEngine3.Helper
         /// <returns>Liste der Strahlentreffer</returns>
         public static List<RayIntersection> RayTraceObjectsForViewVectorFastest(Vector3 origin, Vector3 direction, GameObject caller, float maxDistance, bool sort,  params Type[] typelist) 
         {
-            direction.X = 1f / direction.X;
-            direction.Y = 1f / direction.Y;
-            direction.Z = 1f / direction.Z;
+            Vector3 dirOrg = direction;
+
+            direction.X = 1f / (direction.X == 0 ? 0.000001f : direction.X);
+            direction.Y = 1f / (direction.Y == 0 ? 0.000001f : direction.Y);
+            direction.Z = 1f / (direction.Z == 0 ? 0.000001f : direction.Z);
 
             List<RayIntersection> list = new List<RayIntersection>();
             if (maxDistance <= 0)
@@ -634,7 +636,8 @@ namespace KWEngine3.Helper
                             RayIntersection gd = new RayIntersection()
                             {
                                 Distance = currentDistance,
-                                Object = g
+                                Object = g,
+                                IntersectionPoint = new Vector3(origin + dirOrg * currentDistance)
                             };
                             list.Add(gd);
                         }
@@ -945,9 +948,11 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Strahl das GameObject trifft</returns>
         public static bool RaytraceObjectFastest(GameObject g, Vector3 rayOrigin, Vector3 rayDirection)
         {
-            rayDirection.X = 1f / rayDirection.X;
-            rayDirection.Y = 1f / rayDirection.Y;
-            rayDirection.Z = 1f / rayDirection.Z;
+            Vector3 dirOrg = rayDirection;
+
+            rayDirection.X = 1f / (rayDirection.X == 0 ? 0.000001f : rayDirection.X);
+            rayDirection.Y = 1f / (rayDirection.Y == 0 ? 0.000001f : rayDirection.Y);
+            rayDirection.Z = 1f / (rayDirection.Z == 0 ? 0.000001f : rayDirection.Z);
 
             bool result = RayAABBIntersection(rayOrigin, rayDirection, g._stateCurrent._center, g._stateCurrent._dimensions, out float d);
             if (result == true && d >= 0)
@@ -971,9 +976,9 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Strahl das GameObject trifft</returns>
         public static bool RaytraceObjectFastest(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out float distance)
         {
-            rayDirection.X = 1f / rayDirection.X;
-            rayDirection.Y = 1f / rayDirection.Y;
-            rayDirection.Z = 1f / rayDirection.Z;
+            rayDirection.X = 1f / (rayDirection.X == 0 ? 0.000001f : rayDirection.X);
+            rayDirection.Y = 1f / (rayDirection.Y == 0 ? 0.000001f : rayDirection.Y);
+            rayDirection.Z = 1f / (rayDirection.Z == 0 ? 0.000001f : rayDirection.Z);
 
             bool result = RayAABBIntersection(rayOrigin, rayDirection, g._stateCurrent._center, g._stateCurrent._dimensions, out float d);
             if (result == true && d >= 0)

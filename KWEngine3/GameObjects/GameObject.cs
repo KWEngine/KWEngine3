@@ -1405,6 +1405,7 @@ namespace KWEngine3.GameObjects
         /// Setzt das 3D-Modell des Objekts
         /// </summary>
         /// <param name="modelname">Name des 3D-Modells</param>
+        /// <remarks>ACHTUNG: Setzt ggf. Skalierungen und andere Anpassungen zurück!</remarks>
         /// <returns>true, wenn das Modell gesetzt werden konnte</returns>
         public override bool SetModel(string modelname)
         {

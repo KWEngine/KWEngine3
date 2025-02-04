@@ -446,7 +446,11 @@ namespace KWEngine3.Model
                 geoMaterial.Roughness = 1;
                 geoMaterial.Metallic = 0;
                 geoMaterial.ColorAlbedo.W = 1;
-                if (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                if (
+                            (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                            ||
+                            (geoMesh != null && geoMesh.Name.ToLower().Contains("_invisible"))
+                        )
                 {
                     geoMaterial.ColorAlbedo.W = 0;
                 }
@@ -461,7 +465,11 @@ namespace KWEngine3.Model
                 geoMaterial.ColorEmissive = new Vector4(material.EmissiveFactor[0], material.EmissiveFactor[1], material.EmissiveFactor[2], 1f);
                 geoMaterial.Metallic = material.PbrMetallicRoughness.MetallicFactor;
                 geoMaterial.Roughness = material.PbrMetallicRoughness.RoughnessFactor;
-                if (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                if (
+                    (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                    ||
+                    (geoMesh != null && geoMesh.Name.ToLower().Contains("_invisible"))
+                )
                 {
                     geoMaterial.ColorAlbedo.W = 0;
                 }
