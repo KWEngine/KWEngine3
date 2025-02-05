@@ -1180,7 +1180,7 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Löscht das angegebene Objekt aus der Welt
+        /// Fügt das angegebene Objekt der Welt hinzu
         /// </summary>
         /// <param name="r">Hinzuzufügendes Objekt</param>
         public void AddRenderObject(RenderObject r)
