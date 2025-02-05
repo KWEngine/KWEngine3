@@ -21,7 +21,6 @@ namespace KWEngine3.GameObjects
         internal int _animationID = -1;
 
         internal Matrix4 _scaleHitboxMat;
-        internal Matrix4 _scaleHitboxMatInv;
         internal Vector3 _position;
         internal Quaternion _rotation;
         internal Vector3 _scale;
@@ -34,7 +33,6 @@ namespace KWEngine3.GameObjects
             _rotation = Quaternion.Identity;
             _scale = Vector3.One;
             _scaleHitboxMat = Matrix4.Identity;
-            _scaleHitboxMatInv = Matrix4.Identity;
             _position = Vector3.Zero;
         }
 
@@ -46,7 +44,6 @@ namespace KWEngine3.GameObjects
             _rotation = Quaternion.Identity;
             _scale = Vector3.One;
             _scaleHitboxMat = Matrix4.Identity;
-            _scaleHitboxMatInv = Matrix4.Identity;
             _position = Vector3.Zero;
         }
     }

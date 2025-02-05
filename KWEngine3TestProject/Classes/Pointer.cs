@@ -13,13 +13,24 @@ namespace KWEngine3TestProject.Classes
     {
         public override void Act()
         {
-            List<RayIntersection> intersections = HelperIntersection.RayTraceObjectsForViewVectorFast(
+            /*List<RayIntersectionExt> intersections = HelperIntersection.RayTraceObjectsForViewVector(
                 HelperIntersection.GetMouseOrigin(), 
                 HelperIntersection.GetMouseRay(), 
-                this, 
                 0, 
-                true, 
+                true,
+                this,
                 typeof(GameObject)
+                );
+            */
+            /*
+            List<RayIntersection> intersections = HelperIntersection.RayTraceObjectsForViewVectorFastest(
+                HelperIntersection.GetMouseOrigin(),
+                HelperIntersection.GetMouseRay(), this, 0, true, typeof(GameObject)
+                );
+            */
+            List<RayIntersection> intersections = HelperIntersection.RayTraceObjectsForViewVectorFast(
+                HelperIntersection.GetMouseOrigin(),
+                HelperIntersection.GetMouseRay(), this, 0, true, typeof(GameObject)
                 );
 
             if (intersections.Count > 0)

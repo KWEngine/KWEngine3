@@ -569,16 +569,13 @@ namespace KWEngine3.Helper
                 {
                     foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
-                        Matrix4 tmp = hb._meshPreTransformInv * g._stateCurrent._scaleHitboxMatInv * g._stateCurrent._modelMatrixInverse;
-                        
-                        ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
+                        ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref hb._modelMatrixFinalInv, out Vector3 originTransformed, out Vector3 directionTransformed);
                         Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
 
                         bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                         if (result == true)
                         {
-                            tmp = hb._meshPreTransform * g._stateCurrent._scaleHitboxMat * g._stateCurrent._modelMatrix;
-                            ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref tmp, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                            ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref hb._modelMatrixFinal, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
                             if (distanceWorldspace >= 0 && distanceWorldspace <= maxDistance)
                             {
                                 RayIntersection gd = new RayIntersection()
@@ -899,8 +896,7 @@ namespace KWEngine3.Helper
         {
             foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
             {
-                Matrix4 tmp = hb._meshPreTransformInv * g._stateCurrent._scaleHitboxMatInv * g._stateCurrent._modelMatrixInverse;
-                ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
+                ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref hb._modelMatrixFinalInv, out Vector3 originTransformed, out Vector3 directionTransformed);
                 Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
 
                 bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
@@ -927,8 +923,7 @@ namespace KWEngine3.Helper
         {
             foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
             {
-                Matrix4 tmp = hb._meshPreTransformInv * g._stateCurrent._scaleHitboxMatInv * g._stateCurrent._modelMatrixInverse;
-                ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
+                ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref hb._modelMatrixFinalInv, out Vector3 originTransformed, out Vector3 directionTransformed);
                 Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
 
                 bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
@@ -2015,15 +2010,13 @@ namespace KWEngine3.Helper
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                         {
-                            Matrix4 tmp = hb._meshPreTransformInv * g._stateCurrent._scaleHitboxMatInv *  g._stateCurrent._modelMatrixInverse;
-                            ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
+                            ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref hb._modelMatrixFinalInv, out Vector3 originTransformed, out Vector3 directionTransformed);
                             Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
 
                             bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                             if (result == true)
                             {
-                                tmp = hb._meshPreTransform * g._stateCurrent._scaleHitboxMat * g._stateCurrent._modelMatrix;
-                                ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref tmp, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                                ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref hb._modelMatrixFinal, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
 
                                 if (distanceWorldspace <= maxDistance)
                                 {

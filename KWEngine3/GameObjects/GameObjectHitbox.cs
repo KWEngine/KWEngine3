@@ -22,13 +22,13 @@ namespace KWEngine3.GameObjects
         public float _fullDiameterAABB = 0;
 
         public Matrix4 _modelMatrixFinal = Matrix4.Identity;
+        public Matrix4 _modelMatrixFinalInv = Matrix4.Identity;
 
         internal GameObject Owner { get; private set; }
         internal GeoMeshHitbox _mesh;
         internal OctreeNode _currentOctreeNode = null;
         internal Matrix4 _capsulePreTransform = Matrix4.Identity;
         internal Matrix4 _meshPreTransform = Matrix4.Identity;
-        internal Matrix4 _meshPreTransformInv = Matrix4.Identity;
         internal bool _isCapsule = false;
         internal ColliderType _colliderType = ColliderType.ConvexHull;
 
@@ -86,10 +86,10 @@ namespace KWEngine3.GameObjects
             {
                 _meshPreTransform = this._mesh.Transform;
             }
-            _meshPreTransformInv = Matrix4.Invert(_meshPreTransform);
 
             Matrix4.Mult(_meshPreTransform, Owner._stateCurrent._scaleHitboxMat, out Matrix4 tempMatrix);
             Matrix4.Mult(tempMatrix, Owner._stateCurrent._modelMatrix, out _modelMatrixFinal);
+            _modelMatrixFinalInv = Matrix4.Invert(_modelMatrixFinal);
 
             float minX = float.MaxValue;
             float maxX = float.MinValue;

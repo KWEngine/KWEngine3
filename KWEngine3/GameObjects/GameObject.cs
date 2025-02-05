@@ -662,7 +662,6 @@ namespace KWEngine3.GameObjects
             if (x > float.Epsilon && y > float.Epsilon && z > float.Epsilon)
             {
                 _stateCurrent._scaleHitboxMat = Matrix4.CreateScale(new Vector3(x, y, z));
-                _stateCurrent._scaleHitboxMatInv = Matrix4.Invert(_stateCurrent._scaleHitboxMat);
             }
             else
             {
@@ -927,6 +926,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
         /// </summary>
+        /// <remarks>Achtung: Setzt die Skalierung der Instanz zurück!</remarks>
         /// <param name="type">Variation der Kapsel (CapsuleHitboxType.Default oder CapsuleHitboxType.Sloped)</param>
         public void SetHitboxToCapsule(CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
@@ -936,10 +936,19 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
         /// </summary>
+        /// <remarks>Achtung: Setzt die Skalierung der Instanz zurück!</remarks>
         /// <param name="offset">Verschiebt die Kapsel-Hitbox bei Bedarf. Hier sollte als Standardwert zunächst Vector3.Zero probiert werden.</param>
         /// <param name="type">Variation der Kapsel (CapsuleHitboxType.Default oder CapsuleHitboxType.Sloped)</param>
         public void SetHitboxToCapsule(Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
+            Vector3 shb = new Vector3(_stateCurrent._scaleHitboxMat.M11, _stateCurrent._scaleHitboxMat.M22, _stateCurrent._scaleHitboxMat.M33);
+            Vector3 s = _stateCurrent._scale;
+            Vector3 p = _stateCurrent._position;
+
+            SetScale(1f);
+            SetHitboxScale(1f);
+            SetPosition(0, 0, 0);
+
             SetHitboxToCapsule(
                 AABBRight - AABBLeft,
                 AABBHigh - AABBLow,
@@ -948,18 +957,23 @@ namespace KWEngine3.GameObjects
                 offset,
                 type
                 );
+
+            SetScale(s);
+            SetHitboxScale(shb);
+            SetPosition(p);
         }
 
         /// <summary>
         /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
         /// </summary>
+        /// <remarks>Achtung: Setzt die Skalierung der Instanz zurück!</remarks>
         /// <param name="width">Breite der Kapsel (X-Achse)</param>
         /// <param name="height">Höhe der Kapsel (Y-Achse)</param>
         /// <param name="depth">Tiefe der Kapsel (Z-Achse)</param>
         /// <param name="center">Mitte der Kapsel</param>
         /// <param name="offset">Verschiebung der Kapsel</param>
         /// <param name="type">Variation der Kapsel</param>
-        public void SetHitboxToCapsule(float width, float height, float depth, Vector3 center, Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
+        internal void SetHitboxToCapsule(float width, float height, float depth, Vector3 center, Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
             Vector3 frontbottomleft = new Vector3(
                 center.X - width * 0.5f,
@@ -988,7 +1002,6 @@ namespace KWEngine3.GameObjects
                 CurrentWorld._gameObjectHitboxes.Add(this._colliderModel._hitboxes[0]);
                 UpdateModelMatrixAndHitboxes();
             }
-            
         }
 
         /// <summary>
@@ -1313,15 +1326,13 @@ namespace KWEngine3.GameObjects
                     {
                         continue;
                     }
-                    Matrix4 tmp = hb._mesh.TransformInverse * hb.Owner._stateCurrent._scaleHitboxMatInv * hb.Owner._stateCurrent._modelMatrixInverse;
-                    HelperIntersection.ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirectionNormalized, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
+                    HelperIntersection.ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirectionNormalized, ref hb._modelMatrixFinalInv, out Vector3 originTransformed, out Vector3 directionTransformed);
                     Vector3 directionTransformedInv = new(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
 
                     bool result = HelperIntersection.RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                     if (result == true)
                     {
-                        tmp = hb._mesh.Transform * hb.Owner._stateCurrent._scaleHitboxMat * hb.Owner._stateCurrent._modelMatrix;
-                        HelperIntersection.ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref tmp, ref rayOrigin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                        HelperIntersection.ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref hb._modelMatrixFinal, ref rayOrigin, out Vector3 intersectionPoint, out float distanceWorldspace);
                         if (distanceWorldspace >= 0)
                         {
                             RayIntersection gd = new()

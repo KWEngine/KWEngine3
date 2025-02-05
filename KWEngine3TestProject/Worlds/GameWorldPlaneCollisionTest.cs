@@ -70,12 +70,14 @@ namespace KWEngine3TestProject.Worlds
 
             _player = new Player();
             _player.SetModel("Toon");
+            
             _player.Name = "Player #1";
             _player.SetPosition(Player.PLAYERSTART.X, Player.PLAYERSTART.Y, Player.PLAYERSTART.Z, PositionMode.BottomOfAABBHitbox);
             _player.SetScale(0.25f);
             _player.IsCollisionObject = true;
-            _player.SetHitboxToCapsule(Vector3.Zero);
+            
             _player.SetHitboxScale(0.5f, 0.75f, 1f);
+            _player.SetHitboxToCapsule();
             _player.IsShadowCaster = true;
             //_player.SetOpacity(0.5f);
             AddGameObject(_player);
