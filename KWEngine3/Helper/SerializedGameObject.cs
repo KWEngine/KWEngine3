@@ -88,7 +88,7 @@ namespace KWEngine3.Helper
             sg.Position = new float[] { g._stateCurrent._position.X, g._stateCurrent._position.Y, g._stateCurrent._position.Z };
             sg.Rotation = new float[] { g._stateCurrent._rotation.X, g._stateCurrent._rotation.Y, g._stateCurrent._rotation.Z, g._stateCurrent._rotation.W };
             sg.Scale = new float[] { g._stateCurrent._scale.X, g._stateCurrent._scale.Y, g._stateCurrent._scale.Z };
-            sg.ScaleHitbox = new float[] { g._stateCurrent._scaleHitbox.X, g._stateCurrent._scaleHitbox.Y, g._stateCurrent._scaleHitbox.Z };
+            sg.ScaleHitbox = new float[] { g._stateCurrent._scaleHitboxMat.M11, g._stateCurrent._scaleHitboxMat.M22, g._stateCurrent._scaleHitboxMat.M33 };
 
             sg.Color = new float[] { g._stateCurrent._colorTint.X, g._stateCurrent._colorTint.Y, g._stateCurrent._colorTint.Z };
             sg.ColorEmissive = new float[] { g._stateCurrent._colorEmissive.X, g._stateCurrent._colorEmissive.Y, g._stateCurrent._colorEmissive.Z, g._stateCurrent._colorEmissive.W };

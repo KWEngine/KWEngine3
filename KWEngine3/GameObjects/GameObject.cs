@@ -661,13 +661,23 @@ namespace KWEngine3.GameObjects
         {
             if (x > float.Epsilon && y > float.Epsilon && z > float.Epsilon)
             {
-                _stateCurrent._scaleHitbox = new Vector3(x, y, z);
+                _stateCurrent._scaleHitboxMat = Matrix4.CreateScale(new Vector3(x, y, z));
+                _stateCurrent._scaleHitboxMatInv = Matrix4.Invert(_stateCurrent._scaleHitboxMat);
             }
             else
             {
-                _stateCurrent._scaleHitbox = Vector3.One;
+                _stateCurrent._scaleHitboxMat = Matrix4.Identity;
             }
             UpdateModelMatrixAndHitboxes();
+        }
+
+        /// <summary>
+        /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
+        /// </summary>
+        /// <param name="s">Skalierung in lokaler x-/y-z-Richtung</param>
+        public void SetHitboxScale(Vector3 s)
+        {
+            SetHitboxScale(s.X, s.Y, s.Z);
         }
 
         /// <summary>
@@ -1304,13 +1314,15 @@ namespace KWEngine3.GameObjects
                     {
                         continue;
                     }
-                    HelperIntersection.ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirectionNormalized, ref hb.Owner._stateCurrent._modelMatrixInverse, out Vector3 originTransformed, out Vector3 directionTransformed);
+                    Matrix4 tmp = hb._mesh.TransformInverse * hb.Owner._stateCurrent._scaleHitboxMatInv * hb.Owner._stateCurrent._modelMatrixInverse;
+                    HelperIntersection.ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirectionNormalized, ref tmp, out Vector3 originTransformed, out Vector3 directionTransformed);
                     Vector3 directionTransformedInv = new(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
 
                     bool result = HelperIntersection.RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                     if (result == true)
                     {
-                        HelperIntersection.ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref hb.Owner._stateCurrent._modelMatrix, ref rayOrigin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                        tmp = hb._mesh.Transform * hb.Owner._stateCurrent._scaleHitboxMat * hb.Owner._stateCurrent._modelMatrix;
+                        HelperIntersection.ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref tmp, ref rayOrigin, out Vector3 intersectionPoint, out float distanceWorldspace);
                         if (distanceWorldspace >= 0)
                         {
                             RayIntersection gd = new()

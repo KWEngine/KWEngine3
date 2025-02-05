@@ -83,16 +83,8 @@ namespace KWEngine3.GameObjects
                 meshPreTransform = _capsulePreTransform * meshPreTransform;
             }
 
-            if (Owner._stateCurrent._scaleHitbox != Vector3.One)
-            {
-                Matrix4.Mult(meshPreTransform, Matrix4.CreateScale(Owner._stateCurrent._scaleHitbox), out Matrix4 tempMatrix);
-                Matrix4.Mult(tempMatrix, Owner._stateCurrent._modelMatrix, out _modelMatrixFinal);
-            }
-            else
-            {
-                Matrix4.Mult(meshPreTransform, Owner._stateCurrent._modelMatrix, out _modelMatrixFinal);
-            }
-            
+            Matrix4.Mult(meshPreTransform, Owner._stateCurrent._scaleHitboxMat, out Matrix4 tempMatrix);
+            Matrix4.Mult(tempMatrix, Owner._stateCurrent._modelMatrix, out _modelMatrixFinal);
 
             float minX = float.MaxValue;
             float maxX = float.MinValue;

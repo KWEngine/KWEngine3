@@ -7,6 +7,8 @@
       <Field Name="_mouse" Hidden="true" />
       <Field Name="_mouseDeltas" Hidden="true" />
       <Field Name="_mouseDeltaToUse" Hidden="true" />
+      <Field Name="_mouseScrollDelta" Hidden="true" />
+      <Field Name="_mouseScrollPosition" Hidden="true" />
       <Field Name="_ppQuality" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
@@ -38,7 +40,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAiEBAAABQCAAQzAUAkBgEASAhoABCQAYAEAUEUuAgA=</HashCode>
+      <HashCode>AAyEBAAABQCAAQzAUAkBgEASAhoABCQAYAEAUEUuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>

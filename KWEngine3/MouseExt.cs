@@ -17,6 +17,16 @@ namespace KWEngine3
         internal Vector2 _mousePositionFromGLFW = new Vector2(0, 0);
 
         /// <summary>
+        /// Gibt die absolute Scrollradposition der Maus wieder
+        /// </summary>
+        public int MouseScrollPosition { get { return KWEngine.Window._mouseScrollPosition; } }
+
+        /// <summary>
+        /// Gibt den Unterschied der Scrollradposition der Maus im Vergleich zur zuletzt gemessenen Position wieder
+        /// </summary>
+        public int MouseScrollDelta { get { return KWEngine.Window._mouseScrollDelta; } }
+
+        /// <summary>
         /// Gibt die aktuelle Mauscursorposition an
         /// </summary>
         public Vector2 Position { get { return _mousePositionFromGLFW; } }

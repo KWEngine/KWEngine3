@@ -57,7 +57,7 @@ namespace KWEngine3.Helper
             rg.Position = new float[] { r._stateCurrent._position.X, r._stateCurrent._position.Y, r._stateCurrent._position.Z };
             rg.Rotation = new float[] { r._stateCurrent._rotation.X, r._stateCurrent._rotation.Y, r._stateCurrent._rotation.Z, r._stateCurrent._rotation.W };
             rg.Scale = new float[] { r._stateCurrent._scale.X, r._stateCurrent._scale.Y, r._stateCurrent._scale.Z };
-            rg.ScaleHitbox = new float[] { r._stateCurrent._scaleHitbox.X, r._stateCurrent._scaleHitbox.Y, r._stateCurrent._scaleHitbox.Z };
+            rg.ScaleHitbox = new float[] { r._stateCurrent._scaleHitboxMat.M11, r._stateCurrent._scaleHitboxMat.M22, r._stateCurrent._scaleHitboxMat.M33 };
 
             rg.Color = new float[] { r._stateCurrent._colorTint.X, r._stateCurrent._colorTint.Y, r._stateCurrent._colorTint.Z };
             rg.ColorEmissive = new float[] { r._stateCurrent._colorEmissive.X, r._stateCurrent._colorEmissive.Y, r._stateCurrent._colorEmissive.Z, r._stateCurrent._colorEmissive.W };

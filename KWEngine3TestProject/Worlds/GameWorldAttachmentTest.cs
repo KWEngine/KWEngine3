@@ -12,10 +12,7 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            if(Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape))
-            {
-                Window.SetWorld(new GameWorldEmpty());
-            }
+           
         }
 
         public override void Prepare()

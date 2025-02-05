@@ -28,6 +28,8 @@ namespace KWEngine3
         internal const int DELTASFORMOVINGAVG = 4;
         internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
+        internal int _mouseScrollPosition = 0;
+        internal int _mouseScrollDelta = 0;
         internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
 
         internal void ResetMouseDeltas()
@@ -305,7 +307,7 @@ namespace KWEngine3
 
             UpdateDeltaTime(e.Time);
             _mouseDeltaToUse = GatherWeightedMovingAvg(MouseState.Delta, (float)(e.Time * 1000.0));
-
+           
             if (KWEngine.CurrentWorld._mouseCursorJustGrabbed)
                 KWEngine.CurrentWorld._mouseCursorJustGrabbed = false;
 
@@ -975,7 +977,9 @@ namespace KWEngine3
             while (KWEngine.DeltaTimeAccumulator >= KWEngine.DeltaTimeCurrentNibbleSize)
             {
                 _stopwatch.Restart();
-                
+                _mouseScrollDelta = (int)MouseState.Scroll.Y - _mouseScrollPosition;
+                _mouseScrollPosition = (int)MouseState.Scroll.Y;
+
                 unsafe
                 {
                     GLFW.PollEvents();
