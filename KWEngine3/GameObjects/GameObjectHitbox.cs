@@ -27,6 +27,8 @@ namespace KWEngine3.GameObjects
         internal GeoMeshHitbox _mesh;
         internal OctreeNode _currentOctreeNode = null;
         internal Matrix4 _capsulePreTransform = Matrix4.Identity;
+        internal Matrix4 _meshPreTransform = Matrix4.Identity;
+        internal Matrix4 _meshPreTransformInv = Matrix4.Identity;
         internal bool _isCapsule = false;
         internal ColliderType _colliderType = ColliderType.ConvexHull;
 
@@ -39,13 +41,13 @@ namespace KWEngine3.GameObjects
             return _mesh.Name + "(" + _mesh.Model.Name + ")";
         }
 
-        public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh, Vector3 offset, Vector3 frontbottomleft, Vector3 backtopright)
+        public GameObjectHitbox(GameObject owner, GeoMeshHitbox mesh, Vector3 offset, Vector3 center, Vector3 frontbottomleft, Vector3 backtopright)
         {
             Owner = owner;
             _mesh = mesh;
             _colliderType = mesh._colliderType;
             _isCapsule = true;
-            _capsulePreTransform =  Matrix4.CreateScale(backtopright.X - frontbottomleft.X, backtopright.Y - frontbottomleft.Y, frontbottomleft.Z - backtopright.Z) * Matrix4.CreateTranslation(offset);
+            _capsulePreTransform = Matrix4.CreateScale(backtopright.X - frontbottomleft.X, backtopright.Y - frontbottomleft.Y, frontbottomleft.Z - backtopright.Z) * Matrix4.CreateTranslation(center + offset);
 
             if (_mesh.IsExtended)
             {
@@ -76,14 +78,17 @@ namespace KWEngine3.GameObjects
 
         internal void Update(ref Vector3 gCenter)
         {
-            Matrix4 meshPreTransform = _mesh.Transform;
-
             if (_isCapsule)
             {
-                meshPreTransform = _capsulePreTransform * meshPreTransform;
+                _meshPreTransform = _capsulePreTransform;
             }
+            else
+            {
+                _meshPreTransform = this._mesh.Transform;
+            }
+            _meshPreTransformInv = Matrix4.Invert(_meshPreTransform);
 
-            Matrix4.Mult(meshPreTransform, Owner._stateCurrent._scaleHitboxMat, out Matrix4 tempMatrix);
+            Matrix4.Mult(_meshPreTransform, Owner._stateCurrent._scaleHitboxMat, out Matrix4 tempMatrix);
             Matrix4.Mult(tempMatrix, Owner._stateCurrent._modelMatrix, out _modelMatrixFinal);
 
             float minX = float.MaxValue;

@@ -941,10 +941,11 @@ namespace KWEngine3.GameObjects
         public void SetHitboxToCapsule(Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
             SetHitboxToCapsule(
-                _model.DimensionsMax.X - _model.DimensionsMin.X,
-                _model.DimensionsMax.Y - _model.DimensionsMin.Y,
-                _model.DimensionsMax.Z - _model.DimensionsMin.Z,
-                new Vector3(_model.Center.Xyz + offset),
+                AABBRight - AABBLeft,
+                AABBHigh - AABBLow,
+                AABBFront - AABBBack,
+                this.Center,
+                offset,
                 type
                 );
         }
@@ -955,18 +956,19 @@ namespace KWEngine3.GameObjects
         /// <param name="width">Breite der Kapsel (X-Achse)</param>
         /// <param name="height">Höhe der Kapsel (Y-Achse)</param>
         /// <param name="depth">Tiefe der Kapsel (Z-Achse)</param>
+        /// <param name="center">Mitte der Kapsel</param>
         /// <param name="offset">Verschiebung der Kapsel</param>
         /// <param name="type">Variation der Kapsel</param>
-        public void SetHitboxToCapsule(float width, float height, float depth, Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
+        public void SetHitboxToCapsule(float width, float height, float depth, Vector3 center, Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
             Vector3 frontbottomleft = new Vector3(
-                offset.X - width * 0.5f,
-                offset.Y - height * 0.5f,
-                offset.Z + depth * 0.5f);
+                center.X - width * 0.5f,
+                center.Y - height * 0.5f,
+                center.Z + depth * 0.5f);
             Vector3 backtopright = new Vector3(
-                offset.X + width * 0.5f,
-                offset.Y + height * 0.5f,
-                offset.Z - depth * 0.5f);
+                center.X + width * 0.5f,
+                center.Y + height * 0.5f,
+                center.Z - depth * 0.5f);
 
             lock (CurrentWorld._gameObjectHitboxes)
             {
@@ -974,18 +976,15 @@ namespace KWEngine3.GameObjects
                 {
                     foreach (GameObjectHitbox ghbInCollider in _colliderModel._hitboxes)
                     {
-                        if (CurrentWorld._gameObjectHitboxes.Contains(ghbInCollider))
-                        {
-                            CurrentWorld._gameObjectHitboxes.Remove(ghbInCollider);
-                        }
+                        CurrentWorld._gameObjectHitboxes.Remove(ghbInCollider);
                     }
                 }
                 _colliderModel._hitboxes.Clear();
 
                 if (type == CapsuleHitboxType.Default)
-                    this._colliderModel._hitboxes.Add(new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], offset, frontbottomleft, backtopright));
+                    this._colliderModel._hitboxes.Add(new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], offset, center, frontbottomleft, backtopright));
                 else
-                    this._colliderModel._hitboxes.Add(new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshHitboxes[0], offset, frontbottomleft, backtopright));
+                    this._colliderModel._hitboxes.Add(new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshHitboxes[0], offset, center, frontbottomleft, backtopright));
                 CurrentWorld._gameObjectHitboxes.Add(this._colliderModel._hitboxes[0]);
                 UpdateModelMatrixAndHitboxes();
             }

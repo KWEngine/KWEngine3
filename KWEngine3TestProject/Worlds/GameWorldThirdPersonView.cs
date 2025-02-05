@@ -64,7 +64,7 @@ namespace KWEngine3TestProject.Worlds
             p01.IsShadowCaster = true;
             p01.IsCollisionObject = true;
             p01.SetRotation(0, 180, 0);
-            p01.SetHitboxToCapsule(0.67f, 1f, 0.5f, new Vector3(0, 0.5f, 0));
+            p01.SetHitboxToCapsule();
             AddGameObject(p01);
             
             

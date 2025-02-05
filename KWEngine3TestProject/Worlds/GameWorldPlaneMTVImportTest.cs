@@ -46,7 +46,7 @@ namespace KWEngine3TestProject.Worlds
                 if (i != null)
                 {
                     Console.WriteLine("Setting hitbox 0 to capsule hitbox for Plane object");
-                    i.SetHitboxToCapsule(1, 1, 1, Vector3.Zero, CapsuleHitboxType.Sloped);
+                    i.SetHitboxToCapsule(CapsuleHitboxType.Sloped);
                 }
             }
             else if (Keyboard.IsKeyPressed(Keys.F4))
@@ -80,7 +80,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             LoadJSON("./Worlds/GameWorldPlaneMTVTest.json");
-            GetGameObjectByName("Player").SetHitboxToCapsule(1, 1, 1, Vector3.Zero);
+            GetGameObjectByName("Player").SetHitboxToCapsule();
         }
 
         protected override void OnWorldEvent(WorldEvent e)
