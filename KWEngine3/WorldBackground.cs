@@ -46,7 +46,8 @@ namespace KWEngine3
                     _rotation = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation));
                 else
                 {
-                    _rotation = Matrix3.CreateRotationX(-(float)Math.PI / 2f) * Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation + 180));
+                    //_rotation = Matrix3.CreateRotationX(-(float)Math.PI / 2f) * Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation + 180));
+                    _rotation = Matrix3.CreateRotationX(0) * Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation + 180));
                     _rotationReflection = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation - 135));
                 }
                 _skyboxId = texId;

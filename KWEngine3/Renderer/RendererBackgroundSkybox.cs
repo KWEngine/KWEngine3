@@ -15,6 +15,7 @@ namespace KWEngine3.Renderer
         public static int UViewProjectionMatrix { get; private set; } = -1;
         public static int USkyboxType { get; private set; } = -1;
 
+
         public static void Init()
         {
             if (ProgramID < 0)
