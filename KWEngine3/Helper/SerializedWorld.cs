@@ -90,7 +90,11 @@ namespace KWEngine3.Helper
         public static List<SerializedHUDObject> GenerateHUDObjects(World w)
         {
             List<SerializedHUDObject> hudObjects = new List<SerializedHUDObject>();
-            foreach (HUDObject h in w._hudObjects)
+            foreach (HUDObject h in w._hudObjectsText)
+            {
+                hudObjects.Add(SerializedHUDObject.GenerateSerializedHUDObject(h));
+            }
+            foreach (HUDObject h in w._hudObjectsImage)
             {
                 hudObjects.Add(SerializedHUDObject.GenerateSerializedHUDObject(h));
             }

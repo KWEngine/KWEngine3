@@ -260,7 +260,7 @@ namespace KWEngine3
                 Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
             }
 
-            HelperFont.LoadFontFromAssembly("OpenSans.ttf");
+            KWEngine._fonts["OpenSans"] = HelperFont.LoadFontFromAssembly("OpenSans.ttf");
 
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
@@ -544,24 +544,44 @@ namespace KWEngine3
                 }
             }
 
+
+
+
             // HUD objects:
-            RendererHUD.Bind();
-            GL.Enable(EnableCap.DepthTest);
+            GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
-            GL.Disable(EnableCap.CullFace);
+            HelperGeneral.CheckGLErrors();
 
-            // HUD objects first pass:
-            RendererHUD.RenderHUDObjectImages();
 
-            /*if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
+            // Render MAP (map items are always in the background):
+            if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
             {
-                // map pass:
+                RendererHUD.Bind();
                 RendererHUD.DrawMap();
             }
-            */
+            HelperGeneral.CheckGLErrors();
+
+            // Render HUD texts:
+            if (KWEngine.CurrentWorld._hudObjectsText.Count > 0)
+            {
+                GL.Viewport(0, 0, ClientSize.X * 2, ClientSize.Y * 2);
+                RenderManager.FramebufferGlyphs.Bind(true, false);
+                RendererGlyph.RenderHUDObjectTextInstances(KWEngine.CurrentWorld._hudObjectsText);
+            }
+            HelperGeneral.CheckGLErrors();
+
+            // Render HUD images:
+            GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+            RenderManager.FramebufferLightingPass.Bind(false);
+            if (KWEngine.CurrentWorld._hudObjectsImage.Count > 0)
+            {
+                RendererHUD.Bind();
+                RendererHUD.RenderHUDObjectImages();
+            }
+            HelperGeneral.CheckGLErrors();
+
             GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.CullFace);
 
             // Bloom pass:
             RenderManager.DoBloomPass();

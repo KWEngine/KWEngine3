@@ -26,6 +26,8 @@ namespace KWEngine3
         internal const float RAYTRACE_SAFETY = 0.1f;
         internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
         internal const int TERRAIN_PATCH_SIZE = 16;
+
+        internal static Dictionary<string, KWFont> _fonts = new Dictionary<string, KWFont>();
         
         
         /// <summary>

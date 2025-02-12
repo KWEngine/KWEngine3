@@ -216,7 +216,7 @@ namespace KWEngine3.Renderer
             GL.Uniform2(UTextureRepeat, txR);
             GL.Uniform1(UOptions, 0);
             GL.Uniform3(UCursorInfo, 0f, 0f, 0f);
-            GL.Uniform1(UDepth, ho.ZIndex);
+            //GL.Uniform1(UDepth, ho.ZIndex);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             
 
@@ -227,7 +227,7 @@ namespace KWEngine3.Renderer
         }
 
         
-
+        /*
         internal static void DrawText(HUDObjectText ho, GeoMesh mesh)
         {
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -239,7 +239,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UOffsetCount, ho._offsets.Length);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
             GL.Uniform1(UCharacterWidth, ho._scale.X);
-            GL.Uniform1(UCharacterDistance, ho._spread);
+            GL.Uniform1(UCharacterDistance, ho._charDistanceFactor);
 
             GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, ho._offsets.Length);
 
@@ -256,6 +256,7 @@ namespace KWEngine3.Renderer
                 }
             }
         }
+        */
 
         internal static void DrawImage(HUDObjectImage ho, GeoMesh mesh)
         {

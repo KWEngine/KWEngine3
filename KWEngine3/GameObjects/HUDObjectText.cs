@@ -1,6 +1,4 @@
-﻿using KWEngine3.Helper;
-using OpenTK.Mathematics;
-using System.Security.Cryptography;
+﻿using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
 {
@@ -15,23 +13,35 @@ namespace KWEngine3.GameObjects
         /// <param name="text">Darzustellender Text (maximal 256 Zeichen)</param>
         public HUDObjectText(string text)
         {
-            SetFont(FontFace.Anonymous);
+            SetPosition(0, 0);
+            SetScale(24, 24);
+            SetFont("OpenSans");
             SetText(text);
         }
 
         /// <summary>
         /// Schriftart des HUD-Objekts
         /// </summary>
-        public FontFace Font { get; internal set; } = FontFace.Anonymous;
+        public string Font { get; internal set; } = "undefined font name";
 
         /// <summary>
         /// Setzt die Schriftart der Instanz
         /// </summary>
-        /// <param name="fontFace">zu nutzende Schriftart</param>
-        public void SetFont(FontFace fontFace)
+        /// <param name="font">zu nutzende Schriftart</param>
+        public void SetFont(string font)
         {
-            Font = fontFace;
-            _textureId = KWEngine.FontTextureArray[(int)Font];
+            if(KWEngine._fonts.TryGetValue(font, out KWFont kwfont))
+            {
+                _currentFont = kwfont;
+                Font = _currentFont.Name;
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[HUDObjectText] Font '" + font + "' invalid");
+                _currentFont = KWEngine._fonts["OpenSans"];
+                Font = _currentFont.Name;
+            }
+            
         }
 
         /// <summary>
@@ -76,7 +86,7 @@ namespace KWEngine3.GameObjects
             {
                 _text = "";
             }
-            UpdateOffsetList();
+            Update();
         }
 
         /// <summary>
@@ -85,7 +95,7 @@ namespace KWEngine3.GameObjects
         /// <param name="distanceFactor">Distanzfaktor</param>
         public void SetCharacterDistanceFactor(float distanceFactor)
         {
-            _spread = Math.Clamp(distanceFactor, -100f, 100f);
+            _charDistanceFactor = Math.Clamp(distanceFactor, -100f, 100f);
         }
 
         /// <summary>
@@ -93,7 +103,7 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public float CharacterDistanceFactor
         {
-            get { return _spread; }
+            get { return _charDistanceFactor; }
         }
 
         /// <summary>
@@ -102,43 +112,9 @@ namespace KWEngine3.GameObjects
         /// <returns>true, wenn das Objekt zu sehen ist</returns>
         public override bool IsInsideScreenSpace()
         {
-            float left, right, top, bottom;
-            float characterWidth = _scale.X;
+            // TODO
 
-            left = Position.X;
-            right = Position.X + (_text.Length - 1) * Math.Abs(_spread) * characterWidth + characterWidth;
-            float diff = right - left;
-
-            if (TextAlignment == TextAlignMode.Left)
-            {
-                if (_spread < 0)
-                {
-                    left -= (diff - characterWidth);
-                    right -= (diff - characterWidth);
-                }
-            }
-            if (TextAlignment == TextAlignMode.Center)
-            {
-                left -= diff / 2f;
-                right -= diff / 2f;
-            }
-            else if (TextAlignment == TextAlignMode.Right)
-            {
-                if (_spread >= 0)
-                {
-                    right -= diff;
-                    left -= diff;
-                }
-                else
-                {
-                    right -= characterWidth;
-                    left -= characterWidth;
-                }
-            }
-            top = Position.Y - _scale.Y * 0.5f;
-            bottom = Position.Y + _scale.Y * 0.5f;
-
-            return !(right < 0 || left > KWEngine.Window.Width || bottom < 0 || top > KWEngine.Window.Height);
+            return false;
         }
 
         /// <summary>
@@ -149,70 +125,56 @@ namespace KWEngine3.GameObjects
         {
             if (KWEngine.Window.IsMouseInWindow && IsInWorld)
             {
-                Vector2 mouseCoords = KWEngine.Window.Mouse.Position;
-                float left, right, top, bottom;
-                float characterWidth = _scale.X;
-
-                left = Position.X;
-                right = Position.X + (_text.Length - 1) * Math.Abs(_spread) * characterWidth + characterWidth;
-                float diff = right - left;
-               
-                if(TextAlignment == TextAlignMode.Left)
-                {
-                    if(_spread < 0)
-                    {
-                        left -= (diff - characterWidth);
-                        right -= (diff - characterWidth);
-                    }
-                }
-                if (TextAlignment == TextAlignMode.Center)
-                {
-                    left -= diff / 2f;
-                    right -= diff / 2f;
-                }
-                else if(TextAlignment == TextAlignMode.Right)
-                {
-                    if (_spread >= 0)
-                    {
-                        right -= diff;
-                        left -= diff;
-                    }
-                    else
-                    {
-                        right -= characterWidth;
-                        left -= characterWidth;
-                    }
-                }
-                top = Position.Y - _scale.Y * 0.5f;
-                bottom = Position.Y + _scale.Y * 0.5f;
-
-                return (mouseCoords.X >= left && mouseCoords.X <= right && mouseCoords.Y >= top && mouseCoords.Y <= bottom);
+                // TODO
             }
             
             return false;
         }
 
-        #region Internals
-        internal int _textureId = (int)FontFace.Anonymous;
-        internal int[] _offsets = null;
-        internal float _spread = 1f;
-        internal string _text = "";
-        
+        /// <summary>
+        /// Gibt die aktuelle Breite der Instanz in Pixeln an
+        /// </summary>
+        public float Width { get { return _hitbox.Max.X * _scale.X;  } }
 
-        internal void UpdateOffsetList()
+        /// <summary>
+        /// Gibt die aktuelle Höhe der Instanz in Pixeln an
+        /// </summary>
+        public float Height { get { return _hitbox.Max.Y * _scale.Y; } }
+
+        #region Internals
+
+        internal float _charDistanceFactor = 1f;
+        internal string _text = "";
+        internal int[] _vaos_step1 = new int[256];
+        internal int[] _vaos_step2 = new int[256];
+        internal KWFont _currentFont;
+        internal Box2 _hitbox;
+        internal int _vaoIndex = 0;
+
+        internal void Update()
         {
-            _offsets = new int[_text.Length];
-            for (int i = 0; i < _text.Length; i++)
+            float width = 0f;
+            float height = 0f;
+            _vaoIndex = 0;
+            foreach(char c in _text)
             {
-                int offset;
-                if (HelperFont.TextToOffsetDict.TryGetValue(_text[i], out offset))
+                KWFontGlyph g = _currentFont.GetGlyphForCodepoint(c);
+                if(!g.IsValid)
                 {
-                    // ;-)
+                    g = _currentFont.GetGlyphForCodepoint(' ');
                 }
-                else
-                    offset = _text[i] - 32;
-                _offsets[i] = offset;
+
+                width += g.Width + g.Advance.X * _charDistanceFactor;
+                if (g.Height > height)
+                    height = g.Height;
+
+                _vaos_step1[_vaoIndex] = g.VAO_Step1;
+                _vaos_step2[_vaoIndex] = g.VAO_Step2;
+
+                _vaoIndex++;
             }
+
+            _hitbox = new Box2(0f, 0f, width, height);
         }
         #endregion
     }

@@ -208,5 +208,7 @@ namespace KWEngine3.Helper
             
             return data;
         }
+
+        public static Matrix4 IdentityMatrix = Matrix4.Identity;
     }
 }

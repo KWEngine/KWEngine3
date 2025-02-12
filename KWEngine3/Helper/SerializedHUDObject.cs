@@ -16,7 +16,7 @@ namespace KWEngine3.Helper
         public string Text { get; set; }
         public float CharacterDistanceFactor { get; set; }
         public TextAlignMode Alignment { get; set; }
-        public FontFace Font { get; set; }
+        public string Font { get; set; }
         public string Texture { get; set; }
 
 
@@ -36,7 +36,7 @@ namespace KWEngine3.Helper
             {
                 HUDObjectText ht = h as HUDObjectText;
                 sh.Text = ht._text;
-                sh.CharacterDistanceFactor = ht._spread;
+                sh.CharacterDistanceFactor = ht._charDistanceFactor;
                 sh.Alignment = ht.TextAlignment;
                 sh.Font = ht.Font;
 
@@ -50,7 +50,7 @@ namespace KWEngine3.Helper
                 sh.Text = "";
                 sh.CharacterDistanceFactor = 1;
                 sh.Alignment = TextAlignMode.Left;
-                sh.Font = FontFace.Anonymous;
+                sh.Font = "OpenSans";
             }
             return sh;
         }

@@ -67,7 +67,7 @@ namespace KWEngine3.GameObjects
             {
                 CursorPosition = text.Length;
             }
-            UpdateOffsetList();
+            Update();
         }
 
 

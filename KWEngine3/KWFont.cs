@@ -3,9 +3,10 @@
     internal struct KWFont
     {
         public bool IsValid { get; internal set; }
-        public KWFontGlyph[] Glyphs { get; internal set; }
+        public string Name { get; internal set; } = "undefined font name";
+        internal KWFontGlyph[] Glyphs { get; set; }
 
-        public KWFontGlyph GetGlyphForCodepoint(char codepoint)
+        internal KWFontGlyph GetGlyphForCodepoint(char codepoint)
         {
             return Glyphs[codepoint - 32];
         }
