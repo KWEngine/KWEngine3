@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3.Assets;
+using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
@@ -81,15 +82,13 @@ namespace KWEngine3.Renderer
 
         public static void RenderHUDObjectImages()
         {
-            GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenter);
-            GL.BindVertexArray(mesh.VAO);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+            GL.BindVertexArray(KWGlyphQuad.VAO);
 
             for (int i = 0; i < KWEngine.CurrentWorld._hudObjectsImage.Count; i++)
             {
                 HUDObjectImage h = KWEngine.CurrentWorld._hudObjectsImage[i];
-                Draw(h, mesh);
+                Draw(h);
             }
 
         }
@@ -204,7 +203,7 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
         }
 
-        public static void Draw(HUDObjectImage ho, GeoMesh mesh)
+        public static void Draw(HUDObjectImage ho)
         {
             if (ho == null || !ho.IsVisible || !ho.IsInsideScreenSpace())
                 return;
@@ -216,49 +215,15 @@ namespace KWEngine3.Renderer
             GL.Uniform2(UTextureRepeat, txR);
             GL.Uniform1(UOptions, 0);
             GL.Uniform3(UCursorInfo, 0f, 0f, 0f);
-            //GL.Uniform1(UDepth, ho.ZIndex);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             
-
-            DrawImage(ho, mesh);
+            DrawImage(ho);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
             
         }
 
-        
-        /*
-        internal static void DrawText(HUDObjectText ho, GeoMesh mesh)
-        {
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.FontTextureArray[(int)ho.Font]);
-            GL.Uniform1(UTexture, 0);
-            GL.Uniform1(UMode, 0);
-            GL.Uniform1(UOptions, 0);
-            GL.Uniform1(UOffsets, ho._offsets.Length, ho._offsets);
-            GL.Uniform1(UOffsetCount, ho._offsets.Length);
-            GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
-            GL.Uniform1(UCharacterWidth, ho._scale.X);
-            GL.Uniform1(UCharacterDistance, ho._charDistanceFactor);
-
-            GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, ho._offsets.Length);
-
-            if(ho is HUDObjectTextInput)
-            {
-                HUDObjectTextInput i = (HUDObjectTextInput)ho;
-                if(i.HasFocus && i._offsetsCursor != null)
-                {
-                    GL.Uniform1(UMode, i.CursorType == KeyboardCursorType.Pipe ? 3 : i.CursorType == KeyboardCursorType.Underscore ? 4 : 5);
-                    GL.Uniform3(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed);
-                    GL.Uniform1(UOffsets, i._offsetsCursor.Length, i._offsetsCursor);
-                    GL.Uniform1(UOffsetCount, i._offsetsCursor.Length);
-                    GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, i._offsetsCursor.Length);
-                }
-            }
-        }
-        */
-
-        internal static void DrawImage(HUDObjectImage ho, GeoMesh mesh)
+        internal static void DrawImage(HUDObjectImage ho)
         {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
@@ -271,7 +236,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UCharacterWidth, ho._scale.X);
             GL.Uniform1(UCharacterDistance, 1f);
 
-            GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
         }
 
         internal static int[] _arrayEmptyInt32 = new int[0];

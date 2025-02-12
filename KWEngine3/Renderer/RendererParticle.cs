@@ -2,10 +2,8 @@
 using OpenTK.Graphics.OpenGL4;
 using System.Reflection;
 using KWEngine3.Helper;
-using KWEngine3.Renderer;
 using KWEngine3.GameObjects;
-using KWEngine3.Model;
-using KWEngine3;
+using KWEngine3.Assets;
 
 namespace KWEngine3.Renderer
 {
@@ -57,6 +55,7 @@ namespace KWEngine3.Renderer
         public static void RenderParticles(List<TimeBasedObject> objects)
         {
             GL.Enable(EnableCap.Blend);
+            GL.BindVertexArray(KWGlyphQuad.VAO);
             foreach (TimeBasedObject tbo in objects)
             {
                 if (tbo is ParticleObject)
@@ -65,31 +64,26 @@ namespace KWEngine3.Renderer
                     Draw(po);
                 }
             }
+            GL.BindVertexArray(0);
             GL.Disable(EnableCap.Blend);
         }
 
         public static void Draw(ParticleObject po)
         {
+            GL.Uniform4(UColorTint, ref po._tint);
+            Matrix4 mvp = po._modelMatrix * (KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
+            GL.UniformMatrix4(UModelViewProjectionMatrix, false, ref mvp);
 
-                GL.Uniform4(UColorTint, ref po._tint);
-                Matrix4 mvp = po._modelMatrix * (KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
-                GL.UniformMatrix4(UModelViewProjectionMatrix, false, ref mvp);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, po._info.Texture);
+            GL.Uniform1(UTexture, 0);
 
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, po._info.Texture);
-                GL.Uniform1(UTexture, 0);
+            GL.Uniform1(UAnimationState, po._frame);
+            GL.Uniform1(UAnimationStates, po._info.Images);
 
-                GL.Uniform1(UAnimationState, po._frame);
-                GL.Uniform1(UAnimationStates, po._info.Images);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
-                GeoMesh mesh = po._model.Meshes.Values.ElementAt(0);
-                GL.BindVertexArray(mesh.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.BindVertexArray(0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
     }
 }

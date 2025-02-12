@@ -445,6 +445,7 @@ namespace KWEngine3
 
             KWFoliageGrass.Init();
             KWTerrainQuad.Init();
+            KWGlyphQuad.Init();
 
 
             for (int i = 0; i < ExplosionObject.Axes.Length; i++)

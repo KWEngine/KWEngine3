@@ -5,6 +5,7 @@ using KWEngine3.ShadowMapping;
 using KWEngine3.Model;
 using KWEngine3.GameObjects;
 using OpenTK.Mathematics;
+using KWEngine3.Assets;
 
 
 namespace KWEngine3.Renderer
@@ -53,8 +54,7 @@ namespace KWEngine3.Renderer
 
         public static void Draw()
         {
-            GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
-            GL.BindVertexArray(mesh.VAO);
+            GL.BindVertexArray(KWGlyphQuad.VAO);
 
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenterGlyph);
 
@@ -69,7 +69,7 @@ namespace KWEngine3.Renderer
                 GL.BindTexture(TextureTarget.Texture2D, RenderManager.FramebufferGlyphs.Attachments[0].ID);
                 GL.Uniform1(UTexture, 0);
 
-                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
 
             }
             GL.BindVertexArray(0);

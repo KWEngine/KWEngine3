@@ -9,7 +9,6 @@ namespace KWEngine3.GameObjects
     /// </summary>
     public sealed class ParticleObject : TimeBasedObject
     {
-        internal GeoModel _model = KWEngine.GetModel("KWQuad");
         internal Vector3 _position = new Vector3(0, 0, 0);
         /// <summary>
         /// Position des Partikels

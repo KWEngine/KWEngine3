@@ -1,4 +1,5 @@
-﻿using KWEngine3.Helper;
+﻿using KWEngine3.Assets;
+using KWEngine3.Helper;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
@@ -77,11 +78,8 @@ namespace KWEngine3.Renderer
                 GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
             }
 
-            GL.BindVertexArray(KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.VAO);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.VBOIndex);
-            _indexCount = KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.IndexCount;
-
-           
+            GL.BindVertexArray(KWGlyphQuad.VAO);
+            _indexCount = 6;
         }
 
         public static void UnsetGlobals()
@@ -121,7 +119,7 @@ namespace KWEngine3.Renderer
                     GL.Uniform1(UTexture, 0);
 
                     GL.UniformMatrix4(URotationMatrix, false, ref rm);
-                    GL.DrawElements(PrimitiveType.Triangles, _indexCount, DrawElementsType.UnsignedInt, 0);
+                    GL.DrawArrays(PrimitiveType.Triangles, 0, _indexCount);
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                 }
             }
