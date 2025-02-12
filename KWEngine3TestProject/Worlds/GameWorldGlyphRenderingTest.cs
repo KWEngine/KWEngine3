@@ -21,7 +21,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            text1 = new HUDObjectText("text1");
+            text1 = new HUDObjectText("0");
             text1.SetScale(64);
             text1.CenterOnScreen();
             AddHUDObject(text1);

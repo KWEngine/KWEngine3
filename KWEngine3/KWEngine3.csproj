@@ -140,6 +140,8 @@
 		<None Remove="Shaders\shader.hud_glyph.vert" />
 		<None Remove="Shaders\shader.hud_glyph_2.frag" />
 		<None Remove="Shaders\shader.hud_glyph_2.vert" />
+		<None Remove="Shaders\shader.hud_glyph_blend.frag" />
+		<None Remove="Shaders\shader.hud_glyph_blend.vert" />
 		<None Remove="Shaders\shader.lighting.forward.frag" />
 		<None Remove="Shaders\shader.lighting.forward.text.frag" />
 		<None Remove="Shaders\shader.lighting.forward.text.vert" />
@@ -279,6 +281,8 @@
 		<EmbeddedResource Include="Shaders\shader.hud_glyph.vert" />
 		<EmbeddedResource Include="Shaders\shader.hud_glyph_2.frag" />
 		<EmbeddedResource Include="Shaders\shader.hud_glyph_2.vert" />
+		<EmbeddedResource Include="Shaders\shader.hud_glyph_blend.frag" />
+		<EmbeddedResource Include="Shaders\shader.hud_glyph_blend.vert" />
 		<EmbeddedResource Include="Shaders\shader.ssaoblur.frag">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

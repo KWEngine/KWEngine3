@@ -60,6 +60,23 @@ namespace KWEngine3.Helper
             return m;
         }
 
+        public static Matrix4 CreateModelMatrixForHUDText(Vector3 s, Vector3 t)
+        {
+            Matrix4 m = Matrix4.Identity;
+
+            m.Row0 *= s.X;
+            m.Row1 *= s.Y;
+            m.Row2 *= s.Z;
+
+            m.Row3.X = t.X;
+            m.Row3.Y = t.Y;
+            m.Row3.Z = t.Z;
+            m.Row3.W = 1.0f;
+
+            return m;
+        }
+
+
         public static Matrix4 CreateModelMatrixForHUD(float sX, float sY, float sZ, float tX, float tY, float tZ)
         {
             Matrix4 m = Matrix4.Identity;

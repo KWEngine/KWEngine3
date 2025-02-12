@@ -2,11 +2,11 @@
 
 layout(location = 0) in	vec2 aPosition;
 
-uniform mat4 uModelInternal;
+uniform vec2 uModelInternal;
 uniform mat4 uModelExternal;
 uniform mat4 uViewProjection;
 
 void main()
 {
-	gl_Position = uViewProjection * uModelExternal * uModelInternal * vec4(aPosition.xy, 0, 1);
+	gl_Position = uViewProjection * uModelExternal * vec4(aPosition.xy + uModelInternal, 0, 1);
 }

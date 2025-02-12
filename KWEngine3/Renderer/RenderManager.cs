@@ -123,6 +123,8 @@ namespace KWEngine3.Renderer
             RendererHUD.Init();
             RendererGlyph.Init();
             RendererGlyph2.Init();
+            RendererGlyphBlend.Init();
+
             RendererTerrainGBufferNew.Init();
         }
         
@@ -193,9 +195,15 @@ namespace KWEngine3.Renderer
             }
         }
 
+        public static void DoGlyphBlendingPass()
+        {
+            RendererGlyphBlend.Bind();
+            RendererGlyphBlend.Draw();
+        }
+
         public static void DoBloomPass()
         {
-            GL.Disable(EnableCap.DepthTest);
+            //GL.Disable(EnableCap.DepthTest);
             RendererBloomDownsample.Bind();
 
             if((int)KWEngine.Window._ppQuality > 1) // high only

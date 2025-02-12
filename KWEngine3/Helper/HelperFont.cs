@@ -132,7 +132,7 @@ namespace KWEngine3.Helper
                         }
                         else
                         {
-                            verticesGL_Step1.Add(-1);
+                            verticesGL_Step1.Add(0);
                             verticesGL_Step1.Add(0);
                             verticesGL_Step1.Add(vertex1.x * scale);
                             verticesGL_Step1.Add(vertex1.y * scale);

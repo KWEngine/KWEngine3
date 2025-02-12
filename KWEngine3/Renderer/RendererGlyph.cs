@@ -14,7 +14,7 @@ namespace KWEngine3.Renderer
         public static int UModelInternal { get; private set; } = -1;
         public static int UModelExternal { get; private set; } = -1;
         public static int UViewProjectionMatrix { get; private set; } = -1;
-        public static int UColorTint { get; private set; } = -1;
+        //public static int UColorTint { get; private set; } = -1;
         public static int ProgramID { get; private set; } = -1;
         public static void Init()
         {
@@ -41,7 +41,7 @@ namespace KWEngine3.Renderer
             UModelInternal = GL.GetUniformLocation(ProgramID, "uModelInternal");
             UModelExternal = GL.GetUniformLocation(ProgramID, "uModelExternal");
             UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjection");
-            UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
+            //UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
             
         }
 
@@ -53,43 +53,46 @@ namespace KWEngine3.Renderer
         public static void RenderHUDObjectTextInstances(List<HUDObjectText> objects)
         {
             GL.Enable(EnableCap.Blend);
+            GL.Disable(EnableCap.CullFace);
             GL.BlendFunc(BlendingFactor.One, BlendingFactor.One);
 
             foreach (HUDObjectText txt in objects)
             {
                 Draw(txt);
             }
+
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            GL.Disable(EnableCap.Blend);
+            GL.Enable(EnableCap.CullFace);
         }
 
         public static void Draw(HUDObjectText text)
         {
             Bind();
-           
+
+            Vector2 offset = Vector2.Zero;
+
             foreach (char c in text._text)
             {
                 KWFontGlyph g = text._currentFont.GetGlyphForCodepoint(c);
 
                 // Draw step #1:
                 Bind();
-                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
-                GL.Uniform4(UColorTint, ref text._tint);
-                //GL.UniformMatrix4(UModelExternal, false, ref text._modelMatrix);
-                GL.UniformMatrix4(UModelExternal, false, ref HelperMatrix.IdentityMatrix);
-                GL.UniformMatrix4(UModelInternal, false, ref HelperMatrix.IdentityMatrix);
+                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenterGlyph);
+                GL.UniformMatrix4(UModelExternal, false, ref text._modelMatrix);
+                GL.Uniform2(UModelInternal, offset);
                 GL.BindVertexArray(g.VAO_Step1);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, g.VertexCount_Step1);
-
+                
                 // Draw step #2:
                 RendererGlyph2.Bind();
-                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
-                GL.Uniform4(UColorTint, ref text._tint);
-                //GL.UniformMatrix4(UModelExternal, false, ref text._modelMatrix);
-                GL.UniformMatrix4(UModelExternal, false, ref HelperMatrix.IdentityMatrix);
-                GL.UniformMatrix4(UModelInternal, false, ref HelperMatrix.IdentityMatrix);
+                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenterGlyph);
+                GL.UniformMatrix4(UModelExternal, false, ref text._modelMatrix);
+                GL.Uniform2(UModelInternal, offset);
                 GL.BindVertexArray(g.VAO_Step2);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, g.VertexCount_Step2);
+                
+
+                offset += new Vector2(g.Advance.X * text.CharacterDistanceFactor, g.Advance.Y);
             }
             GL.BindVertexArray(0);
         }
