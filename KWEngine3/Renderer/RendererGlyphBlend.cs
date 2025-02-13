@@ -56,11 +56,11 @@ namespace KWEngine3.Renderer
         {
             GL.BindVertexArray(KWGlyphQuad.VAO);
 
-            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenterGlyph);
+            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenter);
 
             foreach (HUDObjectText t in KWEngine.CurrentWorld._hudObjectsText)
             {
-                Matrix4 model = HelperMatrix.CreateModelMatrixForHUDText(new Vector3(t.Width, t.Height, 1f), new Vector3(t.Width / 2f, t.Height / 2f, 0f));
+                Matrix4 model = HelperMatrix.CreateModelMatrixForHUDText(new Vector3(t.Width, t.Height, 1f), new Vector3(t.Position.X, t.Position.Y, 0f));
                 GL.UniformMatrix4(UModelMatrix, false, ref model);
 
                 GL.Uniform4(UColor, new Vector4(t.Color, t.Opacity));

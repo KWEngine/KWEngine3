@@ -292,6 +292,7 @@ namespace KWEngine3
             Overlay.WindowResized(ClientSize.X, ClientSize.Y);
             _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0.1f, 100f);
             _viewProjectionMatrixHUDOffCenter = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X, ClientSize.Y, 0, 0.1f, 100f);
+            _viewProjectionMatrixHUDOffCenter = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X, 0, ClientSize.Y, 0.1f, 100f);
             _viewProjectionMatrixHUDOffCenterGlyph = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X * 2, 0, ClientSize.Y * 2, 0.1f, 100f);
         }
 

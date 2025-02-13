@@ -11,7 +11,9 @@ uniform vec4 uBloom;
 
 void main()
 {
-	float sampled = texture(uTexture, vTexture).x;
+	vec2 texSize = textureSize(uTexture, 0) * 0.5;
+	vec2 textureCoordsScreen = gl_FragCoord.xy / texSize;
+	float sampled = texture(uTexture, textureCoordsScreen).x;
 	int iSample = int(sampled * 255.0);
 
 	if(iSample % 2 == 1)
