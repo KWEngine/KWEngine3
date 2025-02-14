@@ -54,10 +54,14 @@ namespace KWEngine3.Renderer
 
         public static void Draw()
         {
-            GL.BindVertexArray(KWGlyphQuad.VAO);
+            GL.BindVertexArray(FramebufferQuad.GetVAOId());
+            //GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenter);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, RenderManager.FramebufferGlyphs.Attachments[0].ID);
+            GL.Uniform1(UTexture, 0);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
 
-            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenter);
-
+            /*
             foreach (HUDObjectText t in KWEngine.CurrentWorld._hudObjectsText)
             {
                 Matrix4 model = HelperMatrix.CreateModelMatrixForHUDText(new Vector3(t.Width, t.Height, 1f), new Vector3(t.Position.X, t.Position.Y, 0f));
@@ -70,8 +74,9 @@ namespace KWEngine3.Renderer
                 GL.Uniform1(UTexture, 0);
 
                 GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-
             }
+            */
+
             GL.BindVertexArray(0);
         }
     }

@@ -6,20 +6,52 @@ layout(location = 1) out vec4 bloom;
 in vec2 vTexture;
 
 uniform sampler2D uTexture;
-uniform vec4 uColor;
-uniform vec4 uBloom;
+
+
+float getSampleOpacity()
+{
+	vec2 texelSize = 1.0 / textureSize(uTexture, 0);
+	float sampleSum = 0.0;
+	float fsample;
+	int isample;
+
+	// center texel:
+	fsample = texture(uTexture, vTexture + vec2(texelSize.x * +0.0, texelSize.y * +0.0)).x;
+	isample = int(round(fsample * 255.0));
+	sampleSum += (isample % 2) * 8;
+
+	// upper left texel:
+	fsample = texture(uTexture, vTexture + vec2(texelSize.x * -1.0, texelSize.y * +1.0)).x;
+	isample = int(round(fsample * 255.0));
+	sampleSum += isample % 2;
+
+	// upper right texel:
+	fsample = texture(uTexture, vTexture + vec2(texelSize.x * +1.0, texelSize.y * +1.0)).x;
+	isample = int(round(fsample * 255.0));
+	sampleSum += isample % 2;
+
+	// lower left texel:
+	fsample = texture(uTexture, vTexture + vec2(texelSize.x * -1.0, texelSize.y * -1.0)).x;
+	isample = int(round(fsample * 255.0));
+	sampleSum += isample % 2;
+
+	// lower right texel:
+	fsample = texture(uTexture, vTexture + vec2(texelSize.x * +1.0, texelSize.y * -1.0)).x;
+	isample = int(round(fsample * 255.0));
+	sampleSum += isample % 2;
+
+
+	return sampleSum / 12.0;
+}
 
 void main()
 {
-	vec2 texSize = textureSize(uTexture, 0) * 0.5;
-	vec2 textureCoordsScreen = gl_FragCoord.xy / texSize;
-	float sampled = texture(uTexture, textureCoordsScreen).x;
-	int iSample = int(sampled * 255.0);
+	float opacity = getSampleOpacity();
 
-	if(iSample % 2 == 1)
+	if(opacity > 0)
 	{
-		color = uColor;
-		bloom = uBloom;
+		color = vec4(1.0, 1.0, 1.0, opacity);
+		bloom = vec4(0.0);
 	}
 	else
 	{

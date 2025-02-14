@@ -69,7 +69,7 @@ namespace KWEngine3.Renderer
         {
             Bind();
 
-            Vector2 offset = Vector2.Zero;
+            Vector2 offset = text._hitboxOffsetUnscaled;
 
             foreach (char c in text._text)
             {
@@ -77,7 +77,7 @@ namespace KWEngine3.Renderer
 
                 // Draw step #1:
                 Bind();
-                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenterGlyph);
+                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenter);
                 GL.UniformMatrix4(UModelExternal, false, ref text._modelMatrix);
                 GL.Uniform2(UModelInternal, offset);
                 GL.BindVertexArray(g.VAO_Step1);
@@ -85,7 +85,7 @@ namespace KWEngine3.Renderer
                 
                 // Draw step #2:
                 RendererGlyph2.Bind();
-                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenterGlyph);
+                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenter);
                 GL.UniformMatrix4(UModelExternal, false, ref text._modelMatrix);
                 GL.Uniform2(UModelInternal, offset);
                 GL.BindVertexArray(g.VAO_Step2);

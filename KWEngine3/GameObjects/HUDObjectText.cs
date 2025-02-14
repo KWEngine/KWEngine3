@@ -41,7 +41,7 @@ namespace KWEngine3.GameObjects
                 _currentFont = KWEngine._fonts["OpenSans"];
                 Font = _currentFont.Name;
             }
-            
+            Update();
         }
 
         /// <summary>
@@ -56,6 +56,7 @@ namespace KWEngine3.GameObjects
         public void SetTextAlignment(TextAlignMode textAlignment)
         {
             TextAlignment = textAlignment;
+            Update();
         }
 
         /// <summary>
@@ -96,6 +97,7 @@ namespace KWEngine3.GameObjects
         public void SetCharacterDistanceFactor(float distanceFactor)
         {
             _charDistanceFactor = Math.Clamp(distanceFactor, -100f, 100f);
+            Update();
         }
 
         /// <summary>
@@ -134,12 +136,12 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt die aktuelle Breite der Instanz in Pixeln an
         /// </summary>
-        public float Width { get { return _hitbox.Max.X * _scale.X;  } }
+        public float Width { get { return _hitboxUnscaled.Max.X * _scale.X;  } }
 
         /// <summary>
         /// Gibt die aktuelle Höhe der Instanz in Pixeln an
         /// </summary>
-        public float Height { get { return _hitbox.Max.Y * _scale.Y; } }
+        public float Height { get { return _hitboxUnscaled.Max.Y * _scale.Y; } }
 
         #region Internals
 
@@ -148,7 +150,8 @@ namespace KWEngine3.GameObjects
         internal int[] _vaos_step1 = new int[256];
         internal int[] _vaos_step2 = new int[256];
         internal KWFont _currentFont;
-        internal Box2 _hitbox;
+        internal Box2 _hitboxUnscaled;
+        internal Vector2 _hitboxOffsetUnscaled = Vector2.Zero;
         internal int _vaoIndex = 0;
 
         internal void Update()
@@ -174,7 +177,40 @@ namespace KWEngine3.GameObjects
                 _vaoIndex++;
             }
 
-            _hitbox = new Box2(0f, 0f, width, height);
+            
+            float lastAdvance = 0f;
+            if (_text.Length > 0)
+            {
+                KWFontGlyph g = _currentFont.GetGlyphForCodepoint(_text[_text.Length - 1]);
+                lastAdvance = g.IsValid ? g.Advance.X : 0f;
+            }
+            _hitboxUnscaled = new Box2(0f, 0f, width - lastAdvance, height);
+            
+            if(_text.Length > 0)
+            {
+                KWFontGlyph g = _currentFont.GetGlyphForCodepoint(_text[0]);
+                if(g.IsValid)
+                {
+                    _hitboxOffsetUnscaled = new Vector2(-g.Advance.X / 2f, -_currentFont.Height / 2f);
+                }
+                else
+                {
+                    _hitboxOffsetUnscaled = new Vector2(0, -_currentFont.Height / 2f);
+                }
+            }
+            else
+            {
+                _hitboxOffsetUnscaled = new Vector2(0, -_currentFont.Height / 2f);
+            }
+
+            if (TextAlignment == TextAlignMode.Center)
+            {
+                _hitboxOffsetUnscaled.X -= width / 4f;
+            }
+            else if (TextAlignment == TextAlignMode.Right)
+            {
+                _hitboxOffsetUnscaled.X -= width / 2f;
+            }
         }
         #endregion
     }

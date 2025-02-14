@@ -69,7 +69,7 @@ namespace KWEngine3TestProject.Worlds
 
             FlowField f = new FlowField(0, 0, 0, 10, 8, 0.5f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f.IsVisible = true;
-            SetFlowField(f);
+            AddFlowField(f);
         }
     }
 }

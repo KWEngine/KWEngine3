@@ -1,5 +1,6 @@
 ﻿using LunarLabs.Fonts;
 using OpenTK.Graphics.OpenGL4;
+using System.Numerics;
 using System.Reflection;
 
 
@@ -99,8 +100,25 @@ namespace KWEngine3.Helper
             }
         }
 
+        internal static float ReadMHeight(Font f, float scale)
+        {
+            ushort glyphindex = f.FindGlyphIndex('M');
+            List<Vertex> glyphVertices = f.GetGlyphShape(glyphindex);
+            float max = float.MinValue;
+            float min = float.MaxValue;
+            foreach (Vertex v in glyphVertices)
+            {
+                float s = v.y * scale;
+                if (s > max) max = s;
+                if (s < min) min = s;
+            }
+            return max - min;
+        }
+
         internal static void ReadGlyphs(Font f, float scale, ref KWFont kwfont)
         {
+            float fontHeight = ReadMHeight(f, scale);
+
             List<KWFontGlyph> glyphs = new List<KWFontGlyph>();
 
             for (char i = (char)32; i < 8192 * 2; i++)
@@ -224,6 +242,7 @@ namespace KWEngine3.Helper
             }
 
             kwfont.Glyphs = glyphs.ToArray();
+            kwfont.Height = fontHeight;
         }
     }
 }

@@ -12,8 +12,8 @@ namespace KWEngine3.Framebuffers
 
         public override void Init()
         {
-            _size.X = _size.X * 2;
-            _size.Y = _size.Y * 2;
+            _size.X = _size.X * 1;
+            _size.Y = _size.Y * 1;
             
 
             Bind(false);

@@ -5,6 +5,7 @@
         public bool IsValid { get; internal set; }
         public string Name { get; internal set; } = "undefined font name";
         internal KWFontGlyph[] Glyphs { get; set; }
+        public float Height;
 
         internal KWFontGlyph GetGlyphForCodepoint(char codepoint)
         {
@@ -15,6 +16,7 @@
         {
             IsValid = false;
             Glyphs = new KWFontGlyph[0];
+            Height = 0f;
         }
     }
 }

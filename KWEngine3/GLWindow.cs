@@ -43,7 +43,7 @@ namespace KWEngine3
         // other:
         internal Matrix4 _viewProjectionMatrixHUD;
         internal Matrix4 _viewProjectionMatrixHUDOffCenter;
-        internal Matrix4 _viewProjectionMatrixHUDOffCenterGlyph;
+        //internal Matrix4 _viewProjectionMatrixHUDOffCenterGlyph;
         internal KWBuilderOverlay Overlay { get; set; }
         internal Stopwatch _stopwatch = new();
 
@@ -291,9 +291,9 @@ namespace KWEngine3
 
             Overlay.WindowResized(ClientSize.X, ClientSize.Y);
             _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0.1f, 100f);
-            _viewProjectionMatrixHUDOffCenter = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X, ClientSize.Y, 0, 0.1f, 100f);
+            //_viewProjectionMatrixHUDOffCenter = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X, ClientSize.Y, 0, 0.1f, 100f);
             _viewProjectionMatrixHUDOffCenter = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X, 0, ClientSize.Y, 0.1f, 100f);
-            _viewProjectionMatrixHUDOffCenterGlyph = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X * 2, 0, ClientSize.Y * 2, 0.1f, 100f);
+            //_viewProjectionMatrixHUDOffCenterGlyph = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X * 1, 0, ClientSize.Y * 1, 0.1f, 100f);
         }
 
         /// <summary>
@@ -567,7 +567,7 @@ namespace KWEngine3
             // Render HUD texts:
             if (KWEngine.CurrentWorld._hudObjectsText.Count > 0)
             {
-                GL.Viewport(0, 0, ClientSize.X * 2, ClientSize.Y * 2);
+                GL.Viewport(0, 0, ClientSize.X * 1, ClientSize.Y * 1);
                 RenderManager.FramebufferGlyphs.Bind(true, false);
                 RendererGlyph.RenderHUDObjectTextInstances(KWEngine.CurrentWorld._hudObjectsText);
             }
@@ -583,7 +583,8 @@ namespace KWEngine3
             }
             HelperGeneral.CheckGLErrors();
 
-            GL.Disable(EnableCap.Blend);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.Disable(EnableCap.DepthTest);
             
 

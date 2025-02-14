@@ -108,7 +108,7 @@ namespace LunarLabs.Fonts
         }
     }
 
-    public class GlyphMetrics
+    internal class GlyphMetrics
     {
         public RectangleF Bounds { get; set; }
         public int LeftSideBearing { get; internal set; }
@@ -126,7 +126,7 @@ namespace LunarLabs.Fonts
         public bool invert;
     }
 
-    public struct Vertex
+    internal struct Vertex
     {
         public short x;
         public short y;
@@ -168,7 +168,7 @@ namespace LunarLabs.Fonts
         public int direction;
     }
 
-    public class Font
+    internal class Font
     {
         private int _glyphCount;
         private byte[] _data;              // pointer to .ttf file
@@ -217,7 +217,7 @@ namespace LunarLabs.Fonts
 
         internal delegate Task<GlyphBitmap> SvgRenderCallback(Font font, string svgDoc, char codePoint, int glyph, object userData);
 
-        internal SvgRenderCallback SvgRender;
+        //internal SvgRenderCallback SvgRender;
 
         public Font(byte[] bytes, object userData)
         {
@@ -830,36 +830,6 @@ namespace LunarLabs.Fonts
             float fHeight = ascent - descent;
             return pixelHeight / fHeight;
         }
-
-        private async Task<GlyphBitmap> GetCodePointBitmap(float scaleX, float scaleY, float shiftX, float shiftY, char codePoint, Color color, Color backgroundColor)
-        {
-            int glyph = FindGlyphIndex(codePoint);
-
-            // Check if the glyph is an SVG
-            if (_svg != 0)
-            {
-                string svgDoc = null;
-
-                if (SvgRender != null && _svgDocuments.TryGetValue(glyph, out svgDoc))
-                {
-                    var ret = await SvgRender(this, svgDoc, codePoint, glyph, _userData);
-
-                    return ret;
-                }
-
-                return new GlyphBitmap(0, 0, true, backgroundColor);
-            }
-
-            var glyphMetrics = await GetGlyphMetrics(codePoint, scaleX, scaleY, shiftX, shiftY);
-            var vertices = GetGlyphShape(glyph);
-
-            // now we get the size
-            var glyphBitmap = new GlyphBitmap((int)glyphMetrics.Bounds.Width, (int)glyphMetrics.Bounds.Height, false, backgroundColor);
-            Rasterize(glyphBitmap, 0.35f, vertices, scaleX, scaleY, shiftX, shiftY, (int)glyphMetrics.Bounds.X, (int)glyphMetrics.Bounds.Y, true, color);
-
-            return glyphBitmap;
-        }
-
         public ushort FindGlyphIndex(char unicodeCodePoint)
         {
             var format = ReadU16(_indexMap);
@@ -1853,7 +1823,7 @@ namespace LunarLabs.Fonts
             return (p > 0);
         }
 
-        public async Task<GlyphMetrics> GetGlyphMetrics(char codePoint, float scaleX, float scaleY, float shiftX, float shiftY)
+        public GlyphMetrics GetGlyphMetrics(char codePoint, float scaleX, float scaleY, float shiftX, float shiftY)
         {
             GlyphMetrics glyphMetrics = new GlyphMetrics();
 
@@ -1899,30 +1869,6 @@ namespace LunarLabs.Fonts
             glyphMetrics.Bounds = (IsSVG() ? new RectangleF(0, 0, advanceWidth * scaleX, (ascent - descent) * scaleY) : new RectangleF(x, y, w, h));
 
             return glyphMetrics;
-        }
-
-        internal async Task<GlyphBitmap> RenderGlyph(char codePoint, float scale, Color color, Color backgroundColor)
-        {
-            if (!HasGlyph(codePoint))
-                return new GlyphBitmap(0, 0, false, backgroundColor);
-
-            GlyphBitmap glyphBitmap = null;
-
-            if (codePoint == ' ')
-            {
-                codePoint = '_';
-                _ = await GetCodePointBitmap(scale, scale, 0, 0, codePoint, color, backgroundColor);
-                glyphBitmap = new GlyphBitmap(4, 4, false, backgroundColor);
-            }
-            else
-            {
-                if (char.IsLetter(codePoint))
-                    codePoint = (char.IsUpper(codePoint) ? char.ToUpperInvariant(codePoint) : char.ToLowerInvariant(codePoint));
-
-                glyphBitmap = await GetCodePointBitmap(scale, scale, 0, 0, codePoint, color, backgroundColor);
-            }
-
-            return glyphBitmap;
         }
 
         public string Name

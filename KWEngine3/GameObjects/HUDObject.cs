@@ -219,15 +219,7 @@ namespace KWEngine3.GameObjects
         internal void UpdateMVP()
         {
             Vector3 p = new Vector3(Position.X, Position.Y, 0);
-            if(this is HUDObjectText)
-            {
-                _modelMatrix = HelperMatrix.CreateModelMatrixForHUDText(new Vector3(_scale.X * 2f, _scale.Y * 2f, 1f), p * 2);
-            }
-            else
-            {
-                _modelMatrix = HelperMatrix.CreateModelMatrixForHUD(ref _scale, ref p);
-            }
-            
+            _modelMatrix = HelperMatrix.CreateModelMatrixForHUD(ref _scale, ref p);
         }
         #endregion
     }
