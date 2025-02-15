@@ -44,7 +44,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            text1 = new HUDObjectText("You Win!");
+            text1 = new HUDObjectText("a");
             text1.SetScale(128);
             text1.SetTextAlignment(TextAlignMode.Center);
             text1.CenterOnScreen();

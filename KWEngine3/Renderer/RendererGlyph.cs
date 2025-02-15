@@ -82,15 +82,6 @@ namespace KWEngine3.Renderer
                 GL.Uniform2(UModelInternal, offset);
                 GL.BindVertexArray(g.VAO_Step1);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, g.VertexCount_Step1);
-                
-                // Draw step #2:
-                RendererGlyph2.Bind();
-                GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDOffCenter);
-                GL.UniformMatrix4(UModelExternal, false, ref text._modelMatrix);
-                GL.Uniform2(UModelInternal, offset);
-                GL.BindVertexArray(g.VAO_Step2);
-                GL.DrawArrays(PrimitiveType.Triangles, 0, g.VertexCount_Step2);
-                
 
                 offset += new Vector2(g.Advance.X * text.CharacterDistanceFactor, g.Advance.Y);
             }

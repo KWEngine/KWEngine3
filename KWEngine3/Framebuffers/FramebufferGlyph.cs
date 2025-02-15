@@ -17,10 +17,10 @@ namespace KWEngine3.Framebuffers
             
 
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R8, _size.X, _size.Y, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge));   // Glyphs
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA8, _size.X, _size.Y, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge));   // Glyphs
 
             SizeInBytes =
-                _size.X * _size.Y * 1 * sizeof(byte);
+                _size.X * _size.Y * 4 * sizeof(byte);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];
             for(int i = 0; i < Attachments.Count; i++)
@@ -30,7 +30,7 @@ namespace KWEngine3.Framebuffers
             GL.DrawBuffers(Attachments.Count, dbe);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            ClearColorValues.Add(0, new float[] { 0 });
+            ClearColorValues.Add(0, new float[] { 0, 0, 0, 0 });
         }
 
         public override void Clear(bool keepDepth = false)

@@ -148,7 +148,6 @@ namespace KWEngine3.GameObjects
         internal float _charDistanceFactor = 1f;
         internal string _text = "";
         internal int[] _vaos_step1 = new int[256];
-        internal int[] _vaos_step2 = new int[256];
         internal KWFont _currentFont;
         internal Box2 _hitboxUnscaled;
         internal Vector2 _hitboxOffsetUnscaled = Vector2.Zero;
@@ -172,8 +171,6 @@ namespace KWEngine3.GameObjects
                     height = g.Height;
 
                 _vaos_step1[_vaoIndex] = g.VAO_Step1;
-                _vaos_step2[_vaoIndex] = g.VAO_Step2;
-
                 _vaoIndex++;
             }
 
