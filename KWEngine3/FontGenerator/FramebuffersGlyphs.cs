@@ -9,8 +9,14 @@ namespace KWEngine3.FontGenerator
         internal static int FBGlyphsBlend = -1;
         internal static int FBGlyphsTexture = -1;
         internal static int FBGlyphsBlendTexture = -1;
+
+        internal static int Width = 0;
+        internal static int Height = 0;
         public static void Init(int width, int height)
         {
+            Width = width;
+            Height = height;
+
             if(FBGlyphs > 0)
             {
                 GL.DeleteTextures(2, new int[] { FBGlyphsTexture, FBGlyphsBlendTexture });

@@ -1538,6 +1538,35 @@ namespace KWEngine3.Helper
             b.Dispose();
         }
 
+        internal static void SaveTextureToBitmapR8(int texId, int width, int height, string name = null)
+        {
+            SKBitmap b = new SKBitmap(width, height, SKColorType.Rgb888x, SKAlphaType.Opaque);
+            byte[] data = new byte[width * height];
+            GL.BindTexture(TextureTarget.Texture2D, texId);
+            GL.GetTexImage(TextureTarget.Texture2D, 0, PixelFormat.Red, PixelType.UnsignedByte, data);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            int x = 0, y = height - 1;
+            for (int i = 0; i < data.Length; i++)
+            {
+                byte red = (byte)(data[i] * 100);
+                if(red > 0)
+                    Console.WriteLine(red);
+                b.SetPixel(x, y, new SKColor(red, red, red));
+                int prevX = x;
+                x = (x + 1) % width;
+                if (prevX > 0 && x == 0)
+                {
+                    y--;
+                }
+            }
+
+            SKWStream s = SKFileWStream.OpenStream(name == null ? "texture2d_rgb.bmp" : name);
+            b.Encode(s, SKEncodedImageFormat.Bmp, 1);
+            s.Dispose();
+            b.Dispose();
+        }
+
         internal static void SaveTextureToBitmap16(int texId, string name = null)
         {
             GL.Flush();

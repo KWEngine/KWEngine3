@@ -1,21 +1,26 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using System.Net;
+﻿using ImGuiNET;
+using KWEngine3.Helper;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using System.Reflection;
 
 namespace KWEngine3.FontGenerator
 {
     internal static class HelperGlyph
     {
-        internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°€§²³ÜÖÄüöäß█«»·±";
+        internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°€§²³ÜÖÄüöäß·±";
+        internal const int GAP = 0;
 
         internal static void ReadGlyphs(Font f, float scale, ref KWFont kwfont)
         {
-            List<KWFontGlyph> glyphs = new List<KWFontGlyph>();
+            List<KWFontGlyph> glyphlist = new List<KWFontGlyph>();
 
             for (int i = 0; i < GLYPHS.Length; i++)
             {
+                char g = GLYPHS[i];
                 if(f.HasGlyph(GLYPHS[i]))
                 {
+                    
                     ushort glyphindex = f.FindGlyphIndex(GLYPHS[i]);
                     List<Vertex> glyphVertices = f.GetGlyphShape(glyphindex);
                     List<float> verticesGL_Step1 = new List<float>();
@@ -41,7 +46,7 @@ namespace KWEngine3.FontGenerator
                         }
                         else
                         {
-                            verticesGL_Step1.Add(-1);
+                            verticesGL_Step1.Add(0);
                             verticesGL_Step1.Add(0);
                             verticesGL_Step1.Add(vertex1.x * scale);
                             verticesGL_Step1.Add(vertex1.y * scale);
@@ -108,7 +113,7 @@ namespace KWEngine3.FontGenerator
                     f.GetGlyphHMetrics(glyphindex, out int advanceWidth, out int leftSideBearing);
                     f.GetGlyphBoundingBox(glyphindex, 1, 1, 1, 1, out int ix0, out int iy0, out int ix1, out int iy1);
 
-                    glyphs.Add(
+                    glyphlist.Add(
                         new KWFontGlyph(
                             GLYPHS[i],
                             vao1,
@@ -119,20 +124,19 @@ namespace KWEngine3.FontGenerator
                             vaoFontCurvesSize,
                             (ix1 - ix0) * scale,
                             (iy1 - iy0) * scale,
-                            -1f,
-                            -1f,
                             advanceWidth * scale,
-                            advanceHeight * scale
+                            advanceHeight * scale,
+                            new Vector2(0, 0)
                         )
                     );
                 }
                 else
                 {
-                    glyphs.Add(new KWFontGlyph());
+                    glyphlist.Add(new KWFontGlyph());
                 }
             }
 
-            kwfont.Glyphs = glyphs.ToArray();
+            kwfont.Glyphs = glyphlist.ToArray();
         }
 
         private static void DisposeFont(KWFont f)
@@ -190,8 +194,6 @@ namespace KWEngine3.FontGenerator
                     f = new Font(buffer, null);
                     scale = f.ScaleInPixels(1);
                 }
-
-                    
             }
             catch (Exception)
             {
@@ -200,15 +202,133 @@ namespace KWEngine3.FontGenerator
             if (f == null)
                 return new KWFont() { IsValid = false };
 
+            f.GetFontVMetrics(out int ascent, out int descent, out int lineGap);
+            kwfont.Ascent = ascent * scale;
+            kwfont.Descent = descent * scale;
             ReadGlyphs(f, scale, ref kwfont);
             if (kwfont.Glyphs.Length > 0) // TODO: length does not cut it ;-)
             {
+                float advance = 0f;
+                for (int i = 1; i < kwfont.Glyphs.Length; i++)
+                {
+                    kwfont.Glyphs[i].UpdateUV(advance, 0f);
+                    advance += kwfont.Glyphs[i].Advance.X;
+                }
+
+                RenderFontToTexture(kwfont, 256);
                 return kwfont;
             }
             else
             {
                 return new KWFont() { IsValid = false };
             }
+        }
+
+        public static void RenderFontToTexture(KWFont f, float scale)
+        {
+            GL.Disable(EnableCap.CullFace);
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.One, BlendingFactor.One);
+
+
+            float width = 0f;
+            float height = scale;
+            
+
+            for(int i = 0; i < f.Glyphs.Length; i++)
+            {
+                width += f.Glyphs[i].Advance.X * scale + GAP;
+            }
+            width -= GAP;
+
+            FramebuffersGlyphs.Init((int)width, (int)height);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebuffersGlyphs.FBGlyphs);
+            
+            // outline pass:
+            float currentPos = 0f;
+            float currentHeight = -f.Descent;
+            RendererGlyph1.Bind();
+            RendererGlyph1.SetGlobals((int)width, (int)height);
+            HelperGeneral.CheckGLErrors();
+            for (int i = 0; i < f.Glyphs.Length; i++)
+            {
+                RendererGlyph1.Draw(f.Glyphs[i], new Vector2(currentPos, currentHeight * scale), scale);
+                currentPos += f.Glyphs[i].Advance.X * scale + GAP;
+
+                HelperGeneral.CheckGLErrors();
+            }
+
+            // arc pass:
+            currentPos = 0f;
+            HelperGeneral.CheckGLErrors();
+            RendererGlyph2.Bind();
+            RendererGlyph2.SetGlobals((int)width, (int)height);
+            HelperGeneral.CheckGLErrors();
+            for (int i = 0; i < f.Glyphs.Length; i++)
+            {
+
+                RendererGlyph2.Draw(f.Glyphs[i], new Vector2(currentPos, currentHeight * scale), scale);
+                currentPos += f.Glyphs[i].Advance.X * scale + GAP;
+
+                HelperGeneral.CheckGLErrors();
+            }
+
+            GL.Enable(EnableCap.CullFace);
+            GL.Disable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebuffersGlyphs.FBGlyphsBlend);
+            RendererGlyph3.Bind();
+            RendererGlyph3.SetGlobals((int)width, (int)height);
+            RendererGlyph3.Draw();
+
+            int fbDownsample = -1;
+            int texDownsample = -1;
+            int[] mipmaps = new int[6]; // 0 = 256px
+                                        // 1 = 128px
+                                        // 2 = 64px
+                                        // 3 = 32px
+                                        // 4 = 16px
+
+            byte[] imageData = new byte[(int)width * (int)height];
+            GL.BindTexture(TextureTarget.Texture2D, FramebuffersGlyphs.FBGlyphsBlendTexture);
+            GL.GetTexImage(TextureTarget.Texture2D, 0, PixelFormat.Red, PixelType.UnsignedByte, imageData);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            imageData = null;
+
+            mipmaps[0] = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, mipmaps[0]);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, (int)width, (int)height, 0, PixelFormat.Red, PixelType.UnsignedByte, imageData);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
+
+            for (int i = 256, j = 0; i > 8; i /= 2, j++)
+            {
+                if (fbDownsample > 0)
+                {
+                    GL.DeleteTextures(1, new int[] { texDownsample });
+                    GL.DeleteFramebuffers(1, new int[] { fbDownsample });
+                }
+
+                fbDownsample = GL.GenFramebuffer();
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbDownsample);
+                texDownsample = GL.GenTexture();
+                GL.BindTexture(TextureTarget.Texture2D, texDownsample);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, (int)height / 2, (int)height / 2, 0, PixelFormat.Red, PixelType.UnsignedByte, IntPtr.Zero);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
+                GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, texDownsample, 0);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+            }
+            GL.Viewport(0, 0, KWEngine.Window.Width, KWEngine.Window.Height);
         }
     }
 }

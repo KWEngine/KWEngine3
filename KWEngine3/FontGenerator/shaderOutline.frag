@@ -1,8 +1,8 @@
 ﻿#version 400
 
-layout(location = 0) out vec4 color;
+layout(location = 0) out float color;
  
 void main()
 {
-	color = vec4(1.0 / 255.0);
+	color = 1.0 / 255.0;
 }
