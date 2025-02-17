@@ -12,7 +12,17 @@ namespace KWEngine3.FontGenerator
 
         internal static int Width = 0;
         internal static int Height = 0;
-        public static void Init(int width, int height)
+
+        public static void Dispose()
+        {
+            if (FBGlyphs > 0)
+            {
+                GL.DeleteTextures(2, new int[] { FBGlyphsTexture, FBGlyphsBlendTexture });
+                GL.DeleteFramebuffers(2, new int[] { FBGlyphs, FBGlyphsBlend });
+            }
+        }
+
+        public static void ReInit(int width, int height)
         {
             Width = width;
             Height = height;

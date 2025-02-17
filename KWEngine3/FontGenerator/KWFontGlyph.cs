@@ -39,9 +39,9 @@ namespace KWEngine3.FontGenerator
             return CodePoint.ToString();
         }
 
-        public void UpdateUV(float u, float v)
+        public void UpdateUUNext(float u, float uNext)
         {
-            UVCoordinate = new Vector2(u, v);
+            UVCoordinate = new Vector2(u, uNext);
         }
     }
 }

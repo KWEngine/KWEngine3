@@ -9,6 +9,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using KWEngine3.Renderer;
 using KWEngine3.Framebuffers;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
+using KWEngine3.FontGenerator;
 
 namespace KWEngine3.Helper
 {
@@ -174,7 +175,7 @@ namespace KWEngine3.Helper
                     // get number of color channels:
                     GL.GetTexLevelParameter(t.Target, 0, GetTextureParameter.TextureInternalFormat, out int format);
                     PixelInternalFormat glFormat = (PixelInternalFormat)format;
-                    int channels = 0;
+                    int channels = 1;
                     if (glFormat == PixelInternalFormat.Rgb8 || glFormat == PixelInternalFormat.Rgb)
                     {
                         channels = 3;
@@ -309,9 +310,9 @@ namespace KWEngine3.Helper
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrassMinecraft, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrassNormal, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureNoise, TextureTarget.Texture2D));
-            foreach(int id in KWEngine.FontTextureArray)
+            foreach(KWFont id in KWEngine.FontDictionary.Values)
             {
-                bytes += GetTextureSizeInBytes(new KWTexture(id, TextureTarget.Texture2D));
+                bytes += (int)(GetTextureSizeInBytes(new KWTexture(id.Texture, TextureTarget.Texture2D)) * 1.333333f);
             }
 
             return bytes;

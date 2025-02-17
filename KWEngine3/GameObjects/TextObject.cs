@@ -1,4 +1,5 @@
-﻿using KWEngine3.Helper;
+﻿using KWEngine3.FontGenerator;
+using KWEngine3.Helper;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -244,7 +245,8 @@ namespace KWEngine3.GameObjects
         /// <param name="font">Name der zu benutzenden Schriftart</param>
         public void SetFont(FontFace font)
         {
-            _fontFace = font;
+            string fontname = HelperFont.GetNameForInternalFontID((int)font);
+            _font = KWEngine.FontDictionary[fontname];
         }
 
         /// <summary>
@@ -353,8 +355,9 @@ namespace KWEngine3.GameObjects
 
         internal List<char> _text = new List<char>();
         internal List<int> _offsets = new List<int>();
-        internal FontFace _fontFace = FontFace.Anonymous;
+        internal string _fontFace = "Anonymous";
         internal string _name = "undefined text object";
+        internal KWFont _font = KWEngine.FontDictionary["Anonymous"];
 
         internal void InitStates()
         {

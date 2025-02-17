@@ -38,7 +38,7 @@ namespace KWEngine3.Helper
                 sh.Text = ht._text;
                 sh.CharacterDistanceFactor = ht._spread;
                 sh.Alignment = ht.TextAlignment;
-                sh.Font = ht.Font;
+                sh.Font = FontFace.Anonymous; // TODO
 
                 sh.Texture = "";
             }

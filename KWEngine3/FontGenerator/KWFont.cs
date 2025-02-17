@@ -1,11 +1,10 @@
 ﻿namespace KWEngine3.FontGenerator
 {
-    internal struct KWFont
+    internal class KWFont
     {
         public bool IsValid { get; internal set; }
         public float Ascent { get; internal set; }
         public float Descent { get; internal set; }
-        public KWFontGlyph[] Glyphs { get; internal set; }
         public Dictionary<char, KWFontGlyph> GlyphDict { get; internal set; }
         public int Texture { get; internal set; }
         public int TextureSize { get; internal set; }
@@ -18,7 +17,7 @@
             }
             else
             {
-                return Glyphs[0];
+                return GlyphDict[' '];
             }
         }
 
@@ -26,7 +25,6 @@
         {
             IsValid = false;
             GlyphDict = new();
-            Glyphs = new KWFontGlyph[0];
             Ascent = 0;
             Descent = 0;
             Texture = KWEngine.TextureAlpha;

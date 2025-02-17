@@ -66,7 +66,7 @@ namespace KWEngine3.Helper
             wj.TerrainObjects = GenerateTerrainObjects(w);
             wj.FoliageObjects = GenerateFoliageObjects(w);
             wj.LightObjects = GenerateLightObjects(w);
-            wj.HUDObjects = GenerateHUDObjects(w);
+            wj.HUDObjects = new(); // TODO: maybe its better without HUDObjects?? GenerateHUDObjects(w);
             wj.TextObjects = GenerateTextObjects(w);
             if(w.IsViewSpaceGameObjectAttached)
                 wj.ViewSpaceGameObject = GenerateViewSpaceGameObject(w);
