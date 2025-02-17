@@ -363,6 +363,8 @@ namespace KWEngine3
         internal static int[] FontTextureArray { get; set; } = new int[4];
 
 
+        internal static KWFont TestFont;
+
         internal static void InitializeFontsAndDefaultTextures()
         {
             Window.AnisotropicFilteringLevel = (int)Window._ppQuality == 2 ? 8 : (int)Window._ppQuality == 1 ? 4 : 1;
@@ -373,7 +375,7 @@ namespace KWEngine3
             RendererGlyph1.Init();
             RendererGlyph2.Init();
             RendererGlyph3.Init();
-            KWFont anonymous = HelperGlyph.LoadFontInternal("AnonymousPro-Regular.ttf");
+            TestFont = HelperGlyph.LoadFontInternal("AnonymousPro-Regular.ttf");
 
             InitializeFont("anonymous.dds", 0);
             InitializeFont("anonymous2.dds", 1);

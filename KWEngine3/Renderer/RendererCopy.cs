@@ -62,7 +62,7 @@ namespace KWEngine3.Renderer
         {
             GL.ActiveTexture(TextureUnit.Texture0);
             //GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
-            GL.BindTexture(TextureTarget.Texture2D, FramebuffersGlyphs.FBGlyphsBlendTexture);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TestFont.Texture);
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
