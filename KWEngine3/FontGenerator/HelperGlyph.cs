@@ -1,5 +1,4 @@
-﻿using ImGuiNET;
-using KWEngine3.Helper;
+﻿using KWEngine3.Helper;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
@@ -113,8 +112,7 @@ namespace KWEngine3.FontGenerator
                     f.GetGlyphHMetrics(glyphindex, out int advanceWidth, out int leftSideBearing);
                     f.GetGlyphBoundingBox(glyphindex, 1, 1, 1, 1, out int ix0, out int iy0, out int ix1, out int iy1);
 
-                    glyphlist.Add(
-                        new KWFontGlyph(
+                    KWFontGlyph newGlyph = new KWFontGlyph(
                             GLYPHS[i],
                             vao1,
                             vao2,
@@ -127,8 +125,9 @@ namespace KWEngine3.FontGenerator
                             advanceWidth * scale,
                             advanceHeight * scale,
                             new Vector2(0, 0)
-                        )
-                    );
+                        );
+                    glyphlist.Add(newGlyph);
+                    kwfont.Add(GLYPHS[i], newGlyph);
                 }
                 else
                 {
@@ -168,9 +167,22 @@ namespace KWEngine3.FontGenerator
             if (f == null)
                 return new KWFont() { IsValid = false };
 
+            f.GetFontVMetrics(out int ascent, out int descent, out int lineGap);
+            kwfont.Ascent = ascent * scale;
+            kwfont.Descent = descent * scale;
             ReadGlyphs(f, scale, ref kwfont);
-            if(kwfont.Glyphs.Length > 0) // TODO: length does not cut it ;-)
+            if (kwfont.Glyphs.Length > 0) // TODO: length does not cut it ;-)
             {
+                float advance = 0f;
+                for (int i = 1; i < kwfont.Glyphs.Length; i++)
+                {
+                    kwfont.Glyphs[i].UpdateUV(advance, 0f);
+                    advance += kwfont.Glyphs[i].Advance.X;
+                }
+
+                RenderFontToTexture(kwfont, 256, out int finalTextureId, out int finalTextureByteCount);
+                kwfont.Texture = finalTextureId;
+                kwfont.TextureSize = finalTextureByteCount;
                 return kwfont;
             }
             else
@@ -215,7 +227,9 @@ namespace KWEngine3.FontGenerator
                     advance += kwfont.Glyphs[i].Advance.X;
                 }
 
-                RenderFontToTexture(kwfont, 256);
+                RenderFontToTexture(kwfont, 256, out int finalTextureId, out int finalTextureByteCount);
+                kwfont.Texture = finalTextureId;
+                kwfont.TextureSize = finalTextureByteCount;
                 return kwfont;
             }
             else
@@ -224,13 +238,13 @@ namespace KWEngine3.FontGenerator
             }
         }
 
-        public static void RenderFontToTexture(KWFont f, float scale)
+        public static void RenderFontToTexture(KWFont f, float scale, out int texture, out int byteCount)
         {
             GL.Disable(EnableCap.CullFace);
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.One, BlendingFactor.One);
 
-
+            byteCount = 0;
             float width = 0f;
             float height = scale;
             
@@ -282,53 +296,117 @@ namespace KWEngine3.FontGenerator
             RendererGlyph3.SetGlobals((int)width, (int)height);
             RendererGlyph3.Draw();
 
-            int fbDownsample = -1;
-            int texDownsample = -1;
+            // NOW BLIT AND DOWNSAMPLE ONE STEP
+
+
+            /*
             int[] mipmaps = new int[6]; // 0 = 256px
                                         // 1 = 128px
                                         // 2 = 64px
                                         // 3 = 32px
                                         // 4 = 16px
+                                        // 5 = 8px
+            */
+            texture = CopyTextureIntoNewTexture(FramebuffersGlyphs.FBGlyphsBlendTexture, PixelType.UnsignedByte, PixelFormat.Red, PixelInternalFormat.R8);
 
-            byte[] imageData = new byte[(int)width * (int)height];
-            GL.BindTexture(TextureTarget.Texture2D, FramebuffersGlyphs.FBGlyphsBlendTexture);
-            GL.GetTexImage(TextureTarget.Texture2D, 0, PixelFormat.Red, PixelType.UnsignedByte, imageData);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-            imageData = null;
+            // downsample loop
+            int fbDownsample;
+            int texDownsample;
+            int w = (int)width;
+            int h = (int)height;
+            byteCount += w * h;
+            int w2 = w / 2;
+            int h2 = h / 2;
+            for (int i = h, j = 1; i > 8; i /= 2, j++)
+            {
+                byteCount += w2 * h2;
 
-            mipmaps[0] = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, mipmaps[0]);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, (int)width, (int)height, 0, PixelFormat.Red, PixelType.UnsignedByte, imageData);
+                int downsampledTexture = Downsample(w, h, w2, h2);
+
+                w2 = w2 / 2;
+                h2 = h2 / 2;
+                HelperGeneral.CheckGLErrors();
+                CopyTextureIntoMipmapLevel(texDownsample, PixelType.UnsignedByte, PixelFormat.Red, PixelInternalFormat.R8, texture, j);
+                HelperGeneral.CheckGLErrors();
+
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+                GL.DeleteTextures(1, new int[] { texDownsample });
+                GL.DeleteFramebuffers(1, new int[] { fbDownsample });
+            }
+            
+
+
+            GL.Viewport(0, 0, KWEngine.Window.Width, KWEngine.Window.Height);
+        }
+
+        public static int Downsample(int w, int h, int w2, int h2)
+        {
+            int fbDownsample = GL.GenFramebuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbDownsample);
+            int texDownsample = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texDownsample);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, w2, h2, 0, PixelFormat.Red, PixelType.UnsignedByte, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, texDownsample, 0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
-            for (int i = 256, j = 0; i > 8; i /= 2, j++)
-            {
-                if (fbDownsample > 0)
-                {
-                    GL.DeleteTextures(1, new int[] { texDownsample });
-                    GL.DeleteFramebuffers(1, new int[] { fbDownsample });
-                }
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, FramebuffersGlyphs.FBGlyphsBlend);
+            GL.ReadBuffer(ReadBufferMode.ColorAttachment0);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, fbDownsample);
+            GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+            GL.BlitFramebuffer(0, 0, w, h, 0, 0, w2, h2, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Linear);
 
-                fbDownsample = GL.GenFramebuffer();
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, fbDownsample);
-                texDownsample = GL.GenTexture();
-                GL.BindTexture(TextureTarget.Texture2D, texDownsample);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, (int)height / 2, (int)height / 2, 0, PixelFormat.Red, PixelType.UnsignedByte, IntPtr.Zero);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
-                GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, texDownsample, 0);
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            return CopyTextureIntoNewTexture(texDownsample, PixelType.UnsignedByte, PixelFormat.Red, PixelInternalFormat.R8);
+        }
 
-            }
-            GL.Viewport(0, 0, KWEngine.Window.Width, KWEngine.Window.Height);
+        public static void CopyTextureIntoMipmapLevel(int src, PixelType pxType, PixelFormat pxFormat, PixelInternalFormat pxFormatInternal, int dst, int dstMipMapLevel)
+        {
+            GL.BindTexture(TextureTarget.Texture2D, src);
+            GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
+            GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
+            byte[] imageData = new byte[width * height];
+            GL.GetTexImage(TextureTarget.Texture2D, 0, pxFormat, pxType, imageData);
+
+            GL.BindTexture(TextureTarget.Texture2D, dst);
+            GL.TexImage2D(TextureTarget.Texture2D, dstMipMapLevel, pxFormatInternal, width, height, 0, pxFormat, pxType, imageData);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            imageData = null;
+        }
+
+        public static int CopyTextureIntoNewTexture(int src, PixelType pxType, PixelFormat pxFormat, PixelInternalFormat pxFormatInternal)
+        {
+            GL.BindTexture(TextureTarget.Texture2D, src);
+            GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureWidth, out int width);
+            GL.GetTexLevelParameter(TextureTarget.Texture2D, 0, GetTextureParameter.TextureHeight, out int height);
+
+            byte[] imageData = new byte[width * height];
+            GL.GetTexImage(TextureTarget.Texture2D, 0, pxFormat, pxType, imageData);
+
+            int dst = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, dst);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, pxFormatInternal, width, height, 0, pxFormat, pxType, imageData);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            imageData = null;
+
+            return dst;
         }
     }
 }
