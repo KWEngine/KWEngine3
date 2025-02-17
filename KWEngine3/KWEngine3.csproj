@@ -30,6 +30,14 @@
 		<None Remove="Assets\Fonts\anonymous2.dds" />
 		<None Remove="Assets\Fonts\anonymous3.dds" />
 		<None Remove="Assets\Fonts\anonymous4.dds" />
+		<None Remove="Assets\Fonts\AnonymousPro-Bold.ttf" />
+		<None Remove="Assets\Fonts\AnonymousPro-BoldItalic.ttf" />
+		<None Remove="Assets\Fonts\AnonymousPro-Italic.ttf" />
+		<None Remove="Assets\Fonts\AnonymousPro-Regular.ttf" />
+		<None Remove="Assets\Fonts\MajorMonoDisplay-Regular.ttf" />
+		<None Remove="Assets\Fonts\NovaMono-Regular.ttf" />
+		<None Remove="Assets\Fonts\XanhMono-Italic.ttf" />
+		<None Remove="Assets\Fonts\XanhMono-Regular.ttf" />
 		<None Remove="Assets\Models\capsulehitbox.obj" />
 		<None Remove="Assets\Models\capsulehitbox2.obj" />
 		<None Remove="Assets\Models\dollar.mtl" />
@@ -91,6 +99,8 @@
 		<None Remove="Assets\Textures\smoke02.dds" />
 		<None Remove="Assets\Textures\smoke03.dds" />
 		<None Remove="Assets\Textures\white.png" />
+		<None Remove="FontGenerator\shaderBlend.frag" />
+		<None Remove="FontGenerator\shaderBlend.vert" />
 		<None Remove="Shaders\shader.background.2d.frag" />
 		<None Remove="Shaders\shader.background.2d.vert" />
 		<None Remove="Shaders\shader.background.skybox.frag" />
@@ -187,6 +197,14 @@
 		<EmbeddedResource Include="Assets\Fonts\anonymous2.dds" />
 		<EmbeddedResource Include="Assets\Fonts\anonymous3.dds" />
 		<EmbeddedResource Include="Assets\Fonts\anonymous4.dds" />
+		<EmbeddedResource Include="Assets\Fonts\AnonymousPro-Bold.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\AnonymousPro-BoldItalic.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\AnonymousPro-Italic.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\AnonymousPro-Regular.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\MajorMonoDisplay-Regular.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\NovaMono-Regular.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\XanhMono-Italic.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\XanhMono-Regular.ttf" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox.obj" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox2.obj" />
 		<EmbeddedResource Include="Assets\Models\dollar.mtl" />
@@ -255,6 +273,12 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="FontGenerator\shaderOutline.frag" />
+		<EmbeddedResource Include="FontGenerator\shaderOutline.vert" />
+		<EmbeddedResource Include="FontGenerator\shaderBlend.frag" />
+		<EmbeddedResource Include="FontGenerator\shaderBlend.vert" />
+		<EmbeddedResource Include="FontGenerator\shaderArc.frag" />
+		<EmbeddedResource Include="FontGenerator\shaderArc.vert" />
 		<EmbeddedResource Include="Shaders\shader.debugcube.frag">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

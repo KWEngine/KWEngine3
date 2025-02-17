@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Editor;
+using KWEngine3.FontGenerator;
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Model;
@@ -120,6 +121,9 @@ namespace KWEngine3.Renderer
 
             RendererHUD.Init();
             RendererTerrainGBufferNew.Init();
+
+            RendererGlyph1.Init();
+            RendererGlyph2.Init();
         }
         
 
