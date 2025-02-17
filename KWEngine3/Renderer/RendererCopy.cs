@@ -1,4 +1,5 @@
-﻿using KWEngine3.Framebuffers;
+﻿using KWEngine3.FontGenerator;
+using KWEngine3.Framebuffers;
 using KWEngine3.Helper;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
@@ -60,7 +61,8 @@ namespace KWEngine3.Renderer
         public static void Draw(Framebuffer fbSource, Framebuffer fbSourceBloom, Vector4 fadeColor) // currently from lighting pass
         {
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
+            //GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
+            GL.BindTexture(TextureTarget.Texture2D, FramebuffersGlyphs.FBGlyphsBlendTexture);
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);

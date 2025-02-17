@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using KWEngine3.Audio;
 using KWEngine3.Editor;
+using KWEngine3.FontGenerator;
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
@@ -572,7 +573,7 @@ namespace KWEngine3
             RendererCopy.Bind();
             RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0], fadeColor);
 
-            if((int)KWEngine.DebugMode > 0 && (int)KWEngine.DebugMode < 10)
+            if ((int)KWEngine.DebugMode > 0 && (int)KWEngine.DebugMode < 10)
             {
                 RenderManager.BindScreen();
 

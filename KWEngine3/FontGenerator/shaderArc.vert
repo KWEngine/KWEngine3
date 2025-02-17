@@ -2,8 +2,8 @@
 
 layout(location = 0) in	vec2 aPosition;
 
-uniform mat4 uModel;
 uniform mat4 uViewProjection;
+uniform vec3 uOffsetScale;
 
 out vec3 vBarycentric;
 
@@ -22,5 +22,5 @@ void main()
 		vBarycentric = vec3(0.0, 0.0, 1.0);
 	}
 
-	gl_Position = uViewProjection * uModel * vec4(aPosition.xy, 0, 1);
+	gl_Position = uViewProjection * vec4(aPosition.xy * uOffsetScale.z + uOffsetScale.xy, 0.0, 1.0);
 }

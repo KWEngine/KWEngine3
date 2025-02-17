@@ -369,6 +369,10 @@ namespace KWEngine3
 
             int mipMaps;
 
+            KWQuad2D.Init();
+            RendererGlyph1.Init();
+            RendererGlyph2.Init();
+            RendererGlyph3.Init();
             KWFont anonymous = HelperGlyph.LoadFontInternal("AnonymousPro-Regular.ttf");
 
             InitializeFont("anonymous.dds", 0);

@@ -77,7 +77,6 @@ namespace KWEngine3.Renderer
         {
             PrimitiveQuad.Init();
             PrimitivePoint.Init();
-            //PrimitiveTriangle.Init();
 
             RendererGBuffer.Init();
             RendererGBufferInstanced.Init();
@@ -121,11 +120,7 @@ namespace KWEngine3.Renderer
 
             RendererHUD.Init();
             RendererTerrainGBufferNew.Init();
-
-            RendererGlyph1.Init();
-            RendererGlyph2.Init();
         }
-        
 
         public static void CheckShaderStatus(int programId, int vertexShaderId, int fragmentShaderId, int geometryShaderId = -1, int tessControlShaderId = -1, int tessEvalShaderId = -1)
         {
