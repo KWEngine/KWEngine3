@@ -10,6 +10,7 @@ using KWEngine3.Assets;
 using System.Diagnostics;
 using OpenTK.Windowing.Desktop;
 using KWEngine3.Exceptions;
+using KWEngine3.FontGenerator;
 
 
 namespace KWEngine3
@@ -367,6 +368,8 @@ namespace KWEngine3
             Window.AnisotropicFilteringLevel = (int)Window._ppQuality == 2 ? 8 : (int)Window._ppQuality == 1 ? 4 : 1;
 
             int mipMaps;
+
+            KWFont anonymous = HelperGlyph.LoadFontInternal("AnonymousPro-Regular.ttf");
 
             InitializeFont("anonymous.dds", 0);
             InitializeFont("anonymous2.dds", 1);
