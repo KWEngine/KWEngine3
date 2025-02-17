@@ -36,7 +36,7 @@ namespace KWEngine3.Helper
             st.Position = new float[] { t.Position.X, t.Position.Y, t.Position.Z };
 
             st.Text = t.Text;
-            st.Font = t._fontFace;
+            st.Font = FontFace.Anonymous; // TODO
             st.Spread = t._stateCurrent._spreadFactor;
 
             return st;

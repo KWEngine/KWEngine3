@@ -254,7 +254,7 @@ namespace KWEngine3.Renderer
         internal static void DrawText(HUDObjectText ho, GeoMesh mesh)
         {
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.FontTextureArray[(int)ho.Font]);
+            GL.BindTexture(TextureTarget.Texture2D, ho._font.Texture);
             GL.Uniform1(UTexture, 0);
             GL.Uniform1(UMode, 0);
             GL.Uniform1(UOptions, 0);

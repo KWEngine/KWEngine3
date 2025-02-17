@@ -61,8 +61,8 @@ namespace KWEngine3.Renderer
         public static void Draw(Framebuffer fbSource, Framebuffer fbSourceBloom, Vector4 fadeColor) // currently from lighting pass
         {
             GL.ActiveTexture(TextureUnit.Texture0);
-            //GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TestFont.Texture);
+            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
+            //GL.BindTexture(TextureTarget.Texture2D, KWEngine.TestFont.Texture);
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);

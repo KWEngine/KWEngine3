@@ -1,4 +1,5 @@
-﻿using KWEngine3.Helper;
+﻿using KWEngine3.FontGenerator;
+using KWEngine3.Helper;
 using OpenTK.Mathematics;
 using System.Security.Cryptography;
 
@@ -20,9 +21,9 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Schriftart des HUD-Objekts
+        /// Verwendeter Schriftartname des HUD-Objekts
         /// </summary>
-        public FontFace Font { get; internal set; } = FontFace.Anonymous;
+        public string Font { get; internal set; } = "Anonymous";
 
         /// <summary>
         /// Setzt die Schriftart der Instanz
@@ -30,8 +31,9 @@ namespace KWEngine3.GameObjects
         /// <param name="fontFace">zu nutzende Schriftart</param>
         public void SetFont(FontFace fontFace)
         {
-            Font = fontFace;
-            _textureId = KWEngine.FontTextureArray[(int)Font];
+            Font = HelperFont.GetNameForInternalFontID((int)fontFace);
+            _font = KWEngine.FontDictionary[Font];
+            _textureId = _font.Texture;
         }
 
         /// <summary>
@@ -197,6 +199,7 @@ namespace KWEngine3.GameObjects
         internal int[] _offsets = null;
         internal float _spread = 1f;
         internal string _text = "";
+        internal KWFont _font;
         
 
         internal void UpdateOffsetList()

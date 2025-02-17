@@ -190,9 +190,7 @@ namespace KWEngine3.Renderer
         {
             // Albedo
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
-
-            int texId = KWEngine.FontTextureArray[(int)t._fontFace];
-            GL.BindTexture(TextureTarget.Texture2D, texId);
+            GL.BindTexture(TextureTarget.Texture2D, t._font.Texture);
             GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
         }
     }

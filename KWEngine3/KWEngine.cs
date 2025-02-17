@@ -360,10 +360,9 @@ namespace KWEngine3
         /// </summary>
         public static Vector3 WorldUp { get; } = Vector3.UnitY;
 
-        internal static int[] FontTextureArray { get; set; } = new int[4];
+        //internal static int[] FontTextureArray { get; set; } = new int[4];
 
-
-        internal static KWFont TestFont;
+        internal static Dictionary<string, KWFont> FontDictionary = new();
 
         internal static void InitializeFontsAndDefaultTextures()
         {
@@ -375,12 +374,14 @@ namespace KWEngine3
             RendererGlyph1.Init();
             RendererGlyph2.Init();
             RendererGlyph3.Init();
-            TestFont = HelperGlyph.LoadFontInternal("AnonymousPro-Regular.ttf");
+            FontDictionary.Add("Anonymous", HelperGlyph.LoadFontInternal("AnonymousPro-Regular.ttf"));
 
+            /*
             InitializeFont("anonymous.dds", 0);
             InitializeFont("anonymous2.dds", 1);
             InitializeFont("anonymous3.dds", 2);
             InitializeFont("anonymous4.dds", 3);
+            */
 
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
@@ -404,6 +405,8 @@ namespace KWEngine3
             TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();
             TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture();
         }
+
+        /*
         internal static void InitializeFont(string filename, int index)
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -411,6 +414,7 @@ namespace KWEngine3
             int textureId = HelperFont.GenerateTexture(resourceName, assembly);
             FontTextureArray[index] = textureId;
         }
+        */
 
         /// <summary>
         /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)
