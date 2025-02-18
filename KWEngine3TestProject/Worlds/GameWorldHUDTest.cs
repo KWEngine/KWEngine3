@@ -48,6 +48,7 @@ namespace KWEngine3TestProject.Worlds
             {
                 _h1.SetColorEmissiveIntensity(0.0f);
             }
+            /*
             if (_h2.IsMouseCursorOnMe())
             {
                 _h2.SetColorEmissiveIntensity(0.9f);
@@ -89,7 +90,7 @@ namespace KWEngine3TestProject.Worlds
                 _h6.SetColorEmissiveIntensity(0.0f);
             }
 
-
+            */
             if (_hCrosshair.IsMouseCursorOnMe())
             {
                 _hCrosshair.SetColorEmissiveIntensity(0.9f);
@@ -110,7 +111,7 @@ namespace KWEngine3TestProject.Worlds
             _h1.SetColorEmissiveIntensity(0);
             _h1.SetScale(16, 16);
             AddHUDObject(_h1);
-
+            /*
             _h2 = new HUDObjectText("LeftMinus2");
             _h2.SetPosition(768, 256 + 48 * 1);
             _h2.SetCharacterDistanceFactor(-2.0f);
@@ -155,10 +156,10 @@ namespace KWEngine3TestProject.Worlds
             _h6.SetColorEmissiveIntensity(0);
             _h6.SetScale(64, 64);
             AddHUDObject(_h6);
-
+            */
             _hCrosshair = new HUDObjectImage();
             _hCrosshair.SetPosition(768, 196);
-            _hCrosshair.SetTexture(@".\Textures\crosshair.dds");
+            _hCrosshair.SetTexture(@".\Textures\fx_boom.png");
             _hCrosshair.SetScale(64, 64);
             _hCrosshair.SetColorEmissive(1, 1, 0);
             _hCrosshair.SetColorEmissiveIntensity(0);

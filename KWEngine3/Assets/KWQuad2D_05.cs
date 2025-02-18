@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine3.Assets
 {
-    internal static class KWQuad2D
+    internal static class KWQuad2D_05
     {
         public static int VAO;
         public static int VAOSize;
@@ -17,13 +17,13 @@ namespace KWEngine3.Assets
         {
             float[] vertices = new float[]
             {
-                -1, -1,
-                +1, -1,
-                +1, +1,
+                -0.5f, -0.5f,
+                +0.5f, -0.5f,
+                +0.5f, +0.5f,
 
-                +1, +1,
-                -1, +1,
-                -1, -1
+                +0.5f, +0.5f,
+                -0.5f, +0.5f,
+                -0.5f, -0.5f
 
             };
 

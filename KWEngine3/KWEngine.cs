@@ -371,6 +371,7 @@ namespace KWEngine3
             int mipMaps;
 
             KWQuad2D.Init();
+            KWQuad2D_05.Init();
             RendererGlyph1.Init();
             RendererGlyph2.Init();
             RendererGlyph3.Init();

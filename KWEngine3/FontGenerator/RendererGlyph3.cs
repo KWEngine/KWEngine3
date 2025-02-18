@@ -59,8 +59,8 @@ namespace KWEngine3.FontGenerator
             GL.BindTexture(TextureTarget.Texture2D, FramebuffersGlyphs.FBGlyphsTexture);
             GL.Uniform1(UTextureGlyphs, 0);
 
-            GL.BindVertexArray(KWQuad2D.VAOBlend);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, KWQuad2D.VAOBlendSize);
+            GL.BindVertexArray(KWQuad2D.VAO);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, KWQuad2D.VAOSize);
             GL.BindVertexArray(0);
         }
     }

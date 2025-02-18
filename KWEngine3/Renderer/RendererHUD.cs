@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3.Assets;
+using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
@@ -80,7 +81,6 @@ namespace KWEngine3.Renderer
         public static int RenderHUDObjects(int index, bool back)
         {
             GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
-            GeoMesh mesh = KWEngine.GetModel("KWQuad").Meshes.Values.ElementAt(0);
             if (back)
             {
                 for (int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
@@ -90,7 +90,7 @@ namespace KWEngine3.Renderer
                     {
                         break;
                     }
-                    Draw(h, mesh);
+                    Draw(h);
                     index++;
                 }
                 return index;
@@ -101,7 +101,7 @@ namespace KWEngine3.Renderer
                 for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
                 {
                     HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
-                    Draw(h, mesh);
+                    Draw(h);
                     index++;
                 }
                 return -1;
@@ -218,7 +218,7 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
         }
 
-        public static void Draw(HUDObject ho, GeoMesh mesh)
+        public static void Draw(HUDObject ho)
         {
             if (ho == null || !ho.IsVisible || !ho.IsInsideScreenSpace())
                 return;
@@ -232,26 +232,23 @@ namespace KWEngine3.Renderer
             GL.Uniform3(UCursorInfo, 0f, 0f, 0f);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDNew);
-            GL.BindVertexArray(mesh.VAO);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-
+            GL.BindVertexArray(KWQuad2D_05.VAO);
             if (ho is HUDObjectText)
             {
-                DrawText(ho as HUDObjectText, mesh);
+                DrawText(ho as HUDObjectText);
             }
             else if(ho is HUDObjectImage)
             {
-                DrawImage(ho as HUDObjectImage, mesh);
+                DrawImage(ho as HUDObjectImage);
             }
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
         }
 
         
 
-        internal static void DrawText(HUDObjectText ho, GeoMesh mesh)
+        internal static void DrawText(HUDObjectText ho)
         {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, ho._font.Texture);
@@ -263,9 +260,8 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
             GL.Uniform1(UCharacterWidth, ho._scale.X);
             GL.Uniform1(UCharacterDistance, ho._spread);
-
-            GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, ho._offsets.Length);
-
+            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._offsets.Length);
+          
             if(ho is HUDObjectTextInput)
             {
                 HUDObjectTextInput i = (HUDObjectTextInput)ho;
@@ -275,12 +271,13 @@ namespace KWEngine3.Renderer
                     GL.Uniform3(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed);
                     GL.Uniform1(UOffsets, i._offsetsCursor.Length, i._offsetsCursor);
                     GL.Uniform1(UOffsetCount, i._offsetsCursor.Length);
-                    GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, i._offsetsCursor.Length);
+                    GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, i._offsetsCursor.Length);
+                    //GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, i._offsetsCursor.Length);
                 }
             }
         }
 
-        internal static void DrawImage(HUDObjectImage ho, GeoMesh mesh)
+        internal static void DrawImage(HUDObjectImage ho)
         {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
@@ -293,7 +290,8 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UCharacterWidth, ho._scale.X);
             GL.Uniform1(UCharacterDistance, 1f);
 
-            GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
+            //GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         }
 
         internal static int[] _arrayEmptyInt32 = new int[0];
