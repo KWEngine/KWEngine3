@@ -1,4 +1,5 @@
-﻿using KWEngine3.Helper;
+﻿using KWEngine3.Assets;
+using KWEngine3.Helper;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
@@ -15,7 +16,7 @@ namespace KWEngine3.Renderer
         public static int UColor { get; private set; } = -1;
         public static int UTexture { get; private set; } = -1;
 
-        private static int _indexCount = -1;
+        //private static int _indexCount = -1;
 
         private static int LoadShader(Stream pFileStream, ShaderType pType, int pProgram)
         {
@@ -77,9 +78,9 @@ namespace KWEngine3.Renderer
                 GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
             }
 
-            GL.BindVertexArray(KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.VAO);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.VBOIndex);
-            _indexCount = KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.IndexCount;
+            GL.BindVertexArray(KWQuad2D_05.VAO); // KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.VAO);
+            //GL.BindBuffer(BufferTarget.ElementArrayBuffer, KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.VBOIndex);
+            //_indexCount = KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.IndexCount;
 
            
         }
@@ -121,7 +122,8 @@ namespace KWEngine3.Renderer
                     GL.Uniform1(UTexture, 0);
 
                     GL.UniformMatrix4(URotationMatrix, false, ref rm);
-                    GL.DrawElements(PrimitiveType.Triangles, _indexCount, DrawElementsType.UnsignedInt, 0);
+                    GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
+                    //GL.DrawElements(PrimitiveType.Triangles, _indexCount, DrawElementsType.UnsignedInt, 0);
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                 }
             }
