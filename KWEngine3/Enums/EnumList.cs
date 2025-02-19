@@ -2,6 +2,49 @@
 {
 
     /// <summary>
+    /// Himmelsrichtung
+    /// </summary>
+    public enum CardinalDirection
+    {
+        /// <summary>
+        /// Nord
+        /// </summary>
+        North,
+        /// <summary>
+        /// Nordost
+        /// </summary>
+        NorthEast,
+        /// <summary>
+        /// Ost
+        /// </summary>
+        East,
+        /// <summary>
+        /// Südost
+        /// </summary>
+        SouthEast,
+        /// <summary>
+        /// Süd
+        /// </summary>
+        South,
+        /// <summary>
+        /// Südwest
+        /// </summary>
+        SouthWest,
+        /// <summary>
+        /// West
+        /// </summary>
+        West,
+        /// <summary>
+        /// Nordwest
+        /// </summary>
+        NorthWest,
+        /// <summary>
+        /// Keine
+        /// </summary>
+        None
+    }
+
+    /// <summary>
     /// Listet die Anzeigemöglichkeiten für Eingabecursor auf
     /// </summary>
     public enum KeyboardCursorType

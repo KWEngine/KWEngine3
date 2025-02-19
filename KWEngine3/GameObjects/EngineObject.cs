@@ -493,6 +493,10 @@ namespace KWEngine3.GameObjects
         /// <param name="units">Bewegungseinheiten</param>
         public void MoveAlongVector(Vector3 v, float units)
         {
+            if(float.IsNaN(v.X) || float.IsNaN(v.Y) || float.IsNaN(v.Z))
+            {
+                return;
+            }
             MoveOffset(v * units);
         }
 

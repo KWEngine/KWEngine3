@@ -22,6 +22,16 @@ namespace KWEngine3.Helper
         public int IndexZ { get { return _gridIndex.Y; } }
 
         /// <summary>
+        /// Gibt die aktuelle Zielrichtung für diese Zelle an (kann der Nullvektor sein)
+        /// </summary>
+        public Vector3 BestDirection { get; internal set; }
+
+        /// <summary>
+        /// Gibt die aktuelle Zielrichtung in Form einer Himmelsrichtung an
+        /// </summary>
+        public CardinalDirection BestDirectionCardinal { get; internal set; } = CardinalDirection.None
+
+        /// <summary>
         /// Erfragt die Zelle, die von der aktuellen Zelle ausgehend am angegebenen Offset liegt
         /// </summary>
         /// <param name="offsetX">Offset in X-Richtung</param>
@@ -62,7 +72,6 @@ namespace KWEngine3.Helper
             }
         }
 
-        internal Vector3 BestDirection { get; set; }
         internal Vector2i _gridIndex;
 
         internal uint BestCost
