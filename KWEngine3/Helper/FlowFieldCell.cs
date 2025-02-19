@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using KWEngine3.GameObjects;
+using OpenTK.Mathematics;
 
 namespace KWEngine3.Helper
 {
@@ -70,6 +71,104 @@ namespace KWEngine3.Helper
             {
                 _cost = value;
             }
+        }
+
+        /// <summary>
+        /// Prüft anhand der XZ-Achsen, ob ein Objekt ansatzweise innerhalb der Zelle liegt
+        /// </summary>
+        /// <param name="g">zu prüfendes Objekt</param>
+        /// <param name="partial">wenn true, zählen auch teilweise enthaltene Objekte (Standard: true)</param>
+        /// <returns>true, wenn das Objekt im Feld liegt</returns>
+        public bool ContainsXZ(GameObject g, bool partial = true)
+        {
+            float cellLeft = Position.X - Parent.CellRadius;
+            float cellRight = Position.X + Parent.CellRadius;
+            float cellBack = Position.Z - Parent.CellRadius;
+            float cellFront = Position.Z + Parent.CellRadius;
+
+            if (partial)
+            {
+                bool overlapX = ((cellLeft <= g.AABBLeft && cellRight >= g.AABBLeft) || (cellLeft <= g.AABBRight && cellRight >= g.AABBRight) || (cellLeft <= g.AABBLeft && cellRight >= g.AABBRight) || (cellLeft >= g.AABBLeft && cellRight <= g.AABBRight));
+                if (overlapX)
+                {
+                    bool overlapZ = ((cellBack <= g.AABBBack && cellFront >= g.AABBBack) || (cellFront >= g.AABBFront && cellBack <= g.AABBFront) || (cellFront >= g.AABBFront && cellBack <= g.AABBBack) || (cellFront <= g.AABBFront && cellBack >= g.AABBBack));
+                    return overlapZ;
+                }
+            }
+            else
+            {
+                bool overlapX = (g.AABBRight >= cellLeft && g.AABBRight <= cellRight) || (g.AABBLeft >= cellLeft && g.AABBLeft <= cellRight);
+                if (overlapX)
+                {
+                    bool overlapZ = (g.AABBFront >= cellBack && g.AABBFront <= cellFront) || (g.AABBBack >= cellBack && g.AABBBack <= cellFront);
+                    return overlapZ;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Prüft anhand der XZ-Achsen, ob eine Position innerhalb der Zelle liegt
+        /// </summary>
+        /// <param name="position">zu prüfende Position</param>
+        /// <returns>true, wenn die Position im Feld liegt</returns>
+        public bool ContainsXZ(Vector3 position)
+        {
+            float cellLeft = Position.X - Parent.CellRadius;
+            float cellRight = Position.X + Parent.CellRadius;
+            float cellBack = Position.Z - Parent.CellRadius;
+            float cellFront = Position.Z + Parent.CellRadius;
+            bool overlapX = (position.X >= cellLeft && position.X <= cellRight);
+            if (overlapX)
+            {
+                bool overlapZ = (position.Z >= cellBack && position.Z <= cellFront);
+                return overlapZ;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Prüft, ob ein Objekt ansatzweise innerhalb der Zelle liegt
+        /// </summary>
+        /// <param name="g">zu prüfendes Objekt</param>
+        /// <param name="partial">wenn true, zählen auch teilweise enthaltene Objekte (Standard: true)</param>
+        /// <returns>true, wenn das Objekt im Feld liegt</returns>
+        public bool Contains(GameObject g, bool partial = true)
+        {
+            if (partial)
+            {
+                bool overlapY = ((Parent._fftop >= g.AABBHigh && Parent._ffbottom <= g.AABBHigh) || (Parent._fftop >= g.AABBLow && Parent._ffbottom <= g.AABBLow) || (Parent._fftop >= g.AABBHigh && Parent._ffbottom <= g.AABBLow) || (Parent._fftop <= g.AABBHigh && Parent._ffbottom >= g.AABBLow));
+                if (overlapY)
+                {
+                    return ContainsXZ(g, partial);
+                }
+            }
+            else
+            {
+                bool overlapY = (g.AABBHigh >= Parent._ffbottom && g.AABBHigh <= Parent._fftop) || (g.AABBLow <= Parent._fftop && g.AABBLow >= Parent._ffbottom) || (g.AABBLow <= Parent._ffbottom && g.AABBHigh >= Parent._fftop);
+                if (overlapY)
+                {
+                    return ContainsXZ(g, partial);
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Prüft, ob eine Position innerhalb der Zelle liegt
+        /// </summary>
+        /// <param name="position">zu prüfende Position</param>
+        /// <returns>true, wenn die Position im Feld liegt</returns>
+        public bool Contains(Vector3 position)
+        {
+
+            bool overlapY = (position.Y >= Parent._ffbottom && position.Y <= Parent._fftop);
+            if (overlapY)
+            {
+                return ContainsXZ(position);
+            }
+            return false;
         }
 
         internal Vector2i _gridIndex;

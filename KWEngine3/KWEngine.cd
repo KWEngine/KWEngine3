@@ -448,7 +448,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.TextObject">
-    <Position X="18.5" Y="7" Width="2.75" />
+    <Position X="24.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_fontFace" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -596,7 +596,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowField">
-    <Position X="18.5" Y="14.75" Width="2.75" />
+    <Position X="18.5" Y="6.75" Width="2.75" />
     <Members>
       <Field Name="_allowedDirections" Hidden="true" />
       <Field Name="_cellDiametre" Hidden="true" />
@@ -696,20 +696,19 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowFieldCell">
-    <Position X="18.5" Y="20.5" Width="2.75" />
+    <Position X="18.5" Y="12.5" Width="2.75" />
     <Members>
       <Field Name="_bestCost" Hidden="true" />
       <Field Name="_cost" Hidden="true" />
       <Field Name="_gridIndex" Hidden="true" />
       <Property Name="BestCost" Hidden="true" />
-      <Property Name="BestDirection" Hidden="true" />
       <Method Name="FlowFieldCell" Hidden="true" />
       <Property Name="Parent" Hidden="true" />
       <Method Name="SetCostTo" Hidden="true" />
       <Method Name="SetPosition" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ACAAAAAAACBAIAAgAAAAQBgAAAAAAgABAEEAAAAAAgA=</HashCode>
+      <HashCode>ACAAAAAAAGBAIAAgAAAAQBgAAAAAAgABAEEAAAAQAgA=</HashCode>
       <FileName>Helper\FlowFieldCell.cs</FileName>
     </TypeIdentifier>
   </Class>
