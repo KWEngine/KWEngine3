@@ -97,10 +97,10 @@ namespace KWEngine3.Helper
             }
             else
             {
-                bool overlapX = (g.AABBRight >= cellLeft && g.AABBRight <= cellRight) || (g.AABBLeft >= cellLeft && g.AABBLeft <= cellRight);
+                bool overlapX = (g.AABBLeft >= cellLeft && g.AABBRight <= cellRight);
                 if (overlapX)
                 {
-                    bool overlapZ = (g.AABBFront >= cellBack && g.AABBFront <= cellFront) || (g.AABBBack >= cellBack && g.AABBBack <= cellFront);
+                    bool overlapZ = (g.AABBBack >= cellBack && g.AABBFront <= cellFront);
                     return overlapZ;
                 }
             }
