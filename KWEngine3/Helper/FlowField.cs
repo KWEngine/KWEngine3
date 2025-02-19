@@ -279,7 +279,7 @@ namespace KWEngine3.Helper
         /// Gibt die bestmögliche Bewegungsrichtung gemäß der aktuellen Position zurück
         /// </summary>
         /// <param name="position">aktuelle Position</param>
-        /// <returns>bestmögliche Bewegungsrichtung</returns>
+        /// <returns>bestmögliche Bewegungsrichtung für die gegebene Position</returns>
         public Vector3 GetBestDirectionForPosition(Vector3 position)
         {
             if (Destination != null)
@@ -295,6 +295,28 @@ namespace KWEngine3.Helper
                 }                  
             }
             return Vector3.Zero;
+        }
+
+        /// <summary>
+        /// Gibt die bestmögliche Bewegungsrichtung als Himmelsrichtung gemäß der aktuellen Position zurück
+        /// </summary>
+        /// <param name="position">aktuelle Position</param>
+        /// <returns>bestmögliche Himmelsrichtung für die gegebene Position</returns>
+        public CardinalDirection GetBestCardinalDirectionForPosition(Vector3 position)
+        {
+            if (Destination != null)
+            {
+                FlowFieldCell result = GetCellFromWorldPosition(position);
+                if (result != Destination)
+                {
+                    return result.BestDirectionCardinal;
+                }
+                else
+                {
+                    return CardinalDirection.None;
+                }
+            }
+            return CardinalDirection.None;
         }
 
         /// <summary>
@@ -571,6 +593,7 @@ namespace KWEngine3.Helper
                     {
                         bestCost = currentNeighbour.BestCost;
                         currentCell.BestDirection = FlowFieldCellDirection.GetDirectionFromVector2i(currentNeighbour._gridIndex - currentCell._gridIndex, _allowedDirections);
+                        currentCell.BestDirectionCardinal = HelperFlowField.GetCardinalDirectionForVector3(currentCell.BestDirection);
                     }
                 }
             }

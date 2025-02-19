@@ -624,6 +624,34 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Misst die Distanz zu einem Punkt entlang der XZ-Ebene
+        /// </summary>
+        /// <param name="position">Zielpunkt</param>
+        /// <param name="absolute">wenn true, wird die Position-Eigenschaft der Instanz verwendet, andernfalls die Hitbox-Mitte</param>
+        /// <returns>Distanz entlang der XZ-Ebene</returns>
+        public float GetDistanceToXZ(Vector3 position, bool absolute = true)
+        {
+            if (absolute)
+                return (new Vector3(Position.X, 0, Position.Z) - new Vector3(position.X, 0, position.Z)).LengthFast;
+            else
+                return (new Vector3(Center.X, 0, Center.Z) - new Vector3(position.X, 0, position.Z)).LengthFast;
+        }
+
+        /// <summary>
+        /// Misst die Distanz zu einem GameObject entlang der XZ-Ebene
+        /// </summary>
+        /// <param name="g">GameObject-Instanz</param>
+        /// <param name="absolute">wenn true, wird die Position-Eigenschaft der Instanz verwendet, andernfalls die Hitbox-Mitte</param>
+        /// <returns>Distanz entlang der XZ-Ebene</returns>
+        public float GetDistanceToXZ(GameObject g, bool absolute = true)
+        {
+            if (absolute)
+                return (new Vector3(Position.X, 0, Position.Z) - new Vector3(g.Position.X, 0, g.Position.Z)).LengthFast;
+            else
+                return (new Vector3(Center.X, 0, Center.Z) - new Vector3(g.Center.X, 0, g.Center.Z)).LengthFast;
+        }
+
+        /// <summary>
         /// Verweis auf die Keyboard-Aktivitäten
         /// </summary>
         public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }

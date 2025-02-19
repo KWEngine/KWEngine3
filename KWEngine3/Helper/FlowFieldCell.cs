@@ -29,7 +29,7 @@ namespace KWEngine3.Helper
         /// <summary>
         /// Gibt die aktuelle Zielrichtung in Form einer Himmelsrichtung an
         /// </summary>
-        public CardinalDirection BestDirectionCardinal { get; internal set; } = CardinalDirection.None
+        public CardinalDirection BestDirectionCardinal { get; internal set; } = CardinalDirection.None;
 
         /// <summary>
         /// Erfragt die Zelle, die von der aktuellen Zelle ausgehend am angegebenen Offset liegt

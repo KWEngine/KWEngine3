@@ -1,10 +1,4 @@
-﻿using KWEngine3.GameObjects;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using OpenTK.Mathematics;
 
 namespace KWEngine3.Helper
 {
@@ -69,6 +63,47 @@ namespace KWEngine3.Helper
                 Cost = ffc.Cost
             };
             return copy;
+        }
+
+        internal static CardinalDirection GetCardinalDirectionForVector3(Vector3 dir)
+        {
+            if (dir.X > 0.9f)
+            {
+                return CardinalDirection.East;
+            }
+            else if (dir.X < -0.9f)
+            {
+                return CardinalDirection.West;
+            }
+            else if (dir.Z > 0.9f)
+            {
+                return CardinalDirection.South;
+            }
+            else if (dir.Z < -0.9f)
+            {
+                return CardinalDirection.North;
+
+            }
+            else if (dir.X > 0.7f && dir.X < 0.8f)
+            {
+                // northeast or southeast?
+                if (dir.Z > 0)
+                    return CardinalDirection.SouthEast;
+                else
+                    return CardinalDirection.NorthEast;
+            }
+            else if (dir.X < -0.7f && dir.X > -0.8f)
+            {
+                // northwest or southwest?
+                if (dir.Z > 0)
+                    return CardinalDirection.SouthWest;
+                else
+                    return CardinalDirection.NorthWest;
+            }
+            else
+            {
+                return CardinalDirection.None;
+            }
         }
     }
 }
