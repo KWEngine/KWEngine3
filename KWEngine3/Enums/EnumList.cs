@@ -256,6 +256,21 @@
     }
 
     /// <summary>
+    /// Gibt an, welche Richtungen die Flowfield-Instanz bei der Berechnung des kürzesten Wegs verwenden darf (Standard: CardinalAndIntercardinalDirections)
+    /// </summary>
+    public enum FlowFieldDirections
+    {
+        /// <summary>
+        /// Es werden lediglich die Richtungen Nord, Ost, Süd und West verwendet
+        /// </summary>
+        CardinalDirections = 0,
+        /// <summary>
+        /// Es werden die Richtungen Nord, Nordost, Ost, Südost, Süd, Südwest, West, Nordwest verwendet
+        /// </summary>
+        CardinalAndIntercardinalDirections = 1
+    }
+
+    /// <summary>
     /// Modus, der bestimmt, wie genau das FlowField Hindernisse erkennt (Standard: Simple)
     /// </summary>
     public enum FlowFieldMode

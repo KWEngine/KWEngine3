@@ -20,6 +20,12 @@ namespace KWEngine3.Helper
         public string Name { get; set; } = "undefined FlowField name";
 
         /// <summary>
+        /// Erfragt oder setzt, ob beim Scan nach Objekten auch die Objekte zählen, die sich eine Kante mit einer Flowfield-Zelle teilen (Standard: true)
+        /// </summary>
+        /// <remarks>Wenn false, muss die Hitbox eines Objekts vollständig in einer Zelle eingeschlossen sein</remarks>
+        public bool AllowPartialNesting { get; set; } = true;
+
+        /// <summary>
         /// Anzahl der Zellen im Feld (in allen drei Dimensionen, wobei nur X- und Z-Dimension zählen)
         /// </summary>
         public Vector3i GridCellCount { get; internal set; }
@@ -45,6 +51,26 @@ namespace KWEngine3.Helper
         /// Messmodus für die Erstellung der Streckenkosten (Simple oder Box)
         /// </summary>
         public FlowFieldMode Mode { get; internal set; }
+
+        /// <summary>
+        /// Gibt an, welche Richtungsanweisungen vom Flowfield ausgegeben werden (Standard: CardinalAndIntercardinalDirections)
+        /// </summary>
+        public FlowFieldDirections AllowedDirections { get { return _allowedDirections; } }
+
+        /// <summary>
+        /// Erzeugt ein FlowField für die angegebenen GameObject-Typen
+        /// </summary>
+        /// <param name="cellCountX">Anzahl Zellen in X-Richtung</param>
+        /// <param name="cellCountZ">Anzahl Zellen in Z-Richtung</param>
+        /// <param name="cellRadius">Radius je Zelle</param>
+        /// <param name="fieldHeight">Höhe des Felds</param>
+        /// <param name="mode">Genauigkeit bei der Messung der Hindernisse (Simple oder Box)</param>
+        /// <param name="types">Liste der Klassen, die das FlowField scannen soll</param>
+        public FlowField(int cellCountX, int cellCountZ, float cellRadius, int fieldHeight, FlowFieldMode mode, params Type[] types)
+            : this(new Vector3(0f, 0f, 0f), cellCountX, cellCountZ, cellRadius, fieldHeight, mode, types)
+        {
+
+        }
 
         /// <summary>
         /// Erzeugt ein FlowField für die angegebenen GameObject-Typen
@@ -80,6 +106,7 @@ namespace KWEngine3.Helper
             Mode = mode;
             IsVisible = false;
             Center = center;
+            _allowedDirections = FlowFieldDirections.CardinalAndIntercardinalDirections;
             GridCellCount = new Vector3i(MathHelper.Max(Math.Abs(cellCountX), 4), MathHelper.Max(Math.Abs(fieldHeight), 1), MathHelper.Max(Math.Abs(cellCountZ), 4));
             if (GridCellCount.X % 2 != 0)
             {
@@ -314,6 +341,19 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Setzt die vom Flowfield zu verwendenden Himmelsrichtungen (Standard: CardinalAndIntercardinal)
+        /// </summary>
+        /// <param name="directions">Zu verwendende Richtungen</param>
+        public void SetAllowedDirections(FlowFieldDirections directions)
+        {
+            if(_allowedDirections != directions)
+            {
+                _allowedDirections = directions;
+                Update();
+            }
+        }
+
+        /// <summary>
         /// Gibt an, ob derzeit ein Zielpunkt im FlowField gesetzt ist
         /// </summary>
         public bool HasTarget
@@ -484,11 +524,31 @@ namespace KWEngine3.Helper
 
         internal bool OverlapsXZ(FlowFieldHitbox cell, float left, float right, float back, float front)
         {
-            bool overlapX = ((cell._left <= left && cell._right >= left) || (cell._left <= right && cell._right >= right) || (cell._left <= left && cell._right >= right) || (cell._left >= left && cell._right <= right));
-            if (overlapX)
+            if (AllowPartialNesting)
             {
-                bool overlapZ = ((cell._back <= back && cell._front >= back) || (cell._front >= front && cell._back <= front) || (cell._front >= front && cell._back <= back) || (cell._front <= front && cell._back >= back));
-                return overlapZ;
+                bool overlapX = (cell._left <= left && cell._right >= left) || (cell._left <= right && cell._right >= right) || (cell._left <= left && cell._right >= right) || (cell._left >= left && cell._right <= right);
+                if (overlapX)
+                {
+                    bool overlapZ = (cell._back <= back && cell._front >= back) || (cell._front >= front && cell._back <= front) || (cell._front >= front && cell._back <= back) || (cell._front <= front && cell._back >= back);
+                    return overlapZ;
+                }
+            }
+            else
+            {
+                bool overlapX = 
+                    (cell._left < left && cell._right > left)   || 
+                    (cell._left < right && cell._right > right) || 
+                    (cell._left <= left && cell._right >= right)|| 
+                    (cell._left >= left && cell._right <= right);
+                if (overlapX)
+                {
+                    bool overlapZ = 
+                        (cell._front > back && cell._back < back)    || 
+                        (cell._front > front && cell._back < front)  || 
+                        (cell._front >= front && cell._back <= back) || 
+                        (cell._front <= front && cell._back >= back);
+                    return overlapZ;
+                }
             }
             return false;
         }
@@ -503,14 +563,14 @@ namespace KWEngine3.Helper
         {
             foreach (FlowFieldCell currentCell in Grid)
             {
-                List<FlowFieldCell> currentNeighbours = GetNeighbourCells(currentCell._gridIndex, FlowFieldCellDirection.AllDirections);
+                List<FlowFieldCell> currentNeighbours = GetNeighbourCells(currentCell._gridIndex, _allowedDirections == FlowFieldDirections.CardinalAndIntercardinalDirections ? FlowFieldCellDirection.CardinalIntercardinalDirections : FlowFieldCellDirection.CardinalDirections);
                 uint bestCost = currentCell.BestCost;
                 foreach (FlowFieldCell currentNeighbour in currentNeighbours)
                 {
                     if (currentNeighbour.BestCost < bestCost)
                     {
                         bestCost = currentNeighbour.BestCost;
-                        currentCell.BestDirection = FlowFieldCellDirection.GetDirectionFromVector2i(currentNeighbour._gridIndex - currentCell._gridIndex);
+                        currentCell.BestDirection = FlowFieldCellDirection.GetDirectionFromVector2i(currentNeighbour._gridIndex - currentCell._gridIndex, _allowedDirections);
                     }
                 }
             }
@@ -595,7 +655,7 @@ namespace KWEngine3.Helper
         internal void SetTargetAfterRepositioning()
         {
             Update();
-            bool contains = this.Contains(_target.Xyz);
+            bool contains = Contains(_target.Xyz);
             if (!contains)
             {
                 UnsetTarget();
@@ -623,6 +683,7 @@ namespace KWEngine3.Helper
         internal float _fffront; 
         internal float _fftop;   
         internal float _ffbottom;
+        internal FlowFieldDirections _allowedDirections = FlowFieldDirections.CardinalAndIntercardinalDirections;
         #endregion
     }
 }

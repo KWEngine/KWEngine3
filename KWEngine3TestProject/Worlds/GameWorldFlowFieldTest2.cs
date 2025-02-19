@@ -35,6 +35,7 @@ namespace KWEngine3TestProject.Worlds
             Impassable test = new Impassable();
             test.SetScale(4, 1, 2);
             test.SetColor(1, 1, 1);
+            test.SetPosition(0, 0.5f, -2);
             test.FlowFieldCost = 255;
             test.IsCollisionObject = true;
             AddGameObject(test);
@@ -42,7 +43,7 @@ namespace KWEngine3TestProject.Worlds
             Impassable i2 = new Impassable();
             i2.SetScale(4, 1, 2);
             i2.SetColor(1, 1, 1);
-            i2.SetPosition(0, 0, 4);
+            i2.SetPosition(0, 0, 3);
             i2.FlowFieldCost = 255;
             i2.IsCollisionObject = true;
             AddGameObject(i2);
@@ -67,9 +68,11 @@ namespace KWEngine3TestProject.Worlds
             floor.SetColor(0, 1, 1);
             AddGameObject(floor);
 
-            FlowField f = new FlowField(0, 0, 0, 10, 8, 0.5f, 1, FlowFieldMode.Simple, typeof(Impassable));
+            FlowField f = new FlowField(10, 8, 0.5f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f.IsVisible = true;
-            SetFlowField(f);
+            f.AllowPartialNesting = false;
+            f.SetAllowedDirections(FlowFieldDirections.CardinalDirections);
+            AddFlowField(f);
         }
     }
 }

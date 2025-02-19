@@ -167,7 +167,7 @@ namespace KWEngine3TestProject.Worlds
             FlowField flowField = new FlowField(15f, 1.5f, -1.5f, 17, 27, 0.25f, 1, FlowFieldMode.Box, typeof(Immovable));
             flowField.IsVisible = false;
             flowField.Update();
-            SetFlowField(flowField);
+            AddFlowField(flowField);
 
             /*
             InstancedObjectTest itt = new InstancedObjectTest();

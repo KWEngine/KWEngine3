@@ -598,6 +598,7 @@
   <Class Name="KWEngine3.Helper.FlowField">
     <Position X="18.5" Y="14.75" Width="2.75" />
     <Members>
+      <Field Name="_allowedDirections" Hidden="true" />
       <Field Name="_cellDiametre" Hidden="true" />
       <Field Name="_ffback" Hidden="true" />
       <Field Name="_ffbottom" Hidden="true" />
@@ -626,7 +627,7 @@
       <Method Name="UpdateGridAndTarget" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQEAhCAAMAEFBQIAgMAigQARAgADhgWSAAAAEAYABI=</HashCode>
+      <HashCode>AUQEAhCAEMIEFBQIAgMAigQARAgIDhgWSQAAAEAYABI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -695,7 +696,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowFieldCell">
-    <Position X="18.5" Y="19.75" Width="2.75" />
+    <Position X="18.5" Y="20.25" Width="2.75" />
     <Members>
       <Field Name="_bestCost" Hidden="true" />
       <Field Name="_cost" Hidden="true" />

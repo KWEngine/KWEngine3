@@ -12,7 +12,7 @@ namespace KWEngine3TestProject.Worlds
         private Vector3 _lastTarget = Vector3.Zero;
         public override void Act()
         {
-            Vector3 cursorPosWorld = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 0);
+            Vector3 cursorPosWorld = HelperIntersection.GetMouseIntersectionPointOnPlane(Plane.XZ, 0.5f);
             /*
             int r = HelperRandom.GetRandomNumber(1, 60);
             if(r == 1)
@@ -56,12 +56,26 @@ namespace KWEngine3TestProject.Worlds
                 
                 if (Keyboard.IsKeyDown(Keys.Left))
                 {
-                    f.SetPosition(f.Center.X - 0.005f, f.Center.Z - 0.005f);
+                    //f.SetPosition(f.Center.X - 0.005f, f.Center.Z - 0.005f);
+                    f.SetPosition(f.Center.X - 0.005f, f.Center.Z);
                     //if (_lastTarget != Vector3.Zero) f.SetTarget(_lastTarget, true);
                 }
                 else if(Keyboard.IsKeyDown(Keys.Right))
                 {
-                    f.SetPosition(f.Center.X + 0.005f, f.Center.Z + 0.005f);
+                    //f.SetPosition(f.Center.X + 0.005f, f.Center.Z + 0.005f);
+                    f.SetPosition(f.Center.X + 0.005f, f.Center.Z);
+                    //if(_lastTarget != Vector3.Zero) f.SetTarget(_lastTarget, true);
+                }
+                if (Keyboard.IsKeyDown(Keys.Up))
+                {
+                    //f.SetPosition(f.Center.X - 0.005f, f.Center.Z - 0.005f);
+                    f.SetPosition(f.Center.X, f.Center.Z - 0.005f);
+                    //if (_lastTarget != Vector3.Zero) f.SetTarget(_lastTarget, true);
+                }
+                else if (Keyboard.IsKeyDown(Keys.Down))
+                {
+                    f.SetPosition(f.Center.X, f.Center.Z + 0.005f);
+                    
                     //if(_lastTarget != Vector3.Zero) f.SetTarget(_lastTarget, true);
                 }
 
@@ -144,6 +158,7 @@ namespace KWEngine3TestProject.Worlds
             Enemy e = new Enemy();
             e.SetModel("KWSphere");
             e.SetPosition(4.5f, 0.5f, 3.5f);
+            e.SetHitboxScale(0.5f);
             e.SetColor(1, 0, 1);
             e.IsCollisionObject = true;
             AddGameObject(e);
@@ -157,7 +172,9 @@ namespace KWEngine3TestProject.Worlds
 
             FlowField f1 = new FlowField(-5f, 0.5f, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));
             f1.Name = "F1";
-            //f1.IsVisible = true;
+            f1.IsVisible = true;
+            f1.AllowPartialNesting = false;
+            f1.SetAllowedDirections(FlowFieldDirections.CardinalDirections);
             AddFlowField(f1);
 
             /*FlowField f2 = new FlowField(5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));

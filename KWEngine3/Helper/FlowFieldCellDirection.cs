@@ -22,9 +22,9 @@ namespace KWEngine3.Helper
             return direction.Vector; 
         }
 
-        public static Vector3 GetDirectionFromVector2i(Vector2i vector)
+        public static Vector3 GetDirectionFromVector2i(Vector2i vector, FlowFieldDirections directions)
         {
-            foreach(FlowFieldCellDirection dir in CardinalIntercardinalDirections)
+            foreach(FlowFieldCellDirection dir in (directions == FlowFieldDirections.CardinalAndIntercardinalDirections ? CardinalIntercardinalDirections : CardinalDirections))
             {
                 if(dir.Vector == vector)
                 {
