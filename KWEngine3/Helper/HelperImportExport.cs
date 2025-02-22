@@ -258,7 +258,7 @@ namespace KWEngine3.Helper
                 HUDObjectText h = new HUDObjectText(sh.Text);
                 h.Name = sh.Name;
                 h.SetPosition(sh.Position[0], sh.Position[1]);
-                h.SetScale(sh.Scale[0], sh.Scale[1]);
+                h.SetScale(sh.Scale[0]);
                 h.IsVisible = sh.IsVisible;
                 h.SetColor(sh.Color[0], sh.Color[1], sh.Color[2]);
                 h.SetOpacity(sh.Color[3]);

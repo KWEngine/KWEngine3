@@ -375,7 +375,8 @@ namespace KWEngine3
             RendererGlyph1.Init();
             RendererGlyph2.Init();
             RendererGlyph3.Init();
-            FontDictionary.Add("Anonymous", HelperGlyph.LoadFontInternal("AnonymousPro-Regular.ttf"));
+            //FontDictionary.Add("Anonymous", HelperGlyph.LoadFontInternal("AnonymousPro-Regular.ttf"));
+            FontDictionary.Add("Anonymous", HelperGlyph.LoadFontInternal("OpenSans.ttf"));
 
             /*
             InitializeFont("anonymous.dds", 0);

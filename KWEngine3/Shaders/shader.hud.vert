@@ -23,7 +23,7 @@ void main()
 	if(uMode == 0) // Text
 	{
 		float offset = 0;
-		vTexture.y = 1.0 - aTexture.y;
+		vTexture.y = aTexture.y;
 		vTexture.x = aTexture.x / letterSize + (uOffsets[gl_InstanceID] / letterSize);
 
 		float left = aPosition.x + 0.5 + gl_InstanceID * uCharacterDistance;
@@ -143,7 +143,7 @@ void main()
 	else if(uMode == 1) // Image
 	{
 		vTexture.x = aTexture.x * uTextureRepeat.x;
-		vTexture.y = 1.0 - aTexture.y * uTextureRepeat.y;
+		vTexture.y = aTexture.y * uTextureRepeat.y;
 		pos = vec4(aPosition, 1.0);
 		vNDC = uViewProjectionMatrix * uModelMatrix * pos;
 		gl_Position = vNDC.xyww; 

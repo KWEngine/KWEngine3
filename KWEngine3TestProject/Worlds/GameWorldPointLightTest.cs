@@ -33,7 +33,7 @@ namespace KWEngine3TestProject.Worlds
             Player p = new Player("Link", -2.5f, 0.0f, -5.0f);            // Gleiches gilt für die Player-Instanz (andere Klasse, ähnliche Konfiguration)
             AddGameObject(p);
 
-            HUDObject GOS = new HUDObjectImage("./Models/GameOverScreen.png");
+            HUDObjectImage GOS = new HUDObjectImage("./Models/GameOverScreen.png");
             GOS.Name = "GameOverScreen";
             GOS.SetPosition(640f, 360f);
             GOS.SetOpacity(0.0f);

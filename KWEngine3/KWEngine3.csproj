@@ -203,6 +203,7 @@
 		<EmbeddedResource Include="Assets\Fonts\AnonymousPro-Regular.ttf" />
 		<EmbeddedResource Include="Assets\Fonts\MajorMonoDisplay-Regular.ttf" />
 		<EmbeddedResource Include="Assets\Fonts\NovaMono-Regular.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\OpenSans.ttf" />
 		<EmbeddedResource Include="Assets\Fonts\XanhMono-Italic.ttf" />
 		<EmbeddedResource Include="Assets\Fonts\XanhMono-Regular.ttf" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox.obj" />
@@ -279,6 +280,8 @@
 		<EmbeddedResource Include="FontGenerator\shaderBlend.vert" />
 		<EmbeddedResource Include="FontGenerator\shaderArc.frag" />
 		<EmbeddedResource Include="FontGenerator\shaderArc.vert" />
+		<EmbeddedResource Include="Shaders\shader.hudtext.frag" />
+		<EmbeddedResource Include="Shaders\shader.hudtext.vert" />
 		<EmbeddedResource Include="Shaders\shader.debugcube.frag">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

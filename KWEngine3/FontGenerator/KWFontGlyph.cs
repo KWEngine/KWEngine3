@@ -2,7 +2,7 @@
 
 namespace KWEngine3.FontGenerator
 {
-    internal struct KWFontGlyph
+    internal class KWFontGlyph
     {
         public bool IsValid { get; internal set; }
         public int VAO_Step1 { get; internal set; }
@@ -11,13 +11,16 @@ namespace KWEngine3.FontGenerator
         public int VBO_Step2 { get; internal set; }
         public float Width { get; internal set; }
         public float Height { get; internal set; }
-        //public float Ascent { get; internal set; }
-        //public float Descent { get; internal set; }
-        public Vector2 UVCoordinate { get; internal set; }
+        public Vector2 UCoordinate { get; internal set; }
         public int VertexCount_Step1 { get; internal set; }
         public int VertexCount_Step2 { get; internal set; }
         public Vector2 Advance { get; internal set; }
         public char CodePoint { get; internal set; }
+
+        public KWFontGlyph()
+        {
+
+        }
 
         public KWFontGlyph(char codepoint, int vao1, int vao2, int vbo1, int vbo2, int count1, int count2, float width, float height, float advanceWidth, float advanceHeight, Vector2 uv)
         {
@@ -30,7 +33,7 @@ namespace KWEngine3.FontGenerator
             VBO_Step2 = vbo2;
             Width = width;
             Height = height;
-            UVCoordinate = uv;
+            UCoordinate = uv;
             Advance = new Vector2(advanceWidth, advanceHeight);
             IsValid = true;
         }
@@ -41,7 +44,8 @@ namespace KWEngine3.FontGenerator
 
         public void UpdateUUNext(float u, float uNext)
         {
-            UVCoordinate = new Vector2(u, uNext);
+            //Console.WriteLine("u: " + u + " | uNext: " + uNext);
+            UCoordinate = new Vector2(u, uNext);
         }
     }
 }

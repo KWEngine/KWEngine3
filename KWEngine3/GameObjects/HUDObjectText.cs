@@ -1,7 +1,6 @@
 ﻿using KWEngine3.FontGenerator;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
-using System.Security.Cryptography;
 
 namespace KWEngine3.GameObjects
 {
@@ -56,7 +55,7 @@ namespace KWEngine3.GameObjects
         public string Text { get { return _text; } }
 
         /// <summary>
-        /// Setzt den Text (maximal 256 Zeichen)
+        /// Setzt den Text (maximal 128 Zeichen)
         /// </summary>
         /// <param name="text">zu setzender Text</param>
         /// <param name="trim">Leerzeichen zu Beginn und am Ende der Zeichenkette werden abgeschnitten (Standardwert: true)</param>
@@ -69,9 +68,9 @@ namespace KWEngine3.GameObjects
                 else
                     _text = text;
 
-                if(_text.Length > 256)
+                if(_text.Length > 128)
                 {
-                    _text = _text.Substring(0, 256);
+                    _text = _text.Substring(0, 128);
                 }
             }
             else
@@ -96,6 +95,18 @@ namespace KWEngine3.GameObjects
         public float CharacterDistanceFactor
         {
             get { return _spread; }
+        }
+
+        /// <summary>
+        /// Setzt die Größe pro Zeichen (in Pixeln)
+        /// </summary>
+        /// <param name="scale">Größe (in Pixeln)</param>
+        public void SetScale(float scale)
+        {
+            _scale.X = HelperGeneral.Clamp(scale, 0.001f, 4096f);
+            _scale.Y = _scale.X;
+            _scale.Z = 1;
+            UpdateMVP();
         }
 
         /// <summary>
@@ -196,7 +207,8 @@ namespace KWEngine3.GameObjects
 
         #region Internals
         internal int _textureId = (int)FontFace.Anonymous;
-        internal int[] _offsets = null;
+        internal float[] _uvOffsets = new float[128 * 2];
+        internal float[] _advances = new float[128];
         internal float _spread = 1f;
         internal string _text = "";
         internal KWFont _font;
@@ -204,18 +216,19 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateOffsetList()
         {
-            _offsets = new int[_text.Length];
-            for (int i = 0; i < _text.Length; i++)
+            for (int i = 0, j = 0; i < _text.Length; i++, j+=2)
             {
-                int offset;
-                if (HelperFont.TextToOffsetDict.TryGetValue(_text[i], out offset))
+                KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
+               
+                _uvOffsets[j + 0] = glyph.UCoordinate.X;
+                _uvOffsets[j + 1] = glyph.UCoordinate.Y;
+
+                if(i < 128 - 1)
                 {
-                    // ;-)
+                    _advances[i + 1] = _advances[i] + glyph.Advance.X + glyph.Width;
                 }
-                else
-                    offset = _text[i] - 32;
-                _offsets[i] = offset;
             }
+
         }
         #endregion
     }

@@ -43,7 +43,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.BuildTerrainModel("T", "./Textures/heightmap.png", 2);
             KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
 
-            HUDObject testBack = new HUDObjectImage();
+            HUDObjectImage testBack = new HUDObjectImage();
             testBack.SetZIndex(-5f);
             testBack.SetPosition(300, 300);
             testBack.SetScale(128, 128);
