@@ -9,16 +9,19 @@ namespace KWEngine3.FontGenerator
     {
         internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°€§²³ÜÖÄüöäß·±";
 
-        internal static void ReadGlyphs(Font f, float scale, ref KWFont kwfont)
+        internal static void ReadGlyphs(Font f, float scale, ref KWFont kwfont, out float widthSum)
         {
             List<KWFontGlyph> glyphlist = new List<KWFontGlyph>();
 
+            widthSum = 0f;
+            ushort mIndex = f.FindGlyphIndex('M');
+            f.GetGlyphHMetrics(mIndex, out int mAdvanceX, out int mBearing);
+            float defaultAdvance = mAdvanceX * scale;
+
             for (int i = 0; i < GLYPHS.Length; i++)
             {
-                char g = GLYPHS[i];
                 if(f.HasGlyph(GLYPHS[i]))
                 {
-                    
                     ushort glyphindex = f.FindGlyphIndex(GLYPHS[i]);
                     List<Vertex> glyphVertices = f.GetGlyphShape(glyphindex);
                     List<float> verticesGL_Step1 = new List<float>();
@@ -123,14 +126,18 @@ namespace KWEngine3.FontGenerator
                             (iy1 - iy0) * scale,
                             advanceWidth * scale,
                             advanceHeight * scale,
-                            new Vector2(0, 0)
+                            new Vector2(0f)
                         );
                     glyphlist.Add(newGlyph);
                     kwfont.Add(GLYPHS[i], newGlyph);
+                    widthSum += advanceWidth * scale;
                 }
                 else
                 {
-                    glyphlist.Add(new KWFontGlyph());
+                    KWFontGlyph defaultGlyph = new KWFontGlyph();
+                    defaultGlyph.UpdateUUNext(defaultAdvance, 0f);
+                    glyphlist.Add(defaultGlyph);
+                    widthSum += defaultAdvance * scale;
                 }
             }
 
@@ -170,14 +177,15 @@ namespace KWEngine3.FontGenerator
             f.GetFontVMetrics(out int ascent, out int descent, out int lineGap);
             kwfont.Ascent = ascent * scale;
             kwfont.Descent = descent * scale;
-            ReadGlyphs(f, scale, ref kwfont);
+            ReadGlyphs(f, scale, ref kwfont, out float fontTextureWidth);
+            f = null;
             if (kwfont.GlyphDict.Count > 0)
             {
-                float advance = 0f;
+                float advanceSum = 0f;
                 for (int i = 0; i < kwfont.GlyphDict.Count; i++)
                 {
-                    kwfont.GlyphDict.ElementAt(i).Value.UpdateUUNext(advance, advance + kwfont.GlyphDict.ElementAt(i).Value.Advance.X);
-                    advance += kwfont.GlyphDict.ElementAt(i).Value.Advance.X;
+                    kwfont.GlyphDict.ElementAt(i).Value.UpdateUUNext(advanceSum / fontTextureWidth, (advanceSum + kwfont.GlyphDict.ElementAt(i).Value.Advance.X) / fontTextureWidth);
+                    advanceSum += kwfont.GlyphDict.ElementAt(i).Value.Advance.X;
                 }
 
                 RenderFontToTexture(kwfont, 256, out int finalTextureId, out int finalTextureByteCount);
@@ -217,19 +225,21 @@ namespace KWEngine3.FontGenerator
             f.GetFontVMetrics(out int ascent, out int descent, out int lineGap);
             kwfont.Ascent = ascent * scale;
             kwfont.Descent = descent * scale;
-            ReadGlyphs(f, scale, ref kwfont);
+            ReadGlyphs(f, scale, ref kwfont, out float fontTextureWidth);
+            f = null;
             if (kwfont.GlyphDict.Count > 0) // TODO: length does not cut it ;-)
             {
-                float advance = 0f;
+                float advanceSum = 0f;
                 for (int i = 0; i < kwfont.GlyphDict.Count; i++)
                 {
-                    kwfont.GlyphDict.ElementAt(i).Value.UpdateUUNext(advance, advance + kwfont.GlyphDict.ElementAt(i).Value.Advance.X);
-                    advance += kwfont.GlyphDict.ElementAt(i).Value.Advance.X;
+                    kwfont.GlyphDict.ElementAt(i).Value.UpdateUUNext(advanceSum / fontTextureWidth, (advanceSum + kwfont.GlyphDict.ElementAt(i).Value.Advance.X) / fontTextureWidth);
+                    advanceSum += kwfont.GlyphDict.ElementAt(i).Value.Advance.X;
                 }
 
                 RenderFontToTexture(kwfont, 256, out int finalTextureId, out int finalTextureByteCount);
                 kwfont.Texture = finalTextureId;
                 kwfont.TextureSize = finalTextureByteCount;
+
                 return kwfont;
             }
             else
@@ -321,9 +331,18 @@ namespace KWEngine3.FontGenerator
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             texture = CreateTexture(w0, h0);
+            byteCount += w0 * h0;
             for(int i = 0; i < textures.Length; i++)
             {
                 CopyTextureIntoMipmapLevel(textures[i], PixelType.UnsignedByte, PixelFormat.Red, PixelInternalFormat.R8, texture, i);
+            }
+            int wmipmap = w0;
+            int hmipmap = h0;
+            while(hmipmap > 1)
+            {
+                wmipmap /= 2;
+                hmipmap /= 2;
+                byteCount += wmipmap * hmipmap;
             }
 
             GL.Viewport(0, 0, KWEngine.Window.Width, KWEngine.Window.Height);
@@ -378,11 +397,17 @@ namespace KWEngine3.FontGenerator
 
             GL.BindTexture(TextureTarget.Texture2D, dst);
             GL.TexImage2D(TextureTarget.Texture2D, dstMipMapLevel, pxFormatInternal, width, height, 0, pxFormat, pxType, imageData);
+            
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
+            if (dstMipMapLevel == 0)
+            {
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            }
+
             GL.BindTexture(TextureTarget.Texture2D, 0);
             imageData = null;
         }

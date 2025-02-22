@@ -119,6 +119,8 @@ namespace KWEngine3.Renderer
             RendererBloomUpsample.Init();
 
             RendererHUD.Init();
+            RendererHUDText.Init();
+
             RendererTerrainGBufferNew.Init();
         }
 

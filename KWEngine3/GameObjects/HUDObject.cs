@@ -1,5 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using KWEngine3.Helper;
+using Assimp;
 
 namespace KWEngine3.GameObjects
 {
@@ -176,28 +177,6 @@ namespace KWEngine3.GameObjects
         public void SetColorEmissiveIntensity(float intensity)
         {
             _glow.W = HelperGeneral.Clamp(intensity, 0, 10);
-        }
-
-        /// <summary>
-        /// Setzt die Größe (bei Text gilt die Größe je Zeichen)
-        /// </summary>
-        /// <param name="width">Breite (gültige Werte zwischen 0.001 und 4096)</param>
-        /// <param name="height">Höhe (gültige Werte zwischen 0.001 und 4096)</param>
-        public void SetScale(float width, float height)
-        {
-            _scale.X = HelperGeneral.Clamp(width, 0.001f, 4096f);
-            _scale.Y = HelperGeneral.Clamp(height, 0.001f, 4096f);
-            _scale.Z = 1;
-            UpdateMVP();
-        }
-
-        /// <summary>
-        /// Setzt die Größe (Breite und Höhe gleichermaßen)
-        /// </summary>
-        /// <param name="scale">Größe der Buchstaben bzw. des Bilds (in Pixeln)</param>
-        public void SetScale(float scale)
-        {
-            SetScale(scale, scale);
         }
 
         /// <summary>

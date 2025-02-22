@@ -86,6 +86,31 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Größe (Breite und Höhe gleichermaßen)
+        /// </summary>
+        /// <param name="scale">Größe des Bilds (in Pixeln)</param>
+        public void SetScale(float scale)
+        {
+            _scale.X = HelperGeneral.Clamp(scale, 0.001f, 4096f);
+            _scale.Y = _scale.X;
+            _scale.Z = 1;
+            UpdateMVP();
+        }
+
+        /// <summary>
+        /// Setzt die Größe des Bildes in Pixeln
+        /// </summary>
+        /// <param name="width">Breite (gültige Werte zwischen 0.001 und 4096)</param>
+        /// <param name="height">Höhe (gültige Werte zwischen 0.001 und 4096)</param>
+        public void SetScale(float width, float height)
+        {
+            _scale.X = HelperGeneral.Clamp(width, 0.001f, 4096f);
+            _scale.Y = HelperGeneral.Clamp(height, 0.001f, 4096f);
+            _scale.Z = 1;
+            UpdateMVP();
+        }
+
+        /// <summary>
         /// Prüft, ob der Mauszeiger über dem Bildobjekt liegt
         /// </summary>
         /// <returns>true, wenn dies der Fall ist</returns>

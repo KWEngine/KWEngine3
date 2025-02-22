@@ -87,9 +87,9 @@ namespace KWEngine3.Renderer
                 {
                     HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
                     if (h._zIndex > -2f)
-                    {
                         break;
-                    }
+                    if (h is HUDObjectText)
+                        continue;
                     Draw(h);
                     index++;
                 }
@@ -101,6 +101,8 @@ namespace KWEngine3.Renderer
                 for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
                 {
                     HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
+                    if (h is HUDObjectText)
+                        continue;
                     Draw(h);
                     index++;
                 }
@@ -231,7 +233,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UOptions, 0);
             GL.Uniform3(UCursorInfo, 0f, 0f, 0f);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
-            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUDNew);
+            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
             GL.BindVertexArray(KWQuad2D_05.VAO);
             if (ho is HUDObjectText)
             {
@@ -255,12 +257,12 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTexture, 0);
             GL.Uniform1(UMode, 0);
             GL.Uniform1(UOptions, 0);
-            GL.Uniform1(UOffsets, ho._offsets.Length, ho._offsets);
-            GL.Uniform1(UOffsetCount, ho._offsets.Length);
+            GL.Uniform1(UOffsets, ho._uvOffsets.Length, ho._uvOffsets);
+            GL.Uniform1(UOffsetCount, ho._uvOffsets.Length);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
             GL.Uniform1(UCharacterWidth, ho._scale.X);
             GL.Uniform1(UCharacterDistance, ho._spread);
-            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._offsets.Length);
+            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._uvOffsets.Length);
           
             if(ho is HUDObjectTextInput)
             {
@@ -291,7 +293,6 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UCharacterDistance, 1f);
 
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-            //GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
         }
 
         internal static int[] _arrayEmptyInt32 = new int[0];

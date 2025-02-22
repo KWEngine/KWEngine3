@@ -27,7 +27,7 @@ namespace KWEngine3TestProject.Worlds
             h = new HUDObjectText("0");
             h.CenterOnScreen();
             h.SetTextAlignment(TextAlignMode.Center);
-            h.SetScale(48, 48);
+            h.SetScale(48);
             AddHUDObject(h);
         }
     }

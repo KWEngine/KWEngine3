@@ -48,6 +48,15 @@ namespace KWEngine3TestProject.Worlds
             {
                 _h1.SetColorEmissiveIntensity(0.0f);
             }
+
+            if(Keyboard.IsKeyDown(Keys.F1))
+            {
+                _h1.SetScale(Math.Min(256, _h1.Scale.X + 1));
+            }
+            else if (Keyboard.IsKeyDown(Keys.F2))
+            {
+                _h1.SetScale(Math.Max(1, _h1.Scale.X - 1));
+            }
             /*
             if (_h2.IsMouseCursorOnMe())
             {
@@ -103,13 +112,13 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            _h1 = new HUDObjectText("LeftPlus1");
-            _h1.SetPosition(64, 256 + 48 * 0);
+            _h1 = new HUDObjectText("Dies ist ein Test!");
+            _h1.SetPosition(0, KWEngine.Window.Height / 2);
             _h1.SetCharacterDistanceFactor(1f);
             _h1.SetTextAlignment(TextAlignMode.Left);
             _h1.SetColorEmissive(1, 0, 1);
             _h1.SetColorEmissiveIntensity(0);
-            _h1.SetScale(16, 16);
+            _h1.SetScale(128);
             AddHUDObject(_h1);
             /*
             _h2 = new HUDObjectText("LeftMinus2");
@@ -158,7 +167,7 @@ namespace KWEngine3TestProject.Worlds
             AddHUDObject(_h6);
             */
             _hCrosshair = new HUDObjectImage();
-            _hCrosshair.SetPosition(768, 196);
+            _hCrosshair.SetPosition(768, 32);
             _hCrosshair.SetTexture(@".\Textures\fx_boom.png");
             _hCrosshair.SetScale(64, 64);
             _hCrosshair.SetColorEmissive(1, 1, 0);

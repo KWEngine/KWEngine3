@@ -45,7 +45,6 @@ namespace KWEngine3
 
         // other:
         internal Matrix4 _viewProjectionMatrixHUD;
-        internal Matrix4 _viewProjectionMatrixHUDNew;
         internal KWBuilderOverlay Overlay { get; set; }
         internal Stopwatch _stopwatch = new();
 
@@ -290,8 +289,7 @@ namespace KWEngine3
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
 
             Overlay.WindowResized(ClientSize.X, ClientSize.Y);
-            _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographic(ClientSize.X, ClientSize.Y, 0.1f, 100f);
-            _viewProjectionMatrixHUDNew = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0, ClientSize.X, ClientSize.Y, 0, 0.1f, 100f);
+            _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0f, ClientSize.X, ClientSize.Y, 0f , 0.01f, 10f);
         }
 
         /// <summary>
@@ -555,6 +553,10 @@ namespace KWEngine3
 
             // HUD objects second pass:
             RendererHUD.RenderHUDObjects(hudrenderindex, false);
+
+            RendererHUDText.Bind();
+            RendererHUDText.SetGlobals();
+            RendererHUDText.RenderHUDObjectTexts();
 
             GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.DepthTest);
@@ -838,7 +840,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.IsPrepared = true;
             _mouseDeltaToUse = Vector2.Zero;
 
-            HelperGeneral.FlushAndFinish();
+            //HelperGeneral.FlushAndFinish();  // TODO: why exception?
 
             HelperSweepAndPrune.StartThread();
             HelperFlowField.StartThread();
