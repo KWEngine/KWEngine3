@@ -3,8 +3,6 @@
     internal class KWFont
     {
         public bool IsValid { get; internal set; }
-        public float Ascent { get; internal set; }
-        public float Descent { get; internal set; }
         public Dictionary<char, KWFontGlyph> GlyphDict { get; internal set; }
         public int Texture { get; internal set; }
         public int TextureSize { get; internal set; }
@@ -25,10 +23,8 @@
         {
             IsValid = false;
             GlyphDict = new();
-            Ascent = 0;
-            Descent = 0;
             Texture = KWEngine.TextureAlpha;
-            TextureSize = 4;
+            TextureSize = 1;
         }
 
         public void Add(char codepoint, KWFontGlyph glyph)

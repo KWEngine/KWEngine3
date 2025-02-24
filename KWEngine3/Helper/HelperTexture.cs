@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using OpenTK.Windowing.Common.Input;
 using SkiaSharp;
 
 namespace KWEngine3.Helper

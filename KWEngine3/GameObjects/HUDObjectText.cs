@@ -208,6 +208,7 @@ namespace KWEngine3.GameObjects
         #region Internals
         internal int _textureId = (int)FontFace.Anonymous;
         internal float[] _uvOffsets = new float[128 * 2];
+        internal float[] _widths = new float[128];
         internal float[] _advances = new float[128];
         internal float _spread = 1f;
         internal string _text = "";
@@ -223,9 +224,11 @@ namespace KWEngine3.GameObjects
                 _uvOffsets[j + 0] = glyph.UCoordinate.X;
                 _uvOffsets[j + 1] = glyph.UCoordinate.Y;
 
+                _widths[i] = glyph.Width;
+
                 if(i < 128 - 1)
                 {
-                    _advances[i + 1] = _advances[i] + glyph.Advance.X + glyph.Width;
+                    _advances[i + 1] = _advances[i] + glyph.Advance;
                 }
             }
 
