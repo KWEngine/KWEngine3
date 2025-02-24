@@ -840,7 +840,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.IsPrepared = true;
             _mouseDeltaToUse = Vector2.Zero;
 
-            //HelperGeneral.FlushAndFinish();  // TODO: why exception?
+            HelperGeneral.FlushAndFinish(); 
 
             HelperSweepAndPrune.StartThread();
             HelperFlowField.StartThread();

@@ -10,6 +10,7 @@ uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
 uniform vec2 uUVOffsetsAndWidths[128];
 uniform float uAdvanceList[128];
+uniform float uWidths[128];
 uniform int uMode;
 uniform int uTextAlign; // 0 = left, 1 = center, 2 = right
  
@@ -21,11 +22,9 @@ bool isLeftVertex()
 
 void main()
 {
-	vec4 pos = vec4(0);
+	vec2 p = aPosition;
 
-	float offset = 0;
-	vTexture.y = 1.0 - aTexture.y;
-	
+	p.x *= uWidths[gl_InstanceID];
 	if(isLeftVertex())
 	{
 		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].x;
@@ -34,12 +33,12 @@ void main()
 	{
 		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].y;
 	}
-	
+	vTexture.y = aTexture.y;
 
-	float left = aPosition.x + 0.5 + uAdvanceList[gl_InstanceID];
-	pos = vec4(aPosition, 0.0, 1.0);
-	pos.x = left;
+	float left = p.x + 0.25 + uAdvanceList[gl_InstanceID] * 1.0;
+	vec4 pos = vec4(left, p.y, 0.0, 1.0);
 
+	float offset = 0;
 	if(uTextAlign == 0) // left
 	{
 		offset = 0.0;

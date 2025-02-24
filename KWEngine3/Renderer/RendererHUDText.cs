@@ -16,8 +16,9 @@ namespace KWEngine3.Renderer
         public static int UTexture { get; private set; } = -1;
         public static int UColorTint { get; private set; } = -1;
         public static int UColorGlow { get; private set; } = -1;
-        public static int UUVOffsetsAndWidths { get; private set; } = -1;
+        public static int UUVOffsets { get; private set; } = -1;
         public static int UAdvanceList { get; private set; } = -1;
+        public static int UWidths { get; private set; } = -1;
         public static int UTextAlign { get; private set; } = -1;
         public static int UCursorInfo { get; private set; } = -1;
         public static int UMode { get; private set; } = -1;
@@ -51,7 +52,8 @@ namespace KWEngine3.Renderer
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UColorGlow = GL.GetUniformLocation(ProgramID, "uColorGlow");
-                UUVOffsetsAndWidths = GL.GetUniformLocation(ProgramID, "uUVOffsetsAndWidths");
+                UUVOffsets = GL.GetUniformLocation(ProgramID, "uUVOffsetsAndWidths");
+                UWidths = GL.GetUniformLocation(ProgramID, "uWidths");
                 UAdvanceList = GL.GetUniformLocation(ProgramID, "uAdvanceList");
                 UTextAlign = GL.GetUniformLocation(ProgramID, "uTextAlign");
                 UMode = GL.GetUniformLocation(ProgramID, "uMode"); // 0 = text, 1 = image, 2 = textInput, etc.
@@ -101,8 +103,9 @@ namespace KWEngine3.Renderer
 
             GL.Uniform1(UMode, 0);
             GL.Uniform1(UOptions, 0);
-            GL.Uniform2(UUVOffsetsAndWidths, ho._uvOffsets.Length / 2, ho._uvOffsets);
-            GL.Uniform1(UAdvanceList, ho._advances.Length, ho._advances);
+            GL.Uniform2(UUVOffsets, ho._text.Length, ho._uvOffsets);
+            GL.Uniform1(UAdvanceList, ho._text.Length, ho._advances);
+            GL.Uniform1(UWidths, ho._text.Length, ho._widths);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._text.Length);
 

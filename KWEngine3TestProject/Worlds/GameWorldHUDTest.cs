@@ -112,7 +112,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            _h1 = new HUDObjectText("Dies ist ein Test!");
+            _h1 = new HUDObjectText("So ein Mist aber auch!");
             _h1.SetPosition(0, KWEngine.Window.Height / 2);
             _h1.SetCharacterDistanceFactor(1f);
             _h1.SetTextAlignment(TextAlignMode.Left);

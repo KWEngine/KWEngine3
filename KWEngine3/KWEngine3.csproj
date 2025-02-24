@@ -99,8 +99,6 @@
 		<None Remove="Assets\Textures\smoke02.dds" />
 		<None Remove="Assets\Textures\smoke03.dds" />
 		<None Remove="Assets\Textures\white.png" />
-		<None Remove="FontGenerator\shaderBlend.frag" />
-		<None Remove="FontGenerator\shaderBlend.vert" />
 		<None Remove="Shaders\shader.background.2d.frag" />
 		<None Remove="Shaders\shader.background.2d.vert" />
 		<None Remove="Shaders\shader.background.skybox.frag" />
@@ -274,12 +272,6 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
-		<EmbeddedResource Include="FontGenerator\shaderOutline.frag" />
-		<EmbeddedResource Include="FontGenerator\shaderOutline.vert" />
-		<EmbeddedResource Include="FontGenerator\shaderBlend.frag" />
-		<EmbeddedResource Include="FontGenerator\shaderBlend.vert" />
-		<EmbeddedResource Include="FontGenerator\shaderArc.frag" />
-		<EmbeddedResource Include="FontGenerator\shaderArc.vert" />
 		<EmbeddedResource Include="Shaders\shader.hudtext.frag" />
 		<EmbeddedResource Include="Shaders\shader.hudtext.vert" />
 		<EmbeddedResource Include="Shaders\shader.debugcube.frag">
@@ -439,8 +431,8 @@
 		<PackageReference Include="AssimpNet" Version="4.1.0" />
 		<PackageReference Include="glTF2Loader" Version="1.0.0" />
 		<PackageReference Include="ImGui.NET" Version="1.89.4" />
-		<PackageReference Include="OpenTK" Version="4.8.0" />
-		<PackageReference Include="SkiaSharp" Version="2.88.3" />
+		<PackageReference Include="OpenTK" Version="4.9.3" />
+		<PackageReference Include="SkiaSharp" Version="3.116.1" />
 	</ItemGroup>
 
 	<ItemGroup>

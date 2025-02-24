@@ -1,11 +1,116 @@
-﻿using OpenTK.Mathematics;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Text;
 
 namespace KWEngine3.FontGenerator
 {
+    internal class GlyphBitmap
+    {
+        public readonly int Width;
+        public readonly int Height;
+        public readonly bool IsSvg;
+        public readonly byte[] Pixels; // Stores RGBA data
+
+        public GlyphBitmap(int width, int height, bool isSvg, Color backgroundColor)
+        {
+            Width = width;
+            Height = height;
+            IsSvg = isSvg;
+            Pixels = new byte[width * height * 4]; // 4 bytes per pixel (RGBA)
+            for (int i = 0; i < Pixels.Length; i += 4)
+            {
+                Pixels[i] = (byte)backgroundColor.R;
+                Pixels[i + 1] = (byte)backgroundColor.G;
+                Pixels[i + 2] = (byte)backgroundColor.B;
+                Pixels[i + 3] = (byte)backgroundColor.A;
+            }
+        }
+
+        public GlyphBitmap(int width, int height, bool isSvg)
+        {
+            Width = width;
+            Height = height;
+            Pixels = new byte[width * height * 4];
+            IsSvg = isSvg;
+        }
+
+
+        public GlyphBitmap(int width, int height, byte[] pixels, bool isSvg)
+        {
+            Width = width;
+            Height = height;
+            Pixels = pixels;
+            IsSvg = isSvg;
+        }
+
+        public void DrawRectangle(int x, int y, int width, int height, Color color)
+        {
+            for (int j = y; j < y + height; j++)
+            {
+                for (int i = x; i < x + width; i++)
+                {
+                    if (i < 0 || j < 0 || i >= Width || j >= Height)
+                        continue;
+
+                    int ofs = (i + j * Width) * 4;
+                    Pixels[ofs] = (byte)color.R;
+                    Pixels[ofs + 1] = (byte)color.G;
+                    Pixels[ofs + 2] = (byte)color.B;
+                    Pixels[ofs + 3] = (byte)color.A;
+                }
+            }
+        }
+
+        // Draw another GlyphBitmap onto this one
+        public void Draw(GlyphBitmap other, int x, int y, Color backgroundColor)
+        {
+            for (int j = 0; j < other.Height; j++)
+            {
+                for (int i = 0; i < other.Width; i++)
+                {
+                    int destX = x + i;
+                    int destY = y + j;
+
+                    if (destX < 0 || destY < 0 || destX >= Width || destY >= Height || i >= other.Width || j >= other.Height)
+                        continue;
+
+                    int srcOfs = (i + j * other.Width) * 4;
+                    int destOfs = (destX + destY * this.Width) * 4;
+
+                    // Extract source and destination colors
+                    byte srcRed = other.Pixels[srcOfs];
+                    byte srcGreen = other.Pixels[srcOfs + 1];
+                    byte srcBlue = other.Pixels[srcOfs + 2];
+                    byte srcAlpha = other.Pixels[srcOfs + 3];
+
+                    byte destRed = Pixels[destOfs];
+                    byte destGreen = Pixels[destOfs + 1];
+                    byte destBlue = Pixels[destOfs + 2];
+                    byte destAlpha = Pixels[destOfs + 3];
+
+                    // Normalize the alpha values (0-255 to 0-1)
+                    float srcAlphaNorm = srcAlpha / 255f;
+                    float destAlphaNorm = destAlpha / 255f;
+
+                    // Blend the source and destination colors based on their alpha values
+                    float outAlphaNorm = srcAlphaNorm + destAlphaNorm * (1 - srcAlphaNorm);
+                    if (outAlphaNorm > 0)
+                    {
+                        Pixels[destOfs] = (byte)((srcRed * srcAlphaNorm + destRed * destAlphaNorm * (1 - srcAlphaNorm)) / outAlphaNorm);
+                        Pixels[destOfs + 1] = (byte)((srcGreen * srcAlphaNorm + destGreen * destAlphaNorm * (1 - srcAlphaNorm)) / outAlphaNorm);
+                        Pixels[destOfs + 2] = (byte)((srcBlue * srcAlphaNorm + destBlue * destAlphaNorm * (1 - srcAlphaNorm)) / outAlphaNorm);
+                    }
+
+                    // Update the destination alpha value
+                    Pixels[destOfs + 3] = (byte)(outAlphaNorm * 255);
+                }
+            }
+        }
+    }
+
     internal class GlyphMetrics
     {
-        public Box2 Bounds { get; internal set; }
+        public RectangleF Bounds { get; set; }
         public int LeftSideBearing { get; internal set; }
         public int TopSideBearing { get; internal set; }
         public int AdvanceWidth { get; internal set; }
@@ -63,7 +168,7 @@ namespace KWEngine3.FontGenerator
         public int direction;
     }
 
-    internal  class Font
+    internal class Font
     {
         private int _glyphCount;
         private byte[] _data;              // pointer to .ttf file
@@ -109,6 +214,10 @@ namespace KWEngine3.FontGenerator
         private const byte VLINE = 2;
         private const byte VCURVE = 3;
         private const byte VCUBIC = 4;
+
+        public delegate Task<GlyphBitmap> SvgRenderCallback(Font font, string svgDoc, char codePoint, int glyph, object userData);
+
+        public SvgRenderCallback SvgRender;
 
         public Font(byte[] bytes, object userData)
         {
@@ -722,6 +831,35 @@ namespace KWEngine3.FontGenerator
             return pixelHeight / fHeight;
         }
 
+        private async Task<GlyphBitmap> GetCodePointBitmap(float scaleX, float scaleY, float shiftX, float shiftY, char codePoint, Color color, Color backgroundColor)
+        {
+            int glyph = FindGlyphIndex(codePoint);
+
+            // Check if the glyph is an SVG
+            if (_svg != 0)
+            {
+                string svgDoc = null;
+
+                if (SvgRender != null && _svgDocuments.TryGetValue(glyph, out svgDoc))
+                {
+                    var ret = await SvgRender(this, svgDoc, codePoint, glyph, _userData);
+
+                    return ret;
+                }
+
+                return new GlyphBitmap(0, 0, true, backgroundColor);
+            }
+
+            var glyphMetrics = await GetGlyphMetrics(codePoint, scaleX, scaleY, shiftX, shiftY);
+            var vertices = GetGlyphShape(glyph);
+
+            // now we get the size
+            var glyphBitmap = new GlyphBitmap((int)glyphMetrics.Bounds.Width, (int)glyphMetrics.Bounds.Height, false, backgroundColor);
+            Rasterize(glyphBitmap, 0.35f, vertices, scaleX, scaleY, shiftX, shiftY, (int)glyphMetrics.Bounds.X, (int)glyphMetrics.Bounds.Y, true, color);
+
+            return glyphBitmap;
+        }
+
         public ushort FindGlyphIndex(char unicodeCodePoint)
         {
             var format = ReadU16(_indexMap);
@@ -903,7 +1041,7 @@ namespace KWEngine3.FontGenerator
             }
         }
 
-        internal List<Vertex> GetGlyphShape(int glyphIndex)
+        private List<Vertex> GetGlyphShape(int glyphIndex)
         {
             var g = GetGlyfOffset(glyphIndex);
 
@@ -1213,8 +1351,183 @@ namespace KWEngine3.FontGenerator
             GetGlyphBoundingBox(FindGlyphIndex(codepoint), scaleX, scaleY, shiftX, shiftY, out ix0, out iy0, out ix1, out iy1);
         }
 
+        // tesselate until threshhold p is happy... TODO warped to compensate for non-linear stretching
+        private void TesselateCurve(List<PointF> points, ref int numPoints, float x0, float y0, float x1, float y1, float x2, float y2, float objspaceFlatnessSquared, int n)
+        //  mx, my, dx, dy: Single;
+        {
+            // midpoint
+            float mx = (x0 + 2f * x1 + x2) / 4f;
+            float my = (y0 + 2f * y1 + y2) / 4f;
+            // versus directly drawn line
+            float dx = (x0 + x2) / 2f - mx;
+            float dy = (y0 + y2) / 2f - my;
+            if (n > 16)// 65536 segments on one curve better be enough!
+                return;
 
-        internal ActiveEdge CreateActiveEdge(Edge edge, int offX, float startPoint)
+            if (dx * dx + dy * dy > objspaceFlatnessSquared)// half-pixel error allowed... need to be smaller if AA
+            {
+                TesselateCurve(points, ref numPoints, x0, y0, (x0 + x1) / 2f, (y0 + y1) / 2f, mx, my, objspaceFlatnessSquared, n + 1);
+                TesselateCurve(points, ref numPoints, mx, my, (x1 + x2) / 2f, (y1 + y2) / 2f, x2, y2, objspaceFlatnessSquared, n + 1);
+            }
+            else
+            {
+                if (points != null)
+                    points.Add(new PointF(x2, y2));
+                numPoints++;
+            }
+        }
+
+        static void TesselateCubic(List<PointF> points, ref int numPoints, float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, float objspaceFlatnessSquared, int n)
+        {
+            // @TODO this "flatness" calculation is just made-up nonsense that seems to work well enough
+            float dx0 = x1 - x0;
+            float dy0 = y1 - y0;
+            float dx1 = x2 - x1;
+            float dy1 = y2 - y1;
+            float dx2 = x3 - x2;
+            float dy2 = y3 - y2;
+            float dx = x3 - x0;
+            float dy = y3 - y0;
+            float longlen = (float)(Math.Sqrt(dx0 * dx0 + dy0 * dy0) + Math.Sqrt(dx1 * dx1 + dy1 * dy1) + Math.Sqrt(dx2 * dx2 + dy2 * dy2));
+            float shortlen = (float)Math.Sqrt(dx * dx + dy * dy);
+            float flatness_squared = longlen * longlen - shortlen * shortlen;
+
+            if (n > 16) // 65536 segments on one curve better be enough!
+                return;
+
+            if (flatness_squared > objspaceFlatnessSquared)
+            {
+                float x01 = (x0 + x1) / 2f;
+                float y01 = (y0 + y1) / 2f;
+                float x12 = (x1 + x2) / 2f;
+                float y12 = (y1 + y2) / 2f;
+                float x23 = (x2 + x3) / 2f;
+                float y23 = (y2 + y3) / 2f;
+
+                float xa = (x01 + x12) / 2f;
+                float ya = (y01 + y12) / 2f;
+                float xb = (x12 + x23) / 2f;
+                float yb = (y12 + y23) / 2f;
+
+                float mx = (xa + xb) / 2f;
+                float my = (ya + yb) / 2f;
+
+                TesselateCubic(points, ref numPoints, x0, y0, x01, y01, xa, ya, mx, my, objspaceFlatnessSquared, n + 1);
+                TesselateCubic(points, ref numPoints, mx, my, xb, yb, x23, y23, x3, y3, objspaceFlatnessSquared, n + 1);
+            }
+            else
+            {
+                if (points != null)
+                    points.Add(new PointF(x3, y3));
+                numPoints++;
+            }
+        }
+
+        // returns number of contours
+        private int FlattenCurves(List<Vertex> vertices, float objSpaceFlatness, out int[] contours, out List<PointF> windings)
+        {
+            float objspaceFlatnessSquared = objSpaceFlatness * objSpaceFlatness;
+            int n = 0;
+
+            // count how many "moves" there are to get the contour count
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                if (vertices[i].vertexType == VMOVE)
+                    n++;
+            }
+
+            int windingCount = n;
+            windings = null;
+            contours = null;
+
+            if (n == 0)
+                return 0;
+
+            int numPoints = 0;
+            int start = 0;
+
+            contours = new int[n];
+
+            // make two passes through the points so we don't need to realloc
+            for (int pass = 0; pass < 2; pass++)
+            {
+                float x = 0;
+                float y = 0;
+                if (pass == 1)
+                {
+                    contours = new int[numPoints * 2];
+                    windings = new List<PointF>(numPoints);
+                }
+
+                numPoints = 0;
+                n = -1;
+
+                for (int i = 0; i < vertices.Count; i++)
+                {
+                    switch (vertices[i].vertexType)
+                    {
+                        case VMOVE:
+                            {
+                                // start the next contour
+                                if (n >= 0)
+                                    contours[n] = numPoints - start;
+                                n++;
+                                start = numPoints;
+
+                                x = vertices[i].x;
+                                y = vertices[i].y;
+                                if (windings != null)
+                                    windings.Add(new PointF(x, y));
+                                numPoints++;
+                                break;
+                            }
+
+                        case VLINE:
+                            {
+                                x = vertices[i].x;
+                                y = vertices[i].y;
+
+                                if (windings != null)
+                                    windings.Add(new PointF(x, y));
+
+                                numPoints++;
+                                break;
+                            }
+
+                        case VCURVE:
+                            {
+                                TesselateCurve(windings, ref numPoints, x, y,
+                                                         vertices[i].cx, vertices[i].cy,
+                                                         vertices[i].x, vertices[i].y,
+                                                         objspaceFlatnessSquared, 0);
+                                x = vertices[i].x;
+                                y = vertices[i].y;
+                                break;
+                            }
+
+                        case VCUBIC:
+                            {
+                                TesselateCubic(windings, ref numPoints, x, y,
+                                                         vertices[i].cx, vertices[i].cy,
+                                                         vertices[i].cx1, vertices[i].cy1,
+                                                         vertices[i].x, vertices[i].y,
+                                                         objspaceFlatnessSquared, 0);
+                                x = vertices[i].x;
+                                y = vertices[i].y;
+                                break;
+                            }
+                        default:
+                            break;
+                    }
+                }
+
+                contours[n] = numPoints - start;
+            }
+
+            return windingCount;
+        }
+
+        private ActiveEdge CreateActiveEdge(Edge edge, int offX, float startPoint)
         {
             var z = new ActiveEdge(); // TODO: make a pool of these!!!
 
@@ -1235,6 +1548,300 @@ namespace KWEngine3.FontGenerator
             return z;
         }
 
+        // note: this routine clips fills that extend off the edges... 
+        // ideally this wouldn't happen, but it could happen if the truetype glyph bounding boxes are wrong, or if the user supplies a too-small bitmap
+        private void FillActiveEdges(byte[] scanline, int len, ActiveEdge e, int maxWeight, Color color)
+        {
+            // non-zero winding fill
+            int x0 = 0;
+            int w = 0;
+            int x1;
+
+            while (e != null)
+            {
+                if (w == 0)
+                {
+                    // if we're currently at zero, we need to record the edge start point
+                    x0 = e.x;
+                    w += e.direction;
+                }
+                else
+                {
+                    x1 = e.x;
+                    w += e.direction;
+
+                    // if we went to zero, we need to draw
+                    if (w == 0)
+                    {
+                        int i = x0 >> FIXSHIFT;
+                        int j = x1 >> FIXSHIFT;
+
+                        if (i < len && j >= 0)
+                        {
+                            if (i == j)
+                            {
+                                // x0,x1 are the same pixel, so compute combined coverage
+                                int coverage = (int)(((x1 - x0) * maxWeight) >> FIXSHIFT);
+                                AddCoverage(scanline, i, coverage, color);
+                            }
+                            else
+                            {
+                                if (i >= 0) // add antialiasing for x0
+                                    AddCoverage(scanline, i, (int)(((FIX - (x0 & FIXMASK)) * maxWeight) >> FIXSHIFT), color);
+                                else
+                                    i = -1; // clip
+
+                                if (j < len) // add antialiasing for x1
+                                    AddCoverage(scanline, j, (int)(((x1 & FIXMASK) * maxWeight) >> FIXSHIFT), color);
+                                else
+                                    j = len; // clip
+
+                                for (++i; i < j; ++i) // fill pixels between x0 and x1
+                                    AddCoverage(scanline, i, maxWeight, color);
+                            }
+                        }
+                    }
+                }
+                e = e.next;
+            }
+        }
+
+        private void AddCoverage(byte[] scanline, int index, int coverage, Color color)
+        {
+            if (index >= 0 && index < scanline.Length / 4)
+            {
+                int offset = index * 4;
+                byte existingAlpha = scanline[offset + 3];
+
+                // Compute the new alpha value with coverage
+                byte newAlpha = (byte)Math.Min(255, existingAlpha + coverage);
+
+                // Set the RGB channels to white (255) when adding coverage
+                scanline[offset] = (byte)color.R;     // Red
+                scanline[offset + 1] = (byte)color.G; // Green
+                scanline[offset + 2] = (byte)color.B; // Blue
+                scanline[offset + 3] = newAlpha; // Alpha
+            }
+        }
+
+        private void RasterizeSortedEdges(GlyphBitmap bitmap, List<Edge> e, int vSubSamples, int offX, int offY, Color color)
+        {
+            int eIndex = 0;
+
+            ActiveEdge active = null;
+            int maxWeight = 255 / vSubSamples;  // weight per vertical scanline
+
+            int y = offY * vSubSamples;
+
+            int n = e.Count - 1;
+            var tempEdge = e[n];
+            tempEdge.y0 = (offY + bitmap.Height) * vSubSamples + 1;
+            e[n] = tempEdge;
+
+            var scanline = new byte[bitmap.Width * 4];
+
+            float scanY = 0;
+
+            int j = 0;
+            while (j < bitmap.Height)
+            {
+                for (int i = 0; i < bitmap.Width * 4; i++)
+                    scanline[i] = 0;
+
+                for (int s = 0; s < vSubSamples; s++)
+                {
+                    // find center of pixel for this scanline
+                    scanY = y + 0.5f;
+
+                    // update all active edges;
+                    // remove all active edges that terminate before the center of this scanline
+                    var step = active;
+                    ActiveEdge prev = null;
+                    while (step != null)
+                    {
+                        if (step.ey <= scanY)
+                        {
+                            // delete from list
+                            if (prev != null)
+                                prev.next = step.next;
+                            else
+                                active = step.next;
+
+                            Debug.Assert(step.direction != 0);
+
+                            step.direction = 0;
+                            step = step.next;
+                        }
+
+                        else
+                        {
+                            step.x += step.dx; // advance to position for current scanline
+
+                            prev = step;
+                            step = step.next; // advance through list
+                        }
+                    }
+
+                    // resort the list if needed
+                    while (true)
+                    {
+                        bool changed = false;
+
+                        step = active;
+                        prev = null;
+                        while (step != null && step.next != null)
+                        {
+                            var prox = step.next;
+                            if (step.x > prox.x)
+                            {
+                                if (prev == null)
+                                    active = prox;
+                                else
+                                    prev.next = prox;
+
+                                step.next = prox.next;
+                                prox.next = step;
+                                Console.WriteLine("Sorted " + step.ey + " with " + prox.ey);
+                                changed = true;
+                            }
+
+                            prev = step;
+                            step = step.next; // advance through list
+                        }
+
+                        if (!changed)
+                            break;
+                    }
+
+                    // insert all edges that start before the center of this scanline -- omit ones that also end on this scanline
+                    while (e[eIndex].y0 <= scanY)
+                    {
+                        if (e[eIndex].y1 > scanY)
+                        {
+                            var z = CreateActiveEdge(e[eIndex], offX, scanY);
+                            // find insertion point
+                            if (active == null)
+                                active = z;
+                            else
+                             if (z.x < active.x) // insert at front
+                            {
+                                z.next = active;
+                                active = z;
+                            }
+                            else
+                            {
+                                // find thing to insert AFTER
+                                var p = active;
+                                while (p.next != null && p.next.x < z.x)
+                                    p = p.next;
+
+                                // at this point, p->next->x is NOT < z->x
+                                z.next = p.next;
+                                p.next = z;
+                            }
+                        }
+
+                        eIndex++;
+                    }
+
+                    // now process all active edges in XOR fashion
+                    if (active != null)
+                        FillActiveEdges(scanline, bitmap.Width, active, maxWeight, color);
+
+                    y++;
+                }
+
+                // Update bitmap pixels from scanline
+                for (int i = 0; i < bitmap.Width; i++)
+                {
+                    int ofs = (i + j * bitmap.Width) * 4;
+                    byte alpha = scanline[i * 4 + 3];
+                    if (alpha > 0) // Optimization: Only update if there's non-zero alpha
+                    {
+                        bitmap.Pixels[ofs] = scanline[i * 4];       // Red
+                        bitmap.Pixels[ofs + 1] = scanline[i * 4 + 1]; // Green
+                        bitmap.Pixels[ofs + 2] = scanline[i * 4 + 2]; // Blue
+                        bitmap.Pixels[ofs + 3] = alpha;              // Alpha
+                    }
+                }
+
+                j++;
+            }
+        }
+
+        private void Rasterize(GlyphBitmap glyphBitmap, float flatnessInPixels, List<Vertex> vertices, float scaleX, float scaleY, float shiftX, float shiftY, int xOff, int yOff, bool invert, Color color)
+        {
+            float scale = scaleX < scaleY ? scaleX : scaleY;
+
+            int[] windingLengths;
+            List<PointF> windings;
+            int windingCount = FlattenCurves(vertices, flatnessInPixels / scale, out windingLengths, out windings);
+            if (windingCount > 0)
+                Rasterize(glyphBitmap, windings, windingLengths, windingCount, scaleX, scaleY, shiftX, shiftY, xOff, yOff, invert, color);
+        }
+
+        private void Rasterize(GlyphBitmap glyphBitmap, List<PointF> points, int[] windings, int windingCount, float scaleX, float scaleY, float shiftX, float shiftY, int xOff, int yOff, bool invert, Color color)
+        {
+            int ptOfs = 0;
+
+            float yScaleInv = invert ? -scaleY : scaleY;
+
+            // this value should divide 255 evenly; otherwise we won't reach full opacity
+            int vSubSamples = (glyphBitmap.Height < 8) ? 15 : 5;
+            var edgeList = new List<Edge>(16);
+            int m = 0;
+
+            for (int i = 0; i < windingCount; i++)
+            {
+                ptOfs = m;
+
+                m += windings[i];
+                int j = windings[i] - 1;
+                int k = 0;
+
+                for (k = 0; k < windings[i]; j = k++)
+                {
+                    int a = k;
+                    int b = j;
+
+                    var en = new Edge();
+
+                    // skip the edge if horizontal
+                    if (points[ptOfs + j].Y == points[ptOfs + k].Y)
+                        continue;
+
+                    // add edge from j to k to the list
+                    en.invert = false;
+
+                    if (invert ? points[ptOfs + j].Y > points[ptOfs + k].Y : points[ptOfs + j].Y < points[ptOfs + k].Y)
+                    {
+                        en.invert = true;
+                        a = j;
+                        b = k;
+                    }
+
+                    en.x0 = points[ptOfs + a].X * scaleX + shiftX;
+                    en.y0 = (points[ptOfs + a].Y * yScaleInv + shiftY) * vSubSamples;
+                    en.x1 = points[ptOfs + b].X * scaleX + shiftX;
+                    en.y1 = (points[ptOfs + b].Y * yScaleInv + shiftY) * vSubSamples;
+
+                    edgeList.Add(en);
+                }
+            }
+
+            points.Clear();
+
+            // now sort the edges by their highest point (should snap to integer, and then by x)
+            edgeList.Sort((a, b) => a.y0.CompareTo(b.y0));
+
+            var temp = new Edge();
+            temp.y0 = 10000000;
+            edgeList.Add(temp);
+
+            // now, traverse the scanlines and find the intersections on each scanline, use xor winding rule
+            RasterizeSortedEdges(glyphBitmap, edgeList, vSubSamples, xOff, yOff, color);
+        }
+
         public int GetKerning(char current, char next, float scale)
         {
             return (int)Math.Floor(GetCodepointKernAdvance(current, next) * scale);
@@ -1246,7 +1853,7 @@ namespace KWEngine3.FontGenerator
             return (p > 0);
         }
 
-        public GlyphMetrics GetGlyphMetrics(char codePoint, float scaleX, float scaleY, float shiftX, float shiftY)
+        public async Task<GlyphMetrics> GetGlyphMetrics(char codePoint, float scaleX, float scaleY, float shiftX, float shiftY)
         {
             GlyphMetrics glyphMetrics = new GlyphMetrics();
 
@@ -1289,9 +1896,33 @@ namespace KWEngine3.FontGenerator
             int w = Math.Max(Math.Abs(ix1 - ix0), 0);
             int h = Math.Max(Math.Abs(iy1 - iy0), 0);
 
-            glyphMetrics.Bounds = (IsSVG() ? new Box2(0, 0, advanceWidth * scaleX, (ascent - descent) * scaleY) : new Box2(x, y, w, h));
+            glyphMetrics.Bounds = (IsSVG() ? new RectangleF(0, 0, advanceWidth * scaleX, (ascent - descent) * scaleY) : new RectangleF(x, y, w, h));
 
             return glyphMetrics;
+        }
+
+        public async Task<GlyphBitmap> RenderGlyph(char codePoint, float scale, Color color, Color backgroundColor)
+        {
+            if (!HasGlyph(codePoint))
+                return new GlyphBitmap(0, 0, false, backgroundColor);
+
+            GlyphBitmap glyphBitmap = null;
+
+            if (codePoint == ' ')
+            {
+                codePoint = '_';
+                _ = await GetCodePointBitmap(scale, scale, 0, 0, codePoint, color, backgroundColor);
+                glyphBitmap = new GlyphBitmap(4, 4, false, backgroundColor);
+            }
+            else
+            {
+                if (char.IsLetter(codePoint))
+                    codePoint = (char.IsUpper(codePoint) ? char.ToUpperInvariant(codePoint) : char.ToLowerInvariant(codePoint));
+
+                glyphBitmap = await GetCodePointBitmap(scale, scale, 0, 0, codePoint, color, backgroundColor);
+            }
+
+            return glyphBitmap;
         }
 
         public string Name
