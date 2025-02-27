@@ -10,6 +10,11 @@ namespace KWEngine3.GameObjects
     public class HUDObjectText : HUDObject
     {
         /// <summary>
+        /// Anzahl der maximal je Instanz gleichzeitig verwendbarer Zeichen
+        /// </summary>
+        public const int MAX_CHARS = 127;
+
+        /// <summary>
         /// Standardkonstruktor der HUDObjectText-Instanz
         /// </summary>
         /// <param name="text">Darzustellender Text (maximal 256 Zeichen)</param>
@@ -56,7 +61,7 @@ namespace KWEngine3.GameObjects
         public string Text { get { return _text; } }
 
         /// <summary>
-        /// Setzt den Text (maximal 128 Zeichen)
+        /// Setzt den Text (maximal 127 Zeichen)
         /// </summary>
         /// <param name="text">zu setzender Text</param>
         /// <param name="trim">Leerzeichen zu Beginn und am Ende der Zeichenkette werden abgeschnitten (Standardwert: true)</param>
@@ -69,9 +74,9 @@ namespace KWEngine3.GameObjects
                 else
                     _text = text;
 
-                if(_text.Length > 128)
+                if(_text.Length > MAX_CHARS + 1)
                 {
-                    _text = _text.Substring(0, 128);
+                    _text = _text.Substring(0, MAX_CHARS + 1);
                 }
             }
             else
@@ -100,12 +105,12 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Größe pro Zeichen (in Pixeln)
+        /// Setzt die Größe pro Zeichen in Pixeln (Standardwert: 32)
         /// </summary>
-        /// <param name="scale">Größe (in Pixeln)</param>
+        /// <param name="scale">Größe (in Pixeln, Maximalwert: 512)</param>
         public void SetScale(float scale)
         {
-            _scale.X = HelperGeneral.Clamp(scale, 0.001f, 4096f);
+            _scale.X = HelperGeneral.Clamp(scale, 0.001f, 512f);
             _scale.Y = _scale.X;
             _scale.Z = 1;
             UpdateOffsetList();
@@ -136,7 +141,7 @@ namespace KWEngine3.GameObjects
             else
             {
                 left = Position.X - _width;
-                right = left - _width;
+                right = left + _width;
                 top = Position.Y - _scale.Y * 0.5f;
                 bottom = Position.Y + _scale.Y * 0.5f;
             }
@@ -171,7 +176,7 @@ namespace KWEngine3.GameObjects
                 else
                 {
                     left = Position.X - _width;
-                    right = left - _width;
+                    right = left + _width;
                     top = Position.Y - _scale.Y * 0.5f;
                     bottom = Position.Y + _scale.Y * 0.5f;
                 }
@@ -182,16 +187,15 @@ namespace KWEngine3.GameObjects
 
         #region Internals
         internal int _textureId = (int)FontFace.Anonymous;
-        internal float[] _uvOffsets = new float[128 * 2];
-        internal float[] _glyphWidths = new float[128];
-        internal float[] _advances = new float[128];
+        internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 2];
+        internal float[] _glyphWidths = new float[MAX_CHARS + 1];
+        internal float[] _advances = new float[MAX_CHARS + 1];
         internal float _spread = 1f;
         internal string _text = "";
         internal KWFont _font;
         internal float _width = 0f;
         internal float _widthNormalised = 0f;
         
-
         internal void UpdateOffsetList()
         {
             KWFontGlyph space = _font.GetGlyphForCodepoint(' ');
@@ -207,16 +211,31 @@ namespace KWEngine3.GameObjects
 
                 _glyphWidths[i] = glyph.Width;
 
-                if(i < 128 - 1)
-                {
-                    _advances[i + 1] = _advances[i] + glyph.Advance - glyph.Bearing + (space.Width * (1 - _spread));
-                }
+                _advances[i + 1] = _advances[i] + glyph.Advance - glyph.Bearing + (space.Width * (_spread - 1f));
             }
+            
             if (_text.Length > 0)
             {
                 _widthNormalised = _advances[_text.Length];
                 _width = _widthNormalised * _scale.X;
             }
+            else
+            {
+                _widthNormalised = 0f;
+                _width = 0f;
+            }
+
+            if(this is HUDObjectTextInput)
+            {
+                (this as HUDObjectTextInput).UpdateCursorOffset();
+            }
+        }
+
+        
+
+        internal static KWFontGlyph GetGlyphForCursor(HUDObjectTextInput ti)
+        {
+            return ti._font.GlyphDict[ti._cursorType == KeyboardCursorType.Pipe ? '|' : ti._cursorType == KeyboardCursorType.Underscore ? '_' : '·'];
         }
         #endregion
     }

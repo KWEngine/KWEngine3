@@ -46,11 +46,13 @@ namespace KWEngine3TestProject.Worlds
             h.SetPosition(200, 100);
             AddHUDObject(h);
 
-            HUDObjectTextInput inputTest = new HUDObjectTextInput("Dies ist ein Test");
+            HUDObjectTextInput inputTest = new HUDObjectTextInput("Dies");
             inputTest.Name = "InputTest";
             inputTest.CursorBehaviour = KeyboardCursorBehaviour.Fade;
-            inputTest.CursorType = KeyboardCursorType.Block;
-            inputTest.SetTextAlignment(TextAlignMode.Right);
+            inputTest.CursorType = KeyboardCursorType.Underscore;
+            inputTest.SetTextAlignment(TextAlignMode.Left);
+            inputTest.SetScale(64);
+            inputTest.SetCharacterDistanceFactor(1);
             //inputTest.CursorPosition = 0;
             inputTest.GetFocus();
             inputTest.CenterOnScreen();

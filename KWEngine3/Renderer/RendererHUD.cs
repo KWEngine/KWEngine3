@@ -235,6 +235,7 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
             GL.BindVertexArray(KWQuad2D_05.VAO);
+            /*
             if (ho is HUDObjectText)
             {
                 DrawText(ho as HUDObjectText);
@@ -243,13 +244,14 @@ namespace KWEngine3.Renderer
             {
                 DrawImage(ho as HUDObjectImage);
             }
-
+            */
+            DrawImage(ho as HUDObjectImage);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.BindVertexArray(0);
         }
 
         
-
+        /*
         internal static void DrawText(HUDObjectText ho)
         {
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -278,6 +280,7 @@ namespace KWEngine3.Renderer
                 }
             }
         }
+        */
 
         internal static void DrawImage(HUDObjectImage ho)
         {

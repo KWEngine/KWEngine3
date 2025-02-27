@@ -4,16 +4,15 @@ layout(location = 0) in vec2 aPosition;
 layout(location = 1) in vec2 aTexture;
 
 out		vec2 vTexture;
-out		vec4 vNDC;
+//out		vec4 vNDC;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
 uniform vec2 uUVOffsetsAndWidths[128];
 uniform float uAdvanceList[128];
 uniform float uWidths[128];
-uniform int uMode;
-uniform int uTextAlign; // 0 = left, 1 = center, 2 = right
- 
+uniform float uOffset;
+uniform vec4 uCursorInfo;
 
 bool isLeftVertex()
 {
@@ -23,8 +22,22 @@ bool isLeftVertex()
 void main()
 {
 	vec2 p = aPosition;
+	float left = 0.0;
 
-	p.x *= uWidths[gl_InstanceID];
+	if(uCursorInfo.x != 0)
+	{
+		p.x *= uWidths[0]; // 0 = width, 1 = cursorAdvance
+		//left = p.x + uWidths[1] + uWidths[0] * 0.5;
+		left = p.x + uWidths[1];
+	}
+	else
+	{
+		p.x *= uWidths[gl_InstanceID];
+		left = p.x + uWidths[gl_InstanceID] * 0.5 + uAdvanceList[gl_InstanceID];
+	}
+	vec4 pos = vec4(left, p.y, 0.0, 1.0);
+	
+
 	if(isLeftVertex())
 	{
 		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].x;
@@ -35,26 +48,7 @@ void main()
 	}
 	vTexture.y = aTexture.y;
 
-	float left = p.x + uWidths[gl_InstanceID] * 0.5 + uAdvanceList[gl_InstanceID] * 1.0;
-	vec4 pos = vec4(left, p.y, 0.0, 1.0);
-
-	float offset = 0;
-	if(uTextAlign == 0) // left
-	{
-		offset = 0.0;
-	}
-	else if(uTextAlign == 1) // center
-	{
-		
-	}
-	else // right
-	{
-
-	}
-
-	pos.x += offset;
-	vNDC = uViewProjectionMatrix * uModelMatrix * pos;
-	gl_Position = vNDC.xyww; 
-	//gl_Position = vNDC; 
-	
+	vec4 posModel = vec4((uModelMatrix * pos).xyz, 1.0);
+	posModel.x += uOffset;
+	gl_Position = (uViewProjectionMatrix * posModel).xyww;
 }

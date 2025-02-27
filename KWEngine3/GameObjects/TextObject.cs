@@ -74,8 +74,8 @@ namespace KWEngine3.GameObjects
                 return;
 
             text = text.Trim();
-            if (text.Length > 128)
-                text = text.Substring(0, 128);
+            if (text.Length > 127)
+                text = text.Substring(0, 127);
 
             _text = text.ToList();
             GenerateOffsetsForText();

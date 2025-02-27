@@ -192,7 +192,7 @@ namespace KWEngine3.GameObjects
         #region Internals
         internal Vector4 _tint = new Vector4(1, 1, 1, 1);
         internal Vector4 _glow = new Vector4(0, 0, 0, 1);
-        internal Vector3 _scale = new Vector3(24f, 24f, 1f);
+        internal Vector3 _scale = new Vector3(32f, 32f, 1f);
         internal Matrix4 _modelMatrix = Matrix4.Identity;
         internal float _zIndex = -10f;
         internal World _currentWorld = null;

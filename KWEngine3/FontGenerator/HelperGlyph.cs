@@ -1,5 +1,4 @@
-﻿using KWEngine3.Helper;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using SkiaSharp;
 using System.Reflection;
@@ -11,12 +10,6 @@ namespace KWEngine3.FontGenerator
     {
         internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°€§²³ÜÖÄüöäß·±";
         //internal static readonly string GLYPHS = "Mj";
-
-        private static void DisposeFont(KWFont f)
-        {
-            GL.DeleteTexture(f.Texture);
-            f.GlyphDict.Clear();
-        }
 
         public static Font LoadFontInternal(string assemblyname)
         {
@@ -66,8 +59,8 @@ namespace KWEngine3.FontGenerator
             byte[] tx256 = GenerateTextureForRes(f, mipmap0Width, 256, ref kwfont);
             int texture = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapNearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
@@ -85,8 +78,8 @@ namespace KWEngine3.FontGenerator
             int pixelGap = res / 4;
             float renderScale = f.ScaleInPixels(res);
             float normalisedScale = f.ScaleInPixels(1f);
-            // default width and advance for M:
-            int glyphIndexM = f.FindGlyphIndex('M');
+            // default width and advance for UNDERSCORE:
+            int glyphIndexM = f.FindGlyphIndex('_');
             f.GetGlyphHMetrics(glyphIndexM, out int MAdvance, out int dummy);
             float MAdvanceF = MAdvance * renderScale;
             f.GetGlyphBoundingBox(glyphIndexM, 1, 1, 0, 0, out int Mx0, out int My0, out int Mx1, out int My1);

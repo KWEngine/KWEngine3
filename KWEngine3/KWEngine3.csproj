@@ -144,8 +144,6 @@
 		<None Remove="Shaders\shader.hud.frag" />
 		<None Remove="Shaders\shader.hud.vert" />
 		<None Remove="Shaders\shader.lighting.forward.frag" />
-		<None Remove="Shaders\shader.lighting.forward.text.frag" />
-		<None Remove="Shaders\shader.lighting.forward.text.vert" />
 		<None Remove="Shaders\shader.lighting.forward.vert" />
 		<None Remove="Shaders\shader.lighting.forwardinstanced.frag" />
 		<None Remove="Shaders\shader.lighting.forwardinstanced.vert" />
@@ -330,10 +328,10 @@
 		<EmbeddedResource Include="Shaders\shader.gbufferinstanced.vert">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
-		<EmbeddedResource Include="Shaders\shader.lighting.forward.text.vert">
+		<EmbeddedResource Include="Shaders\shader.lighting.forwardtext.vert">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
-		<EmbeddedResource Include="Shaders\shader.lighting.forward.text.frag">
+		<EmbeddedResource Include="Shaders\shader.lighting.forwardtext.frag">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.forward.particle.frag" />

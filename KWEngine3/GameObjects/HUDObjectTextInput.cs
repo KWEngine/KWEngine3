@@ -1,4 +1,5 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using KWEngine3.FontGenerator;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3.GameObjects
 {
@@ -85,9 +86,9 @@ namespace KWEngine3.GameObjects
                 else
                     _text = text;
 
-                if (_text.Length > 256)
+                if (_text.Length > MAX_CHARS)
                 {
-                    _text = _text.Substring(0, 256);
+                    _text = _text.Substring(0, MAX_CHARS);
                 }
             }
             else
@@ -99,34 +100,10 @@ namespace KWEngine3.GameObjects
                 CursorPosition = text.Length;
             }
             UpdateOffsetList();
+            
         }
 
         internal static float _timeout = 0.5f;
-        internal int[] _offsetsCursor = null;
-        internal void UpdateCursorOffsetList()
-        {
-            _offsetsCursor = new int[_text.Length + 1];
-            for (int i = 0; i < _cursorPos; i++)
-            {
-                _offsetsCursor[i] = 0;
-            }
-            if(CursorType == KeyboardCursorType.Pipe)
-            {
-                _offsetsCursor[_cursorPos] = '|' - 32;
-            }
-            else if(CursorType == KeyboardCursorType.Underscore)
-            {
-                _offsetsCursor[_cursorPos] = '_' - 32;
-            }
-            else
-            {
-                _offsetsCursor[_cursorPos] = 102;
-            }
-            for (int i = _cursorPos + 1; i < _text.Length + 1; i++)
-            {
-                _offsetsCursor[i] = 0;
-            }
-        }
 
 
         /// <summary>
@@ -190,7 +167,7 @@ namespace KWEngine3.GameObjects
             set
             {
                 _cursorPos = Math.Clamp(value, 0, Text.Length);
-                UpdateCursorOffsetList();
+                UpdateCursorOffset();
             }
         }
 
@@ -200,6 +177,7 @@ namespace KWEngine3.GameObjects
         public void MoveCursorToEnd()
         {
             CursorPosition = Text.Length;
+            UpdateCursorOffset();
         }
 
         /// <summary>
@@ -208,6 +186,7 @@ namespace KWEngine3.GameObjects
         public void MoveCursorToStart()
         {
             CursorPosition = 0;
+            UpdateCursorOffset();
         }
 
         /// <summary>
@@ -219,6 +198,7 @@ namespace KWEngine3.GameObjects
             SetText(text);
             CursorPosition = Text.Length;
             _textBeforeAbort = text;
+            UpdateCursorOffset();
         }
 
         /// <summary>
@@ -233,7 +213,7 @@ namespace KWEngine3.GameObjects
             set
             {
                 _cursorType = value;
-                UpdateCursorOffsetList();
+                UpdateCursorOffset();
             }
         }
 
@@ -250,7 +230,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt oder erfragt die Anzahl maximal einzugebender Zeichen im Bereich [1, 128] (Standardwert: 128)
+        /// Setzt oder erfragt die Anzahl maximal einzugebender Zeichen im Bereich [1, 127] (Standardwert: 127)
         /// </summary>
         public int MaxInputLength
         {
@@ -260,14 +240,15 @@ namespace KWEngine3.GameObjects
             }
             set
             {
-                _maxInputLength = Math.Clamp(value, 1, 128);
+                _maxInputLength = Math.Clamp(value, 1, MAX_CHARS);
             }
         }
 
         #region Internals
         internal int _cursorPos = 0;
-        internal int _maxInputLength = 128;
+        internal int _maxInputLength = MAX_CHARS;
         internal string _textBeforeAbort = "";
+        internal float _advanceForCursor = 0f;
         /// <summary>
         /// Fügt die angegebenen Zeichen dem Text ab der Cursorposition hinzu
         /// </summary>
@@ -302,7 +283,7 @@ namespace KWEngine3.GameObjects
                 {
                     MoveCursor(-1);
                 }
-                UpdateCursorOffsetList();
+                //UpdateCursorOffset();
             }
         }
 
@@ -317,7 +298,7 @@ namespace KWEngine3.GameObjects
                 string substringFront = Text.Substring(0, _cursorPos);
                 string substringBack = Text.Substring(_cursorPos + 1);
                 SetText(substringFront + substringBack, false);
-                UpdateCursorOffsetList();
+                //UpdateCursorOffset();
             }
         }
 
@@ -328,6 +309,12 @@ namespace KWEngine3.GameObjects
         internal void MoveCursor(int offset)
         {
             CursorPosition = CursorPosition + offset;
+        }
+
+        internal void UpdateCursorOffset()
+        {
+            KWFontGlyph glyph = GetGlyphForCursor(this);
+            _advanceForCursor = _advances[CursorPosition] + glyph.Width * 0.5f;
         }
         #endregion
     }

@@ -123,9 +123,10 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             _h1 = new HUDObjectText("IDIDA");
-            _h1.SetPosition(0, KWEngine.Window.Height / 2);
+            //_h1.SetPosition(0, KWEngine.Window.Height / 2);
+            _h1.CenterOnScreen();
             _h1.SetCharacterDistanceFactor(1f);
-            _h1.SetTextAlignment(TextAlignMode.Left);
+            _h1.SetTextAlignment(TextAlignMode.Right);
             _h1.SetColorEmissive(1, 0, 1);
             _h1.SetColorEmissiveIntensity(0);
             _h1.SetScale(128);

@@ -146,7 +146,7 @@ namespace KWEngine3.Renderer
             {
                 SortByZ();
                 GL.Enable(EnableCap.Blend);
-                GL.Disable(EnableCap.CullFace);
+                //GL.Disable(EnableCap.CullFace);
                 GeoMesh mesh = KWEngine.Models["KWQuad"].Meshes.Values.ElementAt(0);
                 foreach (TextObject t in KWEngine.CurrentWorld._textObjects)
                 {
@@ -161,7 +161,7 @@ namespace KWEngine3.Renderer
                     }
                 }
                 GL.Disable(EnableCap.Blend);
-                GL.Enable(EnableCap.CullFace);
+                //GL.Enable(EnableCap.CullFace);
             }
         }
 

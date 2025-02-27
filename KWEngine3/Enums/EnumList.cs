@@ -58,9 +58,9 @@
         /// </summary>
         Underscore = 1,
         /// <summary>
-        /// Block
+        /// Vertikal zentrierter Punkt
         /// </summary>
-        Block = 2
+        Dot = 2
     }
 
     /// <summary>
