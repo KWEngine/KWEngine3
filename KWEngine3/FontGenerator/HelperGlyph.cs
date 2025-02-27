@@ -9,7 +9,8 @@ namespace KWEngine3.FontGenerator
 {
     internal static class HelperGlyph
     {
-        internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°€§²³ÜÖÄüöäß·±";
+        //internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°€§²³ÜÖÄüöäß·±";
+        internal static readonly string GLYPHS = "Mj";
 
         private static void DisposeFont(KWFont f)
         {
@@ -62,12 +63,12 @@ namespace KWEngine3.FontGenerator
 
             kwfont.GlyphDict = GenerateGlyphsAndDict(f, 256);
 
-            byte[] tx256 = GenerateTextureForRes(f, 256, out int tw256, out int th256);
-            byte[] tx128 = GenerateTextureForRes(f, 128, out int tw128, out int th128);
-            byte[] tx64 = GenerateTextureForRes(f, 64, out int tw64, out int th64);
-            byte[] tx32 = GenerateTextureForRes(f, 32, out int tw32, out int th32);
-            byte[] tx16 = GenerateTextureForRes(f, 16, out int tw16, out int th16);
-            byte[] tx8 = GenerateTextureForRes(f, 8, out int tw8, out int th8);
+            byte[] tx256 = GenerateTextureForRes(f, 256, ref kwfont, out int tw256, out int th256);
+            byte[] tx128 = GenerateTextureForRes(f, 128, ref kwfont, out int tw128, out int th128);
+            byte[] tx64 = GenerateTextureForRes(f, 64, ref kwfont, out int tw64, out int th64);
+            byte[] tx32 = GenerateTextureForRes(f, 32, ref kwfont, out int tw32, out int th32);
+            byte[] tx16 = GenerateTextureForRes(f, 16, ref kwfont, out int tw16, out int th16);
+            byte[] tx8 = GenerateTextureForRes(f, 8, ref kwfont, out int tw8, out int th8);
 
             int texture = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texture);
@@ -96,7 +97,7 @@ namespace KWEngine3.FontGenerator
 
         internal static Dictionary<char, KWFontGlyph> GenerateGlyphsAndDict(Font f, int res)
         {
-            int pixelGap = res / 8;
+            int pixelGap = res / 4;
             float renderScale = f.ScaleInPixels(res);
             float normalisedScale = f.ScaleInPixels(1f);
             // default width and advance for M:
@@ -109,13 +110,9 @@ namespace KWEngine3.FontGenerator
             float MWidthFNormalised = Mx1 * normalisedScale - Mx0 * normalisedScale;
             float MHeightFNormalised = My1 * normalisedScale - My0 * normalisedScale;
 
-
-
             float pixelWidthSum = 0;
             for (int i = 0; i < GLYPHS.Length; i++)
             {
-                
-
                 char n = GLYPHS[i];
                 int glyphIndex = f.FindGlyphIndex(n);
                 f.GetGlyphBitmapBox(n, 1, 1, 0f, 0f, out int x0, out int y0, out int x1, out int y1);
@@ -127,6 +124,8 @@ namespace KWEngine3.FontGenerator
                 pixelWidthSum += (int)pixelWidthForGlyph + pixelGap;
             }
             pixelWidthSum -= pixelGap;
+
+            int pixelWidthSumEnlarged = FindNextDivisibleNumber((int)pixelWidthSum);
 
             Dictionary<char, KWFontGlyph> glyphDict = new();
 
@@ -163,14 +162,14 @@ namespace KWEngine3.FontGenerator
                 }
 
 
-                KWFontGlyph kwGlyph = new KWFontGlyph(theChar, widthNormalised, heightNormalised, bearingLeftNormalised, advanceNormalised, new Vector2(offsetX / pixelWidthSum, Math.Min(1f, (offsetX + (int)width + pixelGap) / pixelWidthSum)));
+                KWFontGlyph kwGlyph = new KWFontGlyph(theChar, widthNormalised, heightNormalised, bearingLeftNormalised, advanceNormalised, new Vector2(offsetX / pixelWidthSumEnlarged, Math.Min(1f, (offsetX + (int)width) / pixelWidthSumEnlarged)));
                 glyphDict.Add(theChar, kwGlyph);
                 offsetX += (int)width + pixelGap;
             }
             return glyphDict;
         }
 
-        internal static byte[] GenerateTextureForRes(Font f, int res, out int textureWidth, out int textureHeight)
+        internal static byte[] GenerateTextureForRes(Font f, int res, ref KWFont kwfont, out int textureWidth, out int textureHeight)
         {
             int dummy = 0;
             int pixelGap = res / 8;
@@ -190,10 +189,18 @@ namespace KWEngine3.FontGenerator
             float ascent = ascentInt * renderScale;
             float descent = descentInt * renderScale;
 
-            int pixelWidthSum = 0;
+            List<SKBitmap> glyphBitmaps = new();
+
+
             for (int i = 0; i < GLYPHS.Length; i++)
             {
                 char n = GLYPHS[i];
+                Vector2 glyphData = kwfont.GlyphDict[n].UCoordinate;
+
+                
+
+                SKBitmap currentBitmap = new SKBitmap()
+
                 int glyphIndex = f.FindGlyphIndex(n);
                 f.GetGlyphBitmapBox(n, 1, 1, 0f, 0f, out int x0, out int y0, out int x1, out int y1);
                 float pixelWidthForGlyph = x1 * renderScale - x0 * renderScale;
@@ -201,9 +208,7 @@ namespace KWEngine3.FontGenerator
                 {
                     pixelWidthForGlyph = MWidthF;
                 }
-                pixelWidthSum += (int)pixelWidthForGlyph + pixelGap;
             }
-            pixelWidthSum -= pixelGap;
 
             SKBitmap bigTex = new SKBitmap(pixelWidthSum, res, SKColorType.Rgba8888, SKAlphaType.Premul);
             textureWidth = pixelWidthSum;
@@ -274,8 +279,32 @@ namespace KWEngine3.FontGenerator
             byte[] imageData = new byte[tmp.ByteCount];
             Array.Copy(tmp.Bytes, imageData, tmp.ByteCount);
             tmp.Dispose();
+            File.Delete("" + res + ".jpg");
             
             return imageData;
+        }
+
+        internal static bool IsValid(int n)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if (n % 2 != 0)
+                {
+                    return false;
+                }
+                n /= 2;
+            }
+            return true;
+        }
+
+        internal static int FindNextDivisibleNumber(int n)
+        {
+            n += 1;
+            while (!IsValid(n))
+            {
+                n += 1;
+            }
+            return n;
         }
     }
 }
