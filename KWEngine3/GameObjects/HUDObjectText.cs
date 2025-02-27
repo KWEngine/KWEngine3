@@ -33,6 +33,7 @@ namespace KWEngine3.GameObjects
             Font = HelperFont.GetNameForInternalFontID((int)fontFace);
             _font = KWEngine.FontDictionary[Font];
             _textureId = _font.Texture;
+            UpdateOffsetList();
         }
 
         /// <summary>
@@ -87,6 +88,7 @@ namespace KWEngine3.GameObjects
         public void SetCharacterDistanceFactor(float distanceFactor)
         {
             _spread = Math.Clamp(distanceFactor, -100f, 100f);
+            UpdateOffsetList();
         }
 
         /// <summary>
@@ -106,6 +108,7 @@ namespace KWEngine3.GameObjects
             _scale.X = HelperGeneral.Clamp(scale, 0.001f, 4096f);
             _scale.Y = _scale.X;
             _scale.Z = 1;
+            UpdateOffsetList();
             UpdateMVP();
         }
 
@@ -116,40 +119,27 @@ namespace KWEngine3.GameObjects
         public override bool IsInsideScreenSpace()
         {
             float left, right, top, bottom;
-            float characterWidth = _scale.X;
-
-            left = Position.X;
-            right = Position.X + (_text.Length - 1) * Math.Abs(_spread) * characterWidth + characterWidth;
-            float diff = right - left;
-
             if (TextAlignment == TextAlignMode.Left)
             {
-                if (_spread < 0)
-                {
-                    left -= (diff - characterWidth);
-                    right -= (diff - characterWidth);
-                }
+                left = Position.X;
+                right = left + _width;
+                top = Position.Y - _scale.Y * 0.5f;
+                bottom = Position.Y + _scale.Y * 0.5f;
             }
-            if (TextAlignment == TextAlignMode.Center)
+            else if (TextAlignment == TextAlignMode.Center)
             {
-                left -= diff / 2f;
-                right -= diff / 2f;
+                left = Position.X - _width * 0.5f;
+                right = left + _width;
+                top = Position.Y - _scale.Y * 0.5f;
+                bottom = Position.Y + _scale.Y * 0.5f;
             }
-            else if (TextAlignment == TextAlignMode.Right)
+            else
             {
-                if (_spread >= 0)
-                {
-                    right -= diff;
-                    left -= diff;
-                }
-                else
-                {
-                    right -= characterWidth;
-                    left -= characterWidth;
-                }
+                left = Position.X - _width;
+                right = left - _width;
+                top = Position.Y - _scale.Y * 0.5f;
+                bottom = Position.Y + _scale.Y * 0.5f;
             }
-            top = Position.Y - _scale.Y * 0.5f;
-            bottom = Position.Y + _scale.Y * 0.5f;
 
             return !(right < 0 || left > KWEngine.Window.Width || bottom < 0 || top > KWEngine.Window.Height);
         }
@@ -164,59 +154,47 @@ namespace KWEngine3.GameObjects
             {
                 Vector2 mouseCoords = KWEngine.Window.Mouse.Position;
                 float left, right, top, bottom;
-                float characterWidth = _scale.X;
-
-                left = Position.X;
-                right = Position.X + (_text.Length - 1) * Math.Abs(_spread) * characterWidth + characterWidth;
-                float diff = right - left;
-               
-                if(TextAlignment == TextAlignMode.Left)
+                if (TextAlignment == TextAlignMode.Left)
                 {
-                    if(_spread < 0)
-                    {
-                        left -= (diff - characterWidth);
-                        right -= (diff - characterWidth);
-                    }
+                    left = Position.X;
+                    right = left + _width;
+                    top = Position.Y - _scale.Y * 0.5f;
+                    bottom = Position.Y + _scale.Y * 0.5f;
                 }
-                if (TextAlignment == TextAlignMode.Center)
+                else if(TextAlignment == TextAlignMode.Center)
                 {
-                    left -= diff / 2f;
-                    right -= diff / 2f;
+                    left = Position.X - _width * 0.5f;
+                    right = left + _width;
+                    top = Position.Y - _scale.Y * 0.5f;
+                    bottom = Position.Y + _scale.Y * 0.5f;
                 }
-                else if(TextAlignment == TextAlignMode.Right)
+                else
                 {
-                    if (_spread >= 0)
-                    {
-                        right -= diff;
-                        left -= diff;
-                    }
-                    else
-                    {
-                        right -= characterWidth;
-                        left -= characterWidth;
-                    }
+                    left = Position.X - _width;
+                    right = left - _width;
+                    top = Position.Y - _scale.Y * 0.5f;
+                    bottom = Position.Y + _scale.Y * 0.5f;
                 }
-                top = Position.Y - _scale.Y * 0.5f;
-                bottom = Position.Y + _scale.Y * 0.5f;
-
                 return (mouseCoords.X >= left && mouseCoords.X <= right && mouseCoords.Y >= top && mouseCoords.Y <= bottom);
             }
-            
             return false;
         }
 
         #region Internals
         internal int _textureId = (int)FontFace.Anonymous;
         internal float[] _uvOffsets = new float[128 * 2];
-        internal float[] _widths = new float[128];
+        internal float[] _glyphWidths = new float[128];
         internal float[] _advances = new float[128];
         internal float _spread = 1f;
         internal string _text = "";
         internal KWFont _font;
+        internal float _width = 0f;
+        internal float _widthNormalised = 0f;
         
 
         internal void UpdateOffsetList()
         {
+            KWFontGlyph space = _font.GetGlyphForCodepoint(' ');
             for (int i = 0, j = 0; i < _text.Length; i++, j+=2)
             {
                 KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
@@ -224,14 +202,21 @@ namespace KWEngine3.GameObjects
                 _uvOffsets[j + 0] = glyph.UCoordinate.X;
                 _uvOffsets[j + 1] = glyph.UCoordinate.Y;
 
-                _widths[i] = glyph.Width;
+                float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Bearing;
+                float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;
+
+                _glyphWidths[i] = glyph.Width;
 
                 if(i < 128 - 1)
                 {
-                    _advances[i + 1] = _advances[i] + glyph.Advance;
+                    _advances[i + 1] = _advances[i] + glyph.Advance - glyph.Bearing + (space.Width * (1 - _spread));
                 }
             }
-
+            if (_text.Length > 0)
+            {
+                _widthNormalised = _advances[_text.Length];
+                _width = _widthNormalised * _scale.X;
+            }
         }
         #endregion
     }

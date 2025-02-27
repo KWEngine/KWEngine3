@@ -35,7 +35,7 @@ void main()
 	}
 	vTexture.y = aTexture.y;
 
-	float left = p.x + 0.25 + uAdvanceList[gl_InstanceID] * 1.0;
+	float left = p.x + uWidths[gl_InstanceID] * 0.5 + uAdvanceList[gl_InstanceID] * 1.0;
 	vec4 pos = vec4(left, p.y, 0.0, 1.0);
 
 	float offset = 0;

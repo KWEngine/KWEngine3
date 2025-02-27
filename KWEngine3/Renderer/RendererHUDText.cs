@@ -98,14 +98,13 @@ namespace KWEngine3.Renderer
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, ho._font.Texture);
-            //GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureDefault);
             GL.Uniform1(UTexture, 0);
 
             GL.Uniform1(UMode, 0);
             GL.Uniform1(UOptions, 0);
             GL.Uniform2(UUVOffsets, ho._text.Length, ho._uvOffsets);
             GL.Uniform1(UAdvanceList, ho._text.Length, ho._advances);
-            GL.Uniform1(UWidths, ho._text.Length, ho._widths);
+            GL.Uniform1(UWidths, ho._text.Length, ho._glyphWidths);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._text.Length);
 

@@ -57,6 +57,16 @@ namespace KWEngine3TestProject.Worlds
             {
                 _h1.SetScale(Math.Max(1, _h1.Scale.X - 1));
             }
+            if (Keyboard.IsKeyDown(Keys.F3))
+            {
+                _h1.SetCharacterDistanceFactor(Math.Min(4f, _h1.CharacterDistanceFactor + 0.001f));
+                Console.WriteLine(_h1.CharacterDistanceFactor);
+            }
+            else if (Keyboard.IsKeyDown(Keys.F4))
+            {
+                _h1.SetCharacterDistanceFactor(Math.Max(0.25f, _h1.CharacterDistanceFactor - 0.001f));
+                Console.WriteLine(_h1.CharacterDistanceFactor);
+            }
             /*
             if (_h2.IsMouseCursorOnMe())
             {
@@ -112,7 +122,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            _h1 = new HUDObjectText("So ein Mist aber auch!");
+            _h1 = new HUDObjectText("IDIDA");
             _h1.SetPosition(0, KWEngine.Window.Height / 2);
             _h1.SetCharacterDistanceFactor(1f);
             _h1.SetTextAlignment(TextAlignMode.Left);
