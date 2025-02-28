@@ -219,6 +219,11 @@ namespace KWEngine3.FontGenerator
 
         public SvgRenderCallback SvgRender;
 
+        public Font(SvgRenderCallback svgRender)
+        {
+            SvgRender = svgRender;
+        }
+
         public Font(byte[] bytes, object userData)
         {
             _data = bytes;
@@ -850,7 +855,7 @@ namespace KWEngine3.FontGenerator
                 return new GlyphBitmap(0, 0, true, backgroundColor);
             }
 
-            var glyphMetrics = await GetGlyphMetrics(codePoint, scaleX, scaleY, shiftX, shiftY);
+            var glyphMetrics = GetGlyphMetrics(codePoint, scaleX, scaleY, shiftX, shiftY);
             var vertices = GetGlyphShape(glyph);
 
             // now we get the size
@@ -1853,7 +1858,7 @@ namespace KWEngine3.FontGenerator
             return (p > 0);
         }
 
-        public async Task<GlyphMetrics> GetGlyphMetrics(char codePoint, float scaleX, float scaleY, float shiftX, float shiftY)
+        public GlyphMetrics GetGlyphMetrics(char codePoint, float scaleX, float scaleY, float shiftX, float shiftY)
         {
             GlyphMetrics glyphMetrics = new GlyphMetrics();
 

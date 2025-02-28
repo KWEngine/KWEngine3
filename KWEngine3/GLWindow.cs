@@ -269,7 +269,7 @@ namespace KWEngine3
             RenderManager.InitializeClearColor();
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
+            GL.CullFace(TriangleFace.Back);
             GL.DepthFunc(DepthFunction.Less);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.PatchParameter(PatchParameterInt.PatchVertices, 4); // terrain tesselation

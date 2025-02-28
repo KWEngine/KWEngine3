@@ -9,11 +9,11 @@ namespace KWEngine3TestProject.Worlds
     internal class GameWorldHUDTest : World
     {
         private HUDObjectText _h1;
-        private HUDObjectText _h2;
-        private HUDObjectText _h3;
-        private HUDObjectText _h4;
-        private HUDObjectText _h5;
-        private HUDObjectText _h6;
+        //private HUDObjectText _h2;
+        //private HUDObjectText _h3;
+        //private HUDObjectText _h4;
+        //private HUDObjectText _h5;
+        //private HUDObjectText _h6;
         private HUDObjectImage _hCrosshair;
         //private float _h1Distance = 1;
         //private bool _h1DistanceGrow = true;
