@@ -207,7 +207,12 @@ namespace KWEngine3.GameObjects
         internal KWFont _font;
         internal float _width = 0f;
         internal float _widthNormalised = 0f;
-        
+
+        internal HUDObjectText()
+        {
+
+        }
+
         internal void UpdateOffsetList()
         {
             KWFontGlyph space = _font.GetGlyphForCodepoint(' ');

@@ -14,7 +14,8 @@ namespace KWEngine3.Helper
         public string Text { get; set; }
         
         public float[] Position { get; set; }
-        public FontFace Font { get; set; }
+        public string Font { get; set; }
+        public string FontFilename { get; set; } 
         public float Spread { get; set; } 
         public bool IsShadowCaster { get; set; }
         public bool IsAffectedByLight { get; set; }
@@ -36,7 +37,8 @@ namespace KWEngine3.Helper
             st.Position = new float[] { t.Position.X, t.Position.Y, t.Position.Z };
 
             st.Text = t.Text;
-            st.Font = FontFace.Anonymous; // TODO
+            st.Font = t._fontname;
+            st.FontFilename = t._font.FontFilename;
             st.Spread = t._stateCurrent._spreadFactor;
 
             return st;

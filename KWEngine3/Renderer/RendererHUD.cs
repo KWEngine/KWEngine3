@@ -91,14 +91,12 @@ namespace KWEngine3.Renderer
                         RendererHUDText.Bind();
                         RendererHUDText.SetGlobals();
                         RendererHUDText.Draw(h as HUDObjectText);
-                        HelperGeneral.CheckGLErrors();
                     }
                     else
                     {
                         Bind();
                         SetGlobals();
                         Draw(h);
-                        HelperGeneral.CheckGLErrors();
                     }
                         
                     index++;
@@ -118,14 +116,12 @@ namespace KWEngine3.Renderer
                         RendererHUDText.Bind();
                         RendererHUDText.SetGlobals();
                         RendererHUDText.Draw(h as HUDObjectText);
-                        HelperGeneral.CheckGLErrors();
                     }
                     else
                     {
                         Bind();
                         SetGlobals();
                         Draw(h as HUDObjectImage);
-                        HelperGeneral.CheckGLErrors();
                     }
                     index++;
                 }

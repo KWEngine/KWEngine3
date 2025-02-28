@@ -9,7 +9,6 @@ namespace KWEngine3.FontGenerator
     internal static class HelperGlyph
     {
         internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°€§²³ÜÖÄüöäß·±";
-        //internal static readonly string GLYPHS = "Mj";
 
         public static Font LoadFontInternal(string assemblyname)
         {

@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Exceptions;
+using KWEngine3.FontGenerator;
 using KWEngine3.GameObjects;
 using OpenTK.Mathematics;
 using System.Reflection;
@@ -276,6 +277,31 @@ namespace KWEngine3.Helper
         private static TextObject BuildTextObject(SerializedTextObject st)
         {
             TextObject t = (TextObject)Assembly.GetEntryAssembly().CreateInstance(st.Type);
+            if(KWEngine.FontDictionary.ContainsKey(st.Font))
+            {
+                t.SetFont(st.Font);
+            }
+            else
+            {
+                if(st.FontFilename != null && st.FontFilename.Length > 0)
+                {
+                    bool result = KWEngine.LoadFont(st.Font, st.FontFilename);
+                    if(result)
+                    {
+                        t.SetFont(st.Font);
+                    }
+                    else
+                    {
+                        t.SetFont(FontFace.Anonymous);
+                    }
+                }
+                else
+                {
+                    t.SetFont(FontFace.Anonymous);
+
+                }
+            }
+
             t.SetText(st.Text);
             t.Name = st.Name;
             t.SetScale(st.Scale);
@@ -291,9 +317,6 @@ namespace KWEngine3.Helper
 
             Vector3 euler = HelperRotation.ConvertQuaternionToEulerAngles(new Quaternion(st.Rotation[0], st.Rotation[1], st.Rotation[2], st.Rotation[3]));
             t.SetRotation(euler.X, euler.Y, euler.Z);
-
-            t.SetFont(st.Font);
-
             return t;
         }
 

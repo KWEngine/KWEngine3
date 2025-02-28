@@ -9,11 +9,14 @@ namespace KWEngine3.FontGenerator
         public int Texture { get; internal set; }
         public int TextureSize { get; internal set; }
 
+        public string FontFilename { get; internal set; }
+
         public void Dispose()
         {
             GL.DeleteTexture(Texture);
             GlyphDict.Clear();
             TextureSize = 0;
+            FontFilename = "";
             IsValid = false;
         }
 
@@ -35,6 +38,7 @@ namespace KWEngine3.FontGenerator
             GlyphDict = new();
             Texture = KWEngine.TextureAlpha;
             TextureSize = 1;
+            FontFilename = "";
         }
 
         public void Add(char codepoint, KWFontGlyph glyph)

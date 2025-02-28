@@ -247,6 +247,7 @@ namespace KWEngine3.GameObjects
         {
             string fontname = HelperFont.GetNameForInternalFontID((int)font);
             _font = KWEngine.FontDictionary[fontname];
+            _fontname = fontname;
             UpdateOffsetList();
         }
 
@@ -257,17 +258,21 @@ namespace KWEngine3.GameObjects
         public void SetFont(string font)
         {
             if (font == null || font.Length < 1)
+            {
+                KWEngine.LogWriteLine("[Font] Invalid font name");
                 return;
+            }
 
             if(KWEngine.FontDictionary.TryGetValue(font, out KWFont f))
             {
                 _font = f;
+                _fontname = font;
+                UpdateOffsetList();
             }
             else
             {
-                _font = KWEngine.FontDictionary["Anonymous"];
+                KWEngine.LogWriteLine("[Font] Cannot find font '" + font + "'");
             }
-            UpdateOffsetList();
         }
 
         /// <summary>
@@ -379,6 +384,7 @@ namespace KWEngine3.GameObjects
         internal float[] _advances = new float[MAX_CHARS + 1];
         internal string _text = "";
         internal KWFont _font = KWEngine.FontDictionary["Anonymous"];
+        internal string _fontname = "Anonymous";
         internal float _width = 0f;
         internal float _widthNormalised = 0f;
         internal string _name = "undefined TextObject name";

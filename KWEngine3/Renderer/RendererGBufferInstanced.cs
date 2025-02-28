@@ -96,7 +96,6 @@ namespace KWEngine3.Renderer
         {
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
-            
         }
 
         public static List<RenderObject> RenderScene()

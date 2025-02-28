@@ -10,7 +10,9 @@
       <Field Name="_mouseScrollDelta" Hidden="true" />
       <Field Name="_mouseScrollPosition" Hidden="true" />
       <Field Name="_ppQuality" Hidden="true" />
+      <Field Name="_projectionMatrixHUD" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
+      <Field Name="_viewMatrixHUD" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Field Name="_worldNew" Hidden="true" />
       <Property Name="AnisotropicFilteringLevel" Hidden="true" />
@@ -39,7 +41,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAyEBAAABQCAAQzAUAkBgEASAhoABCQAYAEAUEUuAgA=</HashCode>
+      <HashCode>ACyEBAAABUCAAQ7AUAkBgEASghoABCQAYAEEWEUuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -65,7 +67,7 @@
       <Method Name="CollectScreenInfo" Hidden="true" />
       <Property Name="CustomColliders" Hidden="true" />
       <Field Name="DefaultCameraPosition" Hidden="true" />
-      <Method Name="DeleteCustomModelsAndTexturesFromCurrentWorld" Hidden="true" />
+      <Method Name="DeleteCustomModelsFontsAndTexturesFromCurrentWorld" Hidden="true" />
       <Property Name="DeltaTimeAccumulator" Hidden="true" />
       <Property Name="DeltaTimeCurrentNibbleSize" Hidden="true" />
       <Property Name="DeltaTimeFactorForOverlay" Hidden="true" />
@@ -124,7 +126,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgAR7BNAqSJgLEcpApqAZARVCgCQmoSjHn2SP2KEIE=</HashCode>
+      <HashCode>BcgAR7BNAqSJgLEcpApqAZARVCgCAmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -212,7 +214,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
-    <Position X="0.5" Y="19" Width="2.75" />
+    <Position X="24.5" Y="8.75" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
@@ -435,7 +437,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="13.25" Width="2.75" />
+    <Position X="0.5" Y="14.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -450,6 +452,7 @@
     <Members>
       <Field Name="_advances" Hidden="true" />
       <Field Name="_font" Hidden="true" />
+      <Field Name="_fontname" Hidden="true" />
       <Field Name="_glyphWidths" Hidden="true" />
       <Field Name="_name" Hidden="true" />
       <Field Name="_stateCurrent" Hidden="true" />
@@ -464,7 +467,7 @@
       <Method Name="UpdateOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AAhAMQAQAhQAAASgQIKAAQSAAFDBCgiIQIiAygBQAVQ=</HashCode>
+      <HashCode>AAhAMQAQghQAAASgQIKAAQSAAFDBCgiIQIiAygBQAVQ=</HashCode>
       <FileName>GameObjects\TextObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -670,7 +673,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="0.5" Y="15.75" Width="2.75" />
+    <Position X="0.5" Y="16.75" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />

@@ -9,7 +9,6 @@ using OpenTK.Windowing.Common;
 using KWEngine3.Assets;
 using System.Diagnostics;
 using OpenTK.Windowing.Desktop;
-using KWEngine3.Exceptions;
 using KWEngine3.FontGenerator;
 
 
@@ -20,15 +19,11 @@ namespace KWEngine3
     /// </summary>
     public class KWEngine
     {
-        internal const float SIMULATIONNIBBLESIZE = 1f / 240f;
-        internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
-        internal const int LIGHTINDEXDIVIDER = 17;
-        internal const float RAYTRACE_EPSILON = 0.000001f;
-        internal const float RAYTRACE_SAFETY = 0.1f;
-        internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
-        internal const int TERRAIN_PATCH_SIZE = 16;
-        
-        
+        /// <summary>
+        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)
+        /// </summary>
+        public static float MouseSensitivity { get; set; } = 0.05f;
+
         /// <summary>
         /// Gibt an oder setzt den Faktor, der bei der Berechnung des Kameraschüttelns einer ViewSpaceGameObject-Instanz zugerechnet wird (Standard: 0.1f, gültiger Wertebereich liegt zwischen 0f und 1f)
         /// </summary>
@@ -68,45 +63,9 @@ namespace KWEngine3
         /// Aktuelle Welt
         /// </summary>
         public static World CurrentWorld { get; internal set; } = null;
-        internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
-        internal static Dictionary<string, GeoMeshCollider> CustomColliders { get; set; } = new Dictionary<string, GeoMeshCollider>();
 
-        internal static void DeleteCustomModelsFontsAndTexturesFromCurrentWorld()
-        {
-            for(int i = KWEngine.CurrentWorld._customTextures.Count - 1; i >= 0; i--)
-            {
-                string currentTextureFilename = KWEngine.CurrentWorld._customTextures.Keys.ElementAt(i);
-                int currentTexture = KWEngine.CurrentWorld._customTextures[currentTextureFilename].ID;
-                HelperTexture.DeleteTexture(currentTexture);
-            }
-            KWEngine.CurrentWorld._customTextures.Clear();
 
-            // MODELS
-            for(int i = Models.Keys.Count - 1; i >= 5; i--)
-            {
-                string modelName = Models.Keys.ElementAt(i);
-                GeoModel m = Models[modelName];
-                m.Dispose();
-                Models.Remove(modelName);
-            }
-
-            // FONTS
-            for (int i = FontDictionary.Keys.Count - 1; i >= 5; i--)
-            {
-                string fontname = FontDictionary.Keys.ElementAt(i);
-                KWFont kwfont = FontDictionary[fontname];
-                if(kwfont != null)
-                {
-                    kwfont.Dispose();
-                }
-                FontDictionary.Remove(fontname);
-            }
-
-            // CUSTOM COLLIDERS
-            CustomColliders.Clear();
-        }
-
-        internal static EngineMode Mode { get; set; } = EngineMode.Play;
+        
 
         /// <summary>
         /// Gibt die Namen aller Hitboxen des angegebenen Modells auf der Editorkonsole aus
@@ -186,9 +145,6 @@ namespace KWEngine3
         /// </summary>
         public static bool EditModeActive { get { return Mode == EngineMode.Edit; } }
 
-        internal static float _octreeSafetyZone = 1f;
-        internal static float _swpruneTolerance = 2.0f;
-
         /// <summary>
         /// Zusätzliches Padding für die Kollisionsvorhersage (Standard: 2.0f)
         /// </summary>
@@ -207,47 +163,7 @@ namespace KWEngine3
         /// </summary>
         public static float SSAO_Bias { get { return _ssaoBias; } set { _ssaoBias = Math.Clamp(value, 0.0f, 0.5f); } }
 
-        internal static void DeselectAll()
-        {
-            KWBuilderOverlay.SelectedGameObject = null;
-            KWBuilderOverlay.SelectedLightObject = null;
-            KWBuilderOverlay.SelectedTerrainObject = null;
-        }
-
-        // SSAO settings
-        internal static float _ssaoRadius = 0.40f;
-        internal static float _ssaoBias = 0.10f;
-        internal static bool _ssaoEnabled = false;
-
-        internal static CursorState _stateCameraGameBeforeToggle = CursorState.Normal;
-        internal static float _texMemUsed = 0f;
-        internal static float _geometryMemUsed = 0f;
-        internal static void ToggleEditMode()
-        {
-            if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
-            {
-                Mode = Mode == EngineMode.Play ? EngineMode.Edit : EngineMode.Play;
-                if (EditModeActive)
-                {
-                    _texMemUsed = MathF.Round(HelperGeneral.GetTextureStorageSize() / 1000000f, 2);
-                    _geometryMemUsed = MathF.Round(HelperGeneral.GetGeometryStorageSize() / 1000000f, 2);
-                    CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
-                    CurrentWorld._cameraEditor.UpdatePitchYaw(true);
-                    _stateCameraGameBeforeToggle = Window.CursorState;
-                    CurrentWorld.MouseCursorReset();
-                }
-                else
-                {
-                    CurrentWorld._cameraGame._frustum.UpdateFrustum(CurrentWorld._cameraGame._stateCurrent.ProjectionMatrix, CurrentWorld._cameraGame._stateCurrent.ViewMatrix);
-                    Window.CursorState = _stateCameraGameBeforeToggle;
-                    DeselectAll();
-                }
-            }
-        }
-
-        internal static double DeltaTimeAccumulator { get; set; } = 0.0f;
-        internal static float DeltaTimeFactorForOverlay { get; set; } = 1f;
-        internal static double DeltaTimeCurrentNibbleSize { get; set; } = SIMULATIONNIBBLESIZE;
+        
 
         /// <summary>
         /// Gibt an, wie lange die aktuelle Welt bereits aktiv ist
@@ -257,14 +173,11 @@ namespace KWEngine3
         /// Gibt an, wie lange die Anwendung bereits aktiv ist
         /// </summary>
         public static float ApplicationTime { get; internal set; } = 0.0f;
-        internal static float LastFrameTime { get; set; } = 0.0f;
 
         /// <summary>
         /// Gibt die aktuelle Anzahl der Frames-Per-Second (FPS) an
         /// </summary>
         public static int FPS { get { return (int)(1000f / LastFrameTime); } }
-
-        internal static int LastSimulationUpdateCycleCount { get; set; } = 0;
 
         /// <summary>
         /// Schreibt eine Log-Zeile in das Ausgabefenster des Edit-Modus (nur Debug-Modus)
@@ -284,10 +197,6 @@ namespace KWEngine3
             EngineLog.Clear();
         }
 
-
-
-        internal const int BLOOMWIDTH = 960;//720;//960;
-        internal const int BLOOMHEIGHT = 540; //405;//540;
         /// <summary>
         /// Anzahl der Renderschritte für den Glow-Effekt
         /// </summary>
@@ -309,12 +218,9 @@ namespace KWEngine3
         /// </summary>
         public const int MAX_SHADOWMAPS = 3;
 
-        internal static Matrix4 Identity = Matrix4.Identity;
-        //private static Vector3 _worldUp = new Vector3(0, 1, 0);
-        internal static int _uniformOffsetMultiplier = 1;
-        internal static float _glowRadius = 0.75f;
-        internal static float _glowUpsampleF1 = 0.15f;
-        internal static float _glowUpsampleF2 = 0.70f;
+        
+
+        
 
         /// <summary>
         /// Steuert das Ausmaß des durch Überbelichtung erzeugten Glow-Effekts (von 0 bis 1, Standard: 0.75)
@@ -340,199 +246,18 @@ namespace KWEngine3
         /// </summary>
         public static float GlowStyleFactor2 { get { return _glowUpsampleF2; } set { _glowUpsampleF2 = Math.Clamp(value, 0.001f, 1.0f); } }
 
-        internal static Matrix4 Matrix4Dummy = Matrix4.Identity;
-
-        internal static int TextureDefault = -1;
-        internal static int TextureBlack = -1;
-        internal static int TextureWhite = -1;
-        internal static int TextureAlpha = -1;
-        internal static int TextureNormalEmpty = -1;
-        internal static int TextureNoise = -1;
-        internal static int TextureCubemapEmpty = -1;
-        internal static int TextureDepthEmpty = -1;
-        internal static int TextureDepthCubeMapEmpty = -1;
-        internal static int TextureCheckerboard = -1;
-
-        internal static int TextureFlowFieldArrow = -1;
-        internal static int TextureFlowFieldCross = -1;
-
-        internal static int TextureFoliageGrass1 = -1;
-        internal static int TextureFoliageGrass2 = -1;
-        internal static int TextureFoliageGrass3 = -1;
-        internal static int TextureFoliageGrassMinecraft = -1;
-        internal static int TextureFoliageFern = -1;
-        internal static int TextureFoliageGrassNormal = -1;
-
-        internal static float TimeElapsed = 0;
-
-        internal static Vector3 DefaultCameraPosition = new(0, 0, 10);
-
+        /// <summary>
+        /// Erfragt Informationen über die aktuell angeschlossenen Monitore/Bildschirme
+        /// </summary>
+        /// <returns>Monitor-/Bildschirminformationen</returns>
+        public static ScreenInfo ScreenInformation => _screenInfo;
         /// <summary>
         /// Welt-Vektor, der angibt, wo 'oben' ist
         /// </summary>
         public static Vector3 WorldUp { get; } = Vector3.UnitY;
 
-        //internal static int[] FontTextureArray { get; set; } = new int[4];
 
-        internal static Dictionary<string, KWFont> FontDictionary = new();
-
-        internal static void InitializeFontsAndDefaultTextures()
-        {
-            Window.AnisotropicFilteringLevel = (int)Window._ppQuality == 2 ? 8 : (int)Window._ppQuality == 1 ? 4 : 1;
-
-            int mipMaps;
-
-            KWQuad2D.Init();
-            KWQuad2D_05.Init();
-            FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf")));
-            FontDictionary.Add("MajorMonoDisplay", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf")));
-            FontDictionary.Add("NovaMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf")));
-            FontDictionary.Add("XanhMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("XanhMono.ttf")));
-            FontDictionary.Add("OpenSans", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf")));
-
-            TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
-            TextureBlack = HelperTexture.LoadTextureInternal("black.png");
-            TextureWhite = HelperTexture.LoadTextureInternal("white.png");
-            TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
-            TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
-            TextureNoise = HelperTexture.LoadTextureInternal("noise.png");
-            TextureCheckerboard = HelperTexture.LoadTextureInternal("checkerboard.png");
-
-            TextureFlowFieldArrow = HelperTexture.LoadTextureInternal("arrow.png");
-            TextureFlowFieldCross = HelperTexture.LoadTextureInternal("cross.png");
-
-            TextureFoliageGrass1 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_01.dds", out mipMaps);
-            TextureFoliageGrass2 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_02.dds", out mipMaps);
-            TextureFoliageGrass3 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_03.dds", out mipMaps);
-            TextureFoliageGrassMinecraft = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_minecraft.dds", out mipMaps);
-            TextureFoliageFern = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_fern.dds", out mipMaps);
-            TextureFoliageGrassNormal = HelperTexture.LoadTextureInternal("foliage_grassblade_normal.png");
-
-            TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
-            TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();
-            TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture();
-        }
-
-        /// <summary>
-        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)
-        /// </summary>
-        public static float MouseSensitivity { get; set; } = 0.05f;
-
-        internal static GeoModel KWStar;
-        internal static GeoModel KWHeart;
-        internal static GeoModel KWSkull;
-        internal static GeoModel KWDollar;
-        internal static GeoModel KWLightBulb;
-        internal static GeoMeshCollider KWCapsule;
-        internal static GeoMeshCollider KWCapsule2;
-        internal static GeoMeshCollider KWSphereCollider;
-        internal static GeoModel KWFoliageMinecraft;
-        internal static GeoModel KWFoliageFern;
-        internal static GeoModel KWMapItemXZ;
-        internal static GeoModel KWMapItemXY;
-
-        internal static void InitializeModels()
-        {
-            Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", true, SceneImporter.AssemblyMode.Internal));
-            Models.Add("KWQuad", SceneImporter.LoadModel("kwquad.obj", true, SceneImporter.AssemblyMode.Internal));
-            Models.Add("KWQuad2D", SceneImporter.LoadModel("kwquad2.obj", true, SceneImporter.AssemblyMode.Internal));
-            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", true, SceneImporter.AssemblyMode.Internal));
-            Models.Add("KWPlatform", SceneImporter.LoadModel("kwplatform.obj", true, SceneImporter.AssemblyMode.Internal));
-            KWStar = SceneImporter.LoadModel("star.obj", false, SceneImporter.AssemblyMode.Internal);
-            KWHeart = SceneImporter.LoadModel("heart.obj", false, SceneImporter.AssemblyMode.Internal);
-            KWSkull = SceneImporter.LoadModel("skull.obj", false, SceneImporter.AssemblyMode.Internal);
-            KWDollar = SceneImporter.LoadModel("dollar.obj", false, SceneImporter.AssemblyMode.Internal);
-            KWLightBulb = SceneImporter.LoadModel("lightbulb.obj", false, SceneImporter.AssemblyMode.Internal);
-            KWSphereCollider = SceneImporter.LoadColliderInternal("kwsphere_collider.obj", ColliderType.ConvexHull);
-            KWCapsule = SceneImporter.LoadColliderInternal("capsulehitbox.obj", ColliderType.ConvexHull);
-            KWCapsule2 = SceneImporter.LoadColliderInternal("capsulehitbox2.obj", ColliderType.ConvexHull);
-            KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
-            KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
-            KWMapItemXZ = SceneImporter.LoadModel("kwmapquadxz.obj", false, SceneImporter.AssemblyMode.Internal);
-            KWMapItemXY = SceneImporter.LoadModel("kwmapquadxy.obj", false, SceneImporter.AssemblyMode.Internal);
-
-            KWFoliageGrass.Init();
-            KWTerrainQuad.Init();
-
-
-            for (int i = 0; i < ExplosionObject.Axes.Length; i++)
-            {
-                ExplosionObject.Axes[i] = Vector3.Normalize(ExplosionObject.Axes[i]);
-            }
-
-        }
-
-        internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new();
-        internal static void InitializeParticles()
-        {
-            int tex;
-
-            // Bursts:
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("fire01.dds");
-            ParticleDictionary.Add(ParticleType.BurstFire1, new ParticleInfo(tex, 8, 64));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("fire02.dds");
-            ParticleDictionary.Add(ParticleType.BurstFire2, new ParticleInfo(tex, 7, 49));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("fire03.dds");
-            ParticleDictionary.Add(ParticleType.BurstFire3, new ParticleInfo(tex, 9, 81));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("fire04.dds");
-            ParticleDictionary.Add(ParticleType.BurstElectricity, new ParticleInfo(tex, 4, 16));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_bubbles.dds");
-            ParticleDictionary.Add(ParticleType.BurstBubblesColored, new ParticleInfo(tex, 6, 36));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_bubbles_unicolor.dds");
-            ParticleDictionary.Add(ParticleType.BurstBubblesMonochrome, new ParticleInfo(tex, 6, 36));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_explosioncolored.dds");
-            ParticleDictionary.Add(ParticleType.BurstFirework1, new ParticleInfo(tex, 7, 49));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_firework.dds");
-            ParticleDictionary.Add(ParticleType.BurstFirework2, new ParticleInfo(tex, 7, 49));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_hearts.dds");
-            ParticleDictionary.Add(ParticleType.BurstHearts, new ParticleInfo(tex, 7, 49));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_plusplusplus.dds");
-            ParticleDictionary.Add(ParticleType.BurstOneUps, new ParticleInfo(tex, 6, 36));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_shield.dds");
-            ParticleDictionary.Add(ParticleType.BurstShield, new ParticleInfo(tex, 6, 36));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport1.dds");
-            ParticleDictionary.Add(ParticleType.BurstTeleport1, new ParticleInfo(tex, 4, 16));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport2.dds");
-            ParticleDictionary.Add(ParticleType.BurstTeleport2, new ParticleInfo(tex, 4, 16));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport3.dds");
-            ParticleDictionary.Add(ParticleType.BurstTeleport3, new ParticleInfo(tex, 4, 16));
-
-            // Loops:
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke01.dds");
-            ParticleDictionary.Add(ParticleType.LoopSmoke1, new ParticleInfo(tex, 4, 16));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke02.dds");
-            ParticleDictionary.Add(ParticleType.LoopSmoke2, new ParticleInfo(tex, 7, 46));
-
-            tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke03.dds");
-            ParticleDictionary.Add(ParticleType.LoopSmoke3, new ParticleInfo(tex, 6, 32));
-
-        }
-
-        internal static GeoModel GetModel(string name)
-        {
-            bool modelFound = Models.TryGetValue(name, out GeoModel m);
-            if (!modelFound)
-            {
-                KWEngine.LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " not found");
-            }
-            return m;
-        }
-
-        internal static float RayIntersectionErrorMarginFactor { get; set; }= 1.00001f;
+        
 
         /// <summary>
         /// Baut ein Terrain-Modell
@@ -660,9 +385,9 @@ namespace KWEngine3
         /// <param name="name">Name, unter dem das Collider-Modell gespeichert werden soll</param>
         /// <param name="filename">Dateiname des Collider-Modells</param>
         /// <param name="colliderType">Art des Collider-Modells</param>
-        public static void LoadCollider(string name, string filename, ColliderType colliderType)
+        /// <returns>true, wenn der Import funktioniert hat</returns>
+        public static bool LoadCollider(string name, string filename, ColliderType colliderType)
         {
-
             filename = filename == null ? "" : filename.Trim();
             MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
             string callerName = caller.Name;
@@ -670,13 +395,13 @@ namespace KWEngine3
             if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
             {
                 LogWriteLine("[Import] Collider " + filename + " must be imported in Prepare() - aborting import");
-                return;
+                return false;
             }
 
             if (name == null || name.Trim().Length == 0)
             {
                 LogWriteLine("[Import] Collider " + filename + " must be imported with a proper database name");
-                return;
+                return false;
             }
             name = name.Trim();
             if (CustomColliders.ContainsKey(name))
@@ -684,7 +409,7 @@ namespace KWEngine3
                 if (callerName != "BuildWorld")
                 {
                     KWEngine.LogWriteLine("[Import] Collider " + (name == null ? "" : name) + " already exists");
-                    return;
+                    return false;
                 }
             }
             else
@@ -699,9 +424,54 @@ namespace KWEngine3
                 else
                 {
                     KWEngine.LogWriteLine("[Import] Collider " + (name == null ? "" : name) + " invalid or file not found");
-                    return;
+                    return false;
                 }
             }
+            return true;
+        }
+
+        /// <summary>
+        /// Lädt eine Truetype-Schriftart (TTF) aus einer Datei und speichert Sie intern unter dem im ersten Parameter angegebenen Namen ab
+        /// </summary>
+        /// <param name="name">Name der Schriftart (wird später zum Setzen der Schriftart bei textbasierten Objekten verwendet)</param>
+        /// <param name="filename">Dateiname der Schriftart (inkl. Pfad) - muss eine TTF-Datei sein</param>
+        public static bool LoadFont(string name, string filename)
+        {
+            MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
+            string callerName = caller.Name;
+            if (callerName != "Prepare" && callerName != "BuildWorld")
+            {
+                LogWriteLine("[Import] Font " + filename + " must be imported in Prepare() - aborting import");
+                return false;
+            }
+
+            if (name == null || name.Trim().Length == 0 || filename.ToLower().Trim().EndsWith(".ttf") == false || FontDictionary.ContainsKey(name) || File.Exists(filename) == false)
+            {
+                LogWriteLine("[Import] Font or file name invalid - aborting import");
+                return false;
+            }
+            
+            Font f = HelperGlyph.LoadFont(filename.Trim());
+            if(f != null)
+            {
+                KWFont kwfont = HelperGlyph.LoadFont(f);
+                if(kwfont != null && kwfont.IsValid)
+                {
+                    kwfont.FontFilename = filename.Trim();
+                    FontDictionary.Add(name, kwfont);
+                }
+                else
+                {
+                    LogWriteLine("[Import] Font '" + name + "' invalid - aborting import");
+                    return false;
+                }
+            }
+            else
+            {
+                LogWriteLine("[Import] Font '" + name + "' invalid - aborting import");
+                return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -709,7 +479,7 @@ namespace KWEngine3
         /// </summary>
         /// <param name="name">Name des Modells</param>
         /// <param name="filename">Datei des Modells</param>
-        public static void LoadModel(string name, string filename)
+        public static bool LoadModel(string name, string filename)
         {
             MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
             string callerName = caller.Name;
@@ -717,15 +487,15 @@ namespace KWEngine3
             if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildAndAddViewSpaceGameObject")
             {
                 LogWriteLine("[Import] Model " + filename + " must be imported in Prepare() - aborting import");
-                return;
+                return false;
             }
             GeoModel m;
             if (Models.ContainsKey(name.Trim()))
             {
                 if (callerName != "BuildWorld")
                 {
-                    KWEngine.LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " already exists");
-                    return;
+                    LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " already exists");
+                    return false;
                 }
                 else
                 {
@@ -743,10 +513,11 @@ namespace KWEngine3
                 }
                 else
                 {
-                    KWEngine.LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " invalid");
-                    return;
+                    LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " invalid");
+                    return false;
                 }
             }
+            return true;
         }
 
         /// <summary>
@@ -769,12 +540,10 @@ namespace KWEngine3
             return resultList;
         }
 
-        /// <summary>
-        /// Erfragt Informationen über die aktuell angeschlossenen Monitore/Bildschirme
-        /// </summary>
-        /// <returns>Monitor-/Bildschirminformationen</returns>
-        public static ScreenInfo ScreenInformation => _screenInfo;
-        
+        #region Internals
+        internal static float _octreeSafetyZone = 1f;
+        internal static float _swpruneTolerance = 2.0f;
+
         internal static ScreenInfo CollectScreenInfo()
         {
             MonitorInfo primaryMonitor = Monitors.GetPrimaryMonitor();
@@ -820,5 +589,287 @@ namespace KWEngine3
 
         internal static ScreenInfo _screenInfo = CollectScreenInfo();
         internal static float _vsgShakeFactor = 0.1f;
+
+        internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
+        internal static Dictionary<string, GeoMeshCollider> CustomColliders { get; set; } = new Dictionary<string, GeoMeshCollider>();
+        internal const float SIMULATIONNIBBLESIZE = 1f / 240f;
+        internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
+        internal const int LIGHTINDEXDIVIDER = 17;
+        internal const float RAYTRACE_EPSILON = 0.000001f;
+        internal const float RAYTRACE_SAFETY = 0.1f;
+        internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;
+        internal const int TERRAIN_PATCH_SIZE = 16;
+        internal static void DeleteCustomModelsFontsAndTexturesFromCurrentWorld()
+        {
+            for (int i = KWEngine.CurrentWorld._customTextures.Count - 1; i >= 0; i--)
+            {
+                string currentTextureFilename = KWEngine.CurrentWorld._customTextures.Keys.ElementAt(i);
+                int currentTexture = KWEngine.CurrentWorld._customTextures[currentTextureFilename].ID;
+                HelperTexture.DeleteTexture(currentTexture);
+            }
+            KWEngine.CurrentWorld._customTextures.Clear();
+
+            // MODELS
+            for (int i = Models.Keys.Count - 1; i >= 5; i--)
+            {
+                string modelName = Models.Keys.ElementAt(i);
+                GeoModel m = Models[modelName];
+                m.Dispose();
+                Models.Remove(modelName);
+            }
+
+            // FONTS
+            for (int i = FontDictionary.Keys.Count - 1; i >= 5; i--)
+            {
+                string fontname = FontDictionary.Keys.ElementAt(i);
+                KWFont kwfont = FontDictionary[fontname];
+                if (kwfont != null)
+                {
+                    kwfont.Dispose();
+                }
+                FontDictionary.Remove(fontname);
+            }
+
+            // CUSTOM COLLIDERS
+            CustomColliders.Clear();
+        }
+
+        internal static EngineMode Mode { get; set; } = EngineMode.Play;
+
+        internal static Matrix4 Matrix4Dummy = Matrix4.Identity;
+        internal static int TextureDefault = -1;
+        internal static int TextureBlack = -1;
+        internal static int TextureWhite = -1;
+        internal static int TextureAlpha = -1;
+        internal static int TextureNormalEmpty = -1;
+        internal static int TextureNoise = -1;
+        internal static int TextureCubemapEmpty = -1;
+        internal static int TextureDepthEmpty = -1;
+        internal static int TextureDepthCubeMapEmpty = -1;
+        internal static int TextureCheckerboard = -1;
+
+        internal static int TextureFlowFieldArrow = -1;
+        internal static int TextureFlowFieldCross = -1;
+
+        internal static int TextureFoliageGrass1 = -1;
+        internal static int TextureFoliageGrass2 = -1;
+        internal static int TextureFoliageGrass3 = -1;
+        internal static int TextureFoliageGrassMinecraft = -1;
+        internal static int TextureFoliageFern = -1;
+        internal static int TextureFoliageGrassNormal = -1;
+
+        internal static float TimeElapsed = 0;
+
+        internal static Vector3 DefaultCameraPosition = new(0, 0, 10);
+
+        internal static Dictionary<string, KWFont> FontDictionary = new();
+
+        internal static void InitializeFontsAndDefaultTextures()
+        {
+            Window.AnisotropicFilteringLevel = (int)Window._ppQuality == 2 ? 8 : (int)Window._ppQuality == 1 ? 4 : 1;
+
+            int mipMaps;
+
+            KWQuad2D.Init();
+            KWQuad2D_05.Init();
+            FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf")));
+            FontDictionary.Add("MajorMonoDisplay", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf")));
+            FontDictionary.Add("NovaMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf")));
+            FontDictionary.Add("XanhMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("XanhMono.ttf")));
+            FontDictionary.Add("OpenSans", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf")));
+
+            TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
+            TextureBlack = HelperTexture.LoadTextureInternal("black.png");
+            TextureWhite = HelperTexture.LoadTextureInternal("white.png");
+            TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
+            TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
+            TextureNoise = HelperTexture.LoadTextureInternal("noise.png");
+            TextureCheckerboard = HelperTexture.LoadTextureInternal("checkerboard.png");
+
+            TextureFlowFieldArrow = HelperTexture.LoadTextureInternal("arrow.png");
+            TextureFlowFieldCross = HelperTexture.LoadTextureInternal("cross.png");
+
+            TextureFoliageGrass1 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_01.dds", out mipMaps);
+            TextureFoliageGrass2 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_02.dds", out mipMaps);
+            TextureFoliageGrass3 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_03.dds", out mipMaps);
+            TextureFoliageGrassMinecraft = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_minecraft.dds", out mipMaps);
+            TextureFoliageFern = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_fern.dds", out mipMaps);
+            TextureFoliageGrassNormal = HelperTexture.LoadTextureInternal("foliage_grassblade_normal.png");
+
+            TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
+            TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();
+            TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture();
+        }
+
+
+
+        internal static GeoModel KWStar;
+        internal static GeoModel KWHeart;
+        internal static GeoModel KWSkull;
+        internal static GeoModel KWDollar;
+        internal static GeoModel KWLightBulb;
+        internal static GeoMeshCollider KWCapsule;
+        internal static GeoMeshCollider KWCapsule2;
+        internal static GeoMeshCollider KWSphereCollider;
+        internal static GeoModel KWFoliageMinecraft;
+        internal static GeoModel KWFoliageFern;
+        internal static GeoModel KWMapItemXZ;
+        internal static GeoModel KWMapItemXY;
+
+        internal static void InitializeModels()
+        {
+            Models.Add("KWCube", SceneImporter.LoadModel("kwcube.obj", true, SceneImporter.AssemblyMode.Internal));
+            Models.Add("KWQuad", SceneImporter.LoadModel("kwquad.obj", true, SceneImporter.AssemblyMode.Internal));
+            Models.Add("KWQuad2D", SceneImporter.LoadModel("kwquad2.obj", true, SceneImporter.AssemblyMode.Internal));
+            Models.Add("KWSphere", SceneImporter.LoadModel("kwsphere.obj", true, SceneImporter.AssemblyMode.Internal));
+            Models.Add("KWPlatform", SceneImporter.LoadModel("kwplatform.obj", true, SceneImporter.AssemblyMode.Internal));
+            KWStar = SceneImporter.LoadModel("star.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWHeart = SceneImporter.LoadModel("heart.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWSkull = SceneImporter.LoadModel("skull.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWDollar = SceneImporter.LoadModel("dollar.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWLightBulb = SceneImporter.LoadModel("lightbulb.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWSphereCollider = SceneImporter.LoadColliderInternal("kwsphere_collider.obj", ColliderType.ConvexHull);
+            KWCapsule = SceneImporter.LoadColliderInternal("capsulehitbox.obj", ColliderType.ConvexHull);
+            KWCapsule2 = SceneImporter.LoadColliderInternal("capsulehitbox2.obj", ColliderType.ConvexHull);
+            KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
+            KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
+            KWMapItemXZ = SceneImporter.LoadModel("kwmapquadxz.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWMapItemXY = SceneImporter.LoadModel("kwmapquadxy.obj", false, SceneImporter.AssemblyMode.Internal);
+
+            KWFoliageGrass.Init();
+            KWTerrainQuad.Init();
+
+
+            for (int i = 0; i < ExplosionObject.Axes.Length; i++)
+            {
+                ExplosionObject.Axes[i] = Vector3.Normalize(ExplosionObject.Axes[i]);
+            }
+
+        }
+
+        internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new();
+        internal static void InitializeParticles()
+        {
+            int tex;
+
+            // Bursts:
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("fire01.dds");
+            ParticleDictionary.Add(ParticleType.BurstFire1, new ParticleInfo(tex, 8, 64));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("fire02.dds");
+            ParticleDictionary.Add(ParticleType.BurstFire2, new ParticleInfo(tex, 7, 49));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("fire03.dds");
+            ParticleDictionary.Add(ParticleType.BurstFire3, new ParticleInfo(tex, 9, 81));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("fire04.dds");
+            ParticleDictionary.Add(ParticleType.BurstElectricity, new ParticleInfo(tex, 4, 16));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_bubbles.dds");
+            ParticleDictionary.Add(ParticleType.BurstBubblesColored, new ParticleInfo(tex, 6, 36));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_bubbles_unicolor.dds");
+            ParticleDictionary.Add(ParticleType.BurstBubblesMonochrome, new ParticleInfo(tex, 6, 36));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_explosioncolored.dds");
+            ParticleDictionary.Add(ParticleType.BurstFirework1, new ParticleInfo(tex, 7, 49));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_firework.dds");
+            ParticleDictionary.Add(ParticleType.BurstFirework2, new ParticleInfo(tex, 7, 49));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_hearts.dds");
+            ParticleDictionary.Add(ParticleType.BurstHearts, new ParticleInfo(tex, 7, 49));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_plusplusplus.dds");
+            ParticleDictionary.Add(ParticleType.BurstOneUps, new ParticleInfo(tex, 6, 36));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_shield.dds");
+            ParticleDictionary.Add(ParticleType.BurstShield, new ParticleInfo(tex, 6, 36));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport1.dds");
+            ParticleDictionary.Add(ParticleType.BurstTeleport1, new ParticleInfo(tex, 4, 16));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport2.dds");
+            ParticleDictionary.Add(ParticleType.BurstTeleport2, new ParticleInfo(tex, 4, 16));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport3.dds");
+            ParticleDictionary.Add(ParticleType.BurstTeleport3, new ParticleInfo(tex, 4, 16));
+
+            // Loops:
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke01.dds");
+            ParticleDictionary.Add(ParticleType.LoopSmoke1, new ParticleInfo(tex, 4, 16));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke02.dds");
+            ParticleDictionary.Add(ParticleType.LoopSmoke2, new ParticleInfo(tex, 7, 46));
+
+            tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke03.dds");
+            ParticleDictionary.Add(ParticleType.LoopSmoke3, new ParticleInfo(tex, 6, 32));
+
+        }
+
+        internal static Matrix4 Identity = Matrix4.Identity;
+        internal static int _uniformOffsetMultiplier = 1;
+        internal static float _glowRadius = 0.75f;
+        internal static float _glowUpsampleF1 = 0.15f;
+        internal static float _glowUpsampleF2 = 0.70f;
+        internal const int BLOOMWIDTH = 960;
+        internal const int BLOOMHEIGHT = 540;
+
+        internal static void DeselectAll()
+        {
+            KWBuilderOverlay.SelectedGameObject = null;
+            KWBuilderOverlay.SelectedLightObject = null;
+            KWBuilderOverlay.SelectedTerrainObject = null;
+        }
+
+        // SSAO settings
+        internal static float _ssaoRadius = 0.40f;
+        internal static float _ssaoBias = 0.10f;
+        internal static bool _ssaoEnabled = false;
+
+        internal static CursorState _stateCameraGameBeforeToggle = CursorState.Normal;
+        internal static float _texMemUsed = 0f;
+        internal static float _geometryMemUsed = 0f;
+        internal static void ToggleEditMode()
+        {
+            if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
+            {
+                Mode = Mode == EngineMode.Play ? EngineMode.Edit : EngineMode.Play;
+                if (EditModeActive)
+                {
+                    _texMemUsed = MathF.Round(HelperGeneral.GetTextureStorageSize() / 1000000f, 2);
+                    _geometryMemUsed = MathF.Round(HelperGeneral.GetGeometryStorageSize() / 1000000f, 2);
+                    CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
+                    CurrentWorld._cameraEditor.UpdatePitchYaw(true);
+                    _stateCameraGameBeforeToggle = Window.CursorState;
+                    CurrentWorld.MouseCursorReset();
+                }
+                else
+                {
+                    CurrentWorld._cameraGame._frustum.UpdateFrustum(CurrentWorld._cameraGame._stateCurrent.ProjectionMatrix, CurrentWorld._cameraGame._stateCurrent.ViewMatrix);
+                    Window.CursorState = _stateCameraGameBeforeToggle;
+                    DeselectAll();
+                }
+            }
+        }
+
+        internal static double DeltaTimeAccumulator { get; set; } = 0.0f;
+        internal static float DeltaTimeFactorForOverlay { get; set; } = 1f;
+        internal static double DeltaTimeCurrentNibbleSize { get; set; } = SIMULATIONNIBBLESIZE;
+        internal static float LastFrameTime { get; set; } = 0.0f;
+        internal static int LastSimulationUpdateCycleCount { get; set; } = 0;
+
+        internal static GeoModel GetModel(string name)
+        {
+            bool modelFound = Models.TryGetValue(name, out GeoModel m);
+            if (!modelFound)
+            {
+                KWEngine.LogWriteLine("[Model] Model " + (name == null ? "" : name.Trim()) + " not found");
+            }
+            return m;
+        }
+
+        internal static float RayIntersectionErrorMarginFactor { get; set; } = 1.00001f;
+        #endregion
     }
 }

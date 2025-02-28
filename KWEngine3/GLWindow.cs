@@ -45,6 +45,8 @@ namespace KWEngine3
 
         // other:
         internal Matrix4 _viewProjectionMatrixHUD;
+        internal Matrix4 _viewMatrixHUD;
+        internal Matrix4 _projectionMatrixHUD;
         internal KWBuilderOverlay Overlay { get; set; }
         internal Stopwatch _stopwatch = new();
 
@@ -289,8 +291,30 @@ namespace KWEngine3
             GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
 
             Overlay.WindowResized(ClientSize.X, ClientSize.Y);
-            _viewProjectionMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0) * Matrix4.CreateOrthographicOffCenter(0f, ClientSize.X, ClientSize.Y, 0f , 0.01f, 10f);
+            _viewMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
+            _projectionMatrixHUD = Matrix4.CreateOrthographicOffCenter(0f, ClientSize.X, ClientSize.Y, 0f, 0.01f, 10f);
+            _viewProjectionMatrixHUD = _viewMatrixHUD * _projectionMatrixHUD;
         }
+
+        /// <summary>
+        /// Enthält die aktuelle Projektionsmatrix für HUD-Objekte
+        /// </summary>
+        public Matrix4 ProjectionMatrixHUD { get { return _projectionMatrixHUD; } }
+
+        /// <summary>
+        /// Enthält die aktuelle Viewmatrix für HUD-Objekte
+        /// </summary>
+        public Matrix4 ViewMatrixHUD { get { return _viewMatrixHUD; } }
+
+        /// <summary>
+        /// Enthält die aktuelle View-Projektionsmatrix für HUD-Objekte
+        /// </summary>
+        public Matrix4 ViewProjectionMatrixHUD { get { return _viewProjectionMatrixHUD; } }
+
+        /// <summary>
+        /// Enthält die aktuelle View-Projektionsmatrix für die In-Game-Kamera
+        /// </summary>
+        public Matrix4 ViewProjectionMatrix { get { return KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix; } }
 
         /// <summary>
         /// Wird ausgeführt, wenn ein neues Bild gezeichnet werden soll
@@ -544,9 +568,7 @@ namespace KWEngine3
             GL.Disable(EnableCap.CullFace);
 
             // HUD objects first pass:
-            HelperGeneral.CheckGLErrors();
             int hudrenderindex = RendererHUD.RenderHUDObjects(0, true);
-            HelperGeneral.CheckGLErrors();
             if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
             {
                 // map pass:
@@ -554,11 +576,9 @@ namespace KWEngine3
                 RendererHUD.SetGlobals();
                 RendererHUD.DrawMap();
             }
-            HelperGeneral.CheckGLErrors();
 
             // HUD objects second pass:
             RendererHUD.RenderHUDObjects(hudrenderindex, false);
-            HelperGeneral.CheckGLErrors();
 
             GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.DepthTest);
