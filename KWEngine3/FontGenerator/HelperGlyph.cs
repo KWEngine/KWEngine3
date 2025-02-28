@@ -70,6 +70,7 @@ namespace KWEngine3.FontGenerator
 
             kwfont.Texture = texture;
             kwfont.TextureSize = (int)(tx256.Length / 4 * 1.333333f);
+            kwfont.IsValid = true;
             return kwfont;
         }
 
@@ -182,10 +183,12 @@ namespace KWEngine3.FontGenerator
 
                 // copy to big texture:
                 float offsetX = glyphPositionInTexture.X * width;
-                SKPoint target = new SKPoint(offsetX, downshift);
-                canvas.DrawBitmap(bm8, target);
-                canvas.Flush();
-                
+                if(bm8 != null && bm8.DrawsNothing == false)
+                {
+                    SKPoint target = new SKPoint(offsetX, downshift);
+                    canvas.DrawBitmap(bm8, target);
+                    canvas.Flush();
+                }
                 bm8.Dispose();
             }
             canvas.Dispose();

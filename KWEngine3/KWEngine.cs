@@ -439,7 +439,7 @@ namespace KWEngine3
         {
             MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
             string callerName = caller.Name;
-            if (callerName != "Prepare" && callerName != "BuildWorld")
+            if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildTextObject")
             {
                 LogWriteLine("[Import] Font " + filename + " must be imported in Prepare() - aborting import");
                 return false;
