@@ -523,7 +523,7 @@ namespace KWEngine3
             }
             AddRemoveTextObjects();
 
-            KWEngine.DeleteCustomModelsAndTexturesFromCurrentWorld();
+            KWEngine.DeleteCustomModelsFontsAndTexturesFromCurrentWorld();
 
             _eventQueue.Clear();
         }

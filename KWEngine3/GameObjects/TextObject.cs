@@ -247,6 +247,27 @@ namespace KWEngine3.GameObjects
         {
             string fontname = HelperFont.GetNameForInternalFontID((int)font);
             _font = KWEngine.FontDictionary[fontname];
+            UpdateOffsetList();
+        }
+
+        /// <summary>
+        /// Setzt die anzuzeigende Schriftart anhand ihres Namens
+        /// </summary>
+        /// <param name="font">Name der zu benutzenden Schriftart</param>
+        public void SetFont(string font)
+        {
+            if (font == null || font.Length < 1)
+                return;
+
+            if(KWEngine.FontDictionary.TryGetValue(font, out KWFont f))
+            {
+                _font = f;
+            }
+            else
+            {
+                _font = KWEngine.FontDictionary["Anonymous"];
+            }
+            UpdateOffsetList();
         }
 
         /// <summary>

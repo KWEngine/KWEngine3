@@ -1,4 +1,6 @@
-﻿namespace KWEngine3.FontGenerator
+﻿using OpenTK.Graphics.OpenGL4;
+
+namespace KWEngine3.FontGenerator
 {
     internal class KWFont
     {
@@ -6,6 +8,14 @@
         public Dictionary<char, KWFontGlyph> GlyphDict { get; internal set; }
         public int Texture { get; internal set; }
         public int TextureSize { get; internal set; }
+
+        public void Dispose()
+        {
+            GL.DeleteTexture(Texture);
+            GlyphDict.Clear();
+            TextureSize = 0;
+            IsValid = false;
+        }
 
         public KWFontGlyph GetGlyphForCodepoint(char codepoint)
         {

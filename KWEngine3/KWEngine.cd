@@ -12,7 +12,6 @@
       <Field Name="_ppQuality" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
-      <Field Name="_viewProjectionMatrixHUDNew" Hidden="true" />
       <Field Name="_worldNew" Hidden="true" />
       <Property Name="AnisotropicFilteringLevel" Hidden="true" />
       <Field Name="DELTASFORMOVINGAVG" Hidden="true" />
@@ -71,10 +70,9 @@
       <Property Name="DeltaTimeCurrentNibbleSize" Hidden="true" />
       <Property Name="DeltaTimeFactorForOverlay" Hidden="true" />
       <Method Name="DeselectAll" Hidden="true" />
-      <Property Name="FontTextureArray" Hidden="true" />
+      <Field Name="FontDictionary" Hidden="true" />
       <Method Name="GetModel" Hidden="true" />
       <Field Name="Identity" Hidden="true" />
-      <Method Name="InitializeFont" Hidden="true" />
       <Method Name="InitializeFontsAndDefaultTextures" Hidden="true" />
       <Method Name="InitializeModels" Hidden="true" />
       <Method Name="InitializeParticles" Hidden="true" />
@@ -126,7 +124,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgAR7BNAqSJgLEcpApqAZARVCgCQioSjHn2Sv2KEIE=</HashCode>
+      <HashCode>BcgAR7BNAqSJgLEcpApqAZARVCgCQmoSjHn2SP2KEIE=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -450,26 +448,29 @@
   <Class Name="KWEngine3.GameObjects.TextObject">
     <Position X="24.5" Y="0.5" Width="2.75" />
     <Members>
-      <Field Name="_fontFace" Hidden="true" />
+      <Field Name="_advances" Hidden="true" />
+      <Field Name="_font" Hidden="true" />
+      <Field Name="_glyphWidths" Hidden="true" />
       <Field Name="_name" Hidden="true" />
-      <Field Name="_offsets" Hidden="true" />
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
       <Field Name="_stateRender" Hidden="true" />
       <Field Name="_text" Hidden="true" />
-      <Method Name="GenerateOffsetsForText" Hidden="true" />
+      <Field Name="_uvOffsets" Hidden="true" />
+      <Field Name="_width" Hidden="true" />
+      <Field Name="_widthNormalised" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
       <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
-      <Method Name="UpdateWidth" Hidden="true" />
+      <Method Name="UpdateOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QAhAMQAAABQAEAQgQIKAAUTAAABBCggIQIgAygBAAdQ=</HashCode>
+      <HashCode>AAhAMQAQAhQAAASgQIKAAQSAAFDBCgiIQIiAygBQAVQ=</HashCode>
       <FileName>GameObjects\TextObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectImage">
-    <Position X="15.5" Y="9.75" Width="2.75" />
+    <Position X="15.5" Y="14.25" Width="2.75" />
     <Members>
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
@@ -478,21 +479,25 @@
       <Method Name="SetTextureForMap" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QAAAAAAQAAAABAQAAAIAAAAAACAAQAAAAAEAAQAAAAU=</HashCode>
+      <HashCode>QAAAAAAQAAAABAQAAAIAAAAAACAAQAAAAAEAAwAAAAU=</HashCode>
       <FileName>GameObjects\HUDObjectImage.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectText">
-    <Position X="15.5" Y="6" Width="2.75" />
+    <Position X="15.5" Y="5.75" Width="2.75" />
     <Members>
-      <Field Name="_offsets" Hidden="true" />
+      <Field Name="_advances" Hidden="true" />
+      <Field Name="_font" Hidden="true" />
+      <Field Name="_glyphWidths" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
       <Field Name="_text" Hidden="true" />
-      <Field Name="_textureId" Hidden="true" />
+      <Field Name="_uvOffsets" Hidden="true" />
+      <Field Name="_width" Hidden="true" />
+      <Field Name="_widthNormalised" Hidden="true" />
       <Method Name="UpdateOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>UAAAAAAQAAAAAAAAEIAAAACAAAAAAAAIQAAASAASIAU=</HashCode>
+      <HashCode>EAAAAAAQAgAAAACAEIAAAACAABCAAACIQACASgASIAU=</HashCode>
       <FileName>GameObjects\HUDObjectText.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -509,7 +514,7 @@
       <Method Name="UpdateMVP" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AABIEABAAAIIEAQgAAIAVQQAAAABAgABACgCggDAACU=</HashCode>
+      <HashCode>AABIEABAAAIIEAQgAAIAVQQAAAABAgABACgCgADAACU=</HashCode>
       <FileName>GameObjects\HUDObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -713,13 +718,13 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectTextInput">
-    <Position X="15.5" Y="12.75" Width="2.75" />
+    <Position X="15.5" Y="10" Width="2.75" />
     <Members>
+      <Field Name="_advanceForCursor" Hidden="true" />
       <Field Name="_cursorBlinkSpeed" Hidden="true" />
       <Field Name="_cursorPos" Hidden="true" />
       <Field Name="_cursorType" Hidden="true" />
       <Field Name="_maxInputLength" Hidden="true" />
-      <Field Name="_offsetsCursor" Hidden="true" />
       <Field Name="_textBeforeAbort" Hidden="true" />
       <Field Name="_timeout" Hidden="true" />
       <Method Name="AbortAndRaiseWorldEvent" Hidden="true" />
@@ -727,12 +732,13 @@
       <Method Name="Backspace" Hidden="true" />
       <Method Name="ConfirmAndRaiseWorldEvent" Hidden="true" />
       <Method Name="Delete" Hidden="true" />
+      <Method Name="GetGlyphForCursor" Hidden="true" />
       <Method Name="KeepENTERESCKeyPressedForOneSimulationStep" Hidden="true" />
       <Method Name="MoveCursor" Hidden="true" />
-      <Method Name="UpdateCursorOffsetList" Hidden="true" />
+      <Method Name="UpdateCursorOffset" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CEAkQAAACEQAAUEQAIAAAACAAAUAAQAECAUERASAAAA=</HashCode>
+      <HashCode>CEgkQAAACEQAAUEAAIAAAACQAAEAAQAECEUERASAAAA=</HashCode>
       <FileName>GameObjects\HUDObjectTextInput.cs</FileName>
     </TypeIdentifier>
   </Class>

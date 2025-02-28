@@ -71,7 +71,7 @@ namespace KWEngine3
         internal static Dictionary<string, GeoModel> Models { get; set; } = new Dictionary<string, GeoModel>();
         internal static Dictionary<string, GeoMeshCollider> CustomColliders { get; set; } = new Dictionary<string, GeoMeshCollider>();
 
-        internal static void DeleteCustomModelsAndTexturesFromCurrentWorld()
+        internal static void DeleteCustomModelsFontsAndTexturesFromCurrentWorld()
         {
             for(int i = KWEngine.CurrentWorld._customTextures.Count - 1; i >= 0; i--)
             {
@@ -88,6 +88,18 @@ namespace KWEngine3
                 GeoModel m = Models[modelName];
                 m.Dispose();
                 Models.Remove(modelName);
+            }
+
+            // FONTS
+            for (int i = FontDictionary.Keys.Count - 1; i >= 5; i--)
+            {
+                string fontname = FontDictionary.Keys.ElementAt(i);
+                KWFont kwfont = FontDictionary[fontname];
+                if(kwfont != null)
+                {
+                    kwfont.Dispose();
+                }
+                FontDictionary.Remove(fontname);
             }
 
             // CUSTOM COLLIDERS
