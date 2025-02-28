@@ -16,14 +16,9 @@ namespace KWEngine3.Renderer
         public static int UTexture { get; private set; } = -1;
         public static int UColorTint { get; private set; } = -1;
         public static int UColorGlow { get; private set; } = -1;
-        public static int UOffsets { get; private set; } = -1;
-        public static int UOffsetCount { get; private set; } = -1;
         public static int UTextAlign { get; private set; } = -1;
-        public static int UCursorInfo { get; private set; } = -1;
-        public static int UCharacterDistance { get; private set; } = -1;
         public static int UMode { get; private set; } = -1;
         public static int UId { get; private set; } = -1;
-        public static int UCharacterWidth { get; private set; } = -1;
         public static int UTextureRepeat { get; private set; } = -1;
         public static int UOptions { get; private set; } = -1;
 
@@ -51,19 +46,19 @@ namespace KWEngine3.Renderer
 
                 GL.LinkProgram(ProgramID);
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
-                UCharacterDistance = GL.GetUniformLocation(ProgramID, "uCharacterDistance");
+                //UCharacterDistance = GL.GetUniformLocation(ProgramID, "uCharacterDistance");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UColorGlow = GL.GetUniformLocation(ProgramID, "uColorGlow");
-                UOffsets = GL.GetUniformLocation(ProgramID, "uOffsets");
-                UOffsetCount = GL.GetUniformLocation(ProgramID, "uOffsetCount");
-                UCharacterWidth = GL.GetUniformLocation(ProgramID, "uCharacterWidth");
+                //UOffsets = GL.GetUniformLocation(ProgramID, "uOffsets");
+                //UOffsetCount = GL.GetUniformLocation(ProgramID, "uOffsetCount");
+                //UCharacterWidth = GL.GetUniformLocation(ProgramID, "uCharacterWidth");
                 UTextAlign = GL.GetUniformLocation(ProgramID, "uTextAlign");
                 UMode = GL.GetUniformLocation(ProgramID, "uMode"); // 0 = text, 1 = image, 2 = textInput, etc.
                 UTextureRepeat = GL.GetUniformLocation(ProgramID, "uTextureRepeat");
                 UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
-                UCursorInfo = GL.GetUniformLocation(ProgramID, "uCursorInfo");
+                //UCursorInfo = GL.GetUniformLocation(ProgramID, "uCursorInfo");
             }
         }
 
@@ -83,29 +78,58 @@ namespace KWEngine3.Renderer
             GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
             if (back)
             {
+                GL.BindVertexArray(KWQuad2D_05.VAO);
                 for (int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
                 {
                     HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
                     if (h._zIndex > -2f)
                         break;
+
+
                     if (h is HUDObjectText)
-                        continue;
-                    Draw(h);
+                    {
+                        RendererHUDText.Bind();
+                        RendererHUDText.SetGlobals();
+                        RendererHUDText.Draw(h as HUDObjectText);
+                        HelperGeneral.CheckGLErrors();
+                    }
+                    else
+                    {
+                        Bind();
+                        SetGlobals();
+                        Draw(h);
+                        HelperGeneral.CheckGLErrors();
+                    }
+                        
                     index++;
                 }
+                GL.BindVertexArray(0);
                 return index;
             }
             else
             {
                 // Render the rest of the HUDObject instances:
+                GL.BindVertexArray(KWQuad2D_05.VAO);
                 for (int i = index; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
                 {
                     HUDObject h = KWEngine.CurrentWorld._hudObjects[i];
                     if (h is HUDObjectText)
-                        continue;
-                    Draw(h);
+                    {
+                        RendererHUDText.Bind();
+                        RendererHUDText.SetGlobals();
+                        RendererHUDText.Draw(h as HUDObjectText);
+                        HelperGeneral.CheckGLErrors();
+                    }
+                    else
+                    {
+                        Bind();
+                        SetGlobals();
+                        Draw(h as HUDObjectImage);
+                        HelperGeneral.CheckGLErrors();
+                    }
                     index++;
                 }
+                GL.BindVertexArray(0);
                 return -1;
             }
         }
@@ -148,7 +172,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._color);
             GL.Uniform4(UColorGlow, ho._colorE);
             GL.Uniform2(UTextureRepeat, ho._textureRepeat);
-            GL.Uniform1(UMode, 2);
+            //GL.Uniform1(UMode, 2);
             GL.Uniform1(UOptions, KWEngine.CurrentWorld.Map._drawAsCircle ? 1 : 0);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             Matrix4 tmp = KWEngine.CurrentWorld.Map._camView * KWEngine.CurrentWorld.Map._camPreRotation * KWEngine.CurrentWorld.Map._camProjection;
@@ -202,7 +226,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._color);
             GL.Uniform4(UColorGlow, ho._colorE);
             GL.Uniform2(UTextureRepeat, ho._textureRepeat);
-            GL.Uniform1(UMode, 2);
+            //GL.Uniform1(UMode, 2);
             GL.Uniform1(UOptions, KWEngine.CurrentWorld.Map._drawAsCircle ? 1 : 0);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             Matrix4 tmp = KWEngine.CurrentWorld.Map._camView * KWEngine.CurrentWorld.Map._camPreRotation * KWEngine.CurrentWorld.Map._camProjection;
@@ -230,71 +254,20 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._tint);
             GL.Uniform4(UColorGlow, ho._glow);
             GL.Uniform2(UTextureRepeat, txR);
-            GL.Uniform1(UOptions, 0);
-            GL.Uniform3(UCursorInfo, 0f, 0f, 0f);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
-            GL.BindVertexArray(KWQuad2D_05.VAO);
-            /*
-            if (ho is HUDObjectText)
-            {
-                DrawText(ho as HUDObjectText);
-            }
-            else if(ho is HUDObjectImage)
-            {
-                DrawImage(ho as HUDObjectImage);
-            }
-            */
+            
             DrawImage(ho as HUDObjectImage);
             GL.BindTexture(TextureTarget.Texture2D, 0);
-            GL.BindVertexArray(0);
         }
-
-        
-        /*
-        internal static void DrawText(HUDObjectText ho)
-        {
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, ho._font.Texture);
-            GL.Uniform1(UTexture, 0);
-            GL.Uniform1(UMode, 0);
-            GL.Uniform1(UOptions, 0);
-            GL.Uniform1(UOffsets, ho._uvOffsets.Length, ho._uvOffsets);
-            GL.Uniform1(UOffsetCount, ho._uvOffsets.Length);
-            GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
-            GL.Uniform1(UCharacterWidth, ho._scale.X);
-            GL.Uniform1(UCharacterDistance, ho._spread);
-            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._uvOffsets.Length);
-          
-            if(ho is HUDObjectTextInput)
-            {
-                HUDObjectTextInput i = (HUDObjectTextInput)ho;
-                if(i.HasFocus && i._offsetsCursor != null)
-                {
-                    GL.Uniform1(UMode, i.CursorType == KeyboardCursorType.Pipe ? 3 : i.CursorType == KeyboardCursorType.Underscore ? 4 : 5);
-                    GL.Uniform3(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed);
-                    GL.Uniform1(UOffsets, i._offsetsCursor.Length, i._offsetsCursor);
-                    GL.Uniform1(UOffsetCount, i._offsetsCursor.Length);
-                    GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, i._offsetsCursor.Length);
-                    //GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, i._offsetsCursor.Length);
-                }
-            }
-        }
-        */
 
         internal static void DrawImage(HUDObjectImage ho)
         {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
             GL.Uniform1(UTexture, 0);
-            GL.Uniform1(UMode, 1);
-            GL.Uniform1(UOptions, 0);
-            GL.Uniform1(UOffsets, 0, _arrayEmptyInt32);
-            GL.Uniform1(UOffsetCount, 0);
-            GL.Uniform1(UTextAlign, 0);
-            GL.Uniform1(UCharacterWidth, ho._scale.X);
-            GL.Uniform1(UCharacterDistance, 1f);
 
+            GL.Uniform1(UOptions, 0);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
         }
 

@@ -16,7 +16,7 @@ namespace KWEngine3TestProject.Worlds
         {
             if(HelperRandom.GetRandomNumber(0, 100) == 0)
             {
-                StartCameraShake(2.5f, 2.5f, 2.5f, 1.0f, 100f, ShakeMode.Additive);
+                //StartCameraShake(2.5f, 2.5f, 2.5f, 1.0f, 100f, ShakeMode.Additive);
             }
 
             if(Map.Enabled)
@@ -45,14 +45,14 @@ namespace KWEngine3TestProject.Worlds
 
             HUDObjectImage testBack = new HUDObjectImage();
             testBack.SetZIndex(-5f);
-            testBack.SetPosition(300, 300);
+            testBack.SetPosition(Window.Width - 256, Window.Height - 256);
             testBack.SetScale(128, 128);
             testBack.SetColor(1, 0, 0);
-            testBack.SetColorEmissive(1, 0, 1);
-            testBack.SetColorEmissiveIntensity(1.5f);
+            //testBack.SetColorEmissive(1, 0, 1);
+            //testBack.SetColorEmissiveIntensity(1.5f);
             AddHUDObject(testBack);
             
-            HUDObjectText testBack2 = new HUDObjectText("Test");
+            HUDObjectText testBack2 = new HUDObjectText("Test (-100f)");
             testBack2.SetZIndex(-100f);
             testBack2.SetPosition(450, 310);
             testBack2.SetScale(48);
@@ -61,7 +61,25 @@ namespace KWEngine3TestProject.Worlds
             testBack2.SetColorEmissiveIntensity(2);
             AddHUDObject(testBack2);
 
-            HUDObject testFront = new HUDObjectImage("./Textures/mapcircle.png");
+            HUDObjectText testBack3 = new HUDObjectText("testback3 -100f");
+            testBack3.SetZIndex(-100f);
+            testBack3.SetPosition(Window.Width - 384, Window.Height - 256);
+            testBack3.SetScale(48);
+            testBack3.SetColor(1, 1, 0);
+            testBack3.SetColorEmissive(0, 1, 1);
+            testBack3.SetColorEmissiveIntensity(2);
+            AddHUDObject(testBack3);
+
+            HUDObjectText testBack4 = new HUDObjectText("testback4 5f");
+            testBack4.SetZIndex(5f);
+            testBack4.SetPosition(Window.Width - 256, Window.Height - 128);
+            testBack4.SetScale(48);
+            testBack4.SetColor(1, 1, 0);
+            testBack4.SetColorEmissive(1, 1, 0);
+            testBack4.SetColorEmissiveIntensity(1);
+            AddHUDObject(testBack4);
+
+            HUDObjectImage testFront = new HUDObjectImage("./Textures/mapcircle.png");
             testFront.SetZIndex(5f);
             testFront.SetPosition(Window.Width - 384 / 2, Window.Height - 384 / 2);
             //testFront.SetColor(0, 1, 1);

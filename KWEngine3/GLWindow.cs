@@ -544,19 +544,21 @@ namespace KWEngine3
             GL.Disable(EnableCap.CullFace);
 
             // HUD objects first pass:
+            HelperGeneral.CheckGLErrors();
             int hudrenderindex = RendererHUD.RenderHUDObjects(0, true);
+            HelperGeneral.CheckGLErrors();
             if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
             {
                 // map pass:
+                RendererHUD.Bind();
+                RendererHUD.SetGlobals();
                 RendererHUD.DrawMap();
             }
+            HelperGeneral.CheckGLErrors();
 
             // HUD objects second pass:
             RendererHUD.RenderHUDObjects(hudrenderindex, false);
-
-            RendererHUDText.Bind();
-            RendererHUDText.SetGlobals();
-            RendererHUDText.RenderHUDObjectTexts();
+            HelperGeneral.CheckGLErrors();
 
             GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.DepthTest);

@@ -76,7 +76,6 @@ namespace KWEngine3.Renderer
         {
             GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
-            
         }
 
         public static void RenderHUDObjectTexts()

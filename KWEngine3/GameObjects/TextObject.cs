@@ -335,11 +335,6 @@ namespace KWEngine3.GameObjects
         internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
 
         /// <summary>
-        /// Erfragt die aktuelle Breite des Objekts (mit Rücksicht auf CharacterSpreadFactor und Skalierung)
-        /// </summary>
-        public float Width { get { return _stateCurrent._width; } }
-
-        /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
         public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
