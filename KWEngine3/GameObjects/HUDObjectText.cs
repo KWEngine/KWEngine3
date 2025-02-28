@@ -37,8 +37,21 @@ namespace KWEngine3.GameObjects
         {
             Font = HelperFont.GetNameForInternalFontID((int)fontFace);
             _font = KWEngine.FontDictionary[Font];
-            _textureId = _font.Texture;
             UpdateOffsetList();
+        }
+
+        /// <summary>
+        /// Setzt die Schriftart anhand des Namens
+        /// </summary>
+        /// <remarks>Schriftart muss zuvor via KWEngine.LoadFont() importiert worden sein</remarks>
+        /// <param name="fontname">Name der Schriftart</param>
+        public void SetFont(string fontname)
+        {
+            if(KWEngine.FontDictionary.TryGetValue(fontname, out KWFont font))
+            {
+                _font = font;
+                UpdateOffsetList();
+            }
         }
 
         /// <summary>
@@ -186,11 +199,10 @@ namespace KWEngine3.GameObjects
         }
 
         #region Internals
-        internal int _textureId = (int)FontFace.Anonymous;
+        internal float _spread = 1f;
         internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 2];
         internal float[] _glyphWidths = new float[MAX_CHARS + 1];
         internal float[] _advances = new float[MAX_CHARS + 1];
-        internal float _spread = 1f;
         internal string _text = "";
         internal KWFont _font;
         internal float _width = 0f;
@@ -229,13 +241,6 @@ namespace KWEngine3.GameObjects
             {
                 (this as HUDObjectTextInput).UpdateCursorOffset();
             }
-        }
-
-        
-
-        internal static KWFontGlyph GetGlyphForCursor(HUDObjectTextInput ti)
-        {
-            return ti._font.GlyphDict[ti._cursorType == KeyboardCursorType.Pipe ? '|' : ti._cursorType == KeyboardCursorType.Underscore ? '_' : '·'];
         }
         #endregion
     }

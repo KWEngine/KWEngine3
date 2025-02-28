@@ -56,9 +56,9 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Gibt an, ob das Objekt Schatten werfen und empfangen kann (Standard: false)
+        /// Gibt an, ob das Objekt Schatten empfangen kann (Standard: false)
         /// </summary>
-        public bool IsShadowCaster { get; set; } = false;
+        public bool IsShadowReceiver { get; set; } = false;
         /// <summary>
         /// Gibt an, ob das Objekt von Lichtquellen und dem Ambient Light beeinflusst wird (Standard: true)
         /// </summary>
@@ -77,8 +77,8 @@ namespace KWEngine3.GameObjects
             if (text.Length > 127)
                 text = text.Substring(0, 127);
 
-            _text = text.ToList();
-            GenerateOffsetsForText();
+            _text = text;
+            UpdateOffsetList();
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace KWEngine3.GameObjects
         public void SetCharacterDistanceFactor(float f)
         {
             _stateCurrent._spreadFactor = Math.Clamp(f, 0.75f, 2f);
-            UpdateWidth();
+            UpdateOffsetList();
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace KWEngine3.GameObjects
             if (s <= 0)
                 s = 1;
             _stateCurrent._scale = s;
-            UpdateWidth();
+            UpdateOffsetList();
         }
 
         /// <summary>
@@ -348,37 +348,60 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
 
+        /// <summary>
+        /// Anzahl der maximal je Instanz gleichzeitig verwendbarer Zeichen
+        /// </summary>
+        public const int MAX_CHARS = 127;
+
         #region internals
         internal TextObjectState _stateCurrent;
         internal TextObjectState _statePrevious;
         internal TextObjectState _stateRender;
 
-        internal List<char> _text = new List<char>();
-        internal List<int> _offsets = new List<int>();
-        internal string _fontFace = "Anonymous";
-        internal string _name = "undefined text object";
+        internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 2];
+        internal float[] _glyphWidths = new float[MAX_CHARS + 1];
+        internal float[] _advances = new float[MAX_CHARS + 1];
+        internal string _text = "";
         internal KWFont _font = KWEngine.FontDictionary["Anonymous"];
+        internal float _width = 0f;
+        internal float _widthNormalised = 0f;
+        internal string _name = "undefined TextObject name";
+
+        internal void UpdateOffsetList()
+        {
+            KWFontGlyph space = _font.GetGlyphForCodepoint(' ');
+            for (int i = 0, j = 0; i < _text.Length; i++, j += 2)
+            {
+                KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
+
+                _uvOffsets[j + 0] = glyph.UCoordinate.X;
+                _uvOffsets[j + 1] = glyph.UCoordinate.Y;
+
+                float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Bearing;
+                float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;
+
+                _glyphWidths[i] = glyph.Width;
+
+                _advances[i + 1] = _advances[i] + glyph.Advance - glyph.Bearing + (space.Width * (_stateCurrent._spreadFactor - 1f));
+            }
+
+            if (_text.Length > 0)
+            {
+                _widthNormalised = _advances[_text.Length];
+                _width = _widthNormalised * _stateCurrent._scale;
+            }
+            else
+            {
+                _widthNormalised = 0f;
+                _width = 0f;
+            }
+        }
 
         internal void InitStates()
         {
             _stateCurrent = new TextObjectState(this);
             _stateRender = new TextObjectState(this);
             _statePrevious = _stateCurrent;
-        }
-
-        internal void GenerateOffsetsForText()
-        {
-            _offsets.Clear();
-            foreach(char c in _text)
-            {
-                _offsets.Add(Math.Max(0, c - 32));
-            }
-            UpdateWidth();
-        }
-
-        internal void UpdateWidth()
-        {
-            _stateCurrent._width = _stateCurrent._scale * _offsets.Count * _stateCurrent._spreadFactor;
         }
         #endregion
     }

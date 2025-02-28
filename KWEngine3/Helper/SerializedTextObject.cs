@@ -25,7 +25,7 @@ namespace KWEngine3.Helper
             SerializedTextObject st = new SerializedTextObject();
             st.Type = t.GetType().FullName;
             st.Name = t.Name;
-            st.IsShadowCaster = t.IsShadowCaster;
+            st.IsShadowCaster = t.IsShadowReceiver;
             st.IsAffectedByLight = t.IsAffectedByLight;
 
             st.Color = new float[] { t.Color.X, t.Color.Y, t.Color.Z, t.Opacity };

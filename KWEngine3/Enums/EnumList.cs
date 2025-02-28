@@ -788,7 +788,11 @@
         /// <summary>
         /// "Xanh Mono"
         /// </summary>
-        XanhMono = 3
+        XanhMono = 3,
+        /// <summary>
+        /// "Open Sans"
+        /// </summary>
+        OpenSans = 4
     }
 
     /// <summary>

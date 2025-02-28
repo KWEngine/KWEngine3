@@ -279,7 +279,7 @@ namespace KWEngine3.Helper
             t.SetText(st.Text);
             t.Name = st.Name;
             t.SetScale(st.Scale);
-            t.IsShadowCaster = st.IsShadowCaster;
+            t.IsShadowReceiver = st.IsShadowCaster;
             t.IsAffectedByLight = st.IsAffectedByLight;
             t.SetCharacterDistanceFactor(st.Spread);
             t.SetText(st.Text);

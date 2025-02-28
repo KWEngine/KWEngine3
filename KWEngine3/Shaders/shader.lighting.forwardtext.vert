@@ -6,9 +6,9 @@ layout(location = 2) in vec3 aNormal;
 
 uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
-uniform int uCharacterOffsets[128];
-uniform float uTextOffset;
-uniform float uSpread;
+uniform vec2 uUVOffsetsAndWidths[128];
+uniform float uAdvanceList[128];
+uniform float uWidths[128];
 uniform mat4 uViewProjectionMatrixShadowMap[3];
 
 out vec4 vPosition;
@@ -16,23 +16,35 @@ out vec2 vTexture;
 out vec3 vNormal;
 out vec4 vShadowCoord[3];
 
-const float letterSize = 128.0;
+bool isLeftVertex()
+{
+	return gl_VertexID == 0 || gl_VertexID == 4 || gl_VertexID == 5 || gl_VertexID == 6 || gl_VertexID == 10 || gl_VertexID == 11;
+}
 
 void main()
 {
-	vec4 totalLocalPos = vec4(0.0);
-	vec4 totalNormal = vec4(0.0);
+	vec4 pos = vec4(aPosition, 1.0);
+    pos.x *= uWidths[gl_InstanceID];
+    float left = pos.x + uWidths[gl_InstanceID] * 0.5 + uAdvanceList[gl_InstanceID];
+	pos = vec4(left, pos.y, pos.z, 1.0);
 	
-	totalLocalPos = vec4(aPosition, 1.0) - vec4(uTextOffset, 0, 0, 0) + vec4(gl_InstanceID * uSpread, 0, (gl_InstanceID - uTextOffset / 2.0) * 0.0015, 0);
-	totalNormal = vec4(aNormal, 0.0);
+	if(isLeftVertex())
+	{
+		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].x;
+	}
+	else
+	{
+		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].y;
+	}
+	vTexture.y = aTexture.y;
 
-	gl_Position = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
-	vPosition = uModelMatrix * totalLocalPos;
+
+	gl_Position = uViewProjectionMatrix * uModelMatrix * pos;
+	vPosition = uModelMatrix * pos;
 	for(int i = 0; i < 3; i++)
 	{
-		vShadowCoord[i] = uViewProjectionMatrixShadowMap[i] * uModelMatrix * totalLocalPos;
+		vShadowCoord[i] = uViewProjectionMatrixShadowMap[i] * uModelMatrix * pos;
 	}
-	vNormal = normalize((uModelMatrix * totalNormal).xyz);
-	vTexture.x = aTexture.x / letterSize + (uCharacterOffsets[gl_InstanceID] / letterSize);
-	vTexture.y = aTexture.y;
+	vNormal = normalize((uModelMatrix * vec4(aNormal, 0.0)).xyz);
+	
 }

@@ -372,14 +372,11 @@ namespace KWEngine3
 
             KWQuad2D.Init();
             KWQuad2D_05.Init();
-            FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf")));
-            
-            /*
-            InitializeFont("anonymous.dds", 0);
-            InitializeFont("anonymous2.dds", 1);
-            InitializeFont("anonymous3.dds", 2);
-            InitializeFont("anonymous4.dds", 3);
-            */
+            FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf")));
+            FontDictionary.Add("MajorMonoDisplay", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf")));
+            FontDictionary.Add("NovaMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf")));
+            FontDictionary.Add("XanhMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("XanhMono.ttf")));
+            FontDictionary.Add("OpenSans", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf")));
 
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
@@ -403,16 +400,6 @@ namespace KWEngine3
             TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();
             TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture();
         }
-
-        /*
-        internal static void InitializeFont(string filename, int index)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "KWEngine3.Assets.Fonts." + filename;
-            int textureId = HelperFont.GenerateTexture(resourceName, assembly);
-            FontTextureArray[index] = textureId;
-        }
-        */
 
         /// <summary>
         /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)

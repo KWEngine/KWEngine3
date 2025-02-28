@@ -313,8 +313,13 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateCursorOffset()
         {
-            KWFontGlyph glyph = GetGlyphForCursor(this);
+            KWFontGlyph glyph = GetGlyphForCursor();
             _advanceForCursor = _advances[CursorPosition] + glyph.Width * 0.5f;
+        }
+
+        internal KWFontGlyph GetGlyphForCursor()
+        {
+            return _font.GlyphDict[_cursorType == KeyboardCursorType.Pipe ? '|' : _cursorType == KeyboardCursorType.Underscore ? '_' : '·'];
         }
         #endregion
     }

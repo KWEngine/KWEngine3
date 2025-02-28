@@ -22,9 +22,9 @@ namespace KWEngine3.Renderer
         public static int ULights { get; private set; } = -1;
         public static int ULightCount { get; private set; } = -1;
         public static int UColorAmbient { get; private set; } = -1;
-        public static int UCharacterOffsets { get; private set; } = -1;
-        public static int UTextOffset { get; private set; } = -1;
-        public static int USpread { get; private set; } = -1;
+        public static int UUVOffsets { get; private set; } = -1;
+        public static int UAdvanceList { get; private set; } = -1;
+        public static int UWidths { get; private set; } = -1;
         public static int UShadowCaster { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;        
@@ -35,8 +35,8 @@ namespace KWEngine3.Renderer
             {
                 ProgramID = GL.CreateProgram();
 
-                string resourceNameVertexShader = "KWEngine3.Shaders.shader.lighting.forward.text.vert";
-                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.lighting.forward.text.frag";
+                string resourceNameVertexShader = "KWEngine3.Shaders.shader.lighting.forwardtext.vert";
+                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.lighting.forwardtext.frag";
 
                 int vertexShader;
                 int fragmentShader;
@@ -61,20 +61,21 @@ namespace KWEngine3.Renderer
                 ULights = GL.GetUniformLocation(ProgramID, "uLights");
                 ULightCount = GL.GetUniformLocation(ProgramID, "uLightCount");
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
-                UCharacterOffsets = GL.GetUniformLocation(ProgramID, "uCharacterOffsets");
-                USpread = GL.GetUniformLocation(ProgramID, "uSpread");
-                UTextOffset = GL.GetUniformLocation(ProgramID, "uTextOffset");
-
+                UUVOffsets = GL.GetUniformLocation(ProgramID, "uUVOffsetsAndWidths");
+                UUVOffsets = GL.GetUniformLocation(ProgramID, "uUVOffsetsAndWidths");
+                UWidths = GL.GetUniformLocation(ProgramID, "uWidths");
+                UAdvanceList = GL.GetUniformLocation(ProgramID, "uAdvanceList");
+                
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
+                UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
 
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
                 UShadowCaster = GL.GetUniformLocation(ProgramID, "uShadowCaster");
-
-                UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
                 UShadowMap = GL.GetUniformLocation(ProgramID, "uShadowMap");
                 UShadowMapCube = GL.GetUniformLocation(ProgramID, "uShadowMapCube");
-                UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
+                
+                UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
             }
         }
 
@@ -156,8 +157,7 @@ namespace KWEngine3.Renderer
                     }
                     else
                     {
-                        if (t.IsInsideScreenSpace)
-                            Draw(t, mesh);
+                        if (t.IsInsideScreenSpace) Draw(t, mesh);
                     }
                 }
                 GL.Disable(EnableCap.Blend);
@@ -169,19 +169,22 @@ namespace KWEngine3.Renderer
         {
             GL.Uniform4(UColorTint, t._stateRender._color);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
-            GL.Uniform1(UCharacterOffsets, t._offsets.Count, t._offsets.ToArray());
-            GL.Uniform1(UTextOffset, (t._offsets.Count - 1) * t._stateRender._spreadFactor / 2.0f);
-            GL.Uniform1(USpread, t._stateRender._spreadFactor);
+            GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
+
+            GL.Uniform2(UUVOffsets, t._text.Length, t._uvOffsets);
+            GL.Uniform1(UAdvanceList, t._text.Length, t._advances);
+            GL.Uniform1(UWidths, t._text.Length, t._glyphWidths);
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             
-            int val = t.IsShadowCaster ? 1 : -1;
+            int val = t.IsShadowReceiver ? 1 : -1;
             val *= t.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);
 
             UploadTextures(t);
+
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-            GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, t._offsets.Count);
+            GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, t._text.Length);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
         }

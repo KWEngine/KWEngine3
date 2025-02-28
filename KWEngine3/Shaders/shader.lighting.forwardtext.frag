@@ -130,7 +130,8 @@ vec4 getFragmentPositionAndDepth()
 
 vec4 getAlbedo()
 {
-    vec4 albedo = texture(uTextureAlbedo, vTexture) * vec4(uColorTint.xyz, 1.0);
+    float r8sample = texture(uTextureAlbedo, vTexture).r;
+    vec4 albedo = vec4(uColorTint.xyz, r8sample);
     albedo.w *= uColorTint.w;
     return albedo;
 }

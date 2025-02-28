@@ -20,7 +20,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             //KWEngine.LoadModel("Dan", "./Models/GLTFTest/FanplasticDan.glb");
-            SetCameraPosition(5, 1, 5);
+            SetCameraPosition(5, 5, 10);
             SetCameraTarget(0, 0, 0);
             SetColorAmbient(0.1f, 0.1f, 0.1f);
             KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 2);
@@ -28,17 +28,10 @@ namespace KWEngine3TestProject.Worlds
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(-10, 25, 10);
             sun.SetTarget(0, 1, 0);
-            sun.SetNearFar(20, 60);
-            sun.SetFOV(20);
+            sun.SetNearFar(20, 40);
+            sun.SetFOV(25);
             sun.SetColor(1, 1, 1, 2);
             AddLightObject(sun);
-            
-            /*
-            TerrainObject t = new TerrainObject("Terrain", "./Textures/heightmap.png", "./Textures/Grass_01_512.png", 10, 2f, 20);
-            t.IsShadowCaster = true;
-            t.IsCollisionObject = true;
-            AddTerrainObject(t);
-            */
             
             Immovable floor = new Immovable();
             floor.SetScale(10, 1, 10);
@@ -75,22 +68,14 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(quadTest2);
 
             TextObject tx = new TextObject("Hello World!");
-            //tx.IsAffectedByLight = false;
-            tx.IsShadowCaster = true;
+            tx.IsAffectedByLight = true;
+            tx.IsShadowReceiver = true;
             tx.SetCharacterDistanceFactor(0.75f);
             tx.SetScale(0.5f);
-            tx.SetPosition(2, 1, -2);
-            tx.SetColor(0, 1, 0);
+            tx.SetPosition(2, 1, 4.5f);
+            tx.SetColor(1, 1, 1);
             tx.SetColorEmissive(1, 0, 0, 2);
             AddTextObject(tx);
-
-            /*
-            TerrainPlayer p = new TerrainPlayer();
-            p.SetModel("Dan");
-            p.SetPosition(4, 0, 0);
-            AddGameObject(p);
-            */
-
         }
     }
 }

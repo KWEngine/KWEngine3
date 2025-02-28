@@ -4,7 +4,6 @@ layout(location = 0) in vec2 aPosition;
 layout(location = 1) in vec2 aTexture;
 
 out		vec2 vTexture;
-//out		vec4 vNDC;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
@@ -27,7 +26,6 @@ void main()
 	if(uCursorInfo.x != 0)
 	{
 		p.x *= uWidths[0]; // 0 = width, 1 = cursorAdvance
-		//left = p.x + uWidths[1] + uWidths[0] * 0.5;
 		left = p.x + uWidths[1];
 	}
 	else

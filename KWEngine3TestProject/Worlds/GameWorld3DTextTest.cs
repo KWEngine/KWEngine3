@@ -44,6 +44,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             SetCameraFOV(90);
+            SetCameraPosition(5.0f, 5.0f, -2.5f);
             /*
             Immovable i01 = new Immovable();
             i01.Name = "Floor";
@@ -65,8 +66,8 @@ namespace KWEngine3TestProject.Worlds
             
             t1 = new TextObject("XXX");
             t1.Name = "Test";
-            t1.SetColorEmissive(1, 0, 1, 1.5f);
-            t1.SetFont(FontFace.NovaMono);
+            //t1.SetColorEmissive(1, 0, 1, 1.5f);
+            //t1.SetFont(FontFace.NovaMono);
             t1.SetScale(1.0f);
             t1.SetCharacterDistanceFactor(1f);
             AddTextObject(t1);
