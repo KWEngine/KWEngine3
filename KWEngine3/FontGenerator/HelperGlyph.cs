@@ -46,13 +46,20 @@ namespace KWEngine3.FontGenerator
             return f;
         }
 
+        public static void SetAscentDescent(Font f, KWFont kwfont)
+        {
+            float scaleNormalised = f.ScaleInPixels(1f);
+            f.GetFontVMetrics(out int ascent, out int descent, out int lineGap);
+            kwfont.Ascent = ascent * scaleNormalised;
+            kwfont.Descent = descent * scaleNormalised;
+        }
+
         public static KWFont LoadFont(Font f)
         {
             if (f == null)
                 return new KWFont() { IsValid = false };
 
             KWFont kwfont = new KWFont();
-
             kwfont.GlyphDict = GenerateGlyphsAndDict(f, 256, out int mipmap0Width);
 
             byte[] tx256 = GenerateTextureForRes(f, mipmap0Width, 256, ref kwfont);
@@ -71,6 +78,7 @@ namespace KWEngine3.FontGenerator
             kwfont.Texture = texture;
             kwfont.TextureSize = (int)(tx256.Length / 4 * 1.333333f);
             kwfont.IsValid = true;
+            SetAscentDescent(f, kwfont);
             return kwfont;
         }
 

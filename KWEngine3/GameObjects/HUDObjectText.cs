@@ -137,26 +137,22 @@ namespace KWEngine3.GameObjects
         public override bool IsInsideScreenSpace()
         {
             float left, right, top, bottom;
+            top = Position.Y - _scale.Y * 0.5f - _font.Descent * _scale.Y;
+            bottom = Position.Y + _scale.Y * 0.5f + _font.Descent * _scale.Y;
             if (TextAlignment == TextAlignMode.Left)
             {
                 left = Position.X;
                 right = left + _width;
-                top = Position.Y - _scale.Y * 0.5f;
-                bottom = Position.Y + _scale.Y * 0.5f;
             }
             else if (TextAlignment == TextAlignMode.Center)
             {
                 left = Position.X - _width * 0.5f;
                 right = left + _width;
-                top = Position.Y - _scale.Y * 0.5f;
-                bottom = Position.Y + _scale.Y * 0.5f;
             }
             else
             {
                 left = Position.X - _width;
                 right = left + _width;
-                top = Position.Y - _scale.Y * 0.5f;
-                bottom = Position.Y + _scale.Y * 0.5f;
             }
 
             return !(right < 0 || left > KWEngine.Window.Width || bottom < 0 || top > KWEngine.Window.Height);
@@ -172,26 +168,23 @@ namespace KWEngine3.GameObjects
             {
                 Vector2 mouseCoords = KWEngine.Window.Mouse.Position;
                 float left, right, top, bottom;
+                top = Position.Y - _scale.Y * 0.5f - _font.Descent * _scale.Y;
+                bottom = Position.Y + _scale.Y * 0.5f + _font.Descent * _scale.Y;
+
                 if (TextAlignment == TextAlignMode.Left)
                 {
                     left = Position.X;
                     right = left + _width;
-                    top = Position.Y - _scale.Y * 0.5f;
-                    bottom = Position.Y + _scale.Y * 0.5f;
                 }
                 else if(TextAlignment == TextAlignMode.Center)
                 {
                     left = Position.X - _width * 0.5f;
                     right = left + _width;
-                    top = Position.Y - _scale.Y * 0.5f;
-                    bottom = Position.Y + _scale.Y * 0.5f;
                 }
                 else
                 {
                     left = Position.X - _width;
                     right = left + _width;
-                    top = Position.Y - _scale.Y * 0.5f;
-                    bottom = Position.Y + _scale.Y * 0.5f;
                 }
                 return (mouseCoords.X >= left && mouseCoords.X <= right && mouseCoords.Y >= top && mouseCoords.Y <= bottom);
             }

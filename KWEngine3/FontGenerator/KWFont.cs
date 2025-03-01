@@ -8,6 +8,8 @@ namespace KWEngine3.FontGenerator
         public Dictionary<char, KWFontGlyph> GlyphDict { get; internal set; }
         public int Texture { get; internal set; }
         public int TextureSize { get; internal set; }
+        public float Ascent { get; internal set; }
+        public float Descent { get; internal set; }
 
         public string FontFilename { get; internal set; }
 
