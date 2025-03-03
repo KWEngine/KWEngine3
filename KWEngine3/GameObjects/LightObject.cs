@@ -249,9 +249,9 @@ namespace KWEngine3.GameObjects
             }
         }
 
-        internal Vector2 _ndcPosition;
+        internal Vector3 _ndcPosition;
         internal float _ndcRadius;
-        //internal Vector2 _ndcTarget;
+        internal bool _behindCamera;
 
         internal void GetVolume(out Vector3 center, out Vector3 dimensions)
         {

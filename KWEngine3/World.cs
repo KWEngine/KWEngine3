@@ -539,33 +539,52 @@ namespace KWEngine3
             return list;
         }
 
-        internal void CalculateNDCs(LightObject l, ref Matrix4 vpMatrix, ref Vector3 lav)
+        internal bool CalculateNDCs(LightObject l, ref Matrix4 vpMatrix, ref Vector3 lavRight, ref Vector3 lav, ref Vector3 camPos)
         {
-            
             if (l.Type == LightType.Directional)
             {
                 Vector3 worldMiddlePos = l.Position + l._stateRender._lookAtVector * l._stateRender._nearFarFOVType.Y * 0.5f;
                 Vector4 transformedPosition = Vector4.TransformRow(new Vector4(worldMiddlePos, 1.0f), vpMatrix);
-                l._ndcPosition = transformedPosition.Xy / transformedPosition.W;
-
-                Vector3 tmp = worldMiddlePos + lav * 0.5f * l._stateRender._nearFarFOVType.Y;
+                l._ndcPosition = transformedPosition.Xyz / transformedPosition.W;
+                Vector3 tmp = worldMiddlePos + lavRight * 0.5f * l._stateRender._nearFarFOVType.Y;
                 Vector4 tmp2 = Vector4.TransformRow(new Vector4(tmp, 1.0f), vpMatrix);
-                Vector2 tgt = tmp2.Xy / tmp2.W;
-                l._ndcRadius = (tgt - l._ndcPosition).LengthFast;
+                Vector3 tgt = tmp2.Xyz / tmp2.W;
+                l._ndcRadius = (tgt.Xy - l._ndcPosition.Xy).LengthFast;
+
+                l._behindCamera = IsLightBehindCamera(ref worldMiddlePos, ref l._stateRender._nearFarFOVType.Y, ref lav, ref camPos);
+                return !l._behindCamera;
             }
             else if (l.Type == LightType.Sun)
             {
                 l._ndcRadius = 100f;
+                return true;
             }
             else
             {
                 Vector4 transformedPosition = Vector4.TransformRow(new Vector4(l.Position, 1.0f), vpMatrix);
-                l._ndcPosition = transformedPosition.Xy / transformedPosition.W;
+                l._ndcPosition = transformedPosition.Xyz / transformedPosition.W;
 
-                Vector3 tmp = l.Position + lav * l._stateRender._nearFarFOVType.Y;
+                Vector3 tmp = l.Position + lavRight * l._stateRender._nearFarFOVType.Y;
                 Vector4 tmp2 = Vector4.TransformRow(new Vector4(tmp, 1.0f), vpMatrix);
-                Vector2 tgt = tmp2.Xy / tmp2.W;
-                l._ndcRadius = (tgt - l._ndcPosition).LengthFast;
+                Vector3 tgt = tmp2.Xyz / tmp2.W;
+                l._ndcRadius = (tgt.Xy - l._ndcPosition.Xy).LengthFast;
+
+                l._behindCamera = IsLightBehindCamera(ref l._stateRender._position, ref l._stateRender._nearFarFOVType.Y, ref lav, ref camPos);
+                return !l._behindCamera;
+            }
+        }
+
+        internal bool IsLightBehindCamera(ref Vector3 lightPos, ref float lightRadius, ref Vector3 cameraDir, ref Vector3 cameraPos) 
+        {
+            Vector3 cameraToLight = lightPos - cameraPos;
+            float projection = Vector3.Dot(cameraToLight, cameraDir);
+            if (projection < 0 && - projection > lightRadius * 2) 
+            {
+                return true;
+            } 
+            else 
+            {
+                return false;
             }
         }
 
@@ -585,8 +604,8 @@ namespace KWEngine3
                     }
                     else if (l.Type == LightType.Point)
                     {
-                        float distance = (tile._ndcCenter - l._ndcPosition).LengthFast;
-                        if(distance <= l._ndcRadius * 2f + tile._ndcRadius)
+                        float distance = (tile._ndcCenter - l._ndcPosition.Xy).LengthFast;
+                        if(l._behindCamera == false && distance <= l._ndcRadius * 2f + tile._ndcRadius)
                         {
                             tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
                             tile._preparedLightsIndicesCount++;
@@ -594,8 +613,8 @@ namespace KWEngine3
                     }
                     else // directional
                     {
-                        float distance = (tile._ndcCenter - l._ndcPosition).LengthFast;
-                        if (distance <= l._ndcRadius * 2f + tile._ndcRadius)
+                        float distance = (tile._ndcCenter - l._ndcPosition.Xy).LengthFast;
+                        if (l._behindCamera == false && distance <= l._ndcRadius * 2f + tile._ndcRadius)
                         {
                             tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
                             tile._preparedLightsIndicesCount++;
@@ -618,18 +637,14 @@ namespace KWEngine3
             _preparedLightsCount = 0;
 
             Matrix4 vpMatrix = KWEngine.Mode == EngineMode.Edit ? KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix;
-            Vector3 lav = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld.CameraLookAtVectorLocalRight : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVectorLocalRight;
+            Vector3 lavRight = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld.CameraLookAtVectorLocalRight : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVectorLocalRight;
+            Vector3 lav = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld.CameraLookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector;
+            Vector3 camPos = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld.CameraPosition : KWEngine.CurrentWorld._cameraEditor._stateRender._position;
+            int numberOfLightsInsideScreen = 0;
             foreach (LightObject l in _lightObjects)
             {
-                CalculateNDCs(l, ref vpMatrix, ref lav);
-
-                /*
-                if (KWEngine.Mode == EngineMode.Play && !l.IsInsideScreenSpaceForRenderPass)
-                {
-                    offsetTex += KWEngine.LIGHTINDEXDIVIDER;
-                    continue;
-                }
-                */
+                bool insideScreen = CalculateNDCs(l, ref vpMatrix, ref lavRight, ref lav, ref camPos);
+                if (insideScreen) numberOfLightsInsideScreen++;
 
                 // 00-03 = position and shadow map texture index (vec4)
                 _preparedLightsArray[offset + 00] = l._stateRender._position.X;
@@ -673,7 +688,7 @@ namespace KWEngine3
                 offsetTex += KWEngine.LIGHTINDEXDIVIDER;
                 _preparedLightsCount++;
             }
-
+            //Console.WriteLine("number of lights in front of camera: " + numberOfLightsInsideScreen);
             FillTileList();
         }
 
