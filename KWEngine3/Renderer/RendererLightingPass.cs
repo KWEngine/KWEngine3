@@ -17,8 +17,7 @@ namespace KWEngine3.Renderer
         public static int UTextureSSAO { get; private set; } = -1;
         public static int UTextureMetallicRoughnessMetallicType { get; private set; } = -1;
         public static int ULights { get; private set; } = -1;
-        //public static int ULightCount { get; private set; } = -1;
-        //public static int ULightIndicesCounts { get; private set; } = -1;
+        
         public static int ULightIndices { get; private set; } = -1;
         public static int ULightIndicesCount { get; private set; } = -1;
         public static int UTextureOffset { get; private set; } = -1;
@@ -34,7 +33,9 @@ namespace KWEngine3.Renderer
         public static int UTextureSkyboxRotation { get; private set; } = -1;
         public static int UTextureDepth { get; private set; } = -1;
         public static int UViewProjectionMatrixInverted { get; private set; } = -1;
-        /*
+
+        
+        public static int ULightIndicesCounts { get; private set; } = -1;
         public static int UBlockIndex1 { get; private set; } = -1;
         public static int UBlockIndex2 { get; private set; } = -1;
         public static int UBlockIndex3 { get; private set; } = -1;
@@ -97,7 +98,7 @@ namespace KWEngine3.Renderer
 
             _indexCounts = new int[RenderManager._screenGrid._tiles.Length];
         }
-        */
+        
 
         public static void Init()
         {
@@ -133,7 +134,6 @@ namespace KWEngine3.Renderer
                 UTextureSSAO = GL.GetUniformLocation(ProgramID, "uTextureSSAO");
 
                 ULights = GL.GetUniformLocation(ProgramID, "uLights");
-                //ULightCount = GL.GetUniformLocation(ProgramID, "uLightCount");
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
                 UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
                 
@@ -148,12 +148,12 @@ namespace KWEngine3.Renderer
                 UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
                 UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
 
-                //ULightIndicesCounts = GL.GetUniformLocation(ProgramID, "uLightIndicesCounts");
+                
                 ULightIndicesCount = GL.GetUniformLocation(ProgramID, "uLightIndicesCount");
                 ULightIndices = GL.GetUniformLocation(ProgramID, "uLightIndices");
                 UTextureOffset = GL.GetUniformLocation(ProgramID, "uTextureOffset");
-
-                /*
+                ULightIndicesCounts = GL.GetUniformLocation(ProgramID, "uLightIndicesCounts");
+                
                 InitUBOs();
                 UBlockIndex1 = GL.GetUniformBlockIndex(ProgramID, "uBlockIndex1");
                 GL.UniformBlockBinding(ProgramID, UBlockIndex1, 0);
@@ -161,7 +161,7 @@ namespace KWEngine3.Renderer
                 GL.UniformBlockBinding(ProgramID, UBlockIndex2, 1);
                 UBlockIndex3 = GL.GetUniformBlockIndex(ProgramID, "uBlockIndex3");
                 GL.UniformBlockBinding(ProgramID, UBlockIndex3, 2);
-                */
+                
             }
         }
 
@@ -272,25 +272,27 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vp);
         }
 
-        /*
+        
         internal static void UpdateUBO3()
         {
             int offset = 0;
             int i = 0;
-            foreach(ScreenGridTile tile in RenderManager._screenGrid._tiles)
+            GL.BindBuffer(BufferTarget.UniformBuffer, UBO3);
+
+            foreach (ScreenGridTile tile in RenderManager._screenGrid._tiles)
             {
                 _indexCounts[i] = tile._preparedLightsIndicesCount;
-                Array.Copy(tile._preparedLightsIndices, 0, _uboData3, offset, 50);
+                Array.Copy(tile._preparedLightsIndices, 0, _uboData3, offset, KWEngine.MAX_LIGHTS);
 
-                offset += 50;
+                //GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)offset, tile._preparedLightsIndices.Length * sizeof(int), tile._preparedLightsIndices);
+
+                offset += KWEngine.MAX_LIGHTS;
                 i++;
             }
-
-            GL.BindBuffer(BufferTarget.UniformBuffer, UBO3);
-            GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, _uboData3.Length * sizeof(int), _uboData3);
+            GL.BufferData(BufferTarget.UniformBuffer, _uboData3.Length * sizeof(int), _uboData3, BufferUsageHint.DynamicDraw);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
-        */
+        
 
         public static void Draw(Framebuffer fbSource)
         {
@@ -325,22 +327,19 @@ namespace KWEngine3.Renderer
 
             // lights array:
             GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * 17, KWEngine.CurrentWorld._preparedLightsArray);
-            //GL.Uniform1(ULightCount, KWEngine.CurrentWorld._preparedLightsCount);
             GL.Uniform3(UColorAmbient, KWEngine.CurrentWorld._colorAmbient);
-            /*
+            
+            
             // UBO bindings:
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex1, UBO);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex2, UBO2);
             UpdateUBO3();
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex3, UBO3);
-
             GL.Uniform1(ULightIndicesCounts, _indexCounts.Length, _indexCounts);
-            */
-
-
-
+            
             // render that damn quad already:
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
+            /*
             foreach (ScreenGridTile tile in RenderManager._screenGrid._tiles)
             {
                 GL.Viewport(tile._offsetX, RenderManager._screenGrid._height - tile._height - tile._offsetY, tile._width, tile._height);
@@ -355,12 +354,11 @@ namespace KWEngine3.Renderer
                 GL.Uniform4(UTextureOffset, uvL, uvR, uvT, uvB);
                 GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
             }
-            
-            //GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount(), RenderManager._screenGrid._tiles.Length);
+            */
+            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount(), RenderManager._screenGrid._tiles.Length);
             
             GL.BindVertexArray(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
-
     }
 }

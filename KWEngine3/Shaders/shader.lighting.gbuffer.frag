@@ -1,7 +1,7 @@
 ﻿#version 400 core
 
 in vec2 vTexture;
-//flat in int vInstanceID;
+flat in int vInstanceID;
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;
@@ -23,19 +23,23 @@ uniform ivec4 uUseTextureReflectionQuality;
 uniform mat4 uViewProjectionMatrixShadowMap[3];
 
 uniform float uLights[850];
-uniform int uLightIndices[50];
-uniform int uLightIndicesCount;
+
+// multi-draw tiling:
+//uniform int uLightIndices[50];
+//uniform int uLightIndicesCount;
 
 uniform vec3 uCameraPos;
 uniform vec3 uColorAmbient;
 uniform mat4 uViewProjectionMatrixInverted;
-/*
+
+// instanced tiled drawing:
 uniform int uLightIndicesCounts[50];
 layout (std140) uniform uBlockIndex3
 {
-	int instanceData3[50 * 64];
+    ivec4 instanceData3[(50 * 64) / 4];
 };
-*/
+
+
 const float PI = 3.141593;
 const float PI2 = 0.5 / PI;
 const float ninetydegrees = 1.5708;
@@ -281,12 +285,21 @@ void main()
     else
     {
         vec3 Lo = vec3(0.0);
-        //int lightIndicesCount = uLightIndicesCounts[vInstanceID];
-        //for(int li = 0; li < lightIndicesCount; li++)
-        for(int li = 0; li < uLightIndicesCount; li++)
+        
+        //for(int li = 0; li < uLightIndicesCount; li++) // multi-draw
+
+        int lightIndicesCount = uLightIndicesCounts[vInstanceID];
+        for(int li = 0; li < lightIndicesCount; li++)
         {
-            //int i = instanceData3[li * vInstanceID] * 17;
-            int i = uLightIndices[li] * 17;
+            // instancing mode:
+            int index = vInstanceID * 50 + li;
+            int moduloLight = index % 4;
+            int divisoLight = index / 4;
+            int i = instanceData3[divisoLight][moduloLight] * 17;
+            
+
+            // multi-draw mode:
+            //int i = uLightIndices[li] * 17;
 
             vec3 currentLightPos = vec3(uLights[i + 0], uLights[i + 1], uLights[i + 2]);
             vec3 currentLightLAV = vec3(uLights[i + 4], uLights[i + 5], uLights[i + 6]);

@@ -666,6 +666,30 @@ namespace KWEngine3
 
         internal static void InitializeFontsAndDefaultTextures()
         {
+            int twoPowerOf14 = (int)Math.Pow(2, 14);
+            int twoPowerOf10 = (int)Math.Pow(2, 10);
+            int maxUBOBlockSize = GL.GetInteger(GetPName.MaxUniformBlockSize);
+            int maxTextureSize = GL.GetInteger(GetPName.MaxTextureSize);
+            int maxUniformVertexComponents = GL.GetInteger(GetPName.MaxVertexUniformComponents);
+            int maxUniformFragmentComponents = GL.GetInteger(GetPName.MaxFragmentUniformComponents);
+            int maxUniformVertexVectors = GL.GetInteger(GetPName.MaxVertexUniformVectors);
+            int maxUniformFragmentVectors = GL.GetInteger(GetPName.MaxFragmentUniformVectors);
+
+            int maxUniformLocations = GL.GetInteger(GetPName.MaxUniformLocations);
+            if (maxUBOBlockSize < twoPowerOf14)
+            {
+                throw new Exception("[OpenGL] Fatal error: Your graphics device does not support uniform buffers with at least " + twoPowerOf14 + " bytes of memory.");
+            }
+            if(maxTextureSize < twoPowerOf14)
+            {
+                throw new Exception("[OpenGL] Fatal error: Your graphics device does not support texture sizes with " + twoPowerOf14 + " bytes of memory.");
+            }
+            if(maxUniformVertexVectors < twoPowerOf10 || maxUniformFragmentVectors < 1024)
+            {
+                throw new Exception("[OpenGL] Fatal error: Your graphics device does not support at least " + twoPowerOf10 + " uniform vectors.");
+            }
+
+
             Window.AnisotropicFilteringLevel = (int)Window._ppQuality == 2 ? 8 : (int)Window._ppQuality == 1 ? 4 : 1;
 
             int mipMaps;
