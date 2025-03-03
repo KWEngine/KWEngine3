@@ -1,6 +1,7 @@
 ﻿#version 400 core
 
 in vec2 vTexture;
+//flat in int vInstanceID;
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;
@@ -20,12 +21,21 @@ uniform mat3 uTextureSkyboxRotation;
 uniform sampler2D uTextureBackground;
 uniform ivec4 uUseTextureReflectionQuality;
 uniform mat4 uViewProjectionMatrixShadowMap[3];
+
 uniform float uLights[850];
-uniform int uLightCount;
+uniform int uLightIndices[50];
+uniform int uLightIndicesCount;
+
 uniform vec3 uCameraPos;
 uniform vec3 uColorAmbient;
 uniform mat4 uViewProjectionMatrixInverted;
-
+/*
+uniform int uLightIndicesCounts[50];
+layout (std140) uniform uBlockIndex3
+{
+	int instanceData3[50 * 64];
+};
+*/
 const float PI = 3.141593;
 const float PI2 = 0.5 / PI;
 const float ninetydegrees = 1.5708;
@@ -271,8 +281,13 @@ void main()
     else
     {
         vec3 Lo = vec3(0.0);
-        for(int i = 0; i < uLightCount * 17; i += 17)
+        //int lightIndicesCount = uLightIndicesCounts[vInstanceID];
+        //for(int li = 0; li < lightIndicesCount; li++)
+        for(int li = 0; li < uLightIndicesCount; li++)
         {
+            //int i = instanceData3[li * vInstanceID] * 17;
+            int i = uLightIndices[li] * 17;
+
             vec3 currentLightPos = vec3(uLights[i + 0], uLights[i + 1], uLights[i + 2]);
             vec3 currentLightLAV = vec3(uLights[i + 4], uLights[i + 5], uLights[i + 6]);
             vec4 currentLightClr = vec4(uLights[i + 7], uLights[i + 8], uLights[i + 9], uLights[i + 10]);

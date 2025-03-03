@@ -167,6 +167,7 @@ namespace KWEngine3.Renderer
                 GL.BindTexture(TextureTarget.TextureCubeMap, l._fbShadowMap.Attachments[0].ID);
                 GL.Uniform1(UShadowMapCube + i, currentTextureNumber);
             }
+
             for (; i < KWEngine.MAX_SHADOWMAPS; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 GL.ActiveTexture(currentTextureUnit);
@@ -197,6 +198,10 @@ namespace KWEngine3.Renderer
                 GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
             }
             else if (KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard)
+            {
+                GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
+            }
+            else if (KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.None)
             {
                 GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
             }

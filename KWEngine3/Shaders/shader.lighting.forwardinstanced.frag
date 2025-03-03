@@ -338,6 +338,22 @@ void main()
             {
                 currentLightPos = fragPositionDepth.xyz - currentLightLAV;
             }
+            else if(currentLightType == 0)
+            {
+               if(length(currentLightPos - vPosition.xyz) > currentLightFar)
+               {
+                    continue;
+               }
+            }
+            else // directional
+            {
+                vec3 lightMiddlePos = currentLightPos + currentLightLAV * currentLightFar * 0.5;
+                if(length(lightMiddlePos - vPosition.xyz) > currentLightFar * 0.5)
+                {
+                    continue;
+                }
+            }
+
             vec3 L = normalize(currentLightPos - fragPositionDepth.xyz);
             vec3 H = normalize(V + L);
             float dist    = length(currentLightPos - fragPositionDepth.xyz);

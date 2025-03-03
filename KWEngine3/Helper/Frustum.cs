@@ -53,14 +53,14 @@ namespace KWEngine3.Helper
                 f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 1.25f, f._scale.Y * 1.25f, f._patchSize.Y * 1.25f);
             }
         }
-
+        /*
         internal void UpdateScreenSpaceStatus(LightObject l)
         {
             l.GetVolume(out Vector3 center, out Vector3 dimensions);
             l.IsInsideScreenSpace = VolumeVsFrustum(center, dimensions.X, dimensions.Y, dimensions.Z);
             l.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(center, dimensions.X * 1.25f, dimensions.Y * 1.25f, dimensions.Z * 1.25f);
         }
-
+        */
         internal enum ClippingPlane : int
         {
             Right = 0,

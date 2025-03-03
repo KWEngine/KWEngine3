@@ -539,6 +539,73 @@ namespace KWEngine3
             return list;
         }
 
+        internal void CalculateNDCs(LightObject l, ref Matrix4 vpMatrix)
+        {
+            
+            if (l.Type == LightType.Directional)
+            {
+                Vector3 worldMiddlePos = l.Position + l._stateRender._lookAtVector * l._stateRender._nearFarFOVType.Y * 0.5f;
+                Vector4 transformedPosition = Vector4.TransformRow(new Vector4(worldMiddlePos, 1.0f), vpMatrix);
+                l._ndcPosition = transformedPosition.Xy / transformedPosition.W;
+
+                Vector3 tmp = worldMiddlePos + Vector3.UnitZ  * 0.5f * l._stateRender._nearFarFOVType.Y;
+                Vector4 tmp2 = Vector4.TransformRow(new Vector4(tmp, 1.0f), vpMatrix);
+                Vector2 tgt = tmp2.Xy / tmp2.W;
+                l._ndcRadius = (tgt - l._ndcPosition).LengthFast;
+            }
+            else if (l.Type == LightType.Sun)
+            {
+                l._ndcRadius = 100f;
+            }
+            else
+            {
+                Vector4 transformedPosition = Vector4.TransformRow(new Vector4(l.Position, 1.0f), vpMatrix);
+                l._ndcPosition = transformedPosition.Xy / transformedPosition.W;
+
+                Vector3 tmp = l.Position + Vector3.UnitZ * l._stateRender._nearFarFOVType.Y;
+                Vector4 tmp2 = Vector4.TransformRow(new Vector4(tmp, 1.0f), vpMatrix);
+                Vector2 tgt = tmp2.Xy / tmp2.W;
+                l._ndcRadius = (tgt - l._ndcPosition).LengthFast;
+            }
+        }
+
+        internal void FillTileList()
+        {
+            foreach (ScreenGridTile tile in RenderManager._screenGrid._tiles)
+            {
+                tile._preparedLightsIndicesCount = 0;
+                int lightIndex = 0;
+                foreach (LightObject l in _lightObjects)
+                {
+                    if(l.Type == LightType.Sun)
+                    {
+                        // always fill!
+                        tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
+                        tile._preparedLightsIndicesCount++;
+                    }
+                    else if (l.Type == LightType.Point)
+                    {
+                        float distance = (tile._ndcCenter - l._ndcPosition).LengthFast;
+                        if(distance <= l._ndcRadius + tile._ndcRadius)
+                        {
+                            tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
+                            tile._preparedLightsIndicesCount++;
+                        }
+                    }
+                    else // directional
+                    {
+                        float distance = (tile._ndcCenter - l._ndcPosition).LengthFast;
+                        if (distance <= l._ndcRadius + tile._ndcRadius)
+                        {
+                            tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
+                            tile._preparedLightsIndicesCount++;
+                        }
+                    }
+                    lightIndex++;
+                }
+            }
+        }
+
         internal void PrepareLightObjectsForRenderPass()
         {
             int offset = 0;
@@ -549,13 +616,20 @@ namespace KWEngine3
             _preparedCubeMapIndices.Clear();
             _currentShadowLights.Clear();
             _preparedLightsCount = 0;
+
+            Matrix4 vpMatrix = KWEngine.Mode == EngineMode.Edit ? KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix;
+
             foreach (LightObject l in _lightObjects)
             {
+                CalculateNDCs(l, ref vpMatrix);
+
+                /*
                 if (KWEngine.Mode == EngineMode.Play && !l.IsInsideScreenSpaceForRenderPass)
                 {
                     offsetTex += KWEngine.LIGHTINDEXDIVIDER;
                     continue;
                 }
+                */
 
                 // 00-03 = position and shadow map texture index (vec4)
                 _preparedLightsArray[offset + 00] = l._stateRender._position.X;
@@ -592,13 +666,15 @@ namespace KWEngine3
                 _preparedLightsArray[offset + 13] = l._stateRender._nearFarFOVType.Z;
                 _preparedLightsArray[offset + 14] = l._stateRender._nearFarFOVType.W;
 
-                _preparedLightsArray[offset + 15] = l._shadowBias * ((int)KWEngine.Window._ppQuality >= 1 ? 1 : 4);
-                _preparedLightsArray[offset + 16] = (int)KWEngine.Window._ppQuality >= 1 ? l._shadowOffset : 0;
+                _preparedLightsArray[offset + 15] = l._shadowBias;
+                _preparedLightsArray[offset + 16] = l._shadowOffset;
 
                 offset += KWEngine.LIGHTINDEXDIVIDER;
                 offsetTex += KWEngine.LIGHTINDEXDIVIDER;
                 _preparedLightsCount++;
             }
+
+            FillTileList();
         }
 
         internal void AddRemoveLightObjects()

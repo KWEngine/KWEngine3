@@ -20,9 +20,16 @@ namespace KWEngine3TestProject.Worlds
         private HUDObjectText _hudSpawn66Cubes;
         private HUDObjectText _hudSpawn05Lights;
 
+        private List<float> _fps = new List<float>(60);
+
         public override void Act()
         {
-            _hudFPS.SetText("FPS: " + KWEngine.FPS.ToString("000"));
+            _fps.Add(KWEngine.FPS);
+            if(_fps.Count == 60)
+            {
+                _hudFPS.SetText("FPS: " + _fps.Average().ToString("000"));
+                _fps.Clear();
+            }
 
             // DESPAWN ALL:
             if (_hudDespawn.IsMouseCursorOnMe())
@@ -184,6 +191,7 @@ namespace KWEngine3TestProject.Worlds
                     cube.SetScale(0.75f);
                     cube.SetColor(Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f);
                     cube.SetPosition(x, y, 0);
+                    //cube.SetOpacity(0.5f);
                     AddGameObject(cube);
                     i++;
                 }
@@ -198,6 +206,7 @@ namespace KWEngine3TestProject.Worlds
             cubes.SetPosition(-24, 19, 0);
             cubes.SetScale(0.75f);
             cubes.SetColor(1, 1, 1);
+            //cubes.SetOpacity(0.5f);
 
             // Objects
             int i = 1;
@@ -218,7 +227,7 @@ namespace KWEngine3TestProject.Worlds
                     
                 }
             }
-            Console.WriteLine(i);
+            //Console.WriteLine(i);
             AddRenderObject(cubes);
         }
 

@@ -260,7 +260,6 @@ vec4 getAlbedo()
     if(uUseTexturesAlbedoNormalEmissive.x > 0)
     {
         albedo = texture(uTextureAlbedo, vTexture) * uColorTint;
-        //albedo.w *= uColorTint.w; // uColorTint.w contains overall opacity for gameobject
     }
     else
     {
@@ -334,11 +333,27 @@ void main()
             float currentLightBias = uLights[i + 15];
             float currentLightHardness = uLights[i + 16];
 
-            // calculate per-light radiance
+            // calculate per-light radiance || continue if light is not affecting fragment:
             if(currentLightType < 0)
             {
                 currentLightPos = fragPositionDepth.xyz - currentLightLAV;
             }
+            else if(currentLightType == 0)
+            {
+               if(length(currentLightPos - vPosition.xyz) > currentLightFar)
+               {
+                    continue;
+               }
+            }
+            else // directional
+            {
+                vec3 lightMiddlePos = currentLightPos + currentLightLAV * currentLightFar * 0.5;
+                if(length(lightMiddlePos - vPosition.xyz) > currentLightFar * 0.5)
+                {
+                    continue;
+                }
+            }
+            
             vec3 L = normalize(currentLightPos - fragPositionDepth.xyz);
             vec3 H = normalize(V + L);
             float dist    = length(currentLightPos - fragPositionDepth.xyz);
@@ -379,42 +394,6 @@ void main()
             float darkeningCurrentLight = 1.0;
             if(uShadowCaster > 0)
             {
-                /*
-                if(shadowMapIndex > 0) // directional or sun light
-                {
-                    vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPosition, 1.0);
-                    
-                    // if the light is directional, we first have to linearize the depth values:
-			        vec3 projCoordsForTextureLookup = (vShadowCoord.xyz / vShadowCoord.w) * 0.5 + 0.5;
-                    if(uUseTextureReflectionQuality.w > 0)
-                    {
-                        darkeningCurrentLight = 0;
-                        float offset = 1.0 / textureSize(uShadowMap[shadowMapIndex - 1], 0).x;
-                        for(int i = 0; i < 5; i++)
-                        {
-                            vec2 currentOffset = vec2(offset * fragOffsets[i].x, offset * fragOffsets[i].y);
-			                vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy + currentOffset);
-                            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
-                            if(currentLightType == 1)
-                            {
-                                fragmentDepthLinearized = (vShadowCoord.z - currentLightNear) / (currentLightFar - currentLightNear);
-                            }
-                            darkeningCurrentLight += calculateShadow(b, fragmentDepthLinearized, currentLightBias * fragOffsetsWeights2[i], currentLightHardness) * fragOffsetsWeights[i];
-                        }
-                    }
-                    else
-                    {
-                            vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
-                            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
-                            if(currentLightType == 1)
-                            {
-                                fragmentDepthLinearized = (vShadowCoord.z - currentLightNear) / (currentLightFar - currentLightNear);
-                            }
-                        darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
-                    }
-                }
-                */
-                
                 if(shadowMapIndex > 0) // directional or sun light
                 {
                     // if the light is directional, we first have to linearize the depth values:
@@ -458,8 +437,8 @@ void main()
             }
 
             Lo += (kD * albedo.xyz / PI + specular) * radiance * NdotL * darkeningCurrentLight;
-            //Lo += (kD + specular) * radiance * NdotL * darkeningCurrentLight;
         }
+
         vec3 reflectionColor = getReflectionColor(V, N, pbr.z, fragPositionDepth.xyz);// z = roughness
         vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.z); // z = roughness
         vec3 kDW = 1.0 - F;

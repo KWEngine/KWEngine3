@@ -209,7 +209,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQt0OI6AJHRKdBUdzpGihb1iTK5ZD6YcUeGSH/EeB/0=</HashCode>
+      <HashCode>SQt1OI6AJHRKdBVdzpGihb1iTK5ZD6YcUeGSH/EeB/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -277,6 +277,8 @@
     <Position X="12.5" Y="6" Width="2.75" />
     <Members>
       <Field Name="_fbShadowMap" Hidden="true" />
+      <Field Name="_ndcPosition" Hidden="true" />
+      <Field Name="_ndcRadius" Hidden="true" />
       <Field Name="_shadowBias" Hidden="true" />
       <Field Name="_shadowMapSize" Hidden="true" />
       <Field Name="_shadowOffset" Hidden="true" />
@@ -287,11 +289,10 @@
       <Method Name="CheckForIllegalAngles" Hidden="true" />
       <Method Name="DeleteShadowMap" Hidden="true" />
       <Method Name="GetVolume" Hidden="true" />
-      <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Method Name="UpdateLookAtVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ACAIAQAAAAQA4AQqAICAFSwAAgAQCgAAAQgAgIAEAAY=</HashCode>
+      <HashCode>ACAYAQAAAAQA4AAqAICAVSwAAgAQCgAAAQgAgIAEAAI=</HashCode>
       <FileName>GameObjects\LightObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -322,7 +323,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.TerrainObject">
-    <Position X="12.5" Y="11.25" Width="2.75" />
+    <Position X="12.5" Y="11" Width="2.75" />
     <Members>
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_heightmap" Hidden="true" />
@@ -367,7 +368,10 @@
       <Method Name="IsBetweenOrdered" Hidden="true" />
       <Method Name="IsInFrontOfPlane" Hidden="true" />
       <Method Name="IsMouseCursorOnGameObject" Hidden="true" />
+      <Method Name="IsPointOnLine" Hidden="true" />
       <Method Name="IsPointOnTrianglePlane" Hidden="true" />
+      <Method Name="LineIntersectsBox" Hidden="true" />
+      <Method Name="LineIntersectsLine" Hidden="true" />
       <Method Name="LinePlaneIntersection" Hidden="true" />
       <Method Name="Max" Hidden="true" />
       <Method Name="Min" Hidden="true" />
@@ -389,7 +393,7 @@
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQCQAhQAALWCgCQAsAQACEKAQQAgBLhGAJGCABYLZIg=</HashCode>
+      <HashCode>BQCQAhQAALWigCQAsEQACEKEQQAgBLhGAJGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>

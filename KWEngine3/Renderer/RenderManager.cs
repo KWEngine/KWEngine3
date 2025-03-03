@@ -1,7 +1,7 @@
 ﻿using KWEngine3.Editor;
-using KWEngine3.FontGenerator;
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using KWEngine3.Model;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
@@ -19,6 +19,7 @@ namespace KWEngine3.Renderer
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public const int LQPENALTY_W = 192;
         public const int LQPENALTY_H = 112;
+        public static ScreenGrid _screenGrid;
 
         public static void UpdateFramebufferClearColor(Vector3 newFillColor)
         {
@@ -41,6 +42,8 @@ namespace KWEngine3.Renderer
         
         public static void InitializeFramebuffers()
         {
+            _screenGrid = new ScreenGrid(KWEngine.Window.Width, KWEngine.Window.Height);
+
             FramebufferQuad.Init();
             FramebufferDeferred = new FramebufferDeferred(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
             FramebufferLightingPass = new FramebufferLighting(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);

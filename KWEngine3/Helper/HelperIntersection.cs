@@ -1132,6 +1132,55 @@ namespace KWEngine3.Helper
         
 
         #region Internals
+        internal static bool LineIntersectsBox(Vector2 p1, Vector2 p2, float left, float right, float top, float bottom)
+        {
+            // Box edges
+            Vector2 topLeft = (X: left, Y: top);
+            Vector2 topRight = (X: right, Y: top);
+            Vector2 bottomLeft = (X: left, Y: bottom);
+            Vector2 bottomRight = (X: right, Y: bottom);
+
+            // Check if line intersects any of the box edges
+            return LineIntersectsLine(p1, p2, topLeft, topRight) ||
+                   LineIntersectsLine(p1, p2, topRight, bottomRight) ||
+                   LineIntersectsLine(p1, p2, bottomRight, bottomLeft) ||
+                   LineIntersectsLine(p1, p2, bottomLeft, topLeft);
+        }
+
+        internal static bool IsPointOnLine(Vector2 p, Vector2 a, Vector2 b)
+        {
+            // Check if the point p is on the line segment ab
+            return Math.Min(a.X, b.X) <= p.X && p.X <= Math.Max(a.X, b.X) &&
+                   Math.Min(a.Y, b.Y) <= p.Y && p.Y <= Math.Max(a.Y, b.Y) &&
+                   (b.Y - a.Y) * (p.X - a.X) == (p.Y - a.Y) * (b.X - a.X);
+        }
+
+        internal static bool LineIntersectsLine(Vector2 p1, Vector2 p2, Vector2 p3, Vector2 p4)
+        {
+            // Calculate the direction of the lines
+            var d1 = (x: p2.X - p1.X, y: p2.Y - p1.Y);
+            var d2 = (x: p4.X - p3.X, y: p4.Y - p3.Y);
+
+            // Calculate the determinant
+            var determinant = -d2.x * d1.y + d1.x * d2.y;
+            if (determinant == 0)
+            {
+                // The lines are parallel
+                if (IsPointOnLine(p1, p3, p4) || 
+                    IsPointOnLine(p2, p3, p4) ||
+                    IsPointOnLine(p3, p1, p2) || 
+                    IsPointOnLine(p4, p1, p2))
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            var s = (-d1.y * (p1.X - p3.X) + d1.x * (p1.Y - p3.Y)) / determinant;
+            var t = (d2.x * (p1.Y - p3.Y) - d2.y * (p1.X - p3.X)) / determinant;
+
+            return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
+        }
 
         internal static bool IsMouseCursorOnGameObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, bool includeNonCollisionObjects)
         {

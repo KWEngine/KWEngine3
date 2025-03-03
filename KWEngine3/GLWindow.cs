@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using KWEngine3.Audio;
 using KWEngine3.Editor;
-using KWEngine3.FontGenerator;
 using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
@@ -49,7 +48,6 @@ namespace KWEngine3
         internal Matrix4 _projectionMatrixHUD;
         internal KWBuilderOverlay Overlay { get; set; }
         internal Stopwatch _stopwatch = new();
-
 
         internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
         {
@@ -347,6 +345,7 @@ namespace KWEngine3
             // Start render process:
             if (KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld._startingFrameActive)
             {
+                GL.Disable(EnableCap.Blend);
                 RenderManager.FramebufferDeferred.Bind();
 
                 // Render GameObject instances to G-Buffer:
@@ -388,8 +387,10 @@ namespace KWEngine3
                     GL.Enable(EnableCap.DepthTest);
                 }
 
-                // Shadow map pass:
+                // Prepare lights
                 KWEngine.CurrentWorld.PrepareLightObjectsForRenderPass();
+
+                // Shadow map pass:
                 if (Framebuffer._fbShadowMapCounter > 0)
                 {
                     RendererShadowMap.Bind();
@@ -470,7 +471,6 @@ namespace KWEngine3
 
                 // clear inbetween:
                 GL.UseProgram(0);
-
                 GL.Disable(EnableCap.DepthTest);
                 GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
 
@@ -493,8 +493,10 @@ namespace KWEngine3
                 RendererLightingPass.Bind();
                 RendererLightingPass.SetGlobals();
                 RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
-                GL.Enable(EnableCap.DepthTest);
 
+
+                GL.Enable(EnableCap.DepthTest);
+                GL.Viewport(0, 0, Width, Height);
                 if (KWEngine.CurrentWorld._background.Type != BackgroundType.None)
                 {
                     if (KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
@@ -510,6 +512,9 @@ namespace KWEngine3
                         RendererBackgroundStandard.Draw();
                     }
                 }
+
+                GL.Enable(EnableCap.Blend);
+
                 // Forward rendering pass:
                 if (gameObjectsForForwardRendering.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
@@ -537,6 +542,7 @@ namespace KWEngine3
                     RendererForwardInstanced.SetGlobals();
                     RendererForwardInstanced.RenderScene(renderObjectsForForwardRendering);
                 }
+
                 if (KWEngine.CurrentWorld._textObjects.Count > 0)
                 {
                     RendererForwardText.Bind();
@@ -561,17 +567,19 @@ namespace KWEngine3
                 }
             }
 
-            // HUD objects:
-            RendererHUD.Bind();
             GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             GL.Disable(EnableCap.CullFace);
 
+            // HUD objects:
+            RendererHUD.Bind();
+
             // HUD objects first pass:
             int hudrenderindex = RendererHUD.RenderHUDObjects(0, true);
+
+            // Map pass:
             if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
             {
-                // map pass:
                 RendererHUD.Bind();
                 RendererHUD.SetGlobals();
                 RendererHUD.DrawMap();
@@ -678,7 +686,6 @@ namespace KWEngine3
                     }
                 }
                 GL.Disable(EnableCap.Blend);
-
             }
 #if DEBUG
             HelperGeneral.CheckGLErrors();
@@ -1037,8 +1044,9 @@ namespace KWEngine3
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
                         l._statePrevious = l._stateCurrent;
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(l);
+                        //KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(l);
                     }
+
                     foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
                     {
                         t._statePrevious = t._stateCurrent;

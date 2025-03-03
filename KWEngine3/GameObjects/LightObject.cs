@@ -15,12 +15,13 @@ namespace KWEngine3.GameObjects
         internal int _shadowMapSize;
         internal float _shadowBias = 0.00002f;
         internal float _shadowOffset = 0.0001f;
-
+        /*
         /// <summary>
         /// Befinden sich das Lichtobjekt und seine Lichtstrahlen aktuell auf dem Bildschirm?
         /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
         internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
+        */
         /// <summary>
         /// Engine-interne ID
         /// </summary>
@@ -247,6 +248,10 @@ namespace KWEngine3.GameObjects
                 CheckForIllegalAngles();
             }
         }
+
+        internal Vector2 _ndcPosition;
+        internal float _ndcRadius;
+        //internal Vector2 _ndcTarget;
 
         internal void GetVolume(out Vector3 center, out Vector3 dimensions)
         {
