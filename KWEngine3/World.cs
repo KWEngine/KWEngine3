@@ -539,7 +539,7 @@ namespace KWEngine3
             return list;
         }
 
-        internal void CalculateNDCs(LightObject l, ref Matrix4 vpMatrix)
+        internal void CalculateNDCs(LightObject l, ref Matrix4 vpMatrix, ref Vector3 lav)
         {
             
             if (l.Type == LightType.Directional)
@@ -562,7 +562,7 @@ namespace KWEngine3
                 Vector4 transformedPosition = Vector4.TransformRow(new Vector4(l.Position, 1.0f), vpMatrix);
                 l._ndcPosition = transformedPosition.Xy / transformedPosition.W;
 
-                Vector3 tmp = l.Position + Vector3.UnitZ * l._stateRender._nearFarFOVType.Y;
+                Vector3 tmp = l.Position + lav * l._stateRender._nearFarFOVType.Y;
                 Vector4 tmp2 = Vector4.TransformRow(new Vector4(tmp, 1.0f), vpMatrix);
                 Vector2 tgt = tmp2.Xy / tmp2.W;
                 l._ndcRadius = (tgt - l._ndcPosition).LengthFast;
@@ -586,7 +586,7 @@ namespace KWEngine3
                     else if (l.Type == LightType.Point)
                     {
                         float distance = (tile._ndcCenter - l._ndcPosition).LengthFast;
-                        if(distance <= l._ndcRadius + tile._ndcRadius)
+                        if(distance <= l._ndcRadius * 2f + tile._ndcRadius)
                         {
                             tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
                             tile._preparedLightsIndicesCount++;
@@ -618,10 +618,10 @@ namespace KWEngine3
             _preparedLightsCount = 0;
 
             Matrix4 vpMatrix = KWEngine.Mode == EngineMode.Edit ? KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix;
-
+            Vector3 lav = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld.CameraLookAtVectorLocalRight : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVectorLocalRight;
             foreach (LightObject l in _lightObjects)
             {
-                CalculateNDCs(l, ref vpMatrix);
+                CalculateNDCs(l, ref vpMatrix, ref lav);
 
                 /*
                 if (KWEngine.Mode == EngineMode.Play && !l.IsInsideScreenSpaceForRenderPass)

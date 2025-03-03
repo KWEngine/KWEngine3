@@ -20,6 +20,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            SetCameraFOV(90);
+
             Immovable floor = new Immovable();
             floor.SetScale(50, 1, 50);
             floor.SetPosition(0, -0.5f, 0);
@@ -51,7 +53,7 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(wallFront);
 
 
-            SetColorAmbient(0.25f, 0.25f, 0.25f);
+            SetColorAmbient(0.1f, 0.1f, 0.1f);
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(25, 25, 25);
             sun.SetColor(1, 1, 1, 2.5f);
@@ -59,7 +61,7 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(sun);
 
             PlayerFreeFloat p = new PlayerFreeFloat();
-            p.SetPosition(0, 20, 40);
+            p.SetPosition(0, 1, 20);
             AddGameObject(p);
             MouseCursorGrab();
 
@@ -78,9 +80,9 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(dLight2);
 
             LightObject pLight1 = new LightObject(LightType.Point, ShadowQuality.NoShadow);
-            pLight1.SetColor(1, 0, 1, 7.5f);
-            pLight1.SetPosition(10, 1, 0);
-            pLight1.SetNearFar(1, 20);
+            pLight1.SetColor(1, 0, 1, 3f);
+            pLight1.SetPosition(0, 1, 0);
+            pLight1.SetNearFar(1, 4);
             AddLightObject(pLight1);
         }
     }
