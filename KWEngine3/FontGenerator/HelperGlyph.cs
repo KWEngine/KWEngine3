@@ -8,7 +8,7 @@ namespace KWEngine3.FontGenerator
 {
     internal static class HelperGlyph
     {
-        internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~°€§²³ÜÖÄüöäß·±";
+        internal static readonly string GLYPHS = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]_abcdefghijklmnopqrstuvwxyz{|}~°€ÜÖÄüöäß·";
 
         public static Font LoadFontInternal(string assemblyname)
         {
@@ -60,7 +60,19 @@ namespace KWEngine3.FontGenerator
                 return new KWFont() { IsValid = false };
 
             KWFont kwfont = new KWFont();
-            kwfont.GlyphDict = GenerateGlyphsAndDict(f, 256, out int mipmap0Width);
+            Dictionary<char, KWFontGlyph> tmpDict = GenerateGlyphsAndDict(f, 256, out int mipmap0Width);
+            
+            if (mipmap0Width >= Math.Pow(2, 14))
+            {
+                kwfont.IsValid = false;
+                kwfont.GlyphDict.Clear();
+                return kwfont;
+            }
+            else
+            {
+                kwfont.GlyphDict = tmpDict;
+                kwfont.IsValid = true;
+            }
 
             byte[] tx256 = GenerateTextureForRes(f, mipmap0Width, 256, ref kwfont);
             int texture = GL.GenTexture();
@@ -74,17 +86,15 @@ namespace KWEngine3.FontGenerator
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, mipmap0Width, 256, 0, PixelFormat.Bgra, PixelType.UnsignedByte, tx256);
             GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             GL.BindTexture(TextureTarget.Texture2D, 0);
-
             kwfont.Texture = texture;
             kwfont.TextureSize = (int)(tx256.Length / 4 * 1.333333f);
-            kwfont.IsValid = true;
             SetAscentDescent(f, kwfont);
             return kwfont;
         }
 
         internal static Dictionary<char, KWFontGlyph> GenerateGlyphsAndDict(Font f, int res, out int pixelWidthSumEnlarged)
         {
-            int pixelGap = res / 4;
+            int pixelGap = res / 32;
             float renderScale = f.ScaleInPixels(res);
             float normalisedScale = f.ScaleInPixels(1f);
             // default width and advance for UNDERSCORE:
