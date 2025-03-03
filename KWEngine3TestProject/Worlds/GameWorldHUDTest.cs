@@ -122,11 +122,13 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            _h1 = new HUDObjectText("IDIDA");
+            SetBackgroundFillColor(0, 1, 1);
+
+            _h1 = new HUDObjectText("M");
             //_h1.SetPosition(0, KWEngine.Window.Height / 2);
             _h1.CenterOnScreen();
             _h1.SetCharacterDistanceFactor(1f);
-            _h1.SetTextAlignment(TextAlignMode.Right);
+            _h1.SetTextAlignment(TextAlignMode.Center);
             _h1.SetColorEmissive(1, 0, 1);
             _h1.SetColorEmissiveIntensity(0);
             _h1.SetScale(128);
@@ -178,11 +180,12 @@ namespace KWEngine3TestProject.Worlds
             AddHUDObject(_h6);
             */
             _hCrosshair = new HUDObjectImage();
-            _hCrosshair.SetPosition(768, 32);
-            _hCrosshair.SetTexture(@".\Textures\fx_boom.png");
+            //_hCrosshair.SetPosition(768, 32);
+            _hCrosshair.SetTexture(@".\Textures\crosshair.dds");
             _hCrosshair.SetScale(64, 64);
             _hCrosshair.SetColorEmissive(1, 1, 0);
             _hCrosshair.SetColorEmissiveIntensity(0);
+            _hCrosshair.CenterOnScreen();
             AddHUDObject(_hCrosshair);
 
         }

@@ -226,7 +226,7 @@ namespace KWEngine3.GameObjects
             
             if (_text.Length > 0)
             {
-                _widthNormalised = _advances[_text.Length];
+                _widthNormalised = _advances[_text.Length - 1] + _font.GetGlyphForCodepoint(_text[_text.Length - 1]).Width;
                 _width = _widthNormalised * _scale.X;
             }
             else
