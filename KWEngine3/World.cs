@@ -548,7 +548,7 @@ namespace KWEngine3
                 Vector4 transformedPosition = Vector4.TransformRow(new Vector4(worldMiddlePos, 1.0f), vpMatrix);
                 l._ndcPosition = transformedPosition.Xy / transformedPosition.W;
 
-                Vector3 tmp = worldMiddlePos + Vector3.UnitZ  * 0.5f * l._stateRender._nearFarFOVType.Y;
+                Vector3 tmp = worldMiddlePos + lav * 0.5f * l._stateRender._nearFarFOVType.Y;
                 Vector4 tmp2 = Vector4.TransformRow(new Vector4(tmp, 1.0f), vpMatrix);
                 Vector2 tgt = tmp2.Xy / tmp2.W;
                 l._ndcRadius = (tgt - l._ndcPosition).LengthFast;
@@ -595,7 +595,7 @@ namespace KWEngine3
                     else // directional
                     {
                         float distance = (tile._ndcCenter - l._ndcPosition).LengthFast;
-                        if (distance <= l._ndcRadius + tile._ndcRadius)
+                        if (distance <= l._ndcRadius * 2f + tile._ndcRadius)
                         {
                             tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
                             tile._preparedLightsIndicesCount++;

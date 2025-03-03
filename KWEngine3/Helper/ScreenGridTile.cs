@@ -36,7 +36,7 @@ namespace KWEngine3.Helper
             _ndcBottom = (1.0f - ((offsetY + height) / (float)KWEngine.Window.Height)) * 2.0f - 1.0f;
 
             _ndcCenter = new Vector2(_ndcLeft + (_ndcRight - _ndcLeft) * 0.5f, _ndcBottom + (_ndcTop - _ndcBottom) * 0.5f);
-            _ndcRadius = (new Vector2(_ndcLeft, _ndcTop) - new Vector2(_ndcRight, _ndcBottom)).Length;
+            _ndcRadius = (new Vector2(_ndcLeft, _ndcTop) - new Vector2(_ndcRight, _ndcBottom)).Length * 0.5f;
         }
 
         public override string ToString()

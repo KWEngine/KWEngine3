@@ -1,26 +1,44 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
 using KWEngine3TestProject.Classes;
-using KWEngine3TestProject.Classes.WorldFoliageTest;
 using KWEngine3TestProject.Classes.WorldScreenGridTest;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3TestProject.Worlds
 {
     class GameWorldScreenGridTest : World
     {
+        private LightObject pLight1;
+        private LightObject dLight3;
+
         public override void Act()
         {
-            
+            if(Keyboard.IsKeyDown(Keys.A))
+            {
+                pLight1.SetPosition(pLight1.Position.X - 0.01f, pLight1.Position.Y, pLight1.Position.Z);
+            }
+            else if (Keyboard.IsKeyDown(Keys.D))
+            {
+                pLight1.SetPosition(pLight1.Position.X + 0.01f, pLight1.Position.Y, pLight1.Position.Z);
+            }
+            else if (Keyboard.IsKeyDown(Keys.W))
+            {
+                pLight1.SetPosition(pLight1.Position.X, pLight1.Position.Y + 0.01f, pLight1.Position.Z);
+            }
+            else if (Keyboard.IsKeyDown(Keys.S))
+            {
+                pLight1.SetPosition(pLight1.Position.X, pLight1.Position.Y - 0.01f, pLight1.Position.Z);
+            }
         }
 
         public override void Prepare()
         {
+            SetColorAmbient(0.1f, 0.1f, 0.1f);
+            
             SetCameraFOV(90);
+            SetCameraPosition(0, 1, 10);
+            SetCameraTarget(0, 1, 0);
 
             Immovable floor = new Immovable();
             floor.SetScale(50, 1, 50);
@@ -51,19 +69,18 @@ namespace KWEngine3TestProject.Worlds
             wallFront.SetPosition(0, 2.5f, 24.5f);
             wallFront.IsShadowCaster = true;
             AddGameObject(wallFront);
-
-
-            SetColorAmbient(0.1f, 0.1f, 0.1f);
+            
             LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
             sun.SetPosition(25, 25, 25);
             sun.SetColor(1, 1, 1, 2.5f);
             sun.SetFOV(75);
             AddLightObject(sun);
-
+            
             PlayerFreeFloat p = new PlayerFreeFloat();
             p.SetPosition(0, 1, 20);
             AddGameObject(p);
             MouseCursorGrab();
+            
 
             LightObject dLight1 = new LightObject(LightType.Directional, ShadowQuality.NoShadow);
             dLight1.SetColor(1, 0, 0, 7.5f);
@@ -79,10 +96,17 @@ namespace KWEngine3TestProject.Worlds
             dLight2.SetNearFar(1, 20);
             AddLightObject(dLight2);
 
-            LightObject pLight1 = new LightObject(LightType.Point, ShadowQuality.NoShadow);
+            dLight3 = new LightObject(LightType.Directional, ShadowQuality.NoShadow);
+            dLight3.SetColor(1, 1, 0, 2.5f);
+            dLight3.SetPosition(0, 5, 0);
+            dLight3.SetTarget(0, 0, 0);
+            dLight3.SetNearFar(1, 10);
+            AddLightObject(dLight3);
+
+            pLight1 = new LightObject(LightType.Point, ShadowQuality.NoShadow);
             pLight1.SetColor(1, 0, 1, 3f);
-            pLight1.SetPosition(0, 1, 0);
-            pLight1.SetNearFar(1, 4);
+            pLight1.SetPosition(20, 5, 0);
+            pLight1.SetNearFar(1, 15);
             AddLightObject(pLight1);
         }
     }
