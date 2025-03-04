@@ -28,6 +28,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Assets\Fonts\Anonymous.jpg" />
+		<None Remove="Assets\Fonts\MajorMonoDisplay.jpg" />
+		<None Remove="Assets\Fonts\NovaMono.jpg" />
+		<None Remove="Assets\Fonts\OpenSans.jpg" />
+		<None Remove="Assets\Fonts\XanhMono.jpg" />
 		<None Remove="Assets\Models\capsulehitbox.obj" />
 		<None Remove="Assets\Models\capsulehitbox2.obj" />
 		<None Remove="Assets\Models\dollar.mtl" />
@@ -179,10 +184,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="Assets\Fonts\Anonymous.jpg" />
 		<EmbeddedResource Include="Assets\Fonts\Anonymous.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\MajorMonoDisplay.jpg" />
 		<EmbeddedResource Include="Assets\Fonts\MajorMonoDisplay.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\NovaMono.jpg" />
 		<EmbeddedResource Include="Assets\Fonts\NovaMono.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\OpenSans.jpg" />
 		<EmbeddedResource Include="Assets\Fonts\OpenSans.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\XanhMono.jpg" />
 		<EmbeddedResource Include="Assets\Fonts\XanhMono.ttf" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox.obj" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox2.obj" />

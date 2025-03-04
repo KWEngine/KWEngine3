@@ -54,7 +54,7 @@ namespace KWEngine3.FontGenerator
             kwfont.Descent = descent * scaleNormalised;
         }
 
-        public static KWFont LoadFont(Font f)
+        public static KWFont LoadFont(Font f, bool isBitmap = false, string bitmapName = "")
         {
             if (f == null)
                 return new KWFont() { IsValid = false };
@@ -74,20 +74,49 @@ namespace KWEngine3.FontGenerator
                 kwfont.IsValid = true;
             }
 
-            byte[] tx256 = GenerateTextureForRes(f, mipmap0Width, 256, ref kwfont);
-            int texture = GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-            GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, mipmap0Width, 256, 0, PixelFormat.Bgra, PixelType.UnsignedByte, tx256);
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-            kwfont.Texture = texture;
-            kwfont.TextureSize = (int)(tx256.Length / 4 * 1.333333f);
+            byte[] tx256;
+            if (isBitmap)
+            {
+                Assembly a = Assembly.GetExecutingAssembly();
+                using (Stream s = a.GetManifestResourceStream("KWEngine3.Assets.Fonts." + bitmapName))
+                {
+                    SKBitmap bm = SKBitmap.Decode(s);
+
+                    int texture = GL.GenTexture();
+                    GL.BindTexture(TextureTarget.Texture2D, texture);
+                    GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
+                    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, mipmap0Width, 256, 0, PixelFormat.Red, PixelType.UnsignedByte, bm.Bytes);
+                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                    GL.BindTexture(TextureTarget.Texture2D, 0);
+                    kwfont.Texture = texture;
+                    kwfont.TextureSize = (int)(bm.Bytes.Length / 4 * 1.333333f);
+
+                    bm.Dispose();
+                }
+            }
+            else
+            {
+                tx256 = GenerateTextureForRes(f, mipmap0Width, 256, ref kwfont);
+                int texture = GL.GenTexture();
+                GL.BindTexture(TextureTarget.Texture2D, texture);
+                GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, mipmap0Width, 256, 0, PixelFormat.Bgra, PixelType.UnsignedByte, tx256);
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+                kwfont.Texture = texture;
+                kwfont.TextureSize = (int)(tx256.Length / 4 * 1.333333f);
+            }
+                
             SetAscentDescent(f, kwfont);
             return kwfont;
         }
