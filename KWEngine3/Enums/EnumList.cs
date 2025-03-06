@@ -1,5 +1,35 @@
 ﻿namespace KWEngine3
 {
+    /// <summary>
+    /// Art des Draw Calls (für das Debugging)
+    /// </summary>
+    public enum RenderType
+    {
+        /// <summary>
+        /// Deferred Rendering pass (nicht-transparente Objekte)
+        /// </summary>
+        Deferred = 0,
+        /// <summary>
+        /// Lighting pass (Belichtung der Objekte, die im Deferred rendering pass gezeichnet wurden)
+        /// </summary>
+        Lighting = 1,
+        /// <summary>
+        /// Shadow mapping pass (Schattenberechnung)
+        /// </summary>
+        ShadowMapping = 2,
+        /// <summary>
+        /// Forward rendering (transparente Objekte inkl. Lichtberechnungen)
+        /// </summary>
+        Forward = 3,
+        /// <summary>
+        /// HUD-Objekte
+        /// </summary>
+        HUD = 4,
+        /// <summary>
+        /// Post-Processing-Effekte (Glow, SSAO, etc.)
+        /// </summary>
+        PostProcessing = 5
+    }
 
     /// <summary>
     /// Himmelsrichtung

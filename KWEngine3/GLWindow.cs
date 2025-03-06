@@ -32,6 +32,49 @@ namespace KWEngine3
         internal int _mouseScrollDelta = 0;
         internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
 
+
+        internal Dictionary<RenderType, int> _renderTimesIDDict = new();
+        internal Dictionary<RenderType, List<long>> _renderTimesDict = new();
+        internal Dictionary<RenderType, double> _renderTimesAvgDict = new();
+        internal float _glQueryTimestampLastReset = 0; 
+
+#if DEBUG       
+        internal void ClearRenderTimeDicts()
+        {
+            _renderTimesDict.Clear();
+            _renderTimesAvgDict.Clear();
+        }
+
+        internal void BeginTimeQuery(RenderType type)
+        {
+            GL.BeginQuery(QueryTarget.TimeElapsed, _renderTimesIDDict[type]);
+        }
+
+        internal void StopTimeQuery(RenderType type)
+        {
+            GL.EndQuery(QueryTarget.TimeElapsed);
+            GL.GetQueryObject(_renderTimesIDDict[type], GetQueryObjectParam.QueryResult, out long drawcalltime);
+            _renderTimesDict[type].Add(drawcalltime);
+        }
+
+        internal void UpdateRenderTimesAVG()
+        {
+            if (KWEngine.ApplicationTime - _glQueryTimestampLastReset > 1)
+            {
+                _glQueryTimestampLastReset = KWEngine.ApplicationTime;
+
+                _renderTimesAvgDict[RenderType.Deferred] = _renderTimesDict[RenderType.Deferred].Average();
+                _renderTimesAvgDict[RenderType.Lighting] = _renderTimesDict[RenderType.Lighting].Average();
+                _renderTimesAvgDict[RenderType.ShadowMapping] = _renderTimesDict[RenderType.ShadowMapping].Average();
+                _renderTimesAvgDict[RenderType.Forward] = _renderTimesDict[RenderType.Forward].Average();
+                _renderTimesAvgDict[RenderType.HUD] = _renderTimesDict[RenderType.HUD].Average();
+                _renderTimesAvgDict[RenderType.PostProcessing] = _renderTimesDict[RenderType.PostProcessing].Average();
+
+                _renderTimesDict.Clear();
+            }
+        }
+#endif
+
         internal void ResetMouseDeltas()
         {
             _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
@@ -277,6 +320,17 @@ namespace KWEngine3
             KWBuilderOverlay.InitFrameTimeQueue();
 
             IsVisible = true;
+
+#if DEBUG
+            _renderTimesIDDict[RenderType.Deferred] = GL.GenQuery();
+            _renderTimesIDDict[RenderType.Lighting] = GL.GenQuery();
+            _renderTimesIDDict[RenderType.ShadowMapping] = GL.GenQuery();
+            _renderTimesIDDict[RenderType.Forward] = GL.GenQuery();
+            _renderTimesIDDict[RenderType.HUD] = GL.GenQuery();
+            _renderTimesIDDict[RenderType.PostProcessing] = GL.GenQuery();
+
+            ClearRenderTimeDicts();
+#endif
         }
 
         /// <summary>
@@ -340,11 +394,14 @@ namespace KWEngine3
 
             KWEngine.LastFrameTime = (float)e.Time * 1000;
 
-
+            // measure draw calls:
+            long drawcalltime = 0;
 
             // Start render process:
             if (KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld._startingFrameActive)
             {
+                BeginTimeQuery(RenderType.Deferred);
+                #region [DEFERRED PASS]
                 GL.Disable(EnableCap.Blend);
                 RenderManager.FramebufferDeferred.Bind();
 
@@ -377,6 +434,8 @@ namespace KWEngine3
                     RendererExplosion.SetGlobals();
                     RendererExplosion.RenderExplosions(KWEngine.CurrentWorld._particleAndExplosionObjects);
                 }
+                #endregion
+                StopTimeQuery(RenderType.Deferred);
 
                 if (KWEngine.Mode == EngineMode.Edit)
                 {
@@ -387,6 +446,7 @@ namespace KWEngine3
                     GL.Enable(EnableCap.DepthTest);
                 }
 
+                BeginTimeQuery(RenderType.Lighting);
                 // Prepare lights
                 KWEngine.CurrentWorld.PrepareLightObjectsForRenderPass();
 
@@ -689,10 +749,11 @@ namespace KWEngine3
             }
 #if DEBUG
             HelperGeneral.CheckGLErrors();
+            UpdateRenderTimesAVG();
 #endif
             // unbind last render program:
             GL.UseProgram(0);
-
+            
 
             KWBuilderOverlay.AddFrameTime(KWEngine.LastFrameTime);
             RenderOverlay((float)e.Time);
@@ -805,6 +866,12 @@ namespace KWEngine3
         /// </summary>
         protected override void OnClosing(CancelEventArgs e)
         {
+#if DEBUG
+            foreach (var item in _renderTimesIDDict.Keys)
+            {
+                GL.DeleteQuery(_renderTimesIDDict[item]);
+            }
+#endif
             HelperSweepAndPrune.StopThread();
             HelperFlowField.StopThread();
         }
@@ -873,7 +940,11 @@ namespace KWEngine3
 
             HelperSweepAndPrune.StartThread();
             HelperFlowField.StartThread();
-            _worldNew = null;
+            _worldNew = null;  
+
+#if DEBUG
+            ClearRenderTimeDicts();
+#endif
         }
 
         /// <summary>
@@ -1354,6 +1425,16 @@ namespace KWEngine3
         /// Gibt die bei Programmstart gewählte Qualität für Post-Processing-Effekte zurück
         /// </summary>
         public PostProcessingQuality Quality { get { return _ppQuality; } }
+
+        /// <summary>
+        /// Erfragt die zuletzt benötigte Renderzeit für eine bestimmte Rendervorgangsart
+        /// </summary>
+        /// <param name="renderType">Art des Rendervorgangs</param>
+        /// <returns>Renderzeit (in Millisekunden)</returns>
+        public float GetAverageRenderTime(RenderType renderType)
+        {
+            return (float)Math.Round(_renderTimesAvgDict[renderType] / 1000000.0);
+        }
 
         internal static MonitorHandle GetMonitorHandleForPointer(IntPtr ptr)
         {
