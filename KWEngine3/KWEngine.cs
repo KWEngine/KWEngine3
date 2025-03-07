@@ -25,6 +25,49 @@ namespace KWEngine3
         public static float MouseSensitivity { get; set; } = 0.05f;
 
         /// <summary>
+        /// Gibt an, ob die Performance für alle draw calls gemessen wird und mit der Methode KWEngine.GetRenderTime() abgefragt werden kann (Standard: false)
+        /// </summary>
+        public static bool DebugPerformanceEnabled { get; set; } = false;
+
+        /// <summary>
+        /// Gibt die für das Rendern eines bestimmten Passes benötigte Zeit in Millisekunden zurück
+        /// </summary>
+        /// <remarks>Sollte KWEngine.DebugPerformanceEnabled nicht 'true' sein, wird stets der Wert 0 zurückgegeben</remarks>
+        /// <param name="type">Art des Render Pass</param>
+        /// <returns>Anzahl der für den Pass benötigten Millisekunden</returns>
+        public static float GetRenderTime(RenderType type)
+        {
+            if (DebugPerformanceEnabled)
+            {
+                if (HelperDebug._renderTimesAvgDict.TryGetValue(type, out double value))
+                {
+                    return (float)Math.Round(value / 1000000.0, 3);
+                }
+                else
+                {
+                    return 0f;
+                }
+            }
+            else
+                return 0f;
+        }
+
+        /// <summary>
+        /// Gibt die für das Berechnen der Frame-Informationen benötigte CPU-Zeit in Millisekunden zurück
+        /// </summary>
+        /// <remarks>Sollte KWEngine.DebugPerformanceEnabled nicht 'true' sein, wird stets der Wert 0 zurückgegeben</remarks>
+        /// <returns>Durchschnittliche CPU-Zeit in Millisekunden</returns>
+        public static float GetCPUTime()
+        {
+            if (DebugPerformanceEnabled)
+            {
+                return HelperDebug._cpuTimeAvg;
+            }
+            else
+                return 0f;
+        }
+
+        /// <summary>
         /// Gibt an oder setzt den Faktor, der bei der Berechnung des Kameraschüttelns einer ViewSpaceGameObject-Instanz zugerechnet wird (Standard: 0.1f, gültiger Wertebereich liegt zwischen 0f und 1f)
         /// </summary>
         public static float ViewSpaceGameObjectShakeFactor
@@ -723,6 +766,8 @@ namespace KWEngine3
             TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
             TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();
             TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture();
+
+            HelperDebug.Init();
         }
 
 

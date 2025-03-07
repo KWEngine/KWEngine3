@@ -26,9 +26,13 @@
         /// </summary>
         HUD = 4,
         /// <summary>
-        /// Post-Processing-Effekte (Glow, SSAO, etc.)
+        /// Post-Processing-Effekte
         /// </summary>
-        PostProcessing = 5
+        PostProcessing = 5,
+        /// <summary>
+        /// Screen-Space Ambient Occlusion
+        /// </summary>
+        SSAO = 6
     }
 
     /// <summary>

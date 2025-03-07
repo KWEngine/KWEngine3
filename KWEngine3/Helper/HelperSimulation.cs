@@ -256,22 +256,25 @@ namespace KWEngine3.Helper
         {
             if (g.IsAnimated)
             {
-                GeoAnimation a = g._model.ModelOriginal.Animations[g._stateRender._animationID];
-                Matrix4 identity = Matrix4.Identity;
-                if (g is GameObject)
+                if (g.IsInsideScreenSpaceForRenderPass)
                 {
-                    GameObject go = g as GameObject;
-                    go._attachBoneNodes.Clear();
-                    for (int i = 0; i < go._gameObjectsAttached.Keys.Count; i++)
+                    GeoAnimation a = g._model.ModelOriginal.Animations[g._stateRender._animationID];
+                    Matrix4 identity = Matrix4.Identity;
+                    if (g is GameObject)
                     {
-                        GeoNode boneNode = go._gameObjectsAttached.Keys.ElementAt(i);
-                        go._attachBoneNodes.Add(boneNode);
+                        GameObject go = g as GameObject;
+                        go._attachBoneNodes.Clear();
+                        for (int i = 0; i < go._gameObjectsAttached.Keys.Count; i++)
+                        {
+                            GeoNode boneNode = go._gameObjectsAttached.Keys.ElementAt(i);
+                            go._attachBoneNodes.Add(boneNode);
+                        }
+                        ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, go._attachBoneNodes);
                     }
-                    ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, go._attachBoneNodes);
-                }
-                else
-                {
-                    ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, null);
+                    else
+                    {
+                        ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, null);
+                    }
                 }
             }
         }
