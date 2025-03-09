@@ -1,6 +1,7 @@
 ﻿#version 400 core
 
 in vec2 vTexture;
+//in vec2 vPositionNDC;
 flat in int vInstanceID;
 
 layout(location = 0) out vec4 color;
@@ -275,7 +276,7 @@ void main()
     vec3 F0 = getF0(int(pbr.z));
     F0 = mix(F0, albedo, pbr.x);
 
-   
+    int lightIndicesCount = uLightIndicesCounts[vInstanceID];
     vec3 colorTemp = vec3(0.0);
     if(abs(idShadowCaster.g) > 1)
     {
@@ -287,8 +288,6 @@ void main()
         vec3 Lo = vec3(0.0);
         
         //for(int li = 0; li < uLightIndicesCount; li++) // multi-draw
-
-        int lightIndicesCount = uLightIndicesCounts[vInstanceID];
         for(int li = 0; li < lightIndicesCount; li++)
         {
             // instancing mode:
@@ -413,17 +412,49 @@ void main()
         colorTemp = ambient + Lo;
         color = vec4(colorTemp, 1.0);
     }
-    
+/*    
+    if((vPositionNDC.x > 0.99 || vPositionNDC.x < -0.99) || (vPositionNDC.y > 0.99 || vPositionNDC.y < -0.99))
+    {
+        if(lightIndicesCount == 0)
+            color = vec4(0.00, 0.00, 0.00, 1);
+        else if(lightIndicesCount == 1)
+            color = vec4(0.00, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 2)
+            color = vec4(0.25, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 2)
+            color = vec4(0.50, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 3)
+            color = vec4(0.75, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 4)
+            color = vec4(1.00, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 5)
+            color = vec4(1.00, 0.75, 0.00, 1);
+        else if(lightIndicesCount == 6)
+            color = vec4(1.00, 0.50, 0.00, 1);
+        else if(lightIndicesCount == 7)
+            color = vec4(1.00, 0.25, 0.00, 1);
+        else if(lightIndicesCount == 8)
+            color = vec4(1.00, 0.00, 0.00, 1);
+        else if(lightIndicesCount == 9)
+            color = vec4(1.00, 0.00, 0.25, 1);
+        else if(lightIndicesCount == 10)
+            color = vec4(1.00, 0.00, 0.50, 1);
+        else if(lightIndicesCount == 11)
+            color = vec4(1.00, 0.00, 0.75, 1);
+        else
+            color = vec4(1.00, 0.00, 1.00, 1);
+    }
+*/
 
     float bloomR = 0.0;
     float bloomG = 0.0;
     float bloomB = 0.0;
-    if(colorTemp.x > 1.0)
-        bloomR = colorTemp.x - 1.0;
-    if(colorTemp.y > 1.0)
-        bloomG = colorTemp.y - 1.0;
-    if(colorTemp.z > 1.0)
-        bloomB = colorTemp.z - 1.0;
+    if(color.x > 1.0)
+        bloomR = color.x - 1.0;
+    if(color.y > 1.0)
+        bloomG = color.y - 1.0;
+    if(color.z > 1.0)
+        bloomB = color.z - 1.0;
     bloom = vec4(bloomR, bloomG, bloomB, 1.0);
 }
 

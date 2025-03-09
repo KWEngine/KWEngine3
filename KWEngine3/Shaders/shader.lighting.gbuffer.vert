@@ -15,6 +15,7 @@ layout (std140) uniform uBlockIndex2
 
 out vec4 vPosition;
 out vec2 vTexture;
+//out vec2 vPositionNDC;
 flat out int vInstanceID;
 
 /*
@@ -45,7 +46,7 @@ void main()
 	vec4 uvCoordinates = instanceData2[gl_InstanceID];
 	vTexture = vec2(isLeftVertex() ? uvCoordinates.x : uvCoordinates.y, isTopVertex() ? uvCoordinates.z : uvCoordinates.w);
 	gl_Position = vec4(aPosition.xy * 0.5 * positionAndScale.xy + positionAndScale.zw, 0.0, 1.0);
-
+	//vPositionNDC = aPosition.xy;
 
 /*
 	vTexture = vec2(isLeftVertex() ? uTextureOffset.x : uTextureOffset.y, isTopVertex() ? uTextureOffset.z : uTextureOffset.w);

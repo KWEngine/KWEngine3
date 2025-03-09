@@ -14,27 +14,29 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
-            if(Keyboard.IsKeyDown(Keys.A))
+            if(Keyboard.IsKeyDown(Keys.Left))
             {
-                pLight1.SetPosition(pLight1.Position.X - 0.01f, pLight1.Position.Y, pLight1.Position.Z);
+                pLight1.SetPosition(pLight1.Position.X - 0.05f, pLight1.Position.Y, pLight1.Position.Z);
             }
-            else if (Keyboard.IsKeyDown(Keys.D))
+            else if (Keyboard.IsKeyDown(Keys.Right))
             {
-                pLight1.SetPosition(pLight1.Position.X + 0.01f, pLight1.Position.Y, pLight1.Position.Z);
+                pLight1.SetPosition(pLight1.Position.X + 0.05f, pLight1.Position.Y, pLight1.Position.Z);
             }
-            else if (Keyboard.IsKeyDown(Keys.W))
+            else if (Keyboard.IsKeyDown(Keys.Up))
             {
-                pLight1.SetPosition(pLight1.Position.X, pLight1.Position.Y + 0.01f, pLight1.Position.Z);
+                pLight1.SetPosition(pLight1.Position.X, pLight1.Position.Y + 0.05f, pLight1.Position.Z);
             }
-            else if (Keyboard.IsKeyDown(Keys.S))
+            else if (Keyboard.IsKeyDown(Keys.Down))
             {
-                pLight1.SetPosition(pLight1.Position.X, pLight1.Position.Y - 0.01f, pLight1.Position.Z);
+                pLight1.SetPosition(pLight1.Position.X, pLight1.Position.Y - 0.05f, pLight1.Position.Z);
             }
         }
 
         public override void Prepare()
         {
             SetColorAmbient(0.1f, 0.1f, 0.1f);
+            SetBackgroundSkybox("./Textures/skybox.dds", 0);
+            SetBackgroundBrightnessMultiplier(10);
             
             SetCameraFOV(90);
             SetCameraPosition(0, 1, 10);
