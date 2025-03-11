@@ -573,7 +573,7 @@ namespace KWEngine3.Editor
                 ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
                 //LightType.Point ? 0 : l._type == LightType.Sun ? -1 : 1
                 string lighttype = SelectedLightObject._stateCurrent._nearFarFOVType.W == 0f ? "Point" : SelectedLightObject._stateCurrent._nearFarFOVType.W > 0f ? "Directional" : "Sun";
-                ImGui.Text(lighttype + " light ID: " + Math.Abs(SelectedLightObject.ID).ToString().PadLeft(8, '0'));
+                ImGui.Text(lighttype + " light ID: " + Math.Abs(SelectedLightObject.ID - 32768).ToString().PadLeft(8, '0'));
                 ImGui.SameLine();
                 if (ImGui.InputText("Name", ref lName, 64))
                 {
@@ -1199,7 +1199,7 @@ namespace KWEngine3.Editor
                     {
                         ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0, 0, 0, 0));
                     }
-                    if (ImGui.SmallButton("[" + l.Type.ToString() + "] " + Math.Abs(l.ID) + ": " + l.Name))
+                    if (ImGui.SmallButton("[" + l.Type.ToString() + "] " + Math.Abs(l.ID - 32768) + ": " + l.Name))
                     {
                         DeselectAll();
                         SelectedLightObject = l;
@@ -1391,7 +1391,19 @@ namespace KWEngine3.Editor
             int id = HelperIntersection.FramebufferPicking(mousePosition);
             if (id != 0)
             {
-                if (id > 0)
+                if(id >= 32768)
+                {
+                    // LightObject
+                    SelectedGameObject = null;
+                    SelectedTerrainObject = null;
+                    SelectedLightObject = null;
+                    LightObject pickedLightObject = GetLightObjectForId(id);
+                    if (pickedLightObject != null)
+                    {
+                        SelectedLightObject = pickedLightObject;
+                    }
+                }
+                else if (id > 0)
                 {
                     if (id < ushort.MaxValue)
                     {
@@ -1418,18 +1430,6 @@ namespace KWEngine3.Editor
                     {
                         // deselect
                         DeselectAll();
-                    }
-                }
-                else
-                {
-                    // LightObject
-                    SelectedGameObject = null;
-                    SelectedTerrainObject = null;
-                    SelectedLightObject = null;
-                    LightObject pickedLightObject = GetLightObjectForId(id);
-                    if (pickedLightObject != null)
-                    {
-                        SelectedLightObject = pickedLightObject;
                     }
                 }
             }

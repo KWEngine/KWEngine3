@@ -11,7 +11,7 @@ uniform sampler2D uTextureAlbedo;
 uniform sampler2D uTextureNormal;
 uniform sampler2D uTexturePBR; //x=metallic, y = roughness, z = metallic type
 uniform sampler2D uTextureDepth;
-uniform isampler2D uTextureId;
+uniform sampler2D uTextureId;
 uniform sampler2D uTextureSSAO;
 
 uniform sampler2D uShadowMap[3];
@@ -77,6 +77,23 @@ const vec3 metallicF0Values[9] = vec3[](
     vec3(0.91, 0.92, 0.92),
     vec3(0.95, 0.93, 0.88)
     );
+
+vec3 decodeNormal(vec2 encoded) 
+{
+    // Rückskalierung in den Bereich [-1, 1]
+    vec2 projected;
+    projected.x = (encoded.x) * 2.0 - 1.0;
+    projected.y = (encoded.y) * 2.0 - 1.0;
+
+    // Rekonstruktion des Z-Werts
+    float pSquared = dot(projected, projected);
+    float z = 1.0 - pSquared;
+    z = z > 0.0 ? sqrt(z) : 0.0; // Numerische Stabilität
+
+    // Rekonstruktion des Normalvektors
+    vec3 normal = vec3(projected * (1.0 + z), z);
+    return normalize(normal);
+}
 
 vec3 sampleFromEquirectangular(vec3 worldPosition, vec3 normal, float mipMapLevel)
 {
@@ -181,9 +198,31 @@ float DistributionGGX(vec3 N, vec3 H, float a)
     return nom / denom;
 }
 
+/*
 ivec2 getIdShadowCaster()
 {
-    return texture(uTextureId, vTexture).rg;
+    vec3 s = texture(uTextureId, vTexture).xyz;
+    uint id = decode8BitTo16BitUint(s.xy);
+    int z = int(round(s.z * 255.0)) - 10;
+    return ivec2(id, z);  
+}
+*/
+
+uint decode8BitTo16BitUint(vec2 encoded)
+{
+    uint low8 = uint(round(encoded.y * 255.0));
+    uint high8 = uint(round(encoded.x * 255.0));
+    return high8 * 256 + low8;
+}
+
+uint getId(vec3 s)
+{
+    return decode8BitTo16BitUint(s.xy);
+}
+
+int getShadowCaster(vec3 s)
+{
+    return int(round(s.z * 255.0)) - 10;
 }
 
 vec3 getPBR()
@@ -200,7 +239,7 @@ vec3 getAlbedo()
 
 vec3 getNormal()
 {
-    return texture(uTextureNormal, vTexture).xyz;
+    return decodeNormal(texture(uTextureNormal, vTexture).xy);
 }
 
 vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fragPosWorld)
@@ -249,36 +288,33 @@ vec3 getFragmentPosition()
 
 void main()
 {
-    vec3 normal = getNormal();
-    ivec2 idShadowCaster  = getIdShadowCaster();
-    if(idShadowCaster.r == 0)
+    vec3 sampleIdShadowCaster = texture(uTextureId, vTexture).xyz;
+    uint id  = getId(sampleIdShadowCaster);
+
+    if(id == 0)
     {
         discard;
     }
-    else if(idShadowCaster.r < 0)
-    {
-        vec3 albedo = getAlbedo();
-        color = vec4(albedo, 1);
-        bloom = vec4(albedo * 0.5, 1);
-        return;
-    }
 
     // actual shading:
+    vec3 albedo = getAlbedo();
+    int shadowCaster = getShadowCaster(sampleIdShadowCaster);
+    vec3 normal = getNormal();
     vec3 pbr = getPBR();
-	vec3 albedo = getAlbedo();
+	
     vec3 emissive = vec3(max(0, albedo.x - 1.0), max(0, albedo.y - 1.0), max(0, albedo.z - 1.0));
     albedo = vec3(min(albedo.x, 1.0), min(albedo.y, 1.0), min(albedo.z, 1.0));
     
-    //getFragmentPositions();
-    vec3 fragPosition = getFragmentPosition(); //vec3(fragPositions[0], fragPositions[1], fragPositions[2]);
+    vec3 fragPosition = getFragmentPosition();
     vec3 N = normal;
     vec3 V = normalize(uCameraPos - fragPosition);
     vec3 F0 = getF0(int(pbr.z));
     F0 = mix(F0, albedo, pbr.x);
 
     int lightIndicesCount = uLightIndicesCounts[vInstanceID];
+
     vec3 colorTemp = vec3(0.0);
-    if(abs(idShadowCaster.g) > 1)
+    if(abs(shadowCaster) > 1)
     {
         colorTemp = albedo + emissive;
         color = vec4(colorTemp, 1.0);
@@ -354,7 +390,7 @@ void main()
 
             // shadow map check:
             float darkeningCurrentLight = 1.0;
-            if(idShadowCaster.g > 0)
+            if(shadowCaster > 0)
             {
                 if(shadowMapIndex > 0) // directional or sun light
                 {
@@ -445,16 +481,16 @@ void main()
             color = vec4(1.00, 0.00, 1.00, 1);
     }
 */
-
+    
     float bloomR = 0.0;
     float bloomG = 0.0;
     float bloomB = 0.0;
-    if(color.x > 1.0)
-        bloomR = color.x - 1.0;
-    if(color.y > 1.0)
-        bloomG = color.y - 1.0;
-    if(color.z > 1.0)
-        bloomB = color.z - 1.0;
+    if(colorTemp.x > 1.0)
+        bloomR = colorTemp.x - 1.0;
+    if(colorTemp.y > 1.0)
+        bloomG = colorTemp.y - 1.0;
+    if(colorTemp.z > 1.0)
+        bloomB = colorTemp.z - 1.0;
     bloom = vec4(bloomR, bloomG, bloomB, 1.0);
 }
 

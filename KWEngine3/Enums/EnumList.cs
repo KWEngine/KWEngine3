@@ -973,6 +973,7 @@
         RGBA32F,
         RG8,
         RG32I,
+        R32UI,
         DEPTH32F,
         DEPTH16F,
         R8

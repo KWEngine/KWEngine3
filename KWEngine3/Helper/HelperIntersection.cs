@@ -1214,16 +1214,19 @@ namespace KWEngine3.Helper
             return false;
         }
 
-        private static readonly int[] pixelColor = new int[2];
+        private static readonly byte[] pixelColor = new byte[3];
         internal static int FramebufferPicking(Vector2 mousePosition)
         {
             GL.GetInteger(GetPName.FramebufferBinding, out int previousFBID);
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, RenderManager.FramebufferDeferred.ID);
             GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
             GL.ReadBuffer(ReadBufferMode.ColorAttachment3);
-            GL.ReadPixels((int)mousePosition.X, KWEngine.Window.ClientSize.Y - (int)mousePosition.Y, 1, 1, PixelFormat.RgInteger, PixelType.Int, pixelColor);
+            GL.ReadPixels((int)mousePosition.X, KWEngine.Window.ClientSize.Y - (int)mousePosition.Y, 1, 1, PixelFormat.Rgb, PixelType.UnsignedByte, pixelColor);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, previousFBID);
-            return pixelColor[0];
+
+            int clr = (pixelColor[0] << 8) | pixelColor[1];
+
+            return clr;
         }
 
         internal static void GetArmatureTransformForDefaultAnimation(GameObject g, GeoNode node, ref Matrix4 transform, ref bool found)

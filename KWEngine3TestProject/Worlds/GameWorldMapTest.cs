@@ -88,7 +88,7 @@ namespace KWEngine3TestProject.Worlds
             _t = new TerrainObject("T");
             _t.SetTexture("./Textures/sand_diffuse.dds");
             _t.SetTexture("./Textures/sand_normal.dds", TextureType.Normal);
-            _t.SetTextureRepeat(16, 16);
+            _t.SetTextureRepeat(2, 2);
             _t.IsCollisionObject = true;
             _t.IsShadowCaster = true;
             AddTerrainObject(_t);
@@ -98,17 +98,19 @@ namespace KWEngine3TestProject.Worlds
             _player.SetRotation(0, 180, 0);
             _player.IsCollisionObject = true;
             _player.IsFirstPersonObject = true;
-            _player.IsShadowCaster = true;
+            //_player.IsShadowCaster = true;
             _player.SetOpacity(0);
             AddGameObject(_player);
 
             SetCameraToFirstPersonGameObject(_player, 0f);
             MouseCursorGrab();
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
+            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.Medium);
             sun.SetPosition(50, 50, 50);
             sun.SetTarget(0, 0, 0);
             sun.SetColor(1, 1, 1, 3.5f);
+            sun.SetNearFar(20, 200);
+            sun.SetFOV(90);
             AddLightObject(sun);
 
             SetColorAmbient(0.25f, 0.25f, 0.25f);

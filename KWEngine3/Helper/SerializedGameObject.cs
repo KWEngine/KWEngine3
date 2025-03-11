@@ -12,7 +12,7 @@ namespace KWEngine3.Helper
         public string CustomColliderFile { get; set; }
         public ColliderType CustomColliderType { get; set; } = ColliderType.ConvexHull;
         public bool BlendTextureStates { get; set; }
-        public int ID { get; set; }
+        public ushort ID { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
         public string ModelName { get; set; }

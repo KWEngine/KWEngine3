@@ -9,7 +9,7 @@ namespace KWEngine3.Helper
 {
     internal class SerializedTerrainObject
     {
-        public int ID { get; set; }
+        public ushort ID { get; set; }
         public string Name { get; set; }
         public bool IsShadowCaster { get; set; }
         public bool IsCollisionObject { get; set; }

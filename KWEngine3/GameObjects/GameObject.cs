@@ -12,7 +12,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Interne ID des Objekts
         /// </summary>
-        public int ID { get; internal set; } = -1;
+        public ushort ID { get; internal set; } = 0;
 
         /// <summary>
         /// Ermöglicht das Anhängen individueller Informationen an das Objekt

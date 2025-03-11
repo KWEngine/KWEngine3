@@ -25,7 +25,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Engine-interne ID
         /// </summary>
-        public int ID { get; internal set; } = 0;
+        public ushort ID { get; internal set; } = 0;
         /// <summary>
         /// Name des Objekts
         /// </summary>

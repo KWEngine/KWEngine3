@@ -1,5 +1,4 @@
-﻿using KWEngine3.Helper;
-using OpenTK.Graphics.OpenGL4;
+﻿using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine3.Framebuffers
 {
@@ -8,6 +7,43 @@ namespace KWEngine3.Framebuffers
         public int ID { get; set; } = -1;
         public TextureTarget _target = TextureTarget.Texture2D;
         public FramebufferTextureMode Mode { get; set; } = FramebufferTextureMode.RGBA8;
+
+        public PixelInternalFormat GetPixelInternalFormatForFBTextureMode(FramebufferTextureMode mode)
+        {
+            return mode == FramebufferTextureMode.RGBA16F ? PixelInternalFormat.Rgba16f
+                    : mode == FramebufferTextureMode.RGBA32F ? PixelInternalFormat.Rgba32f
+                    : mode == FramebufferTextureMode.RGBA16UI ? PixelInternalFormat.Rgba16
+                    : mode == FramebufferTextureMode.DEPTH32F ? PixelInternalFormat.DepthComponent32f
+                    : mode == FramebufferTextureMode.DEPTH16F ? PixelInternalFormat.DepthComponent16
+                    : mode == FramebufferTextureMode.RGB16F ? PixelInternalFormat.Rgb16f
+                    : mode == FramebufferTextureMode.RGB8 ? PixelInternalFormat.Rgb8
+                    : mode == FramebufferTextureMode.RG8 ? PixelInternalFormat.Rg8
+                    : mode == FramebufferTextureMode.RG32I ? PixelInternalFormat.Rg32i
+                    : mode == FramebufferTextureMode.R32UI ? PixelInternalFormat.R32ui
+                    : mode == FramebufferTextureMode.R32F ? PixelInternalFormat.R32f
+                    : mode == FramebufferTextureMode.R8 ? PixelInternalFormat.R8
+                    : PixelInternalFormat.Rgba8;
+        }
+
+        public PixelFormat GetPixelFormatForFBTextureMode(FramebufferTextureMode mode)
+        {
+            return mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH16F ? PixelFormat.DepthComponent
+                : (mode == FramebufferTextureMode.RGB8 || mode == FramebufferTextureMode.RGB16F) ? PixelFormat.Rgb
+                : mode == FramebufferTextureMode.RG8 ? PixelFormat.Rg
+                : mode == FramebufferTextureMode.RG32I ? PixelFormat.RgInteger
+                : (mode == FramebufferTextureMode.R8 || mode == FramebufferTextureMode.R32UI || mode == FramebufferTextureMode.R32F) ? PixelFormat.Red
+                : PixelFormat.Rgba;
+        }
+
+        public PixelType GetPixelTypeForFBTextureMode(FramebufferTextureMode mode)
+        {
+            return mode == FramebufferTextureMode.RGBA16UI ? PixelType.UnsignedShort 
+                : (mode == FramebufferTextureMode.RGBA8 || mode == FramebufferTextureMode.RG8 || mode == FramebufferTextureMode.R8) ? PixelType.UnsignedByte 
+                : (mode == FramebufferTextureMode.DEPTH16F || mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat 
+                : mode == FramebufferTextureMode.R32UI ? PixelType.UnsignedInt
+                : mode == FramebufferTextureMode.RG32I ? PixelType.Int : PixelType.Float;
+        }
+
         public FramebufferTexture(FramebufferTextureMode mode, int width, int height, int attachmentNumber, TextureMinFilter filter = TextureMinFilter.Nearest, TextureMagFilter filterMag = TextureMagFilter.Nearest, TextureWrapMode wrapMode = TextureWrapMode.Repeat, bool borderColorWhite = false, bool cubeMap = false)
         {
             uint wrapmode = (uint)wrapMode;
@@ -24,23 +60,12 @@ namespace KWEngine3.Framebuffers
                     GL.TexImage2D(
                         TextureTarget.TextureCubeMapPositiveX + j, 
                         0, 
-                        mode == FramebufferTextureMode.RGBA16F ? PixelInternalFormat.Rgba16f
-                        : mode == FramebufferTextureMode.RGBA32F ? PixelInternalFormat.Rgba32f
-                        : mode == FramebufferTextureMode.RGBA16UI ? PixelInternalFormat.Rgba16
-                        : mode == FramebufferTextureMode.DEPTH32F ? PixelInternalFormat.DepthComponent32f
-                        : mode == FramebufferTextureMode.DEPTH16F ? PixelInternalFormat.DepthComponent16
-                        : mode == FramebufferTextureMode.RGB16F ? PixelInternalFormat.Rgb16f
-                        : mode == FramebufferTextureMode.RGB8 ? PixelInternalFormat.Rgb8
-                        : mode == FramebufferTextureMode.RG8 ? PixelInternalFormat.Rg8
-                        : mode == FramebufferTextureMode.RG32I ? PixelInternalFormat.Rg32i
-                        : mode == FramebufferTextureMode.R32F ? PixelInternalFormat.R32f
-                        : mode == FramebufferTextureMode.R8 ? PixelInternalFormat.R8
-                        : PixelInternalFormat.Rgba8,
+                        GetPixelInternalFormatForFBTextureMode(mode),
                         width, 
                         height, 
                         0,
-                        mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH16F ? PixelFormat.DepthComponent : (mode == FramebufferTextureMode.RGB8 || mode == FramebufferTextureMode.RGB16F )? PixelFormat.Rgb : mode == FramebufferTextureMode.RG8 ? PixelFormat.Rg : mode == FramebufferTextureMode.RG32I ? PixelFormat.RgInteger : mode == FramebufferTextureMode.R32F ?  PixelFormat.Red : mode == FramebufferTextureMode.R8 ? PixelFormat.Red : PixelFormat.Rgba,
-                        mode == FramebufferTextureMode.RGBA16UI ? PixelType.UnsignedShort : (mode == FramebufferTextureMode.RGBA8 || mode == FramebufferTextureMode.RG8 || mode == FramebufferTextureMode.R8) ? PixelType.UnsignedByte : (mode == FramebufferTextureMode.DEPTH16F || mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat : mode == FramebufferTextureMode.RG32I ? PixelType.Int : PixelType.Float,
+                        GetPixelFormatForFBTextureMode(mode),
+                        GetPixelTypeForFBTextureMode(mode),
                         IntPtr.Zero);
                 }
                 GL.TexParameterI(_target, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
@@ -51,23 +76,12 @@ namespace KWEngine3.Framebuffers
                 GL.TexImage2D(
                     _target,
                     0,
-                    mode == FramebufferTextureMode.RGBA16F ? PixelInternalFormat.Rgba16f
-                    : mode == FramebufferTextureMode.RGBA32F ? PixelInternalFormat.Rgba32f
-                    : mode == FramebufferTextureMode.RGBA16UI ? PixelInternalFormat.Rgba16
-                    : mode == FramebufferTextureMode.DEPTH32F ? PixelInternalFormat.DepthComponent32f
-                    : mode == FramebufferTextureMode.DEPTH16F ? PixelInternalFormat.DepthComponent16
-                    : mode == FramebufferTextureMode.RGB16F ? PixelInternalFormat.Rgb16f
-                    : mode == FramebufferTextureMode.RGB8 ? PixelInternalFormat.Rgb8
-                    : mode == FramebufferTextureMode.RG8 ? PixelInternalFormat.Rg8
-                    : mode == FramebufferTextureMode.RG32I ? PixelInternalFormat.Rg32i
-                    : mode == FramebufferTextureMode.R32F ? PixelInternalFormat.R32f
-                    : mode == FramebufferTextureMode.R8 ? PixelInternalFormat.R8
-                    : PixelInternalFormat.Rgba8,
+                    GetPixelInternalFormatForFBTextureMode(mode),
                     width,
                     height,
                     0,
-                    mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH16F ? PixelFormat.DepthComponent : (mode == FramebufferTextureMode.RGB8 || mode == FramebufferTextureMode.RGB16F) ? PixelFormat.Rgb : mode == FramebufferTextureMode.RG8 ? PixelFormat.Rg : mode == FramebufferTextureMode.RG32I ? PixelFormat.RgInteger : mode == FramebufferTextureMode.R8 ? PixelFormat.Red : mode == FramebufferTextureMode.R32F ? PixelFormat.Red : PixelFormat.Rgba,
-                    mode == FramebufferTextureMode.RGBA16UI ? PixelType.UnsignedShort : (mode == FramebufferTextureMode.RGBA8 || mode == FramebufferTextureMode.RG8 || mode == FramebufferTextureMode.R8) ? PixelType.UnsignedByte : (mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat : mode == FramebufferTextureMode.RG32I ? PixelType.Int : PixelType.Float,
+                    GetPixelFormatForFBTextureMode(mode),
+                    GetPixelTypeForFBTextureMode(mode),
                     IntPtr.Zero);
             }
             

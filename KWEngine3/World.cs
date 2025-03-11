@@ -186,7 +186,7 @@ namespace KWEngine3
 
             _map = new WorldMap();
 
-            for (ushort i = 1; i < ushort.MaxValue - 1; i++)
+            for (ushort i = 1; i < ushort.MaxValue / 2 - 1; i++)
             {
                 _availableLightObjectIDs.Enqueue(i);
                 _availableGameObjectIDs.Enqueue(i);
@@ -214,7 +214,7 @@ namespace KWEngine3
         {
             foreach (TerrainObject t in _terrainObjectsToBeRemoved)
             {
-                _availableGameObjectIDs.Enqueue((ushort)t.ID);
+                _availableGameObjectIDs.Enqueue(t.ID);
                 t.ID = 0;
                 t._myWorld = null;
 
@@ -1342,7 +1342,7 @@ namespace KWEngine3
             {
                 if (!_lightObjects.Contains(l) && !_lightObjectsToBeAdded.Contains(l))
                 {
-                    l.ID = _availableLightObjectIDs.Dequeue() * -1;
+                    l.ID = (ushort)(_availableLightObjectIDs.Dequeue() + 32768);
                     _lightObjectsToBeAdded.Add(l);
                     if(l.ShadowCasterType != ShadowQuality.NoShadow)
                         l.AttachShadowMap();

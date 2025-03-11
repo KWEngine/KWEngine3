@@ -149,9 +149,9 @@ namespace KWEngine3.Renderer
                 UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
 
                 
-                ULightIndicesCount = GL.GetUniformLocation(ProgramID, "uLightIndicesCount");
-                ULightIndices = GL.GetUniformLocation(ProgramID, "uLightIndices");
-                UTextureOffset = GL.GetUniformLocation(ProgramID, "uTextureOffset");
+                //ULightIndicesCount = GL.GetUniformLocation(ProgramID, "uLightIndicesCount");
+                //ULightIndices = GL.GetUniformLocation(ProgramID, "uLightIndices");
+                //UTextureOffset = GL.GetUniformLocation(ProgramID, "uTextureOffset");
                 ULightIndicesCounts = GL.GetUniformLocation(ProgramID, "uLightIndicesCounts");
                 
                 InitUBOs();
@@ -296,6 +296,7 @@ namespace KWEngine3.Renderer
 
         public static void Draw(Framebuffer fbSource)
         {
+            HelperGeneral.CheckGLErrors();
             // depth tex:
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[4].ID);
@@ -356,7 +357,7 @@ namespace KWEngine3.Renderer
             }
             */
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount(), RenderManager._screenGrid._tiles.Length);
-            
+            HelperGeneral.CheckGLErrors();
             GL.BindVertexArray(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }

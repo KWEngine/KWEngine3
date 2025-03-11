@@ -397,13 +397,14 @@ namespace KWEngine3.Helper
 
             l.Name = sl.Name;
             l._shadowBias = sl.ShadowBias;
+            l.SetShadowOffset(sl.ShadowOffset);
             l.SetPosition(sl.Position[0], sl.Position[1], sl.Position[2]);
             if (l.Type != LightType.Point)
                 l.SetTarget(sl.Target[0], sl.Target[1], sl.Target[2]);
             l.SetNearFar(sl.Near, sl.Far);
             l.SetFOV(sl.FOV);
             l.SetColor(sl.Color[0], sl.Color[1], sl.Color[2], sl.Color[3]);
-            l.SetShadowOffset(sl.ShadowOffset);
+            
             return l;
         }
 

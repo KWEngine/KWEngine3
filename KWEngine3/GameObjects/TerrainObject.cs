@@ -27,7 +27,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Interne ID des Objekts
         /// </summary>
-        public int ID { get; internal set; } = 0;
+        public ushort ID { get; internal set; } = 0;
         /// <summary>
         /// Gibt an, ob das Objekt gerade auf dem Bildschirm zu sehen ist
         /// </summary>
