@@ -497,7 +497,7 @@ namespace KWEngine3
             Font f = HelperGlyph.LoadFont(filename.Trim());
             if(f != null)
             {
-                KWFont kwfont = HelperGlyph.LoadFont(f);
+                KWFont kwfont = HelperGlyph.LoadFont(f, name);
                 if(kwfont != null && kwfont.IsValid)
                 {
                     kwfont.FontFilename = filename.Trim();
@@ -739,12 +739,13 @@ namespace KWEngine3
 
             KWQuad2D.Init();
             KWQuad2D_05.Init();
-            FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf"), true, "Anonymous.jpg"));
-            FontDictionary.Add("MajorMonoDisplay", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf"), true, "MajorMonoDisplay.jpg"));
-            FontDictionary.Add("NovaMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf"), true, "NovaMono.jpg"));
-            FontDictionary.Add("XanhMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("XanhMono.ttf"), true, "XanhMono.jpg"));
-            FontDictionary.Add("OpenSans", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf"), true, "OpenSans.jpg"));
-
+            
+            FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf"), "Anonymous", true, "Anonymous.jpg"));
+            FontDictionary.Add("MajorMonoDisplay", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf"), "MajorMonoDisplay", true, "MajorMonoDisplay.jpg"));
+            FontDictionary.Add("NovaMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf"), "NovaMono", true, "NovaMono.jpg"));
+            FontDictionary.Add("XanhMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("XanhMono.ttf"), "XanhMono", true, "XanhMono.jpg"));
+            FontDictionary.Add("OpenSans", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf"), "OpenSans", true, "OpenSans.jpg"));
+            
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
             TextureWhite = HelperTexture.LoadTextureInternal("white.png");

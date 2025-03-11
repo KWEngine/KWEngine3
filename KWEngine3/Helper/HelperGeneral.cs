@@ -310,6 +310,7 @@ namespace KWEngine3.Helper
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrassMinecraft, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrassNormal, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureNoise, TextureTarget.Texture2D));
+
             foreach(KWFont id in KWEngine.FontDictionary.Values)
             {
                 bytes += (int)(GetTextureSizeInBytes(new KWTexture(id.Texture, TextureTarget.Texture2D)) * 1.333333f);

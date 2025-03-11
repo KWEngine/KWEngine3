@@ -10,7 +10,7 @@ namespace KWEngine3.FontGenerator
         public int TextureSize { get; internal set; }
         public float Ascent { get; internal set; }
         public float Descent { get; internal set; }
-
+        public string Name { get; internal set; }
         public string FontFilename { get; internal set; }
 
         public void Dispose()

@@ -133,7 +133,6 @@ namespace KWEngine3.Model
                         indexBackFrontMostVertex.Y = i;
                     }
                 }
-                // TODO: Find the most opposite X/Y/Z values...
             }
             else
             {
@@ -241,7 +240,6 @@ namespace KWEngine3.Model
                         indexBackFrontMostVertex.Y = i;
                     }
                 }
-                // TODO: Find the most opposite X/Y/Z values...
             }
             else
             {

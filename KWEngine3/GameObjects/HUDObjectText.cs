@@ -15,6 +15,11 @@ namespace KWEngine3.GameObjects
         public const int MAX_CHARS = 127;
 
         /// <summary>
+        /// Wenn 'true', werden gleiche Abstände zwischen allen Zeichen erzwungen (Standard: false)
+        /// </summary>
+        public bool ForceMonospace { get; set; } = false;
+
+        /// <summary>
         /// Standardkonstruktor der HUDObjectText-Instanz
         /// </summary>
         /// <param name="text">Darzustellender Text (maximal 256 Zeichen)</param>
@@ -36,8 +41,27 @@ namespace KWEngine3.GameObjects
         public void SetFont(FontFace fontFace)
         {
             Font = HelperFont.GetNameForInternalFontID((int)fontFace);
-            _font = KWEngine.FontDictionary[Font];
-            UpdateOffsetList();
+            if(KWEngine.FontDictionary.TryGetValue(Font, out KWFont fontTemp))
+            {
+                if(fontTemp.IsValid)
+                {
+                    _font = KWEngine.FontDictionary[Font];
+                    UpdateOffsetList();
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[HUDObjectText] Font unknown or invalid");
+                    _font = KWEngine.FontDictionary["Anonymous"];
+                    UpdateOffsetList();
+                }
+                
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[HUDObjectText] Font unknown or invalid");
+                _font = KWEngine.FontDictionary["Anonymous"];
+                UpdateOffsetList();
+            }
         }
 
         /// <summary>
@@ -208,7 +232,7 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateOffsetList()
         {
-            KWFontGlyph space = _font.GetGlyphForCodepoint(' ');
+            KWFontGlyph space = _font.GetGlyphForCodepoint('_');
             for (int i = 0, j = 0; i < _text.Length; i++, j+=2)
             {
                 KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
@@ -220,8 +244,14 @@ namespace KWEngine3.GameObjects
                 float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;
 
                 _glyphWidths[i] = glyph.Width;
-
-                _advances[i + 1] = _advances[i] + glyph.Advance - glyph.Bearing + (space.Width * (_spread - 1f));
+                if(ForceMonospace)
+                {
+                    _advances[i + 1] = _advances[i] + space.Advance - space.Bearing + (space.Width * (_spread - 1f));
+                }
+                else
+                {
+                    _advances[i + 1] = _advances[i] + glyph.Advance - glyph.Bearing + (space.Width * (_spread - 1f));
+                }
             }
             
             if (_text.Length > 0)

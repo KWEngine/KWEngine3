@@ -141,7 +141,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Explosionskonstruktormethode
         /// </summary>
-        /// <param name="particleCount">Anzahl der Partikel</param>
+        /// <param name="particleCount">Anzahl der Partikel (max: 512)</param>
         /// <param name="particleSize">Größe der Partikel</param>
         /// <param name="explosionRadius">Radius der Explosion</param>
         /// <param name="durationInSeconds">Dauer der Explosion in Sekunden</param>

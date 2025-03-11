@@ -54,18 +54,22 @@ namespace KWEngine3.FontGenerator
             kwfont.Descent = descent * scaleNormalised;
         }
 
-        public static KWFont LoadFont(Font f, bool isBitmap = false, string bitmapName = "")
+        public static KWFont LoadFont(Font f, string fontName, bool isBitmap = false, string bitmapName = "")
         {
-            if (f == null)
+            if (f == null || fontName == null)
                 return new KWFont() { IsValid = false };
 
             KWFont kwfont = new KWFont();
-            Dictionary<char, KWFontGlyph> tmpDict = GenerateGlyphsAndDict(f, 256, out int mipmap0Width);
+            kwfont.Name = fontName;
+            int res = 256;
+            Dictionary<char, KWFontGlyph> tmpDict = GenerateGlyphsAndDict(f, res, out int mipmap0Width);
             
-            if (mipmap0Width >= Math.Pow(2, 14))
+            int maxTexSize = GL.GetInteger(GetPName.MaxTextureSize);
+            if (mipmap0Width >= maxTexSize)
             {
+                KWEngine.LogWriteLine("[Font] Generated texture size for '" + fontName + "' exceeds your gpu's texture size limits");
                 kwfont.IsValid = false;
-                kwfont.GlyphDict.Clear();
+                kwfont.GlyphDict = new();
                 return kwfont;
             }
             else
@@ -73,8 +77,11 @@ namespace KWEngine3.FontGenerator
                 kwfont.GlyphDict = tmpDict;
                 kwfont.IsValid = true;
             }
+            
+            kwfont.GlyphDict = tmpDict;
+            kwfont.IsValid = true;
 
-            byte[] tx256;
+            byte[] txPixels;
             if (isBitmap)
             {
                 Assembly a = Assembly.GetExecutingAssembly();
@@ -90,7 +97,7 @@ namespace KWEngine3.FontGenerator
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
-                    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, mipmap0Width, 256, 0, PixelFormat.Red, PixelType.UnsignedByte, bm.Bytes);
+                    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, mipmap0Width, res, 0, PixelFormat.Red, PixelType.UnsignedByte, bm.Bytes);
                     GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                     kwfont.Texture = texture;
@@ -101,7 +108,7 @@ namespace KWEngine3.FontGenerator
             }
             else
             {
-                tx256 = GenerateTextureForRes(f, mipmap0Width, 256, ref kwfont);
+                txPixels = GenerateTextureForRes(f, mipmap0Width, res, ref kwfont);
                 int texture = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, texture);
                 GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
@@ -110,11 +117,11 @@ namespace KWEngine3.FontGenerator
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, mipmap0Width, 256, 0, PixelFormat.Bgra, PixelType.UnsignedByte, tx256);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, mipmap0Width, res, 0, PixelFormat.Bgra, PixelType.UnsignedByte, txPixels);
                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
                 kwfont.Texture = texture;
-                kwfont.TextureSize = (int)(tx256.Length / 4 * 1.333333f);
+                kwfont.TextureSize = (int)(txPixels.Length / 4 * 1.333333f);
             }
                 
             SetAscentDescent(f, kwfont);
@@ -123,7 +130,7 @@ namespace KWEngine3.FontGenerator
 
         internal static Dictionary<char, KWFontGlyph> GenerateGlyphsAndDict(Font f, int res, out int pixelWidthSumEnlarged)
         {
-            int pixelGap = res / 32;
+            int pixelGap = res / 8;
             float renderScale = f.ScaleInPixels(res);
             float normalisedScale = f.ScaleInPixels(1f);
             // default width and advance for UNDERSCORE:
@@ -196,7 +203,7 @@ namespace KWEngine3.FontGenerator
 
         internal static byte[] GenerateTextureForRes(Font f, int width, int height, ref KWFont kwfont)
         {
-            float renderScale = f.ScaleInPixels(height);
+            float renderScale = f.ScaleInPixels(height - height * 0.025f);
             f.GetFontVMetrics(out int ascentInt, out int descentInt, out int lineGap);
             float ascent = ascentInt * renderScale;
             float descent = descentInt * renderScale;
@@ -240,17 +247,20 @@ namespace KWEngine3.FontGenerator
             }
             canvas.Dispose();
 
-            using (SKWStream stream = SKFileWStream.OpenStream("" + height + ".jpg"))
+            string tmpFilename = "" + kwfont.Name + ".jpg";
+            using (SKWStream stream = SKFileWStream.OpenStream(tmpFilename))
             {
+
                 bigTex.Encode(stream, SKEncodedImageFormat.Jpeg, 100);
             }
             bigTex.Dispose();
 
-            SKBitmap tmp = SKBitmap.Decode("" + height + ".jpg");
+            
+            SKBitmap tmp = SKBitmap.Decode(tmpFilename);
             byte[] imageData = new byte[tmp.ByteCount];
             Array.Copy(tmp.Bytes, imageData, tmp.ByteCount);
             tmp.Dispose();
-            File.Delete("" + height + ".jpg");
+            //File.Delete(tmpFilename);
             
             return imageData;
         }

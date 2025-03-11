@@ -19,6 +19,7 @@
       <Field Name="DELTASFORMOVINGAVG" Hidden="true" />
       <Method Name="GatherWeightedMovingAvg" Hidden="true" />
       <Method Name="GetMonitorHandleForPointer" Hidden="true" />
+      <Field Name="lastCycleCount" Hidden="true" />
       <Field Name="MOUSEDELTAMAXSAMPLECOUNT" Hidden="true" />
       <Method Name="OnClosing" Hidden="true" />
       <Method Name="OnKeyDown" Hidden="true" />
@@ -41,7 +42,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ACyEBAAABUCAAQ7AUAkBgEASghoABCQAYAEEWEUuAgA=</HashCode>
+      <HashCode>ACyEBAAABUCAAQ7AUAkBgEASghoABCQAaAEEWEUuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -507,7 +508,7 @@
       <Method Name="UpdateOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAAAAAAQAgAAAACAEIAAAACAABCAAACIQACASgASIAU=</HashCode>
+      <HashCode>EAAAAAAQAgAIAACAEIAAAACAABCAAACIQACASgASIAU=</HashCode>
       <FileName>GameObjects\HUDObjectText.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -728,7 +729,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectTextInput">
-    <Position X="15.5" Y="10" Width="2.75" />
+    <Position X="15.5" Y="10.25" Width="2.75" />
     <Members>
       <Field Name="_advanceForCursor" Hidden="true" />
       <Field Name="_cursorBlinkSpeed" Hidden="true" />

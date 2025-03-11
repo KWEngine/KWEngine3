@@ -116,7 +116,7 @@ namespace KWEngine3.Helper
             g._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrix));
             g._stateRender._lookAtVector = Vector3.Lerp(g._statePrevious._lookAtVector, g._stateCurrent._lookAtVector, alpha);
 
-            g._stateRender._animationID = g._stateCurrent._animationID; //TODO current?
+            g._stateRender._animationID = g._stateCurrent._animationID;
             g._stateRender._animationPercentage = g._statePrevious._animationPercentage * alpha + g._stateCurrent._animationPercentage * (1f - alpha);
             g._stateRender._opacity = g._statePrevious._opacity* alpha +g._stateCurrent._opacity * (1f - alpha);
             g._stateRender._colorTint = Vector3.Lerp(g._statePrevious._colorTint, g._stateCurrent._colorTint, alpha);
@@ -159,7 +159,7 @@ namespace KWEngine3.Helper
             r._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(r._stateRender._modelMatrix));
             r._stateRender._lookAtVector = Vector3.Lerp(r._statePrevious._lookAtVector, r._stateCurrent._lookAtVector, alpha);
 
-            r._stateRender._animationID = r._stateCurrent._animationID; //TODO current?
+            r._stateRender._animationID = r._stateCurrent._animationID;
             r._stateRender._animationPercentage = r._statePrevious._animationPercentage * alpha + r._stateCurrent._animationPercentage * (1f - alpha);
             r._stateRender._opacity = r._statePrevious._opacity * alpha + r._stateCurrent._opacity * (1f - alpha);
             r._stateRender._colorTint = Vector3.Lerp(r._statePrevious._colorTint, r._stateCurrent._colorTint, alpha);
