@@ -14,16 +14,16 @@ namespace KWEngine3.Framebuffers
         {
             Bind(false);
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Albedo
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG8, width, height, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Normal
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB16F, width, height, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Normal
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // Metallic, Roughness, MetallicType attachment
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 3, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // ID, ShadowCaster
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
             SizeInBytes =
                 width * height * 3 * (sizeof(float) / 2) +
-                width * height * 2 * sizeof(byte) +
+                width * height * 3 * (sizeof(float) / 2) +
                 width * height * 3 * sizeof(byte) +
                 width * height * 3 * sizeof(byte) +
-                width * height * 1 * (sizeof(float) / 1);
+                width * height * 1 * sizeof(float);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
             for(int i = 0; i < Attachments.Count - 1; i++)

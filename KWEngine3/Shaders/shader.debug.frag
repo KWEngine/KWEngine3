@@ -50,7 +50,8 @@ void main()
 	}
 	else if(uOptions.x == 3)
 	{
-		vec3 tmp = (decodeNormal(color2D.xy) * 0.5 + 0.5).xyz;
+		//vec3 tmp = (decodeNormal(color2D.xy) * 0.5 + 0.5).xyz;
+		vec3 tmp = color2D.xyz * 0.5 + 0.5;
 		color = vec4(tmp.x, tmp.y, tmp.z, 1.0);
 	}
 	else if(uOptions.x == 4)

@@ -6,7 +6,7 @@ in vec3 vNormal;
 in mat3 vTBN;
 
 layout(location = 0) out vec3 albedo; //rgb16f
-layout(location = 1) out vec2 normal; //rg8
+layout(location = 1) out vec3 normal; //rgb16f
 layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
 
@@ -85,7 +85,7 @@ void main()
 	{
 		n = vNormal;
 	}
-	normal = encodeNormal(normalize(n));
+	normal = normalize(n);
 
 
 	// ID & shadow caster behaviour:

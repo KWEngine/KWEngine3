@@ -1,7 +1,7 @@
 ﻿#version 400 core
 
 layout(location = 0) out vec3 albedo;
-layout(location = 1) out vec2 normal;
+layout(location = 1) out vec3 normal;
 layout(location = 3) out vec3 idShadowCaster;
 
 uniform vec4 uColorTint;
@@ -36,6 +36,6 @@ vec2 encode16BitUintTo8Bit(uint value16)
 void main()
 {
 	albedo = vec3(uColorTint.xyz * (uColorTint.w * 0.5));
-	normal = encodeNormal(-uCamLAV);
+	normal = -uCamLAV;
 	idShadowCaster = vec3(encode16BitUintTo8Bit(uId), 0);
 }

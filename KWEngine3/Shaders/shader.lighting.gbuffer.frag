@@ -251,7 +251,7 @@ vec3 getAlbedo()
 
 vec3 getNormal()
 {
-    return decodeNormal(texture(uTextureNormal, vTexture).xy);
+    return texture(uTextureNormal, vTexture).xyz;
 }
 
 vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fragPosWorld)
