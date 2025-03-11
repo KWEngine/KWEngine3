@@ -316,6 +316,7 @@ namespace KWEngine3
         /// </summary>
         public Matrix4 ViewProjectionMatrix { get { return KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix; } }
 
+        internal int lastCycleCount = 0;
         /// <summary>
         /// Wird ausgeführt, wenn ein neues Bild gezeichnet werden soll
         /// </summary>
@@ -334,8 +335,8 @@ namespace KWEngine3
             if (KWEngine.CurrentWorld._mouseCursorJustGrabbed)
                 KWEngine.CurrentWorld._mouseCursorJustGrabbed = false;
 
-            float alpha = UpdateScene();
-
+            
+            float alpha = UpdateScene(out lastCycleCount);
             List<LightObject> pointLights = new();
             List<GameObject> gameObjectsForForwardRendering = new();
             List<RenderObject> renderObjectsForForwardRendering = new();
@@ -594,13 +595,13 @@ namespace KWEngine3
 
             // HUD objects first pass:
             int hudrenderindex = RendererHUD.RenderHUDObjects(0, true);
-
+            bool noReset = false;
             // Map pass:
             if (KWEngine.CurrentWorld.Map.Enabled && KWEngine.Mode == EngineMode.Play)
             {
                 RendererHUD.Bind();
                 RendererHUD.SetGlobals();
-                RendererHUD.DrawMap();
+                RendererHUD.DrawMap(out noReset);
             }
 
             // HUD objects second pass:
@@ -923,13 +924,12 @@ namespace KWEngine3
             KWEngine.DeltaTimeAccumulator += Math.Min(tf, KWEngine.SIMULATIONMAXACCUMULATOR);
         }
 
-        internal float UpdateScene()
+        internal float UpdateScene(out int cycleCount)
         {
             List<GameObject> postponedViewSpaceAttachments = new();
             if (KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
             {
                 KWEngine.CurrentWorld._startingFrameActive = false;
-
             }
             int n = 0;
             if (KWEngine.CurrentWorld._startingFrameActive == false)
@@ -940,7 +940,7 @@ namespace KWEngine3
                 if (KWEngine.DebugPerformanceEnabled)
                     HelperDebug._cpuTimes.Add((float)elapsedTimeForCall);
             }
-
+            cycleCount = n;
 
             // Start render preparation:
             _stopwatch.Restart();

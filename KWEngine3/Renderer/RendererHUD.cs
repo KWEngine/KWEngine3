@@ -130,8 +130,10 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void DrawMap()
+        public static void DrawMap(out bool noReset)
         {
+            //Console.WriteLine("- RENDER START -");
+
             GL.Viewport(
                 KWEngine.CurrentWorld.Map._targetCenter.X - KWEngine.CurrentWorld.Map._targetDimensions.X / 2,
                 (KWEngine.Window.ClientSize.Y - KWEngine.CurrentWorld.Map._targetCenter.Y) - KWEngine.CurrentWorld.Map._targetDimensions.Y / 2,
@@ -146,18 +148,23 @@ namespace KWEngine3.Renderer
             {
                 DrawMapBackground(KWEngine.CurrentWorld.Map._background, meshMap);
             }
+            noReset = false;
             for (int i = 0; i < KWEngine.CurrentWorld.Map._indexFree; i++)
             {
+                noReset = true;
                 if (KWEngine.CurrentWorld.Map._items[i]._go != null)
                 {
                     DrawMapModel(KWEngine.CurrentWorld.Map._items[i]);
+                    //Console.WriteLine("model");
                 }
                 else
                 {
                     DrawMapItem(KWEngine.CurrentWorld.Map._items[i], meshMap);
+                    //Console.WriteLine("item");
                 }
-                KWEngine.CurrentWorld.Map._items[i]._go = null;
             }
+
+            //Console.WriteLine("- RENDER END-");
         }
 
         public static void DrawMapItem(HUDObjectMap ho, GeoMesh mesh)
@@ -168,7 +175,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._color);
             GL.Uniform4(UColorGlow, ho._colorE);
             GL.Uniform2(UTextureRepeat, ho._textureRepeat);
-            //GL.Uniform1(UMode, 2);
+            GL.Uniform1(UMode, 2);
             GL.Uniform1(UOptions, KWEngine.CurrentWorld.Map._drawAsCircle ? 1 : 0);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             Matrix4 tmp = KWEngine.CurrentWorld.Map._camView * KWEngine.CurrentWorld.Map._camPreRotation * KWEngine.CurrentWorld.Map._camProjection;
@@ -207,7 +214,7 @@ namespace KWEngine3.Renderer
 
                 if (material.ColorAlbedo.W == 0)
                     continue;
-
+                GL.Uniform1(UMode, 2);
                 GL.UniformMatrix4(UModelMatrix, false, ref ho._go._stateRender._modelMatrices[i]);
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
@@ -222,7 +229,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._color);
             GL.Uniform4(UColorGlow, ho._colorE);
             GL.Uniform2(UTextureRepeat, ho._textureRepeat);
-            //GL.Uniform1(UMode, 2);
+            GL.Uniform1(UMode, 2);
             GL.Uniform1(UOptions, KWEngine.CurrentWorld.Map._drawAsCircle ? 1 : 0);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             Matrix4 tmp = KWEngine.CurrentWorld.Map._camView * KWEngine.CurrentWorld.Map._camPreRotation * KWEngine.CurrentWorld.Map._camProjection;
@@ -264,6 +271,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTexture, 0);
 
             GL.Uniform1(UOptions, 0);
+            GL.Uniform1(UMode, 0);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
         }
 

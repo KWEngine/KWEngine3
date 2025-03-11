@@ -24,6 +24,7 @@ uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z =
 uniform ivec3 uUseTexturesAlbedoNormalEmissive; // x = albedo, y = normal, z = emissive
 uniform int uTextureIsMetallicRoughnessCombined;
 
+/*
 vec2 encodeNormal(vec3 normal) 
 {
     vec2 projected = normal.xy / (1.0 + normal.z);
@@ -33,6 +34,12 @@ vec2 encodeNormal(vec3 normal)
     encoded.y = (projected.y + 1.0) * 0.5;
 
     return encoded;
+}
+*/
+
+vec2 encodeNormal(vec3 normal) {
+    float p = sqrt(normal.z * 8.0 + 8.0);
+    return normal.xy / p + 0.5;
 }
 
 vec2 encode16BitUintTo8Bit(uint value16) 

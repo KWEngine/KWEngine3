@@ -7,7 +7,6 @@ uniform sampler2D uTexture;
 uniform vec4 uColorTint;
 uniform vec4 uColorGlow;
 uniform int uOptions;
-uniform int uMode;
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;

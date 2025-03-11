@@ -30,6 +30,8 @@ namespace KWEngine3TestProject.Worlds
                     Map.Add(walls[i], 0, new Vector3(1, 0, 1), Vector3.One, 0, 1, 0, "./Textures/fx_boom.png");
                 }
                 Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
+                
+                Map.AddAsRealModel(_player, 2, Vector3.One, Vector3.Zero, 0, 1, "./Textures/custom_cursor.png", 1, 1);
             }
             
         }
@@ -42,12 +44,13 @@ namespace KWEngine3TestProject.Worlds
             //KWEngine.DebugMode = DebugMode.SurfaceNormals;
             KWEngine.BuildTerrainModel("T", "./Textures/heightmap.png", 2);
             KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
-
+            /*
             HUDObjectImage testBack = new HUDObjectImage();
             testBack.SetZIndex(-5f);
             testBack.SetPosition(Window.Width - 256, Window.Height - 256);
             testBack.SetScale(128, 128);
-            testBack.SetColor(1, 0, 0);
+            testBack.SetColor(1, 1, 1);
+            testBack.SetTexture("./Textures/fx_boom.png");
             //testBack.SetColorEmissive(1, 0, 1);
             //testBack.SetColorEmissiveIntensity(1.5f);
             AddHUDObject(testBack);
@@ -78,7 +81,7 @@ namespace KWEngine3TestProject.Worlds
             testBack4.SetColorEmissive(1, 1, 0);
             testBack4.SetColorEmissiveIntensity(1);
             AddHUDObject(testBack4);
-
+            */
             HUDObjectImage testFront = new HUDObjectImage("./Textures/mapcircle.png");
             testFront.SetZIndex(5f);
             testFront.SetPosition(Window.Width - 384 / 2, Window.Height - 384 / 2);
@@ -94,9 +97,11 @@ namespace KWEngine3TestProject.Worlds
             AddTerrainObject(_t);
 
             _player = new Player();
+            _player.SetModel("Test");
             _player.SetPosition(0, 5, 0);
             _player.SetRotation(0, 180, 0);
-            _player.IsCollisionObject = true;
+            _player.SetScale(25);
+            _player.IsCollisionObject = false;
             _player.IsFirstPersonObject = true;
             //_player.IsShadowCaster = true;
             _player.SetOpacity(0);
@@ -158,7 +163,7 @@ namespace KWEngine3TestProject.Worlds
             
             Map.SetCamera(_player.Position, ProjectionDirection.NegativeY, 50, 50, 1, 100);
             Map.SetViewport(Window.Width - 384 / 2, Window.Height - 384 / 2, 274, 274, true);
-            Map.SetBackground("./Textures/mapgrid.png", 100, 100, 0.9f, 1f, 1f);
+            Map.SetBackground("./Textures/spritesheet.png", 100, 100, 0.9f, 1f, 1f);
             Map.Enabled = true;
         }
     }

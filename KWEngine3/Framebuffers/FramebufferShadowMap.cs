@@ -25,7 +25,7 @@ namespace KWEngine3.Framebuffers
             if (_lightType == LightType.Point)
                 SizeInBytes *= 6;
 
-            bool hq = (int)KWEngine.Window._ppQuality > 1;
+            bool hq = (int)KWEngine.Window._ppQuality >= 1;
             Bind(false); 
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, _lightType == LightType.Point ? TextureWrapMode.ClampToEdge : TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));

@@ -515,7 +515,6 @@ namespace KWEngine3
                 RemoveHUDObject(h);
             }
             AddRemoveHUDObjects();
-            _map.Reset();
 
             foreach (TextObject t in _textObjects)
             {

@@ -78,6 +78,7 @@ const vec3 metallicF0Values[9] = vec3[](
     vec3(0.95, 0.93, 0.88)
     );
 
+/*
 vec3 decodeNormal(vec2 encoded) 
 {
     // Rückskalierung in den Bereich [-1, 1]
@@ -93,6 +94,17 @@ vec3 decodeNormal(vec2 encoded)
     // Rekonstruktion des Normalvektors
     vec3 normal = vec3(projected * (1.0 + z), z);
     return normalize(normal);
+}
+*/
+
+vec3 decodeNormal(vec2 encodedNormal) {
+    vec2 f = encodedNormal * 2.0 - 1.0;
+    float g = dot(f, f);
+    float z = 1.0 - g * 0.5;
+    vec3 normal;
+    normal.xy = f * sqrt(1.0 - z * z);
+    normal.z = z;
+    return normal;
 }
 
 vec3 sampleFromEquirectangular(vec3 worldPosition, vec3 normal, float mipMapLevel)

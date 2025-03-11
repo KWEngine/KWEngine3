@@ -320,6 +320,7 @@ namespace KWEngine3
                 HUDObjectMap h = _items[_indexFree++];
                 h._modelMatrix =  HelperMatrix.CreateModelMatrixForHUD(ref scale, ref pos);
                 h.SetTextureForMap(texture);
+                h._go = null;
                 h.SetTextureRepeat(textureRepeatX, textureRepeatY);
                 h.SetColor(color.X, color.Y, color.Z, opacity);
                 h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
@@ -342,6 +343,7 @@ namespace KWEngine3
                 HUDObjectMap h = _items[_indexFree++];
                 h._scaleOverride = Math.Max(0f, scaleOverride);
                 h._modelMatrix = HelperMatrix.CreateModelMatrixForHUD(ref scale, ref pos);
+                h._go = null;
                 h.SetTextureForMap(texture);
                 h.SetTextureRepeat(textureRepeatX, textureRepeatY);
                 h.SetColor(color.X, color.Y, color.Z, opacity);
@@ -402,8 +404,6 @@ namespace KWEngine3
             h.SetColor(color.X, color.Y, color.Z, opacity);
             h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
             h.SetZIndex(Math.Clamp(zIndex, -1.99999f, 1.99999f));
-
-            
         }
 
         /// <summary>
@@ -435,6 +435,7 @@ namespace KWEngine3
 
             HUDObjectMap h = _items[_indexFree++];
             h._scaleOverride = 0f;
+            h._go = null;
             h._modelMatrix = HelperMatrix.CreateModelMatrix(t.Width, 1f, t.Depth, ref HelperVector.QIdentity, t._stateCurrent._position.X, t._stateCurrent._position.Y, t._stateCurrent._position.Z);
             h.SetTextureForMap(texture);
             h.SetTextureRepeat(textureRepeatX, textureRepeatY);
@@ -490,7 +491,7 @@ namespace KWEngine3
             h.SetColorEmissive(colorEmissive.X, colorEmissive.Y, colorEmissive.Z, emissiveIntensity);
             h.SetZIndex(Math.Clamp(zIndex, -1.99999f, 1.99999f));
             h._scaleOverride = 0f;
-
+            h._go = null;
         }
 
         internal HUDObjectMap CreateHUDObjectMapForBackground(Vector3 position, float width, float height, float zIndex, Vector3 color, float opacity = 1f, string texture = null, float textureRepeatX = 1f, float textureRepeatY = 1f)
@@ -516,6 +517,7 @@ namespace KWEngine3
             h.SetColor(color.X, color.Y, color.Z, opacity);
             h.SetColorEmissive(0f, 0f, 0f, 0f);
             h.SetZIndex(-99.9f);
+            h._go = null;
             h._scaleOverride = 0f;
             return h;
         }
