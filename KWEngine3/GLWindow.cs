@@ -105,6 +105,8 @@ namespace KWEngine3
                      APIVersion = Version.Parse("4.0"),
                      Flags = ContextFlags.ForwardCompatible,
                      WindowState = WindowState.Fullscreen,
+                     WindowBorder = WindowBorder.Hidden, 
+                     ClientSize = new Vector2i(KWEngine.ScreenInformation.PrimaryScreenWidth, KWEngine.ScreenInformation.PrimaryScreenHeight),
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
                      Icon = icon,
