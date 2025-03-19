@@ -22,6 +22,9 @@ namespace KWEngine3.Framebuffers
                     : mode == FramebufferTextureMode.R32UI ? PixelInternalFormat.R32ui
                     : mode == FramebufferTextureMode.R32F ? PixelInternalFormat.R32f
                     : mode == FramebufferTextureMode.R8 ? PixelInternalFormat.R8
+                    : mode == FramebufferTextureMode.RGB10A2 ? PixelInternalFormat.Rgb10A2
+                    : mode == FramebufferTextureMode.R11G11B10f ? PixelInternalFormat.R11fG11fB10f
+                    : mode == FramebufferTextureMode.RG16 ? PixelInternalFormat.Rg16f
                     : PixelInternalFormat.Rgba8;
         }
 
@@ -32,16 +35,23 @@ namespace KWEngine3.Framebuffers
                 : mode == FramebufferTextureMode.RG8 ? PixelFormat.Rg
                 : mode == FramebufferTextureMode.RG32I ? PixelFormat.RgInteger
                 : (mode == FramebufferTextureMode.R8 || mode == FramebufferTextureMode.R32UI || mode == FramebufferTextureMode.R32F) ? PixelFormat.Red
+                : mode == FramebufferTextureMode.RGB10A2 ? PixelFormat.Rgba
+                : mode == FramebufferTextureMode.R11G11B10f ? PixelFormat.Rgb
+                : mode == FramebufferTextureMode.RG16 ? PixelFormat.Rg
                 : PixelFormat.Rgba;
         }
 
         public PixelType GetPixelTypeForFBTextureMode(FramebufferTextureMode mode)
         {
-            return mode == FramebufferTextureMode.RGBA16UI ? PixelType.UnsignedShort 
-                : (mode == FramebufferTextureMode.RGBA8 || mode == FramebufferTextureMode.RG8 || mode == FramebufferTextureMode.R8) ? PixelType.UnsignedByte 
-                : (mode == FramebufferTextureMode.DEPTH16F || mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat 
+            return mode == FramebufferTextureMode.RGBA16UI ? PixelType.UnsignedShort
+                : (mode == FramebufferTextureMode.RGBA8 || mode == FramebufferTextureMode.RG8 || mode == FramebufferTextureMode.R8) ? PixelType.UnsignedByte
+                : (mode == FramebufferTextureMode.DEPTH16F || mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat
                 : mode == FramebufferTextureMode.R32UI ? PixelType.UnsignedInt
-                : mode == FramebufferTextureMode.RG32I ? PixelType.Int : PixelType.Float;
+                : mode == FramebufferTextureMode.RG32I ? PixelType.Int
+                : mode == FramebufferTextureMode.RG16 ? PixelType.HalfFloat
+                : mode == FramebufferTextureMode.RGB10A2 ? PixelType.UnsignedInt1010102
+                : mode == FramebufferTextureMode.R11G11B10f ? PixelType.UnsignedInt10F11F11FRev
+                : PixelType.Float;
         }
 
         public FramebufferTexture(FramebufferTextureMode mode, int width, int height, int attachmentNumber, TextureMinFilter filter = TextureMinFilter.Nearest, TextureMagFilter filterMag = TextureMagFilter.Nearest, TextureWrapMode wrapMode = TextureWrapMode.Repeat, bool borderColorWhite = false, bool cubeMap = false)
