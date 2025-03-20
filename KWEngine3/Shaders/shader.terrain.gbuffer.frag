@@ -5,10 +5,10 @@ in vec2 vTexture;
 in vec3 vNormal;
 in mat3 vTBN;
 
-layout(location = 0) out vec3 albedo;
-layout(location = 1) out vec3 normal;
-layout(location = 2) out vec3 metallicRoughnessMetallicType;
-layout(location = 3) out ivec2 idShadowCaster;
+layout(location = 0) out vec3 albedo; //R11G11B10f
+layout(location = 1) out vec2 normal; //rg16f
+layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
+layout(location = 3) out vec3 idShadowCaster; // rgb8
 
 uniform vec3 uColorTint;
 uniform vec3 uColorMaterial;
@@ -22,6 +22,29 @@ uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureEmissive;
 uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = 1 means: object has transparency (not used yet)!
 uniform ivec3 uUseTexturesAlbedoNormalEmissive; // x = albedo, y = normal, z = emissive
+
+vec2 encode16BitUintTo8Bit(uint value16) 
+{
+    float low8 = float(value16 & 0xFFu); // Untere 8 Bit
+    float high8 = float((value16 >> 8) & 0xFFu); // Obere 8 Bit
+    return vec2(high8 / 255.0, low8 / 255.0);
+}
+
+vec2 encodeNormal2(vec3 normal) 
+{
+    vec2 projected = normal.xy / (1.0 + normal.z);
+
+    vec2 encoded;
+    encoded.x = (projected.x + 1.0) * 0.5;
+    encoded.y = (projected.y + 1.0) * 0.5;
+
+    return encoded;
+}
+
+vec2 encodeNormal(vec3 normal) {
+    float p = sqrt(normal.z * 8.0 + 8.0);
+    return normal.xy / p + 0.5;
+}
 
 void main()
 {
@@ -57,8 +80,12 @@ void main()
 	{
 		n = vNormal;
 	}
-	normal = vec3(normalize(n));
-	idShadowCaster = uIdShadowCaster;
+	normal = encodeNormal2(normalize(n));
+
+	uint id = uIdShadowCaster.x;
+	vec2 idAsRG = encode16BitUintTo8Bit(id);
+	idShadowCaster = vec3(idAsRG, (uIdShadowCaster.y + 10) / 255.0);
+
 
 	//Metallic/Roughness
 	float metallic = uMetallicRoughness.x;
