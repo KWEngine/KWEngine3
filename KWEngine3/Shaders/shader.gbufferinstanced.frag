@@ -5,8 +5,8 @@ in vec2 vTexture;
 in vec3 vNormal;
 in mat3 vTBN;
 
-layout(location = 0) out vec3 albedo; //rgb16f
-layout(location = 1) out vec3 normal; //rgb16f
+layout(location = 0) out vec3 albedo; //R11G11B10f
+layout(location = 1) out vec2 normal; //rg16f
 layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
 
@@ -24,8 +24,8 @@ uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z =
 uniform ivec3 uUseTexturesAlbedoNormalEmissive; // x = albedo, y = normal, z = emissive
 uniform int uTextureIsMetallicRoughnessCombined;
 
-/*
-vec2 encodeNormal(vec3 normal) 
+
+vec2 encodeNormal2(vec3 normal) 
 {
     vec2 projected = normal.xy / (1.0 + normal.z);
 
@@ -35,7 +35,7 @@ vec2 encodeNormal(vec3 normal)
 
     return encoded;
 }
-*/
+
 
 vec2 encodeNormal(vec3 normal) {
     float p = sqrt(normal.z * 8.0 + 8.0);
@@ -85,7 +85,7 @@ void main()
 	{
 		n = vNormal;
 	}
-	normal = normalize(n);
+	normal = encodeNormal2(normalize(n));
 	
 	// ID & shadow caster behaviour:
 	uint id = uIdShadowCaster.x;

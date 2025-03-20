@@ -78,8 +78,8 @@ const vec3 metallicF0Values[9] = vec3[](
     vec3(0.95, 0.93, 0.88)
     );
 
-/*
-vec3 decodeNormal(vec2 encoded) 
+
+vec3 decodeNormal2(vec2 encoded) 
 {
     // Rückskalierung in den Bereich [-1, 1]
     vec2 projected;
@@ -95,7 +95,7 @@ vec3 decodeNormal(vec2 encoded)
     vec3 normal = vec3(projected * (1.0 + z), z);
     return normalize(normal);
 }
-*/
+
 
 vec3 decodeNormal(vec2 encodedNormal) {
     vec2 f = encodedNormal * 2.0 - 1.0;
@@ -251,7 +251,7 @@ vec3 getAlbedo()
 
 vec3 getNormal()
 {
-    return texture(uTextureNormal, vTexture).xyz;
+    return decodeNormal2(texture(uTextureNormal, vTexture).xy);
 }
 
 vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fragPosWorld)
