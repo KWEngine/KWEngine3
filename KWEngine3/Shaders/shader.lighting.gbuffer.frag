@@ -280,6 +280,19 @@ vec3 getFragmentPosition()
     return worldSpaceCoordinate.xyz;
 }
 
+float getShadowMapVisiblity(vec3 texCoord)
+{
+    float distLeft = texCoord.x;        // Distanz zum linken Rand (0)
+    float distRight = 1.0 - texCoord.x; // Distanz zum rechten Rand (1)
+    float distBottom = texCoord.y;      // Distanz zum unteren Rand (0)
+    float distTop = 1.0 - texCoord.y;   // Distanz zum oberen Rand (1)
+
+    float minDist = min(min(distLeft, distRight), min(distBottom, distTop));
+    float fade = smoothstep(0.0, 0.05, minDist);
+
+    return 1.0 - fade;
+}
+
 void main()
 {
     vec3 sampleIdShadowCaster = texture(uTextureId, vTexture).xyz;
@@ -386,12 +399,14 @@ void main()
             float darkeningCurrentLight = 1.0;
             if(shadowCaster > 0)
             {
+                
                 if(shadowMapIndex > 0) // directional or sun light
                 {
                     vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPosition, 1.0);
                     
                     // if the light is directional, we first have to linearize the depth values:
 			        vec3 projCoordsForTextureLookup = (vShadowCoord.xyz / vShadowCoord.w) * 0.5 + 0.5;
+                    
                     if(uUseTextureReflectionQuality.w > 0)
                     {
                         darkeningCurrentLight = 0;
@@ -418,6 +433,8 @@ void main()
                             }
                         darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
                     }
+                    float shadowVisibility = getShadowMapVisiblity(projCoordsForTextureLookup);
+                    darkeningCurrentLight = mix(darkeningCurrentLight, 1.0, shadowVisibility);
                 }
                 else if(shadowMapIndex < 0) // point light
                 {
