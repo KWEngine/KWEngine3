@@ -65,17 +65,17 @@ namespace KWEngine3.GameObjects
                 _colorEmissive.X = HelperGeneral.Clamp(value.X, 0, 1);
                 _colorEmissive.Y = HelperGeneral.Clamp(value.Y, 0, 1);
                 _colorEmissive.Z = HelperGeneral.Clamp(value.Z, 0, 1);
-                _colorEmissive.W = HelperGeneral.Clamp(value.W, 0, 10);
+                _colorEmissive.W = HelperGeneral.Clamp(value.W, 0, 2);
             }
         }
 
         /// <summary>
         /// Setzt die Glühfarbe der Explosionspartikel
         /// </summary>
-        /// <param name="red">Rot (0 bis 2)</param>
-        /// <param name="green">Grün (0 bis 2)</param>
-        /// <param name="blue">Blau (0 bis 2)</param>
-        /// <param name="intensity">Helligkeit (0 bis 10)</param>
+        /// <param name="red">Rot (0 bis 1)</param>
+        /// <param name="green">Grün (0 bis 1)</param>
+        /// <param name="blue">Blau (0 bis 1)</param>
+        /// <param name="intensity">Helligkeit (0 bis 2)</param>
         public void SetColorEmissive(float red, float green, float blue, float intensity)
         {
             ColorEmissive = new Vector4(red, green, blue, intensity);

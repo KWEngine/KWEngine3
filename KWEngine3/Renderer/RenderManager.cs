@@ -80,7 +80,6 @@ namespace KWEngine3.Renderer
         {
             PrimitiveQuad.Init();
             PrimitivePoint.Init();
-
             RendererGBuffer.Init();
             RendererGBufferInstanced.Init();
             RendererLightingPass.Init();
@@ -96,31 +95,25 @@ namespace KWEngine3.Renderer
             RendererTerrainCollision.Init();
             RendererSSAO.Init();
             RendererSSAOBlur.Init();
-
             RendererDebug.Init();
             RendererDebugCube.Init();
 
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();
-
             RendererGBufferFoliage.Init();
-
             RendererShadowMap.Init();
             RendererShadowMapInstanced.Init();
             RendererShadowMapCube.Init();
             RendererShadowMapCubeInstanced.Init();
             RendererShadowMapTerrain.Init();
             RendererShadowMapTerrainCube.Init();
-
             RendererEditor.Init();
             RendererGrid.Init();
             RendererLightOverlay.Init();
             RendererLightFrustum.Init();
             RendererOctreeNodes.Init();
-            
             RendererBloomDownsample.Init();
             RendererBloomUpsample.Init();
-
             RendererHUD.Init();
             RendererHUDText.Init();
 

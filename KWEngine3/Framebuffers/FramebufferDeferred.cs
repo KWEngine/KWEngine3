@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using KWEngine3.Helper;
+using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine3.Framebuffers
 {
@@ -14,13 +15,13 @@ namespace KWEngine3.Framebuffers
         {
             Bind(false);
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R11G11B10f, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Albedo
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG16, width, height, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Normal
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG8, width, height, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Normal
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // Metallic, Roughness, MetallicType attachment
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 3, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // ID, ShadowCaster
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
             SizeInBytes =
-                width * height * 3 * (sizeof(float) / 2) +
-                width * height * 3 * (sizeof(float) / 2) +
+                width * height * 4 +
+                width * height * 2 * sizeof(byte) +
                 width * height * 3 * sizeof(byte) +
                 width * height * 3 * sizeof(byte) +
                 width * height * 1 * sizeof(float);
@@ -34,11 +35,11 @@ namespace KWEngine3.Framebuffers
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             ClearColorValues.Add(0, new float[] { 0, 0, 0 });
-            ClearColorValues.Add(1, new float[] { 0, 0, 0 });
+            ClearColorValues.Add(1, new float[] { 0, 0 });
             ClearColorValues.Add(2, new float[] { 0, 1, 0 });
-            ClearColorValues.Add(3, new float[] { 0, 0 });
+            ClearColorValues.Add(3, new float[] { 0, 0, 0 });
 
-            ClearDepthValues.Add(0, new float[] { 0, 0, 0, 0 });
+            ClearDepthValues.Add(0, new float[] { 0 });
         }
 
         public override void Clear(bool keepDepth = false)

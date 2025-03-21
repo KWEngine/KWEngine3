@@ -280,7 +280,7 @@ namespace KWEngine3.Editor
                     {
                         SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, SelectedGameObject._stateCurrent._colorEmissive.W);
                     }
-                    if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 10, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                    if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 2, "%.2f", ImGuiSliderFlags.AlwaysClamp))
                     {
                         SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, colorEmissiveIntensityNew);
                     }
@@ -624,15 +624,11 @@ namespace KWEngine3.Editor
                     }
                     else
                     {
-                        if (SelectedLightObject.Type != LightType.Point)
+                        if (ImGui.SliderFloat("FOV (degrees)", ref fovNew, 10, 179, "%.0f"))
                         {
-                            if (ImGui.SliderFloat("FOV (degrees)", ref fovNew, 10, 179, "%.0f"))
-                            {
-                                SelectedLightObject.SetFOV(fovNew);
-                            }
+                            SelectedLightObject.SetFOV(fovNew);
                         }
                     }
-                    
                 }
                 if (!(SelectedLightObject.Type == LightType.Sun && SelectedLightObject.ShadowCasterType == ShadowQuality.NoShadow))
                 {
@@ -642,7 +638,7 @@ namespace KWEngine3.Editor
                             updateNearFar = true;
                     }
 
-                    if (ImGui.SliderFloat("Far  boundary", ref farNew, 1f, 100f, "%.0f"))
+                    if (ImGui.SliderFloat("Far  boundary", ref farNew, 1f, 500f, "%.0f"))
                         updateNearFar = true;
                 }
 
@@ -701,7 +697,7 @@ namespace KWEngine3.Editor
                 }
                 //
 
-                if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 10, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 2, "%.2f", ImGuiSliderFlags.AlwaysClamp))
                 {
                     SelectedTerrainObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, colorEmissiveIntensityNew);
                 }

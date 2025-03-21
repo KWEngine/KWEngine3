@@ -320,16 +320,16 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die selbstleuchtende Farbe der Instanz
         /// </summary>
-        /// <param name="r">Rotanteil (zwischen 0 und 2)</param>
-        /// <param name="g">Grünanteil (zwischen 0 und 2)</param>
-        /// <param name="b">Blauanteil (zwischen 0 und 2)</param>
-        /// <param name="intensity">Intensität (zwischen 0 und 10)</param>
+        /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
+        /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
+        /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
+        /// <param name="intensity">Intensität (zwischen 0 und 2)</param>
         public void SetColorEmissive(float r, float g, float b, float intensity)
         {
-            _stateCurrent._colorEmissive.X = Math.Clamp(r, 0f, 2f);
-            _stateCurrent._colorEmissive.Y = Math.Clamp(g, 0f, 2f);
-            _stateCurrent._colorEmissive.Z = Math.Clamp(b, 0f, 2f);
-            _stateCurrent._colorEmissive.W = Math.Clamp(intensity, 0f, 10f);
+            _stateCurrent._colorEmissive.X = Math.Clamp(r, 0f, 1f);
+            _stateCurrent._colorEmissive.Y = Math.Clamp(g, 0f, 1f);
+            _stateCurrent._colorEmissive.Z = Math.Clamp(b, 0f, 1f);
+            _stateCurrent._colorEmissive.W = Math.Clamp(intensity, 0f, 2f);
         }
 
         /// <summary>

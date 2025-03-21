@@ -54,6 +54,8 @@ namespace KWEngine3.Renderer
 
                 GL.LinkProgram(ProgramID);
 
+                RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
+
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
                 UTextureDepth = GL.GetUniformLocation(ProgramID, "uTextureDepth");
                 UTextureNormal = GL.GetUniformLocation(ProgramID, "uTextureNormal");
