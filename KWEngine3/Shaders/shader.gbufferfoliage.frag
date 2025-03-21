@@ -17,13 +17,19 @@ uniform sampler2D uTextureNormal;
 uniform int uLightConfig;
 uniform vec2 uRoughnessMetallic;
 
-vec2 encodeNormal(vec3 normal) 
+
+vec2 octWrap(vec2 v)
 {
-    normal.xy /= abs(normal.x) + abs(normal.y) + abs(normal.z);
-    if (normal.z < 0.0) {
-        normal.xy = (1.0 - abs(normal.xy)) * sign(normal.xy);
-    }
-    return normal.xy * 0.5 + 0.5;
+    //return (1.0 - abs(v.yx)) * (v.xy >= 0.0 ? 1.0 : -1.0);
+    return (1.0 - abs(v.yx)) * sign(v.xy);
+}
+ 
+vec2 encodeNormal(vec3 n)
+{
+    n /= (abs(n.x) + abs(n.y) + abs(n.z));
+    n.xy = n.z >= 0.0 ? n.xy : octWrap(n.xy);
+    n.xy = n.xy * 0.5 + vec2(0.5);
+    return n.xy;
 }
 
 

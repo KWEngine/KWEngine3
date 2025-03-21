@@ -78,14 +78,15 @@ const vec3 metallicF0Values[9] = vec3[](
     vec3(0.95, 0.93, 0.88)
     );
 
-vec3 decodeNormal(vec2 encoded) 
+
+vec3 decodeNormal(vec2 f)
 {
-   encoded = encoded * 2.0 - 1.0; // Zurück in den Bereich (-1,1)
-    vec3 normal = vec3(encoded, 1.0 - abs(encoded.x) - abs(encoded.y));
-    if (normal.z < 0.0) {
-        normal.xy = (1.0 - abs(normal.xy)) * sign(normal.xy);
-    }
-    return normalize(normal);
+    f = f * 2.0 - 1.0;
+    vec3 n = vec3(f.x, f.y, 1.0 - abs(f.x) - abs(f.y));
+    float t = clamp(-n.z, 0.0, 1.0);
+    n.x += n.x >= 0.0 ? -t : t;
+    n.y += n.y >= 0.0 ? -t : t;
+    return normalize(n);
 }
 
 vec3 sampleFromEquirectangular(vec3 worldPosition, vec3 normal, float mipMapLevel)
