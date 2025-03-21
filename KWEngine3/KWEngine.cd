@@ -206,6 +206,7 @@
       <Method Name="GetTerrainObjects" Hidden="true" />
       <Method Name="GetTransparentGameObjectsForEditor" Hidden="true" />
       <Method Name="Init" Hidden="true" />
+      <Method Name="IsLightBehindCamera" Hidden="true" />
       <Method Name="PrepareLightObjectsForRenderPass" Hidden="true" />
       <Method Name="ProcessWorldEventQueue" Hidden="true" />
       <Method Name="ResetWorldDimensions" Hidden="true" />
