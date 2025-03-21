@@ -40,7 +40,7 @@ namespace KWEngine3TestProject.Worlds
 
                 _performanceCPU.SetText("CPU:     " + KWEngine.GetRenderTime(RenderType.PostProcessing) + "ms");
 
-                if (fps.Count == 240)
+                if(fps.Count == 240)
                     _performanceFPS.SetText("FPS:     " + Math.Round(fps.Average(), 0));
             }
         }

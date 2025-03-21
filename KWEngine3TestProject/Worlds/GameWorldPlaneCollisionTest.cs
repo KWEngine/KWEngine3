@@ -38,7 +38,6 @@ namespace KWEngine3TestProject.Worlds
         {
             base.Prepare();
             
-
             SetCameraPosition(0, 10, 10);
             SetColorAmbient(0.5f, 0.5f, 0.5f);
             //KWEngine.SSAO_Enabled = true;
