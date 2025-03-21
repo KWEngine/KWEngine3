@@ -174,6 +174,19 @@ vec3 getF0(int type)
     return metallicF0Values[type];
 }
 
+float getShadowMapVisiblity(vec3 texCoord)
+{
+    float distLeft = texCoord.x;        // Distanz zum linken Rand (0)
+    float distRight = 1.0 - texCoord.x; // Distanz zum rechten Rand (1)
+    float distBottom = texCoord.y;      // Distanz zum unteren Rand (0)
+    float distTop = 1.0 - texCoord.y;   // Distanz zum oberen Rand (1)
+
+    float minDist = min(min(distLeft, distRight), min(distBottom, distTop));
+    float fade = smoothstep(0.0, 0.05, minDist);
+
+    return 1.0 - fade;
+}
+
 void main()
 {
     vec4 albedo = getAlbedo();
@@ -286,6 +299,8 @@ void main()
                     fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
                 }
 			    darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                float shadowVisibility = getShadowMapVisiblity(projCoordsForTextureLookup);
+                darkeningCurrentLight = mix(darkeningCurrentLight, 1.0, shadowVisibility);
             }
             else if(shadowMapIndex < 0) // point light
             {

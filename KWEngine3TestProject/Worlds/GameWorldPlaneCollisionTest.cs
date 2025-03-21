@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine3TestProject.Worlds
 {
-    internal class GameWorldPlaneCollisionTest : GameWorldPerformanceBase
+    internal class GameWorldPlaneCollisionTest : WorldPerformance
     {
         private Player _player;
 
@@ -90,7 +90,7 @@ namespace KWEngine3TestProject.Worlds
             sun.Name = "Sun";
             sun.SetPosition(25, 25, 0);
             sun.SetColor(1, 1, 1, 2);
-            sun.SetFOV(45);
+            sun.SetFOV(20);
             sun.SetNearFar(20, 80);
             AddLightObject(sun);
 

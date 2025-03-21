@@ -192,8 +192,9 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
             LightObject sun = CurrentWorld.GetLightObjectByName("Sun");
             if(sun != null)
             {
-                sun.SetPosition(Position + new Vector3(-25, 25, 12.5f));
-                sun.SetTarget(Position);
+                Vector3 tempPos = new Vector3(Position.X, 0, Position.Z);
+                sun.SetPosition(tempPos + new Vector3(-25, 25, 12.5f));
+                sun.SetTarget(tempPos);
             }
         }
     }
