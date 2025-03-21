@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using KWEngine3.Helper;
+using OpenTK.Graphics.OpenGL4;
 
 namespace KWEngine3.Framebuffers
 {
@@ -24,7 +25,7 @@ namespace KWEngine3.Framebuffers
                     : mode == FramebufferTextureMode.R8 ? PixelInternalFormat.R8
                     : mode == FramebufferTextureMode.RGB10A2 ? PixelInternalFormat.Rgb10A2
                     : mode == FramebufferTextureMode.R11G11B10f ? PixelInternalFormat.R11fG11fB10f
-                    : mode == FramebufferTextureMode.RG16 ? PixelInternalFormat.Rg16f
+                    : mode == FramebufferTextureMode.RG16 ? PixelInternalFormat.Rg16
                     : PixelInternalFormat.Rgba8;
         }
 
@@ -48,7 +49,7 @@ namespace KWEngine3.Framebuffers
                 : (mode == FramebufferTextureMode.DEPTH16F || mode == FramebufferTextureMode.RGBA16F || mode == FramebufferTextureMode.RGB16F) ? PixelType.HalfFloat
                 : mode == FramebufferTextureMode.R32UI ? PixelType.UnsignedInt
                 : mode == FramebufferTextureMode.RG32I ? PixelType.Int
-                : mode == FramebufferTextureMode.RG16 ? PixelType.HalfFloat
+                : mode == FramebufferTextureMode.RG16 ? PixelType.UnsignedShort
                 : mode == FramebufferTextureMode.RGB10A2 ? PixelType.UnsignedInt1010102
                 : mode == FramebufferTextureMode.R11G11B10f ? PixelType.UnsignedInt10F11F11FRev
                 : PixelType.Float;
