@@ -19,11 +19,16 @@ namespace KWEngine3TestProject.Worlds
         private HUDObjectText _performanceLighting;
         private HUDObjectText _performanceCPU;
         private HUDObjectText _performanceFPS;
+        private List<int> fps = new();
 
         public override void Act()
         {
             if (KWEngine.DebugPerformanceEnabled)
             {
+                if (fps.Count == 240)
+                    fps.RemoveAt(0);
+                fps.Add(KWEngine.FPS);
+
                 _performanceDeferred.SetText("Deferred:" + KWEngine.GetRenderTime(RenderType.Deferred) + "ms");
                 _performanceLighting.SetText("Lighting:" + KWEngine.GetRenderTime(RenderType.Lighting) + "ms");
                 _performanceShadowMapping.SetText("Shadows: " + KWEngine.GetRenderTime(RenderType.ShadowMapping) + "ms");
@@ -35,7 +40,8 @@ namespace KWEngine3TestProject.Worlds
 
                 _performanceCPU.SetText("CPU:     " + KWEngine.GetRenderTime(RenderType.PostProcessing) + "ms");
 
-                _performanceFPS.SetText("FPS:     " + KWEngine.FPS);
+                if (fps.Count == 240)
+                    _performanceFPS.SetText("FPS:     " + Math.Round(fps.Average(), 0));
             }
         }
 
@@ -95,7 +101,7 @@ namespace KWEngine3TestProject.Worlds
             _performanceCPU.SetScale(32);
             AddHUDObject(_performanceCPU);
 
-            _performanceFPS = new HUDObjectText("0");
+            _performanceFPS = new HUDObjectText("FPS:     0");
             _performanceFPS.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
             _performanceFPS.ForceMonospace = true;
             _performanceFPS.SetScale(32);
