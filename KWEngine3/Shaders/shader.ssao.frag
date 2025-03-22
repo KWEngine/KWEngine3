@@ -48,7 +48,7 @@ vec3 getFragmentPositionOffset(vec2 offset)
 void main()
 {
     vec3 fragmentPosWorldSpace = getFragmentPosition();
-    vec3 normal    = decodeNormal(texture(uTextureNormal, vTexture).xy);
+    vec3 normal    = texture(uTextureNormal, vTexture).xyz;
     vec3 randomVec = normalize(texture(uTextureNoise, vTexture * uNoiseScale).xyz);  
 
     vec3 tangent   = normalize(randomVec - normal * dot(randomVec, normal));

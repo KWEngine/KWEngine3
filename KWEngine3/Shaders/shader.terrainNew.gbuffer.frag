@@ -5,7 +5,7 @@ in vec3 vNormal;
 in mat3 vTBN;
 in vec3 vPos;
 layout(location = 0) out vec3 albedo; //R11G11B10f
-layout(location = 1) out vec2 normal; //rg8ui
+layout(location = 1) out vec3 normal;
 layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
 
@@ -112,7 +112,7 @@ void main()
 	{
 		n = vNormal;
 	}
-	normal = encodeNormal(normalize(n));
+	normal = normalize(n);
 	
 	uint id = uIdShadowCaster.x;
 	vec2 idAsRG = encode16BitUintTo8Bit(id);

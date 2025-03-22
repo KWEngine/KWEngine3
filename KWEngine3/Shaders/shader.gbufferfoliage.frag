@@ -6,7 +6,7 @@ in vec3 vColor;
 in mat3 vTBN;
 
 layout(location = 0) out vec3 albedo; //R11G11B10f
-layout(location = 1) out vec2 normal; //rg8ui
+layout(location = 1) out vec3 normal;
 layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
 
@@ -43,7 +43,7 @@ vec2 encode16BitUintTo8Bit(uint value16)
 void main()
 {
 	albedo = vColor * texture(uTextureAlbedo, vTexture).xyz * uColorTintEmissive.xyz * uColorTintEmissive.w;
-	normal = encodeNormal(normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0)));
+	normal = normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0));
 	metallicRoughnessMetallicType = vec3(uRoughnessMetallic.y, uRoughnessMetallic.x, 0.0);
 	idShadowCaster = vec3(encode16BitUintTo8Bit(65535), (uLightConfig + 10) / 255.0);
 }
