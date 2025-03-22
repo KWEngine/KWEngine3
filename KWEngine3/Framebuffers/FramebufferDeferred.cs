@@ -21,7 +21,7 @@ namespace KWEngine3.Framebuffers
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
             SizeInBytes =
                 width * height * 4 +
-                width * height * 2 * sizeof(byte) +
+                width * height * 3 * sizeof(short) +
                 width * height * 3 * sizeof(byte) +
                 width * height * 3 * sizeof(byte) +
                 width * height * 1 * sizeof(float);
