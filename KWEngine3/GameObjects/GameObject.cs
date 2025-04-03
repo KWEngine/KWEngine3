@@ -1511,6 +1511,11 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Gibt den groben Durchmesser der Hitbox an
+        /// </summary>
+        public float Diameter { get { return _fullDiameter; } }
+
         #region Internals
         internal List<GeoNode> _attachBoneNodes = new();
         internal GameObject _attachedTo = null;
