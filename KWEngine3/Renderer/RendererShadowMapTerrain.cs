@@ -79,7 +79,7 @@ namespace KWEngine3.Renderer
 
         public static void RenderSceneForLight(LightObject l)
         {
-            if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+            if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
             {
                 GL.Viewport(0, 0, l._shadowMapSize, l._shadowMapSize);
                 Matrix4 vp = l._stateRender._viewProjectionMatrix[0];

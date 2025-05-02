@@ -649,7 +649,7 @@ namespace KWEngine3
                 _preparedLightsArray[offset + 00] = l._stateRender._position.X;
                 _preparedLightsArray[offset + 01] = l._stateRender._position.Y;
                 _preparedLightsArray[offset + 02] = l._stateRender._position.Z;
-                if (l.ShadowCasterType == ShadowQuality.NoShadow)
+                if (l.ShadowQualityLevel == ShadowQuality.NoShadow)
                 {
                     _preparedLightsArray[offset + 03] = 0f;
                 }
@@ -1343,7 +1343,7 @@ namespace KWEngine3
                 {
                     l.ID = (ushort)(_availableLightObjectIDs.Dequeue() + 32768);
                     _lightObjectsToBeAdded.Add(l);
-                    if(l.ShadowCasterType != ShadowQuality.NoShadow)
+                    if(l.ShadowQualityLevel != ShadowQuality.NoShadow)
                         l.AttachShadowMap();
                 }
             }

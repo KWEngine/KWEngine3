@@ -10,6 +10,7 @@ namespace KWEngine3.Framebuffers
         internal static int _fbShadowMapCounter = 0;
         public int ID { get; set; } = -1;
         public LightType _lightType = LightType.Point;
+        public ShadowType _shadowType = ShadowType.Default;
         public bool _isLight = false;
         public Vector3 _clearColor = Vector3.Zero;
         public int SizeInBytes = 0;

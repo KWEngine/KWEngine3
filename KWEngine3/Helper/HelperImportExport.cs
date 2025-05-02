@@ -393,7 +393,12 @@ namespace KWEngine3.Helper
 
         private static LightObject BuildLightObject(SerializedLightObject sl)
         {
-            LightObject l = new LightObject(sl.LightType, sl.ShadowCasterType);
+            LightObject l =
+                sl.LightType == LightType.Sun ? new LightObjectSun(sl.ShadowCasterType, sl.ShadowCasterSunType) :
+                sl.LightType == LightType.Point ? new LightObjectPoint(sl.ShadowCasterType) :
+                new LightObjectDirectional(sl.ShadowCasterType);
+                
+            //new LightObject(sl.LightType, sl.ShadowCasterType);
 
             l.Name = sl.Name;
             l._shadowBias = sl.ShadowBias;

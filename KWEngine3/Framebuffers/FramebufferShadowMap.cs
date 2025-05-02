@@ -25,7 +25,6 @@ namespace KWEngine3.Framebuffers
             if (_lightType == LightType.Point)
                 SizeInBytes *= 6;
 
-            bool hq = (int)KWEngine.Window._ppQuality >= 1;
             Bind(false); 
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, _lightType == LightType.Point ? TextureWrapMode.ClampToEdge : TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
@@ -35,18 +34,22 @@ namespace KWEngine3.Framebuffers
 
             if(_lightType == LightType.Point)
             {
-                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
+                Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
+            }
+            else if(_lightType == LightType.Sun && _shadowType == ShadowType.CascadedShadowMap)
+            {
+
             }
             else
             {
                 // TODO: Check why this has to be included for directional lights!
                 Renderbuffers.Add(GL.GenRenderbuffer());
                 GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, width, height);
+                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent32f, width, height);
                 GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-                
+
             }
-            SizeInBytes += width * height * (hq ? sizeof(float) : sizeof(short));
+            SizeInBytes += width * height * sizeof(float);
 
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
 

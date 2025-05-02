@@ -6,6 +6,7 @@ namespace KWEngine3.Helper
     {
         public string Name { get; set; }
         public ShadowQuality ShadowCasterType { get; set; }
+        public ShadowType ShadowCasterSunType { get; set; }
         public LightType LightType { get; set; }
         public float ShadowBias { get; set; }
         public float[] Position { get; set; }
@@ -21,7 +22,7 @@ namespace KWEngine3.Helper
             SerializedLightObject sl = new SerializedLightObject();
 
             sl.Name = l.Name;
-            sl.ShadowCasterType = l.ShadowCasterType;
+            sl.ShadowCasterType = l.ShadowQualityLevel;
             sl.LightType = l.Type;
             sl.ShadowBias = l._shadowBias;
             sl.Position = new float[] { l._stateCurrent._position.X, l._stateCurrent._position.Y, l._stateCurrent._position.Z };

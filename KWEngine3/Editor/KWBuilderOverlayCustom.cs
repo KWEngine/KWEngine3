@@ -604,7 +604,7 @@ namespace KWEngine3.Editor
                 {
                     SelectedLightObject.SetColor(colorNew.X, colorNew.Y, colorNew.Z, colorIntensityNew);
                 }
-                if (!(SelectedLightObject.Type == LightType.Sun && SelectedLightObject.ShadowCasterType == ShadowQuality.NoShadow))
+                if (!(SelectedLightObject.Type == LightType.Sun && SelectedLightObject.ShadowQualityLevel == ShadowQuality.NoShadow))
                 {
                     ImGui.Separator();
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "(Near &) Far bounds:");
@@ -614,7 +614,7 @@ namespace KWEngine3.Editor
                 {
                     if (SelectedLightObject.Type == LightType.Sun)
                     {
-                        if (SelectedLightObject.ShadowCasterType != ShadowQuality.NoShadow)
+                        if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                         {
                             if (ImGui.SliderFloat("FOV", ref fovNew, 10, SelectedLightObject._shadowMapSize, "%.0f"))
                             {
@@ -630,9 +630,9 @@ namespace KWEngine3.Editor
                         }
                     }
                 }
-                if (!(SelectedLightObject.Type == LightType.Sun && SelectedLightObject.ShadowCasterType == ShadowQuality.NoShadow))
+                if (!(SelectedLightObject.Type == LightType.Sun && SelectedLightObject.ShadowQualityLevel == ShadowQuality.NoShadow))
                 {
-                    if (SelectedLightObject.ShadowCasterType != ShadowQuality.NoShadow)
+                    if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                     {
                         if (ImGui.SliderFloat("Near boundary", ref nearNew, 0.1f, 10f, "%.1f"))
                             updateNearFar = true;
@@ -645,11 +645,11 @@ namespace KWEngine3.Editor
                 if (updateNearFar)
                     SelectedLightObject.SetNearFar(nearNew, farNew);
 
-                if (SelectedLightObject.ShadowCasterType != ShadowQuality.NoShadow)
+                if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                 {
                     ImGui.SliderFloat("Shadow bias", ref SelectedLightObject._shadowBias, 0.0f, 0.0001f, "%.6f");   
                 }
-                if (SelectedLightObject.ShadowCasterType != ShadowQuality.NoShadow)
+                if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                 {
                     ImGui.SliderFloat("Shadow offset", ref SelectedLightObject._shadowOffset, 0.0f, 0.05f, "%.4f");
                 }
@@ -806,7 +806,7 @@ namespace KWEngine3.Editor
 
         public static void DrawLightFrustum()
         {
-            if (SelectedLightObject != null && KWEngine.DebugMode == DebugMode.None && SelectedLightObject.ShadowCasterType != ShadowQuality.NoShadow)
+            if (SelectedLightObject != null && KWEngine.DebugMode == DebugMode.None && SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
             {
                 GL.Disable(EnableCap.DepthTest);
                 RendererLightFrustum.Bind();

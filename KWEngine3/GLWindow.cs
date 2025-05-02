@@ -406,7 +406,7 @@ namespace KWEngine3
                     RendererShadowMap.Bind();
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
-                        if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+                        if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
                         {
                             l._fbShadowMap.Bind(true);
                             if (l.Type == LightType.Point)
@@ -424,7 +424,7 @@ namespace KWEngine3
                         RendererShadowMapTerrain.Bind();
                         foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                         {
-                            if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+                            if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
                             {
                                 if (l.Type == LightType.Point)
                                 {
@@ -441,7 +441,7 @@ namespace KWEngine3
                         RendererShadowMapInstanced.Bind();
                         foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                         {
-                            if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+                            if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
                             {
                                 if (l.Type == LightType.Point)
                                 {

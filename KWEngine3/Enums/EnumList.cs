@@ -760,6 +760,21 @@
     }
 
     /// <summary>
+    /// Art des Schattentyps (nur für Sonnenlicht relevant)
+    /// </summary>
+    public enum ShadowType
+    {
+        /// <summary>
+        /// Standard
+        /// </summary>
+        Default,
+        /// <summary>
+        /// Cascaded: Schatten nahe des Lichtziels sind detaillierter, weiter weg liegende Objekte werfen gröbere Schatten
+        /// </summary>
+        CascadedShadowMap
+    }
+
+    /// <summary>
     /// Steuert die 3D-Darstellung der Kamera
     /// </summary>
     public enum ProjectionType

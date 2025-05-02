@@ -6,7 +6,7 @@ namespace KWEngine3.GameObjects
     /// <summary>
     /// Klasse für Sonnen-/Punktlichter und gerichtete Lichter (spot lights)
     /// </summary>
-    public sealed class LightObject
+    public abstract class LightObject
     {
         internal LightObjectState _stateCurrent;
         internal LightObjectState _statePrevious;
@@ -15,13 +15,7 @@ namespace KWEngine3.GameObjects
         internal int _shadowMapSize;
         internal float _shadowBias = 0.00002f;
         internal float _shadowOffset = 0.0001f;
-        /*
-        /// <summary>
-        /// Befinden sich das Lichtobjekt und seine Lichtstrahlen aktuell auf dem Bildschirm?
-        /// </summary>
-        public bool IsInsideScreenSpace { get; internal set; } = true;
-        internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
-        */
+        
         /// <summary>
         /// Engine-interne ID
         /// </summary>
@@ -34,30 +28,36 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Schattenqualität des Lichts (maximal 3 Schattenlichter pro Welt möglich)
         /// </summary>
-        public ShadowQuality ShadowCasterType { get; internal set; } = ShadowQuality.NoShadow;
+        public ShadowQuality ShadowQualityLevel { get; internal set; } = ShadowQuality.NoShadow;
 
         /// <summary>
-        /// Standardkonstruktormethode für Lichtobjekte
+        /// Art der Schattenberechnung (Standard oder kaskadiert)
+        /// </summary>
+        public ShadowType ShadowType { get; internal set; } = ShadowType.Default;
+
+        /// <summary>
+        /// Init-Methode für Lichtobjekte
         /// </summary>
         /// <param name="lightType">Art des Lichts (Sonne, Punktlicht oder gerichtetes Licht?)</param>
-        /// <param name="shadowType">Schattenqualität des Lichts</param>
-        public LightObject(LightType lightType, ShadowQuality shadowType = ShadowQuality.NoShadow)
+        /// <param name="shadowQuality">Schattenqualität des Lichts</param>
+        /// <param name="shadowType">Schattentyp</param>
+        internal void Init(LightType lightType, ShadowQuality shadowQuality, ShadowType shadowType)
         {
-            if(shadowType != ShadowQuality.NoShadow && Framebuffer.ShadowMapCount >= KWEngine.MAX_SHADOWMAPS)
+            if(shadowQuality != ShadowQuality.NoShadow && Framebuffer.ShadowMapCount >= KWEngine.MAX_SHADOWMAPS)
             {
                 KWEngine.LogWriteLine("New LightObject instance cannot cast shadows!");
                 KWEngine.LogWriteLine("\tReason: > 3 shadow casters in world already.");
-                shadowType = ShadowQuality.NoShadow;
+                shadowQuality = ShadowQuality.NoShadow;
             }
 
-            ShadowCasterType = shadowType;
+            ShadowQualityLevel = shadowQuality;
             if (lightType == LightType.Point)
             {
-                _shadowMapSize = (int)ShadowCasterType / 2;
+                _shadowMapSize = (int)ShadowQualityLevel / 2;
             }
             else
             {
-                _shadowMapSize = (int)ShadowCasterType;
+                _shadowMapSize = (int)ShadowQualityLevel;
             }
 
             if (lightType == LightType.Point)
@@ -143,7 +143,7 @@ namespace KWEngine3.GameObjects
         {
             _stateCurrent._target = target;
             UpdateLookAtVector();
-            
+
         }
 
         /// <summary>
@@ -238,6 +238,26 @@ namespace KWEngine3.GameObjects
             if(far - near < 1)
                 far = near + 1;
             _stateCurrent._nearFarFOVType = new Vector4(near, far, _stateCurrent._nearFarFOVType.Z, _stateCurrent._nearFarFOVType.W);
+        }
+
+        internal Vector4[] _frustumCorners = new Vector4[8];
+
+        internal void UpdateFrustumCornersWorldSpace()
+        {
+            Matrix4 inv = Matrix4.Invert(KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrixNoShake);
+            int i = 0;
+            for (int x = 0; x< 2; ++x)
+            {
+                for (int y = 0; y< 2; ++y)
+                {
+                    for (int z = 0; z< 2; ++z)
+                    {
+                        _frustumCorners[i] = Vector4.TransformRow(new Vector4(2.0f * x - 1.0f, 2.0f * y - 1.0f, 2.0f * z - 1.0f, 1.0f), inv);
+                        _frustumCorners[i] /= _frustumCorners[i].W;
+                        i++;
+                    }
+                }
+            }
         }
 
         internal void UpdateLookAtVector()
