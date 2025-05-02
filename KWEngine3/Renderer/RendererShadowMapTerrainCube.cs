@@ -78,13 +78,12 @@ namespace KWEngine3.Renderer
 
         public static void RenderSceneForLight(LightObject l)
         {
-            if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+            if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
             {
                 GL.Viewport(0, 0, l._shadowMapSize, l._shadowMapSize);
                 for (int i = 0; i < 6; i++)
                 {
-                    Matrix4 vp = l._stateRender._viewProjectionMatrix[i];
-                    GL.UniformMatrix4(UViewProjectionMatrix + i * KWEngine._uniformOffsetMultiplier, false, ref vp);
+                    GL.UniformMatrix4(UViewProjectionMatrix + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[i]);
                 }
 
                 GL.Uniform2(UNearFar, new Vector2(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y));

@@ -66,7 +66,7 @@ namespace KWEngine3TestProject.Worlds
             crosshair.CenterOnScreen();
             AddHUDObject(crosshair);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
+            LightObject sun = new LightObjectSun(ShadowQuality.NoShadow, SunShadowType.Default);
             sun.SetColor(1, 1, 1, 2);
             sun.SetPosition(25, 25, 25);
             sun.SetNearFar(1, 100);

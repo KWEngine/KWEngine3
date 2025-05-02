@@ -10,24 +10,26 @@ namespace KWEngine3.Framebuffers
         internal static int _fbShadowMapCounter = 0;
         public int ID { get; set; } = -1;
         public LightType _lightType = LightType.Point;
+        public SunShadowType _shadowType = SunShadowType.Default;
         public bool _isLight = false;
         public Vector3 _clearColor = Vector3.Zero;
         public int SizeInBytes = 0;
 
         public static int ShadowMapCount { get { return _fbShadowMapCounter; } }
         public List<FramebufferTexture> Attachments { get; set; } = new List<FramebufferTexture>();
-        public List<int> Renderbuffers { get; set; } = new List<int>();
+        //public List<int> Renderbuffers { get; set; } = new List<int>();
 
-        public Framebuffer(int width, int height, bool isLight, LightType lightType)
+        public Framebuffer(int width, int height, bool isLight, LightType lightType, SunShadowType shadowType = SunShadowType.Default)
         {
             ID = GL.GenFramebuffer();
             _isLight = isLight;
             _lightType = lightType;
+            _shadowType = shadowType;
             Init(width, height);
         }
         
         public Dictionary<int, float[]> ClearColorValues = new Dictionary<int, float[]>();
-        public Dictionary<int, float[]> ClearDepthValues = new Dictionary<int, float[]>();
+        //public Dictionary<int, float[]> ClearDepthValues = new Dictionary<int, float[]>();
 
         public void Unbind()
         {
@@ -54,8 +56,8 @@ namespace KWEngine3.Framebuffers
                 attachment.Dispose();
             }
 
-            GL.DeleteRenderbuffers(Renderbuffers.Count, Renderbuffers.ToArray());
-            Renderbuffers.Clear();
+            //GL.DeleteRenderbuffers(Renderbuffers.Count, Renderbuffers.ToArray());
+            //Renderbuffers.Clear();
 
             Attachments.Clear();
             GL.DeleteFramebuffers(1, new int[] { ID });

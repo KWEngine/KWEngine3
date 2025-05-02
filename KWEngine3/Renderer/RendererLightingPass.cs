@@ -27,6 +27,7 @@ namespace KWEngine3.Renderer
         public static int UShadowMap { get; private set; } = -1;
         public static int UShadowMapCube { get; private set; } = -1;
         public static int UViewProjectionMatrixShadowMap { get; private set; } = -1;
+        public static int UViewProjectionMatrixShadowMap2 { get; private set; } = -1;
         public static int UTextureSkybox { get; private set; } = -1;
         public static int UTextureBackground { get; private set; } = -1;
         public static int UUseTextureReflection { get; private set; } = -1;
@@ -146,6 +147,7 @@ namespace KWEngine3.Renderer
                 UTextureSkyboxRotation = GL.GetUniformLocation(ProgramID, "uTextureSkyboxRotation");
 
                 UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
+                UViewProjectionMatrixShadowMap2 = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap2");
                 UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
 
                 
@@ -181,16 +183,18 @@ namespace KWEngine3.Renderer
             {
                 LightObject l = KWEngine.CurrentWorld._lightObjects[KWEngine.CurrentWorld._preparedTex2DIndices[i]];
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, l._fbShadowMap.Attachments[0].ID);
+                GL.BindTexture(TextureTarget.Texture2DArray, l._fbShadowMap.Attachments[0].ID);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
                 GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[0]);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMap2 + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[1]);
             }
             for (; i < KWEngine.MAX_SHADOWMAPS; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
+                GL.BindTexture(TextureTarget.Texture2DArray, KWEngine.TextureWhite3D);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
                 GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMap2 + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
             }
 
 
@@ -199,13 +203,13 @@ namespace KWEngine3.Renderer
             {
                 LightObject l = KWEngine.CurrentWorld._lightObjects[KWEngine.CurrentWorld._preparedCubeMapIndices[i]];
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.TextureCubeMap, l._fbShadowMap.Attachments[0].ID);
+                GL.BindTexture(TextureTarget.TextureCubeMapArray, l._fbShadowMap.Attachments[0].ID);
                 GL.Uniform1(UShadowMapCube + i, currentTextureNumber);
             }
             for (; i < KWEngine.MAX_SHADOWMAPS; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
+                GL.BindTexture(TextureTarget.TextureCubeMapArray, KWEngine.TextureCubemapEmpty3D);
                 GL.Uniform1(UShadowMapCube + i, currentTextureNumber);
             }
 
@@ -296,7 +300,6 @@ namespace KWEngine3.Renderer
 
         public static void Draw(Framebuffer fbSource)
         {
-            HelperGeneral.CheckGLErrors();
             // depth tex:
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[4].ID);
@@ -340,24 +343,7 @@ namespace KWEngine3.Renderer
             
             // render that damn quad already:
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
-            /*
-            foreach (ScreenGridTile tile in RenderManager._screenGrid._tiles)
-            {
-                GL.Viewport(tile._offsetX, RenderManager._screenGrid._height - tile._height - tile._offsetY, tile._width, tile._height);
-                GL.Uniform1(ULightIndices, tile._preparedLightsIndicesCount, tile._preparedLightsIndices);
-                GL.Uniform1(ULightIndicesCount, tile._preparedLightsIndicesCount);
-
-                float uvL = tile._ndcLeft * 0.5f + 0.5f;
-                float uvR = tile._ndcRight * 0.5f + 0.5f;
-                float uvT = tile._ndcTop * 0.5f + 0.5f;
-                float uvB = tile._ndcBottom * 0.5f + 0.5f;
-
-                GL.Uniform4(UTextureOffset, uvL, uvR, uvT, uvB);
-                GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
-            }
-            */
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount(), RenderManager._screenGrid._tiles.Length);
-            HelperGeneral.CheckGLErrors();
             GL.BindVertexArray(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }

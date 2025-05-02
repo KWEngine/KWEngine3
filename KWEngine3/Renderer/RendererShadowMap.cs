@@ -65,7 +65,7 @@ namespace KWEngine3.Renderer
 
         public static void RenderSceneForLight(LightObject l)
         {
-            if (KWEngine.CurrentWorld != null && l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+            if (KWEngine.CurrentWorld != null && l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
             {
                 GL.Viewport(0, 0, l._shadowMapSize, l._shadowMapSize);
                 Matrix4 vp = l._stateRender._viewProjectionMatrix[0];
@@ -74,8 +74,15 @@ namespace KWEngine3.Renderer
                 GL.Uniform3(UNearFarSun, new Vector3(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y, l._stateRender._nearFarFOVType.W));
                 foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
                 {
-                    if(g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
+                    if (g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight && l._frustumShadowMap.IsBoxInFrustum(l._stateRender._position, l._stateRender._lookAtVector, l._stateRender._nearFarFOVType.Y, g.Center, g.Diameter))
+                    {
                         Draw(g);
+                        //Console.WriteLine("[" + KWEngine.WorldTime + "] Drawing  " + g.Name + " for Light: " + l.Name);
+                    }
+                    else
+                    {
+                        //Console.WriteLine("[" + KWEngine.WorldTime + "] Skipping " + g.Name + " for Light: " + l.Name);
+                    }
                 }
 
                 if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached && KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled)
@@ -98,7 +105,7 @@ namespace KWEngine3.Renderer
                 GeoMesh mesh = meshes[i];
                 GeoMaterial material = g._model.Material[i];
 
-                if(material.ColorAlbedo.W == 0)
+                if (material.ColorAlbedo.W == 0)
                     continue;
 
                 if (g.IsAnimated)

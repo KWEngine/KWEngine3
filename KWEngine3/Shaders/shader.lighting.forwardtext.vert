@@ -10,11 +10,14 @@ uniform vec2 uUVOffsetsAndWidths[128];
 uniform float uAdvanceList[128];
 uniform float uWidths[128];
 uniform mat4 uViewProjectionMatrixShadowMap[3];
+uniform mat4 uViewProjectionMatrixShadowMapOuter[3];
 
 out vec4 vPosition;
 out vec2 vTexture;
 out vec3 vNormal;
 out vec4 vShadowCoord[3];
+out vec4 vShadowCoordOuter[3];
+
 
 bool isLeftVertex()
 {
@@ -44,6 +47,7 @@ void main()
 	for(int i = 0; i < 3; i++)
 	{
 		vShadowCoord[i] = uViewProjectionMatrixShadowMap[i] * uModelMatrix * pos;
+		vShadowCoordOuter[i] = uViewProjectionMatrixShadowMapOuter[i] * uModelMatrix * pos;
 	}
 	vNormal = normalize((uModelMatrix * vec4(aNormal, 0.0)).xyz);
 	

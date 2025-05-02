@@ -29,7 +29,7 @@ namespace KWEngine3TestProject.Worlds
             //ship.SetRotation(0, 90, 0);
             AddGameObject(ship);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.SetPosition(25, 25, 25);
             sun.SetColor(1, 1, 1, 5);
             sun.SetFOV(25);

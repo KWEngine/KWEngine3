@@ -83,6 +83,7 @@ namespace KWEngine3.Renderer
             RendererGBuffer.Init();
             RendererGBufferInstanced.Init();
             RendererLightingPass.Init();
+            RendererLightingPassMultiDraw.Init();
             RendererForward.Init();
             RendererForwardInstanced.Init();
             RendererCopy.Init();
@@ -102,10 +103,13 @@ namespace KWEngine3.Renderer
             RendererFlowFieldDirection.Init();
             RendererGBufferFoliage.Init();
             RendererShadowMap.Init();
+            RendererShadowMapCSM.Init();
             RendererShadowMapInstanced.Init();
+            RendererShadowMapInstancedCSM.Init();
             RendererShadowMapCube.Init();
             RendererShadowMapCubeInstanced.Init();
             RendererShadowMapTerrain.Init();
+            RendererShadowMapTerrainCSM.Init();
             RendererShadowMapTerrainCube.Init();
             RendererEditor.Init();
             RendererGrid.Init();

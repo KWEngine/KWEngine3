@@ -7,12 +7,13 @@ in vec3 vTangent;
 in vec3 vBiTangent;
 in mat3 vTBN;
 in vec4 vShadowCoord[3];
+in vec4 vShadowCoordOuter[3];
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;
 
-uniform sampler2D uShadowMap[3];
-uniform samplerCube uShadowMapCube[3];
+uniform sampler2DArray uShadowMap[3];
+uniform samplerCubeArray uShadowMapCube[3];
 uniform float uLights[850];
 uniform int uLightCount;
 uniform vec3 uCameraPos;
@@ -169,7 +170,7 @@ float calculateShadowCube(int index, vec3 lightPos, vec3 fragPos, vec2 lightNear
 	vec3 lightToFrag = fragPos - lightPos;
 	float currentDepth = length(lightToFrag);
 	float fragmentDepthLinearized = (currentDepth - lightNearFar.x) / (lightNearFar.y - lightNearFar.x);
-    vec4 sampledDepthMSM = texture(uShadowMapCube[index], lightToFrag);
+    vec4 sampledDepthMSM = texture(uShadowMapCube[index], vec4(lightToFrag, 0.0));
 	return calculateShadow(sampledDepthMSM, fragmentDepthLinearized, bias, hardness);
 }  
 
@@ -295,6 +296,7 @@ vec4 getNormalId()
     return normalId;
 }
 
+/*
 float getShadowMapVisiblity(vec3 texCoord)
 {
     float distLeft = texCoord.x;        // Distanz zum linken Rand (0)
@@ -306,6 +308,37 @@ float getShadowMapVisiblity(vec3 texCoord)
     float fade = smoothstep(0.0, 0.05, minDist);
 
     return 1.0 - fade;
+}
+*/
+
+vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
+{
+    float distLeft = texCoordInner.x;        // Distanz zum linken Rand (0)
+    float distRight = 1.0 - texCoordInner.x; // Distanz zum rechten Rand (1)
+    float distBottom = texCoordInner.y;      // Distanz zum unteren Rand (0)
+    float distTop = 1.0 - texCoordInner.y;   // Distanz zum oberen Rand (1)
+
+    float distLeftOuter = texCoordOuter.x;        // Distanz zum linken Rand (0)
+    float distRightOuter = 1.0 - texCoordOuter.x; // Distanz zum rechten Rand (1)
+    float distBottomOuter = texCoordOuter.y;      // Distanz zum unteren Rand (0)
+    float distTopOuter = 1.0 - texCoordOuter.y;   // Distanz zum oberen Rand (1)
+
+    float minDistInner = min(min(distLeft, distRight), min(distBottom, distTop));
+    float minDistOuter = min(min(distLeftOuter, distRightOuter), min(distBottomOuter, distTopOuter));
+
+    float fade;
+    float sampleLayer = 0.0;
+    if(minDistInner < 0.05)
+    {
+        fade = smoothstep(0.0, 0.05, minDistOuter);
+        sampleLayer = 1.0;
+    }
+    else
+    {
+        fade = smoothstep(0.0, 0.05, minDistInner);
+    }
+
+    return vec2(1.0 - fade, sampleLayer);
 }
 
 void main()
@@ -411,6 +444,8 @@ void main()
                 {
                     // if the light is directional, we first have to linearize the depth values:
 			        vec3 projCoordsForTextureLookup = (vShadowCoord[shadowMapIndex - 1].xyz / vShadowCoord[shadowMapIndex - 1].w) * 0.5 + 0.5;
+                    vec3 projCoordsForTextureLookup2 = (vShadowCoordOuter[shadowMapIndex - 1].xyz / vShadowCoordOuter[shadowMapIndex - 1].w) * 0.5 + 0.5;
+                    vec2 shadowVisibility = getShadowMapVisiblity(projCoordsForTextureLookup, projCoordsForTextureLookup2);
                     if(uUseTextureReflectionQuality.w > 0)
                     {
                         darkeningCurrentLight = 0;
@@ -418,26 +453,25 @@ void main()
                         for(int i = 0; i < 5; i++)
                         {
                             vec2 currentOffset = vec2(offset * fragOffsets[i].x, offset * fragOffsets[i].y);
-			                vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy + currentOffset);
-                            float fragmentDepthLinearized = projCoordsForTextureLookup.z;
-                            if(currentLightType > 0.0)
+			                vec4 b = texture(uShadowMap[shadowMapIndex - 1], vec3((shadowVisibility.y > 0 ? projCoordsForTextureLookup2.xy : projCoordsForTextureLookup.xy) + currentOffset, shadowVisibility.y));
+                            float fragmentDepthLinearized = shadowVisibility.y > 0 ? projCoordsForTextureLookup2.z : projCoordsForTextureLookup.z;
+                            if(currentLightType == 1)
                             {
-                                fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
+                                fragmentDepthLinearized = ((shadowVisibility.y > 0 ? vShadowCoordOuter[shadowMapIndex - 1].z : vShadowCoord[shadowMapIndex - 1].z) - currentLightNear) / (currentLightFar - currentLightNear);
                             }
                             darkeningCurrentLight += calculateShadow(b, fragmentDepthLinearized, currentLightBias * fragOffsetsWeights2[i], currentLightHardness) * fragOffsetsWeights[i];
                         }
                     }
                     else{
-			            vec4 b = texture(uShadowMap[shadowMapIndex - 1], projCoordsForTextureLookup.xy);
-                        float fragmentDepthLinearized = projCoordsForTextureLookup.z;
-                        if(currentLightType > 0.0)
+			            vec4 b = texture(uShadowMap[shadowMapIndex - 1], vec3((shadowVisibility.y > 0 ? projCoordsForTextureLookup2.xy : projCoordsForTextureLookup.xy), shadowVisibility.y));
+                        float fragmentDepthLinearized = shadowVisibility.y > 0 ? projCoordsForTextureLookup2.z : projCoordsForTextureLookup.z;
+                        if(currentLightType == 1)
                         {
-                            fragmentDepthLinearized = (vShadowCoord[shadowMapIndex - 1].z - currentLightNear) / (currentLightFar - currentLightNear);
+                            fragmentDepthLinearized = ((shadowVisibility.y > 0 ? vShadowCoordOuter[shadowMapIndex - 1].z : vShadowCoord[shadowMapIndex - 1].z) - currentLightNear) / (currentLightFar - currentLightNear);
                         }
 			            darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
                     }
-                    float shadowVisibility = getShadowMapVisiblity(projCoordsForTextureLookup);
-                    darkeningCurrentLight = mix(darkeningCurrentLight, 1.0, shadowVisibility);
+                    darkeningCurrentLight = mix(darkeningCurrentLight, 1.0, shadowVisibility.x);
                 }
                 else if(shadowMapIndex < 0) // point light
                 {

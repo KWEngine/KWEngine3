@@ -52,20 +52,20 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(0, 10, 25);
             SetCameraTarget(0, 0, 0);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.Name = "Sunlight";
             sun.SetPosition(-50, 50, 50);
             sun.SetFOV(100);
             sun.SetNearFar(20, 200);
             sun.SetColor(1, 0.9f, 0.8f, 2.5f);
             AddLightObject(sun);
-
-            LightObject pointTest = new LightObject(LightType.Point, ShadowQuality.Low);
+            /*
+            LightObject pointTest = new LightObjectPoint(ShadowQuality.Low);
             pointTest.SetPosition(0, 3, 0);
             pointTest.SetNearFar(0.1f, 3f);
             pointTest.SetColor(1, 1, 1, 3.5f);
             AddLightObject(pointTest);
-
+            */
             Floor f = new Floor();
             f.Name = "Floor";
             f.SetModel("KWPlatform");

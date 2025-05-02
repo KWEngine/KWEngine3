@@ -14,43 +14,29 @@ namespace KWEngine3.Framebuffers
                 GL.Clear(ClearBufferMask.DepthBufferBit);
         }
 
-        public FramebufferShadowMap(int width, int height, LightType lightType)
-            : base(width, height, true, lightType)
+        public FramebufferShadowMap(int width, int height, LightType lightType, SunShadowType shadowType = SunShadowType.Default)
+            : base(width, height, true, lightType, shadowType)
         {
         }
 
         public override void Init(int width, int height)
         {
-            SizeInBytes = width * height * 4 * sizeof(ushort);
+            SizeInBytes = width * height * 4 * sizeof(ushort) * (_shadowType == SunShadowType.CascadedShadowMap ? 2 : 1);
+            SizeInBytes += width * height * sizeof(float) * (_shadowType == SunShadowType.CascadedShadowMap ? 2 : 1);
+
             if (_lightType == LightType.Point)
                 SizeInBytes *= 6;
 
-            bool hq = (int)KWEngine.Window._ppQuality >= 1;
             Bind(false); 
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, _lightType == LightType.Point ? TextureWrapMode.ClampToEdge : TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
-            
-                
-            FramebufferErrorCode status;
 
-            if(_lightType == LightType.Point)
-            {
-                Attachments.Add(new FramebufferTexture(hq ? FramebufferTextureMode.DEPTH32F : FramebufferTextureMode.DEPTH16F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
-            }
-            else
-            {
-                // TODO: Check why this has to be included for directional lights!
-                Renderbuffers.Add(GL.GenRenderbuffer());
-                GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-                GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, hq ? RenderbufferStorage.DepthComponent32f : RenderbufferStorage.DepthComponent16, width, height);
-                GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
-                
-            }
-            SizeInBytes += width * height * (hq ? sizeof(float) : sizeof(short));
-
+            Attachments.Add(new FramebufferTexture(width, 0, _lightType == LightType.Point, false, _shadowType == SunShadowType.CascadedShadowMap));
+            Attachments.Add(new FramebufferTexture(width, 1, _lightType == LightType.Point, true, _shadowType == SunShadowType.CascadedShadowMap));
+           
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
+            GL.ReadBuffer(ReadBufferMode.None);
 
-            status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            FramebufferErrorCode status = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (status != FramebufferErrorCode.FramebufferComplete)
             {
                 throw new Exception("Framebuffer invalid.");

@@ -31,7 +31,7 @@ namespace KWEngine3TestProject.Worlds
             SetBackgroundSkybox("./Textures/skybox.dds");
             SetBackgroundBrightnessMultiplier(4);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.Name = "Sun";
             sun.SetPosition(100, 100, 100);
             sun.SetNearFar(30, 100);

@@ -56,6 +56,7 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public bool IsInsideScreenSpace { get; internal set; } = true;
         internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
+        internal bool IsInsideScreenSpaceForShadowMap { get; set; } = true;
 
 
         /// <summary>

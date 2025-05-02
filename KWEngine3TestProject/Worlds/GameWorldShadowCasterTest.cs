@@ -25,7 +25,7 @@ namespace KWEngine3TestProject.Worlds
             SetColorAmbient(0.1f, 0.1f, 0.1f);
             KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 2);
             
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.SetPosition(-10, 25, 10);
             sun.SetTarget(0, 1, 0);
             sun.SetNearFar(20, 40);

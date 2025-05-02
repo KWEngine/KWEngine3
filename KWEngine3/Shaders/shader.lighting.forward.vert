@@ -16,6 +16,7 @@ uniform vec2 uTextureClip;
 uniform int uUseAnimations;
 uniform mat4 uBoneTransforms[128];
 uniform mat4 uViewProjectionMatrixShadowMap[3];
+uniform mat4 uViewProjectionMatrixShadowMapOuter[3];
 
 out vec4 vPosition;
 out vec2 vTexture;
@@ -24,6 +25,7 @@ out vec3 vTangent;
 out vec3 vBiTangent;
 out mat3 vTBN;
 out vec4 vShadowCoord[3];
+out vec4 vShadowCoordOuter[3];
 
 void main()
 {
@@ -55,6 +57,7 @@ void main()
 	for(int i = 0; i < 3; i++)
 	{
 		vShadowCoord[i] = uViewProjectionMatrixShadowMap[i] * uModelMatrix * totalLocalPos;
+		vShadowCoordOuter[i] = uViewProjectionMatrixShadowMapOuter[i] * uModelMatrix * totalLocalPos;
 	}
 	vNormal = normalize((uNormalMatrix * totalNormal).xyz);
 	vTangent = normalize((uNormalMatrix * totalTangent).xyz);

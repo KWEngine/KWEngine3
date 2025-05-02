@@ -34,7 +34,7 @@ namespace KWEngine3TestProject.Worlds
             test.SetScale(0.01f);
             AddGameObject(test);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.SetPosition(-50, 25, 50);
             sun.SetFOV(30);
             sun.SetColor(1, 1, 1, 3);

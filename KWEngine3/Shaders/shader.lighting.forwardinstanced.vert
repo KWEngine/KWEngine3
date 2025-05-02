@@ -16,6 +16,7 @@ uniform vec2 uTextureClip;
 uniform int uUseAnimations;
 uniform mat4 uBoneTransforms[128];
 uniform mat4 uViewProjectionMatrixShadowMap[3];
+uniform mat4 uViewProjectionMatrixShadowMapOuter[3];
 
 layout (std140) uniform uInstanceBlock
 {
@@ -30,6 +31,7 @@ out vec3 vTangent;
 out vec3 vBiTangent;
 out mat3 vTBN;
 out vec4 vShadowCoord[3];
+out vec4 vShadowCoordOuter[3];
 
 void main()
 {
@@ -63,6 +65,7 @@ void main()
 	for(int i = 0; i < 3; i++)
 	{
 		vShadowCoord[i] = uViewProjectionMatrixShadowMap[i] * instanceModelMatrix[gl_InstanceID] * uModelMatrix * totalLocalPos;
+		vShadowCoordOuter[i] = uViewProjectionMatrixShadowMapOuter[i] * instanceModelMatrix[gl_InstanceID] * uModelMatrix * totalLocalPos;
 	}
 	vNormal = normalize((instanceNormalMatrix * uNormalMatrix * totalNormal).xyz);
 	vTangent = normalize((instanceNormalMatrix * uNormalMatrix * totalTangent).xyz);

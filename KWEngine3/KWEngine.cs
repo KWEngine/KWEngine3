@@ -20,6 +20,12 @@ namespace KWEngine3
     public class KWEngine
     {
         /// <summary>
+        /// Gibt an, wie der Beleuchtungsschritt in der Engine ablaufen soll
+        /// </summary>
+        /// <remarks>Kann die Performance auf schwachen GPUs verbessern</remarks>
+        public static GBufferLightingMode GBufferLighting { get; set; } = GBufferLightingMode.Default;
+
+        /// <summary>
         /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)
         /// </summary>
         public static float MouseSensitivity { get; set; } = 0.05f;
@@ -683,10 +689,12 @@ namespace KWEngine3
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;
         internal static int TextureWhite = -1;
+        internal static int TextureWhite3D = -1;
         internal static int TextureAlpha = -1;
         internal static int TextureNormalEmpty = -1;
         internal static int TextureNoise = -1;
         internal static int TextureCubemapEmpty = -1;
+        internal static int TextureCubemapEmpty3D = -1;
         internal static int TextureDepthEmpty = -1;
         internal static int TextureDepthCubeMapEmpty = -1;
         internal static int TextureCheckerboard = -1;
@@ -749,6 +757,7 @@ namespace KWEngine3
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
             TextureWhite = HelperTexture.LoadTextureInternal("white.png");
+            TextureWhite3D = HelperTexture.LoadTextureInternal3D("white.png");
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
             TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
             TextureNoise = HelperTexture.LoadTextureInternal("noise.png");
@@ -766,7 +775,8 @@ namespace KWEngine3
 
             TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
             TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();
-            TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture();
+            TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture(false);
+            TextureCubemapEmpty3D = HelperTexture.CreateEmptyCubemapTexture(true);
 
             HelperDebug.Init();
         }

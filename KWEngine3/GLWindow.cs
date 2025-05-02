@@ -384,7 +384,6 @@ namespace KWEngine3
                 }
                 #endregion
                 HelperDebug.StopTimeQuery(RenderType.Deferred);
-                HelperGeneral.CheckGLErrors();
 
                 if (KWEngine.Mode == EngineMode.Edit)
                 {
@@ -394,7 +393,6 @@ namespace KWEngine3
                     RendererLightOverlay.Draw(KWEngine.CurrentWorld._lightObjects);
                     GL.Enable(EnableCap.DepthTest);
                 }
-                HelperGeneral.CheckGLErrors();
 
                 // Prepare lights
                 HelperDebug.StartTimeQuery(RenderType.ShadowMapping);
@@ -403,10 +401,33 @@ namespace KWEngine3
                 // Shadow map pass:
                 if (Framebuffer._fbShadowMapCounter > 0)
                 {
+                    bool csmSunDone = false;
+                    if (KWEngine.CurrentWorld.HasShadowCSMSun)
+                    {
+                        // CSM pass:
+                        RendererShadowMapCSM.Bind();
+                        KWEngine.CurrentWorld._hasSun._fbShadowMap.Bind(true);
+                        RendererShadowMapCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
+
+                        // CSM terrain pass:
+                        RendererShadowMapTerrainCSM.Bind();
+                        RendererShadowMapTerrainCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
+
+                        // CSM instanced objects pass:
+                        RendererShadowMapInstancedCSM.Bind();
+                        RendererShadowMapInstancedCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
+
+                        csmSunDone = true;
+                    }
+                    
+
                     RendererShadowMap.Bind();
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
-                        if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+                        if (l.Type == LightType.Sun && csmSunDone)
+                            continue;
+
+                        if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
                         {
                             l._fbShadowMap.Bind(true);
                             if (l.Type == LightType.Point)
@@ -424,12 +445,11 @@ namespace KWEngine3
                         RendererShadowMapTerrain.Bind();
                         foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                         {
-                            if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+                            if (l.Type == LightType.Sun && csmSunDone)
+                                continue;
+
+                            if (l is LightObjectSun && l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
                             {
-                                if (l.Type == LightType.Point)
-                                {
-                                    continue;
-                                }
                                 l._fbShadowMap.Bind(false);
                                 RendererShadowMapTerrain.RenderSceneForLight(l);
                             }
@@ -441,7 +461,10 @@ namespace KWEngine3
                         RendererShadowMapInstanced.Bind();
                         foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                         {
-                            if (l.ShadowCasterType != ShadowQuality.NoShadow && l.Color.W > 0)
+                            if (l.Type == LightType.Sun && csmSunDone)
+                                continue;
+
+                            if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
                             {
                                 if (l.Type == LightType.Point)
                                 {
@@ -455,15 +478,10 @@ namespace KWEngine3
 
                     if (pointLights.Count > 0)
                     {
-                        foreach(LightObject l in pointLights)
-                        {
-                            l._fbShadowMap.Bind(true);
-                        }
-
                         RendererShadowMapCube.Bind();
                         foreach (LightObject l in pointLights)
                         {
-                            l._fbShadowMap.Bind(false);
+                            l._fbShadowMap.Bind(true); // was false before?? why?!
                             RendererShadowMapCube.RenderSceneForLight(l); // Renders GameObject and VSGO instances only
                         }
 
@@ -500,18 +518,24 @@ namespace KWEngine3
                 HelperDebug.StopTimeQuery(RenderType.SSAO);
 
                 // Lighting pass:
-                HelperGeneral.CheckGLErrors();
                 HelperDebug.StartTimeQuery(RenderType.Lighting);
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
                 RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
                 RenderManager.FramebufferLightingPass.Bind(false);
-                HelperGeneral.CheckGLErrors();
-                RendererLightingPass.Bind();
-                RendererLightingPass.SetGlobals();
-                HelperGeneral.CheckGLErrors();
-                RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
+                if(KWEngine.GBufferLighting == GBufferLightingMode.Default)
+                {
+                    RendererLightingPass.Bind();
+                    RendererLightingPass.SetGlobals();
+                    RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
+                }
+                else
+                {
+                    RendererLightingPassMultiDraw.Bind();
+                    RendererLightingPassMultiDraw.SetGlobals();
+                    RendererLightingPassMultiDraw.Draw(RenderManager.FramebufferDeferred);
+                }
+
                 HelperDebug.StopTimeQuery(RenderType.Lighting);
-                HelperGeneral.CheckGLErrors();
 
                 GL.Enable(EnableCap.DepthTest);
                 GL.Viewport(0, 0, Width, Height);
@@ -1074,7 +1098,6 @@ namespace KWEngine3
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
                         l._statePrevious = l._stateCurrent;
-                        //KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(l);
                     }
 
                     foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)

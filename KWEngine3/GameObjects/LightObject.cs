@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Framebuffers;
+using KWEngine3.Helper;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -6,7 +7,7 @@ namespace KWEngine3.GameObjects
     /// <summary>
     /// Klasse für Sonnen-/Punktlichter und gerichtete Lichter (spot lights)
     /// </summary>
-    public sealed class LightObject
+    public abstract class LightObject
     {
         internal LightObjectState _stateCurrent;
         internal LightObjectState _statePrevious;
@@ -15,13 +16,7 @@ namespace KWEngine3.GameObjects
         internal int _shadowMapSize;
         internal float _shadowBias = 0.00002f;
         internal float _shadowOffset = 0.0001f;
-        /*
-        /// <summary>
-        /// Befinden sich das Lichtobjekt und seine Lichtstrahlen aktuell auf dem Bildschirm?
-        /// </summary>
-        public bool IsInsideScreenSpace { get; internal set; } = true;
-        internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
-        */
+        
         /// <summary>
         /// Engine-interne ID
         /// </summary>
@@ -34,30 +29,36 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Schattenqualität des Lichts (maximal 3 Schattenlichter pro Welt möglich)
         /// </summary>
-        public ShadowQuality ShadowCasterType { get; internal set; } = ShadowQuality.NoShadow;
+        public ShadowQuality ShadowQualityLevel { get; internal set; } = ShadowQuality.NoShadow;
 
         /// <summary>
-        /// Standardkonstruktormethode für Lichtobjekte
+        /// Art der Schattenberechnung (Standard oder kaskadiert)
+        /// </summary>
+        public SunShadowType ShadowType { get; internal set; } = SunShadowType.Default;
+
+        /// <summary>
+        /// Init-Methode für Lichtobjekte
         /// </summary>
         /// <param name="lightType">Art des Lichts (Sonne, Punktlicht oder gerichtetes Licht?)</param>
-        /// <param name="shadowType">Schattenqualität des Lichts</param>
-        public LightObject(LightType lightType, ShadowQuality shadowType = ShadowQuality.NoShadow)
+        /// <param name="shadowQuality">Schattenqualität des Lichts</param>
+        /// <param name="shadowType">Schattentyp</param>
+        internal void Init(LightType lightType, ShadowQuality shadowQuality, SunShadowType shadowType)
         {
-            if(shadowType != ShadowQuality.NoShadow && Framebuffer.ShadowMapCount >= KWEngine.MAX_SHADOWMAPS)
+            if(shadowQuality != ShadowQuality.NoShadow && Framebuffer.ShadowMapCount >= KWEngine.MAX_SHADOWMAPS)
             {
                 KWEngine.LogWriteLine("New LightObject instance cannot cast shadows!");
                 KWEngine.LogWriteLine("\tReason: > 3 shadow casters in world already.");
-                shadowType = ShadowQuality.NoShadow;
+                shadowQuality = ShadowQuality.NoShadow;
             }
 
-            ShadowCasterType = shadowType;
+            ShadowQualityLevel = shadowQuality;
             if (lightType == LightType.Point)
             {
-                _shadowMapSize = (int)ShadowCasterType / 2;
+                _shadowMapSize = (int)ShadowQualityLevel / 2;
             }
             else
             {
-                _shadowMapSize = (int)ShadowCasterType;
+                _shadowMapSize = (int)ShadowQualityLevel;
             }
 
             if (lightType == LightType.Point)
@@ -67,6 +68,20 @@ namespace KWEngine3.GameObjects
             _statePrevious = _stateCurrent;
             _stateRender = new LightObjectState(this, lightType);
             UpdateLookAtVector();
+
+            if (lightType == LightType.Sun)
+            {
+                _frustumShadowMap = new FrustumShadowMapOrthographic();
+            }
+            else if (lightType == LightType.Directional)
+            {
+                _frustumShadowMap = new FrustumShadowMapPerspective();
+            }
+            else
+            {
+                _frustumShadowMap = new FrustumShadowMapPerspectiveCube();
+            }
+            ShadowType = shadowType;
         }
 
         /// <summary>
@@ -143,7 +158,6 @@ namespace KWEngine3.GameObjects
         {
             _stateCurrent._target = target;
             UpdateLookAtVector();
-            
         }
 
         /// <summary>
@@ -274,6 +288,27 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        internal FrustumShadowMap _frustumShadowMap;
+
+        internal void UpdateFrustum()
+        {
+            if(Type == LightType.Point)
+            {
+                _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
+            }
+            else if(Type == LightType.Directional)
+            {
+                _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
+            }
+            else // Sun
+            {
+                if(ShadowType == SunShadowType.CascadedShadowMap)
+                    _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[1]);
+                else
+                    _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
+            }
+        }
+
         internal void CheckForIllegalAngles()
         {
             float dot = Vector3.Dot(_stateCurrent._lookAtVector, KWEngine.WorldUp);
@@ -291,7 +326,7 @@ namespace KWEngine3.GameObjects
         {
             if (_fbShadowMap == null)
             {
-                _fbShadowMap = new FramebufferShadowMap(_shadowMapSize, _shadowMapSize, Type);
+                _fbShadowMap = new FramebufferShadowMap(_shadowMapSize, _shadowMapSize, Type, ShadowType);
                 Framebuffer.UpdateGlobalShadowMapCounter(true);
             }
         }

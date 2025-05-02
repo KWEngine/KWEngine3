@@ -17,6 +17,7 @@ namespace KWEngine3
     {
         #region Internals
         internal float _textinputLostFocusTimout = 0f;
+        internal LightObject _hasSun = null;
 
         internal HUDObjectTextInput _hudObjectInputWithFocus = null;
         internal ViewSpaceGameObject _viewSpaceGameObject = null;
@@ -201,6 +202,8 @@ namespace KWEngine3
         internal List<int> _preparedTex2DIndices = new();
         internal List<int> _preparedCubeMapIndices = new();
         internal List<LightObject> _currentShadowLights = new();
+        internal bool HasShadowCSMSun { get { return _hasSun != null && _hasSun.ShadowType == SunShadowType.CascadedShadowMap && _hasSun.ShadowQualityLevel != ShadowQuality.NoShadow; } }
+        internal bool HasShadowSun { get { return _hasSun != null && _hasSun.ShadowType == SunShadowType.Default && _hasSun.ShadowQualityLevel != ShadowQuality.NoShadow; } }
 
         internal static void Export()
         {
@@ -242,23 +245,22 @@ namespace KWEngine3
             return _terrainObjects;
         }
 
-        internal LightObject BuildAndAddDefaultLightObjectForEditor(string lightType, ShadowQuality quality)
+        internal LightObject BuildAndAddDefaultLightObjectForEditor(string lightType, ShadowQuality quality, SunShadowType shadowType)
         {
             //"Point light", "Directional light", "Sun light"
-            LightType t;
+            LightObject l;
             if (lightType == "Point light")
             {
-                t = LightType.Point;
+                l = new LightObjectPoint(quality);
             }
             else if (lightType == "Directional light")
             {
-                t = LightType.Directional;
+                l = new LightObjectDirectional(quality);
             }
             else
             {
-                t = LightType.Sun;
+                l = new LightObjectSun(quality, shadowType);
             }
-            LightObject l = new(t, quality);
             l.SetPosition(0, 0, 0);
             l.SetTarget(0, -1, 0);
             AddLightObject(l);
@@ -649,7 +651,7 @@ namespace KWEngine3
                 _preparedLightsArray[offset + 00] = l._stateRender._position.X;
                 _preparedLightsArray[offset + 01] = l._stateRender._position.Y;
                 _preparedLightsArray[offset + 02] = l._stateRender._position.Z;
-                if (l.ShadowCasterType == ShadowQuality.NoShadow)
+                if (l.ShadowQualityLevel == ShadowQuality.NoShadow)
                 {
                     _preparedLightsArray[offset + 03] = 0f;
                 }
@@ -698,13 +700,17 @@ namespace KWEngine3
                 _availableLightObjectIDs.Enqueue((ushort)Math.Abs(l.ID));
                 l.ID = 0;
                 l.DeleteShadowMap();
-
+                if (l.Type == LightType.Sun)
+                    _hasSun = null;
                 _lightObjects.Remove(l);
+                
             }
             _lightObjectsToBeRemoved.Clear();
 
             foreach (LightObject l in _lightObjectsToBeAdded)
             {
+                if (l.Type == LightType.Sun)
+                    _hasSun = l;
                 _lightObjects.Add(l);
             }
             _lightObjectsToBeAdded.Clear();
@@ -1341,10 +1347,31 @@ namespace KWEngine3
             {
                 if (!_lightObjects.Contains(l) && !_lightObjectsToBeAdded.Contains(l))
                 {
-                    l.ID = (ushort)(_availableLightObjectIDs.Dequeue() + 32768);
-                    _lightObjectsToBeAdded.Add(l);
-                    if(l.ShadowCasterType != ShadowQuality.NoShadow)
-                        l.AttachShadowMap();
+                    if(l.Type == LightType.Sun)
+                    {
+                        if (_hasSun == null)
+                        {
+                            l.ID = (ushort)(_availableLightObjectIDs.Dequeue() + 32768);
+                            _lightObjectsToBeAdded.Add(l);
+                            if (l.ShadowQualityLevel != ShadowQuality.NoShadow)
+                                l.AttachShadowMap();
+                        }
+                        else
+                        {
+                            KWEngine.LogWriteLine("[World] LightObject ignored: only 1 sunlight allowed");
+                        }
+                    }
+                    else
+                    {
+                        l.ID = (ushort)(_availableLightObjectIDs.Dequeue() + 32768);
+                        _lightObjectsToBeAdded.Add(l);
+                        if (l.ShadowQualityLevel != ShadowQuality.NoShadow)
+                            l.AttachShadowMap();
+                    }
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[World] LightObject ignored: this instance has already been added");
                 }
             }
             else

@@ -1662,27 +1662,42 @@ namespace KWEngine3.Helper
             b.Dispose();
         }
         */
-        public static int CreateEmptyCubemapTexture()
+        public static int CreateEmptyCubemapTexture(bool is3d = false)
         {
             int texID = GL.GenTexture();
-            GL.BindTexture(TextureTarget.TextureCubeMap, texID);
-            byte[] pxColor = new byte[] { 0, 0, 0 };
+            if (is3d)
+            {
+                GL.BindTexture(TextureTarget.TextureCubeMapArray, texID);
+                byte[] pxColor = new byte[] { 0, 0, 0 };
 
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX, 0, PixelInternalFormat.Rgb, 1, 1, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeX, 0, PixelInternalFormat.Rgb, 1, 1, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveY, 0, PixelInternalFormat.Rgb, 1, 1, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeY, 0, PixelInternalFormat.Rgb, 1, 1, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
-            GL.TexImage2D(TextureTarget.TextureCubeMapPositiveZ, 0, PixelInternalFormat.Rgb, 1, 1, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
-            GL.TexImage2D(TextureTarget.TextureCubeMapNegativeZ, 0, PixelInternalFormat.Rgb, 1, 1, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
+                GL.TexImage3D(TextureTarget.TextureCubeMapArray, 0, PixelInternalFormat.Rgb, 1, 1, 6, 0, PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
 
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.TextureCubeMapArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.TextureCubeMapArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(TextureTarget.TextureCubeMapArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.TextureCubeMapArray, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.TextureCubeMapArray, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+            }
+            else
+            {
+                GL.BindTexture(TextureTarget.TextureCubeMap, texID);
+                byte[] pxColor = new byte[] { 0, 0, 0 };
 
-            GL.BindTexture(TextureTarget.TextureCubeMap, 0);
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX, 0, PixelInternalFormat.Rgb, 1, 1, 0, PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeX, 0, PixelInternalFormat.Rgb, 1, 1, 0, PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveY, 0, PixelInternalFormat.Rgb, 1, 1, 0, PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeY, 0, PixelInternalFormat.Rgb, 1, 1, 0, PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveZ, 0, PixelInternalFormat.Rgb, 1, 1, 0, PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
+                GL.TexImage2D(TextureTarget.TextureCubeMapNegativeZ, 0, PixelInternalFormat.Rgb, 1, 1, 0, PixelFormat.Bgr, PixelType.UnsignedByte, pxColor);
 
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+                GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+
+                GL.BindTexture(TextureTarget.TextureCubeMap, 0);
+            }
             return texID;
         }
 
@@ -1995,11 +2010,75 @@ namespace KWEngine3.Helper
             return texID;
         }
 
+        internal static int LoadTextureFromAssembly3D(string resourceName, Assembly assembly)
+        {
+            int texID = -1;
+            using (Stream s = assembly.GetManifestResourceStream(resourceName))
+            {
+                SKBitmap image = SKBitmap.Decode(s);
+                if (image == null)
+                {
+                    KWEngine.LogWriteLine("[Texture] File " + (resourceName == null ? "" : resourceName.Trim()) + " invalid");
+                    return -1;
+                }
+                texID = GL.GenTexture();
+                GL.BindTexture(TextureTarget.Texture2DArray, texID);
+                byte[] data = image.Bytes;
+                if (image.ColorType == SKColorType.Rgba8888)
+                {
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 2, 0,
+                     PixelFormat.Rgba, PixelType.UnsignedByte, data);
+                }
+                else if (image.ColorType == SKColorType.Gray8)
+                {
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.R8, image.Width, image.Height, 2, 0,
+                     PixelFormat.Red, PixelType.UnsignedByte, data);
+                }
+                else if (image.ColorType == SKColorType.Rgb888x)
+                {
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 2, 0,
+                     PixelFormat.Rgb, PixelType.UnsignedByte, data);
+                }
+                else if (image.ColorType == SKColorType.Bgra8888)
+                {
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 2, 0,
+                     PixelFormat.Bgra, PixelType.UnsignedByte, data);
+                }
+                else
+                {
+                    data = image.Bytes;
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 2, 0,
+                     OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, data);
+                }
+
+                GL.TexParameter(TextureTarget.Texture2DArray, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
+                int mipMapCount = GetMaxMipMapLevels(image.Width, image.Height);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureBaseLevel, 0);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapCount - 2));
+
+                image.Dispose();
+                GL.BindTexture(TextureTarget.Texture2DArray, 0);
+            }
+            return texID;
+        }
+
         internal static int LoadTextureInternal(string filename)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = "KWEngine3.Assets.Textures." + filename;
             return LoadTextureFromAssembly(resourceName, assembly);
+        }
+
+        internal static int LoadTextureInternal3D(string filename)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "KWEngine3.Assets.Textures." + filename;
+            return LoadTextureFromAssembly3D(resourceName, assembly);
         }
 
         public static int LoadTextureForModelExternal(string filename, out int mipMaps)
