@@ -72,7 +72,7 @@ namespace KWEngine3TestProject.Worlds
             wallFront.IsShadowCaster = true;
             AddGameObject(wallFront);
             
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High);
             sun.SetPosition(25, 25, 25);
             sun.SetColor(1, 1, 1, 2.5f);
             sun.SetFOV(75);
@@ -84,28 +84,28 @@ namespace KWEngine3TestProject.Worlds
             MouseCursorGrab();
             
 
-            LightObject dLight1 = new LightObject(LightType.Directional, ShadowQuality.NoShadow);
+            LightObject dLight1 = new LightObjectDirectional(ShadowQuality.NoShadow);
             dLight1.SetColor(1, 0, 0, 7.5f);
             dLight1.SetPosition(-20, 1, -20);
             dLight1.SetTarget(-10, 0, -15);
             dLight1.SetNearFar(1, 20);
             AddLightObject(dLight1);
 
-            LightObject dLight2 = new LightObject(LightType.Directional, ShadowQuality.NoShadow);
+            LightObject dLight2 = new LightObjectDirectional(ShadowQuality.NoShadow);
             dLight2.SetColor(0, 1, 1, 7.5f);
             dLight2.SetPosition(-20, 1, 20);
             dLight2.SetTarget(-10, 0, 10);
             dLight2.SetNearFar(1, 20);
             AddLightObject(dLight2);
 
-            dLight3 = new LightObject(LightType.Directional, ShadowQuality.NoShadow);
+            dLight3 = new LightObjectDirectional(ShadowQuality.NoShadow);
             dLight3.SetColor(1, 1, 0, 2.5f);
             dLight3.SetPosition(0, 5, 0);
             dLight3.SetTarget(0, 0, 0);
             dLight3.SetNearFar(1, 10);
             AddLightObject(dLight3);
 
-            pLight1 = new LightObject(LightType.Point, ShadowQuality.NoShadow);
+            pLight1 = new LightObjectPoint(ShadowQuality.NoShadow);
             pLight1.SetColor(1, 0, 1, 3f);
             pLight1.SetPosition(20, 5, 0);
             pLight1.SetNearFar(1, 15);

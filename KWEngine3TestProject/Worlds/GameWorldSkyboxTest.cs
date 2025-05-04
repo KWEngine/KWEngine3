@@ -20,7 +20,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraFOV(90);
             SetBackgroundSkybox("./Textures/equirectangular.jpg", 0, SkyboxType.Equirectangular);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
+            LightObject sun = new LightObjectSun(ShadowQuality.NoShadow);
             sun.SetPosition(100, 100, 100);
             sun.SetTarget(0, 0, 0);
             sun.SetColor(1, 1, 1, 3.25f);

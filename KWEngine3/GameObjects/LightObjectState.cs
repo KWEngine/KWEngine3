@@ -15,6 +15,7 @@ namespace KWEngine3.GameObjects
         public Vector4 _nearFarFOVType;
         public Vector4 _color;
         public Matrix4[] _viewProjectionMatrix;
+        
 
         public LightObjectState(LightObject parent, LightType type)
         {

@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2025-03-22)</Product>
+		<Product>KWEngine3 (updated: 2025-05-03)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.4.6</Version>
-		<AssemblyVersion>3.0.4.6</AssemblyVersion>
-		<FileVersion>3.0.4.6</FileVersion>
-		<ProductVersion>3.0.4.6</ProductVersion>
+		<Version>3.0.5.0</Version>
+		<AssemblyVersion>3.0.5.0</AssemblyVersion>
+		<FileVersion>3.0.5.0</FileVersion>
+		<ProductVersion>3.0.5.0</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -262,6 +262,7 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.msm16.geom" />
 		<EmbeddedResource Include="Shaders\shader.hudtext.frag" />
 		<EmbeddedResource Include="Shaders\shader.hudtext.vert" />
 		<EmbeddedResource Include="Shaders\shader.debugcube.frag">

@@ -18,7 +18,20 @@ namespace KWEngine3.GameObjects
         /// <param name="shadowType">Gibt die Art des Schattens an (Standard oder Cascaded)</param>
         public LightObjectSun(ShadowQuality shadowQuality, ShadowType shadowType = ShadowType.Default)
         {
-            Init(LightType.Sun, shadowQuality, ShadowType);
+            Init(LightType.Sun, shadowQuality, shadowType);
         }
+
+
+        /// <summary>
+        /// Gibt an, wie viel größer die äußere Shadow Map für eine schattenwerfende Sonne ist
+        /// </summary>
+        /// <param name="factor">Vergrößerungsfaktor</param>
+        public void SetCSMFactor(CSMFactor factor)
+        {
+            _csmFactor = factor;           
+        }
+
+
+        internal CSMFactor _csmFactor = CSMFactor.Four;
     }
 }

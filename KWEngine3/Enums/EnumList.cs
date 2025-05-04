@@ -746,17 +746,17 @@
         /// </summary>
         NoShadow = -1,
         /// <summary>
-        /// Niedrige Qualität
+        /// Niedrige Qualität (512 * 512)
         /// </summary>
         Low = 512,
         /// <summary>
-        /// Mittlere Qualität (Standard)
+        /// Mittlere Qualität (Standard, 1024 * 1024)
         /// </summary>
         Medium = 1024,
         /// <summary>
-        /// Hohe Qualität
+        /// Hohe Qualität (2048 * 2048)
         /// </summary>
-        High = 4096
+        High = 2048
     }
 
     /// <summary>
@@ -772,6 +772,25 @@
         /// Cascaded: Schatten nahe des Lichtziels sind detaillierter, weiter weg liegende Objekte werfen gröbere Schatten
         /// </summary>
         CascadedShadowMap
+    }
+
+    /// <summary>
+    /// Gibt an, wie viel größer die weiteste Shadow Map im CSM-Array als die innerste Shadow Map ist.
+    /// </summary>
+    public enum CSMFactor
+    {
+        /// <summary>
+        /// Zweimal so groß
+        /// </summary>
+        Two = 2,
+        /// <summary>
+        /// Viermal so groß
+        /// </summary>
+        Four = 4,
+        /// <summary>
+        /// Achtmal so groß
+        /// </summary>
+        Eight = 8
     }
 
     /// <summary>
@@ -990,11 +1009,12 @@
         RG32I,
         R32UI,
         DEPTH32F,
-        DEPTH16F,
+        DEPTH32F_3D,
         R8,
         RGB10A2,
         R11G11B10f,
-        RG16
+        RG16,
+        RGBA16UI_3D
     }
 
     internal enum HUDObjectType

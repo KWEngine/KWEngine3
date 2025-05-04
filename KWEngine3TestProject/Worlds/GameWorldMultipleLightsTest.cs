@@ -137,7 +137,7 @@ namespace KWEngine3TestProject.Worlds
         {
             for (int i = 0; i < 5; i++)
             {
-                LightObject l = new LightObject(LightType.Point, ShadowQuality.NoShadow);
+                LightObject l = new LightObjectPoint(ShadowQuality.NoShadow);
                 l.SetColor(Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f, 5.0f);
                 l.SetPosition(Random.Shared.Next(-25, 26), Random.Shared.Next(0, 21), 5);
                 l.SetNearFar(0.1f, 7.5f);
@@ -150,7 +150,7 @@ namespace KWEngine3TestProject.Worlds
             // Lights
             for (int i = 0; i < 50; i++)
             {
-                LightObject l = new LightObject(LightType.Point, ShadowQuality.NoShadow);
+                LightObject l = new LightObjectPoint(ShadowQuality.NoShadow);
                 l.SetColor(Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f, Random.Shared.Next(5, 11) * 0.1f, 3.0f);
                 l.SetPosition(Random.Shared.Next(-25, 26), Random.Shared.Next(0, 21), 5);
                 l.SetNearFar(0.1f, 7.5f);

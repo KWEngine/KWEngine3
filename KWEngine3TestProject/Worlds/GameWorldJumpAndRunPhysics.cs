@@ -124,14 +124,14 @@ namespace KWEngine3TestProject.Worlds
             Audio.PreloadSound(@"./sfx/jumpUp.ogg");
             Audio.PreloadSound(@"./sfx/jumpLand.ogg");
 
-            _light = new LightObject(LightType.Directional, ShadowQuality.Low);
+            _light = new LightObjectDirectional(ShadowQuality.Low);
             _light.SetColor(0.25f, 1f, 0.25f, 4);
             _light.SetPosition(0, 5, 10);
             _light.SetNearFar(1, 50);
             _light.SetTarget(0, -2.5f, 0);
             AddLightObject(_light);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.Low);
+            LightObject sun = new LightObjectSun(ShadowQuality.Low);
             sun.SetColor(1f, 0.5f, 1f, 2);
             sun.SetPosition(25, 25, 25);
             sun.SetTarget(0, 0, 0);

@@ -49,14 +49,14 @@ namespace KWEngine3TestProject.Worlds
             wall.SetScale(10, 6, 1);
             AddGameObject(wall);
             
-            _pointLight = new LightObject(LightType.Point, ShadowQuality.High);
+            _pointLight = new LightObjectPoint(ShadowQuality.High);
             _pointLight.SetPosition(-2.5f, 2.0f, 5);
             _pointLight.SetNearFar(1, 20);
             _pointLight.SetColor(1, 1, 1, 0);
             AddLightObject(_pointLight);
             
 
-            _directionalLight = new LightObject(LightType.Directional, ShadowQuality.High);
+            _directionalLight = new LightObjectDirectional(ShadowQuality.High);
             _directionalLight.SetPosition(2.5f, 2, 5);
             _directionalLight.SetTarget(0, 1, 0);
             _directionalLight.SetNearFar(1, 20);

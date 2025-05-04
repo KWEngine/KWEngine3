@@ -61,7 +61,7 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(sun);
             */
 
-            LightObject point = new LightObject(LightType.Point, ShadowQuality.Medium);
+            LightObject point = new LightObjectPoint(ShadowQuality.Medium);
             point.SetPosition(0, 10, 0);
             point.SetNearFar(0.01f, 30f);
             point.SetColor(1, 1, 1, 3);

@@ -27,6 +27,7 @@ namespace KWEngine3.Renderer
         public static int UShadowMap { get; private set; } = -1;
         public static int UShadowMapCube { get; private set; } = -1;
         public static int UViewProjectionMatrixShadowMap { get; private set; } = -1;
+        public static int UViewProjectionMatrixShadowMap2 { get; private set; } = -1;
         public static int UTextureSkybox { get; private set; } = -1;
         public static int UTextureBackground { get; private set; } = -1;
         public static int UUseTextureReflection { get; private set; } = -1;
@@ -146,6 +147,7 @@ namespace KWEngine3.Renderer
                 UTextureSkyboxRotation = GL.GetUniformLocation(ProgramID, "uTextureSkyboxRotation");
 
                 UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
+                UViewProjectionMatrixShadowMap2 = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap2");
                 UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
 
                 
@@ -181,16 +183,18 @@ namespace KWEngine3.Renderer
             {
                 LightObject l = KWEngine.CurrentWorld._lightObjects[KWEngine.CurrentWorld._preparedTex2DIndices[i]];
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, l._fbShadowMap.Attachments[0].ID);
+                GL.BindTexture(TextureTarget.Texture2DArray, l._fbShadowMap.Attachments[0].ID);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
                 GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[0]);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMap2 + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[1]);
             }
             for (; i < KWEngine.MAX_SHADOWMAPS; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
+                GL.BindTexture(TextureTarget.Texture2DArray, KWEngine.TextureWhite3D);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
                 GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMap2 + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
             }
 
 

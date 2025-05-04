@@ -88,7 +88,13 @@ namespace KWEngine3.Renderer
                 foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
                 {
                     if (t.IsShadowCaster)
-                        Draw(t);
+                    {
+                        if (l._frustumShadowMap.IsBoxInFrustum(l.Position, l._stateCurrent._nearFarFOVType.Y, t._hitboxes[0]._center, t._hitboxes[0]._fullDiameter))
+                        {
+                            Draw(t);
+                        }
+                    }
+                        
                 }
             }
         }

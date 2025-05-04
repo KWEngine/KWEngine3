@@ -41,7 +41,7 @@ namespace KWEngine3TestProject.Worlds
             HelperGameObjectAttachment.SetScaleForAttachment(a, 10);
             AddGameObject(a);
 
-            LightObject sun = new LightObject(LightType.Sun, ShadowQuality.NoShadow);
+            LightObject sun = new LightObjectSun(ShadowQuality.NoShadow);
             sun.SetPosition(-50, 25, 50);
             sun.SetFOV(30);
             sun.SetColor(1, 1, 1, 3);

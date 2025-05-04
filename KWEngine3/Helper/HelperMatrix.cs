@@ -1,11 +1,6 @@
 ﻿using Assimp;
 using KWEngine3.GameObjects;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Quaternion = OpenTK.Mathematics.Quaternion;
 
 namespace KWEngine3.Helper

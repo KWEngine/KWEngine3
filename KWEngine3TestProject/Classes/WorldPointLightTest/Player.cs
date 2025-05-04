@@ -30,7 +30,7 @@ namespace KWEngine3TestProject.Classes.WorldPointLightTest
 
             
             
-            _torch = new LightObject(LightType.Point, ShadowQuality.Medium);
+            _torch = new LightObjectPoint(ShadowQuality.Medium);
             _torch.Name = "Kopffackel";
             _torch.SetPosition(0.0f, 3.0f, 0.0f);
             _torch.SetNearFar(0.01f, 20f);                  // 0,5m ab licht entstehen Schatten, licht reicht 37,1m weit

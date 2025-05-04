@@ -56,7 +56,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraFOV(45);
 
             // Initialize _sun attribute with a new LightObject instance of type "sun":
-            _sun = new LightObject(LightType.Sun, ShadowQuality.High);
+            _sun = new LightObjectSun(ShadowQuality.High);
             _sun.SetPosition(20, 20, 20);
             _sun.SetFOV(25);                            // sun's field of view (the higher, the wider)
             _sun.SetColor(1f, 1f, 1f, 0.25f);   // sunlight color and intensity 
@@ -64,7 +64,7 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(_sun);
 
             // Initialize another light object that follows the mouse cursor:
-            _mouseLight = new LightObject(LightType.Point, ShadowQuality.High);
+            _mouseLight = new LightObjectPoint(ShadowQuality.High);
             _mouseLight.SetPosition(0, 5, 0);
             _mouseLight.SetColor(1, 0, 0, 5);
             _mouseLight.SetNearFar(0.1f, 5);

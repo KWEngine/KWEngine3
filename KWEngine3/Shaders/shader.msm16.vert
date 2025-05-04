@@ -5,12 +5,9 @@ layout(location = 1) in vec2 aTexture;
 layout(location = 5) in	uvec3 aBoneIds;
 layout(location = 6) in	vec3 aBoneWeights;
 
-out		float vZ;
-out		float vW;
 out		vec2  vTexture;
 
 uniform int uUseAnimations;
-uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uBoneTransforms[128];
 uniform vec3 uTextureTransformOpacity;
@@ -33,14 +30,14 @@ void main()
 	}
 	totalLocalPos.w = 1.0;
 
-	vec4 transformedPosition = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
-	vZ = transformedPosition.z;
-	vW = transformedPosition.w;
+	//vec4 transformedPosition = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
+	//vZ = transformedPosition.z;
+	//vW = transformedPosition.w;
 
 	vTexture = vec2(uTextureTransformOpacity.x < 0.0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransformOpacity.y < 0.0 ? 1.0 - aTexture.y : aTexture.y) * abs(uTextureTransformOpacity.xy) + uTextureOffset;
 	vec2 uvCenter = uTextureOffset * abs(uTextureTransformOpacity.xy) + abs(uTextureTransformOpacity.xy) * 0.5;
 	vec2 delta = vTexture - uvCenter;
 	vTexture = vTexture + delta * uTextureClip;
 
-	gl_Position = transformedPosition;
+	gl_Position = uModelMatrix * totalLocalPos;
 }

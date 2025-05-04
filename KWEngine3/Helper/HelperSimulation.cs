@@ -78,7 +78,20 @@ namespace KWEngine3.Helper
                         l._stateRender._nearFarFOVType.X,
                         l._stateRender._nearFarFOVType.Y
                         );
+
+                if(l.ShadowType == ShadowType.CascadedShadowMap)
+                {
+                    l._stateRender._viewProjectionMatrix[1] =
+                    Matrix4.LookAt(l._stateRender._position, l._stateRender._target, KWEngine.WorldUp) *
+                    Matrix4.CreateOrthographic(
+                        l._stateRender._nearFarFOVType.Z * (int)(l as LightObjectSun)._csmFactor,
+                        l._stateRender._nearFarFOVType.Z * (int)(l as LightObjectSun)._csmFactor,
+                        l._stateRender._nearFarFOVType.X,
+                        l._stateRender._nearFarFOVType.Y
+                        );
+                }
             }
+            l.UpdateFrustum();
         }
 
         public static void BlendTextObjectStates(TextObject t, float alpha)

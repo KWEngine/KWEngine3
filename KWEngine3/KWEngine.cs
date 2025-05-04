@@ -683,6 +683,7 @@ namespace KWEngine3
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;
         internal static int TextureWhite = -1;
+        internal static int TextureWhite3D = -1;
         internal static int TextureAlpha = -1;
         internal static int TextureNormalEmpty = -1;
         internal static int TextureNoise = -1;
@@ -749,6 +750,9 @@ namespace KWEngine3
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
             TextureWhite = HelperTexture.LoadTextureInternal("white.png");
+            HelperGeneral.CheckGLErrors();
+            TextureWhite3D = HelperTexture.LoadTextureInternal3D("white.png");
+            HelperGeneral.CheckGLErrors();
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
             TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
             TextureNoise = HelperTexture.LoadTextureInternal("noise.png");

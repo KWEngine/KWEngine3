@@ -1074,7 +1074,6 @@ namespace KWEngine3
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
                         l._statePrevious = l._stateCurrent;
-                        //KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(l);
                     }
 
                     foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)

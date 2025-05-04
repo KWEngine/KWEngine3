@@ -242,23 +242,22 @@ namespace KWEngine3
             return _terrainObjects;
         }
 
-        internal LightObject BuildAndAddDefaultLightObjectForEditor(string lightType, ShadowQuality quality)
+        internal LightObject BuildAndAddDefaultLightObjectForEditor(string lightType, ShadowQuality quality, ShadowType shadowType)
         {
             //"Point light", "Directional light", "Sun light"
-            LightType t;
+            LightObject l;
             if (lightType == "Point light")
             {
-                t = LightType.Point;
+                l = new LightObjectPoint(quality);
             }
             else if (lightType == "Directional light")
             {
-                t = LightType.Directional;
+                l = new LightObjectDirectional(quality);
             }
             else
             {
-                t = LightType.Sun;
+                l = new LightObjectSun(quality, shadowType);
             }
-            LightObject l = new(t, quality);
             l.SetPosition(0, 0, 0);
             l.SetTarget(0, -1, 0);
             AddLightObject(l);

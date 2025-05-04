@@ -41,7 +41,7 @@ namespace KWEngine3TestProject.Worlds
 
         private void AddLights(int q)
         {
-            LightObject sun = new LightObject(LightType.Sun, q == 0 ? ShadowQuality.Low : q == 1 ? ShadowQuality.Medium : ShadowQuality.High);
+            LightObject sun = new LightObjectSun(q == 0 ? ShadowQuality.Low : q == 1 ? ShadowQuality.Medium : ShadowQuality.High);
             sun.Name = "Sun";
             sun.SetColor(1f, 0.9f, 0.8f, 2.5f);
             sun.SetPosition(50, 50, 50);
@@ -50,7 +50,7 @@ namespace KWEngine3TestProject.Worlds
             sun.SetNearFar(20, 200);
             AddLightObject(sun);
 
-            LightObject point = new LightObject(LightType.Point, q == 0 ? ShadowQuality.Low : q == 1 ? ShadowQuality.Medium : ShadowQuality.High);
+            LightObject point = new LightObjectPoint(q == 0 ? ShadowQuality.Low : q == 1 ? ShadowQuality.Medium : ShadowQuality.High);
             point.Name = "Point";
             point.SetPosition(0, 3, 0);
             point.SetColor(0, 1, 0, 3);

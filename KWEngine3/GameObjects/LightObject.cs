@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Framebuffers;
+using KWEngine3.Helper;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -67,6 +68,20 @@ namespace KWEngine3.GameObjects
             _statePrevious = _stateCurrent;
             _stateRender = new LightObjectState(this, lightType);
             UpdateLookAtVector();
+
+            if (lightType == LightType.Sun)
+            {
+                _frustumShadowMap = new FrustumShadowMapOrthographic();
+            }
+            else if (lightType == LightType.Directional)
+            {
+                _frustumShadowMap = new FrustumShadowMapPerspective();
+            }
+            else
+            {
+                _frustumShadowMap = new FrustumShadowMapPerspectiveCube();
+            }
+            ShadowType = shadowType;
         }
 
         /// <summary>
@@ -143,7 +158,6 @@ namespace KWEngine3.GameObjects
         {
             _stateCurrent._target = target;
             UpdateLookAtVector();
-
         }
 
         /// <summary>
@@ -240,26 +254,6 @@ namespace KWEngine3.GameObjects
             _stateCurrent._nearFarFOVType = new Vector4(near, far, _stateCurrent._nearFarFOVType.Z, _stateCurrent._nearFarFOVType.W);
         }
 
-        internal Vector4[] _frustumCorners = new Vector4[8];
-
-        internal void UpdateFrustumCornersWorldSpace()
-        {
-            Matrix4 inv = Matrix4.Invert(KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrixNoShake);
-            int i = 0;
-            for (int x = 0; x< 2; ++x)
-            {
-                for (int y = 0; y< 2; ++y)
-                {
-                    for (int z = 0; z< 2; ++z)
-                    {
-                        _frustumCorners[i] = Vector4.TransformRow(new Vector4(2.0f * x - 1.0f, 2.0f * y - 1.0f, 2.0f * z - 1.0f, 1.0f), inv);
-                        _frustumCorners[i] /= _frustumCorners[i].W;
-                        i++;
-                    }
-                }
-            }
-        }
-
         internal void UpdateLookAtVector()
         {
             if (Type != LightType.Point)
@@ -294,6 +288,27 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        internal FrustumShadowMap _frustumShadowMap;
+
+        internal void UpdateFrustum()
+        {
+            if(Type == LightType.Point)
+            {
+                _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
+            }
+            else if(Type == LightType.Directional)
+            {
+                _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
+            }
+            else // Sun
+            {
+                if(ShadowType == ShadowType.CascadedShadowMap)
+                    _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[1]);
+                else
+                    _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
+            }
+        }
+
         internal void CheckForIllegalAngles()
         {
             float dot = Vector3.Dot(_stateCurrent._lookAtVector, KWEngine.WorldUp);
@@ -311,7 +326,10 @@ namespace KWEngine3.GameObjects
         {
             if (_fbShadowMap == null)
             {
-                _fbShadowMap = new FramebufferShadowMap(_shadowMapSize, _shadowMapSize, Type);
+                if (Type == LightType.Sun && ShadowType == ShadowType.CascadedShadowMap)
+                    _fbShadowMap = new FramebufferShadowMapCSM(_shadowMapSize, _shadowMapSize);
+                else
+                    _fbShadowMap = new FramebufferShadowMap(_shadowMapSize, _shadowMapSize, Type);
                 Framebuffer.UpdateGlobalShadowMapCounter(true);
             }
         }

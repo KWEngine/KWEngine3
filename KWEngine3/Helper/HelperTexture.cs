@@ -1995,11 +1995,75 @@ namespace KWEngine3.Helper
             return texID;
         }
 
+        internal static int LoadTextureFromAssembly3D(string resourceName, Assembly assembly)
+        {
+            int texID = -1;
+            using (Stream s = assembly.GetManifestResourceStream(resourceName))
+            {
+                SKBitmap image = SKBitmap.Decode(s);
+                if (image == null)
+                {
+                    KWEngine.LogWriteLine("[Texture] File " + (resourceName == null ? "" : resourceName.Trim()) + " invalid");
+                    return -1;
+                }
+                texID = GL.GenTexture();
+                GL.BindTexture(TextureTarget.Texture2DArray, texID);
+                byte[] data = image.Bytes;
+                if (image.ColorType == SKColorType.Rgba8888)
+                {
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 2, 0,
+                     PixelFormat.Rgba, PixelType.UnsignedByte, data);
+                }
+                else if (image.ColorType == SKColorType.Gray8)
+                {
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.R8, image.Width, image.Height, 2, 0,
+                     PixelFormat.Red, PixelType.UnsignedByte, data);
+                }
+                else if (image.ColorType == SKColorType.Rgb888x)
+                {
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 2, 0,
+                     PixelFormat.Rgb, PixelType.UnsignedByte, data);
+                }
+                else if (image.ColorType == SKColorType.Bgra8888)
+                {
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 2, 0,
+                     PixelFormat.Bgra, PixelType.UnsignedByte, data);
+                }
+                else
+                {
+                    data = image.Bytes;
+                    GL.TexImage3D(TextureTarget.Texture2DArray, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 2, 0,
+                     OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, data);
+                }
+
+                GL.TexParameter(TextureTarget.Texture2DArray, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2DArray);
+                int mipMapCount = GetMaxMipMapLevels(image.Width, image.Height);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureBaseLevel, 0);
+                GL.TexParameter(TextureTarget.Texture2DArray, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapCount - 2));
+
+                image.Dispose();
+                GL.BindTexture(TextureTarget.Texture2DArray, 0);
+            }
+            return texID;
+        }
+
         internal static int LoadTextureInternal(string filename)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = "KWEngine3.Assets.Textures." + filename;
             return LoadTextureFromAssembly(resourceName, assembly);
+        }
+
+        internal static int LoadTextureInternal3D(string filename)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "KWEngine3.Assets.Textures." + filename;
+            return LoadTextureFromAssembly3D(resourceName, assembly);
         }
 
         public static int LoadTextureForModelExternal(string filename, out int mipMaps)

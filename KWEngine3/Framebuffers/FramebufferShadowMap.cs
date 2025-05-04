@@ -27,22 +27,17 @@ namespace KWEngine3.Framebuffers
 
             Bind(false); 
             ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, _lightType == LightType.Point ? TextureWrapMode.ClampToEdge : TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGBA16UI, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, _lightType == LightType.Point ? TextureWrapMode.ClampToEdge : TextureWrapMode.ClampToBorder, true, _lightType == LightType.Point));
             
                 
             FramebufferErrorCode status;
 
             if(_lightType == LightType.Point)
             {
-                Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 1, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge, true, true));
-            }
-            else if(_lightType == LightType.Sun && _shadowType == ShadowType.CascadedShadowMap)
-            {
-
+                Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge, true, true));
             }
             else
             {
-                // TODO: Check why this has to be included for directional lights!
                 Renderbuffers.Add(GL.GenRenderbuffer());
                 GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, Renderbuffers[0]);
                 GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.DepthComponent32f, width, height);
