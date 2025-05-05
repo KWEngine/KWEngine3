@@ -8,7 +8,7 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2025-05-03)</Product>
+		<Product>KWEngine3 (updated: 2025-05-05)</Product>
 		<PackageId>KWEngine3</PackageId>
 		<Version>3.0.5.0</Version>
 		<AssemblyVersion>3.0.5.0</AssemblyVersion>
@@ -262,7 +262,17 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
-		<EmbeddedResource Include="Shaders\shader.msm16.geom" />
+		<EmbeddedResource Include="Shaders\shader.msm16.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16instanced.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16instanced.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.tesc" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.tese" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.geom" />
+		<EmbeddedResource Include="Shaders\shader.msm16instanced_csm.geom" />
+		<EmbeddedResource Include="Shaders\shader.msm16_csm.geom" />
 		<EmbeddedResource Include="Shaders\shader.hudtext.frag" />
 		<EmbeddedResource Include="Shaders\shader.hudtext.vert" />
 		<EmbeddedResource Include="Shaders\shader.debugcube.frag">
@@ -307,8 +317,8 @@
 		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.geom" />
 		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.cubeinstanced.frag" />
-		<EmbeddedResource Include="Shaders\shader.msm16instanced.frag" />
-		<EmbeddedResource Include="Shaders\shader.msm16instanced.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16instanced_csm.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16instanced_csm.vert" />
 		<EmbeddedResource Include="Shaders\shader.lighting.forwardinstanced.frag">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
@@ -333,10 +343,10 @@
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.tesc" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.tese" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.vert" />
-		<EmbeddedResource Include="Shaders\shader.msm16terrain.frag" />
-		<EmbeddedResource Include="Shaders\shader.msm16terrain.tesc" />
-		<EmbeddedResource Include="Shaders\shader.msm16terrain.tese" />
-		<EmbeddedResource Include="Shaders\shader.msm16terrain.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.tesc" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.tese" />
+		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.vert" />
 		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.frag">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
@@ -348,8 +358,8 @@
 		<EmbeddedResource Include="Shaders\shader.msm16.blur.frag" />
 		<EmbeddedResource Include="Shaders\shader.msm16.blur.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.cube.geom" />
-		<EmbeddedResource Include="Shaders\shader.msm16.frag" />
-		<EmbeddedResource Include="Shaders\shader.msm16.vert" />
+		<EmbeddedResource Include="Shaders\shader.msm16_csm.frag" />
+		<EmbeddedResource Include="Shaders\shader.msm16_csm.vert" />
 		<EmbeddedResource Include="Shaders\shader.octree.frag" />
 		<EmbeddedResource Include="Shaders\shader.octree.geom" />
 		<EmbeddedResource Include="Shaders\shader.octree.vert" />

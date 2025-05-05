@@ -52,7 +52,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(0, 10, 25);
             SetCameraTarget(0, 0, 0);
 
-            LightObject sun = new LightObjectSun(ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.Name = "Sunlight";
             sun.SetPosition(-50, 50, 50);
             sun.SetFOV(100);

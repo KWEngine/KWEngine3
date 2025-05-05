@@ -56,7 +56,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraFOV(45);
 
             // Initialize _sun attribute with a new LightObject instance of type "sun":
-            _sun = new LightObjectSun(ShadowQuality.High);
+            _sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             _sun.SetPosition(20, 20, 20);
             _sun.SetFOV(25);                            // sun's field of view (the higher, the wider)
             _sun.SetColor(1f, 1f, 1f, 0.25f);   // sunlight color and intensity 

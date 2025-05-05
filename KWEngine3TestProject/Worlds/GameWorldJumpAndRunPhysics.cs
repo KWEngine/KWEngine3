@@ -131,7 +131,7 @@ namespace KWEngine3TestProject.Worlds
             _light.SetTarget(0, -2.5f, 0);
             AddLightObject(_light);
 
-            LightObject sun = new LightObjectSun(ShadowQuality.Low);
+            LightObject sun = new LightObjectSun(ShadowQuality.Low, SunShadowType.Default);
             sun.SetColor(1f, 0.5f, 1f, 2);
             sun.SetPosition(25, 25, 25);
             sun.SetTarget(0, 0, 0);

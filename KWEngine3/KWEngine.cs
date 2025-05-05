@@ -688,6 +688,7 @@ namespace KWEngine3
         internal static int TextureNormalEmpty = -1;
         internal static int TextureNoise = -1;
         internal static int TextureCubemapEmpty = -1;
+        internal static int TextureCubemapEmpty3D = -1;
         internal static int TextureDepthEmpty = -1;
         internal static int TextureDepthCubeMapEmpty = -1;
         internal static int TextureCheckerboard = -1;
@@ -770,7 +771,8 @@ namespace KWEngine3
 
             TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
             TextureDepthCubeMapEmpty = HelperTexture.CreateEmptyCubemapDepthTexture();
-            TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture();
+            TextureCubemapEmpty = HelperTexture.CreateEmptyCubemapTexture(false);
+            TextureCubemapEmpty3D = HelperTexture.CreateEmptyCubemapTexture(true);
 
             HelperDebug.Init();
         }

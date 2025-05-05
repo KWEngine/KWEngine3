@@ -72,7 +72,7 @@ namespace KWEngine3TestProject.Worlds
             wallFront.IsShadowCaster = true;
             AddGameObject(wallFront);
             
-            LightObject sun = new LightObjectSun(ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.SetPosition(25, 25, 25);
             sun.SetColor(1, 1, 1, 2.5f);
             sun.SetFOV(75);

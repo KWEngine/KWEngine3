@@ -2,7 +2,7 @@
 
 namespace KWEngine3TestProject.Classes
 {
-    internal class RenderTestClass : RenderObject
+    internal class RenderObjectDefault : RenderObject
     {
         public override void Act()
         {

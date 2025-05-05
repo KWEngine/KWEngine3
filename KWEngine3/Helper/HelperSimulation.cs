@@ -79,7 +79,7 @@ namespace KWEngine3.Helper
                         l._stateRender._nearFarFOVType.Y
                         );
 
-                if(l.ShadowType == ShadowType.CascadedShadowMap)
+                if(l.ShadowType == SunShadowType.CascadedShadowMap)
                 {
                     l._stateRender._viewProjectionMatrix[1] =
                     Matrix4.LookAt(l._stateRender._position, l._stateRender._target, KWEngine.WorldUp) *

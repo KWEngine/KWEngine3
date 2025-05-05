@@ -114,7 +114,7 @@ namespace KWEngine3TestProject.Worlds
             SetCameraToFirstPersonGameObject(_player, 0f);
             MouseCursorGrab();
 
-            LightObject sun = new LightObjectSun(ShadowQuality.Medium);
+            LightObject sun = new LightObjectSun(ShadowQuality.Medium, SunShadowType.Default);
             sun.SetPosition(50, 50, 50);
             sun.SetTarget(0, 0, 0);
             sun.SetColor(1, 1, 1, 3.5f);

@@ -13,7 +13,7 @@ namespace KWEngine3.GameObjects
         /// <param name="shadowQuality">Schattenqualitätslevel</param>
         public LightObjectPoint(ShadowQuality shadowQuality)
         {
-            Init(LightType.Directional, shadowQuality, ShadowType.Default);
+            Init(LightType.Point, shadowQuality, SunShadowType.Default);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿#version 400 core
 
 layout(location = 0) out vec4 color;
+layout(location = 1) out vec4 bloom;
 
 uniform int uIsSector;
 
@@ -12,6 +13,7 @@ void main()
 	}
 	else
 	{
-		color = vec4(0.75, 0.75, 0.75, 1.0);
+		color = vec4(1.0, 1.0, 1.0, 1.0);
 	}
+	bloom = vec4(0.0);
 }

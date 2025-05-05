@@ -15,7 +15,7 @@ uniform sampler2D uTextureId;
 uniform sampler2D uTextureSSAO;
 
 uniform sampler2DArray uShadowMap[3];
-uniform samplerCube uShadowMapCube[3];
+uniform samplerCubeArray uShadowMapCube[3];
 
 uniform samplerCube uTextureSkybox;
 uniform mat3 uTextureSkyboxRotation;
@@ -148,7 +148,7 @@ float calculateShadowCube(int index, vec3 lightPos, vec3 fragPos, vec2 lightNear
 	vec3 lightToFrag = fragPos - lightPos;
 	float currentDepth = length(lightToFrag);
 	float fragmentDepthLinearized = (currentDepth - lightNearFar.x) / (lightNearFar.y - lightNearFar.x);
-    vec4 sampledDepthMSM = texture(uShadowMapCube[index], lightToFrag);
+    vec4 sampledDepthMSM = texture(uShadowMapCube[index], vec4(lightToFrag, 0.0));
 	return calculateShadow(sampledDepthMSM, fragmentDepthLinearized, bias, hardness);
 }  
 

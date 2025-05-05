@@ -6,7 +6,7 @@ namespace KWEngine3.Helper
     {
         public string Name { get; set; }
         public ShadowQuality ShadowCasterType { get; set; }
-        public ShadowType ShadowCasterSunType { get; set; }
+        public SunShadowType ShadowCasterSunType { get; set; }
         public LightType LightType { get; set; }
         public float ShadowBias { get; set; }
         public float[] Position { get; set; }

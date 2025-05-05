@@ -762,7 +762,7 @@
     /// <summary>
     /// Art des Schattentyps (nur für Sonnenlicht relevant)
     /// </summary>
-    public enum ShadowType
+    public enum SunShadowType
     {
         /// <summary>
         /// Standard

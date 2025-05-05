@@ -88,7 +88,7 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(floor);
             */
 
-            LightObject sun = new LightObjectSun(ShadowQuality.NoShadow);
+            LightObject sun = new LightObjectSun(ShadowQuality.NoShadow, SunShadowType.Default);
             sun.SetPosition(100, 100, 100);
             sun.SetNearFar(20, 400);
             sun.SetFOV(100);

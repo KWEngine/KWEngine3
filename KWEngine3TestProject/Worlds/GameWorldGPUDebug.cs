@@ -41,7 +41,7 @@ namespace KWEngine3TestProject.Worlds
 
         private void AddLights(int q)
         {
-            LightObject sun = new LightObjectSun(q == 0 ? ShadowQuality.Low : q == 1 ? ShadowQuality.Medium : ShadowQuality.High);
+            LightObject sun = new LightObjectSun(q == 0 ? ShadowQuality.Low : q == 1 ? ShadowQuality.Medium : ShadowQuality.High, SunShadowType.Default);
             sun.Name = "Sun";
             sun.SetColor(1f, 0.9f, 0.8f, 2.5f);
             sun.SetPosition(50, 50, 50);

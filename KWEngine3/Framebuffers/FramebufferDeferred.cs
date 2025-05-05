@@ -39,7 +39,7 @@ namespace KWEngine3.Framebuffers
             ClearColorValues.Add(2, new float[] { 0, 1, 0 });
             ClearColorValues.Add(3, new float[] { 0, 0, 0 });
 
-            ClearDepthValues.Add(0, new float[] { 0 });
+            //ClearDepthValues.Add(0, new float[] { 1 });
         }
 
         public override void Clear(bool keepDepth = false)

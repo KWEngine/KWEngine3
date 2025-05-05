@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal static class RendererShadowMap
+    internal static class RendererShadowMapCSM
     {
         public static int ProgramID { get; private set; } = -1;
         public static int UViewProjectionMatrix { get; private set; } = -1;
@@ -26,24 +26,29 @@ namespace KWEngine3.Renderer
             {
                 ProgramID = GL.CreateProgram();
 
-                string resourceNameVertexShader = "KWEngine3.Shaders.shader.msm16.vert";
-                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.msm16.frag";
+                string resourceNameVertexShader = "KWEngine3.Shaders.shader.msm16_csm.vert";
+                string resourceNameGeometryShader = "KWEngine3.Shaders.shader.msm16_csm.geom";
+                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.msm16_csm.frag";
 
                 int vertexShader;
+                int geometryShader;
                 int fragmentShader;
                 Assembly assembly = Assembly.GetExecutingAssembly();
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
                 {
                     vertexShader = HelperShader.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
                 }
-
+                using (Stream s = assembly.GetManifestResourceStream(resourceNameGeometryShader))
+                {
+                    geometryShader = HelperShader.LoadCompileAttachShader(s, ShaderType.GeometryShader, ProgramID);
+                }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
                 {
                     fragmentShader = HelperShader.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
                 }
 
                 GL.LinkProgram(ProgramID);
-                RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
+                RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader, geometryShader);
 
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
@@ -68,14 +73,22 @@ namespace KWEngine3.Renderer
             if (KWEngine.CurrentWorld != null && l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
             {
                 GL.Viewport(0, 0, l._shadowMapSize, l._shadowMapSize);
-                Matrix4 vp = l._stateRender._viewProjectionMatrix[0];
-                GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
+
+                for (int i = 0; i < 2; i++)
+                {
+                    GL.UniformMatrix4(UViewProjectionMatrix + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[i]);
+                }
 
                 GL.Uniform3(UNearFarSun, new Vector3(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y, l._stateRender._nearFarFOVType.W));
                 foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
                 {
-                    if (g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
-                        Draw(g);
+                    if(g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
+                    {
+                        if(l._frustumShadowMap.IsBoxInFrustum(l.Position, l._stateCurrent._nearFarFOVType.Y, g.Center, g.Diameter))
+                        {
+                            Draw(g);
+                        }
+                    }
                 }
 
                 if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached && KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled)
@@ -98,7 +111,7 @@ namespace KWEngine3.Renderer
                 GeoMesh mesh = meshes[i];
                 GeoMaterial material = g._model.Material[i];
 
-                if (material.ColorAlbedo.W == 0)
+                if(material.ColorAlbedo.W == 0)
                     continue;
 
                 if (g.IsAnimated)

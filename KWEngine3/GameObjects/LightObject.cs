@@ -34,7 +34,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Art der Schattenberechnung (Standard oder kaskadiert)
         /// </summary>
-        public ShadowType ShadowType { get; internal set; } = ShadowType.Default;
+        public SunShadowType ShadowType { get; internal set; } = SunShadowType.Default;
 
         /// <summary>
         /// Init-Methode für Lichtobjekte
@@ -42,7 +42,7 @@ namespace KWEngine3.GameObjects
         /// <param name="lightType">Art des Lichts (Sonne, Punktlicht oder gerichtetes Licht?)</param>
         /// <param name="shadowQuality">Schattenqualität des Lichts</param>
         /// <param name="shadowType">Schattentyp</param>
-        internal void Init(LightType lightType, ShadowQuality shadowQuality, ShadowType shadowType)
+        internal void Init(LightType lightType, ShadowQuality shadowQuality, SunShadowType shadowType)
         {
             if(shadowQuality != ShadowQuality.NoShadow && Framebuffer.ShadowMapCount >= KWEngine.MAX_SHADOWMAPS)
             {
@@ -302,7 +302,7 @@ namespace KWEngine3.GameObjects
             }
             else // Sun
             {
-                if(ShadowType == ShadowType.CascadedShadowMap)
+                if(ShadowType == SunShadowType.CascadedShadowMap)
                     _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[1]);
                 else
                     _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
@@ -326,10 +326,7 @@ namespace KWEngine3.GameObjects
         {
             if (_fbShadowMap == null)
             {
-                if (Type == LightType.Sun && ShadowType == ShadowType.CascadedShadowMap)
-                    _fbShadowMap = new FramebufferShadowMapCSM(_shadowMapSize, _shadowMapSize);
-                else
-                    _fbShadowMap = new FramebufferShadowMap(_shadowMapSize, _shadowMapSize, Type);
+                _fbShadowMap = new FramebufferShadowMap(_shadowMapSize, _shadowMapSize, Type, ShadowType);
                 Framebuffer.UpdateGlobalShadowMapCounter(true);
             }
         }

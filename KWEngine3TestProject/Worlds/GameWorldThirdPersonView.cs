@@ -83,7 +83,7 @@ namespace KWEngine3TestProject.Worlds
             */
 
             
-            LightObject sun = new LightObjectSun(ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.Name = "Sun";
             sun.SetFOV(32);
             sun.SetNearFar(1, 200);

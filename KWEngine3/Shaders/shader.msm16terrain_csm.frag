@@ -1,8 +1,7 @@
 ﻿#version 400 core
 
-in		float vZ;
-in		float vW;
-in		vec2 vTexture;
+in		float gZ;
+in		float gW;
 
 const float s3 = sqrt(3.0) / 2.0;
 const float s12 = sqrt(12.0) / -9.0;
@@ -30,23 +29,19 @@ const mat4 quantizationMatrix2t = mat4(
 const float offsetZero = 0.035955884801;
 
 uniform vec3 uNearFarSun; // 0 = point, -1 = sun, +1 = directional
-uniform sampler2D uTextureAlbedo;
 
 out vec4 map;
 
 void main()
 {
-	if(texture(uTextureAlbedo,vTexture).w <= 0)
-		discard;
-
-	float z = vZ;
+	float z = gZ;
 	if(uNearFarSun.z >= 0.0)
 	{
-		z = (vZ - uNearFarSun.x) / (uNearFarSun.y - uNearFarSun.x);
+		z = (gZ - uNearFarSun.x) / (uNearFarSun.y - uNearFarSun.x);
 	}
 	else
 	{
-		z = z / vW;
+		z = z / gW;
 		z = z * 0.5 + 0.5;
 	}
 	float zSq = z * z;

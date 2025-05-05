@@ -1109,7 +1109,7 @@ namespace KWEngine3.Editor
                         if (_lightTypeIndex >= 0)
                         {
                             SelectedGameObject = null;
-                            SelectedLightObject = KWEngine.CurrentWorld.BuildAndAddDefaultLightObjectForEditor(_lightTypes[_lightTypeIndex], _newLightShadowCasterQuality, ShadowType.Default);
+                            SelectedLightObject = KWEngine.CurrentWorld.BuildAndAddDefaultLightObjectForEditor(_lightTypes[_lightTypeIndex], _newLightShadowCasterQuality, SunShadowType.Default);
                             _addMenuActive = EditorAddObjectType.None;
                             _newLightShadowCasterQuality = ShadowQuality.NoShadow;
                             _newLightShadowCasterQualityIndex = 0;

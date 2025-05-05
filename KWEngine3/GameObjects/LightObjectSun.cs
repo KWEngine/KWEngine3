@@ -15,8 +15,8 @@ namespace KWEngine3.GameObjects
         /// Konstruktormethode für die Erstellung einer Sonnenlichtinstanz
         /// </summary>
         /// <param name="shadowQuality">Schattenqualitätslevel</param>
-        /// <param name="shadowType">Gibt die Art des Schattens an (Standard oder Cascaded)</param>
-        public LightObjectSun(ShadowQuality shadowQuality, ShadowType shadowType = ShadowType.Default)
+        /// <param name="shadowType">Gibt die Art des Schattens an</param>
+        public LightObjectSun(ShadowQuality shadowQuality, SunShadowType shadowType)
         {
             Init(LightType.Sun, shadowQuality, shadowType);
         }

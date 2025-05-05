@@ -1,8 +1,8 @@
 ﻿#version 400 core
 
-in		float vZ;
-in		float vW;
-in		vec2 vTexture;
+in		float gZ;
+in		float gW;
+in		vec2 gTexture;
 
 const float s3 = sqrt(3.0) / 2.0;
 const float s12 = sqrt(12.0) / -9.0;
@@ -36,17 +36,17 @@ out vec4 map;
 
 void main()
 {
-	if(texture(uTextureAlbedo,vTexture).w <= 0)
+	if(texture(uTextureAlbedo,gTexture).w <= 0)
 		discard;
 
-	float z = vZ;
+	float z = gZ;
 	if(uNearFarSun.z >= 0.0)
 	{
-		z = (vZ - uNearFarSun.x) / (uNearFarSun.y - uNearFarSun.x);
+		z = (gZ - uNearFarSun.x) / (uNearFarSun.y - uNearFarSun.x);
 	}
 	else
 	{
-		z = z / vW;
+		z = z / gW;
 		z = z * 0.5 + 0.5;
 	}
 	float zSq = z * z;

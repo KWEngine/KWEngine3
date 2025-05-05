@@ -50,7 +50,7 @@ namespace KWEngine3TestProject.Worlds
             _player.IsCollisionObject = true;
             AddGameObject(_player);
 
-            LightObject sun = new LightObjectSun(ShadowQuality.NoShadow);
+            LightObject sun = new LightObjectSun(ShadowQuality.NoShadow, SunShadowType.Default);
             sun.SetPosition(50, 50, 50);
             sun.SetTarget(0, 0, 0);
             sun.SetColor(1, 1, 1, 3.5f);

@@ -39,7 +39,7 @@ namespace KWEngine3TestProject.Worlds
             bg.IsShadowCaster = true;
             AddGameObject(bg);
 
-            LightObject sun = new LightObjectSun(ShadowQuality.High);
+            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
             sun.SetPosition(0, 1, 5);
             sun.SetNearFar(1, 10);
             sun.SetFOV(35);

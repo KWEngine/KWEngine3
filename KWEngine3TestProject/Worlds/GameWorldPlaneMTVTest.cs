@@ -54,7 +54,7 @@ namespace KWEngine3TestProject.Worlds
             box01.IsShadowCaster = true;
             AddGameObject(box01);
 
-            LightObject sun = new LightObjectSun(ShadowQuality.Low);
+            LightObject sun = new LightObjectSun(ShadowQuality.Low, SunShadowType.Default);
             sun.Name = "Sun";
             sun.SetPosition(-10, 10, 0);
             sun.SetNearFar(1, 20);

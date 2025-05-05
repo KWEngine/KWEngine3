@@ -57,42 +57,71 @@ namespace KWEngine3.Framebuffers
                 : PixelType.Float;
         }
 
-        public FramebufferTexture(FramebufferTextureMode mode, int width, int height, int attachmentNumber, int csmLayerCount)
+        public FramebufferTexture(int size, int attachmentNumber, bool cubeMap, bool isDepthTexture, bool isCSM)
         {
+            HelperGeneral.CheckGLErrors();
             uint wrapmode = (uint)TextureWrapMode.ClampToBorder;
             float[] borderColor = new float[] { 1, 1, 1, 1 };
-            Mode = mode;
-            _target = TextureTarget.Texture2DArray;
+            _target = cubeMap ? TextureTarget.TextureCubeMapArray : TextureTarget.Texture2DArray;
             ID = GL.GenTexture();
             Bind();
             HelperGeneral.CheckGLErrors();
-            GL.TexImage3D(
-                _target,
-                0,
-                GetPixelInternalFormatForFBTextureMode(mode),
-                width,
-                height,
-                csmLayerCount,
-                0,
-                GetPixelFormatForFBTextureMode(mode),
-                GetPixelTypeForFBTextureMode(mode),
-                IntPtr.Zero);
+            if (cubeMap)
+            {
+                GL.TexImage3D(
+                    TextureTarget.TextureCubeMapArray,
+                    0,
+                    isDepthTexture ? PixelInternalFormat.DepthComponent32f : PixelInternalFormat.Rgba16,
+                    size,
+                    size,
+                    6,
+                    0,
+                    isDepthTexture ? PixelFormat.DepthComponent : PixelFormat.Rgba,
+                    isDepthTexture ? PixelType.Float : PixelType.UnsignedShort,
+                    IntPtr.Zero);
+                
+                HelperGeneral.CheckGLErrors();
+                GL.TexParameterI(_target, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
+                GL.TexParameterI(_target, TextureParameterName.TextureCompareFunc, new int[] { (int)DepthFunction.Lequal });
+                GL.TexParameter(_target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
+                GL.TexParameter(_target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
+            }
+            else
+            {
+                GL.TexImage3D(
+                    TextureTarget.Texture2DArray,
+                    0,
+                    isDepthTexture ? PixelInternalFormat.DepthComponent32f : PixelInternalFormat.Rgba16,
+                    size,
+                    size,
+                    isCSM ? 2 : 1,
+                    0,
+                    isDepthTexture ? PixelFormat.DepthComponent : PixelFormat.Rgba,
+                    isDepthTexture ? PixelType.Float : PixelType.UnsignedShort,
+                    IntPtr.Zero);
+                HelperGeneral.CheckGLErrors();
+                GL.TexParameter(_target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+                GL.TexParameter(_target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+            }
 
-            HelperGeneral.CheckGLErrors();
             GL.TexParameterI(_target, TextureParameterName.TextureWrapS, ref wrapmode);
             GL.TexParameterI(_target, TextureParameterName.TextureWrapT, ref wrapmode);
-
-            GL.TexParameter(_target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
-            GL.TexParameter(_target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
             HelperGeneral.CheckGLErrors();
-            GL.TexParameter(_target, TextureParameterName.TextureBorderColor, borderColor);
-            if (mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH32F_3D)
+            if (cubeMap)
+                GL.TexParameterI(_target, TextureParameterName.TextureWrapR, ref wrapmode);
+
+           
+            HelperGeneral.CheckGLErrors();
+
+            if (isDepthTexture)
             {
                 GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, ID, 0);
             }
             else
             {
+                GL.TexParameter(_target, TextureParameterName.TextureBorderColor, borderColor);
                 GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0 + attachmentNumber, ID, 0);
+
             }
             HelperGeneral.CheckGLErrors();
         }
