@@ -1,44 +1,36 @@
 ﻿#version 400 core
 
-in vec4 vPosition;
 in vec2 vTexture;
-in vec3 vNormal;
-in vec3 vTangent;
-in vec3 vBiTangent;
-in mat3 vTBN;
-in vec4 vShadowCoord[3];
-in vec4 vShadowCoordOuter[3];
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;
 
-uniform sampler2DArray uShadowMap[3];
-uniform samplerCubeArray uShadowMapCube[3];
-uniform float uLights[850];
-uniform int uLightCount;
-uniform vec3 uCameraPos;
-uniform vec3 uColorAmbient;
-uniform int uTextureIsMetallicRoughnessCombined;
 uniform sampler2D uTextureAlbedo;
 uniform sampler2D uTextureNormal;
-uniform sampler2D uTextureMetallic;
-uniform sampler2D uTextureRoughness;
-uniform sampler2D uTextureEmissive;
-uniform sampler2D uTextureTransparency;
-uniform ivec3 uUseTexturesAlbedoNormalEmissive;
-uniform ivec3 uUseTexturesMetallicRoughness;
+uniform sampler2D uTexturePBR; //x=metallic, y = roughness, z = metallic type
+uniform sampler2D uTextureDepth;
+uniform sampler2D uTextureId;
+uniform sampler2D uTextureSSAO;
+
+uniform sampler2DArray uShadowMap[3];
+uniform samplerCubeArray uShadowMapCube[3];
 
 uniform samplerCube uTextureSkybox;
 uniform mat3 uTextureSkyboxRotation;
 uniform sampler2D uTextureBackground;
 uniform ivec4 uUseTextureReflectionQuality;
+uniform mat4 uViewProjectionMatrixShadowMap[3];
+uniform mat4 uViewProjectionMatrixShadowMap2[3];
 
-uniform vec2 uMetallicRoughness;
-uniform vec4 uColorEmissive;
-uniform vec4 uColorMaterial;
-uniform vec4 uColorTint;
-uniform int uMetallicType;
-uniform int uShadowCaster;
+uniform float uLights[850];
+
+// multi-draw tiling:
+uniform int uLightIndices[50];
+uniform int uLightIndicesCount;
+
+uniform vec3 uCameraPos;
+uniform vec3 uColorAmbient;
+uniform mat4 uViewProjectionMatrixInverted;
 
 const float PI = 3.141593;
 const float PI2 = 0.5 / PI;
@@ -77,6 +69,17 @@ const vec3 metallicF0Values[9] = vec3[](
     vec3(0.95, 0.93, 0.88)
     );
 
+
+vec3 decodeNormal(vec2 f)
+{
+    f = f * 2.0 - 1.0;
+    vec3 n = vec3(f.x, f.y, 1.0 - abs(f.x) - abs(f.y));
+    float t = clamp(-n.z, 0.0, 1.0);
+    n.x += n.x >= 0.0 ? -t : t;
+    n.y += n.y >= 0.0 ? -t : t;
+    return normalize(n);
+}
+
 vec3 sampleFromEquirectangular(vec3 worldPosition, vec3 normal, float mipMapLevel)
 {
     vec3 R = normalize(reflect(worldPosition - uCameraPos, normal));
@@ -90,41 +93,6 @@ vec3 sampleFromEquirectangular(vec3 worldPosition, vec3 normal, float mipMapLeve
 vec3 getF0(int type)
 {
     return metallicF0Values[type];
-}
-
-vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fragPosWorld)
-{
-	float mipMapLevel = 0.0;
-	vec3 refl = vec3(1.0);
-    // x = type, y = mipmaplevels
-	if(uUseTextureReflectionQuality.x == 1) //2 = equi, 1 = cubemap 
-	{
-		vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
-
-		int mipMapLevels = uUseTextureReflectionQuality.y;
-		mipMapLevel = roughness * mipMapLevels;
-		refl = textureLod(uTextureSkybox, reflectedCameraSurfaceNormal, mipMapLevel).xyz * (float(uUseTextureReflectionQuality.z) / 1000.0);
-	}
-    else if(uUseTextureReflectionQuality.x == 2)
-    {
-        vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
-
-		int mipMapLevels = uUseTextureReflectionQuality.y;
-		mipMapLevel = roughness * mipMapLevels;
-		refl = sampleFromEquirectangular(fragPosWorld, reflectedCameraSurfaceNormal, mipMapLevel);
-    }
-	else if(uUseTextureReflectionQuality.x < 0)
-	{
-		vec3 reflectedCameraSurfaceNormal = reflect(-fragmentToCamera, N);
-		vec2 coordinates = (reflectedCameraSurfaceNormal.xy + 1.0) / 2.0;
-		coordinates.y = -coordinates.y;
-
-		int mipMapLevels = uUseTextureReflectionQuality.y;
-		mipMapLevel = roughness * mipMapLevels;
-
-		refl = textureLod(uTextureBackground, coordinates, mipMapLevel).xyz * (float(uUseTextureReflectionQuality.z) / 1000.0);
-	}
-	return refl;
 }
 
 float calculateShadow(vec4 bQuantized, float fragmentDepth, float alpha, float hardness)
@@ -179,7 +147,7 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) //, float metallic)
 {
     return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(max(1.0 - cosTheta, 0.0), 5.0);
 }  
@@ -215,101 +183,93 @@ float DistributionGGX(vec3 N, vec3 H, float a)
     return nom / denom;
 }
 
-vec4 getPBR()
-{
-    vec4 specularMetallicRoughnessOcclusion = vec4(0.0, uMetallicRoughness.x, clamp(uMetallicRoughness.y, 0.0001, 1.0), 1.0);
-    vec4 textureMetallic = texture(uTextureMetallic, vTexture);
-    if(uUseTexturesMetallicRoughness.x > 0) // check metallic
-    {
-        specularMetallicRoughnessOcclusion.y = textureMetallic.b; // blue channel for metallic
-    }
-    if(uUseTexturesMetallicRoughness.y > 0)
-    {
-        if(uTextureIsMetallicRoughnessCombined > 0)
-        {
-            specularMetallicRoughnessOcclusion.z = clamp(textureMetallic.g, 0.0001, 1.0);
-        }
-        else
-        {
-            if(uUseTexturesMetallicRoughness.z > 0)
-            {
-                specularMetallicRoughnessOcclusion.z = clamp(1.0 - texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
-            }
-            else
-            {
-                specularMetallicRoughnessOcclusion.z = clamp(texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
-            }
-            
-        }
-    }
-    return specularMetallicRoughnessOcclusion;
-}
-
-vec4 getFragmentPositionAndDepth()
-{
-    return vec4(vPosition.xyz, 0.0);
-}
-
-vec4 getAlphaTexture()
-{
-    return texture(uTextureTransparency, vTexture);
-}
-
-vec4 getAlbedo()
-{
-    vec4 albedo = vec4(1.0);
-    if(uUseTexturesAlbedoNormalEmissive.x > 0)
-    {
-        albedo = texture(uTextureAlbedo, vTexture) * uColorTint;
-    }
-    else
-    {
-        albedo = vec4(uColorMaterial * uColorTint);
-    }
-
-    vec4 alpha = getAlphaTexture();
-    albedo.w = min(albedo.w, alpha.w);
-
-    return albedo;
-}
-
-vec4 getEmissive()
-{
-    if(uUseTexturesAlbedoNormalEmissive.z > 0)
-    {
-        return texture(uTextureEmissive, vTexture) + uColorEmissive;
-    }
-    else
-    {
-        return uColorEmissive;
-    }
-}
-
-vec4 getNormalId()
-{
-    vec4 normalId = vec4(vNormal, 0.0);
-    if(uUseTexturesAlbedoNormalEmissive.y > 0)
-    {
-        normalId.xyz = normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0));
-    }
-
-    return normalId;
-}
-
 /*
-float getShadowMapVisiblity(vec3 texCoord)
+ivec2 getIdShadowCaster()
 {
-    float distLeft = texCoord.x;        // Distanz zum linken Rand (0)
-    float distRight = 1.0 - texCoord.x; // Distanz zum rechten Rand (1)
-    float distBottom = texCoord.y;      // Distanz zum unteren Rand (0)
-    float distTop = 1.0 - texCoord.y;   // Distanz zum oberen Rand (1)
-
-    float minDist = min(min(distLeft, distRight), min(distBottom, distTop));
-    float fade = smoothstep(0.0, 0.05, minDist);
-
-    return 1.0 - fade;
+    vec3 s = texture(uTextureId, vTexture).xyz;
+    uint id = decode8BitTo16BitUint(s.xy);
+    int z = int(round(s.z * 255.0)) - 10;
+    return ivec2(id, z);  
 }
 */
+
+uint decode8BitTo16BitUint(vec2 encoded)
+{
+    uint low8 = uint(round(encoded.y * 255.0));
+    uint high8 = uint(round(encoded.x * 255.0));
+    return high8 * 256 + low8;
+}
+
+uint getId(vec3 s)
+{
+    return decode8BitTo16BitUint(s.xy);
+}
+
+int getShadowCaster(vec3 s)
+{
+    return int(round(s.z * 255.0)) - 10;
+}
+
+vec3 getPBR()
+{
+    vec3 tmp = texture(uTexturePBR, vTexture).xyz; //x=metallic, y = roughness, z = metallic type
+    tmp.z = round(tmp.z * 9);
+    return tmp;
+}
+
+vec3 getAlbedo()
+{
+    return texture(uTextureAlbedo, vTexture).xyz;
+}
+
+vec3 getNormal()
+{
+    return texture(uTextureNormal, vTexture).xyz;
+}
+
+vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fragPosWorld)
+{
+	float mipMapLevel = 0.0;
+	vec3 refl = vec3(1.0);
+    // x = type, y = mipmaplevels
+	if(uUseTextureReflectionQuality.x == 1) //2 = equi, 1 = cubemap 
+	{
+		vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
+
+		int mipMapLevels = uUseTextureReflectionQuality.y;
+		mipMapLevel = roughness * mipMapLevels;
+		refl = textureLod(uTextureSkybox, reflectedCameraSurfaceNormal, mipMapLevel).xyz * (float(uUseTextureReflectionQuality.z) / 1000.0);
+	}
+    else if(uUseTextureReflectionQuality.x == 2)
+    {
+        vec3 reflectedCameraSurfaceNormal =  reflect(-fragmentToCamera, N) * uTextureSkyboxRotation;
+
+		int mipMapLevels = uUseTextureReflectionQuality.y;
+		mipMapLevel = roughness * mipMapLevels;
+		refl = sampleFromEquirectangular(fragPosWorld, reflectedCameraSurfaceNormal, mipMapLevel);
+    }
+	else if(uUseTextureReflectionQuality.x < 0)
+	{
+		vec3 reflectedCameraSurfaceNormal = reflect(-fragmentToCamera, N);
+		vec2 coordinates = (reflectedCameraSurfaceNormal.xy + 1.0) / 2.0;
+		coordinates.y = -coordinates.y;
+
+		int mipMapLevels = uUseTextureReflectionQuality.y;
+		mipMapLevel = roughness * mipMapLevels;
+
+		refl = textureLod(uTextureBackground, coordinates, mipMapLevel).xyz * (float(uUseTextureReflectionQuality.z) / 1000.0);
+	}
+	return refl;
+}
+
+vec3 getFragmentPosition()
+{
+    float depth = texture(uTextureDepth, vTexture).r * 2.0 - 1.0;
+    vec4 clipSpaceCoordinate = vec4(vTexture * 2.0 - 1.0, depth, 1.0);
+    vec4 worldSpaceCoordinate = uViewProjectionMatrixInverted * clipSpaceCoordinate;
+    worldSpaceCoordinate.xyz /= worldSpaceCoordinate.w;
+    return worldSpaceCoordinate.xyz;
+}
 
 vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
 {
@@ -343,31 +303,45 @@ vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
 
 void main()
 {
-    vec4 normalId = getNormalId();
+    vec3 sampleIdShadowCaster = texture(uTextureId, vTexture).xyz;
+    uint id  = getId(sampleIdShadowCaster);
+
+    if(id == 0)
+    {
+        discard;
+    }
 
     // actual shading:
-    vec4 pbr = getPBR();
-    vec4 fragPositionDepth = getFragmentPositionAndDepth();
-	vec4 albedo = getAlbedo();
-    vec4 emissive4 = getEmissive();
-    vec3 emissive = emissive4.xyz;
-
-    vec3 N = normalId.xyz;
-    vec3 V = normalize(uCameraPos - fragPositionDepth.xyz);
-    vec3 F0 = getF0(uMetallicType);
-    F0 = mix(F0, albedo.xyz, pbr.y);
+    vec3 albedo = getAlbedo();
+    int shadowCaster = getShadowCaster(sampleIdShadowCaster);
+    vec3 normal = getNormal();
+    vec3 pbr = getPBR();
+	
+    vec3 emissive = vec3(max(0, albedo.x - 1.0), max(0, albedo.y - 1.0), max(0, albedo.z - 1.0));
+    albedo = vec3(min(albedo.x, 1.0), min(albedo.y, 1.0), min(albedo.z, 1.0));
+    
+    vec3 fragPosition = getFragmentPosition();
+    vec3 N = normal;
+    vec3 V = normalize(uCameraPos - fragPosition);
+    vec3 F0 = getF0(int(pbr.z));
+    F0 = mix(F0, albedo, pbr.x);
 
     vec3 colorTemp = vec3(0.0);
-    if(abs(uShadowCaster) > 1)
+    if(abs(shadowCaster) > 1)
     {
-        colorTemp = albedo.xyz * albedo.w + emissive * emissive4.w;
-        color = vec4(colorTemp, albedo.w);
+        colorTemp = albedo + emissive;
+        color = vec4(colorTemp, 1.0);
     }
     else
     {
         vec3 Lo = vec3(0.0);
-        for(int i = 0; i < uLightCount * 17; i += 17)
+        
+        //for(int li = 0; li < lightIndicesCount; li++)
+        for(int li = 0; li < uLightIndicesCount; li++) // multi-draw
         {
+            // multi-draw mode:
+            int i = uLightIndices[li] * 17;
+
             vec3 currentLightPos = vec3(uLights[i + 0], uLights[i + 1], uLights[i + 2]);
             vec3 currentLightLAV = vec3(uLights[i + 4], uLights[i + 5], uLights[i + 6]);
             vec4 currentLightClr = vec4(uLights[i + 7], uLights[i + 8], uLights[i + 9], uLights[i + 10]);
@@ -379,30 +353,14 @@ void main()
             float currentLightBias = uLights[i + 15];
             float currentLightHardness = uLights[i + 16];
 
-            // calculate per-light radiance || continue if light is not affecting fragment:
+            // calculate per-light radiance
             if(currentLightType < 0)
             {
-                currentLightPos = fragPositionDepth.xyz - currentLightLAV;
+                currentLightPos = fragPosition - currentLightLAV;
             }
-            else if(currentLightType == 0)
-            {
-               if(length(currentLightPos - vPosition.xyz) > currentLightFar)
-               {
-                    continue;
-               }
-            }
-            else // directional
-            {
-                vec3 lightMiddlePos = currentLightPos + currentLightLAV * currentLightFar * 0.5;
-                if(length(lightMiddlePos - vPosition.xyz) > currentLightFar * 0.5)
-                {
-                    continue;
-                }
-            }
-            
-            vec3 L = normalize(currentLightPos - fragPositionDepth.xyz);
+            vec3 L = normalize(currentLightPos - fragPosition);
             vec3 H = normalize(V + L);
-            float dist    = length(currentLightPos - fragPositionDepth.xyz);
+            float dist    = length(currentLightPos - fragPosition);
 
             float differenceLightDirectionAndFragmentDirection = 1.0;
 		    if(currentLightType > 0)
@@ -414,20 +372,20 @@ void main()
 			    differenceLightDirectionAndFragmentDirection = clamp((theta - spotOuterCutOff) / epsilon, 0.0, 1.0);    
 		    }
 
-            //float attenuation = currentLightFar / (dist * dist);
             float theDistanceClamped = clamp(dist, 0.0, currentLightFar);
             float attenuation = currentLightClr.w * (currentLightType < 0 ? 1.0 : cos(ninetydegrees / currentLightFar * theDistanceClamped));
             vec3 radiance     = currentLightClr.xyz * attenuation * differenceLightDirectionAndFragmentDirection; 
 
 
             // cook-torrance brdf
-            float NDF = DistributionGGX(N, H, pbr.z); //z = roughness
-            float G   = GeometrySmith(N, V, L, pbr.z);      
+            float NDF = DistributionGGX(N, H, pbr.y); //y = roughness
+            float G   = GeometrySmith(N, V, L, pbr.y);      
             vec3 F    = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
+        
             vec3 kS = F;
             vec3 kD = vec3(1.0) - kS;
-            kD *= 1.0 - pbr.y;	 
+            kD *= 1.0 - pbr.x;	 // x = metallic
 
             vec3 numerator    = NDF * G * F;
             float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
@@ -438,14 +396,20 @@ void main()
 
             // shadow map check:
             float darkeningCurrentLight = 1.0;
-            if(uShadowCaster > 0)
+            if(shadowCaster > 0)
             {
+                
                 if(shadowMapIndex > 0) // directional or sun light
                 {
+                    vec4 vShadowCoord = uViewProjectionMatrixShadowMap[shadowMapIndex - 1] * vec4(fragPosition, 1.0);
+                    vec4 vShadowCoordOuter = uViewProjectionMatrixShadowMap2[shadowMapIndex - 1] * vec4(fragPosition, 1.0);
+                    
                     // if the light is directional, we first have to linearize the depth values:
-			        vec3 projCoordsForTextureLookup = (vShadowCoord[shadowMapIndex - 1].xyz / vShadowCoord[shadowMapIndex - 1].w) * 0.5 + 0.5;
-                    vec3 projCoordsForTextureLookup2 = (vShadowCoordOuter[shadowMapIndex - 1].xyz / vShadowCoordOuter[shadowMapIndex - 1].w) * 0.5 + 0.5;
+			        vec3 projCoordsForTextureLookup = (vShadowCoord.xyz / vShadowCoord.w) * 0.5 + 0.5;
+                    vec3 projCoordsForTextureLookup2 = (vShadowCoordOuter.xyz / vShadowCoordOuter.w) * 0.5 + 0.5;
+                    
                     vec2 shadowVisibility = getShadowMapVisiblity(projCoordsForTextureLookup, projCoordsForTextureLookup2);
+
                     if(uUseTextureReflectionQuality.w > 0)
                     {
                         darkeningCurrentLight = 0;
@@ -453,24 +417,26 @@ void main()
                         for(int i = 0; i < 5; i++)
                         {
                             vec2 currentOffset = vec2(offset * fragOffsets[i].x, offset * fragOffsets[i].y);
-			                vec4 b = texture(uShadowMap[shadowMapIndex - 1], vec3((shadowVisibility.y > 0 ? projCoordsForTextureLookup2.xy : projCoordsForTextureLookup.xy) + currentOffset, shadowVisibility.y));
+			                vec4 b = texture(uShadowMap[shadowMapIndex - 1], vec3(shadowVisibility.y > 0 ? projCoordsForTextureLookup2.xy : projCoordsForTextureLookup.xy + currentOffset, shadowVisibility.y));
                             float fragmentDepthLinearized = shadowVisibility.y > 0 ? projCoordsForTextureLookup2.z : projCoordsForTextureLookup.z;
                             if(currentLightType == 1)
                             {
-                                fragmentDepthLinearized = ((shadowVisibility.y > 0 ? vShadowCoordOuter[shadowMapIndex - 1].z : vShadowCoord[shadowMapIndex - 1].z) - currentLightNear) / (currentLightFar - currentLightNear);
+                                fragmentDepthLinearized = ((shadowVisibility.y > 0 ? vShadowCoordOuter.z : vShadowCoord.z) - currentLightNear) / (currentLightFar - currentLightNear);
                             }
                             darkeningCurrentLight += calculateShadow(b, fragmentDepthLinearized, currentLightBias * fragOffsetsWeights2[i], currentLightHardness) * fragOffsetsWeights[i];
                         }
                     }
-                    else{
-			            vec4 b = texture(uShadowMap[shadowMapIndex - 1], vec3((shadowVisibility.y > 0 ? projCoordsForTextureLookup2.xy : projCoordsForTextureLookup.xy), shadowVisibility.y));
-                        float fragmentDepthLinearized = shadowVisibility.y > 0 ? projCoordsForTextureLookup2.z : projCoordsForTextureLookup.z;
-                        if(currentLightType == 1)
-                        {
-                            fragmentDepthLinearized = ((shadowVisibility.y > 0 ? vShadowCoordOuter[shadowMapIndex - 1].z : vShadowCoord[shadowMapIndex - 1].z) - currentLightNear) / (currentLightFar - currentLightNear);
-                        }
-			            darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                    else
+                    {
+                            vec4 b = texture(uShadowMap[shadowMapIndex - 1], vec3(shadowVisibility.y > 0 ? projCoordsForTextureLookup2.xy : projCoordsForTextureLookup.xy, shadowVisibility.y));
+                            float fragmentDepthLinearized = shadowVisibility.y > 0 ? projCoordsForTextureLookup2.z : projCoordsForTextureLookup.z;
+                            if(currentLightType == 1)
+                            {
+                                fragmentDepthLinearized = ((shadowVisibility.y > 0 ? vShadowCoordOuter.z : vShadowCoord.z) - currentLightNear) / (currentLightFar - currentLightNear);
+                            }
+                        darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
                     }
+                    
                     darkeningCurrentLight = mix(darkeningCurrentLight, 1.0, shadowVisibility.x);
                 }
                 else if(shadowMapIndex < 0) // point light
@@ -478,26 +444,58 @@ void main()
                     darkeningCurrentLight = calculateShadowCube(
                         abs(shadowMapIndex) - 1, 
                         currentLightPos.xyz, 
-                        fragPositionDepth.xyz, 
+                        fragPosition, 
                         vec2(currentLightNear, currentLightFar), 
                         currentLightBias, 
                         currentLightHardness);
                 }
             }
 
-            Lo += (kD * albedo.xyz / PI + specular) * radiance * NdotL * darkeningCurrentLight;
+            Lo += (kD * albedo / PI + specular) * radiance * NdotL * darkeningCurrentLight;
         }
-
-        vec3 reflectionColor = getReflectionColor(V, N, pbr.z, fragPositionDepth.xyz);// z = roughness
-        vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.z); // z = roughness
+        vec3 reflectionColor = getReflectionColor(V, N, pbr.y, fragPosition);// y = roughness
+        vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.y); // y = roughness
         vec3 kDW = 1.0 - F;
-        kDW *= (1.0 - pbr.y); // y = metallic	
+        kDW *= (1.0 - pbr.x); // x = metallic	
         vec3 specularW = reflectionColor * F * uColorAmbient; 
-        vec3 ambient = uColorAmbient * kDW * albedo.xyz + specularW + emissive * emissive4.w;
+        vec3 ambient = uColorAmbient * texture(uTextureSSAO, vTexture).r * kDW * albedo + specularW + emissive;
         colorTemp = ambient + Lo;
-        color = vec4(colorTemp, albedo.w);
+        color = vec4(colorTemp, 1.0);
     }
-
+/*    
+    if((vPositionNDC.x > 0.99 || vPositionNDC.x < -0.99) || (vPositionNDC.y > 0.99 || vPositionNDC.y < -0.99))
+    {
+        if(lightIndicesCount == 0)
+            color = vec4(0.00, 0.00, 0.00, 1);
+        else if(lightIndicesCount == 1)
+            color = vec4(0.00, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 2)
+            color = vec4(0.25, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 2)
+            color = vec4(0.50, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 3)
+            color = vec4(0.75, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 4)
+            color = vec4(1.00, 1.00, 0.00, 1);
+        else if(lightIndicesCount == 5)
+            color = vec4(1.00, 0.75, 0.00, 1);
+        else if(lightIndicesCount == 6)
+            color = vec4(1.00, 0.50, 0.00, 1);
+        else if(lightIndicesCount == 7)
+            color = vec4(1.00, 0.25, 0.00, 1);
+        else if(lightIndicesCount == 8)
+            color = vec4(1.00, 0.00, 0.00, 1);
+        else if(lightIndicesCount == 9)
+            color = vec4(1.00, 0.00, 0.25, 1);
+        else if(lightIndicesCount == 10)
+            color = vec4(1.00, 0.00, 0.50, 1);
+        else if(lightIndicesCount == 11)
+            color = vec4(1.00, 0.00, 0.75, 1);
+        else
+            color = vec4(1.00, 0.00, 1.00, 1);
+    }
+*/
+    
     float bloomR = 0.0;
     float bloomG = 0.0;
     float bloomB = 0.0;
@@ -507,6 +505,6 @@ void main()
         bloomG = colorTemp.y - 1.0;
     if(colorTemp.z > 1.0)
         bloomB = colorTemp.z - 1.0;
-    bloom = vec4(bloomR, bloomG, bloomB, albedo.w);
+    bloom = vec4(bloomR, bloomG, bloomB, 1.0);
 }
 

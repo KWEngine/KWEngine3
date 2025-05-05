@@ -18,6 +18,7 @@ namespace KWEngine3.Renderer
         public static int UShadowMap { get; private set; } = -1;
         public static int UShadowMapCube { get; private set; } = -1;
         public static int UViewProjectionMatrixShadowMap { get; private set; } = -1;
+        public static int UViewProjectionMatrixShadowMapOuter { get; private set; } = -1;
         public static int UCameraPos { get; private set; } = -1;
         public static int ULights { get; private set; } = -1;
         public static int ULightCount { get; private set; } = -1;
@@ -69,6 +70,7 @@ namespace KWEngine3.Renderer
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
+                UViewProjectionMatrixShadowMapOuter = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMapOuter");
 
                 UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
                 UShadowCaster = GL.GetUniformLocation(ProgramID, "uShadowCaster");
@@ -108,16 +110,18 @@ namespace KWEngine3.Renderer
             {
                 LightObject l = KWEngine.CurrentWorld._lightObjects[KWEngine.CurrentWorld._preparedTex2DIndices[i]];
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, l._fbShadowMap.Attachments[0].ID);
+                GL.BindTexture(TextureTarget.Texture2DArray, l._fbShadowMap.Attachments[0].ID);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
                 GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[0]);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMapOuter + i * KWEngine._uniformOffsetMultiplier, false, ref l._stateRender._viewProjectionMatrix[1]);
             }
             for (; i < KWEngine.MAX_SHADOWMAPS; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureWhite);
+                GL.BindTexture(TextureTarget.Texture2DArray, KWEngine.TextureWhite3D);
                 GL.Uniform1(UShadowMap + i, currentTextureNumber);
                 GL.UniformMatrix4(UViewProjectionMatrixShadowMap + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
+                GL.UniformMatrix4(UViewProjectionMatrixShadowMapOuter + i * KWEngine._uniformOffsetMultiplier, false, ref KWEngine.Identity);
             }
 
             // upload cube maps, so reset counter to 0:
@@ -125,13 +129,13 @@ namespace KWEngine3.Renderer
             {
                 LightObject l = KWEngine.CurrentWorld._lightObjects[KWEngine.CurrentWorld._preparedCubeMapIndices[i]];
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.TextureCubeMap, l._fbShadowMap.Attachments[0].ID);
+                GL.BindTexture(TextureTarget.TextureCubeMapArray, l._fbShadowMap.Attachments[0].ID);
                 GL.Uniform1(UShadowMapCube + i, currentTextureNumber);
             }
             for (; i < KWEngine.MAX_SHADOWMAPS; i++, currentTextureUnit++, currentTextureNumber++)
             {
                 GL.ActiveTexture(currentTextureUnit);
-                GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
+                GL.BindTexture(TextureTarget.TextureCubeMapArray, KWEngine.TextureCubemapEmpty3D);
                 GL.Uniform1(UShadowMapCube + i, currentTextureNumber);
             }
         }
@@ -147,21 +151,15 @@ namespace KWEngine3.Renderer
             {
                 SortByZ();
                 GL.Enable(EnableCap.Blend);
-                //GL.Disable(EnableCap.CullFace);
                 GeoMesh mesh = KWEngine.Models["KWQuad"].Meshes.Values.ElementAt(0);
                 foreach (TextObject t in KWEngine.CurrentWorld._textObjects)
                 {
-                    if (KWEngine.EditModeActive)
+                    if (KWEngine.EditModeActive || t.IsInsideScreenSpace)
                     {
                         Draw(t, mesh);
                     }
-                    else
-                    {
-                        if (t.IsInsideScreenSpace) Draw(t, mesh);
-                    }
                 }
                 GL.Disable(EnableCap.Blend);
-                //GL.Enable(EnableCap.CullFace);
             }
         }
 

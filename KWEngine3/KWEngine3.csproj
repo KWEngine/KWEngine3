@@ -262,6 +262,8 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer_multi.frag" />
+		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer_multi.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.frag" />
 		<EmbeddedResource Include="Shaders\shader.msm16.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16instanced.frag" />

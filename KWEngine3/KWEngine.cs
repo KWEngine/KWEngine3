@@ -20,6 +20,12 @@ namespace KWEngine3
     public class KWEngine
     {
         /// <summary>
+        /// Gibt an, wie der Beleuchtungsschritt in der Engine ablaufen soll
+        /// </summary>
+        /// <remarks>Kann die Performance auf schwachen GPUs verbessern</remarks>
+        public static GBufferLightingMode GBufferLighting { get; set; } = GBufferLightingMode.Default;
+
+        /// <summary>
         /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)
         /// </summary>
         public static float MouseSensitivity { get; set; } = 0.05f;
@@ -751,9 +757,7 @@ namespace KWEngine3
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
             TextureWhite = HelperTexture.LoadTextureInternal("white.png");
-            HelperGeneral.CheckGLErrors();
             TextureWhite3D = HelperTexture.LoadTextureInternal3D("white.png");
-            HelperGeneral.CheckGLErrors();
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
             TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
             TextureNoise = HelperTexture.LoadTextureInternal("noise.png");

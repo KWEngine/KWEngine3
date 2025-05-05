@@ -384,7 +384,6 @@ namespace KWEngine3
                 }
                 #endregion
                 HelperDebug.StopTimeQuery(RenderType.Deferred);
-                HelperGeneral.CheckGLErrors();
 
                 if (KWEngine.Mode == EngineMode.Edit)
                 {
@@ -394,7 +393,6 @@ namespace KWEngine3
                     RendererLightOverlay.Draw(KWEngine.CurrentWorld._lightObjects);
                     GL.Enable(EnableCap.DepthTest);
                 }
-                HelperGeneral.CheckGLErrors();
 
                 // Prepare lights
                 HelperDebug.StartTimeQuery(RenderType.ShadowMapping);
@@ -480,13 +478,6 @@ namespace KWEngine3
 
                     if (pointLights.Count > 0)
                     {
-                        /*
-                        foreach(LightObject l in pointLights)
-                        {
-                            l._fbShadowMap.Bind(true);
-                        }
-                        */
-
                         RendererShadowMapCube.Bind();
                         foreach (LightObject l in pointLights)
                         {
@@ -527,18 +518,24 @@ namespace KWEngine3
                 HelperDebug.StopTimeQuery(RenderType.SSAO);
 
                 // Lighting pass:
-                HelperGeneral.CheckGLErrors();
                 HelperDebug.StartTimeQuery(RenderType.Lighting);
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
                 RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
                 RenderManager.FramebufferLightingPass.Bind(false);
-                HelperGeneral.CheckGLErrors();
-                RendererLightingPass.Bind();
-                RendererLightingPass.SetGlobals();
-                HelperGeneral.CheckGLErrors();
-                RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
+                if(KWEngine.GBufferLighting == GBufferLightingMode.Default)
+                {
+                    RendererLightingPass.Bind();
+                    RendererLightingPass.SetGlobals();
+                    RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
+                }
+                else
+                {
+                    RendererLightingPassMultiDraw.Bind();
+                    RendererLightingPassMultiDraw.SetGlobals();
+                    RendererLightingPassMultiDraw.Draw(RenderManager.FramebufferDeferred);
+                }
+
                 HelperDebug.StopTimeQuery(RenderType.Lighting);
-                HelperGeneral.CheckGLErrors();
 
                 GL.Enable(EnableCap.DepthTest);
                 GL.Viewport(0, 0, Width, Height);

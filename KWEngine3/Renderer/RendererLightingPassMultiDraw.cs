@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal static class RendererLightingPass
+    internal static class RendererLightingPassMultiDraw
     {
         public static int ProgramID { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
@@ -107,8 +107,8 @@ namespace KWEngine3.Renderer
             {
                 ProgramID = GL.CreateProgram();
 
-                string resourceNameVertexShader = "KWEngine3.Shaders.shader.lighting.gbuffer.vert";
-                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.lighting.gbuffer.frag";
+                string resourceNameVertexShader = "KWEngine3.Shaders.shader.lighting.gbuffer_multi.vert";
+                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.lighting.gbuffer_multi.frag";
 
                 int vertexShader;
                 int fragmentShader;
@@ -150,20 +150,9 @@ namespace KWEngine3.Renderer
                 UViewProjectionMatrixShadowMap2 = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap2");
                 UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
 
-                
-                //ULightIndicesCount = GL.GetUniformLocation(ProgramID, "uLightIndicesCount");
-                //ULightIndices = GL.GetUniformLocation(ProgramID, "uLightIndices");
-                //UTextureOffset = GL.GetUniformLocation(ProgramID, "uTextureOffset");
-                ULightIndicesCounts = GL.GetUniformLocation(ProgramID, "uLightIndicesCounts");
-                
-                InitUBOs();
-                UBlockIndex1 = GL.GetUniformBlockIndex(ProgramID, "uBlockIndex1");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex1, 0);
-                UBlockIndex2 = GL.GetUniformBlockIndex(ProgramID, "uBlockIndex2");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex2, 1);
-                UBlockIndex3 = GL.GetUniformBlockIndex(ProgramID, "uBlockIndex3");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex3, 2);
-                
+                ULightIndicesCount = GL.GetUniformLocation(ProgramID, "uLightIndicesCount");
+                ULightIndices = GL.GetUniformLocation(ProgramID, "uLightIndices");
+                UTextureOffset = GL.GetUniformLocation(ProgramID, "uTextureOffset");
             }
         }
 
@@ -276,28 +265,6 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vp);
         }
 
-        
-        internal static void UpdateUBO3()
-        {
-            int offset = 0;
-            int i = 0;
-            GL.BindBuffer(BufferTarget.UniformBuffer, UBO3);
-
-            foreach (ScreenGridTile tile in RenderManager._screenGrid._tiles)
-            {
-                _indexCounts[i] = tile._preparedLightsIndicesCount;
-                Array.Copy(tile._preparedLightsIndices, 0, _uboData3, offset, KWEngine.MAX_LIGHTS);
-
-                //GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)offset, tile._preparedLightsIndices.Length * sizeof(int), tile._preparedLightsIndices);
-
-                offset += KWEngine.MAX_LIGHTS;
-                i++;
-            }
-            GL.BufferData(BufferTarget.UniformBuffer, _uboData3.Length * sizeof(int), _uboData3, BufferUsageHint.DynamicDraw);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-        }
-        
-
         public static void Draw(Framebuffer fbSource)
         {
             // depth tex:
@@ -333,17 +300,24 @@ namespace KWEngine3.Renderer
             GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * 17, KWEngine.CurrentWorld._preparedLightsArray);
             GL.Uniform3(UColorAmbient, KWEngine.CurrentWorld._colorAmbient);
             
-            
-            // UBO bindings:
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex1, UBO);
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex2, UBO2);
-            UpdateUBO3();
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex3, UBO3);
-            GL.Uniform1(ULightIndicesCounts, _indexCounts.Length, _indexCounts);
-            
             // render that damn quad already:
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
-            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount(), RenderManager._screenGrid._tiles.Length);
+            
+            foreach (ScreenGridTile tile in RenderManager._screenGrid._tiles)
+            {
+                GL.Viewport(tile._offsetX, RenderManager._screenGrid._height - tile._height - tile._offsetY, tile._width, tile._height);
+                GL.Uniform1(ULightIndices, tile._preparedLightsIndicesCount, tile._preparedLightsIndices);
+                GL.Uniform1(ULightIndicesCount, tile._preparedLightsIndicesCount);
+
+                float uvL = tile._ndcLeft * 0.5f + 0.5f;
+                float uvR = tile._ndcRight * 0.5f + 0.5f;
+                float uvT = tile._ndcTop * 0.5f + 0.5f;
+                float uvB = tile._ndcBottom * 0.5f + 0.5f;
+
+                GL.Uniform4(UTextureOffset, uvL, uvR, uvT, uvB);
+                GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
+            }
+            
             GL.BindVertexArray(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }

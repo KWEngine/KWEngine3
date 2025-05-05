@@ -83,6 +83,7 @@ namespace KWEngine3.Renderer
             RendererGBuffer.Init();
             RendererGBufferInstanced.Init();
             RendererLightingPass.Init();
+            RendererLightingPassMultiDraw.Init();
             RendererForward.Init();
             RendererForwardInstanced.Init();
             RendererCopy.Init();

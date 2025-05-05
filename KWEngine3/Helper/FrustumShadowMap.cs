@@ -8,6 +8,6 @@ namespace KWEngine3.Helper
     {
         protected Vector4[] _frustumPlanes = new Vector4[6];
         public abstract void Update(ref Matrix4 viewProjectionMatrix);
-        public abstract bool IsBoxInFrustum(Vector3 lightCenter, float lightZFar, Vector3 center, float diameter);
+        public abstract bool IsBoxInFrustum(Vector3 lightCenter, Vector3 lightDirection, float lightZFar, Vector3 center, float diameter);
     }
 }

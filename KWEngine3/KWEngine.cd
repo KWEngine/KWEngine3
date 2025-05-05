@@ -109,6 +109,7 @@
       <Field Name="TextureBlack" Hidden="true" />
       <Field Name="TextureCheckerboard" Hidden="true" />
       <Field Name="TextureCubemapEmpty" Hidden="true" />
+      <Field Name="TextureCubemapEmpty3D" Hidden="true" />
       <Field Name="TextureDefault" Hidden="true" />
       <Field Name="TextureDepthCubeMapEmpty" Hidden="true" />
       <Field Name="TextureDepthEmpty" Hidden="true" />
@@ -123,11 +124,12 @@
       <Field Name="TextureNoise" Hidden="true" />
       <Field Name="TextureNormalEmpty" Hidden="true" />
       <Field Name="TextureWhite" Hidden="true" />
+      <Field Name="TextureWhite3D" Hidden="true" />
       <Field Name="TimeElapsed" Hidden="true" />
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgAR7BNA6SJgLEcpApuAZARVCgCAmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>BcgAR7BNA6SJgLEcpAruAZARVCgCAmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -155,6 +157,7 @@
       <Field Name="_gameObjectsColliderChange" Hidden="true" />
       <Field Name="_gameObjectsToBeAdded" Hidden="true" />
       <Field Name="_gameObjectsToBeRemoved" Hidden="true" />
+      <Field Name="_hasSun" Hidden="true" />
       <Field Name="_hudObjectInputWithFocus" Hidden="true" />
       <Field Name="_hudObjects" Hidden="true" />
       <Field Name="_hudObjectsToBeAdded" Hidden="true" />
@@ -205,6 +208,8 @@
       <Method Name="GetLightObjects" Hidden="true" />
       <Method Name="GetTerrainObjects" Hidden="true" />
       <Method Name="GetTransparentGameObjectsForEditor" Hidden="true" />
+      <Property Name="HasShadowCSMSun" Hidden="true" />
+      <Property Name="HasShadowSun" Hidden="true" />
       <Method Name="Init" Hidden="true" />
       <Method Name="IsLightBehindCamera" Hidden="true" />
       <Method Name="PrepareLightObjectsForRenderPass" Hidden="true" />
@@ -255,7 +260,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAEABGGIwqwiSAwIAOEABEAUYyA0EBQEACBA0CUIE=</HashCode>
+      <HashCode>jAiAEABGGIwqwiSAwIAOEABEAUYyA0EBQEADBA0CUIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -282,6 +287,7 @@
     <Members>
       <Field Name="_behindCamera" Hidden="true" />
       <Field Name="_fbShadowMap" Hidden="true" />
+      <Field Name="_frustumShadowMap" Hidden="true" />
       <Field Name="_ndcPosition" Hidden="true" />
       <Field Name="_ndcRadius" Hidden="true" />
       <Field Name="_shadowBias" Hidden="true" />
@@ -294,10 +300,12 @@
       <Method Name="CheckForIllegalAngles" Hidden="true" />
       <Method Name="DeleteShadowMap" Hidden="true" />
       <Method Name="GetVolume" Hidden="true" />
+      <Method Name="Init" Hidden="true" />
+      <Method Name="UpdateFrustum" Hidden="true" />
       <Method Name="UpdateLookAtVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ACAYAQAAAAQA4AAqAICAVSwAAgAQCgAAAQgAgIAEAAI=</HashCode>
+      <HashCode>CCAYAQAAAAQA4AAqAACAVSwAAgAQDgAAARgCgIAEAAI=</HashCode>
       <FileName>GameObjects\LightObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -558,12 +566,13 @@
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
       <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
+      <Property Name="IsInsideScreenSpaceForShadowMap" Hidden="true" />
       <Method Name="SetTextureOffsetForMaterial" Hidden="true" />
       <Method Name="SetTextureRepeatForMaterial" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyNDJ1oOGJygUIRuAgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
+      <HashCode>QyNDJ1oOGJygUIRuQgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
