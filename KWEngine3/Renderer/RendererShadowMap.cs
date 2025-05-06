@@ -77,11 +77,6 @@ namespace KWEngine3.Renderer
                     if (g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight && l._frustumShadowMap.IsBoxInFrustum(l._stateRender._position, l._stateRender._lookAtVector, l._stateRender._nearFarFOVType.Y, g.Center, g.Diameter))
                     {
                         Draw(g);
-                        //Console.WriteLine("[" + KWEngine.WorldTime + "] Drawing  " + g.Name + " for Light: " + l.Name);
-                    }
-                    else
-                    {
-                        //Console.WriteLine("[" + KWEngine.WorldTime + "] Skipping " + g.Name + " for Light: " + l.Name);
                     }
                 }
 
