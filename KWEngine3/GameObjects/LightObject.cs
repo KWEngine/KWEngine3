@@ -292,6 +292,7 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateFrustum()
         {
+            /*
             if(Type == LightType.Point)
             {
                 _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
@@ -307,6 +308,7 @@ namespace KWEngine3.GameObjects
                 else
                     _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
             }
+            */
         }
 
         internal void CheckForIllegalAngles()
