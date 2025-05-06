@@ -86,8 +86,8 @@ namespace KWEngine3TestProject.Worlds
             //_player.SetOpacity(0.5f);
             AddGameObject(_player);
 
-            LightObjectSun sun = new LightObjectSun(ShadowQuality.Medium, SunShadowType.CascadedShadowMap);
-            sun.SetCSMFactor(CSMFactor.Two);
+            LightObjectSun sun = new LightObjectSun(ShadowQuality.High, SunShadowType.CascadedShadowMap);
+            sun.SetCSMFactor(CSMFactor.Four);
             sun.Name = "Sun";
             sun.SetPosition(25, 25, 0);
             sun.SetColor(1, 1, 1, 2);
