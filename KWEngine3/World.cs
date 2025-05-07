@@ -1186,6 +1186,7 @@ namespace KWEngine3
                 {
                     g.ID = _availableGameObjectIDs.Dequeue();
                     _gameObjects.Add(g);
+                    g._myWorld = this;
                     if (g.IsCollisionObject)
                     {
                         foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
@@ -1233,6 +1234,7 @@ namespace KWEngine3
                 {
                     _availableGameObjectIDs.Enqueue((ushort)g.ID);
                     g.ID = 0;
+                    g._myWorld = null;
                     foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
                         _gameObjectHitboxes.Remove(hb);
@@ -1294,6 +1296,7 @@ namespace KWEngine3
                 if (!_renderObjects.Contains(r))
                 {
                     _renderObjects.Add(r);
+                    r._myWorld = this;
                 }
                 else
                 {
@@ -1324,6 +1327,7 @@ namespace KWEngine3
             if (IsPrepared == false)
             {
                 _renderObjects.Remove(r);
+                r._myWorld = null;
             }
             else
             {
