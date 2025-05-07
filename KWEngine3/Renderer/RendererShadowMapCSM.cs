@@ -84,7 +84,14 @@ namespace KWEngine3.Renderer
                 {
                     if(g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
                     {
-                        if(l._frustumShadowMap.IsBoxInFrustum(l.Position, l._stateRender._lookAtVector, l._stateRender._nearFarFOVType.Y, g.Center, g.Diameter))
+                        if(l._frustumShadowMap.IsBoxInFrustum(
+                            l.Position, 
+                            l._stateRender._lookAtVector, 
+                            l._stateRender._nearFarFOVType.Y, 
+                            g.Center, 
+                            new Vector3(g.AABBLeft, g.AABBLow, g.AABBBack),
+                            new Vector3(g.AABBRight, g.AABBHigh, g.AABBFront),
+                            g.Diameter))
                         {
                             Draw(g);
                         }

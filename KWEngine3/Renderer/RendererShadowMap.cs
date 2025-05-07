@@ -74,9 +74,19 @@ namespace KWEngine3.Renderer
                 GL.Uniform3(UNearFarSun, new Vector3(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y, l._stateRender._nearFarFOVType.W));
                 foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
                 {
-                    if (g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight && l._frustumShadowMap.IsBoxInFrustum(l._stateRender._position, l._stateRender._lookAtVector, l._stateRender._nearFarFOVType.Y, g.Center, g.Diameter))
+                    if (g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
                     {
-                        Draw(g);
+                        if (l._frustumShadowMap.IsBoxInFrustum(
+                            l._stateRender._position,
+                            l._stateRender._lookAtVector,
+                            l._stateRender._nearFarFOVType.Y,
+                            g.Center,
+                            new Vector3(g.AABBLeft, g.AABBLow, g.AABBBack),
+                            new Vector3(g.AABBRight, g.AABBHigh, g.AABBFront),
+                            g.Diameter))
+                        {
+                            Draw(g);
+                        }
                     }
                 }
 

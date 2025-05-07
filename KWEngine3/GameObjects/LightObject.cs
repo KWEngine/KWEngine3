@@ -292,23 +292,7 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateFrustum()
         {
-            /*
-            if(Type == LightType.Point)
-            {
-                _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
-            }
-            else if(Type == LightType.Directional)
-            {
-                _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
-            }
-            else // Sun
-            {
-                if(ShadowType == SunShadowType.CascadedShadowMap)
-                    _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[1]);
-                else
-                    _frustumShadowMap.Update(ref _stateRender._viewProjectionMatrix[0]);
-            }
-            */
+            _frustumShadowMap.Update(this);
         }
 
         internal void CheckForIllegalAngles()
