@@ -88,7 +88,6 @@ namespace KWEngine3.Renderer
                 }
 
                 GL.Uniform3(UNearFarSun, new Vector3(l._stateRender._nearFarFOVType.X, l._stateRender._nearFarFOVType.Y, l._stateRender._nearFarFOVType.W));
-                Console.Clear();
                 foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
                 {
                     if (t.IsShadowCaster)

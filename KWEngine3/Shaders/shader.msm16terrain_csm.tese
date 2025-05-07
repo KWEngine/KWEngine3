@@ -5,7 +5,6 @@ in vec3 vPositionTE[];
 in vec3 vNormalTE[];
 in vec2 vTextureHeightTE[];
 
-uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform ivec4 uTerrainData;
 uniform sampler2D uTextureHeightMap;
