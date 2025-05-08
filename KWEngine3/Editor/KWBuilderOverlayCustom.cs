@@ -215,9 +215,14 @@ namespace KWEngine3.Editor
                 }
                 ImGui.SameLine();
                 */
-                ImGui.Checkbox("Shadow caster/receiver?", ref SelectedGameObject._isShadowCaster);
-                ImGui.SameLine();
+                
                 ImGui.Checkbox("Affected by light?", ref SelectedGameObject._isAffectedByLight);
+                ImGui.SameLine();
+                if(SelectedGameObject._isAffectedByLight)
+                {
+                    ImGui.Checkbox("Shadow caster/receiver?", ref SelectedGameObject._isShadowCaster);
+                }
+                    
                 //ImGui.SameLine();
                 //ImGui.Text("In view: " + (SelectedGameObject.IsInsideScreenSpace ? "YES" : "NO"));
 
@@ -802,7 +807,10 @@ namespace KWEngine3.Editor
         internal static string _addGameObjectClassName = "";
         internal static ShadowQuality _newLightShadowCasterQuality = ShadowQuality.NoShadow;
         internal static string[] _shadowCasterQualities = new string[] { "no shadow", "low", "medium", "high" };
+        internal static string[] _csmFactors = new string[] { "2x", "4x", "8x" };
         internal static int _newLightShadowCasterQualityIndex = 0;
+        internal static int _csmFactor = (int)CSMFactor.Two;
+        internal static bool _csmEnabled = false;
 
         public static void DrawLightFrustum()
         {
@@ -875,7 +883,10 @@ namespace KWEngine3.Editor
             {
                 if (ImGui.MenuItem("Settings"))
                     _worldMenuActive = true;
-
+                if(ImGui.MenuItem("Export world & objects to JSON"))
+                {
+                    World.Export();
+                }
                 ImGui.EndMenu();
             }
             if(_worldMenuActive)
@@ -949,14 +960,6 @@ namespace KWEngine3.Editor
                 
                 ImGui.PopItemWidth();
 
-                /*ImGui.SameLine();
-                ImGui.Indent(312);
-                if (ImGui.Button("Apply perspective to game"))
-                {
-                    KWEngine.CurrentWorld._cameraGame = KWEngine.CurrentWorld._cameraEditor;
-                    KWEngine.CurrentWorld._cameraGame._statePrevious = KWEngine.CurrentWorld._cameraGame._stateCurrent;
-                }
-                */
                 ImGui.NewLine();
                 if(ImGui.Button("Export world & objects"))
                 {
@@ -1103,16 +1106,27 @@ namespace KWEngine3.Editor
                             string q = _shadowCasterQualities[_newLightShadowCasterQualityIndex];
                             _newLightShadowCasterQuality = q == "no shadow" ? ShadowQuality.NoShadow : q == "low" ? ShadowQuality.Low : q == "medium" ? ShadowQuality.Medium : ShadowQuality.High;
                         }
+                        if (_lightTypes[_lightTypeIndex] == "Sun light" && _newLightShadowCasterQuality != ShadowQuality.NoShadow)
+                        {
+                            ImGui.Checkbox("Cascaded Shadow Map enabled?", ref _csmEnabled);
+                            ImGui.Combo("CSM factor", ref _csmFactor, _csmFactors, _csmFactors.Length);
+                        }
                     }
                     if (ImGui.Button("Add instance now!"))
                     {
                         if (_lightTypeIndex >= 0)
                         {
                             SelectedGameObject = null;
-                            SelectedLightObject = KWEngine.CurrentWorld.BuildAndAddDefaultLightObjectForEditor(_lightTypes[_lightTypeIndex], _newLightShadowCasterQuality, SunShadowType.Default);
+                            SelectedLightObject = KWEngine.CurrentWorld.BuildAndAddDefaultLightObjectForEditor(
+                                _lightTypes[_lightTypeIndex], 
+                                _newLightShadowCasterQuality, 
+                                _csmEnabled ? SunShadowType.CascadedShadowMap : SunShadowType.Default,
+                               _csmFactor == 0 ? CSMFactor.Two : _csmFactor == 1 ? CSMFactor.Four : CSMFactor.Eight);
                             _addMenuActive = EditorAddObjectType.None;
                             _newLightShadowCasterQuality = ShadowQuality.NoShadow;
                             _newLightShadowCasterQualityIndex = 0;
+                            _csmEnabled = false;
+                            _csmFactor = 0;
                         }
                     }
                 }

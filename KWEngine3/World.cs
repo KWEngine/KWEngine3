@@ -245,7 +245,7 @@ namespace KWEngine3
             return _terrainObjects;
         }
 
-        internal LightObject BuildAndAddDefaultLightObjectForEditor(string lightType, ShadowQuality quality, SunShadowType shadowType)
+        internal LightObject BuildAndAddDefaultLightObjectForEditor(string lightType, ShadowQuality quality, SunShadowType shadowType, CSMFactor csmFactor)
         {
             //"Point light", "Directional light", "Sun light"
             LightObject l;
@@ -260,6 +260,7 @@ namespace KWEngine3
             else
             {
                 l = new LightObjectSun(quality, shadowType);
+                (l as LightObjectSun).SetCSMFactor(csmFactor);
             }
             l.SetPosition(0, 0, 0);
             l.SetTarget(0, -1, 0);

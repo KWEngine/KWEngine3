@@ -397,8 +397,10 @@ namespace KWEngine3.Helper
                 sl.LightType == LightType.Sun ? new LightObjectSun(sl.ShadowCasterType, sl.ShadowCasterSunType) :
                 sl.LightType == LightType.Point ? new LightObjectPoint(sl.ShadowCasterType) :
                 new LightObjectDirectional(sl.ShadowCasterType);
-                
-            //new LightObject(sl.LightType, sl.ShadowCasterType);
+            if(l is LightObjectSun)
+            {
+                (l as LightObjectSun).SetCSMFactor(sl.ShadowCasterCSMFactor);
+            }
 
             l.Name = sl.Name;
             l._shadowBias = sl.ShadowBias;

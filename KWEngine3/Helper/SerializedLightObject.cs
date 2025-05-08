@@ -7,6 +7,7 @@ namespace KWEngine3.Helper
         public string Name { get; set; }
         public ShadowQuality ShadowCasterType { get; set; }
         public SunShadowType ShadowCasterSunType { get; set; }
+        public CSMFactor ShadowCasterCSMFactor { get; set; }
         public LightType LightType { get; set; }
         public float ShadowBias { get; set; }
         public float[] Position { get; set; }
@@ -25,6 +26,12 @@ namespace KWEngine3.Helper
             sl.ShadowCasterType = l.ShadowQualityLevel;
             sl.LightType = l.Type;
             sl.ShadowBias = l._shadowBias;
+            sl.ShadowCasterCSMFactor = CSMFactor.Two;
+            if (l is LightObjectSun)
+            {
+                sl.ShadowCasterCSMFactor = (l as LightObjectSun)._csmFactor;
+                sl.ShadowCasterSunType = l.ShadowType;
+            }
             sl.Position = new float[] { l._stateCurrent._position.X, l._stateCurrent._position.Y, l._stateCurrent._position.Z };
             sl.Target = new float[] { l._stateCurrent._target.X, l._stateCurrent._target.Y, l._stateCurrent._target.Z };
             sl.Far = l._stateCurrent._nearFarFOVType.Y;
