@@ -376,6 +376,20 @@ namespace KWEngine3.GameObjects
 
             foreach (TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
             {
+                if(!HelperIntersection.CheckAABBCollision(
+                    this.AABBLeft,
+                    this.AABBRight,
+                    this.AABBBack,
+                    this.AABBFront,
+                    to._stateCurrent._position.X - to.Width * 0.5f,
+                    to._stateCurrent._position.X + to.Width * 0.5f,
+                    to._stateCurrent._position.X - to.Depth * 0.5f,
+                    to._stateCurrent._position.X + to.Depth * 0.5f)
+                    )
+                {
+                    continue;
+                }
+
                 foreach (Vector3 ray in rayOrigins)
                 {
                     Vector3 untranslatedPosition = ray - new Vector3(to._hitboxes[0]._center.X, 0, to._hitboxes[0]._center.Z);

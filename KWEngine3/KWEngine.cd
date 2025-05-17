@@ -371,6 +371,7 @@
       <Method Name="CalculateMeshTransformForGameObject" Hidden="true" />
       <Method Name="CalculateOverlap" Hidden="true" />
       <Method Name="CalculateSurfaceNormal" Hidden="true" />
+      <Method Name="CheckAABBCollision" Hidden="true" />
       <Method Name="ClipFaces" Hidden="true" />
       <Method Name="ClipLineToPlane" Hidden="true" />
       <Method Name="ConvertRayToMeshSpaceForAABBTest" Hidden="true" />
@@ -406,7 +407,7 @@
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BQCQAhQAALWigCQAsEQACEKEQQAgBLhGAJGCABYLZIg=</HashCode>
+      <HashCode>DQCQAhQAALWigCQAsEQACEKEQQAgBLhGAJGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>

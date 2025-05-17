@@ -146,18 +146,25 @@ namespace KWEngine3.Helper
             distance = -1;
             foreach(TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
             {
-                Vector3 untranslatedPosition = position - new Vector3(t._hitboxes[0]._center.X, 0, t._hitboxes[0]._center.Z);
-                if (t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+                if (position.X >= t._stateCurrent._position.X - t.Width * 0.5f &&
+                    position.X <= t._stateCurrent._position.X + t.Width * 0.5f &&
+                    position.Z >= t._stateCurrent._position.Z - t.Depth * 0.5f &&
+                    position.Z <= t._stateCurrent._position.Z + t.Depth * 0.5f)
                 {
-                    GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
-                    if (tris.HasValue)
+
+                    Vector3 untranslatedPosition = position - new Vector3(t._hitboxes[0]._center.X, 0, t._hitboxes[0]._center.Z);
+                    if (t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                     {
-                        bool rayHasContact = RayTriangleIntersection(untranslatedPosition, -KWEngine.WorldUp, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
-                        if(rayHasContact)
+                        GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                        if (tris.HasValue)
                         {
-                            intersectionPoint = contactPoint;
-                            distance = (intersectionPoint - position).LengthFast;
-                            return true;
+                            bool rayHasContact = RayTriangleIntersection(untranslatedPosition, -KWEngine.WorldUp, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                            if (rayHasContact)
+                            {
+                                intersectionPoint = contactPoint;
+                                distance = (intersectionPoint - position).LengthFast;
+                                return true;
+                            }
                         }
                     }
                 }
@@ -325,6 +332,7 @@ namespace KWEngine3.Helper
         /// <summary>
         /// Berechnet den ungefähren Schnittpunkt des Mauszeigers mit einem Terrain-Objekt.
         /// </summary>
+        /// <remarks>Terrain-Instanz MUSS dafür als Kollisionsobjekt markiert sein!</remarks>
         /// <param name="intersectionPoint">Ausgabe des Schnittpunkts (wenn der Mauszeiger über einem Terrain-Objekt liegt - sonst (0|0|0))</param>
         /// <returns>true, wenn der Mauszeiger über einem Terrain-Objekt liegt</returns>
         public static bool GetMouseIntersectionPointOnAnyTerrain(out Vector3 intersectionPoint)
@@ -2142,6 +2150,22 @@ namespace KWEngine3.Helper
                 list.Sort();
 
             return list;
+        }
+
+        internal static bool CheckAABBCollision(float minX1, float maxX1, float minZ1, float maxZ1,
+                                float minX2, float maxX2, float minZ2, float maxZ2)
+        {
+            bool overlapX = (minX1 <= maxX2 && maxX1 >= minX2);
+            bool overlapZ = (minZ1 <= maxZ2 && maxZ1 >= minZ2);
+
+            if (!(overlapX && overlapZ))
+            {
+                bool box1InsideBox2 = (minX1 >= minX2 && maxX1 <= maxX2) && (minZ1 >= minZ2 && maxZ1 <= maxZ2);
+                bool box2InsideBox1 = (minX2 >= minX1 && maxX2 <= maxX1) && (minZ2 >= minZ1 && maxZ2 <= maxZ1);
+                return box1InsideBox2 || box2InsideBox1;
+            }
+            else
+                return true;
         }
 
         internal static void ConvertRayToMeshSpaceForAABBTest(ref Vector3 origin, ref Vector3 direction, ref Matrix4 matInv, out Vector3 originTransformed, out Vector3 directionTransformed)

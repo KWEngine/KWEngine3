@@ -22,7 +22,7 @@ namespace KWEngine3TestProject.Worlds
             //KWEngine.LoadModel("Dan", "./Models/GLTFTest/FanplasticDan.glb");
             SetCameraPosition(5, 5, 10);
             SetCameraTarget(0, 0, 0);
-            SetColorAmbient(0.1f, 0.1f, 0.1f);
+            SetColorAmbient(0.4f, 0.4f, 0.4f);
             KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap.png", 2);
             
             LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
@@ -74,7 +74,7 @@ namespace KWEngine3TestProject.Worlds
             tx.SetScale(0.5f);
             tx.SetPosition(2, 1, 4.5f);
             tx.SetColor(1, 1, 1);
-            tx.SetColorEmissive(1, 0, 0, 2);
+            //tx.SetColorEmissive(1, 0, 0, 2);
             AddTextObject(tx);
         }
     }
