@@ -43,6 +43,8 @@ namespace KWEngine3TestProject.Worlds
             ro1.IsShadowCaster = true;
             ro1.SetOpacity(0.5f);
             ro1.Name = "AQUAMARINE";
+            ro1.SetAdditionalInstanceCount(2);
+            ro1.SetPositionForInstance(1, 5.5f, 0.5f, 0f);
             AddRenderObject(ro1);
 
             RenderObjectDefault ro2 = new RenderObjectDefault();

@@ -59,29 +59,12 @@ namespace KWEngine3.Helper
         public override bool IsBoxInFrustum(Vector3 lightCenter, Vector3 lightDirection, float lightZFar, Vector3 center, Vector3 aabbMin, Vector3 aabbMax, float diameter)
         {
             return CheckCollisionOrContainment(lightAABBMin, lightAABBMax, aabbMin, aabbMax);
-
-            /*
-            Vector3 lightToObject = center - lightCenter;
-            float distance = lightToObject.LengthFast;
-            if (distance < lightZFar + diameter / 2)
-            {
-                if (distance > diameter)
-                {
-                    float dot = Vector3.Dot(lightToObject, lightDirection);
-                    return dot >= 0;
-                }
-                else
-                    return true;
-            }
-            return false;
-            */
         }
 
         public static bool CheckCollisionOrContainment(
             Vector3 minA, Vector3 maxA,
             Vector3 minB, Vector3 maxB)
         {
-            // Überlappungsprüfung
             bool overlapX = minA.X <= maxB.X && minB.X <= maxA.X;
             bool overlapY = minA.Y <= maxB.Y && minB.Y <= maxA.Y;
             bool overlapZ = minA.Z <= maxB.Z && minB.Z <= maxA.Z;

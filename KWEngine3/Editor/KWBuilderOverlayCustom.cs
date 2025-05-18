@@ -796,6 +796,7 @@ namespace KWEngine3.Editor
 
                 if (SelectedTerrainObject._gModel.Material[1].TextureAlbedo.IsTextureSet)
                 {
+                    ImGui.NewLine();
                     if (ImGui.SliderFloat("Slope factor:", ref SelectedTerrainObject._textureSlopeBlendFactor, 0f, 1f))
                     {
                         

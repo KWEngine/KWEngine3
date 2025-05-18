@@ -88,7 +88,20 @@ namespace KWEngine3.Renderer
             foreach (RenderObject r in KWEngine.CurrentWorld._renderObjects)
             {
                 if (r.IsShadowCaster && r._stateRender._opacity > 0 && r.IsAffectedByLight)
-                    Draw(r);
+                {
+                    if (l._frustumShadowMap.IsBoxInFrustum(
+                            l.Position,
+                            l._stateRender._lookAtVector,
+                            l._stateRender._nearFarFOVType.Y,
+                            r.Center,
+                            new Vector3(r.AABBLeft, r.AABBLow, r.AABBBack),
+                            new Vector3(r.AABBRight, r.AABBHigh, r.AABBFront),
+                            (new Vector3(r.AABBRight, r.AABBHigh, r.AABBFront) - new Vector3(r.AABBLeft, r.AABBLow, r.AABBBack)).LengthFast))
+                    {
+                        Draw(r);
+                    }
+                }
+                    
             }
         }
 

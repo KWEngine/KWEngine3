@@ -32,6 +32,7 @@ namespace KWEngine3.Helper
             else if(e is RenderObject)
             {
                 e.IsInsideScreenSpace = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast);
+                e.IsInsideScreenSpaceForRenderPass = e.IsInsideScreenSpace;
             }
         }
         internal void UpdateScreenSpaceStatus(TerrainObject t)
