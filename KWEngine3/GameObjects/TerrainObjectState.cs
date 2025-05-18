@@ -17,6 +17,7 @@ namespace KWEngine3.GameObjects
         internal Vector4 _colorEmissive = new Vector4(1, 1, 1, 0);
         internal Vector3 _colorTint = Vector3.One;
         internal Vector4 _uvTransform = new Vector4(1, 1, 0, 0); //zw = offset.xy
+        internal Vector4 _uvTransformSlope = new Vector4(1, 1, 0, 0); //zw = offset.xy
         internal Vector3 _position;
 
         public TerrainObjectState():this(null)

@@ -116,6 +116,7 @@ namespace KWEngine3.Helper
             t._stateRender._colorTint = Vector3.Lerp(t._statePrevious._colorTint, t._stateCurrent._colorTint, alpha);
             t._stateRender._colorEmissive = Vector4.Lerp(t._statePrevious._colorEmissive, t._stateCurrent._colorEmissive, alpha);
             t._stateRender._uvTransform = Vector4.Lerp(t._statePrevious._uvTransform, t._stateCurrent._uvTransform, alpha);
+            t._stateRender._uvTransformSlope = Vector4.Lerp(t._statePrevious._uvTransformSlope, t._stateCurrent._uvTransformSlope, alpha);
             t._stateRender._modelMatrix = Matrix4.CreateTranslation(t._stateRender._position);
             t._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(t._stateRender._modelMatrix));
         }

@@ -172,15 +172,9 @@
 		<None Remove="Shaders\shader.ssao.vert" />
 		<None Remove="Shaders\shader.ssaoblur.frag" />
 		<None Remove="Shaders\shader.ssaoblur.vert" />
-		<None Remove="Shaders\shader.terrain.gbuffer.frag" />
-		<None Remove="Shaders\shader.terrain.gbuffer.vert" />
 		<None Remove="Shaders\shader.terrainDebug.frag" />
 		<None Remove="Shaders\shader.terrainDebug.geom" />
 		<None Remove="Shaders\shader.terrainDebug.vert" />
-		<None Remove="Shaders\shader.terrainNew.gbuffer.frag" />
-		<None Remove="Shaders\shader.terrainNew.gbuffer.tesc" />
-		<None Remove="Shaders\shader.terrainNew.gbuffer.tese" />
-		<None Remove="Shaders\shader.terrainNew.gbuffer.vert" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -349,12 +343,6 @@
 		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.tesc" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.tese" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.vert" />
-		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.frag">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.vert">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.hud.frag" />
 		<EmbeddedResource Include="Shaders\shader.hud.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.blur.frag" />
@@ -424,10 +412,10 @@
 		<EmbeddedResource Include="Shaders\shader.terrainDebug.frag" />
 		<EmbeddedResource Include="Shaders\shader.terrainDebug.geom" />
 		<EmbeddedResource Include="Shaders\shader.terrainDebug.vert" />
-		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.frag" />
-		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.tesc" />
-		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.tese" />
-		<EmbeddedResource Include="Shaders\shader.terrainNew.gbuffer.vert" />
+		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.frag" />
+		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.tesc" />
+		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.tese" />
+		<EmbeddedResource Include="Shaders\shader.terrain.gbuffer.vert" />
 	</ItemGroup>
 
 	<ItemGroup>

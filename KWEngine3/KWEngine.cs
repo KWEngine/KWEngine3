@@ -357,7 +357,7 @@ namespace KWEngine3
                 terrainMesh.Material = mat;
                 terrainModel.Meshes.Add("Terrain", terrainMesh);
 
-                GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height / 2, 0 + depth / 2, 0 - width / 2, 0 - height / 2, 0 - depth / 2, null)
+                GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height, 0 + depth / 2, 0 - width / 2, 0, 0 - depth / 2, null)
                 {
                     Model = terrainModel,
                     Name = name

@@ -48,10 +48,20 @@ namespace KWEngine3.GameObjects
         public bool IsVisible { get; set; } = true;
 
         /// <summary>
+        /// Gibt an, ab welchem Steigungsfaktor (zwischen 0 und 1) die Slope-Textur statt der regulären Terrain-Textur verwendet wird
+        /// </summary>
+        /// <param name="factor">Steigungsfaktor (zwischen 0 und 1, Standardwert: 0.5f)</param>
+        public void SetTextureSlopeBlendFactor(float factor)
+        {
+            _textureSlopeBlendFactor = Math.Clamp(Math.Abs(factor), 0.0f, 1.0f);
+        }
+
+        /// <summary>
         /// Name des Objekts
         /// </summary>
         public string Name { get { return _name; } set { if (value != null && value.Length > 0) _name = value; } }
 
+        internal float _textureSlopeBlendFactor = 0.5f;
         internal EngineObjectModel _gModel;
         internal TerrainObjectState _statePrevious;
         internal TerrainObjectState _stateCurrent;
@@ -116,10 +126,8 @@ namespace KWEngine3.GameObjects
             if (modelFound && model.IsTerrain)
             {
                 _gModel = new EngineObjectModel(model);
-                for (int i = 0; i < _gModel.Material.Length; i++)
-                {
-                    _gModel.Material[i] = model.Meshes.Values.ToArray()[i].Material;
-                }
+                _gModel.Material[0] = model.Meshes.Values.ToArray()[0].Material;
+                _gModel.Material[1] = model.Meshes.Values.ToArray()[0].Material;
 
                 Width = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetWidth();
                 Height = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetHeight();
@@ -196,7 +204,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Textur des Objekts
+        /// Setzt die Haupttextur des Terrains
         /// </summary>
         /// <param name="filename">Dateiname (inkl. relativem Pfad)</param>
         /// <param name="type">Texturtyp (Standard: Albedo)</param>
@@ -205,6 +213,16 @@ namespace KWEngine3.GameObjects
             if (filename == null)
                 filename = "";
             _gModel.SetTexture(filename.Trim(), type, 0);
+        }
+
+        /// <summary>
+        /// Setzt die Textur des Terrains für Anstiege und Gefälle
+        /// </summary>
+        /// <param name="filename">Dateiname (inkl. relativem Pfad)</param>
+        /// <param name="type">Texturtyp (Standard: Albedo)</param>
+        public void SetTextureForSlope(string filename, TextureType type = TextureType.Albedo)
+        {
+            _gModel.SetTexture(filename.Trim(), type, 1);
         }
 
         /// <summary>
@@ -225,6 +243,26 @@ namespace KWEngine3.GameObjects
         public void SetTextureRepeat(float x, float y)
         {
             _stateCurrent._uvTransform = new Vector4(x, y, _stateCurrent._uvTransform.Z, _stateCurrent._uvTransform.W);
+        }
+
+        /// <summary>
+        /// Setzt die Texturverschiebung für starke Steigungen / Gefälle
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        public void SetTextureOffsetForSlope(float x, float y)
+        {
+            _stateCurrent._uvTransformSlope = new Vector4(_stateCurrent._uvTransformSlope.X, _stateCurrent._uvTransformSlope.Y, x, y);
+        }
+
+        /// <summary>
+        /// Setzt die Texturwiederholung in x-/y-Richtung (Standard: 1) für starke Steigungen / Gefälle
+        /// </summary>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
+        public void SetTextureRepeatForSlope(float x, float y)
+        {
+            _stateCurrent._uvTransformSlope = new Vector4(x, y, _stateCurrent._uvTransformSlope.Z, _stateCurrent._uvTransformSlope.W);
         }
 
         internal void InitHitboxes()

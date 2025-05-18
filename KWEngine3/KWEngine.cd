@@ -349,6 +349,7 @@
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
       <Field Name="_stateRender" Hidden="true" />
+      <Field Name="_textureSlopeBlendFactor" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
@@ -358,7 +359,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QCABIUACDAQgkAQIACCAIEQEACBAAxAhAAgAEABAQIQ=</HashCode>
+      <HashCode>QCABIUASDAQgkAQIACCAIEQEACBAAxMhAAgAEABCQIQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>

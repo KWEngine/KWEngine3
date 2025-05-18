@@ -20,7 +20,7 @@ namespace KWEngine3.GameObjects
         public EngineObjectModel(GeoModel mOrg)
         {
             ModelOriginal = mOrg;
-            Material = new GeoMaterial[ModelOriginal.Meshes.Count];
+            Material = new GeoMaterial[ModelOriginal.Meshes.Count + (mOrg.IsTerrain ? 1 : 0)];
 
             float minX = float.MaxValue;
             float maxX = float.MinValue;
@@ -71,7 +71,7 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                KWEngine.LogWriteLine("[GameObject] Invalid texture id");
+                KWEngine.LogWriteLine("[EngineObject] Invalid texture id");
             }
         }
 

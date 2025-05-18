@@ -792,7 +792,15 @@ namespace KWEngine3.Editor
                     {
                         SelectedTerrainObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
                     }
-                }                
+                }
+
+                if (SelectedTerrainObject._gModel.Material[1].TextureAlbedo.IsTextureSet)
+                {
+                    if (ImGui.SliderFloat("Slope factor:", ref SelectedTerrainObject._textureSlopeBlendFactor, 0f, 1f))
+                    {
+                        
+                    }
+                }
                 ImGui.End();
             }
         }
