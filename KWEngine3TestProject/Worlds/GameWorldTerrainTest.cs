@@ -24,7 +24,7 @@ namespace KWEngine3TestProject.Worlds
             
             KWEngine.LoadModel("Player", "./Models/robotERS.fbx");
 
-            SetCameraPosition(0.0f, 100, 100);
+            SetCameraPosition(0.0f, 75, 75);
             SetCameraFOV(20);
             
             SetColorAmbient(0.5f, 0.5f, 0.5f);
@@ -52,7 +52,8 @@ namespace KWEngine3TestProject.Worlds
             p.Name = "Player";
             p.IsCollisionObject = true;
             p.IsShadowCaster = true;
-            p.SetPosition(1, 10f, 1);
+            p.SetScale(2, 1, 4);
+            p.SetPosition(0, 10f, 0);
             //p.SetOpacity(0.9f);
             AddGameObject(p);
 
