@@ -24,7 +24,7 @@ namespace KWEngine3TestProject.Worlds
             t.SetTexture("./Textures/grass_roughness.png", TextureType.Roughness);
             t.SetTextureForSlope("./Textures/sand_diffuse.dds");
             t.SetTextureForSlope("./Textures/sand_normal.dds", TextureType.Normal);
-            t.SetTextureSlopeBlendFactor(0.25f);
+            t.SetTextureSlopeBlendFactor(0.95f);
             AddTerrainObject(t);
 
             Player p = new Player();
