@@ -102,9 +102,9 @@ namespace KWEngine3TestProject.Worlds
             t.IsShadowCaster = true;
             t.SetColor(1, 0, 0);
             t.Name = "t";
+            t.TessellationThreshold = TerrainThresholdValue.T64;
             AddTerrainObject(t);
 
-            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T64;
             //KWEngine.DebugMode = DebugMode.TerrainCollisionModel;
 
             MouseCursorGrab();

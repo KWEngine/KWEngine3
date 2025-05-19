@@ -66,10 +66,8 @@ namespace KWEngine3TestProject.Worlds
             t.SetTexture("./Textures/iron_panel_normal.dds", TextureType.Normal);
             t.SetTextureRepeat(4f, 4f);
             t.SetPosition(0, 0, 0);
-            AddTerrainObject(t);
-
-            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
-            
+            t.TessellationThreshold = TerrainThresholdValue.T128;
+            AddTerrainObject(t);            
         }
     }
 }

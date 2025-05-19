@@ -48,6 +48,7 @@ namespace KWEngine3TestProject.Worlds
             t.IsShadowCaster = true;
             t.IsCollisionObject = true;
             t.SetPosition(0, 0, 0);
+            t.TessellationThreshold = TerrainThresholdValue.T128;
             AddTerrainObject(t);
 
             /*
@@ -72,8 +73,6 @@ namespace KWEngine3TestProject.Worlds
             SetCameraToFirstPersonGameObject(GetGameObjectByName("Player #1"), 0.5f);
 
             MouseCursorGrab();
-
-            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
         }
     }
 }

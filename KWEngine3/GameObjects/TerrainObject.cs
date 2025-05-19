@@ -57,11 +57,26 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Gibt an, wie weich die Übergänge zwischen den beiden Texturen (reguläre und Slope-Textur) verlaufen sollen (Standard: 0.001f)
+        /// </summary>
+        /// <param name="factor">Glättungsfaktor (zwischen 0f und 1f)</param>
+        public void SetTextureSlopeBlendSmoothingFactor(float factor)
+        {
+            _textureSlopeSmoothingFactor = Math.Clamp(Math.Abs(factor), 0f, 0.25f);
+        }
+
+        /// <summary>
         /// Name des Objekts
         /// </summary>
         public string Name { get { return _name; } set { if (value != null && value.Length > 0) _name = value; } }
 
+        /// <summary>
+        /// Gibt an, ab welcher Entfernung dieses Terrain weniger detailliert dargestellt werden soll (Standard: 64 Längeneinheiten)
+        /// </summary>
+        public TerrainThresholdValue TessellationThreshold { get; set; } = TerrainThresholdValue.T64;
+
         internal float _textureSlopeBlendFactor = 0.5f;
+        internal float _textureSlopeSmoothingFactor = 0.001f;
         internal EngineObjectModel _gModel;
         internal TerrainObjectState _statePrevious;
         internal TerrainObjectState _stateCurrent;

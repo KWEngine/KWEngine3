@@ -172,7 +172,7 @@ namespace KWEngine3.Renderer
             Vector3i useTexturesMetallicRoughness = new Vector3i(
                 material.TextureMetallic.IsTextureSet ? 1 : 0,
                 material.TextureRoughness.IsTextureSet ? 1 : 0,
-                0 //always opaque
+                (int)(t._textureSlopeSmoothingFactor * 1000)
                 );
             GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
             GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
@@ -194,7 +194,7 @@ namespace KWEngine3.Renderer
 
             GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
             GL.Uniform3(UCamDirection, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector);
-            GL.Uniform1(UTerrainThreshold, (int)KWEngine.TerrainTessellationThreshold);
+            GL.Uniform1(UTerrainThreshold, (int)t.TessellationThreshold);
             GL.Uniform4(UTerrainData, t.Width, t.Depth, KWEngine.TERRAIN_PATCH_SIZE, t.Height);
 
             // UPLOAD TEXTURES:

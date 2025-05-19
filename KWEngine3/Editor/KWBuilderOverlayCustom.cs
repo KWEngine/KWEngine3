@@ -797,9 +797,14 @@ namespace KWEngine3.Editor
                 if (SelectedTerrainObject._gModel.Material[1].TextureAlbedo.IsTextureSet)
                 {
                     ImGui.NewLine();
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Slope textures:");
                     if (ImGui.SliderFloat("Slope factor:", ref SelectedTerrainObject._textureSlopeBlendFactor, 0f, 1f))
                     {
                         
+                    }
+                    if (ImGui.SliderFloat("Smoothing factor:", ref SelectedTerrainObject._textureSlopeSmoothingFactor, 0f, 0.2f))
+                    {
+
                     }
                 }
                 ImGui.End();

@@ -88,12 +88,6 @@ namespace KWEngine3
             }
         }
        
-
-        /// <summary>
-        /// Gibt an, ab welcher Entfernung Terrain-Geometrie weniger detailliert dargestellt werden soll (Standard: 64 Einheiten)
-        /// </summary>
-        public static TerrainThresholdValue TerrainTessellationThreshold { get; set; } = TerrainThresholdValue.T64;
-
         /// <summary>
         /// Gibt die maximale Anzahl der Instanzen für RenderObjects an
         /// </summary>

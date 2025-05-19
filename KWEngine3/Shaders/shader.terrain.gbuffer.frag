@@ -22,7 +22,7 @@ uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureRoughness;
 uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureEmissive;
-uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = not used
+uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = smoothstep-width
 uniform ivec3 uUseTexturesAlbedoNormalEmissive; // x = albedo, y = normal, z = emissive
 uniform vec4 uTextureTransform;
 
@@ -32,7 +32,7 @@ uniform sampler2D uTextureNormalSlope;
 uniform sampler2D uTextureRoughnessSlope;
 uniform sampler2D uTextureMetallicSlope;
 uniform sampler2D uTextureEmissiveSlope;
-uniform ivec3 uUseTexturesMetallicRoughnessSlope; // x = metallic, y = roughness, w = slopefactor * 100
+uniform ivec3 uUseTexturesMetallicRoughnessSlope; // x = metallic, y = roughness, z = slopefactor * 100
 uniform ivec3 uUseTexturesAlbedoNormalEmissiveSlope; // x = albedo, y = normal, z = emissive
 uniform vec4 uTextureTransformSlope;
 
@@ -81,8 +81,9 @@ vec2 rotateUV(vec2 uv, float rotation)
 void main()
 {
 	float dotNormal = dot(vNormal, vec3(0.0, 1.0, 0.0));
-	float slopefactorL = max(0.0, uUseTexturesMetallicRoughnessSlope.z * 0.001 - uUseTexturesMetallicRoughnessSlope.z * 0.001 * 0.25);
-	float slopefactorH = min(1.0, uUseTexturesMetallicRoughnessSlope.z * 0.001 + uUseTexturesMetallicRoughnessSlope.z * 0.001 * 1.25);
+	float smoothingFactor = uUseTexturesMetallicRoughness.z * 0.001;
+	float slopefactorL = max(0.0, uUseTexturesMetallicRoughnessSlope.z * 0.001 - uUseTexturesMetallicRoughnessSlope.z * 0.001 * smoothingFactor);
+	float slopefactorH = min(1.0, uUseTexturesMetallicRoughnessSlope.z * 0.001 + uUseTexturesMetallicRoughnessSlope.z * 0.001 * (1.0 + smoothingFactor));
 	float sstep = smoothstep(slopefactorL, slopefactorH, dotNormal);
 	vec3 blendfactors = getTriPlanarBlend(vNormal);
 	vec2 xaxisUV = rotateUV(vPos.yz, HALF_PI);

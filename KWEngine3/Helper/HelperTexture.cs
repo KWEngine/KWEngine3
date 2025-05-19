@@ -736,7 +736,6 @@ namespace KWEngine3.Helper
                 idx++;
             }
             n.Name = name;
-            //Console.WriteLine(TABS + "Reading node: "  + n.Name);
 
             int idxBeforePropertyLoop = idx;
             // Loop through properties:
@@ -751,21 +750,18 @@ namespace KWEngine3.Helper
                     // short
 
                     short val = BitConverter.ToInt16(data, idx);
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 2;
                 }
                 else if (propertyTypeCode == 'C')
                 {
                     // bool in byte (lsbit = 1/0)
                     byte val = data[idx];
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 1;
                 }
                 else if (propertyTypeCode == 'I')
                 {
                     // int
                     int val = BitConverter.ToInt32(data, idx);
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 4;
                 }
                 else if (propertyTypeCode == 'F')
@@ -773,7 +769,6 @@ namespace KWEngine3.Helper
                     // float
                     float val = BitConverter.ToSingle(data, idx);
                     prop.FValue = val;
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 4;
                 }
                 else if (propertyTypeCode == 'D')
@@ -781,14 +776,12 @@ namespace KWEngine3.Helper
                     // double
                     double val = BitConverter.ToDouble(data, idx);
                     prop.FValue = Convert.ToSingle(val);
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 8;
                 }
                 else if (propertyTypeCode == 'L')
                 {
                     //long (signed)
                     long val = BitConverter.ToInt64(data, idx);
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     prop.ID = val;
                     idx += 8;
                 }
@@ -810,7 +803,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 4;
                     }
-                    //Console.WriteLine(TABS + "\t" + "float[]");
                 }
                 else if (propertyTypeCode == 'd')
                 {
@@ -830,7 +822,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 8;
                     }
-                    //Console.WriteLine(TABS + "\t" + "double[]");
                 }
                 else if (propertyTypeCode == 'l')
                 {
@@ -850,7 +841,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 8;
                     }
-                    //Console.WriteLine(TABS + "\t" + "long[]");
                 }
                 else if (propertyTypeCode == 'i')
                 {
@@ -870,7 +860,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 4;
                     }
-                    //Console.WriteLine(TABS + "\t" + "int[]");
                 }
                 else if (propertyTypeCode == 'b')
                 {
@@ -890,7 +879,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 1;
                     }
-                    //Console.WriteLine(TABS + "\t" + "byte[]");
                 }
                 else if (propertyTypeCode == 'S')
                 {
@@ -903,7 +891,6 @@ namespace KWEngine3.Helper
                         s += (char)data[j];
                     }
                     s = s.Replace("\0", replaceSymbol);
-                    //Console.WriteLine(TABS + "\t" + "string: " + s);
                     prop.Name = s;
                     idx += (int)length;
                 }
@@ -913,7 +900,6 @@ namespace KWEngine3.Helper
 
                     byte[] arraydata = new byte[length];
                     Array.Copy(data, idx, arraydata, 0, length);
-                    //Console.WriteLine(TABS + "\t" + "RAW DATA");
                     prop.RawData = arraydata;
                     idx += (int)length;
                 }
@@ -923,9 +909,7 @@ namespace KWEngine3.Helper
             // if it has a nested list, save the offset to this list in an offset variable:
             if (hasNestedList)
             {
-                //Console.WriteLine(TABS + " START READING OF CHILDREN FOR " + n.Name);
                 n.Children.Add(ReadFBXNodeStructure(data, (uint)idx, n, nestingLevel + 1, (int)n.EndOffset));
-                //Console.WriteLine(TABS + " END READING OF CHILDREN FOR " + n.Name);
             }
 
 
@@ -934,18 +918,13 @@ namespace KWEngine3.Helper
             int end = nestingLevelEndOffset > 0 ? nestingLevelEndOffset - 13 : data.Length;
             if (isSiblingsRead == false)
             {
-                //Console.WriteLine(TABS + "START READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
                 while (idx > 0 && idx < end)
                 {
                     FBXNode sibling = ReadFBXNodeStructure(data, (uint)idx, parent, nestingLevel, -1, true);
                     n.Siblings.Add(sibling);
                     idx = (int)sibling.EndOffset;
                 }
-                //Console.WriteLine(TABS + " END READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
             }
-            //Console.ForegroundColor = ConsoleColor.Red;
-            //Console.WriteLine(idx);
-            //Console.ForegroundColor = ConsoleColor.White;
             return n;
         }
 
@@ -986,7 +965,6 @@ namespace KWEngine3.Helper
                 idx++;
             }
             n.Name = name;
-            //Console.WriteLine(TABS + "Reading node: "  + n.Name);
 
             int idxBeforePropertyLoop = idx;
             // Loop through properties:
@@ -999,23 +977,19 @@ namespace KWEngine3.Helper
                 if (propertyTypeCode == 'Y')
                 {
                     // short
-                    
                     short val = BitConverter.ToInt16(data, idx);
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 2;
                 }
                 else if(propertyTypeCode == 'C')
                 {
                     // bool in byte (lsbit = 1/0)
                     byte val = data[idx];
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 1;
                 }
                 else if( propertyTypeCode == 'I')
                 {
                     // int
                     int val = BitConverter.ToInt32(data, idx);
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 4;
                 }
                 else if (propertyTypeCode == 'F')
@@ -1023,7 +997,6 @@ namespace KWEngine3.Helper
                     // float
                     float val = BitConverter.ToSingle(data, idx);
                     prop.FValue = val;
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 4;
                 }
                 else if (propertyTypeCode == 'D')
@@ -1031,14 +1004,12 @@ namespace KWEngine3.Helper
                     // double
                     double val = BitConverter.ToDouble(data, idx);
                     prop.FValue = Convert.ToSingle(val);
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     idx += 8;
                 }
                 else if(propertyTypeCode == 'L')
                 {
                     //long (signed)
                     long val = BitConverter.ToInt64(data, idx);
-                    //Console.WriteLine(TABS + "\t" + propertyTypeCode.ToString() + ": " + val);
                     prop.ID = val;
                     idx += 8;
                 }
@@ -1060,7 +1031,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 4;
                     }
-                    //Console.WriteLine(TABS + "\t" + "float[]");
                 }
                 else if (propertyTypeCode == 'd')
                 {
@@ -1080,7 +1050,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 8;
                     }
-                    //Console.WriteLine(TABS + "\t" + "double[]");
                 }
                 else if (propertyTypeCode == 'l')
                 {
@@ -1100,7 +1069,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 8;
                     }
-                    //Console.WriteLine(TABS + "\t" + "long[]");
                 }
                 else if (propertyTypeCode == 'i')
                 {
@@ -1120,7 +1088,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 4;
                     }
-                    //Console.WriteLine(TABS + "\t" + "int[]");
                 }
                 else if (propertyTypeCode == 'b')
                 {
@@ -1140,7 +1107,6 @@ namespace KWEngine3.Helper
                     {
                         idx += (int)arrayLength * 1;
                     }
-                    //Console.WriteLine(TABS + "\t" + "byte[]");
                 }
                 else if(propertyTypeCode == 'S')
                 {
@@ -1153,7 +1119,6 @@ namespace KWEngine3.Helper
                         s += (char)data[j];
                     }
                     s = s.Replace("\0", replaceSymbol);
-                    //Console.WriteLine(TABS + "\t" + "string: " + s);
                     prop.Name = s;
                     idx += (int)length;
                 }
@@ -1163,7 +1128,6 @@ namespace KWEngine3.Helper
 
                     byte[] arraydata = new byte[length];
                     Array.Copy(data, idx, arraydata, 0, length);
-                    //Console.WriteLine(TABS + "\t" + "RAW DATA");
                     prop.RawData = arraydata;
                     idx += (int)length;
                 }
@@ -1173,9 +1137,7 @@ namespace KWEngine3.Helper
             // if it has a nested list, save the offset to this list in an offset variable:
             if (hasNestedList)
             {
-                //Console.WriteLine(TABS + " START READING OF CHILDREN FOR " + n.Name);
                 n.Children.Add(ReadFBXNodeStructureOld(data, (uint)idx, n, nestingLevel + 1, (int)n.EndOffset));
-                //Console.WriteLine(TABS + " END READING OF CHILDREN FOR " + n.Name);
             }
             
 
@@ -1184,18 +1146,13 @@ namespace KWEngine3.Helper
             int end = nestingLevelEndOffset > 0 ? nestingLevelEndOffset - 13 : data.Length;
             if (isSiblingsRead == false)
             {
-                //Console.WriteLine(TABS + "START READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
                 while (idx > 0 && idx < end)
                 {
                     FBXNode sibling = ReadFBXNodeStructureOld(data, (uint)idx, parent, nestingLevel, -1, true);
                     n.Siblings.Add(sibling);
                     idx = (int)sibling.EndOffset;
                 }
-                //Console.WriteLine(TABS + " END READING SIBLINGS FOR " + (parent == null ? "ROOT" : parent.Name));
             }
-            //Console.ForegroundColor = ConsoleColor.Red;
-            //Console.WriteLine(idx);
-            //Console.ForegroundColor = ConsoleColor.White;
             return n;
         }
 
@@ -1549,8 +1506,6 @@ namespace KWEngine3.Helper
             for (int i = 0; i < data.Length; i++)
             {
                 byte red = (byte)(data[i] * 100);
-                if(red > 0)
-                    Console.WriteLine(red);
                 b.SetPixel(x, y, new SKColor(red, red, red));
                 int prevX = x;
                 x = (x + 1) % width;

@@ -16,21 +16,21 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap128.png", 20);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap128.png", 50);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.SetTexture("./Textures/grass_albedo.png");
             t.SetTexture("./Textures/grass_normal.png", TextureType.Normal);
             t.SetTexture("./Textures/grass_roughness.png", TextureType.Roughness);
-            t.SetTextureForSlope("./Textures/sand_diffuse.dds");
-            t.SetTextureForSlope("./Textures/sand_normal.dds", TextureType.Normal);
-            t.SetTextureSlopeBlendFactor(0.95f);
+            t.SetTextureForSlope("./Textures/limestone-cliffs_albedo.png");
+            t.SetTextureForSlope("./Textures/limestone-cliffs_normal.png", TextureType.Normal);
+            t.SetTextureSlopeBlendFactor(0.5f);
             AddTerrainObject(t);
 
             Player p = new Player();
             p.SetOpacity(0);
             p.SetRotation(0, 180, 0);
-            p.SetPosition(0, 25, 64);
+            p.SetPosition(0, 50, 75);
             AddGameObject(p);
             SetCameraToFirstPersonGameObject(p, 0.25f);
 

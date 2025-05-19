@@ -104,7 +104,7 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             
             GL.Uniform4(UTerrainData, t.Width, t.Depth, KWEngine.TERRAIN_PATCH_SIZE, t.Height);
-            GL.Uniform1(UTerrainThreshold, (int)KWEngine.TerrainTessellationThreshold);
+            GL.Uniform1(UTerrainThreshold, (int)t.TessellationThreshold);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, t._heightmap > 0 ? t._heightmap : KWEngine.TextureBlack);

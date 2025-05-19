@@ -1706,7 +1706,6 @@ namespace KWEngine3.FontGenerator
 
                                 step.next = prox.next;
                                 prox.next = step;
-                                //Console.WriteLine("Sorted " + step.ey + " with " + prox.ey);
                                 changed = true;
                             }
 

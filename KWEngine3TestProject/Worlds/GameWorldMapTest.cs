@@ -47,7 +47,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.MouseSensitivity = 0.05f;
             //KWEngine.DebugMode = DebugMode.SurfaceNormals;
             KWEngine.BuildTerrainModel("T", "./Textures/heightmap.png", 5);
-            KWEngine.TerrainTessellationThreshold = TerrainThresholdValue.T128;
+            
             /*
             HUDObjectImage testBack = new HUDObjectImage();
             testBack.SetZIndex(-5f);
@@ -98,6 +98,7 @@ namespace KWEngine3TestProject.Worlds
             _t.SetTextureRepeat(2, 2);
             _t.IsCollisionObject = true;
             _t.IsShadowCaster = true;
+            _t.TessellationThreshold = TerrainThresholdValue.T64;
             AddTerrainObject(_t);
 
             _player = new Player();
