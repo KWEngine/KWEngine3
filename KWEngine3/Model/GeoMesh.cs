@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using KWEngine3.Helper;
+using System.Xml.Serialization;
 
 namespace KWEngine3.Model
 {
@@ -215,6 +216,31 @@ namespace KWEngine3.Model
                 GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
                 GL.EnableVertexAttribArray(4);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            }
+        }
+
+        internal static void GenerateVerticesFromVBO(int vbo, ref float xmin, ref float xmax, ref float ymin, ref float ymax, ref float zmin, ref float zmax)
+        {
+            if (vbo >= 0)
+            {
+                GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+                GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int size);
+                if(size > 0)
+                {
+                    float[] vbodata = new float[size / sizeof(float)];
+                    GL.GetBufferSubData<float>(BufferTarget.ArrayBuffer, IntPtr.Zero, size, vbodata);
+                    for (int i = 0; i < vbodata.Length; i += 3)
+                    {
+                        GeoVertex newVertex = new GeoVertex(i / 3, vbodata[i], vbodata[i + 1], vbodata[i + 2]);
+                        if (newVertex.X < xmin) xmin = newVertex.X;
+                        if (newVertex.X > xmax) xmax = newVertex.X;
+                        if (newVertex.Y < ymin) ymin = newVertex.Y;
+                        if (newVertex.Y > ymax) ymax = newVertex.Y;
+                        if (newVertex.Z < zmin) zmin = newVertex.Z;
+                        if (newVertex.Z > zmax) zmax = newVertex.Z;
+                    }
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                }
             }
         }
 

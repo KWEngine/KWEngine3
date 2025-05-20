@@ -26,12 +26,16 @@ namespace KWEngine3.Helper
         {
             if (e is GameObject)
             {
-                e.IsInsideScreenSpace = VolumeVsFrustum(e.Center, e._stateCurrent._dimensions.X / 2, e._stateCurrent._dimensions.Y / 2, e._stateCurrent._dimensions.Z / 2);
+                e.IsInsideScreenSpace = VolumeVsFrustum(e.Center, e._stateCurrent._dimensions.X / 2f, e._stateCurrent._dimensions.Y / 2f, e._stateCurrent._dimensions.Z / 2f);
                 e.IsInsideScreenSpaceForRenderPass = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast * 1.25f);
             }
             else if(e is RenderObject)
             {
-                e.IsInsideScreenSpace = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast);
+                e.IsInsideScreenSpace = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast / 2f);
+                if(e.IsInsideScreenSpace)
+                    Console.WriteLine("object in frustum");
+                else
+                    Console.WriteLine("object NOT in frustum");
                 e.IsInsideScreenSpaceForRenderPass = e.IsInsideScreenSpace;
             }
         }

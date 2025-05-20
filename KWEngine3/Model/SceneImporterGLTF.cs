@@ -1769,7 +1769,7 @@ namespace KWEngine3.Model
                     if (currentNodeName.ToLower().Contains("_fullhitbox"))
                     {
                         List<GeoMeshFaceHelper> meshFaces = GenerateFacesForExtendedHitbox(indices, geoMesh.Vertices);
-                        geoMesh.Vertices = null; // not needed anymore, let the GC clear it!
+                        //geoMesh.Vertices = null; // not needed anymore, let the GC clear it!
                         facesForWholeMesh.AddRange(meshFaces);
 
                         foreach (Vector3 normal in uniqueNormals)
@@ -1787,6 +1787,7 @@ namespace KWEngine3.Model
                             }
                         }
                     }
+                    geoMesh.Vertices = null; // not needed anymore, let the GC clear it!
                 }
 
                 List<GeoMeshFace> facesForHitbox = null;

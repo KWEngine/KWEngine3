@@ -10,7 +10,7 @@ namespace KWEngine3TestProject.Classes
     {
         private float _speed = 0.05f;
 
-        public bool IsFirstPersonObject { get; set; } = false; // don't change yet!
+        public bool IsFirstPersonObject { get; set; } = true; // don't change yet!
         public bool LetCamFollowMe { get; set; } = false;
         public override void Act()
         {

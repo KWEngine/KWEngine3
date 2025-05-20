@@ -295,8 +295,12 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                translationMin.X = 0; translationMin.Y = 0; translationMin.Z = 0;
-                translationMax.X = 0; translationMax.Y = 0; translationMax.Z = 0;
+                translationMin.X = _stateCurrent._modelMatrix.M41; 
+                translationMin.Y = _stateCurrent._modelMatrix.M42; 
+                translationMin.Z = _stateCurrent._modelMatrix.M43;
+                translationMax.X = _stateCurrent._modelMatrix.M41; 
+                translationMax.Y = _stateCurrent._modelMatrix.M42; 
+                translationMax.Z = _stateCurrent._modelMatrix.M43;
             }
 
             Vector3 tmpmin = new Vector3(

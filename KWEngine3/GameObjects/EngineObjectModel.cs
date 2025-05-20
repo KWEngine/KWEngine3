@@ -1,5 +1,4 @@
-﻿using glTFLoader.Schema;
-using KWEngine3.Helper;
+﻿using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
 
@@ -39,6 +38,32 @@ namespace KWEngine3.GameObjects
                 if (mhb.minZ < minZ) minZ = mhb.minZ;
                 if (mhb.maxZ > maxZ) maxZ = mhb.maxZ;
             }
+            if(ModelOriginal.MeshCollider.MeshHitboxes.Count == 0)
+            {
+                // fallback: use the max/min of the meshes' vertices for calculating dimensions
+                foreach(GeoMesh mesh in ModelOriginal.Meshes.Values)
+                {
+                    if (mesh.Vertices != null && mesh.Vertices.Length > 0)
+                    {
+                        foreach (GeoVertex v in mesh.Vertices)
+                        {
+                            if (v.X < minX) minX = v.X;
+                            if (v.X > maxX) maxX = v.X;
+
+                            if (v.Y < minY) minY = v.Y;
+                            if (v.Y > maxY) maxY = v.Y;
+
+                            if (v.Z < minZ) minZ = v.Z;
+                            if (v.Z > maxZ) maxZ = v.Z;
+                        }
+                    }
+                    else
+                    {
+                        GeoMesh.GenerateVerticesFromVBO(mesh.VBOPosition, ref minX, ref maxX, ref minY, ref maxY, ref minZ, ref maxZ);
+                    }
+                }
+            }
+
             DimensionsMax = new(maxX, maxY, maxZ, 1f);
             DimensionsMin = new(minX, minY, minZ, 1f);
             Center = new ((DimensionsMax.Xyz + DimensionsMin.Xyz) / 2f, 1f);
