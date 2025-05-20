@@ -160,6 +160,11 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("[RenderObject] Instance index must be below instance count");
                 throw new Exceptions.GameObjectException("[RenderObject] Instance index must be < instance count");
             }
+            if(scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0)
+            {
+                KWEngine.LogWriteLine("[RenderObject] Instance index has invalid scale value");
+                throw new Exceptions.GameObjectException("[RenderObject] Instance index has invalid scale value");
+            }
 
             Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref scale, ref rotation, ref position);
             if(Mode == InstanceMode.Absolute)
@@ -191,6 +196,9 @@ namespace KWEngine3.GameObjects
             GL.BufferSubData(BufferTarget.UniformBuffer, ptr, BYTESPERINSTANCE, _uboData);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 
+            _instancePositions[instanceIndex] = position;
+            _instanceScales[instanceIndex] = scale;
+
             UpdateModelMatrixAndHitboxes();
         }
 
@@ -199,9 +207,14 @@ namespace KWEngine3.GameObjects
         internal int _ubo = -1;
         internal static float[] _uboData;
 
+        internal Vector3[] _instancePositions;
+        internal Vector3[] _instanceScales;
 
         internal void InitUBO()
         {
+            _instancePositions = new Vector3[InstanceCount];
+            _instanceScales = new Vector3[InstanceCount];
+
             _uboData = new float[BYTESPERINSTANCE / 4];
             for(int i = 0; i < _uboData.Length; i+=16)
             {
@@ -259,72 +272,172 @@ namespace KWEngine3.GameObjects
             _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitX, _stateCurrent._modelMatrixInverse));
             _stateCurrent._lookAtVectorUp = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitY, _stateCurrent._modelMatrixInverse));
 
-            Vector3 translationMax = new Vector3(0);
-            Vector3 translationMin = new Vector3(0);
+            Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-            if (InstanceCount > 1)
+            // Get min/max for x/y/z for base instance (0):
+            GetMinMaxForBaseInstance(ref min, ref max);
+
+            // Get min/max for x/y/z for all the other instances (> 0):
+            GetMinMaxForInstances(ref min, ref max);
+
+            _stateCurrent._dimensions.X = max.X - min.X;
+            _stateCurrent._dimensions.Y = max.Y - min.Y;
+            _stateCurrent._dimensions.Z = max.Z - min.Z;
+            _stateCurrent._center = (max + min) / 2f;
+        }
+
+        internal void GetMinMaxForBaseInstance(ref Vector3 min, ref Vector3 max)
+        {
+            // does the mesh have hitboxes?
+            if (_model.ModelOriginal.MeshCollider.MeshHitboxes != null && _model.ModelOriginal.MeshCollider.MeshHitboxes.Count > 0)
             {
-                // loop through all instances to get an estimate of the outer dimensions:
-                GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
-                float[] tmp = new float[InstanceCount * 16];
-                GL.GetBufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, InstanceCount * BYTESPERINSTANCE, tmp);
-                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-
-                for (int i = 16; i < tmp.Length; i += 16)
+                // if so, iterate through them and check their boundaries
+                foreach(GeoMeshHitbox hb in _model.ModelOriginal.MeshCollider.MeshHitboxes)
                 {
-                    // get translation part for rough estimation of final screen space size:
-                    float tX = tmp[i + 12];
-                    float tY = tmp[i + 13];
-                    float tZ = tmp[i + 14];
-
-                    if (tX > translationMax.X)
-                        translationMax.X = tX;
-                    if (tX < translationMin.X)
-                        translationMin.X = tX;
-
-                    if (tY > translationMax.Y)
-                        translationMax.Y = tY;
-                    if (tY < translationMin.Y)
-                        translationMin.Y = tY;
-
-                    if (tZ > translationMax.Z)
-                        translationMax.Z = tZ;
-                    if (tZ < translationMin.Z)
-                        translationMin.Z = tZ;
+                    Vector4 currentMin = Vector4.TransformRow(new Vector4(hb.minX, hb.minY, hb.minZ, 1.0f), _stateCurrent._modelMatrix);
+                    Vector4 currentMax = Vector4.TransformRow(new Vector4(hb.maxX, hb.maxY, hb.maxZ, 1.0f), _stateCurrent._modelMatrix);
+                    if (currentMin.X < min.X) min.X = currentMin.X;
+                    if (currentMin.Y < min.Y) min.Y = currentMin.Y;
+                    if (currentMin.Z < min.Z) min.Z = currentMin.Z;
+                    if (currentMax.X > max.X) max.X = currentMax.X;
+                    if (currentMax.Y > max.Y) max.Y = currentMax.Y;
+                    if (currentMax.Z > max.Z) max.Z = currentMax.Z;
                 }
             }
             else
             {
-                translationMin.X = _stateCurrent._modelMatrix.M41; 
-                translationMin.Y = _stateCurrent._modelMatrix.M42; 
-                translationMin.Z = _stateCurrent._modelMatrix.M43;
-                translationMax.X = _stateCurrent._modelMatrix.M41; 
-                translationMax.Y = _stateCurrent._modelMatrix.M42; 
-                translationMax.Z = _stateCurrent._modelMatrix.M43;
+                KWEngine.LogWriteLine("[RenderObject] WARNING: using slow volume determination for " + this.Name);
+
+                // otherwise, scan through all the vertices of the vbo and determine the dimensions (slow!)
+                foreach (GeoMesh mesh in _model.ModelOriginal.Meshes.Values)
+                {
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VBOPosition);
+                    GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int sizeInBytes);
+                    if(sizeInBytes > 0)
+                    {
+                        float[] buffer = new float[sizeInBytes / sizeof(float)];
+                        GL.GetBufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, sizeInBytes, buffer);
+
+                        Vector3 currentMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+                        Vector3 currentMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+                        for (int i = 0; i < buffer.Length; i += 3)
+                        {
+                            if (buffer[i + 0] < min.X) currentMin.X = buffer[i + 0];
+                            if (buffer[i + 1] < min.Y) currentMin.Y = buffer[i + 1];
+                            if (buffer[i + 2] < min.Z) currentMin.Z = buffer[i + 2];
+
+                            if (buffer[i + 0] > max.X) currentMax.X = buffer[i + 0];
+                            if (buffer[i + 1] > max.Y) currentMax.Y = buffer[i + 1];
+                            if (buffer[i + 2] > max.Z) currentMax.Z = buffer[i + 2];
+                        }
+                        currentMin = Vector4.TransformRow(new Vector4(currentMin, 1.0f), _stateCurrent._modelMatrix).Xyz;
+                        currentMax = Vector4.TransformRow(new Vector4(currentMax, 1.0f), _stateCurrent._modelMatrix).Xyz;
+
+                        if (currentMin.X < min.X) min.X = currentMin.X;
+                        if (currentMin.Y < min.Y) min.Y = currentMin.Y;
+                        if (currentMin.Z < min.Z) min.Z = currentMin.Z;
+                        if (currentMax.X > max.X) max.X = currentMax.X;
+                        if (currentMax.Y > max.Y) max.Y = currentMax.Y;
+                        if (currentMax.Z > max.Z) max.Z = currentMax.Z;
+                    }
+                    else
+                    {
+                        // maybe: make default size? but should never happen anyway...
+                        KWEngine.LogWriteLine("[RenderObject] Cannot determine volume for frustum culling for " + this.Name + " (" + mesh.Name + ")");
+                    }
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                }
             }
+        }
 
-            Vector3 tmpmin = new Vector3(
-                    Math.Min(_model.DimensionsMin.X, translationMin.X - _model.DimensionsMin.X),
-                    Math.Min(_model.DimensionsMin.Y, translationMin.Y - _model.DimensionsMin.Y),
-                    Math.Min(_model.DimensionsMin.Z, translationMin.Z - _model.DimensionsMin.Z)
-                );
+        internal void GetMinMaxForInstances(ref Vector3 min, ref Vector3 max)
+        {
+            // does the mesh have hitboxes?
+            if (_model.ModelOriginal.MeshCollider.MeshHitboxes != null && _model.ModelOriginal.MeshCollider.MeshHitboxes.Count > 0)
+            {
+                // if so, iterate through them and check their boundaries
+                Vector4 meshMin = new Vector4(float.MaxValue, float.MaxValue, float.MaxValue, 1);
+                Vector4 meshMax = new Vector4(float.MinValue, float.MinValue, float.MinValue, 1);
+                
+                foreach (GeoMeshHitbox hb in _model.ModelOriginal.MeshCollider.MeshHitboxes)
+                {
+                    if (meshMin.X > hb.minX) meshMin.X = hb.minX;
+                    if (meshMax.X < hb.maxX) meshMax.X = hb.maxX;
 
-            Vector3 tmpmax = new Vector3(
-                    Math.Max(_model.DimensionsMax.X, translationMax.X + _model.DimensionsMax.X),
-                    Math.Max(_model.DimensionsMax.Y, translationMax.Y + _model.DimensionsMax.Y),
-                    Math.Max(_model.DimensionsMax.Z, translationMax.Z + _model.DimensionsMax.Z)
-                );
+                    if (meshMin.Y > hb.minY) meshMin.Y = hb.minY;
+                    if (meshMax.Y < hb.maxY) meshMax.Y = hb.maxY;
 
-            //Vector4 dimMinTransformed = Vector4.TransformRow(_model.DimensionsMin + new Vector4(tmpmin, 0f), _stateCurrent._modelMatrix);
-            //Vector4 dimMaxTransformed = Vector4.TransformRow(_model.DimensionsMax + new Vector4(tmpmax, 0f), _stateCurrent._modelMatrix);
-            Vector4 dimMinTransformed = Vector4.TransformRow(new Vector4(tmpmin, 1f), _stateCurrent._modelMatrix);
-            Vector4 dimMaxTransformed = Vector4.TransformRow(new Vector4(tmpmax, 1f), _stateCurrent._modelMatrix);
+                    if (meshMin.Z > hb.minZ) meshMin.Z = hb.minZ;
+                    if (meshMax.Z < hb.maxZ) meshMax.Z = hb.maxZ;
+                }
 
-            _stateCurrent._dimensions.X = dimMaxTransformed.X - dimMinTransformed.X;
-            _stateCurrent._dimensions.Y = dimMaxTransformed.Y - dimMinTransformed.Y;
-            _stateCurrent._dimensions.Z = dimMaxTransformed.Z - dimMinTransformed.Z;
-            _stateCurrent._center = (dimMaxTransformed.Xyz + dimMinTransformed.Xyz) / 2f;
+                for(int i = 1; i < InstanceCount; i++)
+                {
+                    Matrix4 iModel = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instancePositions[i]);
+                    Vector3 currentMin = Vector4.TransformRow(meshMin, iModel).Xyz;
+                    Vector3 currentMax = Vector4.TransformRow(meshMax, iModel).Xyz;
+
+                    if (currentMin.X < min.X) min.X = currentMin.X;
+                    if (currentMin.Y < min.Y) min.Y = currentMin.Y;
+                    if (currentMin.Z < min.Z) min.Z = currentMin.Z;
+                    if (currentMax.X > max.X) max.X = currentMax.X;
+                    if (currentMax.Y > max.Y) max.Y = currentMax.Y;
+                    if (currentMax.Z > max.Z) max.Z = currentMax.Z;
+                }
+            }
+            else
+            {
+                // otherwise, scan through all the vertices of the vbo and determine the dimensions (slow!)
+                KWEngine.LogWriteLine("[RenderObject] WARNING: using slow volume determination for " + this.Name);
+
+                Vector4 meshMin = new Vector4(float.MaxValue, float.MaxValue, float.MaxValue, 1);
+                Vector4 meshMax = new Vector4(float.MinValue, float.MinValue, float.MinValue, 1);
+
+                foreach (GeoMesh mesh in _model.ModelOriginal.Meshes.Values)
+                {
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VBOPosition);
+                    GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int sizeInBytes);
+                    if (sizeInBytes > 0)
+                    {
+                        float[] buffer = new float[sizeInBytes / sizeof(float)];
+                        GL.GetBufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, sizeInBytes, buffer);
+
+                        for (int i = 0; i < buffer.Length; i += 3)
+                        {
+                            if (buffer[i + 0] < min.X) meshMin.X = buffer[i + 0];
+                            if (buffer[i + 1] < min.Y) meshMin.Y = buffer[i + 1];
+                            if (buffer[i + 2] < min.Z) meshMin.Z = buffer[i + 2];
+
+                            if (buffer[i + 0] > max.X) meshMax.X = buffer[i + 0];
+                            if (buffer[i + 1] > max.Y) meshMax.Y = buffer[i + 1];
+                            if (buffer[i + 2] > max.Z) meshMax.Z = buffer[i + 2];
+                        }
+                    }
+                    else
+                    {
+                        // maybe: make default size? but should never happen anyway...
+                        KWEngine.LogWriteLine("[RenderObject] Cannot determine volume for frustum culling for " + this.Name + " (" + mesh.Name + ")");
+                    }
+                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                }
+
+                for (int i = 1; i < InstanceCount; i++)
+                {
+                    Matrix4 iModel = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instancePositions[i]);
+                    Vector3 currentMin = Vector4.TransformRow(meshMin, iModel).Xyz;
+                    Vector3 currentMax = Vector4.TransformRow(meshMax, iModel).Xyz;
+
+                    if (currentMin.X < min.X) min.X = currentMin.X;
+                    if (currentMin.Y < min.Y) min.Y = currentMin.Y;
+                    if (currentMin.Z < min.Z) min.Z = currentMin.Z;
+                    if (currentMax.X > max.X) max.X = currentMax.X;
+                    if (currentMax.Y > max.Y) max.Y = currentMax.Y;
+                    if (currentMax.Z > max.Z) max.Z = currentMax.Z;
+                }
+            }
         }
         #endregion
     }
 }
+

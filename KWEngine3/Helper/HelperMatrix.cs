@@ -7,6 +7,23 @@ namespace KWEngine3.Helper
 {
     internal static class HelperMatrix
     {
+
+        public static Matrix4 CreateModelMatrix(ref Vector3 s, ref Vector3 t)
+        {
+            Matrix4 m = Matrix4.Identity;
+
+            m.Row0 *= s.X;
+            m.Row1 *= s.Y;
+            m.Row2 *= s.Z;
+
+            m.Row3.X = t.X;
+            m.Row3.Y = t.Y;
+            m.Row3.Z = t.Z;
+            m.Row3.W = 1.0f;
+
+            return m;
+        }
+
         public static Matrix4 CreateModelMatrix(ref Vector3 s, ref Quaternion r, ref Vector3 t)
         {
             Matrix4 m = Matrix4.CreateFromQuaternion(r);

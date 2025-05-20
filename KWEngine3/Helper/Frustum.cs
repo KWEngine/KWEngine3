@@ -32,6 +32,14 @@ namespace KWEngine3.Helper
             else if(e is RenderObject)
             {
                 e.IsInsideScreenSpace = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast / 2f);
+                /*if (e.IsInsideScreenSpace)
+                {
+                    Console.WriteLine("+");
+                }
+                else
+                {
+                    Console.WriteLine("-");
+                }*/
                 e.IsInsideScreenSpaceForRenderPass = e.IsInsideScreenSpace;
             }
         }
