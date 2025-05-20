@@ -40,7 +40,9 @@ namespace KWEngine3.GameObjects
             }
             if(ModelOriginal.MeshCollider.MeshHitboxes.Count == 0)
             {
-                // fallback: use the max/min of the meshes' vertices for calculating dimensions
+                // Fallback: Use the max/min of the meshes' vertices for calculating dimensions.
+                //           This is not ideal because it happens for each new object that gets created.
+                //           -> Needs to be pushed into the SceneImporter classes for next version.
                 foreach(GeoMesh mesh in ModelOriginal.Meshes.Values)
                 {
                     if (mesh.Vertices != null && mesh.Vertices.Length > 0)
