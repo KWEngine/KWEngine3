@@ -96,7 +96,7 @@ namespace KWEngine3.Renderer
                             r.Center,
                             new Vector3(r.AABBLeft, r.AABBLow, r.AABBBack),
                             new Vector3(r.AABBRight, r.AABBHigh, r.AABBFront),
-                            (new Vector3(r.AABBRight, r.AABBHigh, r.AABBFront) - new Vector3(r.AABBLeft, r.AABBLow, r.AABBBack)).LengthFast))
+                            r._stateRender._dimensions.LengthFast))
                     {
                         Draw(r);
                     }

@@ -147,7 +147,7 @@ void main()
 		vec3 xaxis = texture(uTextureNormal, xaxisUV * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb * 2.0 - 1.0;
 		vec3 yaxis = texture(uTextureNormal, vPos.xz * 0.125 * uTextureTransform.y + uTextureTransform.w).rgb * 2.0 - 1.0;
 		vec3 zaxis = texture(uTextureNormal, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransform.x + uTextureTransform.z).rgb * 2.0 - 1.0;
-		normalTex = xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z;
+		normalTex = normalize(vTBN * (xaxis * blendfactors.x + yaxis * blendfactors.y + zaxis * blendfactors.z));
 	}
 	else
 	{
@@ -158,14 +158,13 @@ void main()
 		vec3 xaxisSlope = texture(uTextureNormalSlope, xaxisUV * 0.125 * uTextureTransformSlope.x + uTextureTransformSlope.z).rgb * 2.0 - 1.0;
 		vec3 yaxisSlope = texture(uTextureNormalSlope, vPos.xz * 0.125 * uTextureTransformSlope.y + uTextureTransformSlope.w).rgb * 2.0 - 1.0;
 		vec3 zaxisSlope = texture(uTextureNormalSlope, vec2(vPos.x, -vPos.y) * 0.125 * uTextureTransformSlope.x + uTextureTransformSlope.z).rgb * 2.0 - 1.0;
-		normalSlope = xaxisSlope * blendfactors.x + yaxisSlope * blendfactors.y + zaxisSlope * blendfactors.z;
-
+		normalSlope = normalize(vTBN * (xaxisSlope * blendfactors.x + yaxisSlope * blendfactors.y + zaxisSlope * blendfactors.z));
 	}
 	else
 	{
 		normalSlope = normalTex;
 	}
-	normal = normalize(vTBN * (normalTex * sstep + normalSlope * (1.0 - sstep)));
+	normal = normalTex * sstep + normalSlope * (1.0 - sstep);
 
 
 	// MISC:

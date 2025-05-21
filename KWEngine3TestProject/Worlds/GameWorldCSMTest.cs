@@ -63,7 +63,7 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(floor);
             */
 
-
+            
             LightObjectSun sun = new LightObjectSun(ShadowQuality.High, SunShadowType.CascadedShadowMap);
             sun.SetCSMFactor(CSMFactor.Two);
             sun.SetPosition(25, 25, 25);
@@ -88,7 +88,7 @@ namespace KWEngine3TestProject.Worlds
             flashlight.SetColor(0, 1, 0, 4);
             flashlight.Name = "FLASHLIGHT";
             AddLightObject(flashlight);
-
+            
             TextObject text = new TextObject("Wahnsinnsloses Wort");
             text.SetPosition(-4.25f, 0.5f, -3.25f);
             text.SetScale(0.5f);
@@ -100,8 +100,8 @@ namespace KWEngine3TestProject.Worlds
             TerrainObject floor = new TerrainObject("TestTerrain");
             floor.IsShadowCaster = true;
             floor.Name = "TestTerrain";
-            //floor.SetTexture("./Textures/sand_diffuse.dds");
-            //floor.SetTexture("./Textures/sand_normal.dds", TextureType.Normal);
+            floor.SetTexture("./Textures/sand_diffuse.dds");
+            floor.SetTexture("./Textures/sand_normal.dds", TextureType.Normal);
             AddTerrainObject(floor);
 
             //KWEngine.DebugMode = DebugMode.TerrainCollisionModel;
