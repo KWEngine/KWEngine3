@@ -86,15 +86,15 @@ namespace KWEngine3TestProject.Worlds
             //_player.SetOpacity(0.5f);
             AddGameObject(_player);
 
-            LightObjectSun sun = new LightObjectSun(ShadowQuality.High, SunShadowType.CascadedShadowMap);
+            LightObjectSun sun = new LightObjectSun(ShadowQuality.Medium, SunShadowType.CascadedShadowMap);
             sun.SetCSMFactor(CSMFactor.Four);
             sun.Name = "Sun";
             sun.SetPosition(25, 25, 0);
             sun.SetColor(1, 1, 1, 2);
-            sun.SetFOV(20);
+            sun.SetFOV(15);
             sun.SetNearFar(20, 80);
             AddLightObject(sun);
-
+            
             Enemy e1 = new Enemy();
             e1.Name = "Enemy #1";
             e1.IsCollisionObject = true;

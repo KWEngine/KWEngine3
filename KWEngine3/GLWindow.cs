@@ -31,6 +31,7 @@ namespace KWEngine3
         internal int _mouseScrollPosition = 0;
         internal int _mouseScrollDelta = 0;
         internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
+        internal bool _disposed = false;
 
         internal void ResetMouseDeltas()
         {
@@ -325,6 +326,8 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            if (_disposed) return;
+
             if (_worldNew != null)
             {
                 SetWorldInternal(_worldNew);
@@ -858,6 +861,12 @@ namespace KWEngine3
             }
             HelperSweepAndPrune.StopThread();
             HelperFlowField.StopThread();
+
+            if (KWEngine.CurrentWorld != null)
+            {
+                KWEngine.CurrentWorld.Dispose();
+            }
+            _disposed = true;
         }
 
         /// <summary>
@@ -869,8 +878,7 @@ namespace KWEngine3
             base.OnKeyDown(e);
             if (Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4))
             {
-                HelperSweepAndPrune.StopThread();
-                HelperFlowField.StopThread();
+                this.Close();
             }
         }
 
