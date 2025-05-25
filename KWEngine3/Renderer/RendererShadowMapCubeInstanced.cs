@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3.Framebuffers;
+using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
@@ -7,22 +8,27 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal static class RendererShadowMapCubeInstanced
+    internal class RendererShadowMapCubeInstanced : IRenderer
     {
-        public static int ProgramID { get; private set; } = -1;
-        public static int UViewProjectionMatrix { get; private set; } = -1;
-        public static int UModelMatrix { get; private set; } = -1;
-        public static int UUseAnimations { get; private set; } = -1;
-        public static int UBoneTransforms { get; private set; } = -1;
-        public static int UNearFar { get; private set; } = -1;
-        public static int ULightPosition { get; private set; } = -1;
-        public static int UTextureTransformOpacity { get; private set; } = -1;
-        public static int UTextureOffset { get; private set; } = -1;
-        public static int UTextureAlbedo { get; private set; } = -1;
-        public static int UBlockIndex { get; private set; } = -1;
-        public static int UTextureClip { get; private set; } = -1;
+        public int ProgramID { get; private set; } = -1;
+        public int UViewProjectionMatrix { get; private set; } = -1;
+        public int UModelMatrix { get; private set; } = -1;
+        public int UUseAnimations { get; private set; } = -1;
+        public int UBoneTransforms { get; private set; } = -1;
+        public int UNearFar { get; private set; } = -1;
+        public int ULightPosition { get; private set; } = -1;
+        public int UTextureTransformOpacity { get; private set; } = -1;
+        public int UTextureOffset { get; private set; } = -1;
+        public int UTextureAlbedo { get; private set; } = -1;
+        public int UBlockIndex { get; private set; } = -1;
+        public int UTextureClip { get; private set; } = -1;
 
-        public static void Init()
+        public void SetGlobals()
+        {
+
+        }
+
+        public void Init()
         {
             if (ProgramID < 0)
             {
@@ -68,12 +74,12 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Bind()
+        public void Bind()
         {
             GL.UseProgram(ProgramID);
         }
 
-        public static void RenderSceneForLight(LightObject l)
+        public void RenderSceneForLight(LightObject l)
         {
 
             GL.Viewport(0, 0, l._shadowMapSize, l._shadowMapSize);
@@ -105,7 +111,7 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Draw(RenderObject r)
+        public void Draw(RenderObject r)
         {
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
 
@@ -147,6 +153,51 @@ namespace KWEngine3.Renderer
                 GL.BindVertexArray(0);
             }
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
+        }
+
+        public void Draw()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(Framebuffer fbSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<GameObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<RenderObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(TerrainObject t)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(ViewSpaceGameObject vsgo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g, bool isVSG = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }

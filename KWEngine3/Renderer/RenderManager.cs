@@ -3,6 +3,7 @@ using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
+using KWEngine3.Renderer.LowQuality;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -51,7 +52,7 @@ namespace KWEngine3.Renderer
             FramebufferSSAOBlur = new FramebufferSSAOBlur(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point);
 
             // Bloom
-            if ((int)KWEngine.Window._ppQuality > 1) // high only
+            if (KWEngine.Window._renderQuality == RenderQualityLevel.High) // high only
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
                 {
@@ -82,16 +83,16 @@ namespace KWEngine3.Renderer
             PrimitivePoint.Init();
             RendererGBuffer.Init();
             RendererGBufferInstanced.Init();
-            RendererLightingPass.Init();
-            RendererLightingPassMultiDraw.Init();
-            RendererForward.Init();
-            RendererForwardInstanced.Init();
+            RendererTerrainGBufferNew.Init();
+            RendererGBufferFoliage.Init();
+
+
             RendererCopy.Init();
             RendererBackgroundSkybox.Init();
             RendererBackgroundStandard.Init();
             RendererExplosion.Init();
             RendererParticle.Init();
-            RendererForwardText.Init();
+            
             RendererEditorHitboxes.Init();
             RendererTerrainCollision.Init();
             RendererSSAO.Init();
@@ -101,16 +102,8 @@ namespace KWEngine3.Renderer
 
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();
-            RendererGBufferFoliage.Init();
-            RendererShadowMap.Init();
-            RendererShadowMapCSM.Init();
-            RendererShadowMapInstanced.Init();
-            RendererShadowMapInstancedCSM.Init();
-            RendererShadowMapCube.Init();
-            RendererShadowMapCubeInstanced.Init();
-            RendererShadowMapTerrain.Init();
-            RendererShadowMapTerrainCSM.Init();
-            RendererShadowMapTerrainCube.Init();
+            
+
             RendererEditor.Init();
             RendererGrid.Init();
             RendererLightOverlay.Init();
@@ -121,8 +114,57 @@ namespace KWEngine3.Renderer
             RendererHUD.Init();
             RendererHUDText.Init();
 
-            RendererTerrainGBufferNew.Init();
+            // Renderers that are dependent on RenderQuality enum:
+            if(KWEngine.Window._renderQuality == RenderQualityLevel.Low)
+            {
+                IRendererLightingPass = new RendererLightingPassLQ(); IRendererLightingPass.Init();
+                IRendererLightingPassMultiDraw = new RendererLightingPassMultiDrawLQ(); IRendererLightingPassMultiDraw.Init();
+                IRendererForward = new RendererForwardLQ(); IRendererForward.Init();
+                IRendererForwardInstanced = new RendererForwardInstancedLQ(); IRendererForwardInstanced.Init();
+                IRendererForwardText = new RendererForwardTextLQ(); IRendererForwardText.Init();
+                IRendererShadowMap = new RendererShadowMapLQ(); IRendererShadowMap.Init();
+                IRendererShadowMapCSM = new RendererShadowMapCSMLQ(); IRendererShadowMapCSM.Init();
+                IRendererShadowMapInstanced = new RendererShadowMapInstancedLQ(); IRendererShadowMapInstanced.Init();
+                IRendererShadowMapInstancedCSM = new RendererShadowMapInstancedCSMLQ(); IRendererShadowMapInstancedCSM.Init();
+                IRendererShadowMapCube = new RendererShadowMapCubeLQ(); IRendererShadowMapCube.Init();
+                IRendererShadowMapCubeInstanced = new RendererShadowMapCubeInstancedLQ(); IRendererShadowMapCubeInstanced.Init();
+                IRendererShadowMapTerrain = new RendererShadowMapTerrainLQ(); IRendererShadowMapTerrain.Init();
+                IRendererShadowMapTerrainCSM = new RendererShadowMapTerrainCSMLQ(); IRendererShadowMapTerrainCSM.Init();
+                IRendererShadowMapTerrainCube = new RendererShadowMapTerrainCubeLQ(); IRendererShadowMapTerrainCube.Init();
+            }
+            else
+            {
+                IRendererLightingPass = new RendererLightingPass(); IRendererLightingPass.Init();
+                IRendererLightingPassMultiDraw = new RendererLightingPassMultiDraw(); IRendererLightingPassMultiDraw.Init();
+                IRendererForward = new RendererForward(); IRendererForward.Init();
+                IRendererForwardInstanced = new RendererForwardInstanced(); IRendererForwardInstanced.Init();
+                IRendererForwardText = new RendererForwardText(); IRendererForwardText.Init();
+                IRendererShadowMap = new RendererShadowMap(); IRendererShadowMap.Init();
+                IRendererShadowMapCSM = new RendererShadowMapCSM(); IRendererShadowMapCSM.Init();
+                IRendererShadowMapInstanced = new RendererShadowMapInstanced(); IRendererShadowMapInstanced.Init();
+                IRendererShadowMapInstancedCSM = new RendererShadowMapInstancedCSM(); IRendererShadowMapInstancedCSM.Init();
+                IRendererShadowMapCube = new RendererShadowMapCube(); IRendererShadowMapCube.Init();
+                IRendererShadowMapCubeInstanced = new RendererShadowMapCubeInstanced(); IRendererShadowMapCubeInstanced.Init();
+                IRendererShadowMapTerrain = new RendererShadowMapTerrain(); IRendererShadowMapTerrain.Init();
+                IRendererShadowMapTerrainCSM = new RendererShadowMapTerrainCSM(); IRendererShadowMapTerrainCSM.Init();
+                IRendererShadowMapTerrainCube = new RendererShadowMapTerrainCube(); IRendererShadowMapTerrainCube.Init();
+            }
         }
+
+        public static IRenderer IRendererLightingPass;
+        public static IRenderer IRendererLightingPassMultiDraw;
+        public static IRenderer IRendererForward;
+        public static IRenderer IRendererForwardInstanced;
+        public static IRenderer IRendererForwardText;
+        public static IRenderer IRendererShadowMap;
+        public static IRenderer IRendererShadowMapCSM;
+        public static IRenderer IRendererShadowMapInstanced;
+        public static IRenderer IRendererShadowMapInstancedCSM; 
+        public static IRenderer IRendererShadowMapCube;
+        public static IRenderer IRendererShadowMapCubeInstanced;
+        public static IRenderer IRendererShadowMapTerrain;
+        public static IRenderer IRendererShadowMapTerrainCSM;
+        public static IRenderer IRendererShadowMapTerrainCube;
 
         public static void CheckShaderStatus(int programId, int vertexShaderId, int fragmentShaderId, int geometryShaderId = -1, int tessControlShaderId = -1, int tessEvalShaderId = -1)
         {
@@ -195,7 +237,7 @@ namespace KWEngine3.Renderer
             GL.Disable(EnableCap.DepthTest);
             RendererBloomDownsample.Bind();
 
-            if((int)KWEngine.Window._ppQuality > 1) // high only
+            if(KWEngine.Window._renderQuality == RenderQualityLevel.High) // high only
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
                 {

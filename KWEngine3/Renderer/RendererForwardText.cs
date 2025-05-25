@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3.Framebuffers;
+using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
@@ -7,30 +8,30 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal static class RendererForwardText
+    internal class RendererForwardText : IRenderer
     {
-        public static int ProgramID { get; private set; } = -1;
-        public static int UViewProjectionMatrix { get; private set; } = -1;
-        public static int UModelMatrix { get; private set; } = -1;
-        public static int UColorTint { get; private set; } = -1;
-        public static int UColorEmissive { get; private set; } = -1;
-        public static int UTextureAlbedo { get; private set; } = -1;
-        public static int UShadowMap { get; private set; } = -1;
-        public static int UShadowMapCube { get; private set; } = -1;
-        public static int UViewProjectionMatrixShadowMap { get; private set; } = -1;
-        public static int UViewProjectionMatrixShadowMapOuter { get; private set; } = -1;
-        public static int UCameraPos { get; private set; } = -1;
-        public static int ULights { get; private set; } = -1;
-        public static int ULightCount { get; private set; } = -1;
-        public static int UColorAmbient { get; private set; } = -1;
-        public static int UUVOffsets { get; private set; } = -1;
-        public static int UAdvanceList { get; private set; } = -1;
-        public static int UWidths { get; private set; } = -1;
-        public static int UShadowCaster { get; private set; } = -1;
+        public int ProgramID { get; private set; } = -1;
+        public int UViewProjectionMatrix { get; private set; } = -1;
+        public int UModelMatrix { get; private set; } = -1;
+        public int UColorTint { get; private set; } = -1;
+        public int UColorEmissive { get; private set; } = -1;
+        public int UTextureAlbedo { get; private set; } = -1;
+        public int UShadowMap { get; private set; } = -1;
+        public int UShadowMapCube { get; private set; } = -1;
+        public int UViewProjectionMatrixShadowMap { get; private set; } = -1;
+        public int UViewProjectionMatrixShadowMapOuter { get; private set; } = -1;
+        public int UCameraPos { get; private set; } = -1;
+        public int ULights { get; private set; } = -1;
+        public int ULightCount { get; private set; } = -1;
+        public int UColorAmbient { get; private set; } = -1;
+        public int UUVOffsets { get; private set; } = -1;
+        public int UAdvanceList { get; private set; } = -1;
+        public int UWidths { get; private set; } = -1;
+        public int UShadowCaster { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;        
 
-        public static void Init()
+        public void Init()
         {
             if (ProgramID < 0)
             {
@@ -81,12 +82,12 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Bind()
+        public void Bind()
         {
             GL.UseProgram(ProgramID);
         }
 
-        public static void SetGlobals()
+        public void SetGlobals()
         {
             // lights array:
             GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * KWEngine.LIGHTINDEXDIVIDER, KWEngine.CurrentWorld._preparedLightsArray);
@@ -140,12 +141,12 @@ namespace KWEngine3.Renderer
             }
         }
 
-        private static void SortByZ()
+        private void SortByZ()
         {
             KWEngine.CurrentWorld._textObjects.Sort();
         }
 
-        public static void RenderScene()
+        public void RenderScene()
         {
             if (KWEngine.CurrentWorld != null)
             {
@@ -163,7 +164,7 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Draw(TextObject t, GeoMesh mesh)
+        public void Draw(TextObject t, GeoMesh mesh)
         {
             GL.Uniform4(UColorTint, t._stateRender._color);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
@@ -187,12 +188,62 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
         }
 
-        private static void UploadTextures(TextObject t)
+        private void UploadTextures(TextObject t)
         {
             // Albedo
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
             GL.BindTexture(TextureTarget.Texture2D, t._font.Texture);
             GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
+        }
+
+        public void Draw()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(Framebuffer fbSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<GameObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<RenderObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderSceneForLight(LightObject l)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(TerrainObject t)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(RenderObject r)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(ViewSpaceGameObject vsgo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g, bool isVSG = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }

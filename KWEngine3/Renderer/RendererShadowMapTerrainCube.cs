@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Assets;
+using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using OpenTK.Graphics.OpenGL4;
@@ -7,19 +8,19 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal class RendererShadowMapTerrainCube
+    internal class RendererShadowMapTerrainCube : IRenderer
     {
-        public static int ProgramID { get; private set; } = -1;
-        public static int UViewProjectionMatrix { get; private set; } = -1;
-        public static int UModelMatrix { get; private set; } = -1;
-        public static int UNearFar { get; private set; } = -1;
-        public static int UTerrainData { get; private set; } = -1;
-        public static int UTextureHeightMap { get; private set; } = -1;
-        public static int UCamPosition { get; private set; } = -1;
-        public static int UCamDirection { get; private set; } = -1;
-        public static int UTerrainThreshold { get; private set; } = -1;
+        public int ProgramID { get; private set; } = -1;
+        public int UViewProjectionMatrix { get; private set; } = -1;
+        public int UModelMatrix { get; private set; } = -1;
+        public int UNearFar { get; private set; } = -1;
+        public int UTerrainData { get; private set; } = -1;
+        public int UTextureHeightMap { get; private set; } = -1;
+        public int UCamPosition { get; private set; } = -1;
+        public int UCamDirection { get; private set; } = -1;
+        public int UTerrainThreshold { get; private set; } = -1;
 
-        public static void Init()
+        public void Init()
         {
             if (ProgramID < 0)
             {
@@ -71,12 +72,17 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Bind()
+        public void SetGlobals()
+        {
+
+        }
+
+        public void Bind()
         {
             GL.UseProgram(ProgramID);
         }
 
-        public static void RenderSceneForLight(LightObject l)
+        public void RenderSceneForLight(LightObject l)
         {
             if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
             {
@@ -99,7 +105,7 @@ namespace KWEngine3.Renderer
                 }
             }
         }
-        public static void Draw(TerrainObject t)
+        public void Draw(TerrainObject t)
         {
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             
@@ -110,11 +116,54 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, t._heightmap > 0 ? t._heightmap : KWEngine.TextureBlack);
             GL.Uniform1(UTextureHeightMap, 0);
 
-            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.BindVertexArray(KWTerrainQuad.VAO);
             GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (t.Width * t.Depth) / (KWEngine.TERRAIN_PATCH_SIZE * KWEngine.TERRAIN_PATCH_SIZE));
             GL.BindVertexArray(0);
-            //GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+        }
+
+        public void Draw()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(Framebuffer fbSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<GameObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<RenderObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(RenderObject r)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(ViewSpaceGameObject vsgo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g, bool isVSG = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }

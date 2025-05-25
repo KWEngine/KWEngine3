@@ -8,51 +8,51 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal static class RendererLightingPassMultiDraw
+    internal class RendererLightingPassMultiDraw : IRenderer
     {
-        public static int ProgramID { get; private set; } = -1;
-        public static int UTextureAlbedo { get; private set; } = -1;
-        public static int UTextureNormal { get; private set; } = -1;
-        public static int UTextureID { get; private set; } = -1;
-        public static int UTextureSSAO { get; private set; } = -1;
-        public static int UTextureMetallicRoughnessMetallicType { get; private set; } = -1;
-        public static int ULights { get; private set; } = -1;
+        public int ProgramID { get; private set; } = -1;
+        public int UTextureAlbedo { get; private set; } = -1;
+        public int UTextureNormal { get; private set; } = -1;
+        public int UTextureID { get; private set; } = -1;
+        public int UTextureSSAO { get; private set; } = -1;
+        public int UTextureMetallicRoughnessMetallicType { get; private set; } = -1;
+        public int ULights { get; private set; } = -1;
         
-        public static int ULightIndices { get; private set; } = -1;
-        public static int ULightIndicesCount { get; private set; } = -1;
-        public static int UTextureOffset { get; private set; } = -1;
-        public static int UColorAmbient { get; private set; } = -1;
-        public static int UCameraPos { get; private set; } = -1;
-        public static int UId { get; private set; } = -1;
-        public static int UShadowMap { get; private set; } = -1;
-        public static int UShadowMapCube { get; private set; } = -1;
-        public static int UViewProjectionMatrixShadowMap { get; private set; } = -1;
-        public static int UViewProjectionMatrixShadowMap2 { get; private set; } = -1;
-        public static int UTextureSkybox { get; private set; } = -1;
-        public static int UTextureBackground { get; private set; } = -1;
-        public static int UUseTextureReflection { get; private set; } = -1;
-        public static int UTextureSkyboxRotation { get; private set; } = -1;
-        public static int UTextureDepth { get; private set; } = -1;
-        public static int UViewProjectionMatrixInverted { get; private set; } = -1;
+        public int ULightIndices { get; private set; } = -1;
+        public int ULightIndicesCount { get; private set; } = -1;
+        public int UTextureOffset { get; private set; } = -1;
+        public int UColorAmbient { get; private set; } = -1;
+        public int UCameraPos { get; private set; } = -1;
+        public int UId { get; private set; } = -1;
+        public int UShadowMap { get; private set; } = -1;
+        public int UShadowMapCube { get; private set; } = -1;
+        public int UViewProjectionMatrixShadowMap { get; private set; } = -1;
+        public int UViewProjectionMatrixShadowMap2 { get; private set; } = -1;
+        public int UTextureSkybox { get; private set; } = -1;
+        public int UTextureBackground { get; private set; } = -1;
+        public int UUseTextureReflection { get; private set; } = -1;
+        public int UTextureSkyboxRotation { get; private set; } = -1;
+        public int UTextureDepth { get; private set; } = -1;
+        public int UViewProjectionMatrixInverted { get; private set; } = -1;
 
         
-        public static int ULightIndicesCounts { get; private set; } = -1;
-        public static int UBlockIndex1 { get; private set; } = -1;
-        public static int UBlockIndex2 { get; private set; } = -1;
-        public static int UBlockIndex3 { get; private set; } = -1;
+        public int ULightIndicesCounts { get; private set; } = -1;
+        public int UBlockIndex1 { get; private set; } = -1;
+        public int UBlockIndex2 { get; private set; } = -1;
+        public int UBlockIndex3 { get; private set; } = -1;
 
-        public static int UBO { get; private set; } = -1;
-        public static int UBO2 { get; private set; } = -1;
-        public static int UBO3 { get; private set; } = -1;
+        public int UBO { get; private set; } = -1;
+        public int UBO2 { get; private set; } = -1;
+        public int UBO3 { get; private set; } = -1;
 
         
-        public static float[] _uboData;
-        public static float[] _uboData2;
-        public static int[] _uboData3;
-        public static int[] _indexCounts;
+        public float[] _uboData;
+        public float[] _uboData2;
+        public int[] _uboData3;
+        public int[] _indexCounts;
         
         
-        internal static void InitUBOs()
+        internal void InitUBOs()
         {
             if (_uboData == null)
             {
@@ -101,7 +101,7 @@ namespace KWEngine3.Renderer
         }
         
 
-        public static void Init()
+        public void Init()
         {
             if (ProgramID < 0)
             {
@@ -156,13 +156,13 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Bind()
+        public void Bind()
         {
             GL.UseProgram(ProgramID);
         }
 
 
-        public static void SetGlobals()
+        public void SetGlobals()
         {
             TextureUnit currentTextureUnit = TextureUnit.Texture6;
             int currentTextureNumber = 6;
@@ -250,7 +250,7 @@ namespace KWEngine3.Renderer
                 KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? -1 : 0,
                 KWEngine.CurrentWorld._background._mipMapLevels,
                 (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000),
-                (int)KWEngine.Window._ppQuality > 1 ? 1 : 0);
+                KWEngine.Window._renderQuality > RenderQualityLevel.Default ? 1 : 0);
             GL.Uniform4(UUseTextureReflection, reflectionStats);
             if (KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular && KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
             {
@@ -265,7 +265,7 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vp);
         }
 
-        public static void Draw(Framebuffer fbSource)
+        public void Draw(Framebuffer fbSource)
         {
             // depth tex:
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -320,6 +320,56 @@ namespace KWEngine3.Renderer
             
             GL.BindVertexArray(0);
             GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        public void Draw()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<GameObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<RenderObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderSceneForLight(LightObject l)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(TerrainObject t)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(RenderObject r)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(ViewSpaceGameObject vsgo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g, bool isVSG = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }

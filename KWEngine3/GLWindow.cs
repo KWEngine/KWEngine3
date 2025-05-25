@@ -40,7 +40,7 @@ namespace KWEngine3
         }
 
         // quality related:
-        internal PostProcessingQuality _ppQuality = PostProcessingQuality.Standard;
+        internal RenderQualityLevel _renderQuality = RenderQualityLevel.Default;
         internal int AnisotropicFilteringLevel { get; set; } = 4;
 
         // other:
@@ -92,11 +92,11 @@ namespace KWEngine3
         /// Standardkonstruktor für den exklusiven Fullscreen-Modus
         /// </summary>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
-        /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
+        /// <param name="quality">Qualität der Render-Pipeline (Standard: ausbalancierte Qualität)</param>
         /// <param name="icon">Fenstersymbol</param>
         public GLWindow(
             bool vSync = true, 
-            PostProcessingQuality ppQuality = PostProcessingQuality.Standard,
+            RenderQualityLevel quality = RenderQualityLevel.Default,
             WindowIcon icon = null)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
@@ -116,7 +116,7 @@ namespace KWEngine3
                  }
                  )
         {
-            _ppQuality = ppQuality;
+            _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
         }
 
@@ -146,7 +146,7 @@ namespace KWEngine3
                  }
         )
         {
-            _ppQuality = PostProcessingQuality.Standard;
+            _renderQuality = RenderQualityLevel.Default;
             KWEngine.InitializeFontsAndDefaultTextures();
             CenterWindow();
         }
@@ -157,10 +157,10 @@ namespace KWEngine3
         /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
         /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
-        /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
+        /// <param name="quality">Qualität der Render-Pipeline (Standard: ausbalancierte Qualität)</param>
         /// <param name="windowMode">Art des Fensters (Standard oder rahmenlos)</param>
         /// <param name="icon">Fenstersymbol</param>
-        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode, WindowIcon icon = null)
+        public GLWindow(int width, int height, bool vSync, RenderQualityLevel quality, WindowMode windowMode, WindowIcon icon = null)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -179,7 +179,7 @@ namespace KWEngine3
                  }
         )
         {
-            _ppQuality = ppQuality;
+            _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
             CenterWindow();
         }
@@ -190,11 +190,11 @@ namespace KWEngine3
         /// <param name="width">Breite des Fensterinhalts in Pixeln</param>
         /// <param name="height">Höhe des Fenterinhalts in Pixeln</param>
         /// <param name="vSync">Begrenzung der FPS an die Bildwiederholrate des Monitors?</param>
-        /// <param name="ppQuality">Qualität der Post-Processing-Pipeline (Standard: hohe Qualität)</param>
+        /// <param name="quality">Qualität der Render-Pipeline (Standard: ausbalancierte Qualität)</param>
         /// <param name="windowMode">Art des Fensters (Standard oder rahmenlos)</param>
         /// <param name="monitorHandle">Handle des Monitors, auf dem das Fenster geöffnet werden soll</param>
         /// <param name="icon">Fenstersymbol</param>
-        public GLWindow(int width, int height, bool vSync, PostProcessingQuality ppQuality, WindowMode windowMode, IntPtr monitorHandle, WindowIcon icon = null)
+        public GLWindow(int width, int height, bool vSync, RenderQualityLevel quality, WindowMode windowMode, IntPtr monitorHandle, WindowIcon icon = null)
             : this(
                  new GameWindowSettings() { UpdateFrequency = 0 },
                  new NativeWindowSettings()
@@ -214,7 +214,7 @@ namespace KWEngine3
                  }
         )
         {
-            _ppQuality = ppQuality;
+            _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
             CenterWindow();
         }
@@ -408,23 +408,23 @@ namespace KWEngine3
                     if (KWEngine.CurrentWorld.HasShadowCSMSun)
                     {
                         // CSM pass:
-                        RendererShadowMapCSM.Bind();
+                        RenderManager.IRendererShadowMapCSM.Bind();
                         KWEngine.CurrentWorld._hasSun._fbShadowMap.Bind(true);
-                        RendererShadowMapCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
+                        RenderManager.IRendererShadowMapCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
 
                         // CSM terrain pass:
-                        RendererShadowMapTerrainCSM.Bind();
-                        RendererShadowMapTerrainCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
+                        RenderManager.IRendererShadowMapTerrainCSM.Bind();
+                        RenderManager.IRendererShadowMapTerrainCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
 
                         // CSM instanced objects pass:
-                        RendererShadowMapInstancedCSM.Bind();
-                        RendererShadowMapInstancedCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
+                        RenderManager.IRendererShadowMapInstancedCSM.Bind();
+                        RenderManager.IRendererShadowMapInstancedCSM.RenderSceneForLight(KWEngine.CurrentWorld._hasSun);
 
                         csmSunDone = true;
                     }
-                    
 
-                    RendererShadowMap.Bind();
+
+                    RenderManager.IRendererShadowMap.Bind();
                     foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                     {
                         if (l.Type == LightType.Sun && csmSunDone)
@@ -439,13 +439,13 @@ namespace KWEngine3
                                 continue;
                             }
 
-                            RendererShadowMap.RenderSceneForLight(l);
+                            RenderManager.IRendererShadowMap.RenderSceneForLight(l);
                         }
                     }
 
                     if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
                     {
-                        RendererShadowMapTerrain.Bind();
+                        RenderManager.IRendererShadowMapTerrain.Bind();
                         foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                         {
                             if (l.Type == LightType.Sun && csmSunDone)
@@ -454,14 +454,14 @@ namespace KWEngine3
                             if (l is LightObjectSun && l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
                             {
                                 l._fbShadowMap.Bind(false);
-                                RendererShadowMapTerrain.RenderSceneForLight(l);
+                                RenderManager.IRendererShadowMapTerrain.RenderSceneForLight(l);
                             }
                         }
                     }
 
                     if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                     {
-                        RendererShadowMapInstanced.Bind();
+                        RenderManager.IRendererShadowMapInstanced.Bind();
                         foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
                         {
                             if (l.Type == LightType.Sun && csmSunDone)
@@ -474,27 +474,27 @@ namespace KWEngine3
                                     continue;
                                 }
                                 l._fbShadowMap.Bind(false);
-                                RendererShadowMapInstanced.RenderSceneForLight(l);
+                                RenderManager.IRendererShadowMapInstanced.RenderSceneForLight(l);
                             }
                         }
                     }
 
                     if (pointLights.Count > 0)
                     {
-                        RendererShadowMapCube.Bind();
+                        RenderManager.IRendererShadowMapCube.Bind();
                         foreach (LightObject l in pointLights)
                         {
                             l._fbShadowMap.Bind(true); // was false before?? why?!
-                            RendererShadowMapCube.RenderSceneForLight(l); // Renders GameObject and VSGO instances only
+                            RenderManager.IRendererShadowMapCube.RenderSceneForLight(l); // Renders GameObject and VSGO instances only
                         }
 
                         if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                         {
-                            RendererShadowMapCubeInstanced.Bind(); // Renders RenderObject instances only
+                            RenderManager.IRendererShadowMapCubeInstanced.Bind(); // Renders RenderObject instances only
                             foreach (LightObject l in pointLights)
                             {
                                 l._fbShadowMap.Bind(false);
-                                RendererShadowMapCubeInstanced.RenderSceneForLight(l);
+                                RenderManager.IRendererShadowMapCubeInstanced.RenderSceneForLight(l);
                             }
                         }
                     }
@@ -527,15 +527,15 @@ namespace KWEngine3
                 RenderManager.FramebufferLightingPass.Bind(false);
                 if(KWEngine.GBufferLighting == GBufferLightingMode.Default)
                 {
-                    RendererLightingPass.Bind();
-                    RendererLightingPass.SetGlobals();
-                    RendererLightingPass.Draw(RenderManager.FramebufferDeferred);
+                    RenderManager.IRendererLightingPass.Bind();
+                    RenderManager.IRendererLightingPass.SetGlobals();
+                    RenderManager.IRendererLightingPass.Draw(RenderManager.FramebufferDeferred);
                 }
                 else
                 {
-                    RendererLightingPassMultiDraw.Bind();
-                    RendererLightingPassMultiDraw.SetGlobals();
-                    RendererLightingPassMultiDraw.Draw(RenderManager.FramebufferDeferred);
+                    RenderManager.IRendererLightingPassMultiDraw.Bind();
+                    RenderManager.IRendererLightingPassMultiDraw.SetGlobals();
+                    RenderManager.IRendererLightingPassMultiDraw.Draw(RenderManager.FramebufferDeferred);
                 }
 
                 HelperDebug.StopTimeQuery(RenderType.Lighting);
@@ -564,17 +564,17 @@ namespace KWEngine3
                 HelperDebug.StartTimeQuery(RenderType.Forward);
                 if (gameObjectsForForwardRendering.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
-                    RendererForward.Bind();
-                    RendererForward.SetGlobals();
+                    RenderManager.IRendererForward.Bind();
+                    RenderManager.IRendererForward.SetGlobals();
                     if (gameObjectsForForwardRendering.Count > 0)
-                        RendererForward.RenderScene(gameObjectsForForwardRendering);
+                        RenderManager.IRendererForward.RenderScene(gameObjectsForForwardRendering);
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                     {
                         if (KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
                         {
                             GL.Disable(EnableCap.DepthTest);
                         }
-                        RendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, true);
+                        RenderManager.IRendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, true);
                         if (KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
                         {
                             GL.Enable(EnableCap.DepthTest);
@@ -584,16 +584,16 @@ namespace KWEngine3
 
                 if (renderObjectsForForwardRendering.Count > 0)
                 {
-                    RendererForwardInstanced.Bind();
-                    RendererForwardInstanced.SetGlobals();
-                    RendererForwardInstanced.RenderScene(renderObjectsForForwardRendering);
+                    RenderManager.IRendererForwardInstanced.Bind();
+                    RenderManager.IRendererForwardInstanced.SetGlobals();
+                    RenderManager.IRendererForwardInstanced.RenderScene(renderObjectsForForwardRendering);
                 }
 
                 if (KWEngine.CurrentWorld._textObjects.Count > 0)
                 {
-                    RendererForwardText.Bind();
-                    RendererForwardText.SetGlobals();
-                    RendererForwardText.RenderScene();
+                    RenderManager.IRendererForwardText.Bind();
+                    RenderManager.IRendererForwardText.SetGlobals();
+                    RenderManager.IRendererForwardText.RenderScene();
                 }
                 if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
                 {
@@ -1412,9 +1412,9 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Gibt die bei Programmstart gewählte Qualität für Post-Processing-Effekte zurück
+        /// Gibt die bei Programmstart gewählte Render-Qualität zurück
         /// </summary>
-        public PostProcessingQuality Quality { get { return _ppQuality; } }
+        public RenderQualityLevel RenderQuality { get { return _renderQuality; } }
 
         internal static MonitorHandle GetMonitorHandleForPointer(IntPtr ptr)
         {

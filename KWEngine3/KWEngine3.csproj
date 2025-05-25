@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2025-05-22)</Product>
+		<Product>KWEngine3 (updated: 2025-05-25)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.5.1</Version>
-		<AssemblyVersion>3.0.5.1</AssemblyVersion>
-		<FileVersion>3.0.5.1</FileVersion>
-		<ProductVersion>3.0.5.1</ProductVersion>
+		<Version>3.0.5.2</Version>
+		<AssemblyVersion>3.0.5.2</AssemblyVersion>
+		<FileVersion>3.0.5.2</FileVersion>
+		<ProductVersion>3.0.5.2</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -256,6 +256,46 @@
 		<EmbeddedResource Include="Assets\Textures\smoke03.dds" />
 		<EmbeddedResource Include="Assets\Textures\heightmap.png" />
 		<EmbeddedResource Include="Assets\Textures\white.png" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardinstancedLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardinstancedLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardtextLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardtextLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.gbufferLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.gbufferLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.gbuffer_multiLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.gbuffer_multiLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16.cubeLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16.cubeLQ.geom" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16.cubeLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16.cubeinstancedLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16.cubeinstancedLQ.geom" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16.cubeinstancedLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16LQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16LQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16instancedLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16instancedLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16instanced_csmLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16instanced_csmLQ.geom" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16instanced_csmLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain.cubeLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain.cubeLQ.geom" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain.cubeLQ.tesc" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain.cubeLQ.tese" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain.cubeLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrainLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrainLQ.tesc" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrainLQ.tese" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrainLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain_csmLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain_csmLQ.geom" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain_csmLQ.tesc" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain_csmLQ.tese" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16terrain_csmLQ.vert" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.frag" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.geom" />
+		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.vert" />
 		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer_multi.frag" />
 		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer_multi.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.frag" />

@@ -656,7 +656,8 @@ namespace KWEngine3.Editor
                 }
                 if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                 {
-                    ImGui.SliderFloat("Shadow offset", ref SelectedLightObject._shadowOffset, 0.0f, 0.05f, "%.4f");
+                    if(KWEngine.Window._renderQuality > RenderQualityLevel.Low)
+                        ImGui.SliderFloat("Shadow offset", ref SelectedLightObject._shadowOffset, 0.0f, 0.05f, "%.4f");
                 }
             }
             else if(SelectedTerrainObject != null)

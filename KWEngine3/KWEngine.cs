@@ -734,8 +734,7 @@ namespace KWEngine3
                 throw new Exception("[OpenGL] Fatal error: Your graphics device does not support at least " + twoPowerOf10 + " uniform vectors.");
             }
 
-
-            Window.AnisotropicFilteringLevel = (int)Window._ppQuality == 2 ? 8 : (int)Window._ppQuality == 1 ? 4 : 1;
+            Window.AnisotropicFilteringLevel = Window._renderQuality == RenderQualityLevel.High ? 8 : Window._renderQuality == RenderQualityLevel.Default ? 4 : 1;
 
             int mipMaps;
 

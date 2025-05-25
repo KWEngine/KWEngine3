@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using KWEngine3.Framebuffers;
+using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
@@ -7,49 +8,49 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    internal static class RendererForwardInstanced
+    internal class RendererForwardInstanced : IRenderer
     {
-        public static int ProgramID { get; private set; } = -1;
-        public static int UViewProjectionMatrix { get; private set; } = -1;
-        public static int UModelMatrix { get; private set; } = -1;
-        public static int UNormalMatrix { get; private set; } = -1;
-        public static int UColorTint { get; private set; } = -1;
-        public static int UColorEmissive { get; private set; } = -1;
-        public static int UColorMaterial { get; private set; } = -1;
-        public static int UMetallicRoughness { get; private set; } = -1;
-        public static int UUseTexturesAlbedoNormalEmissive { get; private set; } = -1;
-        public static int UUseTexturesMetallicRoughness { get; private set; } = -1;
-        public static int UTextureMetallicRoughnessCombined { get; private set; } = -1;
-        public static int UTextureNormal { get; private set; } = -1;
-        public static int UTextureAlbedo { get; private set; } = -1;
-        public static int UTextureMetallic { get; private set; } = -1;
-        public static int UTextureRoughness { get; private set; } = -1;
-        public static int UTextureEmissive { get; private set; } = -1;
-        public static int UTextureTransparency { get; private set; } = -1;
-        public static int UTextureTransform { get; private set; } = -1;
-        public static int UUseAnimations { get; private set; } = -1;
-        public static int UBoneTransforms { get; private set; } = -1;
-        public static int UShadowMap { get; private set; } = -1;
-        public static int UShadowMapCube { get; private set; } = -1;
-        public static int UViewProjectionMatrixShadowMap { get; private set; } = -1;
-        public static int UViewProjectionMatrixShadowMapOuter { get; private set; } = -1;
-        public static int UCameraPos { get; private set; } = -1;
-        public static int ULights { get; private set; } = -1;
-        public static int ULightCount { get; private set; } = -1;
-        public static int UColorAmbient { get; private set; } = -1;
-        public static int UMetallicType { get; private set; } = -1;
-        public static int UTextureSkybox { get; private set; } = -1;
-        public static int UTextureBackground { get; private set; } = -1;
-        public static int UUseTextureReflection { get; private set; } = -1;
-        public static int UTextureSkyboxRotation { get; private set; } = -1;
-        public static int UShadowCaster { get; private set; } = -1;
-        public static int UTextureClip { get; private set; } = -1;
-        public static int UBlockIndex { get; private set; } = -1;
+        public int ProgramID { get; private set; } = -1;
+        public int UViewProjectionMatrix { get; private set; } = -1;
+        public int UModelMatrix { get; private set; } = -1;
+        public int UNormalMatrix { get; private set; } = -1;
+        public int UColorTint { get; private set; } = -1;
+        public int UColorEmissive { get; private set; } = -1;
+        public int UColorMaterial { get; private set; } = -1;
+        public int UMetallicRoughness { get; private set; } = -1;
+        public int UUseTexturesAlbedoNormalEmissive { get; private set; } = -1;
+        public int UUseTexturesMetallicRoughness { get; private set; } = -1;
+        public int UTextureMetallicRoughnessCombined { get; private set; } = -1;
+        public int UTextureNormal { get; private set; } = -1;
+        public int UTextureAlbedo { get; private set; } = -1;
+        public int UTextureMetallic { get; private set; } = -1;
+        public int UTextureRoughness { get; private set; } = -1;
+        public int UTextureEmissive { get; private set; } = -1;
+        public int UTextureTransparency { get; private set; } = -1;
+        public int UTextureTransform { get; private set; } = -1;
+        public int UUseAnimations { get; private set; } = -1;
+        public int UBoneTransforms { get; private set; } = -1;
+        public int UShadowMap { get; private set; } = -1;
+        public int UShadowMapCube { get; private set; } = -1;
+        public int UViewProjectionMatrixShadowMap { get; private set; } = -1;
+        public int UViewProjectionMatrixShadowMapOuter { get; private set; } = -1;
+        public int UCameraPos { get; private set; } = -1;
+        public int ULights { get; private set; } = -1;
+        public int ULightCount { get; private set; } = -1;
+        public int UColorAmbient { get; private set; } = -1;
+        public int UMetallicType { get; private set; } = -1;
+        public int UTextureSkybox { get; private set; } = -1;
+        public int UTextureBackground { get; private set; } = -1;
+        public int UUseTextureReflection { get; private set; } = -1;
+        public int UTextureSkyboxRotation { get; private set; } = -1;
+        public int UShadowCaster { get; private set; } = -1;
+        public int UTextureClip { get; private set; } = -1;
+        public int UBlockIndex { get; private set; } = -1;
 
 
         private const int TEXTUREOFFSET = 0;        
 
-        public static void Init()
+        public void Init()
         {
             if (ProgramID < 0)
             {
@@ -120,12 +121,12 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Bind()
+        public void Bind()
         {
             GL.UseProgram(ProgramID);
         }
 
-        public static void SetGlobals()
+        public void SetGlobals()
         {
             // lights array:
             GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * KWEngine.LIGHTINDEXDIVIDER, KWEngine.CurrentWorld._preparedLightsArray);
@@ -221,7 +222,7 @@ namespace KWEngine3.Renderer
                 KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.Standard ? -1 : 0,
                 KWEngine.CurrentWorld._background._mipMapLevels,
                 (int)(KWEngine.CurrentWorld._background._brightnessMultiplier * 1000),
-                (int)KWEngine.Window._ppQuality > 1 ? 1 : 0);
+                KWEngine.Window._renderQuality > RenderQualityLevel.Default ? 1 : 0);
             GL.Uniform4(UUseTextureReflection, reflectionStats);
             if (KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.Equirectangular && KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
             {
@@ -233,17 +234,17 @@ namespace KWEngine3.Renderer
             }
         }
 
-        private static void SortByZ(List<GameObject> transparentObjects)
+        private void SortByZ(List<GameObject> transparentObjects)
         {
             transparentObjects.Sort();
         }
 
-        private static void SortByZ(List<RenderObject> transparentObjects)
+        private void SortByZ(List<RenderObject> transparentObjects)
         {
             transparentObjects.Sort();
         }
 
-        public static void RenderScene(List<RenderObject> transparentObjects)
+        public void RenderScene(List<RenderObject> transparentObjects)
         {
             if (KWEngine.CurrentWorld != null)
             {
@@ -258,7 +259,7 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Draw(RenderObject r)
+        public void Draw(RenderObject r)
         {
             if (r._stateRender._opacity == 0)
                 return;
@@ -349,7 +350,7 @@ namespace KWEngine3.Renderer
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
         }
 
-        private static void UploadTextures(ref GeoMaterial material, EngineObject g)
+        private void UploadTextures(ref GeoMaterial material, EngineObject g)
         {
             // Albedo
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
@@ -394,6 +395,51 @@ namespace KWEngine3.Renderer
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureRoughness.IsTextureSet ? material.TextureRoughness.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 5);
             }
+        }
+
+        public void Draw()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(Framebuffer fbSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<GameObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderSceneForLight(LightObject l)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(TerrainObject t)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(ViewSpaceGameObject vsgo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g, bool isVSG = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }

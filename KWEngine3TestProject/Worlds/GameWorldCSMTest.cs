@@ -23,9 +23,10 @@ namespace KWEngine3TestProject.Worlds
 
 
             Immovable box1 = new Immovable();
-            box1.SetPosition(-4.5f, 0.5f, -4f);
+            box1.SetPosition(-4.5f, 1.0f, -4f);
             box1.SetColor(1, 1, 0);
             box1.IsShadowCaster = true;
+            box1.SetOpacity(0.5f);
             box1.Name = "YELLOW";
             AddGameObject(box1);
 
@@ -63,24 +64,26 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(floor);
             */
 
-            
+            /*
             LightObjectSun sun = new LightObjectSun(ShadowQuality.High, SunShadowType.CascadedShadowMap);
-            sun.SetCSMFactor(CSMFactor.Two);
+            sun.SetCSMFactor(CSMFactor.Eight);
             sun.SetPosition(25, 25, 25);
             sun.SetTarget(0, 0, 0);
             sun.SetFOV(10);
             sun.Name = "SUN";
             sun.SetColor(1, 1, 1, 2.5f);
             AddLightObject(sun);
+            */
             
             
             LightObjectPoint pointlight = new LightObjectPoint(ShadowQuality.High);
             pointlight.SetPosition(0, 5, 0);
-            pointlight.SetColor(1, 1, 1, 1.25f);
-            pointlight.SetNearFar(0, 10);
+            pointlight.SetColor(1, 1, 1, 3.0f);
+            pointlight.SetNearFar(0, 100);
             pointlight.Name = "POINTLIGHT";
             AddLightObject(pointlight);
 
+            /*
             LightObjectDirectional flashlight = new LightObjectDirectional(ShadowQuality.High);
             flashlight.SetPosition(4, 1, 4);
             flashlight.SetTarget(6, 0.5f, 7);
@@ -88,7 +91,8 @@ namespace KWEngine3TestProject.Worlds
             flashlight.SetColor(0, 1, 0, 4);
             flashlight.Name = "FLASHLIGHT";
             AddLightObject(flashlight);
-            
+            */
+
             TextObject text = new TextObject("Wahnsinnsloses Wort");
             text.SetPosition(-4.25f, 0.5f, -3.25f);
             text.SetScale(0.5f);

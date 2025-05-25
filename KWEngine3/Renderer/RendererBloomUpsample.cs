@@ -56,7 +56,7 @@ namespace KWEngine3.Renderer
 
         public static void Draw(Framebuffer fbSource1, Framebuffer fbSource2) // currently from lighting pass
         {
-            bool hq = KWEngine.Window._ppQuality == PostProcessingQuality.High;
+            bool hq = KWEngine.Window._renderQuality == RenderQualityLevel.High;
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource1.Attachments[0].ID);

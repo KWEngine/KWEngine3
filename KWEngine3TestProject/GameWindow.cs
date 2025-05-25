@@ -9,7 +9,7 @@ namespace KWEngine3TestProject
             1280,                           // Window width
             720,                            // Window height
             true,                           // VSync on?
-            PostProcessingQuality.Standard, // Quality level (Standard recommended for iGPUs)
+            RenderQualityLevel.Default,     // Render quality level ('Low' recommended for iGPUs)
             WindowMode.Default              // Window mode
             )
         {

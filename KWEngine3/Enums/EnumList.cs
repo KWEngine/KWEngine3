@@ -879,18 +879,22 @@
     }
 
     /// <summary>
-    /// Aktivierung von Post-Processing-Effekten (Standard: hohe Qualität)
+    /// Renderqualität [Standard: ausgeglichene Qualität]
     /// </summary>
-    public enum PostProcessingQuality
+    public enum RenderQualityLevel
     {
         /// <summary>
-        /// Hoch
+        /// Hohe Qualität (für leistungsstarke GPUs)
         /// </summary>
-        High = 2,
+        High = 1,
         /// <summary>
         /// Standard (vorausgewählt)
         /// </summary>
-        Standard = 1
+        Default = 0,
+        /// <summary>
+        /// Niedrige Qualität (für Onboard-GPUs)
+        /// </summary>
+        Low = -1
     };
 
     /// <summary>

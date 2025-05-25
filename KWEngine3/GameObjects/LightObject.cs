@@ -61,7 +61,7 @@ namespace KWEngine3.GameObjects
                 _shadowMapSize = (int)ShadowQualityLevel;
             }
 
-            if (lightType == LightType.Point)
+            if (lightType == LightType.Point && KWEngine.Window._renderQuality > RenderQualityLevel.Low)
                 _shadowBias = 0.0002f;
 
             _stateCurrent = new LightObjectState(this, lightType);
@@ -312,7 +312,15 @@ namespace KWEngine3.GameObjects
         {
             if (_fbShadowMap == null)
             {
-                _fbShadowMap = new FramebufferShadowMap(_shadowMapSize, _shadowMapSize, Type, ShadowType);
+                if(KWEngine.Window._renderQuality == RenderQualityLevel.Low)
+                {
+                    _fbShadowMap = new FramebufferShadowMapLQ(_shadowMapSize, _shadowMapSize, Type, ShadowType);
+                }
+                else
+                {
+                    _fbShadowMap = new FramebufferShadowMap(_shadowMapSize, _shadowMapSize, Type, ShadowType);
+                }
+                
                 Framebuffer.UpdateGlobalShadowMapCounter(true);
             }
         }

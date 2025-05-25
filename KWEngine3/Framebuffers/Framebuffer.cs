@@ -56,9 +56,6 @@ namespace KWEngine3.Framebuffers
                 attachment.Dispose();
             }
 
-            //GL.DeleteRenderbuffers(Renderbuffers.Count, Renderbuffers.ToArray());
-            //Renderbuffers.Clear();
-
             Attachments.Clear();
             GL.DeleteFramebuffers(1, new int[] { ID });
             ID = -1;

@@ -1,31 +1,26 @@
 ﻿using KWEngine3.Assets;
+using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
-using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KWEngine3.Renderer
 {
-    internal class RendererShadowMapTerrain
+    internal class RendererShadowMapTerrain : IRenderer
     {
-        public static int ProgramID { get; private set; } = -1;
-        public static int UViewProjectionMatrix { get; private set; } = -1;
-        public static int UModelMatrix { get; private set; } = -1;
-        public static int UNearFarSun { get; private set; } = -1;
-        public static int UTerrainData { get; private set; } = -1;
-        public static int UTextureHeightMap { get; private set; } = -1;
-        public static int UCamPosition { get; private set; } = -1;
-        public static int UCamDirection { get; private set; } = -1;
-        public static int UTerrainThreshold { get; private set; } = -1;
+        public int ProgramID { get; private set; } = -1;
+        public int UViewProjectionMatrix { get; private set; } = -1;
+        public int UModelMatrix { get; private set; } = -1;
+        public int UNearFarSun { get; private set; } = -1;
+        public int UTerrainData { get; private set; } = -1;
+        public int UTextureHeightMap { get; private set; } = -1;
+        public int UCamPosition { get; private set; } = -1;
+        public int UCamDirection { get; private set; } = -1;
+        public int UTerrainThreshold { get; private set; } = -1;
 
-        public static void Init()
+        public void Init()
         {
             if (ProgramID < 0)
             {
@@ -72,12 +67,16 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void Bind()
+        public void SetGlobals()
+        {
+
+        }
+        public void Bind()
         {
             GL.UseProgram(ProgramID);
         }
 
-        public static void RenderSceneForLight(LightObject l)
+        public void RenderSceneForLight(LightObject l)
         {
             if (l.ShadowQualityLevel != ShadowQuality.NoShadow && l.Color.W > 0)
             {
@@ -104,7 +103,7 @@ namespace KWEngine3.Renderer
                 }
             }
         }
-        public static void Draw(TerrainObject t)
+        public void Draw(TerrainObject t)
         {
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
@@ -119,6 +118,51 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(KWTerrainQuad.VAO);
             GL.DrawArraysInstanced(PrimitiveType.Patches, 0, 4, (t.Width * t.Depth) / (KWEngine.TERRAIN_PATCH_SIZE * KWEngine.TERRAIN_PATCH_SIZE));
             GL.BindVertexArray(0);
+        }
+
+        public void Draw()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(Framebuffer fbSource)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<GameObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RenderScene(List<RenderObject> transparentObjects)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(RenderObject r)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(ViewSpaceGameObject vsgo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Draw(GameObject g, bool isVSG = false)
+        {
+            throw new NotImplementedException();
         }
     }
 }
