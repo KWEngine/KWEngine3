@@ -215,13 +215,14 @@ vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fra
 	return refl;
 }
 
-vec3 getFragmentPosition()
+vec4 getFragmentPosition()
 {
-    float depth = texture(uTextureDepth, vTexture).r * 2.0 - 1.0;
+    float depth01 = texture(uTextureDepth, vTexture).r;
+    float depth = depth01 * 2.0 - 1.0;
     vec4 clipSpaceCoordinate = vec4(vTexture * 2.0 - 1.0, depth, 1.0);
     vec4 worldSpaceCoordinate = uViewProjectionMatrixInverted * clipSpaceCoordinate;
     worldSpaceCoordinate.xyz /= worldSpaceCoordinate.w;
-    return worldSpaceCoordinate.xyz;
+    return vec4(worldSpaceCoordinate.xyz, depth01);
 }
 
 vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
@@ -273,7 +274,8 @@ void main()
     vec3 emissive = vec3(max(0, albedo.x - 1.0), max(0, albedo.y - 1.0), max(0, albedo.z - 1.0));
     albedo = vec3(min(albedo.x, 1.0), min(albedo.y, 1.0), min(albedo.z, 1.0));
     
-    vec3 fragPosition = getFragmentPosition();
+    vec4 fragPosition4 = getFragmentPosition();
+    vec3 fragPosition = fragPosition4.xyz;
     vec3 N = normal;
     vec3 V = normalize(uCameraPos - fragPosition);
     vec3 F0 = getF0(int(pbr.z));
@@ -403,5 +405,7 @@ void main()
     if(colorTemp.z > 1.0)
         bloomB = colorTemp.z - 1.0;
     bloom = vec4(bloomR, bloomG, bloomB, 1.0);
+
+    gl_FragDepth = fragPosition4.w;
 }
 

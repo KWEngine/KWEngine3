@@ -16,8 +16,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            SetCameraPosition(0, 15, 15);
-            SetCameraTarget(0, 0, 0);
+            SetCameraPosition(0, 15, 50);
+            SetCameraTarget(0, -5, 0);
             SetCameraFOV(90);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
 
@@ -54,6 +54,11 @@ namespace KWEngine3TestProject.Worlds
             ro2.IsShadowCaster = true;
             ro2.Name = "BLUE";
             AddRenderObject(ro2);
+
+            //SetBackground2D("./Textures/greenmountains.dds");
+            //SetBackgroundSkybox("./Textures/skybox.dds");
+            SetBackgroundSkybox("./Textures/skyboxhdri.png", 0, SkyboxType.Equirectangular);
+            SetBackgroundBrightnessMultiplier(4);
 
             /*
             Immovable floor = new Immovable();

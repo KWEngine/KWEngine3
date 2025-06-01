@@ -61,7 +61,6 @@ namespace KWEngine3.Renderer
         public static void Draw()
         {
             GL.DepthFunc(DepthFunction.Lequal);
-            GL.Enable(EnableCap.Blend);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, KWEngine.CurrentWorld._background._standardId);
@@ -82,7 +81,6 @@ namespace KWEngine3.Renderer
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
             GL.BindVertexArray(0);
 
-            GL.Disable(EnableCap.Blend);
             GL.DepthFunc(DepthFunction.Less);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.UseProgram(0);

@@ -522,9 +522,8 @@ namespace KWEngine3
 
                 // Lighting pass:
                 HelperDebug.StartTimeQuery(RenderType.Lighting);
+                GL.Enable(EnableCap.DepthTest);
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
-                RenderManager.FramebufferLightingPass.CopyDepthFrom(RenderManager.FramebufferDeferred);
-                RenderManager.FramebufferLightingPass.Bind(false);
                 if(KWEngine.GBufferLighting == GBufferLightingMode.Default)
                 {
                     RenderManager.IRendererLightingPass.Bind();
@@ -540,7 +539,6 @@ namespace KWEngine3
 
                 HelperDebug.StopTimeQuery(RenderType.Lighting);
 
-                GL.Enable(EnableCap.DepthTest);
                 GL.Viewport(0, 0, Width, Height);
                 if (KWEngine.CurrentWorld._background.Type != BackgroundType.None)
                 {
