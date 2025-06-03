@@ -509,6 +509,6 @@ void main()
         bloomB = colorTemp.z - 1.0;
     bloom = vec4(bloomR, bloomG, bloomB, 1.0);
 
-    gl_FragDepth = fragPosition4.w;
+    gl_FragDepth = id >= 32768 ? 0.0 : fragPosition4.w;
 }
 
