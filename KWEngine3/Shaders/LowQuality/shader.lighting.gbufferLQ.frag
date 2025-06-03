@@ -260,10 +260,7 @@ void main()
     vec3 sampleIdShadowCaster = texture(uTextureId, vTexture).xyz;
     uint id  = getId(sampleIdShadowCaster);
 
-    if(id == 0)
-    {
-        discard;
-    }
+    if(id == 0) { discard; }
 
     // actual shading:
     vec3 albedo = getAlbedo();
@@ -406,6 +403,6 @@ void main()
         bloomB = colorTemp.z - 1.0;
     bloom = vec4(bloomR, bloomG, bloomB, 1.0);
 
-    gl_FragDepth = id >= 32768 ? 0.0 : fragPosition4.w;
+    gl_FragDepth = id >= 32768 && id < 65535 ? 0.0 : fragPosition4.w;
 }
 
