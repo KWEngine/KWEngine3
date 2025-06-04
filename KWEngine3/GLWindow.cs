@@ -351,6 +351,10 @@ namespace KWEngine3
             // Start render process:
             if (KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld._startingFrameActive)
             {
+                GL.Enable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.CullFace);
+                GL.CullFace(TriangleFace.Back);
+
                 HelperDebug.StartTimeQuery(RenderType.Deferred);
                 #region [DEFERRED PASS]
                 GL.Disable(EnableCap.Blend);
@@ -750,8 +754,6 @@ namespace KWEngine3
 
             // bring image to monitor screen:
             SwapBuffers();
-
-            GL.Enable(EnableCap.DepthTest);
         }
 
         /// <summary>

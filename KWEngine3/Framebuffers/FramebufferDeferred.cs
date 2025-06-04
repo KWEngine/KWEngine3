@@ -35,7 +35,7 @@ namespace KWEngine3.Framebuffers
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             ClearColorValues.Add(0, new float[] { 0, 0, 0 });
-            ClearColorValues.Add(1, new float[] { 0, 0 });
+            ClearColorValues.Add(1, new float[] { 0, 0, 0 });
             ClearColorValues.Add(2, new float[] { 0, 1, 0 });
             ClearColorValues.Add(3, new float[] { 0, 0, 0 });
 
