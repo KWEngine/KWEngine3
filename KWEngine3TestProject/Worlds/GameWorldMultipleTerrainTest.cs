@@ -16,16 +16,37 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap128.png", 50);
-            TerrainObject t = new TerrainObject("Terrain");
-            t.IsCollisionObject = true;
-            t.SetTexture("./Textures/grass_albedo.png");
-            t.SetTexture("./Textures/grass_normal.png", TextureType.Normal);
-            t.SetTexture("./Textures/grass_roughness.png", TextureType.Roughness);
-            t.SetTextureForSlope("./Textures/limestone-cliffs_albedo.png");
-            t.SetTextureForSlope("./Textures/limestone-cliffs_normal.png", TextureType.Normal);
-            t.SetTextureSlopeBlendFactor(0.5f);
-            AddTerrainObject(t);
+            List<string> terrainNames = new List<string>();
+            int tIndex = 0;
+            foreach(FileInfo fi in new DirectoryInfo("./Textures/TerrainTest").GetFiles())
+            {
+                string tname = "Terrain" + tIndex.ToString().PadLeft(2, '0');
+                KWEngine.BuildTerrainModel(tname, fi.FullName, 50);
+                terrainNames.Add(tname);
+            }
+
+            int xOffset = -terrainNames.Count / 2 / 2;
+            int zOffset = -terrainNames.Count / 2 / 2;
+            int counter = 0;
+            foreach (string tname in terrainNames)
+            {
+                TerrainObject t = new TerrainObject(tname);
+                t.IsCollisionObject = true;
+                t.SetTexture("./Textures/grass_albedo.png");
+                t.SetTexture("./Textures/grass_normal.png", TextureType.Normal);
+                t.SetTexture("./Textures/grass_roughness.png", TextureType.Roughness);
+                t.SetTextureForSlope("./Textures/limestone-cliffs_albedo.png");
+                t.SetTextureForSlope("./Textures/limestone-cliffs_normal.png", TextureType.Normal);
+                t.SetTextureSlopeBlendFactor(0.5f);
+                t.SetPosition(xOffset, 0, zOffset);
+                AddTerrainObject(t);
+
+                counter++;
+                if(counter > 0 && counter % 4 == 0)
+                {
+                    xOffset += 32;
+                }
+            }
 
             Player p = new Player();
             p.SetOpacity(0);
