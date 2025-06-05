@@ -23,11 +23,13 @@ namespace KWEngine3TestProject.Worlds
                 string tname = "Terrain" + tIndex.ToString().PadLeft(2, '0');
                 KWEngine.BuildTerrainModel(tname, fi.FullName, 50);
                 terrainNames.Add(tname);
+                tIndex++;
             }
 
-            int xOffset = -terrainNames.Count / 2 / 2;
-            int zOffset = -terrainNames.Count / 2 / 2;
             int counter = 0;
+            int counterZ = 0;
+            int zOffset = -64 + 16;
+            int xOffset = -64 + 16;
             foreach (string tname in terrainNames)
             {
                 TerrainObject t = new TerrainObject(tname);
@@ -39,19 +41,26 @@ namespace KWEngine3TestProject.Worlds
                 t.SetTextureForSlope("./Textures/limestone-cliffs_normal.png", TextureType.Normal);
                 t.SetTextureSlopeBlendFactor(0.5f);
                 t.SetPosition(xOffset, 0, zOffset);
+                Console.WriteLine("placing new terrain @ x="+xOffset+"|z=" + zOffset);
                 AddTerrainObject(t);
 
                 counter++;
+                counterZ++;
                 if(counter > 0 && counter % 4 == 0)
                 {
                     xOffset += 32;
+                }
+                if(counterZ == 4)
+                {
+                    zOffset += 32;
+                    counterZ = 0;
                 }
             }
 
             Player p = new Player();
             p.SetOpacity(0);
             p.SetRotation(0, 180, 0);
-            p.SetPosition(0, 50, 75);
+            p.SetPosition(0, 50, 150);
             AddGameObject(p);
             SetCameraToFirstPersonGameObject(p, 0.25f);
 
