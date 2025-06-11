@@ -27,7 +27,6 @@ namespace KWEngine3TestProject.Worlds
             }
 
             int counter = 0;
-            int counterZ = 0;
             int zOffset = -64 + 16;
             int xOffset = -64 + 16;
             foreach (string tname in terrainNames)
@@ -45,15 +44,15 @@ namespace KWEngine3TestProject.Worlds
                 AddTerrainObject(t);
 
                 counter++;
-                counterZ++;
-                if(counter > 0 && counter % 4 == 0)
+
+                if(counter % 4 == 0)
+                {
+                    xOffset = -64 + 16;
+                    zOffset += 32;
+                }
+                else
                 {
                     xOffset += 32;
-                }
-                if(counterZ == 4)
-                {
-                    zOffset += 32;
-                    counterZ = 0;
                 }
             }
 
