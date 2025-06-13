@@ -61,8 +61,9 @@ namespace KWEngine3TestProject.Classes.WorldParticleTest
                     _timestampLastAttack = WorldTime;
                     isMoving = false;
 
-                    FXSlash slash = new FXSlash(Center + LookAtVectorLocalRight);                   
+                    FXSlash slash = new FXSlash(Center + LookAtVectorLocalRight);
                     CurrentWorld.AddGameObject(slash);
+                    //CurrentWorld.AddRenderObject(slash);
 
                 }
             }

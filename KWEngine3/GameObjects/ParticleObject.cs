@@ -28,6 +28,7 @@ namespace KWEngine3.GameObjects
         internal float _aliveInMS = 0;
         internal float _scaleFactor = 1;
         internal ParticleInfo _info;
+        internal float _hue = 0;
 
         /// <summary>
         /// Setzt die Dauer der Loop-Partikel
@@ -41,6 +42,24 @@ namespace KWEngine3.GameObjects
             {
                 KWEngine.LogWriteLine("Cannot set duration on this ParticleObject.");
             }
+        }
+
+        /// <summary>
+        /// Setzt die Farbverschiebung (Hue) in Grad
+        /// </summary>
+        /// <param name="hue">Farbverschiebung (in Grad)</param>
+        public void SetHue(float hue)
+        {
+            _hue = MathHelper.DegreesToRadians(hue % 360f);
+        }
+
+        /// <summary>
+        /// Erfragt die aktuelle Farbverschiebung (Hue) in Grad
+        /// </summary>
+        /// <returns>Aktuelle Farbverschiebung (in Grad)</returns>
+        public float GetHue()
+        {
+            return MathHelper.RadiansToDegrees(_hue);
         }
 
         /// <summary>

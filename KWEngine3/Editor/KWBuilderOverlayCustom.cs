@@ -279,20 +279,29 @@ namespace KWEngine3.Editor
                 {
                     SelectedGameObject.SetColor(colorTintNew.X, colorTintNew.Y, colorTintNew.Z);
                 }
+                float hue = MathHelper.RadiansToDegrees(SelectedGameObject._hues[0]);
+                if(ImGui.SliderFloat("Color hue", ref hue, 0f, 359.99999f))
+                {
+                    SelectedGameObject.SetHue(hue);
+                }
                 if (!SelectedGameObject.HasEmissiveTexture)
                 {
                     if (ImGui.ColorEdit3("Color emissive", ref colorEmissiveNew, ImGuiColorEditFlags.Float))
                     {
                         SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, SelectedGameObject._stateCurrent._colorEmissive.W);
                     }
-                    if (ImGui.SliderFloat("", ref colorEmissiveIntensityNew, 0, 2, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                    if (ImGui.SliderFloat("Emissive intensity", ref colorEmissiveIntensityNew, 0, 2, "%.2f", ImGuiSliderFlags.AlwaysClamp))
                     {
                         SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, colorEmissiveIntensityNew);
                     }
-                    ImGui.SameLine();
-                    ImGui.Text("Emissive intensity");
                 }
-                
+                else
+                {
+                    if (ImGui.SliderFloat("Emissive intensity", ref colorEmissiveIntensityNew, 0, 2, "%.2f", ImGuiSliderFlags.AlwaysClamp))
+                    {
+                        SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, colorEmissiveIntensityNew);
+                    }
+                }
 
                 ImGui.Separator();
 

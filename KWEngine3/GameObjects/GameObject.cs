@@ -1489,6 +1489,7 @@ namespace KWEngine3.GameObjects
                     {
                         _model.Material[i] = model.Meshes.Values.ToArray()[i].Material;
                     }
+                    _hues = new float[model.Meshes.Count];
                     InitHitboxes();
                     InitRenderStateMatrices();
                     ResetBoneAttachments();

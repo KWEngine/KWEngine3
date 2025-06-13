@@ -316,6 +316,7 @@
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
       <Field Name="_frame" Hidden="true" />
+      <Field Name="_hue" Hidden="true" />
       <Field Name="_info" Hidden="true" />
       <Field Name="_lastUpdate" Hidden="true" />
       <Field Name="_model" Hidden="true" />
@@ -332,7 +333,7 @@
       <Method Name="GetViewMatrixTowardsCamera" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>IAAgAAAAAAAAAAQwAgAABAAoAAKAAgAAACgggAEAAWA=</HashCode>
+      <HashCode>IAAgAAAAAAABAAQwggAABAAoAAKAAgAAACgogAEAAWA=</HashCode>
       <FileName>GameObjects\ParticleObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -547,6 +548,7 @@
     <Position X="6.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_colliderModel" Hidden="true" />
+      <Field Name="_hues" Hidden="true" />
       <Field Name="_importedID" Hidden="true" />
       <Field Name="_isAffectedByLight" Hidden="true" />
       <Field Name="_isShadowCaster" Hidden="true" />
@@ -576,7 +578,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyNDJ1oOGJygUIRuQgqAoUYBACTByxgJIIiEnkBYRVQ=</HashCode>
+      <HashCode>QyNDJ1oOGJygUIRuwgqAoUYBACTByxgJIIiMnkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>

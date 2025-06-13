@@ -122,7 +122,6 @@ namespace KWEngine3.Renderer
         public static void Draw(RenderObject r)
         {
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
-            GL.Uniform3(UColorTint, r._stateRender._colorTint);
 
             int val = r.IsShadowCaster ? 1 : -1;
             val *= r.IsAffectedByLight ? 1 : 10;
@@ -137,12 +136,9 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
+                GL.Uniform4(UColorTint, new Vector4(r._stateRender._colorTint, r._hues[i]));
                 GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, Convert.ToSingle((int)r._model._metallicType)));
-
-                if (material.TextureEmissive.IsTextureSet)
-                    GL.Uniform4(UColorEmissive, Vector4.Zero);
-                else
-                    GL.Uniform4(UColorEmissive, r._stateRender._colorEmissive);
+                GL.Uniform4(UColorEmissive, r._stateRender._colorEmissive);
 
                 if (r.IsAnimated)
                 {

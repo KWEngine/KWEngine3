@@ -1,12 +1,6 @@
 ﻿using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace KWEngine3.GameObjects
 {
@@ -905,6 +899,37 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        /// <summary>
+        /// Setzt die Farbverschiebung (Hue) in Grad
+        /// </summary>
+        /// <param name="hue">Farbverschiebung (in Grad)</param>
+        /// <param name="meshIndex">Index des Model-Meshs (Standard: 0)</param>
+        public void SetHue(float hue, int meshIndex = 0)
+        {
+            if (_model.ModelOriginal.Meshes.Count > meshIndex)
+                _hues[meshIndex] = MathHelper.DegreesToRadians(hue % 360f);
+            else
+                KWEngine.LogWriteLine("[EngineObject] Invalid meshIndex value");
+        }
+
+        /// <summary>
+        /// Erfragt die aktuelle Farbverschiebung (Hue) in Grad
+        /// </summary>
+        /// <param name="meshIndex">Index des Model-Meshs (Standard: 0)</param>
+        /// <returns>Aktuelle Farbverschiebung (in Grad)</returns>
+        public float GetHue(int meshIndex = 0)
+        {
+            if (_model.ModelOriginal.Meshes.Count > meshIndex)
+            {
+                return MathHelper.RadiansToDegrees(_hues[meshIndex]);
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] Invalid meshIndex value - returning 0");
+                return 0f;
+            }
+        }
+
         #region internals
         internal bool _isShadowCaster = false;
         internal bool _isAffectedByLight = true;
@@ -914,11 +939,11 @@ namespace KWEngine3.GameObjects
         internal string _name = "(no name)";
         internal EngineObjectModel _model;
         internal ColliderModel _colliderModel;
-        //internal List<GameObjectHitbox> _hitboxes = new();
         internal string _modelNameInDB = "KWCube";
         internal int _importedID = -1;
         internal float _positionCenterDelta = 0f;
         internal bool _positionLowerThanCenter = true;
+        internal float[] _hues;
 
         internal void CheckPositionAndCenter()
         {

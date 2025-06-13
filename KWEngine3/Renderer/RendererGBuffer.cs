@@ -120,8 +120,6 @@ namespace KWEngine3.Renderer
             if (g._stateCurrent._opacity <= 0f)
                 return;
 
-            GL.Uniform3(UColorTint, g._stateRender._colorTint);
-
             int val = g.IsShadowCaster ? 1 : -1;
             val *= g.IsAffectedByLight ? 1 : 10;
             GL.Uniform2(UIdShadowCaster, new Vector2i(g.ID, val));
@@ -135,12 +133,9 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
+                GL.Uniform4(UColorTint, new Vector4(g._stateRender._colorTint, g._hues[i]));
                 GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, Convert.ToSingle((int)g._model._metallicType)));
-
-                if (material.TextureEmissive.IsTextureSet)
-                    GL.Uniform4(UColorEmissive, Vector4.Zero);
-                else
-                    GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
+                GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
 
                 if (g.IsAnimated)
                 {

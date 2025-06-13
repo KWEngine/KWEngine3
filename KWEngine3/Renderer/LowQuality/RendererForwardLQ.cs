@@ -281,7 +281,7 @@ namespace KWEngine3.Renderer.LowQuality
                 if (material.ColorAlbedo.W <= 0)
                     continue;
 
-                GL.Uniform2(UMetallicRoughness, new Vector2(material.Metallic, material.Roughness));
+                GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, g._hues[i]));
 
                 if (g.IsAnimated)
                 {

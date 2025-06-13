@@ -8,9 +8,18 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldParticleTest : World
     {
+        private float _time = 0f;
         public override void Act()
         {
-            
+            if(_time == 0f || WorldTime - _time > 3f)
+            {
+                ParticleObject p = new ParticleObject(2, ParticleType.BurstFire1);
+                p.SetPosition(0, 3, 0);
+                p.SetHue(200);
+                AddParticleObject(p);
+
+                _time = WorldTime;
+            }
         }
 
         public override void Prepare()
@@ -38,6 +47,9 @@ namespace KWEngine3TestProject.Worlds
             f01.SetPosition(0, -1, 0);
             f01.SetScale(20, 2, 1);
             f01.IsCollisionObject = true;
+            f01.SetTexture("./Textures/building_albedo.jpg");
+            f01.SetTexture("./Textures/building_emissive.jpg", TextureType.Emissive);
+            f01.SetTextureRepeat(10, 1);
             AddGameObject(f01);
         }
     }

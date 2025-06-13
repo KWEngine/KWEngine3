@@ -10,7 +10,7 @@ layout(location = 1) out vec3 normal;
 layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
 
-uniform vec3 uColorTint;
+uniform vec4 uColorTint; // 2025-06-13 vec3 -> vec4 for hue
 uniform vec3 uColorMaterial;
 uniform vec4 uColorEmissive;
 uniform vec3 uMetallicRoughness;
@@ -47,14 +47,23 @@ vec2 encode16BitUintTo8Bit(uint value16)
     return vec2(high8 / 255.0, low8 / 255.0);
 }
 
+// 2025-06-13: added hue
+vec3 hueShift(vec3 color, float hue)
+{
+	const vec3 k = vec3(0.57735, 0.57735, 0.57735);
+	float cosAngle = cos(hue);
+	return vec3(color * cosAngle + cross(k, color) * sin(hue) + k * dot(k, color) * (1.0 - cosAngle));
+}
+
 void main()
 {
 	vec3 emissive;
 	// Emissive color:
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
 	{
-		vec3 emissiveFromTexture = texture(uTextureEmissive, vTexture).xyz * 5.0;
-		emissive = emissiveFromTexture + uColorEmissive.xyz * uColorEmissive.w;
+		vec4 tmp = texture(uTextureEmissive, vTexture);
+		vec3 emissiveFromTexture = hueShift(tmp.xyz, uColorTint.w) * tmp.w;
+		emissive = (emissiveFromTexture + uColorEmissive.xyz) * uColorEmissive.w;
 	}
 	else
 	{
@@ -64,11 +73,11 @@ void main()
 	// Albedo color:
 	if(uUseTexturesAlbedoNormalEmissive.x > 0)
 	{
-		albedo = texture(uTextureAlbedo, vTexture).xyz * uColorTint  + emissive;
+		albedo = hueShift(texture(uTextureAlbedo, vTexture).xyz, uColorTint.w) * uColorTint.xyz  + emissive;
 	}
 	else
 	{
-		albedo = uColorMaterial.xyz * uColorTint.xyz + emissive;
+		albedo = hueShift(uColorMaterial.xyz, uColorTint.w) * uColorTint.xyz + emissive;
 	}
 
 	

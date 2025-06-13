@@ -29,16 +29,12 @@ namespace KWEngine3TestProject.Classes.WorldParticleTest
             HasTransparencyTexture = true;
             SetPosition(spawnPosition + Vector3.UnitZ);
             SetScale(2);
-            SetColor(
-                HelperRandom.GetRandomNumber(0.75f, 1f),
-                HelperRandom.GetRandomNumber(0.75f, 1f),
-                HelperRandom.GetRandomNumber(0.75f, 1f)
-                );
+            SetHue(HelperRandom.GetRandomNumber(0f, 359f));
         }
 
         public override void Act()
         {
-            if(WorldTime - _spawnTime > 0.025f)
+            if(WorldTime - _spawnTime > 0.015f)
             {
                 _counter++;
                 _spawnTime = WorldTime;
@@ -46,6 +42,7 @@ namespace KWEngine3TestProject.Classes.WorldParticleTest
                 if(_counter > 15)
                 {
                     CurrentWorld.RemoveGameObject(this);
+                    //CurrentWorld.RemoveRenderObject(this);
                     return;
                 }
             }

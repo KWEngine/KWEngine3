@@ -33,7 +33,7 @@ uniform mat3 uTextureSkyboxRotation;
 uniform sampler2D uTextureBackground;
 uniform ivec4 uUseTextureReflectionQuality;
 
-uniform vec2 uMetallicRoughness;
+uniform vec3 uMetallicRoughness; // 2025-06-13: added hue as z-component
 uniform vec4 uColorEmissive;
 uniform vec4 uColorMaterial;
 uniform vec4 uColorTint;
@@ -255,16 +255,26 @@ vec4 getAlphaTexture()
     return texture(uTextureTransparency, vTexture);
 }
 
+// 2025-06-13: added hue
+vec3 hueShift(vec3 color, float hue)
+{
+	const vec3 k = vec3(0.57735, 0.57735, 0.57735);
+	float cosAngle = cos(hue);
+	return vec3(color * cosAngle + cross(k, color) * sin(hue) + k * dot(k, color) * (1.0 - cosAngle));
+}
+
 vec4 getAlbedo()
 {
-    vec4 albedo = vec4(1.0);
+    vec4 albedo;
     if(uUseTexturesAlbedoNormalEmissive.x > 0)
     {
-        albedo = texture(uTextureAlbedo, vTexture) * uColorTint;
+        vec4 tmp = texture(uTextureAlbedo, vTexture);
+        albedo = vec4(hueShift(tmp.xyz, uMetallicRoughness.z), tmp.w) * uColorTint;
     }
     else
     {
-        albedo = vec4(uColorMaterial * uColorTint);
+        
+        albedo = vec4(hueShift(uColorMaterial.xyz, uMetallicRoughness.z), uColorMaterial.w) * uColorTint;
     }
 
     vec4 alpha = getAlphaTexture();
@@ -277,7 +287,9 @@ vec4 getEmissive()
 {
     if(uUseTexturesAlbedoNormalEmissive.z > 0)
     {
-        return texture(uTextureEmissive, vTexture) + uColorEmissive;
+        vec4 emissiveFromTexture = texture(uTextureEmissive, vTexture);
+        vec4 result = vec4(hueShift(emissiveFromTexture.xyz * emissiveFromTexture.w, uMetallicRoughness.z), uColorEmissive.w);
+        return result;
     }
     else
     {

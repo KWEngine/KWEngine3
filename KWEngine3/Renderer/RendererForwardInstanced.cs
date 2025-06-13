@@ -234,11 +234,6 @@ namespace KWEngine3.Renderer
             }
         }
 
-        private void SortByZ(List<GameObject> transparentObjects)
-        {
-            transparentObjects.Sort();
-        }
-
         private void SortByZ(List<RenderObject> transparentObjects)
         {
             transparentObjects.Sort();
@@ -299,7 +294,7 @@ namespace KWEngine3.Renderer
 
                 GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
                 GL.UniformMatrix4(UNormalMatrix, false, ref r._stateRender._normalMatrices[i]);
-                GL.Uniform2(UMetallicRoughness, new Vector2(material.Metallic, material.Roughness));
+                GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, r._hues[i]));
                 GL.Uniform4(UColorMaterial, material.ColorAlbedo);
                 GL.Uniform4(UTextureTransform, new Vector4(
                 material.TextureAlbedo.UVTransform.X * r._stateRender._uvTransform.X,

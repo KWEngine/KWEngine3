@@ -86,7 +86,14 @@ namespace KWEngine3.GameObjects
                     textureId = HelperTexture.LoadTextureForModelExternal(filename, out int mipMaps);
                     if (textureId < 0)
                     {
-                        textureId = KWEngine.TextureDefault;
+                        if (type == TextureType.Albedo)
+                        {
+                            textureId = KWEngine.TextureDefault;
+                        }
+                        else
+                        {
+                            KWEngine.LogWriteLine("[EngineObject] Invalid texture file");
+                        }
                     }
                     else
                     {
@@ -94,7 +101,8 @@ namespace KWEngine3.GameObjects
                     }
 
                 }
-                Material[meshId].SetTexture(filename, type, textureId);
+                if(textureId >= 0)
+                    Material[meshId].SetTexture(filename, type, textureId);
             }
             else
             {

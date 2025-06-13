@@ -16,6 +16,7 @@ namespace KWEngine3.Renderer
         public static int UModelViewProjectionMatrix { get; private set; } = -1;
         public static int UColorTint { get; private set; } = -1;
         public static int UTexture { get; private set; } = -1;
+        public static int UColorHue { get; private set; } = -1;
         public static int ProgramID { get; private set; } = -1;
         public static void Init()
         {
@@ -47,6 +48,7 @@ namespace KWEngine3.Renderer
             UAnimationState = GL.GetUniformLocation(ProgramID, "uAnimationState");
             UAnimationStates = GL.GetUniformLocation(ProgramID, "uAnimationStates");
             UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
+            UColorHue = GL.GetUniformLocation(ProgramID, "uColorHue");
         }
 
         public static void Bind()
@@ -70,26 +72,27 @@ namespace KWEngine3.Renderer
 
         public static void Draw(ParticleObject po)
         {
+            GL.Uniform1(UColorHue, po._hue);
+            GL.Uniform4(UColorTint, ref po._tint);
+            
+            Matrix4 mvp = po._modelMatrix * (KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
+            GL.UniformMatrix4(UModelViewProjectionMatrix, false, ref mvp);
 
-                GL.Uniform4(UColorTint, ref po._tint);
-                Matrix4 mvp = po._modelMatrix * (KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
-                GL.UniformMatrix4(UModelViewProjectionMatrix, false, ref mvp);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, po._info.Texture);
+            GL.Uniform1(UTexture, 0);
 
-                GL.ActiveTexture(TextureUnit.Texture0);
-                GL.BindTexture(TextureTarget.Texture2D, po._info.Texture);
-                GL.Uniform1(UTexture, 0);
+            GL.Uniform1(UAnimationState, po._frame);
+            GL.Uniform1(UAnimationStates, po._info.Images);
 
-                GL.Uniform1(UAnimationState, po._frame);
-                GL.Uniform1(UAnimationStates, po._info.Images);
+            GeoMesh mesh = po._model.Meshes.Values.ElementAt(0);
+            GL.BindVertexArray(mesh.VAO);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+            GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
-                GeoMesh mesh = po._model.Meshes.Values.ElementAt(0);
-                GL.BindVertexArray(mesh.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-                GL.BindTexture(TextureTarget.Texture2D, 0);
-                GL.BindVertexArray(0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.BindVertexArray(0);
         }
     }
 }
