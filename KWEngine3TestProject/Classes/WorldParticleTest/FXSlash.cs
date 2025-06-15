@@ -12,8 +12,8 @@ namespace KWEngine3TestProject.Classes.WorldParticleTest
 {
     internal class FXSlash : GameObject
     {
-        private const int FIELDCOUNTX = 4;
-        private const int FIELDCOUNTY = 4;
+        private const int FIELDCOUNTX = 8;
+        private const int FIELDCOUNTY = 8;
 
         private float _spawnTime = 0f;
         private int _counter = 0;
@@ -22,13 +22,15 @@ namespace KWEngine3TestProject.Classes.WorldParticleTest
         {
             _spawnTime = KWEngine.WorldTime;
 
-            SetModel("KWQuad");
-            SetTexture("./Textures/slashtest.png");
+            SetModel("KWQuad2D");
+            SetTexture("./Textures/VFX/buff_01.dds");
             SetTextureRepeat(1f / FIELDCOUNTX, 1f / FIELDCOUNTY);
             SetTextureOffset(0, 0);
+            SetTextureClip(0f, 0.5f);
             HasTransparencyTexture = true;
+            BlendTextureStates = false;
             SetPosition(spawnPosition + Vector3.UnitZ);
-            SetScale(2);
+            SetScale(3, 1.5f);
             SetHue(HelperRandom.GetRandomNumber(0f, 359f));
         }
 
@@ -39,10 +41,9 @@ namespace KWEngine3TestProject.Classes.WorldParticleTest
                 _counter++;
                 _spawnTime = WorldTime;
 
-                if(_counter > 15)
+                if(_counter >= FIELDCOUNTX * FIELDCOUNTY)
                 {
                     CurrentWorld.RemoveGameObject(this);
-                    //CurrentWorld.RemoveRenderObject(this);
                     return;
                 }
             }

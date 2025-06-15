@@ -1,15 +1,17 @@
-﻿using OpenTK.Mathematics;
-using OpenTK.Graphics.OpenGL4;
-using System.Runtime.InteropServices;
+﻿using KWEngine3.FontGenerator;
+using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
+using KWEngine3.Model;
+using KWEngine3.Renderer;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using SkiaSharp;
 using System.Diagnostics;
 using System.Reflection;
-using KWEngine3.Model;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-using KWEngine3.Renderer;
-using KWEngine3.Framebuffers;
+using System.Runtime.InteropServices;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
-using KWEngine3.FontGenerator;
 
 namespace KWEngine3.Helper
 {
@@ -22,6 +24,37 @@ namespace KWEngine3.Helper
         {
             GetStringForCurrentlyPressedKeys(out string result, out specialKey);
             return result;
+        }
+
+        internal static WindowIcon GenerateWindowIconFromAssemblyIcon()
+        {
+            WindowIcon icon = null;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                byte[] colorData = HelperIconWindows.GetSmallIconAsByteArray(out int width, out int height);
+                if(colorData != null && colorData.Length > 0)
+                {
+                    using (SKBitmap bitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Unpremul))
+                    {
+                        for(int i = colorData.Length - 1, x = 0, y = 0; i > 0; i-=4)
+                        {
+                            byte a = colorData[i - 0];
+                            byte b = colorData[i - 1];
+                            byte g = colorData[i - 2];
+                            byte r = colorData[i - 3];
+
+                            bitmap.SetPixel(width - 1 - x++, y, new SKColor(r, g, b, a));
+                            if(x > 0 && x % width == 0)
+                            {
+                                y++;
+                                x = 0;
+                            }
+                        }
+                        icon = new WindowIcon(new OpenTK.Windowing.Common.Input.Image(bitmap.Width, bitmap.Height, bitmap.Bytes));
+                    }
+                }
+            }
+            return icon;
         }
 
         internal static void GetStringForCurrentlyPressedKeys(out string result, out Keys specialKey)

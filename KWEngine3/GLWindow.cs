@@ -110,7 +110,7 @@ namespace KWEngine3
                      ClientSize = new Vector2i(KWEngine.ScreenInformation.PrimaryScreenWidth, KWEngine.ScreenInformation.PrimaryScreenHeight),
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
-                     Icon = icon,
+                     Icon = icon == null ? HelperGeneral.GenerateWindowIconFromAssemblyIcon() : icon,
                      CurrentMonitor = Monitors.GetPrimaryMonitor().Handle,
                      StartVisible = false
                  }
@@ -140,7 +140,7 @@ namespace KWEngine3
                      WindowBorder = WindowBorder.Fixed,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
-                     Icon = icon,
+                     Icon = icon == null ? HelperGeneral.GenerateWindowIconFromAssemblyIcon() : icon,
                      Location = new Vector2i(KWEngine.ScreenInformation.PrimaryScreen.Width / 2 - width / 2, KWEngine.ScreenInformation.PrimaryScreen.Height / 2 - height / 2),
                      StartVisible = false
                  }
@@ -173,7 +173,7 @@ namespace KWEngine3
                      WindowBorder = windowMode == WindowMode.Default ? WindowBorder.Fixed : WindowBorder.Hidden,
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
-                     Icon = icon,
+                     Icon = icon == null ? HelperGeneral.GenerateWindowIconFromAssemblyIcon() : icon,
                      Location = new Vector2i(KWEngine.ScreenInformation.PrimaryScreen.Width / 2 - width / 2, KWEngine.ScreenInformation.PrimaryScreen.Height / 2 - height / 2),
                      StartVisible = false
                  }
@@ -208,7 +208,7 @@ namespace KWEngine3
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
                      CurrentMonitor = GetMonitorHandleForPointer(monitorHandle),
-                     Icon = icon,
+                     Icon = icon == null ? HelperGeneral.GenerateWindowIconFromAssemblyIcon() : icon,
                      Location = new Vector2i(KWEngine.ScreenInformation.PrimaryScreen.Width / 2 - width / 2, KWEngine.ScreenInformation.PrimaryScreen.Height / 2 - height / 2),
                      StartVisible = false
                  }
@@ -1396,7 +1396,7 @@ namespace KWEngine3
         /// <summary>
         /// Konvertiert eine Grafikdatei in das WindowIcon-Format
         /// </summary>
-        /// <remarks>Method output may be null if file is invalid</remarks>
+        /// <remarks>Rückgabewert ist null, wenn die zu ladende Datei ungültig oder ungeeignet ist</remarks>
         /// <param name="iconFile">Dateiname</param>
         /// <returns>WindowIcon-Instanz</returns>
         public static WindowIcon CreateWindowIconFromFile(string iconFile)

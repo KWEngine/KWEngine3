@@ -676,6 +676,7 @@
       <Method Name="ConvertByteArrayToVector3List" Hidden="true" />
       <Method Name="EqualizePathDividers" Hidden="true" />
       <Method Name="FlushAndFinish" Hidden="true" />
+      <Method Name="GenerateWindowIconFromAssemblyIcon" Hidden="true" />
       <Method Name="Get3DMouseCoords" Hidden="true" />
       <Method Name="GetBufferSizeOfVBO" Hidden="true" />
       <Method Name="GetCharForKey" Hidden="true" />
@@ -696,7 +697,7 @@
       <Method Name="UnProject" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AQAAARABAAAAAAAAAAxSASEgggAEIAABAEAIAgQAUAE=</HashCode>
+      <HashCode>AQAAARABAAAIAAAAAAxSASEgggAEIAABAEAIAgQAUAE=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>

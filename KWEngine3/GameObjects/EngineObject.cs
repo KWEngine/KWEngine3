@@ -448,6 +448,16 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Größenskalierung des Objekts (muss > 0 sein)
+        /// </summary>
+        /// <param name="x">Skalierung entlang der x-Achse</param>
+        /// <param name="y">Skalierung entlang der y-Achse</param>
+        public void SetScale(float x, float y)
+        {
+            SetScale(x, y, Scale.Z);
+        }
+
+        /// <summary>
         /// Bewegt das Objekt in seiner Blickrichtung
         /// </summary>
         /// <param name="units">Bewegungseinheiten</param>
