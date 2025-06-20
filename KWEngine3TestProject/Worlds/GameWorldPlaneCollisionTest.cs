@@ -40,6 +40,8 @@ namespace KWEngine3TestProject.Worlds
             
             SetCameraPosition(0, 10, 10);
             SetColorAmbient(0.5f, 0.5f, 0.5f);
+            SetBackgroundSkybox("./Textures/skybox_planecollisiontest.dds", 180f, SkyboxType.Equirectangular);
+            SetBackgroundBrightnessMultiplier(2f);
             //KWEngine.SSAO_Enabled = true;
 
             KWEngine.LoadModel("Beach_Render", "./Models/GLTFTest/WorldADV03_Beach_Map.obj");

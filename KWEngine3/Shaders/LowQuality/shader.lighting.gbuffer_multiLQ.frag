@@ -59,6 +59,17 @@ const vec3 metallicF0Values[9] = vec3[](
     vec3(0.95, 0.93, 0.88)
     );
 
+vec3 decodeNormalFromRG16F(vec2 enc) {
+    vec2 f = enc;
+
+    vec3 n = vec3(f.xy, 1.0 - abs(f.x) - abs(f.y));
+
+    if (n.z < 0.0) {
+        n.xy = (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
+    }
+
+    return normalize(n);
+}
 
 vec3 decodeNormal(vec2 f)
 {
@@ -173,7 +184,7 @@ vec3 getAlbedo()
 
 vec3 getNormal()
 {
-    return texture(uTextureNormal, vTexture).xyz;
+    return decodeNormalFromRG16F(texture(uTextureNormal, vTexture).xy);
 }
 
 vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fragPosWorld)

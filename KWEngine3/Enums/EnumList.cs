@@ -1025,6 +1025,7 @@
         RGBA16F,
         RGBA32F,
         RG8,
+        RG8I,
         RG32I,
         R32UI,
         DEPTH32F,
@@ -1033,7 +1034,9 @@
         RGB10A2,
         R11G11B10f,
         RG16,
-        RGBA16UI_3D
+        RG16F,
+        RGBA16UI_3D,
+        RGB8UI
     }
 
     internal enum HUDObjectType

@@ -6,7 +6,7 @@ in vec3 vNormal;
 in mat3 vTBN;
 in vec3 vPos;
 layout(location = 0) out vec3 albedo; //R11G11B10f
-layout(location = 1) out vec3 normal;
+layout(location = 1) out vec2 normal; // RG16f
 layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
 
@@ -37,6 +37,28 @@ uniform ivec3 uUseTexturesAlbedoNormalEmissiveSlope; // x = albedo, y = normal, 
 uniform vec4 uTextureTransformSlope;
 
 const float HALF_PI = 1.57079632680;
+
+vec2 encodeNormalToRG16F(vec3 n) {
+    n /= (abs(n.x) + abs(n.y) + abs(n.z));
+
+    vec2 enc = (n.z >= 0.0) 
+        ? n.xy 
+        : (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
+
+    return enc;
+}
+
+vec3 decodeNormalFromRG16F(vec2 enc) {
+    vec2 f = enc;
+
+    vec3 n = vec3(f.xy, 1.0 - abs(f.x) - abs(f.y));
+
+    if (n.z < 0.0) {
+        n.xy = (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
+    }
+
+    return normalize(n);
+}
 
 vec2 octWrap(vec2 v)
 {
@@ -164,7 +186,7 @@ void main()
 	{
 		normalSlope = normalTex;
 	}
-	normal = normalTex * sstep + normalSlope * (1.0 - sstep);
+	normal = encodeNormalToRG16F(normalTex * sstep + normalSlope * (1.0 - sstep));
 
 
 	// MISC:
