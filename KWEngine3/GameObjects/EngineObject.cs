@@ -1096,10 +1096,13 @@ namespace KWEngine3.GameObjects
 
         internal World _myWorld = null;
 
+
+
         internal abstract void InitHitboxes();
 
         internal abstract void UpdateModelMatrixAndHitboxes();
         
+
         #endregion
     }
 }

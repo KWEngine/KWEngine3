@@ -255,5 +255,10 @@ namespace KWEngine3.Renderer.LowQuality
         {
             throw new NotImplementedException();
         }
+
+        public void RenderScene(List<GameObject> transparentObjects, List<GameObject> stencilObjects)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

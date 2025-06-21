@@ -7,7 +7,6 @@ namespace KWEngine3.Helper
 {
     internal static class HelperMatrix
     {
-
         public static Matrix4 CreateModelMatrix(ref Vector3 s, ref Vector3 t)
         {
             Matrix4 m = Matrix4.Identity;
@@ -191,6 +190,9 @@ namespace KWEngine3.Helper
                         oc * axis.Z * axis.X - axis.Y * s, oc * axis.Y * axis.Z + axis.X * s, oc * axis.Z * axis.Z + c, 0f,
                         0f, 0f, 0f, 1f);
         }
+
+        internal static Matrix4 Scale105 = Matrix4.CreateScale(1.05f);
+        internal static Matrix4 Scale110 = Matrix4.CreateScale(1.10f);
 
         internal static float[] Matrix4ToArray(Matrix4[] matrices)
         {

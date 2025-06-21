@@ -1008,6 +1008,32 @@
         Camera
     }
 
+    /// <summary>
+    /// Gibt an, nach welcher Methodik eine GameObject-Instanz hervorgehoben werden soll
+    /// </summary>
+    public enum HighlightMode
+    {
+        /// <summary>
+        /// Deaktiviert (Standard)
+        /// </summary>
+        Disabled,
+        /// <summary>
+        /// Hervorhebung findet nur dann statt, wenn das Objekt von anderen Objekten verdeckt wird
+        /// </summary>
+        WhenOccluded,
+        /// <summary>
+        /// Hervorhebung als Silhouette findet nur dann statt, wenn das Objekt von anderen Objekten verdeckt wird
+        /// </summary>
+        WhenOccludedOutline,
+        /// <summary>
+        /// Hervorhebung findet permanent statt
+        /// </summary>
+        Permanent,
+        /// Hervorhebung als Silhouette findet permanent statt
+        PermanentOutline
+    }
+
+    #region Internals
     internal enum FramebufferMode
     {
         Framebuffer,
@@ -1030,6 +1056,7 @@
         R32UI,
         DEPTH32F,
         DEPTH32F_3D,
+        DEPTH24STENCIL8,
         R8,
         RGB10A2,
         R11G11B10f,
@@ -1050,4 +1077,5 @@
         Y,
         Z
     }
+    #endregion
 }

@@ -85,6 +85,7 @@ namespace KWEngine3.Renderer
             RendererGBufferInstanced.Init();
             RendererTerrainGBufferNew.Init();
             RendererGBufferFoliage.Init();
+            RendererForwardSimple.Init();
 
 
             RendererCopy.Init();

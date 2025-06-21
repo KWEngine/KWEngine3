@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2025-06-20)</Product>
+		<Product>KWEngine3 (updated: 2025-06-21)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.5.3</Version>
-		<AssemblyVersion>3.0.5.3</AssemblyVersion>
-		<FileVersion>3.0.5.3</FileVersion>
-		<ProductVersion>3.0.5.3</ProductVersion>
+		<Version>3.0.5.4</Version>
+		<AssemblyVersion>3.0.5.4</AssemblyVersion>
+		<FileVersion>3.0.5.4</FileVersion>
+		<ProductVersion>3.0.5.4</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -296,6 +296,8 @@
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.frag" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.geom" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.vert" />
+		<EmbeddedResource Include="Shaders\shader.lighting.forward_simple.frag" />
+		<EmbeddedResource Include="Shaders\shader.lighting.forward_simple.vert" />
 		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer_multi.frag" />
 		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer_multi.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.frag" />

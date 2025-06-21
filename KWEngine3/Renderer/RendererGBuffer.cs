@@ -95,7 +95,7 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
         }
 
-        public static List<GameObject> RenderScene()
+        public static List<GameObject> RenderScene(List<GameObject> stencilObjects)
         {
             List<GameObject> forwardObjects = new();
 
@@ -104,11 +104,12 @@ namespace KWEngine3.Renderer
             {
                 if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || !g.IsInsideScreenSpaceForRenderPass))
                     continue;
-                if (g.IsTransparent || g.IsDepthTesting == false || g.IsAttachedToViewSpaceGameObject)
+                if (g.IsTransparent || g.IsDepthTesting == false || g.IsAttachedToViewSpaceGameObject || g._colorHighlightMode != HighlightMode.Disabled)
                 {
                     forwardObjects.Add(g);
                     continue;
                 }
+
                 Draw(g);
             }
             
@@ -123,6 +124,8 @@ namespace KWEngine3.Renderer
             int val = g.IsShadowCaster ? 1 : -1;
             val *= g.IsAffectedByLight ? 1 : 10;
             GL.Uniform2(UIdShadowCaster, new Vector2i(g.ID, val));
+
+            
 
             GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)
@@ -197,6 +200,8 @@ namespace KWEngine3.Renderer
                     GL.Enable(EnableCap.CullFace);
                 }
             }
+
+           
         }
 
         private static void UploadTextures(ref GeoMaterial material, GameObject g)

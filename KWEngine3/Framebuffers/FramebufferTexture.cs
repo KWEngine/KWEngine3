@@ -30,6 +30,7 @@ namespace KWEngine3.Framebuffers
                     : mode == FramebufferTextureMode.RG16F ? PixelInternalFormat.Rg16f
                     : mode == FramebufferTextureMode.RGBA16UI_3D ? PixelInternalFormat.Rgba16
                     : mode == FramebufferTextureMode.RGB8UI ? PixelInternalFormat.Rgb8ui
+                    : mode == FramebufferTextureMode.DEPTH24STENCIL8 ? PixelInternalFormat.Depth24Stencil8
                     : PixelInternalFormat.Rgba8;
         }
 
@@ -45,6 +46,7 @@ namespace KWEngine3.Framebuffers
                 : (mode == FramebufferTextureMode.R8 || mode == FramebufferTextureMode.R32UI || mode == FramebufferTextureMode.R32F) ? PixelFormat.Red
                 : mode == FramebufferTextureMode.RGB10A2 ? PixelFormat.Rgba
                 : mode == FramebufferTextureMode.R11G11B10f ? PixelFormat.Rgb
+                : mode == FramebufferTextureMode.DEPTH24STENCIL8 ? PixelFormat.DepthStencil
                 : PixelFormat.Rgba;
         }
 
@@ -60,6 +62,7 @@ namespace KWEngine3.Framebuffers
                 : mode == FramebufferTextureMode.R11G11B10f ? PixelType.UnsignedInt10F11F11FRev
                 : mode == FramebufferTextureMode.RGBA16UI_3D ? PixelType.UnsignedShort
                 : mode == FramebufferTextureMode.RG8I ? PixelType.Byte
+                : mode == FramebufferTextureMode.DEPTH24STENCIL8 ? PixelType.UnsignedInt248
                 : PixelType.Float;
         }
 
@@ -178,6 +181,10 @@ namespace KWEngine3.Framebuffers
             if(mode == FramebufferTextureMode.DEPTH32F || mode == FramebufferTextureMode.DEPTH32F_3D)
             {
                 GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, ID, 0);
+            }
+            else if(mode == FramebufferTextureMode.DEPTH24STENCIL8)
+            {
+                GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthStencilAttachment, ID, 0);
             }
             else
             {

@@ -345,6 +345,7 @@ namespace KWEngine3
             List<LightObject> pointLights = new();
             List<GameObject> gameObjectsForForwardRendering = new();
             List<RenderObject> renderObjectsForForwardRendering = new();
+            List<GameObject> stencilObjects = new();
 
             KWEngine.LastFrameTime = (float)e.Time * 1000;
 
@@ -354,15 +355,17 @@ namespace KWEngine3
                 GL.Enable(EnableCap.DepthTest);
                 GL.Enable(EnableCap.CullFace);
                 GL.CullFace(TriangleFace.Back);
+                GL.Disable(EnableCap.Blend);
 
                 HelperDebug.StartTimeQuery(RenderType.Deferred);
                 #region [DEFERRED PASS]
-                GL.Disable(EnableCap.Blend);
+                
                 RenderManager.FramebufferDeferred.Bind();
 
                 // Render GameObject instances to G-Buffer:
                 RendererGBuffer.Bind();
-                gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene());
+                gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene(stencilObjects));
+
                 // Render RenderObject instances to G-Buffer:
                 if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                 {
@@ -401,11 +404,12 @@ namespace KWEngine3
                     GL.Enable(EnableCap.DepthTest);
                 }
 
+                // Shadow map pass:
+                #region [Shadow Pass]
                 // Prepare lights
                 HelperDebug.StartTimeQuery(RenderType.ShadowMapping);
                 KWEngine.CurrentWorld.PrepareLightObjectsForRenderPass();
 
-                // Shadow map pass:
                 if (Framebuffer._fbShadowMapCounter > 0)
                 {
                     bool csmSunDone = false;
@@ -504,11 +508,13 @@ namespace KWEngine3
                     }
                 }
                 HelperDebug.StopTimeQuery(RenderType.ShadowMapping);
+                #endregion
 
                 // clear inbetween:
                 GL.UseProgram(0);
                 GL.Disable(EnableCap.DepthTest);
                 GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+
 
                 // SSAO pass
                 HelperDebug.StartTimeQuery(RenderType.SSAO);
@@ -563,13 +569,14 @@ namespace KWEngine3
                 GL.Enable(EnableCap.Blend);
 
                 // Forward rendering pass:
+                #region [FORWARD PASS]
                 HelperDebug.StartTimeQuery(RenderType.Forward);
                 if (gameObjectsForForwardRendering.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
                     RenderManager.IRendererForward.Bind();
                     RenderManager.IRendererForward.SetGlobals();
                     if (gameObjectsForForwardRendering.Count > 0)
-                        RenderManager.IRendererForward.RenderScene(gameObjectsForForwardRendering);
+                        RenderManager.IRendererForward.RenderScene(gameObjectsForForwardRendering, stencilObjects);
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                     {
                         if (KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
@@ -604,6 +611,7 @@ namespace KWEngine3
                 }
                 HelperDebug.StopTimeQuery(RenderType.Forward);
             }
+            #endregion
 
             if (KWEngine.DebugMode == DebugMode.TerrainCollisionModel && KWEngine.CurrentWorld._terrainObjects.Count > 0)
             {
@@ -614,6 +622,20 @@ namespace KWEngine3
                 {
                     RendererTerrainCollision.Draw(t);
                 }
+            }
+
+            // STENCIL HIGHLIGHT PASS
+            if(stencilObjects.Count > 0)
+            {
+                GL.Enable(EnableCap.Blend);
+                GL.Enable(EnableCap.StencilTest);
+                GL.StencilMask(0x00);
+
+                RendererForwardSimple.Bind();
+                RendererForwardSimple.SetGlobals();
+                RendererForwardSimple.RenderScene(stencilObjects);
+
+                GL.Disable(EnableCap.StencilTest);
             }
 
             GL.Disable(EnableCap.DepthTest);

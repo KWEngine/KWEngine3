@@ -72,6 +72,22 @@ namespace KWEngine3.GameObjects
 
         }
 
+        public void SetColorHighlight(float r, float g, float b, float intensity)
+        {
+            _colorHighlight = new Vector4(
+                MathHelper.Clamp(r, 0f, 1f),
+                MathHelper.Clamp(g, 0f, 1f),
+                MathHelper.Clamp(b, 0f, 1f),
+                MathHelper.Clamp(intensity, 0f, 2f)
+                );
+        }
+
+        public Vector4 ColorHighlight { get { return _colorHighlight; } }
+        public void SetColorHighlightMode(HighlightMode mode)
+        {
+            _colorHighlightMode = mode;
+        }
+
         /// <summary>
         /// Löscht ein ggf. verwendetes benutzerdefiniertes Collider-Modell für die aktuelle Instanz
         /// </summary>
@@ -959,7 +975,7 @@ namespace KWEngine3.GameObjects
 
             float distanceToCameraThis = (this.Center - camPos).LengthSquared;
             float distanceToCameraOther = (other.Center - camPos).LengthSquared;
-            return distanceToCameraOther > distanceToCameraThis ? 1 : -1;
+            return _colorHighlightMode != HighlightMode.Disabled ? 1 : distanceToCameraOther > distanceToCameraThis ? 1 : -1;
         }
 
         /// <summary>
@@ -1704,6 +1720,9 @@ namespace KWEngine3.GameObjects
         internal static Vector3[] _rayOrigins2 = new Vector3[2];
         internal static Vector3[] _rayOrigins4 = new Vector3[4];
         internal static Vector3[] _rayOrigins5 = new Vector3[5];
+
+        internal Vector4 _colorHighlight = new Vector4(1f, 1f, 1f, 1f);
+        internal HighlightMode _colorHighlightMode = HighlightMode.Disabled;
         #endregion
     }
 }

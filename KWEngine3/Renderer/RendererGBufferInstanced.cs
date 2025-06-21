@@ -108,11 +108,13 @@ namespace KWEngine3.Renderer
                 {
                     if (KWEngine.Mode != EngineMode.Edit && (r.SkipRender || !r.IsInsideScreenSpaceForRenderPass))
                         continue;
+
                     if (r.IsTransparent || r.IsDepthTesting == false)
                     {
                         forwardObjects.Add(r);
                         continue;
                     }
+
                     Draw(r);
                 }
             }

@@ -15,7 +15,7 @@ namespace KWEngine3.Framebuffers
             Bind(false);
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 0));   // Color
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 1));   // Bloom
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH32F, width, height, 2)); // Depth
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH24STENCIL8, width, height, 2)); // Depth
 
             SizeInBytes =
                 width * height * 3 * sizeof(byte) +
@@ -32,6 +32,12 @@ namespace KWEngine3.Framebuffers
 
             ClearColorValues.Add(0, new float[] { 0, 0, 0 });
             ClearColorValues.Add(1, new float[] { 0, 0, 0 });
+
+            FramebufferErrorCode error = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
+            if (error != FramebufferErrorCode.FramebufferComplete)
+            {
+                KWEngine.LogWriteLine("[Renderer] FramebufferLightingPass: incomplete.");
+            }
         }
 
         public override void Clear(bool keepDepth = false)
@@ -40,24 +46,24 @@ namespace KWEngine3.Framebuffers
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);
             }
-            if(keepDepth == false)
-                GL.Clear(ClearBufferMask.DepthBufferBit);
-        }
-
-        public void BindAndClearDepth()
-        {
-            Bind(false);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            if (keepDepth == false)
+            {
+                GL.Enable(EnableCap.StencilTest);
+                GL.StencilMask(0xFF);
+                GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+                GL.StencilMask(0x00);
+                GL.Disable(EnableCap.StencilTest);
+            }
         }
 
         public void BindAndClearColor(bool keepDepth = false)
         {
             //Bind(false);
             Bind(true, keepDepth);
-            for (int i = 0; i < ClearColorValues.Count; i++)
+            /*for (int i = 0; i < ClearColorValues.Count; i++)
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);
-            }
+            }*/
         }
     }
 }

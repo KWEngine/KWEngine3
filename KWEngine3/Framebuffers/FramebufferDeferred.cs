@@ -33,7 +33,13 @@ namespace KWEngine3.Framebuffers
             }
             GL.DrawBuffers(Attachments.Count, dbe);
             GL.BindTexture(TextureTarget.Texture2D, 0);
-
+            /*
+            int rbuf = GL.GenRenderbuffer();
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, rbuf);
+            GL.RenderbufferStorage(RenderbufferTarget.Renderbuffer, RenderbufferStorage.StencilIndex8, width, height);
+            GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.StencilAttachment, RenderbufferTarget.Renderbuffer, rbuf);
+            GL.BindRenderbuffer(RenderbufferTarget.Renderbuffer, 0);
+            */
             ClearColorValues.Add(0, new float[] { 0, 0, 0 });
             ClearColorValues.Add(1, new float[] { 0, 0, 0 });
             ClearColorValues.Add(2, new float[] { 0, 1, 0 });

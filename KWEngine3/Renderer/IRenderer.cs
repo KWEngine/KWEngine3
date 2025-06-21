@@ -12,7 +12,7 @@ namespace KWEngine3.Renderer
         public void Draw(Framebuffer fbSource);
         public void Draw(GameObject g, bool isVSG = false);
         public void RenderScene();
-        public void RenderScene(List<GameObject> transparentObjects);
+        public void RenderScene(List<GameObject> transparentObjects, List<GameObject> stencilObjects);
         public void RenderScene(List<RenderObject> transparentObjects);
         public void RenderSceneForLight(LightObject l);
         public void Draw(GameObject g);
