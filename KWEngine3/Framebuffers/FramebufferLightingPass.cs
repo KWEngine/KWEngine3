@@ -20,7 +20,7 @@ namespace KWEngine3.Framebuffers
             SizeInBytes =
                 width * height * 3 * sizeof(byte) +
                 width * height * 3 * sizeof(byte) +
-                width * height * 1 * (sizeof(float) / 1);
+                width * height * 1 * sizeof(float);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
             for(int i = 0; i < Attachments.Count - 1; i++)

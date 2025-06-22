@@ -193,6 +193,7 @@ namespace KWEngine3.Helper
 
         internal static Matrix4 Scale105 = Matrix4.CreateScale(1.05f);
         internal static Matrix4 Scale110 = Matrix4.CreateScale(1.10f);
+        internal static Matrix4 Scale100 = Matrix4.Identity;
 
         internal static float[] Matrix4ToArray(Matrix4[] matrices)
         {

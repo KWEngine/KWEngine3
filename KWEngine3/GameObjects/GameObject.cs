@@ -72,6 +72,13 @@ namespace KWEngine3.GameObjects
 
         }
 
+        /// <summary>
+        /// Setzt die Hervorhebungsfarbe für das Objekt (RGB und Intensität)
+        /// </summary>
+        /// <param name="r">Rotanteil (0.0f bis 1.0f)</param>
+        /// <param name="g">Grünanteil (0.0f bis 1.0f)</param>
+        /// <param name="b">Blauanteil (0.0f bis 1.0f)</param>
+        /// <param name="intensity">Intensität (0.0f bis 2.0f)</param>
         public void SetColorHighlight(float r, float g, float b, float intensity)
         {
             _colorHighlight = new Vector4(
@@ -82,7 +89,17 @@ namespace KWEngine3.GameObjects
                 );
         }
 
+        /// <summary>
+        /// Erfragt die aktuell gesetze Farbe (RGB und Intensität) für die Hervorhebung
+        /// </summary>
         public Vector4 ColorHighlight { get { return _colorHighlight; } }
+        /// <summary>
+        /// Setzt den Modus für das Hervorheben (Standard: Disabled)
+        /// </summary>
+        /// <remarks>
+        /// Wenn der Modus "Disabled" ist, hat die Eigenschaft ColorHighlight keine Wirkung
+        /// </remarks>
+        /// <param name="mode">gewünschter Modus</param>
         public void SetColorHighlightMode(HighlightMode mode)
         {
             _colorHighlightMode = mode;

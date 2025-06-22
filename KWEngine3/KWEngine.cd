@@ -237,6 +237,8 @@
       <Field Name="_attachedTo" Hidden="true" />
       <Field Name="_attachmentMatrix" Hidden="true" />
       <Field Name="_collisionCandidates" Hidden="true" />
+      <Field Name="_colorHighlight" Hidden="true" />
+      <Field Name="_colorHighlightMode" Hidden="true" />
       <Field Name="_flowfieldcost" Hidden="true" />
       <Field Name="_fullDiameter" Hidden="true" />
       <Field Name="_gameObjectsAttached" Hidden="true" />
@@ -261,7 +263,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAEABGGIwqwiSAwIAOEABEAUYyA0EBQEADBA0CUIE=</HashCode>
+      <HashCode>jAiAEABGGIwqwiSEwIAOEABEBUYyA0EJwEADBA0CUIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -311,7 +313,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="14.25" Width="2.75" />
+    <Position X="9.5" Y="14.75" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -583,7 +585,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="11" Width="2.75" />
+    <Position X="9.5" Y="11.5" Width="2.75" />
     <Members>
       <Field Name="_instancePositions" Hidden="true" />
       <Field Name="_instanceScales" Hidden="true" />

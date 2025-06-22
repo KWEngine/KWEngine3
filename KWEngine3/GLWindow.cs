@@ -356,6 +356,7 @@ namespace KWEngine3
                 GL.Enable(EnableCap.CullFace);
                 GL.CullFace(TriangleFace.Back);
                 GL.Disable(EnableCap.Blend);
+                GL.Disable(EnableCap.StencilTest);
 
                 HelperDebug.StartTimeQuery(RenderType.Deferred);
                 #region [DEFERRED PASS]
@@ -547,6 +548,11 @@ namespace KWEngine3
                     RenderManager.IRendererLightingPassMultiDraw.Draw(RenderManager.FramebufferDeferred);
                 }
 
+                //GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, RenderManager.FramebufferDeferred.ID);
+                //GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, RenderManager.FramebufferLightingPass.ID);
+                //GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.StencilBufferBit, BlitFramebufferFilter.Nearest);
+                //GL.BindFramebuffer(FramebufferTarget.Framebuffer, RenderManager.FramebufferLightingPass.ID);
+
                 HelperDebug.StopTimeQuery(RenderType.Lighting);
 
                 GL.Viewport(0, 0, Width, Height);
@@ -629,15 +635,18 @@ namespace KWEngine3
             {
                 GL.Enable(EnableCap.Blend);
                 GL.Enable(EnableCap.StencilTest);
-                GL.StencilMask(0x00);
+                GL.StencilMask(0xFF);
 
                 RendererForwardSimple.Bind();
                 RendererForwardSimple.SetGlobals();
                 RendererForwardSimple.RenderScene(stencilObjects);
 
+                GL.DepthFunc(DepthFunction.Less);
+                GL.CullFace(TriangleFace.Back);
+                GL.StencilMask(0x00);
                 GL.Disable(EnableCap.StencilTest);
             }
-
+            
             GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             GL.Disable(EnableCap.CullFace);

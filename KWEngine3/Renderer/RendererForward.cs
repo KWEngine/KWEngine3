@@ -238,36 +238,20 @@ namespace KWEngine3.Renderer
             {
                 SortByZ(transparentObjects);
                 GL.Enable(EnableCap.Blend);
+
                 foreach (GameObject g in transparentObjects)
                 {
-                    if (g._colorHighlightMode != HighlightMode.Disabled)
+                    if (KWEngine.Mode == EngineMode.Edit || (!g.SkipRender && g.IsInsideScreenSpaceForRenderPass))
                     {
-                        GL.Enable(EnableCap.StencilTest);
-                        GL.StencilFunc(StencilFunction.Always, 1, 0xFF);
-                        if (g._colorHighlightMode == HighlightMode.WhenOccluded)
+                        if (g._colorHighlightMode != HighlightMode.Disabled && g._colorHighlight.W > 0f)
                         {
-                            GL.StencilOp(StencilOp.Keep, StencilOp.Replace, StencilOp.Keep);
+                            stencilObjects.Add(g);
                         }
-                        else if (g._colorHighlightMode == HighlightMode.WhenOccludedOutline)
-                        {
-                            GL.StencilOp(StencilOp.Keep, StencilOp.Replace, StencilOp.Keep);
-                        }
-                        else
-                            GL.StencilOp(StencilOp.Replace, StencilOp.Replace, StencilOp.Replace);
-                        GL.StencilMask(0xFF);
-                        stencilObjects.Add(g);
-                    }
 
-                    if(KWEngine.Mode == EngineMode.Edit || (!g.SkipRender && g.IsInsideScreenSpaceForRenderPass))
                         Draw(g, g.IsAttachedToViewSpaceGameObject);
-
-                    if (g._colorHighlightMode != HighlightMode.Disabled)
-                    {
-                        GL.Disable(EnableCap.StencilTest);
                     }
                 }
-                GL.Disable(EnableCap.StencilTest);
-                GL.StencilMask(0x00);
+
                 GL.Disable(EnableCap.Blend);
             }
         }

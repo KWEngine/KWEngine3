@@ -23,14 +23,23 @@ namespace KWEngine3TestProject.Worlds
             wall.SetColor(1, 0, 1);
             AddGameObject(wall);
 
+            Immovable wall2 = new Immovable();
+            wall2.Name = "Wall2";
+            wall2.SetScale(1, 10, 1);
+            wall2.SetPosition(-5.5f, 0, 0.5f);
+            wall2.SetColor(1, 0, 1);
+            wall2.SetColorHighlight(0, 1, 1, 2);
+            wall2.SetColorHighlightMode(HighlightMode.Disabled);
+            AddGameObject(wall2);
+
             Player player = new Player();
             //player.SetModel("KWQuad");
             //player.SetTexture("./Textures/custom_cursor.png");
             //player.HasTransparencyTexture = true;
             player.Name = "Player";
             player.SetColor(0, 1, 1);
-            player.SetColorHighlight(1, 1, 0, 0.25f);
-            player.SetColorHighlightMode(HighlightMode.WhenOccludedOutline);
+            player.SetColorHighlight(1, 1, 0, 1.25f);
+            player.SetColorHighlightMode(HighlightMode.WhenOccluded);
             player.SetPosition(0, 0.5f, -0.5f);
             AddGameObject(player);
         }
