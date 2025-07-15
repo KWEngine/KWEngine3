@@ -6,7 +6,8 @@ namespace KWEngine3TestProject.Classes
     {
         public override void Act()
         {
-            
+            //AddRotationY(1);
+            //AddRotationX(1);
         }
     }
 }

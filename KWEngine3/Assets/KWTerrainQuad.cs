@@ -16,6 +16,7 @@ namespace KWEngine3.Assets
 
         public static void Init()
         {
+            multiplier = KWEngine.TERRAIN_PATCH_SIZE;
             _vertices = new float[]
             {
                 +0.5f * multiplier, 0f, -0.5f * multiplier, // right back

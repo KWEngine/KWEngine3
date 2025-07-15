@@ -17,6 +17,7 @@ uniform int uUseAnimations;
 uniform mat4 uBoneTransforms[128];
 uniform mat4 uViewProjectionMatrixShadowMap[3];
 uniform mat4 uViewProjectionMatrixShadowMapOuter[3];
+uniform vec4 uCameraPosition;
 
 layout (std140) uniform uInstanceBlock
 {
@@ -32,6 +33,8 @@ out vec3 vBiTangent;
 out mat3 vTBN;
 out vec4 vShadowCoord[3];
 out vec4 vShadowCoordOuter[3];
+out vec3 vTangentView;
+out vec3 vTangentPosition;
 
 void main()
 {
@@ -70,9 +73,15 @@ void main()
 	vNormal = normalize((instanceNormalMatrix * uNormalMatrix * totalNormal).xyz);
 	vTangent = normalize((instanceNormalMatrix * uNormalMatrix * totalTangent).xyz);
 	vBiTangent = normalize((instanceNormalMatrix * uNormalMatrix * totalBiTangent).xyz);
+	vTBN = mat3(vTangent.xyz, -vBiTangent.xyz, vNormal.xyz);
+
 	vTexture = (vec2(uTextureTransform.x < 0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransform.y < 0 ? 1.0 - aTexture.y : aTexture.y) + uTextureTransform.zw) * abs(uTextureTransform.xy);
 	vec2 uvCenter = uTextureTransform.zw * abs(uTextureTransform.xy) + abs(uTextureTransform.xy) * 0.5;
 	vec2 delta = vTexture - uvCenter;
 	vTexture = vTexture + delta * uTextureClip;
-	vTBN = mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz);
+	
+
+	mat3 vTBN2 = transpose(mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz));
+	vTangentPosition = vTBN2 * vPosition.xyz;
+	vTangentView = vTBN2 * uCameraPosition.xyz;
 }

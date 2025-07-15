@@ -959,7 +959,11 @@
         /// <summary>
         /// Transparency Map
         /// </summary>
-        Transparency
+        Transparency,
+        /// <summary>
+        /// Height Map (wird aus Performance-Gründen via Parallax Occlusion Mapping umgesetzt)
+        /// </summary>
+        Height
     };
 
     /// <summary>

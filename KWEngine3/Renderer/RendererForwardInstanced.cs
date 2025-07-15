@@ -26,6 +26,7 @@ namespace KWEngine3.Renderer
         public int UTextureMetallic { get; private set; } = -1;
         public int UTextureRoughness { get; private set; } = -1;
         public int UTextureEmissive { get; private set; } = -1;
+        public int UTextureHeight { get; private set; } = -1;
         public int UTextureTransparency { get; private set; } = -1;
         public int UTextureTransform { get; private set; } = -1;
         public int UUseAnimations { get; private set; } = -1;
@@ -34,7 +35,7 @@ namespace KWEngine3.Renderer
         public int UShadowMapCube { get; private set; } = -1;
         public int UViewProjectionMatrixShadowMap { get; private set; } = -1;
         public int UViewProjectionMatrixShadowMapOuter { get; private set; } = -1;
-        public int UCameraPos { get; private set; } = -1;
+        public int UCameraPosition { get; private set; } = -1;
         public int ULights { get; private set; } = -1;
         public int ULightCount { get; private set; } = -1;
         public int UColorAmbient { get; private set; } = -1;
@@ -98,6 +99,7 @@ namespace KWEngine3.Renderer
                 UTextureMetallic = GL.GetUniformLocation(ProgramID, "uTextureMetallic");
                 UTextureRoughness = GL.GetUniformLocation(ProgramID, "uTextureRoughness");
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
+                UTextureHeight = GL.GetUniformLocation(ProgramID, "uTextureHeight");
                 UTextureTransparency = GL.GetUniformLocation(ProgramID, "uTextureTransparency");
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
                 UTextureMetallicRoughnessCombined = GL.GetUniformLocation(ProgramID, "uTextureIsMetallicRoughnessCombined");
@@ -105,7 +107,7 @@ namespace KWEngine3.Renderer
                 UUseAnimations = GL.GetUniformLocation(ProgramID, "uUseAnimations");
                 UBoneTransforms = GL.GetUniformLocation(ProgramID, "uBoneTransforms");
 
-                UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
+                UCameraPosition = GL.GetUniformLocation(ProgramID, "uCameraPosition");
                 UShadowMap = GL.GetUniformLocation(ProgramID, "uShadowMap");
                 UShadowMapCube = GL.GetUniformLocation(ProgramID, "uShadowMapCube");
                 UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
@@ -133,17 +135,11 @@ namespace KWEngine3.Renderer
             GL.Uniform1(ULightCount, KWEngine.CurrentWorld._preparedLightsCount);
             GL.Uniform3(UColorAmbient, KWEngine.CurrentWorld._colorAmbient);
 
-            // camera pos:
-            if (KWEngine.Mode == EngineMode.Play)
-                GL.Uniform3(UCameraPos, KWEngine.CurrentWorld._cameraGame._stateRender._position);
-            else
-                GL.Uniform3(UCameraPos, KWEngine.CurrentWorld._cameraEditor._stateRender._position);
-
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
 
-            TextureUnit currentTextureUnit = TextureUnit.Texture6;
-            int currentTextureNumber = 6;
+            TextureUnit currentTextureUnit = TextureUnit.Texture7;
+            int currentTextureNumber = 7;
             // upload shadow maps (tex2d):
             int i;
             for (i = 0; i < KWEngine.CurrentWorld._preparedTex2DIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
@@ -264,6 +260,12 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, new Vector4(r._stateRender._colorTint, r._stateRender._opacity));
             GL.Uniform4(UColorEmissive, r._stateRender._colorEmissive);
             GL.Uniform1(UMetallicType, (int)r._model._metallicType);
+
+            // camera pos:
+            if (KWEngine.Mode == EngineMode.Play)
+                GL.Uniform4(UCameraPosition, new Vector4(KWEngine.CurrentWorld._cameraGame._stateRender._position, r._pomScale));
+            else
+                GL.Uniform4(UCameraPosition, new Vector4(KWEngine.CurrentWorld._cameraEditor._stateRender._position, r._pomScale));
 
             int val = r.IsShadowCaster ? 1 : -1;
             val *= r.IsAffectedByLight ? 1 : 10;
@@ -390,6 +392,11 @@ namespace KWEngine3.Renderer
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureRoughness.IsTextureSet ? material.TextureRoughness.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureRoughness, TEXTUREOFFSET + 5);
             }
+
+            // Height
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 6);
+            GL.BindTexture(TextureTarget.Texture2D, material.TextureHeight.IsTextureSet ? material.TextureHeight.OpenGLID : KWEngine.TextureBlack);
+            GL.Uniform1(UTextureHeight, TEXTUREOFFSET + 6);
         }
 
         public void Draw()

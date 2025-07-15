@@ -8,6 +8,8 @@ in vec3 vBiTangent;
 in mat3 vTBN;
 in vec4 vShadowCoord[3];
 in vec4 vShadowCoordOuter[3];
+in vec3 vTangentView;
+in vec3 vTangentPosition;
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;
@@ -16,7 +18,6 @@ uniform sampler2DArray uShadowMap[3];
 uniform samplerCubeArray uShadowMapCube[3];
 uniform float uLights[850];
 uniform int uLightCount;
-uniform vec3 uCameraPos;
 uniform vec3 uColorAmbient;
 uniform int uTextureIsMetallicRoughnessCombined;
 uniform sampler2D uTextureAlbedo;
@@ -25,8 +26,10 @@ uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureRoughness;
 uniform sampler2D uTextureEmissive;
 uniform sampler2D uTextureTransparency;
+uniform sampler2D uTextureHeight;
 uniform ivec3 uUseTexturesAlbedoNormalEmissive;
 uniform ivec3 uUseTexturesMetallicRoughness;
+uniform vec4 uCameraPosition;
 
 uniform samplerCube uTextureSkybox;
 uniform mat3 uTextureSkyboxRotation;
@@ -77,9 +80,45 @@ const vec3 metallicF0Values[9] = vec3[](
     vec3(0.95, 0.93, 0.88)
     );
 
+vec2 vTexture2;
+
+vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
+{ 
+	if(uCameraPosition.w <= 0.0) return texCoords;
+
+	const float minLayers = 8.0;
+	const float maxLayers = 32.0;
+	float numLayers = mix(maxLayers, minLayers, max(dot(vec3(0.0, 0.0, 1.0), viewDir), 0.0));  
+
+    float layerDepth = 1.0 / numLayers;
+    float currentLayerDepth = 0.0;
+    vec2 P = viewDir.xy * uCameraPosition.w; 
+    vec2 deltaTexCoords = P / numLayers;
+
+	vec2  currentTexCoords     = texCoords;
+	float currentDepthMapValue = 1.0 - texture(uTextureHeight, currentTexCoords).r;
+  
+	while(currentLayerDepth < currentDepthMapValue)
+	{
+		currentTexCoords -= deltaTexCoords;
+		currentDepthMapValue = 1.0 - texture(uTextureHeight, currentTexCoords).r;  
+		currentLayerDepth += layerDepth;  
+	}
+
+	vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+	float afterDepth  = currentDepthMapValue - currentLayerDepth;
+	float beforeDepth = 1.0 - texture(uTextureHeight, prevTexCoords).r - currentLayerDepth + layerDepth;
+ 
+	float weight = afterDepth / (afterDepth - beforeDepth);
+	vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+	return finalTexCoords;
+} 
+
 vec3 sampleFromEquirectangular(vec3 worldPosition, vec3 normal, float mipMapLevel)
 {
-    vec3 R = normalize(reflect(worldPosition - uCameraPos, normal));
+    vec3 R = normalize(reflect(worldPosition - uCameraPosition.xyz, normal));
     vec2 uv;
     uv.x = atan( -R.z, -R.x ) * PI2 + 0.5;
     uv.y = 1.0 - (R.y * 0.5 + 0.5);
@@ -218,7 +257,7 @@ float DistributionGGX(vec3 N, vec3 H, float a)
 vec4 getPBR()
 {
     vec4 specularMetallicRoughnessOcclusion = vec4(0.0, uMetallicRoughness.x, clamp(uMetallicRoughness.y, 0.0001, 1.0), 1.0);
-    vec4 textureMetallic = texture(uTextureMetallic, vTexture);
+    vec4 textureMetallic = texture(uTextureMetallic, vTexture2);
     if(uUseTexturesMetallicRoughness.x > 0) // check metallic
     {
         specularMetallicRoughnessOcclusion.y = textureMetallic.b; // blue channel for metallic
@@ -233,11 +272,11 @@ vec4 getPBR()
         {
             if(uUseTexturesMetallicRoughness.z > 0)
             {
-                specularMetallicRoughnessOcclusion.z = clamp(1.0 - texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
+                specularMetallicRoughnessOcclusion.z = clamp(1.0 - texture(uTextureRoughness, vTexture2).r, 0.0001, 1.0);
             }
             else
             {
-                specularMetallicRoughnessOcclusion.z = clamp(texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
+                specularMetallicRoughnessOcclusion.z = clamp(texture(uTextureRoughness, vTexture2).r, 0.0001, 1.0);
             }
             
         }
@@ -252,7 +291,7 @@ vec4 getFragmentPositionAndDepth()
 
 vec4 getAlphaTexture()
 {
-    return texture(uTextureTransparency, vTexture);
+    return texture(uTextureTransparency, vTexture2);
 }
 
 // 2025-06-13: added hue
@@ -268,7 +307,7 @@ vec4 getAlbedo()
     vec4 albedo;
     if(uUseTexturesAlbedoNormalEmissive.x > 0)
     {
-        vec4 tmp = texture(uTextureAlbedo, vTexture);
+        vec4 tmp = texture(uTextureAlbedo, vTexture2);
         albedo = vec4(hueShift(tmp.xyz, uMetallicRoughness.z), tmp.w) * uColorTint;
     }
     else
@@ -287,7 +326,7 @@ vec4 getEmissive()
 {
     if(uUseTexturesAlbedoNormalEmissive.z > 0)
     {
-        vec4 emissiveFromTexture = texture(uTextureEmissive, vTexture);
+        vec4 emissiveFromTexture = texture(uTextureEmissive, vTexture2);
         vec4 result = vec4(hueShift(emissiveFromTexture.xyz * emissiveFromTexture.w, uMetallicRoughness.z), uColorEmissive.w);
         return result;
     }
@@ -302,7 +341,7 @@ vec4 getNormalId()
     vec4 normalId = vec4(vNormal, 0.0);
     if(uUseTexturesAlbedoNormalEmissive.y > 0)
     {
-        normalId.xyz = normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0));
+        normalId.xyz = normalize(vTBN * (texture(uTextureNormal, vTexture2).xyz * 2.0 - 1.0));
     }
 
     return normalId;
@@ -355,6 +394,9 @@ vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
 
 void main()
 {
+    vec3 viewDir = normalize(vTangentView - vTangentPosition);
+	vTexture2 = ParallaxMapping(vTexture, viewDir);
+
     vec4 normalId = getNormalId();
 
     // actual shading:
@@ -365,7 +407,7 @@ void main()
     vec3 emissive = emissive4.xyz;
 
     vec3 N = normalId.xyz;
-    vec3 V = normalize(uCameraPos - fragPositionDepth.xyz);
+    vec3 V = normalize(uCameraPosition.xyz - fragPositionDepth.xyz);
     vec3 F0 = getF0(uMetallicType);
     F0 = mix(F0, albedo.xyz, pbr.y);
 

@@ -547,5 +547,15 @@ namespace KWEngine3.Helper
             quaternion.W = (m01 - m10) * num2;
             return quaternion;
         }
+
+        internal static Vector3 ConvertVector3DToOpenTK(Assimp.Vector3D src)
+        {
+            return new Vector3(src.X, src.Y, src.Z);
+        }
+
+        internal static Vector2 ConvertVector2DToOpenTK(Assimp.Vector2D src)
+        {
+            return new Vector2(src.X, src.Y);
+        }
     }
 }

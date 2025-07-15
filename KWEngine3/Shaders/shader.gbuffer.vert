@@ -15,6 +15,8 @@ uniform vec4 uTextureTransform;
 uniform vec2 uTextureClip;
 uniform int uUseAnimations;
 uniform mat4 uBoneTransforms[128];
+uniform vec4 uCameraPosition;
+
 
 out vec4 vPosition;
 out vec2 vTexture;
@@ -22,6 +24,8 @@ out vec3 vNormal;
 out vec3 vTangent;
 out vec3 vBiTangent;
 out mat3 vTBN;
+out vec3 vTangentView;
+out vec3 vTangentPosition;
 
 void main()
 {
@@ -47,15 +51,19 @@ void main()
 		totalTangent = vec4(aTangent, 0.0);
 		totalBiTangent = vec4(aBiTangent, 0.0);
 	}
-
 	vPosition = uModelMatrix * totalLocalPos;
 	gl_Position = uViewProjectionMatrix * vPosition;
 	vNormal = normalize((uNormalMatrix * totalNormal).xyz);
 	vTangent = normalize((uNormalMatrix * totalTangent).xyz);
 	vBiTangent = normalize((uNormalMatrix * totalBiTangent).xyz);
+	vTBN = mat3(vTangent.xyz, -vBiTangent.xyz, vNormal.xyz);
+
 	vTexture = (vec2(uTextureTransform.x < 0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransform.y < 0 ? 1.0 - aTexture.y : aTexture.y) + uTextureTransform.zw) * abs(uTextureTransform.xy);
 	vec2 uvCenter = uTextureTransform.zw * abs(uTextureTransform.xy) + abs(uTextureTransform.xy) * 0.5;
 	vec2 delta = vTexture - uvCenter;
 	vTexture = vTexture + delta * uTextureClip;
-	vTBN = mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz);
+
+	mat3 vTBN2 = transpose(mat3(vTangent.xyz, vBiTangent.xyz, vNormal.xyz));
+	vTangentPosition = vTBN2 * vPosition.xyz;
+	vTangentView = vTBN2 * uCameraPosition.xyz;
 }

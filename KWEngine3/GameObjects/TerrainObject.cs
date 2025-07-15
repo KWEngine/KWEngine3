@@ -57,12 +57,12 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Gibt an, wie weich die Übergänge zwischen den beiden Texturen (reguläre und Slope-Textur) verlaufen sollen (Standard: 0.001f)
+        /// Gibt an, wie weich die Übergänge zwischen den beiden Texturen (reguläre und Slope-Textur) verlaufen sollen (Standard: 0.05f)
         /// </summary>
-        /// <param name="factor">Glättungsfaktor (zwischen 0f und 1f)</param>
+        /// <param name="factor">Glättungsfaktor (zwischen 0f und 1.0f)</param>
         public void SetTextureSlopeBlendSmoothingFactor(float factor)
         {
-            _textureSlopeSmoothingFactor = Math.Clamp(Math.Abs(factor), 0f, 0.25f);
+            _textureSlopeSmoothingFactor = Math.Clamp(Math.Abs(factor), 0f, 1f);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace KWEngine3.GameObjects
         public TerrainThresholdValue TessellationThreshold { get; set; } = TerrainThresholdValue.T64;
 
         internal float _textureSlopeBlendFactor = 0.5f;
-        internal float _textureSlopeSmoothingFactor = 0.001f;
+        internal float _textureSlopeSmoothingFactor = 0.05f;
         internal EngineObjectModel _gModel;
         internal TerrainObjectState _statePrevious;
         internal TerrainObjectState _stateCurrent;
@@ -227,6 +227,12 @@ namespace KWEngine3.GameObjects
         {
             if (filename == null)
                 filename = "";
+            if(type == TextureType.Height)
+            {
+                KWEngine.LogWriteLine("[TerrainObject] Height texture not available on TerrainObject instances");
+                return;
+            }
+
             _gModel.SetTexture(filename.Trim(), type, 0);
         }
 
@@ -339,6 +345,16 @@ namespace KWEngine3.GameObjects
             SetPosition(_stateCurrent._position + offset);
         }
 
+        /// <summary>
+        /// Setzt die Skalierung für das Parallax-Occlusion-Mapping (falls eine Height-Textur für das Objekt verwendet wird)
+        /// </summary>
+        /// <remarks>RenderQuality muss auf 'Default' oder höher eingestellt sein, damit dieser Effekt eintritt</remarks>
+        /// <param name="scale">Skalierungsfaktor (Standardwert: 0.0f, Wertebereich: 0.0f bis 1.0f)</param>
+        internal void SetHeightmapScale(float scale) // TODO: removed from feature list (for now) because parallax occlusion mapping does not work with triplanar mapping
+        {
+            _pomScale = MathHelper.Clamp(scale, 0f, 1.0f) * 0.1f;
+        }
+
         internal void UpdateModelMatrixAndHitboxes()
         {
             _stateCurrent._modelMatrix = HelperMatrix.CreateModelMatrix(ref _stateCurrent._position);
@@ -357,7 +373,7 @@ namespace KWEngine3.GameObjects
         }
 
         internal World _myWorld = null;
-
+        internal float _pomScale = 0.0f;
         /*
         internal GeoMaterial GenerateMaterial(string texture)
         {

@@ -364,6 +364,20 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Skalierung für das Parallax-Occlusion-Mapping (falls eine Height-Textur für das Objekt verwendet wird)
+        /// </summary>
+        /// <remarks>RenderQuality muss auf 'Default' oder höher eingestellt sein, damit dieser Effekt eintritt</remarks>
+        /// <param name="scale">Skalierungsfaktor (Standardwert: 0.0f, Wertebereich: 0.0f bis 1.0f)</param>
+        public void SetParallaxOcclusionMappingScale(float scale)
+        {
+            if(KWEngine.Window._renderQuality < RenderQualityLevel.Default)
+            {
+                KWEngine.LogWriteLine("[GameObject] Parallax Mapping is disabled on your current rendering profile");
+            }
+            _pomScale = MathHelper.Clamp(scale, 0f, 1.0f) * 0.1f;
+        }
+
+        /// <summary>
         /// Setzt die Texturverschiebung auf dem Objekt
         /// </summary>
         /// <param name="x">x</param>
@@ -1096,7 +1110,7 @@ namespace KWEngine3.GameObjects
 
         internal World _myWorld = null;
 
-
+        internal float _pomScale = 0.0f;
 
         internal abstract void InitHitboxes();
 

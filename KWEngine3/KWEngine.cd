@@ -364,7 +364,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>YCABIUASDAQgkAQIICCAIEQEACBAAxMhAAgAEABCQYQ=</HashCode>
+      <HashCode>YCABIUASDAQgkAQIICCAIEQEACBAAxMhAAkAEABCQYQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -451,12 +451,14 @@
     <Position X="21.5" Y="10.75" Width="2.75" />
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
+      <Method Name="ConvertVector2DToOpenTK" Hidden="true" />
+      <Method Name="ConvertVector3DToOpenTK" Hidden="true" />
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="QIdentity" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAEAEABAAAQAAAEEFiAAAGADABCCAAgAAACAAAAAAEA=</HashCode>
+      <HashCode>EAEAEABAAAQAAAEEFiAAAGADABCiAAgAAACAAAEAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -558,6 +560,7 @@
       <Field Name="_modelNameInDB" Hidden="true" />
       <Field Name="_myWorld" Hidden="true" />
       <Field Name="_name" Hidden="true" />
+      <Field Name="_pomScale" Hidden="true" />
       <Field Name="_positionCenterDelta" Hidden="true" />
       <Field Name="_positionLowerThanCenter" Hidden="true" />
       <Field Name="_stateCurrent" Hidden="true" />
@@ -580,7 +583,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyNDJ1oOGJygUIRuwgqAoUYBACTByxgJIIiMnkBYRVQ=</HashCode>
+      <HashCode>QyNDJ1oOGJ6gUIRuwgqAoUYBACTByxgJIImMnkBYRVQ=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>

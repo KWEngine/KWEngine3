@@ -740,7 +740,10 @@ namespace KWEngine3
 
             KWQuad2D.Init();
             KWQuad2D_05.Init();
-            
+            //_tesselationMax = GL.GetInteger(GetPName.MaxTessGenLevel);
+            //TERRAIN_PATCH_SIZE = Window._renderQuality >= RenderQualityLevel.Default ? 2 : 16;
+            KWTerrainQuad.Init();
+
             FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf"), "Anonymous", true, "Anonymous.jpg"));
             FontDictionary.Add("MajorMonoDisplay", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf"), "MajorMonoDisplay", true, "MajorMonoDisplay.jpg"));
             FontDictionary.Add("NovaMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf"), "NovaMono", true, "NovaMono.jpg"));
@@ -810,14 +813,11 @@ namespace KWEngine3
             KWMapItemXY = SceneImporter.LoadModel("kwmapquadxy.obj", false, SceneImporter.AssemblyMode.Internal);
 
             KWFoliageGrass.Init();
-            KWTerrainQuad.Init();
-
 
             for (int i = 0; i < ExplosionObject.Axes.Length; i++)
             {
                 ExplosionObject.Axes[i] = Vector3.Normalize(ExplosionObject.Axes[i]);
             }
-
         }
 
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new();
@@ -882,6 +882,7 @@ namespace KWEngine3
 
         internal static Matrix4 Identity = Matrix4.Identity;
         internal static int _uniformOffsetMultiplier = 1;
+        //internal static int _tesselationMax = 64;
         internal static float _glowRadius = 0.75f;
         internal static float _glowUpsampleF1 = 0.15f;
         internal static float _glowUpsampleF2 = 0.70f;

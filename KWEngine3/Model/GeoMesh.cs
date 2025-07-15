@@ -1,12 +1,13 @@
 ﻿using Assimp;
-using OpenTK.Mathematics;
+using KWEngine3.Helper;
+using Newtonsoft.Json.Linq;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using KWEngine3.Helper;
 using System.Xml.Serialization;
 
 namespace KWEngine3.Model
@@ -183,6 +184,92 @@ namespace KWEngine3.Model
 
         internal void VBOGenerateTangents(Mesh mesh)
         {
+            
+            if (mesh.HasTextureCoords(0) && mesh.HasVertices && mesh.HasNormals)
+            {
+                int[] indices = mesh.GetIndices();
+
+                // Zwischenspeicher für aufsummierte Tangenten und Bitangenten
+                Vector3[] tanSum = new Vector3[mesh.Vertices.Count];
+                Vector3[] bitanSum = new Vector3[mesh.Vertices.Count];
+
+                // 1. Pro-Dreieck Tangenten und Bitangenten berechnen
+                for (int i = 0; i < indices.Length; i += 3)
+                {
+                    int i0 = indices[i + 0];
+                    int i1 = indices[i + 1];
+                    int i2 = indices[i + 2];
+
+                    Vector3 p0 = HelperVector.ConvertVector3DToOpenTK(mesh.Vertices[i0]);
+                    Vector3 p1 = HelperVector.ConvertVector3DToOpenTK(mesh.Vertices[i1]);
+                    Vector3 p2 = HelperVector.ConvertVector3DToOpenTK(mesh.Vertices[i2]);
+
+                    Vector2 uv0 = HelperVector.ConvertVector3DToOpenTK(mesh.TextureCoordinateChannels[0][i0]).Xy;
+                    Vector2 uv1 = HelperVector.ConvertVector3DToOpenTK(mesh.TextureCoordinateChannels[0][i1]).Xy;
+                    Vector2 uv2 = HelperVector.ConvertVector3DToOpenTK(mesh.TextureCoordinateChannels[0][i2]).Xy;
+
+                    Vector3 e1 = p1 - p0;
+                    Vector3 e2 = p2 - p0;
+
+                    Vector2 duv1 = uv1 - uv0;
+                    Vector2 duv2 = uv2 - uv0;
+
+                    float det = duv1.X * duv2.Y - duv2.X * duv1.Y;
+                    float f = det == 0f ? 0f : 1f / det;
+
+                    Vector3 tangent = f * (duv2.Y * e1 - duv1.Y * e2);
+                    Vector3 bitangent = f * (-duv2.X * e1 + duv1.X * e2);
+
+                    tanSum[i0] += tangent;
+                    tanSum[i1] += tangent;
+                    tanSum[i2] += tangent;
+
+                    bitanSum[i0] += bitangent;
+                    bitanSum[i1] += bitangent;
+                    bitanSum[i2] += bitangent;
+                }
+
+                // 2. Orthonormalisierung & Handedness pro Vertex
+                float[] tangents_f = new float[mesh.Vertices.Count * 3];
+                float[] bitangents_f = new float[mesh.Vertices.Count * 3];
+                for (int i = 0, arrayIndex = 0; i < mesh.Vertices.Count; i++, arrayIndex += 3)
+                {
+                    Vector3 n = HelperVector.ConvertVector3DToOpenTK(mesh.Normals[i]);
+                    Vector3 t = tanSum[i];
+
+                    // Gram-Schmidt-Orthonormalisierung
+                    t = Vector3.Normalize(t - n * Vector3.Dot(n, t));
+
+                    // Handedness bestimmen
+                    Vector3 bOrig = bitanSum[i];
+                    Vector3 bCross = Vector3.Cross(n, t);
+                    float h = Vector3.Dot(bCross, bOrig) < 0f ? -1f : 1f;
+
+                    tangents_f[arrayIndex + 0] = t.X;
+                    tangents_f[arrayIndex + 1] = t.Y;
+                    tangents_f[arrayIndex + 2] = t.Z;
+
+                    bitangents_f[arrayIndex + 0] = bCross.X * h;
+                    bitangents_f[arrayIndex + 1] = bCross.Y * h;
+                    bitangents_f[arrayIndex + 2] = bCross.Z * h;
+                }
+
+                VBOTangent = GL.GenBuffer();
+                GL.BindBuffer(BufferTarget.ArrayBuffer, VBOTangent);
+                GL.BufferData(BufferTarget.ArrayBuffer, tangents_f.Length * 4, tangents_f, BufferUsageHint.StaticDraw);
+                GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, 0, 0);
+                GL.EnableVertexAttribArray(3);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+                VBOBiTangent = GL.GenBuffer();
+                GL.BindBuffer(BufferTarget.ArrayBuffer, VBOBiTangent);
+                GL.BufferData(BufferTarget.ArrayBuffer, bitangents_f.Length * 4, bitangents_f, BufferUsageHint.StaticDraw);
+                GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
+                GL.EnableVertexAttribArray(4);
+                GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            }
+            
+            /*
             if (mesh.HasTangentBasis)
             {
                 //Tangents
@@ -216,7 +303,8 @@ namespace KWEngine3.Model
                 GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
                 GL.EnableVertexAttribArray(4);
                 GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            }
+            }    
+            */
         }
 
         internal static void GenerateVerticesFromVBO(int vbo, ref float xmin, ref float xmax, ref float ymin, ref float ymax, ref float zmin, ref float zmax)

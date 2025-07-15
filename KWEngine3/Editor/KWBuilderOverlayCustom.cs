@@ -340,10 +340,11 @@ namespace KWEngine3.Editor
                     string normalFilename = SelectedGameObject._model.Material[0].TextureNormal.IsTextureSet ? SelectedGameObject._model.Material[0].TextureNormal.Filename : "";
                     string emissiveFilename = SelectedGameObject._model.Material[0].TextureEmissive.IsTextureSet ? SelectedGameObject._model.Material[0].TextureEmissive.Filename : "";
                     string roughnessFilename = SelectedGameObject._model.Material[0].TextureRoughness.IsTextureSet ? SelectedGameObject._model.Material[0].TextureRoughness.Filename : "";
+                    string heightFilename = SelectedGameObject._model.Material[0].TextureHeight.IsTextureSet ? SelectedGameObject._model.Material[0].TextureHeight.Filename : "";
                     string metallicFilename = SelectedGameObject._model.Material[0].TextureMetallic.IsTextureSet ? SelectedGameObject._model.Material[0].TextureMetallic.Filename : "";
 
-                    float uvX = SelectedGameObject._stateCurrent._uvTransform.X; // SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.UVTransform.X : 1f;
-                    float uvY = SelectedGameObject._stateCurrent._uvTransform.Y; // SelectedGameObject._gModel.Material[0].TextureAlbedo.IsTextureSet ? SelectedGameObject._gModel.Material[0].TextureAlbedo.UVTransform.Y : 1f;
+                    float uvX = SelectedGameObject._stateCurrent._uvTransform.X;
+                    float uvY = SelectedGameObject._stateCurrent._uvTransform.Y;
                     System.Numerics.Vector2 uvTransform = new(uvX, uvY);
 
                     if (ImGui.InputText("Albedo", ref albedoFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
@@ -386,15 +387,46 @@ namespace KWEngine3.Editor
                             SelectedGameObject.SetTexture(roughnessFilename.Trim(), TextureType.Roughness);
                     }
 
-                    if (SelectedGameObject._model.Material[0].TextureAlbedo.IsTextureSet)
+                    if (KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
                     {
-                        if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
+                        if (ImGui.InputText("Height", ref heightFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
                         {
-                            SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
+                            if (FileNameEmpty(heightFilename))
+                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Height);
+                            else if (File.Exists(heightFilename))
+                                SelectedGameObject.SetTexture(heightFilename.Trim(), TextureType.Height);
                         }
                     }
 
-                    
+                    if (SelectedGameObject._model.Material[0].TextureAlbedo.IsTextureSet)
+                    {
+                        if (SelectedGameObject._model.Material[0].TextureHeight.IsTextureSet && KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
+                        {
+                            ImGui.PushItemWidth(96);
+                            if (ImGui.InputFloat2("Repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
+                            {
+                                SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
+                            }
+                            ImGui.PopItemWidth();
+
+                            float pomscale = SelectedGameObject._pomScale * 10f;
+
+                            ImGui.SameLine();
+                            ImGui.PushItemWidth(62 + 87);
+                            if (ImGui.SliderFloat("Height", ref pomscale, 0f, 1f, "%.2f", ImGuiSliderFlags.Logarithmic | ImGuiSliderFlags.AlwaysClamp))
+                            {
+                                SelectedGameObject.SetParallaxOcclusionMappingScale(pomscale);
+                            }
+                            ImGui.PopItemWidth();
+                        }
+                        else
+                        {
+                            if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
+                            {
+                                SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
+                            }
+                        }
+                    }
                 }
                 else if(SelectedGameObject._modelNameInDB == "KWPlatform")
                 {
@@ -751,6 +783,7 @@ namespace KWEngine3.Editor
                 string emissiveFilename = SelectedTerrainObject._gModel.Material[0].TextureEmissive.IsTextureSet ? SelectedTerrainObject._gModel.Material[0].TextureEmissive.Filename : "";
                 string roughnessFilename = SelectedTerrainObject._gModel.Material[0].TextureRoughness.IsTextureSet ? SelectedTerrainObject._gModel.Material[0].TextureRoughness.Filename : "";
                 string metallicFilename = SelectedTerrainObject._gModel.Material[0].TextureMetallic.IsTextureSet ? SelectedTerrainObject._gModel.Material[0].TextureMetallic.Filename : "";
+                string heightFilename = SelectedTerrainObject._gModel.Material[0].TextureHeight.IsTextureSet ? SelectedTerrainObject._gModel.Material[0].TextureHeight.Filename : "";
 
                 float uvX = SelectedTerrainObject._stateCurrent._uvTransform.X;
                 float uvY = SelectedTerrainObject._stateCurrent._uvTransform.Y;
@@ -796,6 +829,17 @@ namespace KWEngine3.Editor
                         SelectedTerrainObject.SetTexture(roughnessFilename.Trim(), TextureType.Roughness);
                 }
 
+                if (KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
+                {
+                    if (ImGui.InputText("Height", ref heightFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
+                    {
+                        if (FileNameEmpty(heightFilename))
+                            SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Height);
+                        else if (File.Exists(heightFilename))
+                            SelectedTerrainObject.SetTexture(heightFilename.Trim(), TextureType.Height);
+                    }
+                }
+
                 if (SelectedTerrainObject._gModel.Material[0].TextureAlbedo.IsTextureSet)
                 {
                     if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
@@ -808,14 +852,8 @@ namespace KWEngine3.Editor
                 {
                     ImGui.NewLine();
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Slope textures:");
-                    if (ImGui.SliderFloat("Slope factor:", ref SelectedTerrainObject._textureSlopeBlendFactor, 0f, 1f))
-                    {
-                        
-                    }
-                    if (ImGui.SliderFloat("Smoothing factor:", ref SelectedTerrainObject._textureSlopeSmoothingFactor, 0f, 0.2f))
-                    {
-
-                    }
+                    ImGui.SliderFloat("Slope factor:", ref SelectedTerrainObject._textureSlopeBlendFactor, 0f, 1f);
+                    ImGui.SliderFloat("Smoothing factor:", ref SelectedTerrainObject._textureSlopeSmoothingFactor, 0f, 1.0f);
                 }
                 ImGui.End();
             }

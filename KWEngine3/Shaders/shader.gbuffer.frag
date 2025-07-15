@@ -4,6 +4,8 @@ in vec4 vPosition;
 in vec2 vTexture;
 in vec3 vNormal;
 in mat3 vTBN;
+in vec3 vTangentView;
+in vec3 vTangentPosition;
 
 layout(location = 0) out vec3 albedo; //R11G11B10f
 layout(location = 1) out vec2 normal; // rg16f
@@ -20,9 +22,11 @@ uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureRoughness;
 uniform sampler2D uTextureMetallic;
 uniform sampler2D uTextureEmissive;
+uniform sampler2D uTextureHeight;
 uniform ivec3 uUseTexturesMetallicRoughness; // x = metallic, y = roughness, z = 1 means: object has transparency!
 uniform ivec3 uUseTexturesAlbedoNormalEmissive; // x = albedo, y = normal, z = emissive
 uniform int uTextureIsMetallicRoughnessCombined;
+uniform vec4 uCameraPosition;
 
 vec2 encodeNormalToRG16F(vec3 n) {
     n /= (abs(n.x) + abs(n.y) + abs(n.z));
@@ -74,13 +78,51 @@ vec3 hueShift(vec3 color, float hue)
 	return vec3(color * cosAngle + cross(k, color) * sin(hue) + k * dot(k, color) * (1.0 - cosAngle));
 }
 
+vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
+{ 
+	if(uCameraPosition.w <= 0.0) return texCoords;
+
+	const float minLayers = 8.0;
+	const float maxLayers = 32.0;
+	float numLayers = mix(maxLayers, minLayers, max(dot(vec3(0.0, 0.0, 1.0), viewDir), 0.0));  
+
+    float layerDepth = 1.0 / numLayers;
+    float currentLayerDepth = 0.0;
+    vec2 P = viewDir.xy * uCameraPosition.w; 
+    vec2 deltaTexCoords = P / numLayers;
+
+	vec2  currentTexCoords     = texCoords;
+	float currentDepthMapValue = 1.0 - texture(uTextureHeight, currentTexCoords).r;
+  
+	while(currentLayerDepth < currentDepthMapValue)
+	{
+		currentTexCoords -= deltaTexCoords;
+		currentDepthMapValue = 1.0 - texture(uTextureHeight, currentTexCoords).r;  
+		currentLayerDepth += layerDepth;  
+	}
+
+	vec2 prevTexCoords = currentTexCoords + deltaTexCoords;
+
+	float afterDepth  = currentDepthMapValue - currentLayerDepth;
+	float beforeDepth = 1.0 - texture(uTextureHeight, prevTexCoords).r - currentLayerDepth + layerDepth;
+ 
+	float weight = afterDepth / (afterDepth - beforeDepth);
+	vec2 finalTexCoords = prevTexCoords * weight + currentTexCoords * (1.0 - weight);
+
+	return finalTexCoords;
+	
+} 
+
 void main()
 {
+	vec3 viewDir = normalize(vTangentView - vTangentPosition);
+	vec2 vTexture2 = ParallaxMapping(vTexture, viewDir);
+
 	vec3 emissive;
 	// Emissive color:
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
 	{
-		vec4 tmp = texture(uTextureEmissive, vTexture);
+		vec4 tmp = texture(uTextureEmissive, vTexture2);
 		vec3 emissiveFromTexture = hueShift(tmp.xyz, uColorTint.w) * tmp.w;
 		emissive = (emissiveFromTexture + uColorEmissive.xyz) * uColorEmissive.w;
 	}
@@ -92,7 +134,7 @@ void main()
 	// Albedo color:
 	if(uUseTexturesAlbedoNormalEmissive.x > 0)
 	{
-		albedo = hueShift(texture(uTextureAlbedo, vTexture).xyz, uColorTint.w) * uColorTint.xyz  + emissive;
+		albedo = hueShift(texture(uTextureAlbedo, vTexture2).xyz, uColorTint.w) * uColorTint.xyz  + emissive;
 	}
 	else
 	{
@@ -105,7 +147,7 @@ void main()
 	vec3 n;
 	if(uUseTexturesAlbedoNormalEmissive.y > 0)
 	{
-		n = vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0);
+		n = vTBN * (texture(uTextureNormal, vTexture2).xyz * 2.0 - 1.0);
 	}
 	else
 	{
@@ -128,14 +170,14 @@ void main()
 	{
 		if(uTextureIsMetallicRoughnessCombined > 0)
 		{
-			vec4 t = texture(uTextureMetallic, vTexture);
+			vec4 t = texture(uTextureMetallic, vTexture2);
 			metallic = t.b;  
 			roughness = t.g; 
 			roughnessThroughMetallic = true;
 		}
 		else
 		{
-			metallic = texture(uTextureMetallic, vTexture).r;
+			metallic = texture(uTextureMetallic, vTexture2).r;
 		}
 	}
 	if(uUseTexturesMetallicRoughness.y > 0) // y = roughness
@@ -144,11 +186,11 @@ void main()
 		{
 			if(uUseTexturesMetallicRoughness.z > 0)
 			{
-				roughness = 1.0 - texture(uTextureRoughness, vTexture).r;
+				roughness = 1.0 - texture(uTextureRoughness, vTexture2).r;
 			}
 			else
 			{
-				roughness = texture(uTextureRoughness, vTexture).r;
+				roughness = texture(uTextureRoughness, vTexture2).r;
 			}
 		}
 	}

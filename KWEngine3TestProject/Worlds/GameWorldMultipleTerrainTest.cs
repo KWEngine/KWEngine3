@@ -39,6 +39,7 @@ namespace KWEngine3TestProject.Worlds
                 t.SetTextureForSlope("./Textures/limestone-cliffs_albedo.png");
                 t.SetTextureForSlope("./Textures/limestone-cliffs_normal.png", TextureType.Normal);
                 t.SetTextureSlopeBlendFactor(0.5f);
+                t.SetTextureSlopeBlendSmoothingFactor(0.0f);
                 t.SetPosition(xOffset, 0, zOffset);
                 Console.WriteLine("placing new terrain @ x="+xOffset+"|z=" + zOffset);
                 AddTerrainObject(t);
