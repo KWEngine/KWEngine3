@@ -115,8 +115,8 @@ namespace KWEngine3.Audio
                 int[] buffers = new int[queued];
                 AL.SourceUnqueueBuffers(mSource, queued, buffers);
             }
-            /*
-            unsafe
+            
+            /*unsafe
             {
                 fixed (byte* ptr = _empty)
                 { 
@@ -125,8 +125,8 @@ namespace KWEngine3.Audio
                         AL.BufferData(buffer, mSound.GetFormat(), ptr, _empty.Length, mSound.WaveFormat.SampleRate);
                     }
                 }
-            }
-            */
+            }*/
+            
         }
 
         public void SetCachedSound(CachedSound sound)
@@ -352,6 +352,16 @@ namespace KWEngine3.Audio
         public string GetFileName()
         {
             return mSound.GetName();
+        }
+
+        public bool IsAvailable
+        {
+            get
+            {
+                if (_playbackThread == null) return true;
+                else if (_playbackThread.IsAlive) return false;
+                else return true;
+            }
         }
 
         public bool IsPlayingOrPaused

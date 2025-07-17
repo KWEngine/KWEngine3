@@ -13,7 +13,7 @@ namespace KWEngine3TestProject.Worlds
     public class GameWorldAudioEQTest : World
     {
         private int _channel = -1;
-
+        private float _gain = 1;
         private GameObject[] _bands;
 
         public override void Act()
@@ -36,7 +36,20 @@ namespace KWEngine3TestProject.Worlds
             
             if (Audio.IsChannelPlaying(_channel))
             {
-                AudioAnalysis aa = Audio.GetAudioAnalysisForChannel(_channel);
+                if(Keyboard.IsKeyDown(Keys.Up))
+                {
+                    _gain = MathHelper.Clamp(_gain + 0.01f, 0, 1);
+                    Audio.ChangeSoundGain(_channel, _gain);
+                    Console.WriteLine(_gain);
+                }
+                else if(Keyboard.IsKeyDown(Keys.Down))
+                {
+                    _gain = MathHelper.Clamp(_gain - 0.01f, 0, 1);
+                    Audio.ChangeSoundGain(_channel, _gain);
+                    Console.WriteLine(_gain);
+                }
+
+                    AudioAnalysis aa = Audio.GetAudioAnalysisForChannel(_channel);
                 if(aa.IsValid)
                 {
                     _bands[0].SetPositionY((MathHelper.Clamp(aa.Band01.Decibel, -60, 0) + 60) / 2);

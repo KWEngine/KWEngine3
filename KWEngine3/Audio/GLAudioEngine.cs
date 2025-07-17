@@ -204,20 +204,17 @@ namespace KWEngine3.Audio
 
         public static bool IsSourcePlaying(int src)
         {
-            ALSourceState state = (ALSourceState)AL.GetSource(mSources[src].GetSourceId(), ALGetSourcei.SourceState);
-            return state == ALSourceState.Playing;
+            return mSources[src].IsPlaying;
         }
 
         public static bool IsSourcePaused(int src)
         {
-            ALSourceState state = (ALSourceState)AL.GetSource(mSources[src].GetSourceId(), ALGetSourcei.SourceState);
-            return state == ALSourceState.Paused;
+            return mSources[src].IsPaused;
         }
 
         public static bool IsSourcePlayingOrPaused(int src)
         {
-            ALSourceState state = (ALSourceState)AL.GetSource(mSources[src].GetSourceId(), ALGetSourcei.SourceState);
-            return state == ALSourceState.Playing || state == ALSourceState.Paused;
+            return mSources[src].IsPlayingOrPaused;
         }
 
         public static int FindSourceIdThatIsPausedOnAudiofile(string audiofile)
@@ -308,7 +305,7 @@ namespace KWEngine3.Audio
             int channelNumber = -1;
             for (int i = 0; i < MAX_CHANNELS; i++)
             {
-                if (!mSources[i].IsPlayingOrPaused)
+                if (mSources[i].IsAvailable)
                 {
                     source = mSources[i];
                     channelNumber = i;
