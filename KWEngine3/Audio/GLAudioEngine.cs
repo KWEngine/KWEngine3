@@ -1,5 +1,10 @@
-﻿using OpenTK.Audio.OpenAL;
-using KWEngine3.Helper;
+﻿using KWEngine3.Helper;
+using Microsoft.VisualBasic;
+using OpenTK.Audio.OpenAL;
+using System.ComponentModel.Design;
+using System.Reflection.PortableExecutable;
+using System.Threading.Channels;
+using System.Threading.Tasks.Dataflow;
 
 namespace KWEngine3.Audio
 {
@@ -16,7 +21,7 @@ namespace KWEngine3.Audio
         private static bool mAudioOn = false;
         private static List<GLAudioSource> mSources = new List<GLAudioSource>();
 
-        private static int mChannels = 32;
+        internal const int MAX_CHANNELS = 32;
 
         private static void TryInitAudio()
         {
@@ -35,13 +40,10 @@ namespace KWEngine3.Audio
                     
                     if (version == null)
                     {
-                        throw new Exception("No Audio devices found.");
+                        throw new Exception("No Audio devices found");
                     }
-                    //KWEngine.LogWriteLine("[Audio] Initialized successfully");
                     mAudioOn = true;
-                    
                 }
-
                 catch (Exception)
                 {
                     mAudioOn = false;
@@ -57,7 +59,7 @@ namespace KWEngine3.Audio
 
             if (mAudioOn)
             {
-                for (int i = 0; i < mChannels; i++)
+                for (int i = 0; i < MAX_CHANNELS; i++)
                 {
                     GLAudioSource s = new GLAudioSource();
                     mSources.Add(s);
@@ -65,7 +67,7 @@ namespace KWEngine3.Audio
             }
             else
             {
-                KWEngine.LogWriteLine("[Audio] No driver available :-(");
+                KWEngine.LogWriteLine("[Audio] No driver available");
             }
         }
 
@@ -87,7 +89,7 @@ namespace KWEngine3.Audio
                 GLAudioSource source;
                 for (int i = 0; i < mSources.Count; i++)
                 {
-                    if (mSources[i] != null && mSources[i].IsPlaying && sound.Contains(mSources[i].GetFileName()))
+                    if (mSources[i] != null && mSources[i].IsPlayingOrPaused && sound.Contains(mSources[i].GetFileName()))
                     {
                         source = mSources[i];
                         source.Stop();
@@ -96,13 +98,13 @@ namespace KWEngine3.Audio
             }
         }
 
-        public static void SoundStop(int sourceId)
+        public static void SoundStop(int channel)
         {
             if (mAudioOn)
             {
-                if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
+                if (mSources[channel] != null && mSources[channel].IsPlayingOrPaused)
                 {
-                    mSources[sourceId].Stop();
+                    mSources[channel].Stop();
                 }
             }
         }
@@ -111,27 +113,166 @@ namespace KWEngine3.Audio
         {
             if (mAudioOn)
             {
-                GLAudioSource source;
                 for (int i = 0; i < mSources.Count; i++)
                 {
-                    if (mSources[i] != null && mSources[i].IsPlaying)
+                    if (mSources[i] != null && mSources[i].IsPlayingOrPaused)
                     {
-                        source = mSources[i];
-                        source.Stop();
+                        mSources[i].Stop();
                     }
                 }
             }
         }
 
-        public static void SoundChangeGain(int sourceId, float gain)
+        public static void SoundChangeGain(string audiofile, float gain)
+        {
+            int source = FindSourceIdThatIsPlayingAudiofile(HelperGeneral.EqualizePathDividers(audiofile));
+            if(source != 1)
+            {
+                SoundChangeGain(source, gain);
+            }
+            else
+            {
+                source = FindSourceIdThatIsPausedOnAudiofile(HelperGeneral.EqualizePathDividers(audiofile));
+                if (source != 1)
+                {
+                    SoundChangeGain(source, gain);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[Audio] file not playing");
+                }
+            }
+        }
+
+        public static void SoundChangeGain(int channel, float gain)
         {
             if (mAudioOn)
             {
                 gain = HelperGeneral.Clamp(gain, 0, 8);
-                if (mSources[sourceId] != null && mSources[sourceId].IsPlaying)
+                if (mSources[channel] != null && mSources[channel].IsPlayingOrPaused)
                 {
-                    AL.Source(mSources[sourceId].GetSourceId(), ALSourcef.Gain, gain);
+                    AL.Source(mSources[channel].GetSourceId(), ALSourcef.Gain, gain);
                 }
+            }
+        }
+
+        public static void SoundPauseAll()
+        {
+            if (mAudioOn)
+            {
+                foreach (GLAudioSource src in mSources)
+                {
+                    if (src.IsPlaying)
+                    {
+                        src.Pause();
+                    }
+                }
+            }
+        }
+
+        public static void SoundContinueAll()
+        {
+            if (mAudioOn)
+            {
+                foreach (GLAudioSource src in mSources)
+                {
+                    if (src.IsPaused)
+                    {
+                        src.Continue();
+                    }
+                }
+            }
+        }
+
+        public static int FindSourceIdThatIsPlayingAudiofile(string audiofile)
+        {
+            if (!mAudioOn)
+            {
+                KWEngine.LogWriteLine("[Audio] device not available");
+                return -1;
+            }
+
+            for (int i = 0; i < MAX_CHANNELS; i++)
+            {
+                if (mSources[i].IsPlaying && mSources[i].GetFileName() == audiofile)
+                {
+                    return mSources[i].GetSourceId();
+                }
+            }
+            return -1;
+        }
+
+        public static bool IsSourcePlaying(int src)
+        {
+            ALSourceState state = (ALSourceState)AL.GetSource(mSources[src].GetSourceId(), ALGetSourcei.SourceState);
+            return state == ALSourceState.Playing;
+        }
+
+        public static bool IsSourcePaused(int src)
+        {
+            ALSourceState state = (ALSourceState)AL.GetSource(mSources[src].GetSourceId(), ALGetSourcei.SourceState);
+            return state == ALSourceState.Paused;
+        }
+
+        public static bool IsSourcePlayingOrPaused(int src)
+        {
+            ALSourceState state = (ALSourceState)AL.GetSource(mSources[src].GetSourceId(), ALGetSourcei.SourceState);
+            return state == ALSourceState.Playing || state == ALSourceState.Paused;
+        }
+
+        public static int FindSourceIdThatIsPausedOnAudiofile(string audiofile)
+        {
+            if (!mAudioOn)
+            {
+                KWEngine.LogWriteLine("[Audio] device not available");
+                return -1;
+            }
+
+            for (int i = 0; i < MAX_CHANNELS; i++)
+            {
+                if (mSources[i].IsPaused && mSources[i].GetFileName() == audiofile)
+                {
+                    return mSources[i].GetSourceId();
+                }
+            }
+            return -1;
+        }
+
+        public static void SoundContinue(int channel)
+        {
+            if (!mAudioOn)
+            {
+                KWEngine.LogWriteLine("[Audio] device not available");
+                return;
+            }
+
+            ALSourceState state = (ALSourceState)AL.GetSource(mSources[channel].GetSourceId(), ALGetSourcei.SourceState);
+            if (state == ALSourceState.Paused)
+            {
+                AL.SourcePlay(mSources[channel].GetSourceId());
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[Audio] source already paused or stopped");
+            }
+        }
+
+        public static void SoundPause(int channel)
+        {
+            if (!mAudioOn)
+            {
+                KWEngine.LogWriteLine("[Audio] device not available");
+                return;
+            }
+
+            ALSourceState state = (ALSourceState)AL.GetSource(mSources[channel].GetSourceId(), ALGetSourcei.SourceState);
+            if(state == ALSourceState.Playing)
+            {
+                AL.SourcePause(mSources[channel].GetSourceId());
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[Audio] source already paused or stopped");
             }
         }
 
@@ -139,7 +280,7 @@ namespace KWEngine3.Audio
         {
             if (!mAudioOn)
             {
-                KWEngine.LogWriteLine("Error playing audio: audio device not available.");
+                KWEngine.LogWriteLine("[Audio] device not available");
                 return -1;
             }
             volume = volume >= 0 && volume <= 1.0f ? volume : 1.0f;
@@ -152,42 +293,47 @@ namespace KWEngine3.Audio
             else
             {
                 soundToPlay = new CachedSound(sound);
-                CachedSounds.Add(sound, soundToPlay);
+                if (soundToPlay.AudioData != null)
+                {
+                    CachedSounds.Add(sound, soundToPlay);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[Audio] invalid audio file");
+                    return -1;
+                }
             }
 
             GLAudioSource source = null;
             int channelNumber = -1;
-            for (int i = 0; i < mChannels; i++)
+            for (int i = 0; i < MAX_CHANNELS; i++)
             {
-                if (!mSources[i].IsPlaying)
+                if (!mSources[i].IsPlayingOrPaused)
                 {
                     source = mSources[i];
                     channelNumber = i;
-                    source.SetFileName(sound);
                     break;
                 }
             }
             if (source == null)
             {
-                KWEngine.LogWriteLine("Error playing audio file: all " + mChannels + " channels are busy.");
+                KWEngine.LogWriteLine("[Audio] All " + MAX_CHANNELS + " channels are busy playing");
                 return -1;
-            }
-
-            AL.Source(source.GetSourceId(), ALSourcei.Buffer, soundToPlay.GetBufferPointer());
-            if (looping)
-            {
-                AL.Source(source.GetSourceId(), ALSourceb.Looping, true);
-                source.SetLooping(true);
             }
             else
             {
-                AL.Source(source.GetSourceId(), ALSourceb.Looping, false);
-                source.SetLooping(false);
+                KWEngine.LogWriteLine("picking channel " + channelNumber + " (src id: " + source.GetSourceId() + ") for playback of " + sound + "...");
             }
-            AL.Source(source.GetSourceId(), ALSourcef.Gain, volume);
-            AL.SourcePlay(source.GetSourceId());
+
+            source.SetCachedSound(soundToPlay);
+            source.IsLooping = looping;
+            source.SetVolume(volume);
+            source.Play();
+
             return channelNumber;
         }
+
+
 
         public static void SoundPreload(string sound)
         {
@@ -226,6 +372,13 @@ namespace KWEngine3.Audio
                 }
                 mDeviceID = ALDevice.Null;
             }
+        }
+
+        public static AudioAnalysis GetAudioAnalysisForChannel(int channel)
+        {
+            AudioAnalysis a = new AudioAnalysis();
+            a.Fill(mSources[channel]._currentSpectrum);
+            return a;
         }
     }
 }

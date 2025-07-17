@@ -897,6 +897,7 @@ namespace KWEngine3
             {
                 KWEngine.CurrentWorld.Dispose();
             }
+            GLAudioEngine.Dispose();
             _disposed = true;
         }
 

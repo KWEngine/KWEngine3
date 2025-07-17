@@ -911,6 +911,7 @@ namespace KWEngine3
                 Mode = Mode == EngineMode.Play ? EngineMode.Edit : EngineMode.Play;
                 if (EditModeActive)
                 {
+                    Audio.Audio.PauseAllSound();
                     _texMemUsed = MathF.Round(HelperGeneral.GetTextureStorageSize() / 1000000f, 2);
                     _geometryMemUsed = MathF.Round(HelperGeneral.GetGeometryStorageSize() / 1000000f, 2);
                     CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
@@ -920,6 +921,7 @@ namespace KWEngine3
                 }
                 else
                 {
+                    Audio.Audio.ContinueAllSound();
                     CurrentWorld._cameraGame._frustum.UpdateFrustum(CurrentWorld._cameraGame._stateCurrent.ProjectionMatrix, CurrentWorld._cameraGame._stateCurrent.ViewMatrix);
                     Window.CursorState = _stateCameraGameBeforeToggle;
                     DeselectAll();

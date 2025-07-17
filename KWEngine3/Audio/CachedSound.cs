@@ -16,17 +16,15 @@ namespace KWEngine3.Audio
     /// <summary>
     /// Vorgeladener Audioton
     /// </summary>
-    internal class CachedSound : IDisposable
+    internal class CachedSound
     {
         private readonly ALFormat mFormat;
-        private readonly int mPointerBuffer;
         private readonly string mName;
-        private readonly IntPtr pointerToAudioData;
 
         /// <summary>
         /// Audiodaten
         /// </summary>
-        public byte[] AudioData { get; private set; }
+        public byte[] AudioData = null;
         /// <summary>
         /// Waveformat
         /// </summary>
@@ -45,10 +43,10 @@ namespace KWEngine3.Audio
             if (audioFileName == null)
                 audioFileName = "";
             
-            if (!(audioFileName.ToLower().EndsWith("wav") || audioFileName.ToLower().EndsWith("ogg")))
+            if (!(audioFileName.Trim().ToLower().EndsWith("wav") || audioFileName.Trim().ToLower().EndsWith("ogg")))
                 throw new Exception("Only wav and ogg files are supported.");
 
-            HelperGeneral.EqualizePathDividers(audioFileName);
+            audioFileName = HelperGeneral.EqualizePathDividers(audioFileName.Trim());
             if(File.Exists(audioFileName) == false)
             {
                 KWEngine.LogWriteLine("[Audio] Cannot find file " + audioFileName);
@@ -92,20 +90,15 @@ namespace KWEngine3.Audio
                 }
                 else
                 {
-                    throw new Exception("Only mono and stereo wave (*.wav) sources are supported.");
+                    throw new Exception("Only mono and stereo wave or ogg vorbis sources are supported.");
                 }
             }
             else
             {
-                throw new Exception("Only 8bit mono and stereo wave (*.wav) sources are supported.");
+                throw new Exception("Only 8bit/16bit mono and stereo wave or ogg vorbis sources are supported.");
             }
             
-            mName = audioFileName.Substring(audioFileName.LastIndexOf(Path.AltDirectorySeparatorChar) + 1);
-
-            mPointerBuffer = AL.GenBuffer();
-            pointerToAudioData = Marshal.AllocHGlobal(AudioData.Length);
-            Marshal.Copy(AudioData, 0, pointerToAudioData, AudioData.Length);
-            AL.BufferData(mPointerBuffer, mFormat, pointerToAudioData, AudioData.Length, WaveFormat.SampleRate);
+            mName = audioFileName.Substring(audioFileName.LastIndexOf('/') + 1);
         }
 
         private static byte[] ReadOggFile(string filename, out int numChannels, out int sampleRate, out int bitsPerSample)
@@ -222,22 +215,6 @@ namespace KWEngine3.Audio
         public ALFormat GetFormat()
         {
             return mFormat;
-        }
-
-        public int GetBufferPointer()
-        {
-            return mPointerBuffer;
-        }
-        
-        public void Clear()
-        {
-            AL.DeleteBuffer(mPointerBuffer);
-            Marshal.FreeHGlobal(pointerToAudioData);
-        }
-
-        public void Dispose()
-        {
-            Clear();
         }
     }
 }
