@@ -225,8 +225,11 @@
   </Class>
   <Class Name="KWEngine3.Audio.Audio">
     <Position X="24.5" Y="8.75" Width="2.75" />
+    <Members>
+      <Field Name="_bufferSizeMs" Hidden="true" />
+    </Members>
     <TypeIdentifier>
-      <HashCode>AAAAAACAAAAAAAAAEAAAAAgAAAAAAAAAAAAAAAMAAAA=</HashCode>
+      <HashCode>gAIIACCAIAAAAAAAEAAAAEgAAAAIAAAAABAAAAOAgAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -350,6 +353,7 @@
       <Field Name="_isShadowCaster" Hidden="true" />
       <Field Name="_myWorld" Hidden="true" />
       <Field Name="_name" Hidden="true" />
+      <Field Name="_pomScale" Hidden="true" />
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
       <Field Name="_stateRender" Hidden="true" />
