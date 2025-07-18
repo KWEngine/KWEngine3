@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="9.5" Width="2.75" />
+    <Position X="0.5" Y="9.75" Width="2.75" />
     <Members>
       <Field Name="_disposed" Hidden="true" />
       <Field Name="_keyboard" Hidden="true" />
@@ -130,7 +130,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BcgARbBNA6SJgLEcpAruAZARVCgCAmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>BdgARbBNA6SJgLEcpAruAZARVCgCAmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -229,7 +229,7 @@
       <Field Name="_bufferSizeMs" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>gAIIACCAIAAAAAAAEAAAAEgAAAAIAAAAABAAAAOAgAA=</HashCode>
+      <HashCode>gAIIACCAIAAAAAAAEAAAAEgAAAAIAAAAADAAAAOAgAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -467,7 +467,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="15" Width="2.75" />
+    <Position X="0.5" Y="15.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -711,7 +711,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="0.5" Y="17.5" Width="2.75" />
+    <Position X="0.5" Y="17.75" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />

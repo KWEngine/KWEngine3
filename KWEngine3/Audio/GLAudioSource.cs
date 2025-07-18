@@ -21,7 +21,7 @@ namespace KWEngine3.Audio
 
         private int BUFFER_COUNT = Math.Clamp(KWEngine.AudioBuffersPerChannel, 2, 4);
 
-        private byte[] _empty;
+        //private byte[] _empty;
         private volatile int mSource = -1;
         private PlaybackState State
         {
