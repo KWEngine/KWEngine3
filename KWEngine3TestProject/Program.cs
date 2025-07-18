@@ -7,6 +7,7 @@ namespace KWEngine3TestProject
         static void Main(string[] args)
         {
             KWEngine.GBufferLighting = GBufferLightingMode.Default;
+            KWEngine.AudioBuffersPerChannel = 2;
 
             using (GameWindow gw = new GameWindow())
             {

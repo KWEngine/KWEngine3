@@ -228,5 +228,21 @@ namespace KWEngine3.Audio
 
             return GLAudioEngine.GetAudioAnalysisForChannel(channel);
         }
+
+        /// <summary>
+        /// Prüft, ob neue Analysedaten für den gegebenen Kanal verfügbar sind
+        /// </summary>
+        /// <param name="channel">Kanalnummer</param>
+        /// <param name="timestampWorldOfPreviousData">Zeitstempel (Weltzeit) der vorherigen Daten</param>
+        /// <returns></returns>
+        public static bool IsNewAudioAnalysisDataAvailable(int channel, float timestampWorldOfPreviousData)
+        {
+            if (channel < 0 || channel >= GLAudioEngine.MAX_CHANNELS)
+            {
+                KWEngine.LogWriteLine("[Audio] invalid channel id");
+                return false;
+            }
+            return GLAudioEngine.CheckForNewAudioAnalysisData(channel, timestampWorldOfPreviousData);
+        }
     }
 }

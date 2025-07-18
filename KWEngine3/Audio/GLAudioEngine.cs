@@ -321,7 +321,7 @@ namespace KWEngine3.Audio
             {
                 KWEngine.LogWriteLine("picking channel " + channelNumber + " (src id: " + source.GetSourceId() + ") for playback of " + sound + "...");
             }
-
+            
             source.SetCachedSound(soundToPlay);
             source.IsLooping = looping;
             source.SetVolume(volume);
@@ -376,6 +376,11 @@ namespace KWEngine3.Audio
             AudioAnalysis a = new AudioAnalysis();
             a.Fill(mSources[channel]._currentSpectrum);
             return a;
+        }
+
+        public static bool CheckForNewAudioAnalysisData(int channel, float timestamp)
+        {
+            return mSources[channel]._currentSpectrum.IsValid && mSources[channel]._currentSpectrum.TimestampWorld > timestamp;
         }
     }
 }

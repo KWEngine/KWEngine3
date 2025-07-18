@@ -20,9 +20,15 @@ namespace KWEngine3
     public class KWEngine
     {
         /// <summary>
+        /// Gibt an, wie viele Puffer pro Audiokanal verwendet werden sollen (Minimum: 2, Standardwert: 2, Maximum: 4)
+        /// </summary>
+        /// <remarks>Je mehr Puffer, desto verlässlicher ist die Wiedergabe auf langsamen CPUs, aber die Auswertung der Audiodaten kann dadurch leicht verzögert werden</remarks>
+        public static int AudioBuffersPerChannel { get; set; } = 2;
+
+        /// <summary>
         /// Gibt an, wie der Beleuchtungsschritt in der Engine ablaufen soll
         /// </summary>
-        /// <remarks>Kann die Performance auf schwachen GPUs verbessern</remarks>
+        /// <remarks>Kann die Performance auf schwachen GPUs verbessern, muss aber vor Erstellung des Fensters gesetzt werden</remarks>
         public static GBufferLightingMode GBufferLighting { get; set; } = GBufferLightingMode.Default;
 
         /// <summary>

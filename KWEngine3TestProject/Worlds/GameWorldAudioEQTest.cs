@@ -14,6 +14,8 @@ namespace KWEngine3TestProject.Worlds
     {
         private int _channel = -1;
         private float _gain = 1;
+        private float _timestampData = 0;
+        private float _timestampShot = 0;
         private GameObject[] _bands;
 
         public override void Act()
@@ -49,68 +51,73 @@ namespace KWEngine3TestProject.Worlds
                     Console.WriteLine(_gain);
                 }
 
-                    AudioAnalysis aa = Audio.GetAudioAnalysisForChannel(_channel);
-                if(aa.IsValid)
+                if (Audio.IsNewAudioAnalysisDataAvailable(_channel, _timestampData))
                 {
-                    _bands[0].SetPositionY((MathHelper.Clamp(aa.Band01.Decibel, -60, 0) + 60) / 2);
-                    _bands[0].SetScale(1, MathHelper.Clamp(aa.Band01.Decibel, -60, 0) + 60, 1);
+                    AudioAnalysis aa = Audio.GetAudioAnalysisForChannel(_channel);
+                    if (aa.IsValid)
+                    {
+                        _timestampData = WorldTime;
 
-                    _bands[1].SetPositionY((MathHelper.Clamp(aa.Band02.Decibel, -60, 0) + 60) / 2);
-                    _bands[1].SetScale(1, MathHelper.Clamp(aa.Band02.Decibel, -60, 0) + 60, 1);
+                        _bands[0].SetPositionY((MathHelper.Clamp(aa.Band01.Decibel, -60, 0) + 60) / 2);
+                        _bands[0].SetScale(1, MathHelper.Clamp(aa.Band01.Decibel, -60, 0) + 60, 1);
 
-                    _bands[2].SetPositionY((MathHelper.Clamp(aa.Band03.Decibel, -60, 0) + 60) / 2);
-                    _bands[2].SetScale(1, MathHelper.Clamp(aa.Band03.Decibel, -60, 0) + 60, 1);
+                        _bands[1].SetPositionY((MathHelper.Clamp(aa.Band02.Decibel, -60, 0) + 60) / 2);
+                        _bands[1].SetScale(1, MathHelper.Clamp(aa.Band02.Decibel, -60, 0) + 60, 1);
 
-                    _bands[3].SetPositionY((MathHelper.Clamp(aa.Band04.Decibel, -60, 0) + 60) / 2);
-                    _bands[3].SetScale(1, MathHelper.Clamp(aa.Band04.Decibel, -60, 0) + 60, 1);
+                        _bands[2].SetPositionY((MathHelper.Clamp(aa.Band03.Decibel, -60, 0) + 60) / 2);
+                        _bands[2].SetScale(1, MathHelper.Clamp(aa.Band03.Decibel, -60, 0) + 60, 1);
 
-                    _bands[4].SetPositionY((MathHelper.Clamp(aa.Band05.Decibel, -60, 0) + 60) / 2);
-                    _bands[4].SetScale(1, MathHelper.Clamp(aa.Band05.Decibel, -60, 0) + 60, 1);
+                        _bands[3].SetPositionY((MathHelper.Clamp(aa.Band04.Decibel, -60, 0) + 60) / 2);
+                        _bands[3].SetScale(1, MathHelper.Clamp(aa.Band04.Decibel, -60, 0) + 60, 1);
 
-                    _bands[5].SetPositionY((MathHelper.Clamp(aa.Band06.Decibel, -60, 0) + 60) / 2);
-                    _bands[5].SetScale(1, MathHelper.Clamp(aa.Band06.Decibel, -60, 0) + 60, 1);
+                        _bands[4].SetPositionY((MathHelper.Clamp(aa.Band05.Decibel, -60, 0) + 60) / 2);
+                        _bands[4].SetScale(1, MathHelper.Clamp(aa.Band05.Decibel, -60, 0) + 60, 1);
 
-                    _bands[6].SetPositionY((MathHelper.Clamp(aa.Band07.Decibel, -60, 0) + 60) / 2);
-                    _bands[6].SetScale(1, MathHelper.Clamp(aa.Band07.Decibel, -60, 0) + 60, 1);
+                        _bands[5].SetPositionY((MathHelper.Clamp(aa.Band06.Decibel, -60, 0) + 60) / 2);
+                        _bands[5].SetScale(1, MathHelper.Clamp(aa.Band06.Decibel, -60, 0) + 60, 1);
 
-                    _bands[7].SetPositionY((MathHelper.Clamp(aa.Band08.Decibel, -60, 0) + 60) / 2);
-                    _bands[7].SetScale(1, MathHelper.Clamp(aa.Band08.Decibel, -60, 0) + 60, 1);
+                        _bands[6].SetPositionY((MathHelper.Clamp(aa.Band07.Decibel, -60, 0) + 60) / 2);
+                        _bands[6].SetScale(1, MathHelper.Clamp(aa.Band07.Decibel, -60, 0) + 60, 1);
 
-                    _bands[8].SetPositionY((MathHelper.Clamp(aa.Band09.Decibel, -60, 0) + 60) / 2);
-                    _bands[8].SetScale(1, MathHelper.Clamp(aa.Band09.Decibel, -60, 0) + 60, 1);
+                        _bands[7].SetPositionY((MathHelper.Clamp(aa.Band08.Decibel, -60, 0) + 60) / 2);
+                        _bands[7].SetScale(1, MathHelper.Clamp(aa.Band08.Decibel, -60, 0) + 60, 1);
 
-                    _bands[9].SetPositionY((MathHelper.Clamp(aa.Band10.Decibel, -60, 0) + 60) / 2);
-                    _bands[9].SetScale(1, MathHelper.Clamp(aa.Band10.Decibel, -60, 0) + 60, 1);
+                        _bands[8].SetPositionY((MathHelper.Clamp(aa.Band09.Decibel, -60, 0) + 60) / 2);
+                        _bands[8].SetScale(1, MathHelper.Clamp(aa.Band09.Decibel, -60, 0) + 60, 1);
 
-                    _bands[10].SetPositionY((MathHelper.Clamp(aa.Band11.Decibel, -60, 0) + 60) / 2);
-                    _bands[10].SetScale(1, MathHelper.Clamp(aa.Band11.Decibel, -60, 0) + 60, 1);
+                        _bands[9].SetPositionY((MathHelper.Clamp(aa.Band10.Decibel, -60, 0) + 60) / 2);
+                        _bands[9].SetScale(1, MathHelper.Clamp(aa.Band10.Decibel, -60, 0) + 60, 1);
 
-                    _bands[11].SetPositionY((MathHelper.Clamp(aa.Band12.Decibel, -60, 0) + 60) / 2);
-                    _bands[11].SetScale(1, MathHelper.Clamp(aa.Band12.Decibel, -60, 0) + 60, 1);
+                        _bands[10].SetPositionY((MathHelper.Clamp(aa.Band11.Decibel, -60, 0) + 60) / 2);
+                        _bands[10].SetScale(1, MathHelper.Clamp(aa.Band11.Decibel, -60, 0) + 60, 1);
 
-                    _bands[12].SetPositionY((MathHelper.Clamp(aa.Band13.Decibel, -60, 0) + 60) / 2);
-                    _bands[12].SetScale(1, MathHelper.Clamp(aa.Band13.Decibel, -60, 0) + 60, 1);
+                        _bands[11].SetPositionY((MathHelper.Clamp(aa.Band12.Decibel, -60, 0) + 60) / 2);
+                        _bands[11].SetScale(1, MathHelper.Clamp(aa.Band12.Decibel, -60, 0) + 60, 1);
 
-                    _bands[13].SetPositionY((MathHelper.Clamp(aa.Band14.Decibel, -60, 0) + 60) / 2);
-                    _bands[13].SetScale(1, MathHelper.Clamp(aa.Band14.Decibel, -60, 0) + 60, 1);
+                        _bands[12].SetPositionY((MathHelper.Clamp(aa.Band13.Decibel, -60, 0) + 60) / 2);
+                        _bands[12].SetScale(1, MathHelper.Clamp(aa.Band13.Decibel, -60, 0) + 60, 1);
 
-                    _bands[14].SetPositionY((MathHelper.Clamp(aa.Band15.Decibel, -60, 0) + 60) / 2);
-                    _bands[14].SetScale(1, MathHelper.Clamp(aa.Band15.Decibel, -60, 0) + 60, 1);
+                        _bands[13].SetPositionY((MathHelper.Clamp(aa.Band14.Decibel, -60, 0) + 60) / 2);
+                        _bands[13].SetScale(1, MathHelper.Clamp(aa.Band14.Decibel, -60, 0) + 60, 1);
 
-                    _bands[15].SetPositionY((MathHelper.Clamp(aa.Band16.Decibel, -60, 0) + 60) / 2);
-                    _bands[15].SetScale(1, MathHelper.Clamp(aa.Band16.Decibel, -60, 0) + 60, 1);
+                        _bands[14].SetPositionY((MathHelper.Clamp(aa.Band15.Decibel, -60, 0) + 60) / 2);
+                        _bands[14].SetScale(1, MathHelper.Clamp(aa.Band15.Decibel, -60, 0) + 60, 1);
 
-                    _bands[16].SetPositionY((MathHelper.Clamp(aa.Band17.Decibel, -60, 0) + 60) / 2);
-                    _bands[16].SetScale(1, MathHelper.Clamp(aa.Band17.Decibel, -60, 0) + 60, 1);
+                        _bands[15].SetPositionY((MathHelper.Clamp(aa.Band16.Decibel, -60, 0) + 60) / 2);
+                        _bands[15].SetScale(1, MathHelper.Clamp(aa.Band16.Decibel, -60, 0) + 60, 1);
 
-                    _bands[17].SetPositionY((MathHelper.Clamp(aa.Band18.Decibel, -60, 0) + 60) / 2);
-                    _bands[17].SetScale(1, MathHelper.Clamp(aa.Band18.Decibel, -60, 0) + 60, 1);
+                        _bands[16].SetPositionY((MathHelper.Clamp(aa.Band17.Decibel, -60, 0) + 60) / 2);
+                        _bands[16].SetScale(1, MathHelper.Clamp(aa.Band17.Decibel, -60, 0) + 60, 1);
 
-                    _bands[18].SetPositionY((MathHelper.Clamp(aa.Band19.Decibel, -60, 0) + 60) / 2);
-                    _bands[18].SetScale(1, MathHelper.Clamp(aa.Band19.Decibel, -60, 0) + 60, 1);
+                        _bands[17].SetPositionY((MathHelper.Clamp(aa.Band18.Decibel, -60, 0) + 60) / 2);
+                        _bands[17].SetScale(1, MathHelper.Clamp(aa.Band18.Decibel, -60, 0) + 60, 1);
 
-                    _bands[19].SetPositionY((MathHelper.Clamp(aa.Band20.Decibel, -60, 0) + 60) / 2);
-                    _bands[19].SetScale(1, MathHelper.Clamp(aa.Band20.Decibel, -60, 0) + 60, 1);
+                        _bands[18].SetPositionY((MathHelper.Clamp(aa.Band19.Decibel, -60, 0) + 60) / 2);
+                        _bands[18].SetScale(1, MathHelper.Clamp(aa.Band19.Decibel, -60, 0) + 60, 1);
+
+                        _bands[19].SetPositionY((MathHelper.Clamp(aa.Band20.Decibel, -60, 0) + 60) / 2);
+                        _bands[19].SetScale(1, MathHelper.Clamp(aa.Band20.Decibel, -60, 0) + 60, 1);
+                    }
                 }
             }
 
@@ -125,6 +132,15 @@ namespace KWEngine3TestProject.Worlds
             if (Keyboard.IsKeyPressed(Keys.D))
             {
                 Audio.PlaySound("./SFX/shot01.ogg", false, 1.0f);
+            }
+
+            if(Keyboard.IsKeyDown(Keys.T))
+            {
+                if (WorldTime > (_timestampShot + 0.08f))
+                {
+                    Audio.PlaySound("./SFX/tf4/shot07.ogg", false, 1.0f);
+                    _timestampShot = WorldTime;
+                }
             }
         }
 

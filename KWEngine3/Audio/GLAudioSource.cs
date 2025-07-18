@@ -19,7 +19,7 @@ namespace KWEngine3.Audio
             Paused = 2
         }
 
-        private const int BUFFER_COUNT = 3;
+        private int BUFFER_COUNT = Math.Clamp(KWEngine.AudioBuffersPerChannel, 2, 4);
 
         private byte[] _empty;
         private volatile int mSource = -1;
@@ -131,21 +131,42 @@ namespace KWEngine3.Audio
 
         public void SetCachedSound(CachedSound sound)
         {
-            mSound = sound;
-            mBytesTotal = sound.AudioData.Length;
+            if(mSound != null)
+            {
+                if(sound.GetName() != mSound.GetName())
+                {
+                    mSound = sound;
+                    mBytesTotal = sound.AudioData.Length;
+                    mBytesPerBuffer = CalculateBytesPerBuffer();
+                    mTempBuffer = new byte[mBytesPerBuffer];
+                    //byte value = 0;
+                    //if (mSound.WaveFormat.BitsPerSample == 8) value = 128;
+                    //_empty = new byte[mTempBuffer.Length];
+                    //Array.Fill(_empty, value);
+
+                    EraseBuffers();
+
+                    int bytesInPublicBuffer = mBytesPerBuffer / mSound.WaveFormat.Channels / (mSound.WaveFormat.BitsPerSample == 16 ? 2 : 1);
+                    mAnalyzeBuffer = new double[HelperTexture.RoundDownToPowerOf2(bytesInPublicBuffer)];
+                }
+            }
+            else
+            {
+                mSound = sound;
+                mBytesTotal = sound.AudioData.Length;
+                mBytesPerBuffer = CalculateBytesPerBuffer();
+                mTempBuffer = new byte[mBytesPerBuffer];
+                //byte value = 0;
+                //if (mSound.WaveFormat.BitsPerSample == 8) value = 128;
+                //_empty = new byte[mTempBuffer.Length];
+                //Array.Fill(_empty, value);
+
+                EraseBuffers();
+
+                int bytesInPublicBuffer = mBytesPerBuffer / mSound.WaveFormat.Channels / (mSound.WaveFormat.BitsPerSample == 16 ? 2 : 1);
+                mAnalyzeBuffer = new double[HelperTexture.RoundDownToPowerOf2(bytesInPublicBuffer)];
+            }
             mReadPosition = 0;
-            mBytesPerBuffer = CalculateBytesPerBuffer();
-            mTempBuffer = new byte[mBytesPerBuffer];
-
-            byte value = 0;
-            if (mSound.WaveFormat.BitsPerSample == 8) value = 128;
-            _empty = new byte[mTempBuffer.Length];
-            Array.Fill(_empty, value);
-
-            EraseBuffers();
-
-            int bytesInPublicBuffer = mBytesPerBuffer / mSound.WaveFormat.Channels / (mSound.WaveFormat.BitsPerSample == 16 ? 2 : 1);
-            mAnalyzeBuffer = new double[HelperTexture.RoundDownToPowerOf2(bytesInPublicBuffer)];
         }
 
         private int CalculateBytesPerBuffer()
