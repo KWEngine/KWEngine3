@@ -389,7 +389,7 @@ namespace KWEngine3.Editor
 
                     if (KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
                     {
-                        if (ImGui.InputText("Height", ref heightFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
+                        if (ImGui.InputText("Height ", ref heightFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
                         {
                             if (FileNameEmpty(heightFilename))
                                 SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Height);
@@ -831,7 +831,7 @@ namespace KWEngine3.Editor
 
                 if (KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
                 {
-                    if (ImGui.InputText("Height", ref heightFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
+                    if (ImGui.InputText("Height ", ref heightFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
                     {
                         if (FileNameEmpty(heightFilename))
                             SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Height);
@@ -842,9 +842,37 @@ namespace KWEngine3.Editor
 
                 if (SelectedTerrainObject._gModel.Material[0].TextureAlbedo.IsTextureSet)
                 {
+                    /*
                     if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                     {
                         SelectedTerrainObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
+                    }
+                    */
+                    if (SelectedTerrainObject._gModel.Material[0].TextureHeight.IsTextureSet && KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
+                    {
+                        ImGui.PushItemWidth(96);
+                        if (ImGui.InputFloat2("Repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
+                        {
+                            SelectedTerrainObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
+                        }
+                        ImGui.PopItemWidth();
+
+                        float pomscale = SelectedTerrainObject._pomScale * 10f;
+
+                        ImGui.SameLine();
+                        ImGui.PushItemWidth(62 + 87);
+                        if (ImGui.SliderFloat("Height", ref pomscale, 0f, 1f, "%.2f", ImGuiSliderFlags.Logarithmic | ImGuiSliderFlags.AlwaysClamp))
+                        {
+                            SelectedTerrainObject.SetParallaxOcclusionMappingScale(pomscale);
+                        }
+                        ImGui.PopItemWidth();
+                    }
+                    else
+                    {
+                        if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
+                        {
+                            SelectedTerrainObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
+                        }
                     }
                 }
 

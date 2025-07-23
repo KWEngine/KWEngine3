@@ -25,7 +25,10 @@ namespace KWEngine3.Renderer
         public static int UTextureMetallic { get; private set; } = -1;
         public static int UTextureRoughness { get; private set; } = -1;
         public static int UTextureEmissive { get; private set; } = -1;
+        public static int UTextureHeight { get; private set; } = -1;
         public static int UTextureTransform { get; private set; } = -1;
+        public static int UPOMScale { get; private set; } = -1;
+        
 
         // SLOPE
         public static int UUseTexturesAlbedoNormalEmissiveSlope { get; private set; } = -1;
@@ -105,7 +108,9 @@ namespace KWEngine3.Renderer
                 UTextureMetallic = GL.GetUniformLocation(ProgramID, "uTextureMetallic");
                 UTextureRoughness = GL.GetUniformLocation(ProgramID, "uTextureRoughness");
                 UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
+                UTextureHeight = GL.GetUniformLocation(ProgramID, "uTextureHeight");
                 UTextureTransform = GL.GetUniformLocation(ProgramID, "uTextureTransform");
+                UPOMScale = GL.GetUniformLocation(ProgramID, "uPOMScale");
 
                 UUseTexturesAlbedoNormalEmissiveSlope = GL.GetUniformLocation(ProgramID, "uUseTexturesAlbedoNormalEmissiveSlope");
                 UUseTexturesMetallicRoughnessSlope = GL.GetUniformLocation(ProgramID, "uUseTexturesMetallicRoughnessSlope");
@@ -150,6 +155,7 @@ namespace KWEngine3.Renderer
 
         public static void Draw(TerrainObject t)
         {
+            GL.Uniform1(UPOMScale, KWEngine.Window._renderQuality >= RenderQualityLevel.Default ? t._pomScale : 0f);
             GL.Uniform3(UColorTint, t._stateRender._colorTint);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
             GL.Uniform2(UIdShadowCaster, new Vector2i(t.ID, t.IsShadowCaster ? 1 : 0));
@@ -246,11 +252,16 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, t._heightmap > 0 ? t._heightmap : KWEngine.TextureBlack);
             GL.Uniform1(UTextureHeightMap, TEXTUREOFFSET + 5);
 
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 6);
+            GL.BindTexture(TextureTarget.Texture2D, material.TextureHeight.IsTextureSet ? material.TextureHeight.OpenGLID : KWEngine.TextureBlack);
+            GL.Uniform1(UTextureHeight, TEXTUREOFFSET + 6);
+
+
             // SLOPE TEXTURES
             // Albedo
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 6);
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 7);
             GL.BindTexture(TextureTarget.Texture2D, materialSlope.TextureAlbedo.IsTextureSet ? materialSlope.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
-            GL.Uniform1(UTextureAlbedoSlope, TEXTUREOFFSET + 6);
+            GL.Uniform1(UTextureAlbedoSlope, TEXTUREOFFSET + 7);
             if (materialSlope.TextureAlbedo.IsTextureSet)
             {
                 GL.Uniform4(UTextureTransformSlope, new Vector4(
@@ -263,23 +274,24 @@ namespace KWEngine3.Renderer
                 GL.Uniform4(UTextureTransformSlope, new Vector4(1, 1, 0, 0));
 
             // Normal
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 7);
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 8);
             GL.BindTexture(TextureTarget.Texture2D, materialSlope.TextureNormal.IsTextureSet ? materialSlope.TextureNormal.OpenGLID : KWEngine.TextureNormalEmpty);
-            GL.Uniform1(UTextureNormalSlope, TEXTUREOFFSET + 7);
+            GL.Uniform1(UTextureNormalSlope, TEXTUREOFFSET + 8);
 
             // Emissive
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 8);
-            GL.BindTexture(TextureTarget.Texture2D, materialSlope.TextureEmissive.IsTextureSet ? materialSlope.TextureEmissive.OpenGLID : KWEngine.TextureBlack);
-            GL.Uniform1(UTextureEmissiveSlope, TEXTUREOFFSET + 8);
-
-            // Metallic/Roughness
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 9);
-            GL.BindTexture(TextureTarget.Texture2D, materialSlope.TextureMetallic.IsTextureSet ? materialSlope.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
-            GL.Uniform1(UTextureMetallicSlope, TEXTUREOFFSET + 9);
+            GL.BindTexture(TextureTarget.Texture2D, materialSlope.TextureEmissive.IsTextureSet ? materialSlope.TextureEmissive.OpenGLID : KWEngine.TextureBlack);
+            GL.Uniform1(UTextureEmissiveSlope, TEXTUREOFFSET + 9);
 
+            // Metallic
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 10);
+            GL.BindTexture(TextureTarget.Texture2D, materialSlope.TextureMetallic.IsTextureSet ? materialSlope.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
+            GL.Uniform1(UTextureMetallicSlope, TEXTUREOFFSET + 10);
+
+            // Roughness
+            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 11);
             GL.BindTexture(TextureTarget.Texture2D, materialSlope.TextureRoughness.IsTextureSet ? materialSlope.TextureRoughness.OpenGLID : KWEngine.TextureWhite);
-            GL.Uniform1(UTextureRoughnessSlope, TEXTUREOFFSET + 10);
+            GL.Uniform1(UTextureRoughnessSlope, TEXTUREOFFSET + 11);
         }
     }
 }

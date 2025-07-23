@@ -2,8 +2,8 @@
 layout (quads, equal_spacing, ccw) in;
 
 in vec3 vPositionTE[];
-in vec2 vTextureTE[];
-in vec2 vTextureSlopeTE[];
+//in vec2 vTextureTE[];
+//in vec2 vTextureSlopeTE[];
 in vec2 vTextureHeightTE[];
 in vec3 vNormalTE[];
 in vec3 vTangentTE[];
@@ -14,12 +14,15 @@ uniform mat4 uModelMatrix;
 uniform mat4 uNormalMatrix;
 uniform ivec4 uTerrainData;
 uniform sampler2D uTextureHeightMap;
+uniform vec3 uCamPosition;
 
-out vec2 vTexture;
-out vec2 vTextureSlope;
+//out vec2 vTexture;
+//out vec2 vTextureSlope;
 out vec3 vNormal;
 out mat3 vTBN;
 out vec3 vPos;
+out vec3 vTangentView;
+out vec3 vTangentPosition;
 
 const vec3 BASENORMAL = vec3(0.0, 1.0, 0.0);
 
@@ -110,7 +113,7 @@ void main()
         tangent = normalize(cross(normalLighting, BASENORMAL));
         bitangent = normalize(cross(tangent, normalLighting));
     }
-    
+    /*
     vec2 t00 = vTextureTE[0];
     vec2 t01 = vTextureTE[1];
     vec2 t02 = vTextureTE[2];
@@ -128,10 +131,16 @@ void main()
                 t01slope * u * (1.0 - v) + 
                 t03slope * v * (1.0 - u) +
                 t02slope * u * v;
+    */
+    
+    //vTexture = t;
+    //vTextureSlope = tslope;
 
     gl_Position = uViewProjectionMatrix * vec4(vPos, 1.0);
-    vTexture = t;
-    vTextureSlope = tslope;
     vNormal = normalLighting;
 	vTBN = mat3(tangent, -bitangent, vNormal);
+
+    mat3 vTBN2 = transpose(mat3(tangent, bitangent, vNormal));
+	vTangentPosition = vTBN2 * vPos.xyz;
+	vTangentView = vTBN2 * uCamPosition.xyz;
 }

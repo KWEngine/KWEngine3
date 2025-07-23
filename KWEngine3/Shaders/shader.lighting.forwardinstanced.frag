@@ -346,8 +346,8 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 { 
 	if(uCameraPosition.w <= 0.0) return texCoords;
 
-	const float minLayers = 8.0;
-	const float maxLayers = 32.0;
+	const float minLayers = 4.0;
+	const float maxLayers = 16.0;
 	float numLayers = mix(maxLayers, minLayers, max(dot(vec3(0.0, 0.0, 1.0), viewDir), 0.0));  
 
     float layerDepth = 1.0 / numLayers;

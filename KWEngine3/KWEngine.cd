@@ -368,7 +368,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>YCABIUASDAQgkAQIICCAIEQEACBAAxMhAAkAEABCQYQ=</HashCode>
+      <HashCode>YCABIUASDAYgkAQIICCAIEQEACBAAxMhAAkAEABCQYQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>

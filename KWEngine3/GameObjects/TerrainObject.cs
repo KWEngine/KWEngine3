@@ -227,9 +227,9 @@ namespace KWEngine3.GameObjects
         {
             if (filename == null)
                 filename = "";
-            if(type == TextureType.Height)
+            if(type == TextureType.Height && KWEngine.Window._renderQuality < RenderQualityLevel.Default)
             {
-                KWEngine.LogWriteLine("[TerrainObject] Height texture not available on TerrainObject instances");
+                KWEngine.LogWriteLine("[TerrainObject] Height texture not available at your current render profile");
                 return;
             }
 
@@ -243,6 +243,11 @@ namespace KWEngine3.GameObjects
         /// <param name="type">Texturtyp (Standard: Albedo)</param>
         public void SetTextureForSlope(string filename, TextureType type = TextureType.Albedo)
         {
+            if(type == TextureType.Height)
+            {
+                KWEngine.LogWriteLine("[TerrainObject] Height texture feature not available for slopes");
+                return;
+            }
             _gModel.SetTexture(filename.Trim(), type, 1);
         }
 
@@ -350,8 +355,12 @@ namespace KWEngine3.GameObjects
         /// </summary>
         /// <remarks>RenderQuality muss auf 'Default' oder höher eingestellt sein, damit dieser Effekt eintritt</remarks>
         /// <param name="scale">Skalierungsfaktor (Standardwert: 0.0f, Wertebereich: 0.0f bis 1.0f)</param>
-        internal void SetHeightmapScale(float scale) // TODO: removed from feature list (for now) because parallax occlusion mapping does not work with triplanar mapping
+        public void SetParallaxOcclusionMappingScale(float scale)
         {
+            if (KWEngine.Window._renderQuality < RenderQualityLevel.Default)
+            {
+                KWEngine.LogWriteLine("[TerrainObject] Parallax Mapping is disabled on your current rendering profile");
+            }
             _pomScale = MathHelper.Clamp(scale, 0f, 1.0f) * 0.1f;
         }
 
@@ -374,36 +383,5 @@ namespace KWEngine3.GameObjects
 
         internal World _myWorld = null;
         internal float _pomScale = 0.0f;
-        /*
-        internal GeoMaterial GenerateMaterial(string texture)
-        {
-            GeoMaterial mat = new GeoMaterial();
-
-            GeoTexture texDiffuse = new()
-            {
-                Filename = texture,
-                Type = TextureType.Albedo,
-                UVMapIndex = 0,
-                UVTransform = new Vector4(1, 1, 0, 0)
-            };
-
-            if (KWEngine.CurrentWorld._customTextures.ContainsKey(texture))
-            {
-                texDiffuse.OpenGLID = KWEngine.CurrentWorld._customTextures[texture].ID;
-            }
-            else
-            {
-                int texId = HelperTexture.LoadTextureForModelExternal(texture, out int mipMaps);
-                texDiffuse.OpenGLID = texId > 0 ? texId : KWEngine.TextureDefault;
-
-                if (texId > 0)
-                {
-                    KWEngine.CurrentWorld._customTextures.Add(texture, new KWTexture(texDiffuse.OpenGLID, TextureTarget.Texture2D));
-                }
-            }
-            mat.TextureAlbedo = texDiffuse;
-            return mat;
-        }
-        */
     }
 }
