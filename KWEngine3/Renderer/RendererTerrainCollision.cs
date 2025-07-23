@@ -99,27 +99,27 @@ namespace KWEngine3.Renderer
                 {
                     if (c > sector.Triangles.Length / 2)
                     {
-                        tripositions2.Add(tri.Vertices[0].X);
-                        tripositions2.Add(tri.Vertices[0].Y);
-                        tripositions2.Add(tri.Vertices[0].Z);
-                        tripositions2.Add(tri.Vertices[1].X);
-                        tripositions2.Add(tri.Vertices[1].Y);
-                        tripositions2.Add(tri.Vertices[1].Z);
-                        tripositions2.Add(tri.Vertices[2].X);
-                        tripositions2.Add(tri.Vertices[2].Y);
-                        tripositions2.Add(tri.Vertices[2].Z);
+                        tripositions2.Add(tri.Vertices[0].X + t._stateCurrent._position.X);
+                        tripositions2.Add(tri.Vertices[0].Y + t._stateCurrent._position.Y);
+                        tripositions2.Add(tri.Vertices[0].Z + t._stateCurrent._position.Z);
+                        tripositions2.Add(tri.Vertices[1].X + t._stateCurrent._position.X);
+                        tripositions2.Add(tri.Vertices[1].Y + t._stateCurrent._position.Y);
+                        tripositions2.Add(tri.Vertices[1].Z + t._stateCurrent._position.Z);
+                        tripositions2.Add(tri.Vertices[2].X + t._stateCurrent._position.X);
+                        tripositions2.Add(tri.Vertices[2].Y + t._stateCurrent._position.Y);
+                        tripositions2.Add(tri.Vertices[2].Z + t._stateCurrent._position.Z);
                     }
                     else
                     {
-                        tripositions.Add(tri.Vertices[0].X);
-                        tripositions.Add(tri.Vertices[0].Y);
-                        tripositions.Add(tri.Vertices[0].Z);
-                        tripositions.Add(tri.Vertices[1].X);
-                        tripositions.Add(tri.Vertices[1].Y);
-                        tripositions.Add(tri.Vertices[1].Z);
-                        tripositions.Add(tri.Vertices[2].X);
-                        tripositions.Add(tri.Vertices[2].Y);
-                        tripositions.Add(tri.Vertices[2].Z);
+                        tripositions.Add(tri.Vertices[0].X + t._stateCurrent._position.X);
+                        tripositions.Add(tri.Vertices[0].Y + t._stateCurrent._position.Y);
+                        tripositions.Add(tri.Vertices[0].Z + t._stateCurrent._position.Z);
+                        tripositions.Add(tri.Vertices[1].X + t._stateCurrent._position.X);
+                        tripositions.Add(tri.Vertices[1].Y + t._stateCurrent._position.Y);
+                        tripositions.Add(tri.Vertices[1].Z + t._stateCurrent._position.Z);
+                        tripositions.Add(tri.Vertices[2].X + t._stateCurrent._position.X);
+                        tripositions.Add(tri.Vertices[2].Y + t._stateCurrent._position.Y);
+                        tripositions.Add(tri.Vertices[2].Z + t._stateCurrent._position.Z);
                     }
 
                     c++;
@@ -134,10 +134,10 @@ namespace KWEngine3.Renderer
                 GL.Uniform1(UIsSector, 0);
                 GL.DrawArrays(PrimitiveType.Points, 0, 1);
 
-                Vector3 sectorLeftBack = new Vector3(sector.Left, 0, sector.Back);
-                Vector3 sectorLeftFront = new Vector3(sector.Left, 0, sector.Front);
-                Vector3 sectorRightFront = new Vector3(sector.Right, 0, sector.Front);
-                Vector3 sectorRightBack = new Vector3(sector.Right, 0, sector.Back);
+                Vector3 sectorLeftBack = new Vector3(sector.Left + t._stateCurrent._position.X, 0, sector.Back + t._stateCurrent._position.Z);
+                Vector3 sectorLeftFront = new Vector3(sector.Left + t._stateCurrent._position.X, 0, sector.Front + t._stateCurrent._position.Z);
+                Vector3 sectorRightFront = new Vector3(sector.Right + t._stateCurrent._position.X, 0, sector.Front + t._stateCurrent._position.Z);
+                Vector3 sectorRightBack = new Vector3(sector.Right + t._stateCurrent._position.X, 0, sector.Back + t._stateCurrent._position.Z);
 
                 GL.Uniform3(UPosition0, sectorLeftBack);
                 GL.Uniform3(UPosition1, sectorLeftFront);

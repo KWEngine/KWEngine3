@@ -141,7 +141,9 @@ namespace KWEngine3.Renderer
                 foreach (TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
                 {
                     if (t.IsInsideScreenSpaceForRenderPass && t.IsVisible)
+                    {
                         Draw(t);
+                    }
                 }
             }
         }

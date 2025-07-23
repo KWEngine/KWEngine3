@@ -16,51 +16,58 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            List<string> terrainNames = new List<string>();
-            int tIndex = 0;
-            foreach(FileInfo fi in new DirectoryInfo("./Textures/TerrainTest").GetFiles())
-            {
-                string tname = "Terrain" + tIndex.ToString().PadLeft(2, '0');
-                KWEngine.BuildTerrainModel(tname, fi.FullName, 50);
-                terrainNames.Add(tname);
-                tIndex++;
-            }
-
             int counter = 0;
-            int zOffset = -64 + 16;
-            int xOffset = -64 + 16;
-            foreach (string tname in terrainNames)
+            int zOffset = -32 + 8;
+            int xOffset = -32 + 8;
+            
+            Vector2i imageSize = HelperTexture.GetResolutionFromImage("./Textures/heightmap.png");
+            int slice = 16;
+
+            for(int y = 0; y < imageSize.Y; y += slice - 1)
             {
-                TerrainObject t = new TerrainObject(tname);
-                t.IsCollisionObject = true;
-                t.SetTexture("./Textures/grass_albedo.png");
-                t.SetTexture("./Textures/grass_normal.png", TextureType.Normal);
-                t.SetTexture("./Textures/grass_roughness.png", TextureType.Roughness);
-                t.SetTextureForSlope("./Textures/limestone-cliffs_albedo.png");
-                t.SetTextureForSlope("./Textures/limestone-cliffs_normal.png", TextureType.Normal);
-                t.SetTextureSlopeBlendFactor(0.5f);
-                t.SetTextureSlopeBlendSmoothingFactor(0.0f);
-                t.SetPosition(xOffset, 0, zOffset);
-                Console.WriteLine("placing new terrain @ x="+xOffset+"|z=" + zOffset);
-                AddTerrainObject(t);
+                if (y + slice >= imageSize.Y)
+                    break;
 
-                counter++;
+                for (int x = 0; x < imageSize.X; x += slice - 1)
+                {
+                    if (x + slice >= imageSize.X)
+                        break;
 
-                if(counter % 4 == 0)
-                {
-                    xOffset = -64 + 16;
-                    zOffset += 32;
-                }
-                else
-                {
-                    xOffset += 32;
+                    string name = "Terrain|" + x + "|" + y;
+                    KWEngine.BuildTerrainModel(name, "./Textures/heightmap.png", 5, x, y, slice, slice);
+
+                    TerrainObject t = new TerrainObject(name);
+                    t.Name = name;
+                    t.IsCollisionObject = true;
+                    t.SetTexture("./Textures/grass_albedo.png");
+                    t.SetTexture("./Textures/grass_normal.png", TextureType.Normal);
+                    t.SetTexture("./Textures/grass_roughness.png", TextureType.Roughness);
+                    t.SetTextureForSlope("./Textures/limestone-cliffs_albedo.png");
+                    t.SetTextureForSlope("./Textures/limestone-cliffs_normal.png", TextureType.Normal);
+                    t.SetTextureSlopeBlendFactor(0.5f);
+                    t.SetTextureSlopeBlendSmoothingFactor(0.05f);
+                    t.SetPosition(xOffset, 0, zOffset);
+                    Console.WriteLine("placing new terrain @ x=" + xOffset + "|z=" + zOffset);
+                    AddTerrainObject(t);
+
+                    counter++;
+
+                    if (counter % 4 == 0)
+                    {
+                        xOffset = -32 + 8;
+                        zOffset += 16;
+                    }
+                    else
+                    {
+                        xOffset += 16;
+                    }
                 }
             }
 
             Player p = new Player();
             p.SetOpacity(0);
             p.SetRotation(0, 180, 0);
-            p.SetPosition(0, 50, 150);
+            p.SetPosition(0, 25, 50);
             AddGameObject(p);
             SetCameraToFirstPersonGameObject(p, 0.25f);
 

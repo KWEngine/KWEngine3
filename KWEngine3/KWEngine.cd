@@ -422,7 +422,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="18.25" Width="2.75" />
+    <Position X="21.5" Y="17.5" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -433,7 +433,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="21.5" Y="6.75" Width="2.75" />
+    <Position X="21.5" Y="6.5" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -452,7 +452,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="10.75" Width="2.75" />
+    <Position X="21.5" Y="10.25" Width="2.75" />
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="ConvertVector2DToOpenTK" Hidden="true" />
@@ -677,7 +677,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="21.5" Y="16.25" Width="2.75" />
+    <Position X="21.5" Y="15.5" Width="2.75" />
     <Members>
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
@@ -781,6 +781,70 @@
     <TypeIdentifier>
       <HashCode>CEgkQAAACEQAAUEAAIAAAACQAAEAAQAECEUERASAAAA=</HashCode>
       <FileName>GameObjects\HUDObjectTextInput.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.Helper.HelperTexture">
+    <Position X="21.5" Y="19" Width="2.75" />
+    <Members>
+      <Method Name="CheckFBXNestedList" Hidden="true" />
+      <Method Name="CheckFBXNestedListNew" Hidden="true" />
+      <Method Name="ConvertEmbeddedToTemporaryFile" Hidden="true" />
+      <Method Name="CreateEmptyCubemapDepthTexture" Hidden="true" />
+      <Method Name="CreateEmptyCubemapTexture" Hidden="true" />
+      <Method Name="CreateEmptyDepthTexture" Hidden="true" />
+      <Method Name="DeleteTemporaryFile" Hidden="true" />
+      <Method Name="DeleteTexture" Hidden="true" />
+      <Method Name="GetAssimpTextureType" Hidden="true" />
+      <Method Name="GetDefaultTexture" Hidden="true" />
+      <Method Name="GetFBXTextureFilenamesAndData" Hidden="true" />
+      <Method Name="GetFileEnding" Hidden="true" />
+      <Method Name="GetMaterialIdFor" Hidden="true" />
+      <Method Name="GetMaxMipMapLevels" Hidden="true" />
+      <Method Name="GetMetallicRoughnessForMaterialID" Hidden="true" />
+      <Method Name="GetMetallicRoughnessValues" Hidden="true" />
+      <Method Name="GetPixelFormatForSKColorType" Hidden="true" />
+      <Method Name="GetPixelInternalFormatForSKColorType" Hidden="true" />
+      <Method Name="GetTextureDimensions" Hidden="true" />
+      <Method Name="GetTextureMetallic" Hidden="true" />
+      <Method Name="GetTextureRoughness" Hidden="true" />
+      <Method Name="GetTextureSlotIndex" Hidden="true" />
+      <Method Name="GetTextureTypeString" Hidden="true" />
+      <Method Name="GetUVIndex" Hidden="true" />
+      <Method Name="IsFBXASCII" Hidden="true" />
+      <Method Name="LeaveOnlyDigits" Hidden="true" />
+      <Method Name="LoadBitmapForWindowIcon" Hidden="true" />
+      <Method Name="LoadFontTextureCompressedNoMipMap" Hidden="true" />
+      <Method Name="LoadTextureCompressedNoMipMap" Hidden="true" />
+      <Method Name="LoadTextureCompressedWithMipMapInternal" Hidden="true" />
+      <Method Name="LoadTextureCompressedWithMipMaps" Hidden="true" />
+      <Method Name="LoadTextureForBackgroundExternal" Hidden="true" />
+      <Method Name="LoadTextureForHeightMap" Hidden="true" />
+      <Method Name="LoadTextureForModelExternal" Hidden="true" />
+      <Method Name="LoadTextureForModelGLB" Hidden="true" />
+      <Method Name="LoadTextureForModelInternal" Hidden="true" />
+      <Method Name="LoadTextureForModelInternalExecutingAssembly" Hidden="true" />
+      <Method Name="LoadTextureFromAssembly" Hidden="true" />
+      <Method Name="LoadTextureFromAssembly3D" Hidden="true" />
+      <Method Name="LoadTextureFromByteArray" Hidden="true" />
+      <Method Name="LoadTextureInternal" Hidden="true" />
+      <Method Name="LoadTextureInternal3D" Hidden="true" />
+      <Method Name="LoadTextureSkybox" Hidden="true" />
+      <Method Name="LoadTextureSkyboxEquirectangular" Hidden="true" />
+      <Method Name="ProcessTextureForAssimpMaterial" Hidden="true" />
+      <Method Name="ProcessTextureForAssimpPBRMaterial" Hidden="true" />
+      <Method Name="ProcessTextureForMaterial" Hidden="true" />
+      <Method Name="ProcessTextureForMaterialNormalBump" Hidden="true" />
+      <Method Name="ReadFBXNodeStructure" Hidden="true" />
+      <Method Name="ReadFBXNodeStructureOld" Hidden="true" />
+      <Field Name="replaceSymbol" Hidden="true" />
+      <Field Name="rxNonDigits" Hidden="true" />
+      <Method Name="SaveTextureToBitmap" Hidden="true" />
+      <Method Name="SaveTextureToBitmap16" Hidden="true" />
+      <Method Name="SaveTextureToBitmapR8" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>ASggAbCAhEGICQAAQ6QxCEEAAAAIkgQFpkFBLABwgUA=</HashCode>
+      <FileName>Helper\HelperTexture.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">

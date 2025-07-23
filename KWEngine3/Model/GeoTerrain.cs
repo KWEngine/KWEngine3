@@ -42,126 +42,106 @@ namespace KWEngine3.Model
             return mDepth;
         }
 
-        internal GeoMesh BuildTerrain(string terrainName, string heightMap, int pHeight, out int width, out int depth)
+        internal GeoMesh BuildTerrain(string terrainName, string heightMap, SKBitmap image, int pHeight, out int width, out int depth)
         {
             width = -1;
             depth = -1;
             GeoMesh mmp;
-            try
+            mWidth = image.Width; // terrain width
+            mDepth = image.Height; // terrain depth
+            width = mWidth;
+            depth = mDepth;
+
+            mHeight = pHeight;
+
+            byte[] pixelData = image.GetPixelSpan().ToArray();
+
+            mTriangleWidth = 1;
+            mTriangleDepth = 1;
+            mSectorLength = 8;
+
+            int startX = -mWidth / 2;
+            int startZ = -mDepth / 2;
+
+            mCompleteDiameter = MathF.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
+
+            int sectorCountX = mWidth / mSectorLength;
+            int sectorCountZ = mDepth / mSectorLength;
+
+            mSectorMap = new Sector[sectorCountX, sectorCountZ];
+            for (int i = 0; i < sectorCountX; i++)
             {
-                using (Stream s = File.Open(heightMap, FileMode.Open))
+                for(int j = 0; j < sectorCountZ; j++)
                 {
-                    using (SKBitmap image = SKBitmap.Decode(s))
-                    {
-                        if (image == null || image.Width % 16 != 0 || image.Height % 16 != 0 || image.Width < 16 || image.Height < 16 || image.Height > 1024 || image.Width > 1024)
-                        {
-                            throw new Exception();
-                        }
-
-                        mWidth = image.Width; // terrain width
-                        mDepth = image.Height; // terrain depth
-                        width = mWidth;
-                        depth = mDepth;
-
-                        mHeight = pHeight;
-
-                        byte[] pixelData = image.GetPixelSpan().ToArray();
-
-                        mTriangleWidth = 1;
-                        mTriangleDepth = 1;
-                        mSectorLength = 8;
-
-                        int startX = -mWidth / 2;
-                        int startZ = -mDepth / 2;
-
-                        mCompleteDiameter = MathF.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
-
-                        int sectorCountX = mWidth / mSectorLength;
-                        int sectorCountZ = mDepth / mSectorLength;
-
-                        mSectorMap = new Sector[sectorCountX, sectorCountZ];
-                        for (int i = 0; i < sectorCountX; i++)
-                        {
-                            for(int j = 0; j < sectorCountZ; j++)
-                            {
                                 
-                                float sectorLeft = startX + i * mSectorLength;
-                                float sectorRight = startX + (i + 1) * mSectorLength;
-                                float sectorFront = startZ + (j + 1) * mSectorLength;
-                                float sectorBack = startZ + j * mSectorLength;
+                    float sectorLeft = startX + i * mSectorLength;
+                    float sectorRight = startX + (i + 1) * mSectorLength;
+                    float sectorFront = startZ + (j + 1) * mSectorLength;
+                    float sectorBack = startZ + j * mSectorLength;
 
-                                float trianglesCountX = (sectorRight - sectorLeft) / mTriangleWidth;
-                                float trianglesCountZ = (sectorFront - sectorBack) / mTriangleDepth;
-                                int trianglesCountPerSector = (int)(trianglesCountX * trianglesCountZ) * 2;
+                    float trianglesCountX = (sectorRight - sectorLeft) / mTriangleWidth;
+                    float trianglesCountZ = (sectorFront - sectorBack) / mTriangleDepth;
+                    int trianglesCountPerSector = (int)(trianglesCountX * trianglesCountZ) * 2;
 
-                                Sector currentSector = new Sector(
-                                    sectorLeft,
-                                    sectorRight,
-                                    sectorBack,
-                                    sectorFront,
-                                    trianglesCountPerSector
-                                    );
+                    Sector currentSector = new Sector(
+                        sectorLeft,
+                        sectorRight,
+                        sectorBack,
+                        sectorFront,
+                        trianglesCountPerSector
+                        );
 
-                                // generate triangles for this sector:
-                                float h = 0;
-                                for (float x = sectorLeft; x < sectorRight; x += mTriangleWidth)
-                                {
-                                    for(float z = sectorBack; z < sectorFront; z += mTriangleDepth)
-                                    {
-                                        h = GetHeightForVertex(x + mTriangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t0 = new Vector3(x + mTriangleWidth, h, z);                  // right back
+                    // generate triangles for this sector:
+                    float h = 0;
+                    for (float x = sectorLeft; x < sectorRight; x += mTriangleWidth)
+                    {
+                        for(float z = sectorBack; z < sectorFront; z += mTriangleDepth)
+                        {
+                            h = GetHeightForVertex(x + mTriangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
+                            Vector3 t0 = new Vector3(x + mTriangleWidth, h, z);                  // right back
 
-                                        h = GetHeightForVertex(x, z, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t1 = new Vector3(x, h, z);                                  // left back
+                            h = GetHeightForVertex(x, z, mWidth, mDepth, mHeight, image, pixelData);
+                            Vector3 t1 = new Vector3(x, h, z);                                  // left back
 
-                                        h = GetHeightForVertex(x, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t2 = new Vector3(x, h, z + mTriangleDepth);                  // left front
+                            h = GetHeightForVertex(x, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                            Vector3 t2 = new Vector3(x, h, z + mTriangleDepth);                  // left front
 
-                                        h = GetHeightForVertex(x, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t3 = new Vector3(x, h, z + mTriangleDepth);                  // left front
+                            h = GetHeightForVertex(x, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                            Vector3 t3 = new Vector3(x, h, z + mTriangleDepth);                  // left front
 
-                                        h = GetHeightForVertex(x + mTriangleWidth, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t4 = new Vector3(x + mTriangleWidth, h, z + mTriangleDepth);  // right front
+                            h = GetHeightForVertex(x + mTriangleWidth, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                            Vector3 t4 = new Vector3(x + mTriangleWidth, h, z + mTriangleDepth);  // right front
 
-                                        h = GetHeightForVertex(x + mTriangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
-                                        Vector3 t5 = new Vector3(x + mTriangleWidth, h, z);                  // right back
+                            h = GetHeightForVertex(x + mTriangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
+                            Vector3 t5 = new Vector3(x + mTriangleWidth, h, z);                  // right back
 
-                                        GeoTerrainTriangle tri0 = new GeoTerrainTriangle(t0, t1, t2);
-                                        GeoTerrainTriangle tri1 = new GeoTerrainTriangle(t3, t4, t5);
-                                        currentSector.AddTriangle(tri0);
-                                        currentSector.AddTriangle(tri1);
-                                    }
-                                }
-                                mSectorMap[i, j] = currentSector;
-                            }
+                            GeoTerrainTriangle tri0 = new GeoTerrainTriangle(t0, t1, t2);
+                            GeoTerrainTriangle tri1 = new GeoTerrainTriangle(t3, t4, t5);
+                            currentSector.AddTriangle(tri0);
+                            currentSector.AddTriangle(tri1);
                         }
-
-                        mmp = new GeoMesh();
-                        mmp.Name = terrainName;
-                        mmp.Transform = Matrix4.Identity;
                     }
+                    mSectorMap[i, j] = currentSector;
                 }
             }
-            catch (Exception)
+
+            mmp = new GeoMesh();
+            mmp.Name = terrainName;
+            mmp.Transform = Matrix4.Identity;
+            
+            _heightMapName = terrainName;
+            if (KWEngine.CurrentWorld._customTextures.ContainsKey(_heightMapName))
             {
-                KWEngine.LogWriteLine("[KWEngine] Height map image invalid or its width/height is not a multiple of 16 (range is from 16 - 1024px)");
-                width = -1;
-                depth = -1;
-                return null;
-            }
-            _heightMapName = heightMap;
-            if (KWEngine.CurrentWorld._customTextures.ContainsKey(heightMap))
-            {
-                _texHeight = KWEngine.CurrentWorld._customTextures[heightMap].ID;
+                _texHeight = KWEngine.CurrentWorld._customTextures[_heightMapName].ID;
             }
             else
             {
-                _texHeight = HelperTexture.LoadTextureForModelExternal(heightMap, out int tmpMips);
+                _texHeight = HelperTexture.LoadTextureForHeightMap(image, out int tmpMips);
                 GL.BindTexture(TextureTarget.Texture2D, _texHeight);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
-                KWEngine.CurrentWorld._customTextures.Add(heightMap, new KWTexture(_texHeight, TextureTarget.Texture2D));
+                KWEngine.CurrentWorld._customTextures.Add(_heightMapName, new KWTexture(_texHeight, TextureTarget.Texture2D));
             }
 
             mmp.Primitive = PrimitiveType.Patches;

@@ -40,10 +40,13 @@ namespace KWEngine3.Helper
         }
     }
 
-    internal static class HelperTexture
+    /// <summary>
+    /// Helferklasse für Texturen
+    /// </summary>
+    public static class HelperTexture
     {
-        private static readonly Regex rxNonDigits = new Regex(@"[^\d]+");
-        private static readonly string replaceSymbol = "|KWEngine|";
+        internal static readonly Regex rxNonDigits = new Regex(@"[^\d]+");
+        internal static readonly string replaceSymbol = "|KWEngine|";
 
         internal static bool LoadBitmapForWindowIcon(string file, out int width, out int height, out byte[] data)
         {
@@ -1617,7 +1620,7 @@ namespace KWEngine3.Helper
             b.Dispose();
         }
         */
-        public static int CreateEmptyCubemapTexture(bool is3d = false)
+        internal static int CreateEmptyCubemapTexture(bool is3d = false)
         {
             int texID = GL.GenTexture();
             if (is3d)
@@ -1656,7 +1659,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int CreateEmptyCubemapDepthTexture()
+        internal static int CreateEmptyCubemapDepthTexture()
         {
             int texID = GL.GenTexture();
             GL.BindTexture(TextureTarget.TextureCubeMap, texID);
@@ -1680,7 +1683,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int CreateEmptyDepthTexture()
+        internal static int CreateEmptyDepthTexture()
         {
             int texID = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texID);
@@ -1696,7 +1699,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int LoadTextureCompressedWithMipMaps(string filename)
+        internal static int LoadTextureCompressedWithMipMaps(string filename)
         {
             bool success = HelperDDS2.TryLoadDDS(filename, false, out int texID, out int width, out int height);
             if (!success)
@@ -1710,7 +1713,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int LoadTextureCompressedWithMipMaps(Stream stream)
+        internal static int LoadTextureCompressedWithMipMaps(Stream stream)
         {
             bool success = HelperDDS2.TryLoadDDS(stream, false, out int texID, out int width, out int height);
             if (!success)
@@ -1723,7 +1726,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int LoadFontTextureCompressedNoMipMap(Stream s)
+        internal static int LoadFontTextureCompressedNoMipMap(Stream s)
         {
             int texID = -1;
             bool error = false;
@@ -1752,7 +1755,7 @@ namespace KWEngine3.Helper
         }
 
 
-        public static int LoadTextureCompressedNoMipMap(string fileName)
+        internal static int LoadTextureCompressedNoMipMap(string fileName)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string resourceName = "KWEngine3.Assets.Textures." + fileName;
@@ -1788,7 +1791,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int LoadTextureCompressedWithMipMapInternal(string fileName)
+        internal static int LoadTextureCompressedWithMipMapInternal(string fileName)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string resourceName = "KWEngine3.Assets.Textures." + fileName;
@@ -1824,6 +1827,11 @@ namespace KWEngine3.Helper
             return texID;
         }
 
+        /// <summary>
+        /// Rundet eine Ganzzahl auf, so dass sie der nächsthöheren Zweierpotenz entspricht
+        /// </summary>
+        /// <param name="value">aufzurundende Zahl</param>
+        /// <returns>nächsthöhere Zweierpotenz</returns>
         public static int RoundUpToPowerOf2(int value)
         {
             if (value < 0)
@@ -1844,6 +1852,43 @@ namespace KWEngine3.Helper
             return (int)v;
         }
 
+        /// <summary>
+        /// Erfragt die Auflösung einer Bilddatei in Pixeln
+        /// </summary>
+        /// <remarks>Ist das Bild ungültig, wird eine Auflösung von 0 Pixeln zurückgegeben</remarks>
+        /// <param name="filename">Bilddateiname</param>
+        /// <returns>Auflösung in Pixeln</returns>
+        public static Vector2i GetResolutionFromImage(string filename)
+        {
+            Vector2i res = new();
+
+            if (filename == null)
+            {
+                KWEngine.LogWriteLine("[Texture] Invalid file: '" + filename + "'");
+            }
+            else
+            {
+                using (SKBitmap image = SKBitmap.Decode(HelperGeneral.EqualizePathDividers(filename)))
+                {
+                    if (image == null)
+                    {
+                        KWEngine.LogWriteLine("[Texture] Invalid image data");
+                    }
+                    else
+                    {
+                        res.X = image.Width;
+                        res.Y = image.Height;
+                    }
+                }
+            }
+            return res;
+        }
+
+        /// <summary>
+        /// Rundet eine Ganzzahl ab, so dass sie der nächstniedrigeren Zweierpotenz entspricht
+        /// </summary>
+        /// <param name="value">abzurundende Zahl</param>
+        /// <returns>nächstniedrigere Zweierpotenz</returns>
         public static int RoundDownToPowerOf2(int value)
         {
             if (value == 0)
@@ -2036,7 +2081,49 @@ namespace KWEngine3.Helper
             return LoadTextureFromAssembly3D(resourceName, assembly);
         }
 
-        public static int LoadTextureForModelExternal(string filename, out int mipMaps)
+        internal static int LoadTextureForHeightMap(SKBitmap image, out int mipMaps)
+        {
+            int texID = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texID);
+
+            byte[] data = image.Bytes;
+            if (image.ColorType == SKColorType.Rgba8888)
+            {
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
+                 PixelFormat.Rgba, PixelType.UnsignedByte, data);
+            }
+            else if (image.ColorType == SKColorType.Gray8)
+            {
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, image.Width, image.Height, 0,
+                 PixelFormat.Red, PixelType.UnsignedByte, data);
+            }
+            else if (image.ColorType == SKColorType.Rgb888x)
+            {
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 0,
+                 PixelFormat.Rgb, PixelType.UnsignedByte, data);
+            }
+            else
+            {
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
+                 PixelFormat.Bgra, PixelType.UnsignedByte, data);
+            }
+
+            //GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            //int mipMapCount = GetMaxMipMapLevels(image.Width, image.Height);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapCount - 2));
+            mipMaps = 0;
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            return texID;
+        }
+
+        internal static int LoadTextureForModelExternal(string filename, out int mipMaps)
         {
             mipMaps = 0;
             if (!File.Exists(filename))
@@ -2109,7 +2196,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int LoadTextureForModelGLB(byte[] rawTextureData, out int mipMaps)
+        internal static int LoadTextureForModelGLB(byte[] rawTextureData, out int mipMaps)
         {
             int texID;
             mipMaps = 0;
@@ -2180,7 +2267,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int LoadTextureForModelInternalExecutingAssembly(string filename, out int mipMaps)
+        internal static int LoadTextureForModelInternalExecutingAssembly(string filename, out int mipMaps)
         {
             Assembly a = Assembly.GetExecutingAssembly();
             int texID;
@@ -2244,7 +2331,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int LoadTextureForModelInternal(string filename, out int mipMaps)
+        internal static int LoadTextureForModelInternal(string filename, out int mipMaps)
         {
             Assembly a = Assembly.GetEntryAssembly();
             int texID;
@@ -2308,7 +2395,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        public static int LoadTextureForBackgroundExternal(string filename, out int mipMapLevels)
+        internal static int LoadTextureForBackgroundExternal(string filename, out int mipMapLevels)
         {
             if (!File.Exists(filename))
             {

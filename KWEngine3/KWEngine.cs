@@ -10,6 +10,7 @@ using KWEngine3.Assets;
 using System.Diagnostics;
 using OpenTK.Windowing.Desktop;
 using KWEngine3.FontGenerator;
+using SkiaSharp;
 
 
 namespace KWEngine3
@@ -306,7 +307,7 @@ namespace KWEngine3
         public static Vector3 WorldUp { get; } = Vector3.UnitY;
 
 
-        
+
 
         /// <summary>
         /// Baut ein Terrain-Modell
@@ -314,7 +315,11 @@ namespace KWEngine3
         /// <param name="name">Name des Modells</param>
         /// <param name="heightmap">Heightmap Textur (maximal: 1024x1024px)</param>
         /// <param name="height">Höhe (y-Achse, gültige Werte von 0 bis 128)</param>
-        public static void BuildTerrainModel(string name, string heightmap, int height)
+        /// <param name="imageOffsetX">(optional) gibt an, ab welchem horizontalen Pixel die Heightmap gelesen werden soll (nullbasiert)</param>
+        /// <param name="imageOffsetY">(optional) gibt an, ab welchem vertikalen Pixel die Heightmap gelesen werden soll (nullbasiert)</param>
+        /// <param name="imageSliceWidth">(optional) gibt an, wie viele Pixel horizontal ab x-Offset gelesen werden sollen (-1, falls alle Pixel gelesen werden sollen)</param>
+        /// <param name="imageSliceHeight">(optional) gibt an, wie viele Pixel vertikal ab y-Offset gelesen werden sollen (-1, falls alle Pixel gelesen werden sollen)</param>
+        public static void BuildTerrainModel(string name, string heightmap, int height, int imageOffsetX = 0, int imageOffsetY = 0, int imageSliceWidth = -1, int imageSliceHeight = -1)
         {
             if (name == null || name.Trim().Length == 0)
             {
@@ -342,33 +347,67 @@ namespace KWEngine3
             };
 
             GeoTerrain t = new();
-            GeoMesh terrainMesh = t.BuildTerrain(name, heightmap, height, out int width, out int depth);
-            if (terrainMesh != null)
+            GeoMesh terrainMesh;
+            using (SKBitmap image = SKBitmap.Decode(heightmap))
             {
-                terrainMesh.Terrain = t;
-                GeoMaterial mat = new()
+                if (image == null || image.Width % 16 != 0 || image.Height % 16 != 0 || image.Width < 16 || image.Height < 16 || image.Height > 1024 || image.Width > 1024)
                 {
-                    BlendMode = BlendingFactor.OneMinusSrcAlpha,
-                    ColorAlbedo = new Vector4(1, 1, 1, 1),
-                    ColorEmissive = new Vector4(0, 0, 0, 0),
-                    Metallic = 0,
-                    Roughness = 1
-                };
-                terrainMesh.Material = mat;
-                terrainModel.Meshes.Add("Terrain", terrainMesh);
+                    KWEngine.LogWriteLine("[KWEngine] Height map image invalid or its width/height is not a multiple of 16 (range is from 16 - 1024px)");
+                    return;
+                }
 
-                GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height, 0 + depth / 2, 0 - width / 2, 0, 0 - depth / 2, null)
+                if(imageSliceWidth < 16 || imageSliceHeight < 16)
                 {
-                    Model = terrainModel,
-                    Name = name
-                };
-
-                terrainModel.MeshCollider.MeshHitboxes = new()
+                    imageSliceWidth = image.Width;
+                    imageSliceHeight = image.Height;
+                    imageOffsetX = 0;
+                    imageOffsetY = 0;
+                }
+                else if (imageSliceWidth % 16 != 0|| imageSliceHeight % 16 != 0 || imageOffsetX + imageSliceWidth >= image.Width || imageOffsetY + imageSliceHeight >= image.Height)
                 {
-                    meshHitBox
-                };
+                    KWEngine.LogWriteLine("[KWEngine] Height map offset and/or slice size invalid; using whole image");
+                    imageSliceWidth = image.Width;
+                    imageSliceHeight = image.Height;
+                    imageOffsetX = 0;
+                    imageOffsetY = 0;
+                }
 
-                KWEngine.Models.Add(name, terrainModel);
+                SKRectI rect = new SKRectI(imageOffsetX, imageOffsetY, imageOffsetX + imageSliceWidth, imageOffsetY + imageSliceHeight);
+                
+                using (SKBitmap imageSliced = new SKBitmap(rect.Width, rect.Height))
+                {
+                    using (SKCanvas cnvs = new SKCanvas(imageSliced))
+                    {
+                        SKRectI targetRect = new SKRectI(0, 0, rect.Width, rect.Height);
+                        cnvs.DrawBitmap(image, rect, targetRect);
+                        cnvs.Flush();
+                    }
+                        
+                    terrainMesh = t.BuildTerrain(name, heightmap, imageSliced, height, out int width, out int depth);
+                    if (terrainMesh != null)
+                    {
+                        terrainMesh.Terrain = t;
+                        GeoMaterial mat = new()
+                        {
+                            BlendMode = BlendingFactor.OneMinusSrcAlpha,
+                            ColorAlbedo = new Vector4(1, 1, 1, 1),
+                            ColorEmissive = new Vector4(0, 0, 0, 0),
+                            Metallic = 0,
+                            Roughness = 1
+                        };
+                        terrainMesh.Material = mat;
+                        terrainModel.Meshes.Add("Terrain", terrainMesh);
+
+                        GeoMeshHitbox meshHitBox = new(0 + width / 2, 0 + height, 0 + depth / 2, 0 - width / 2, 0, 0 - depth / 2, null)
+                        {
+                            Model = terrainModel,
+                            Name = name
+                        };
+
+                        terrainModel.MeshCollider.MeshHitboxes = new(){ meshHitBox };
+                        KWEngine.Models.Add(name, terrainModel);
+                    }
+                }
             }
         }
 
