@@ -22,7 +22,7 @@ namespace KWEngine3TestProject.Classes.WorldTerrainPOM
                 MoveOffset(0, 0, +_speed);
 
             
-            RayTerrainIntersection rti = RaytraceTerrainBelowPosition(this.GetOBBBottom(), true);
+            RayTerrainIntersection rti = RaytraceTerrainBelowPosition(this.GetOBBBottom());
             if(rti.IsValid)
             {
                 SetRotationToMatchSurfaceNormal(rti.SurfaceNormal);
