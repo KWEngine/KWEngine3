@@ -346,6 +346,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Prüft auf eine Strahlenkollision mit einem Terrain-Objekt direkt unterhalb der angegebenen Position
         /// </summary>
+        /// <remarks>Die TerrainObject-Instanzen müssen als Kollisionsobjekte markiert sein, damit sie für die Messung berücksichtigt werden</remarks>
         /// <param name="position">Startposition des nach unten gerichteten Teststrahls</param>
         /// <param name="rayMode">Art der Messung (Standard: SingleY)</param>
         /// <param name="sizeFactor">Skalierungsfaktor der Strahlen (falls mehrere Strahlen verwendet werden)</param>
@@ -406,70 +407,110 @@ namespace KWEngine3.GameObjects
 
             foreach (TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
             {
-                if(!HelperIntersection.CheckAABBCollision(
-                    this.AABBLeft,
-                    this.AABBRight,
-                    this.AABBBack,
-                    this.AABBFront,
+                if(!to.IsCollisionObject)
+                {
+                    continue;
+                }
+                else if(!HelperIntersection.CheckAABBCollision(
+                    AABBLeft,
+                    AABBRight,
+                    AABBBack,
+                    AABBFront,
                     to._stateCurrent._position.X - to.Width * 0.5f,
                     to._stateCurrent._position.X + to.Width * 0.5f,
-                    to._stateCurrent._position.X - to.Depth * 0.5f,
-                    to._stateCurrent._position.X + to.Depth * 0.5f)
+                    to._stateCurrent._position.Z - to.Depth * 0.5f,
+                    to._stateCurrent._position.Z + to.Depth * 0.5f)
                     )
                 {
                     continue;
                 }
 
+                GeoTerrain terrain = to._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
                 foreach (Vector3 ray in rayOrigins)
                 {
-                    Vector3 untranslatedPosition = ray - new Vector3(to._hitboxes[0]._center.X, 0, to._hitboxes[0]._center.Z);
-                    if(to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+                    Vector3 untranslatedPosition = ray - new Vector3(to._hitboxes[0]._center.X, to._stateCurrent._position.Y, to._hitboxes[0]._center.Z);
+
+                    if (terrain._collisionModeNew)
                     {
-                        GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
-                        if (tris.HasValue)
+                        bool result = HelperIntersection.GetHeightUnderneathUntranslatedPosition(
+                            untranslatedPosition,
+                            to,
+                            out float height,
+                            out Vector3 normal
+                            );
+                        if(result)
                         {
-                            bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
-                            if (hit)
+                            Vector3 contactPoint = new(ray.X, height, ray.Z);
+                            float distance = ray.Y - offset.Y - height;
+                            if(distance < 0f && !scanBothDirections)
                             {
-                                float distance = (untranslatedPosition - offset - contactPoint).Y;
-
-                                contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
-                                distanceAvg += distance;
-                                interAvg += contactPoint;
-                                normalAvg += tris.Value.Normal;
-                                resultSet.AddSurfaceNormal(tris.Value.Normal);
-                                resultSet.AddIntersectionPoint(contactPoint);
-                                resultSet.AddObject(to);
-
-                                if (distance < distanceMin)
-                                {
-                                    resultSet.DistanceMin = distance;
-                                    resultSet.SurfaceNormalNearest = tris.Value.Normal;
-                                    resultSet.IntersectionPointNearest = contactPoint;
-                                }
+                                continue;
                             }
-                            else
+                            distanceAvg += distance;
+                            interAvg += contactPoint;
+                            normalAvg += normal;
+                            resultSet.AddSurfaceNormal(normal);
+                            resultSet.AddIntersectionPoint(contactPoint);
+                            resultSet.AddObject(to);
+
+                            if (distance >= 0f && distance < distanceMin)
                             {
-                                if (scanBothDirections)
+                                resultSet.DistanceMin = distance;
+                                resultSet.SurfaceNormalNearest = normal;
+                                resultSet.IntersectionPointNearest = contactPoint;
+                            }
+                        }
+                    }
+                    else 
+                    {
+                        if (to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+                        {
+                            GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                            if (tris.HasValue)
+                            {
+                                bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                                if (hit)
                                 {
-                                    hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out contactPoint);
-                                    if (hit)
+                                    float distance = (untranslatedPosition - offset - contactPoint).Y;
+
+                                    contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
+                                    distanceAvg += distance;
+                                    interAvg += contactPoint;
+                                    normalAvg += tris.Value.Normal;
+                                    resultSet.AddSurfaceNormal(tris.Value.Normal);
+                                    resultSet.AddIntersectionPoint(contactPoint);
+                                    resultSet.AddObject(to);
+
+                                    if (distance < distanceMin)
                                     {
-                                        float distance = (untranslatedPosition - offset - contactPoint).LengthFast * -1f;
-
-                                        contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
-                                        distanceAvg += distance;
-                                        interAvg += contactPoint;
-                                        normalAvg += tris.Value.Normal;
-                                        resultSet.AddSurfaceNormal(tris.Value.Normal);
-                                        resultSet.AddIntersectionPoint(contactPoint);
-                                        resultSet.AddObject(to);
-
-                                        if (distance < distanceMin)
+                                        resultSet.DistanceMin = distance;
+                                        resultSet.SurfaceNormalNearest = tris.Value.Normal;
+                                        resultSet.IntersectionPointNearest = contactPoint;
+                                    }
+                                }
+                                else
+                                {
+                                    if (scanBothDirections)
+                                    {
+                                        hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out contactPoint);
+                                        if (hit)
                                         {
-                                            resultSet.DistanceMin = distance;
-                                            resultSet.SurfaceNormalNearest = tris.Value.Normal;
-                                            resultSet.IntersectionPointNearest = contactPoint;
+                                            float distance = (untranslatedPosition - offset - contactPoint).LengthFast * -1f;
+
+                                            contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
+                                            distanceAvg += distance;
+                                            interAvg += contactPoint;
+                                            normalAvg += tris.Value.Normal;
+                                            resultSet.AddSurfaceNormal(tris.Value.Normal);
+                                            resultSet.AddIntersectionPoint(contactPoint);
+                                            resultSet.AddObject(to);
+
+                                            if (distance < distanceMin)
+                                            {
+                                                resultSet.DistanceMin = distance;
+                                                resultSet.SurfaceNormalNearest = tris.Value.Normal;
+                                                resultSet.IntersectionPointNearest = contactPoint;
+                                            }
                                         }
                                     }
                                 }

@@ -386,6 +386,17 @@ namespace KWEngine3
                     terrainMesh = t.BuildTerrain(name, heightmap, imageSliced, height, out int width, out int depth);
                     if (terrainMesh != null)
                     {
+                        t._pixelHeights = new float[imageSliced.Width, imageSliced.Height];
+                        // fill float-2dim-array for new collision detection
+                        for (int x = 0; x < imageSliced.Width; x++)
+                        {
+                            for (int y = 0; y < imageSliced.Height; y++)
+                            {
+                                SKColor clr = imageSliced.GetPixel(x, y);
+                                t._pixelHeights[x, y] = (clr.Red + clr.Green + clr.Blue) / 3f / 255f;
+                            }
+                        }
+
                         terrainMesh.Terrain = t;
                         GeoMaterial mat = new()
                         {

@@ -1,4 +1,5 @@
-﻿using KWEngine3.GameObjects;
+﻿using Assimp;
+using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
@@ -151,21 +152,19 @@ namespace KWEngine3.Helper
                     position.Z >= t._stateCurrent._position.Z - t.Depth * 0.5f &&
                     position.Z <= t._stateCurrent._position.Z + t.Depth * 0.5f)
                 {
-
-                    Vector3 untranslatedPosition = position - new Vector3(t._hitboxes[0]._center.X, 0, t._hitboxes[0]._center.Z);
-                    if (t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+                    GeoTerrain terrain = t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                    Vector3 untranslatedPosition = position - t._hitboxes[0]._center;// new Vector3(t._hitboxes[0]._center.X, 0, t._hitboxes[0]._center.Z);
+                    bool result = GetHeightUnderneathUntranslatedPosition(
+                            untranslatedPosition,
+                            t,
+                            out float height,
+                            out Vector3 normal
+                            );
+                    if (result && position.Y - height >= 0f)
                     {
-                        GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
-                        if (tris.HasValue)
-                        {
-                            bool rayHasContact = RayTriangleIntersection(untranslatedPosition, -KWEngine.WorldUp, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
-                            if (rayHasContact)
-                            {
-                                intersectionPoint = contactPoint;
-                                distance = (intersectionPoint - position).LengthFast;
-                                return true;
-                            }
-                        }
+                        intersectionPoint = new(position.X, height, position.Z);
+                        distance = position.Y - height;
+                        return true;
                     }
                 }
             }
@@ -1137,9 +1136,73 @@ namespace KWEngine3.Helper
             return result && distance >= 0;
         }
 
-        
+
 
         #region Internals
+
+        internal static Vector3 GetNormalFromFourPoints(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+        {
+            // only one cross product because the four points are co-planar!
+            Vector3 nA = Vector3.NormalizeFast(Vector3.Cross(p1 - p0, p2 - p0));
+            Vector3 nB = Vector3.NormalizeFast(Vector3.Cross(p1 - p2, p3 - p1));
+            return Vector3.NormalizeFast(nA + nB);
+        }
+
+        internal static bool GetHeightUnderneathUntranslatedPosition(Vector3 ray, TerrainObject to, out float height, out Vector3 normal)// float[,] pixels, int pixelsWidth, int pixelsDepth, int terrainHeight)
+        {
+            if(
+                ray.X >= -to.Width / 2f &&
+                ray.X <= +to.Width / 2f &&
+                ray.Z >= -to.Depth / 2f &&
+                ray.Z <= +to.Depth / 2f
+                )
+            {
+                GeoTerrain t = to._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+
+                float rayXOffset = ray.X + to.Width / 2f;
+                float rayZOffset = ray.Z + to.Depth / 2f;
+                float pxX = rayXOffset - 0.5f; 
+                float pxZ = rayZOffset - 0.5f;
+
+                float weightX = 1f - pxX % 1f;
+                float weightZ = 1f - pxZ % 1f;
+                float weightXOther = 1f - weightX;
+                float weightZOther = 1f - weightZ;
+
+                int pxX0 = (int)(pxX + 0.0f);
+                int pxX1 = MathHelper.Clamp(pxX0 + 1, 0, to.Width - 1);
+
+                int pxZ0 = (int)(pxZ + 0.0f);
+                int pxZ1 = MathHelper.Clamp(pxZ0 + 1, 0, to.Depth - 1);
+
+                float i00 = t._pixelHeights[pxX0, pxZ0];
+                float i01 = t._pixelHeights[pxX0, pxZ1];
+                float i10 = t._pixelHeights[pxX1, pxZ0];
+                float i11 = t._pixelHeights[pxX1, pxZ1];
+
+                Vector3 v00 = new Vector3(pxX0, i00 * to.Height, pxZ0);
+                Vector3 v01 = new Vector3(pxX0, i01 * to.Height, pxZ1);
+                Vector3 v10 = new Vector3(pxX1, i10 * to.Height, pxZ0);
+                Vector3 v11 = new Vector3(pxX1, i11 * to.Height, pxZ1);
+
+                // bilinear interpolation:
+                float result =                 
+                    i00 * weightX * weightZ +
+                    i01 * weightX * weightZOther +
+                    i10 * weightXOther * weightZ +
+                    i11 * weightXOther * weightZOther;
+                
+                normal = GetNormalFromFourPoints(v00, v01, v10, v11);
+                height = result * to.Height + to._stateCurrent._position.Y;
+                return true;
+            }
+            else
+            {
+                height = 0;
+                normal = Vector3.UnitY;
+                return false;
+            }
+        }
         internal static bool LineIntersectsBox(Vector2 p1, Vector2 p2, float left, float right, float top, float bottom)
         {
             // Box edges
@@ -1446,28 +1509,19 @@ namespace KWEngine3.Helper
             contactPoint = Vector3.Zero;
             surfaceNormal = Vector3.UnitY;
             GeoModel model = t._gModel.ModelOriginal;
-            Vector3 untranslatedPosition = rayOrigin - new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
-            if (model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+            GeoTerrain terrain = t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+            Vector3 untranslatedPosition = rayOrigin - new Vector3(t._hitboxes[0]._center.X, t._stateCurrent._position.Y, t._hitboxes[0]._center.Z);
+            bool result = GetHeightUnderneathUntranslatedPosition(
+                    untranslatedPosition,
+                    t,
+                    out float height,
+                    out Vector3 normal
+                    );
+            if (result && rayOrigin.Y - height >= 0f)
             {
-                GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
-                if (tris.HasValue)
-                {
-                    bool hit = RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out contactPoint);
-                    if (hit)
-                    {
-                        surfaceNormal = tris.Value.Normal;
-                        contactPoint += new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                return false;
+                contactPoint = new(rayOrigin.X, height, rayOrigin.Z);
+                surfaceNormal = normal;
+                return true;
             }
             return false;
         }

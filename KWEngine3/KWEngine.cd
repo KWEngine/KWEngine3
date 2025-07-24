@@ -388,6 +388,8 @@
       <Method Name="ConvertRayToWorldSpaceAfterAABBTest" Hidden="true" />
       <Method Name="FramebufferPicking" Hidden="true" />
       <Method Name="GetArmatureTransformForDefaultAnimation" Hidden="true" />
+      <Method Name="GetHeightUnderneathUntranslatedPosition" Hidden="true" />
+      <Method Name="GetNormalFromFourPoints" Hidden="true" />
       <Method Name="GetRayIntersectionPointOnGameObject" Hidden="true" />
       <Method Name="IsBetweenOrdered" Hidden="true" />
       <Method Name="IsInFrontOfPlane" Hidden="true" />
@@ -417,7 +419,7 @@
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DQCQAhQAALWigCQAsEQACEKEQQAgBLhGAJGCABYLZIg=</HashCode>
+      <HashCode>DQCQAhQAALWigCQAsEQASEKEQQAgBLhGALGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>

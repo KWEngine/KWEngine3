@@ -24,8 +24,9 @@ namespace KWEngine3.Model
         private float mTriangleDepth = 0.5f;
         internal int _texHeight = -1;
         internal Sector[,] mSectorMap;
-        private float mCompleteDiameter;
         internal string _heightMapName;
+        internal float[,] _pixelHeights;
+        internal bool _collisionModeNew = true; // NEW!
 
         public int GetHeight()
         {
@@ -62,8 +63,6 @@ namespace KWEngine3.Model
 
             int startX = -mWidth / 2;
             int startZ = -mDepth / 2;
-
-            mCompleteDiameter = MathF.Sqrt(mWidth * mWidth + mDepth * mDepth + mHeight * mHeight);
 
             int sectorCountX = mWidth / mSectorLength;
             int sectorCountZ = mDepth / mSectorLength;
@@ -147,7 +146,7 @@ namespace KWEngine3.Model
             mmp.Primitive = PrimitiveType.Patches;
             return mmp;
         }
-
+        
         public bool GetSectorForUntranslatedPosition(Vector3 position, out Sector s)
         {
             float tmpF;
@@ -163,7 +162,7 @@ namespace KWEngine3.Model
             s = mSectorMap[tmpIndexX, tmpIndexZ];
             return true;
         }
-
+        
         internal void Dispose()
         {
             for (int i = 0; i < mSectorMap.GetLength(0); i++)
