@@ -317,10 +317,10 @@ namespace KWEngine3.Audio
                 KWEngine.LogWriteLine("[Audio] All " + MAX_CHANNELS + " channels are busy playing");
                 return -1;
             }
-            else
+            /*else
             {
                 KWEngine.LogWriteLine("picking channel " + channelNumber + " (src id: " + source.GetSourceId() + ") for playback of " + sound + "...");
-            }
+            }*/
             
             source.SetCachedSound(soundToPlay);
             source.IsLooping = looping;
