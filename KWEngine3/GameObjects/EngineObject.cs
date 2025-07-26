@@ -300,7 +300,7 @@ namespace KWEngine3.GameObjects
         /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
         /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
         /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
-        /// <param name="intensity">Helligkeit (zwischen 0 und 2)</param>
+        /// <param name="intensity">Helligkeit (zwischen 0 und 10)</param>
         public void SetColorEmissive(float r, float g, float b, float intensity)
         {
             SetColorEmissive(new Vector3(r, g, b), intensity);
@@ -310,14 +310,23 @@ namespace KWEngine3.GameObjects
         /// Setzt die selbstleuchtende Farbtönung des Objekts
         /// </summary>
         /// <param name="color">Rot-/Grün-/Blauanteil (zwischen 0 und 1)</param>
-        /// <param name="intensity">Helligkeit (zwischen 0 und 2)</param>
+        /// <param name="intensity">Helligkeit (zwischen 0 und 10)</param>
         public void SetColorEmissive(Vector3 color, float intensity)
         {
             _stateCurrent._colorEmissive = new Vector4(
                 MathHelper.Clamp(color.X, 0, 1),
                 MathHelper.Clamp(color.Y, 0, 1),
                 MathHelper.Clamp(color.Z, 0, 1),
-                MathHelper.Clamp(intensity, 0, 2));
+                MathHelper.Clamp(intensity, 0, 10));
+        }
+
+        /// <summary>
+        /// Setzt die selbstleuchtende Farbtönung des Objekts
+        /// </summary>
+        /// <param name="ce">RGB- und Intensitätsanteil (Intensität von 0 bis 10)</param>
+        public void SetColorEmissive(Vector4 ce)
+        {
+            SetColorEmissive(ce.Xyz, ce.W);
         }
 
         /// <summary>
