@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2025-07-26)</Product>
+		<Product>KWEngine3 (updated: 2025-08-03)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.5.6</Version>
-		<AssemblyVersion>3.0.5.6</AssemblyVersion>
-		<FileVersion>3.0.5.6</FileVersion>
-		<ProductVersion>3.0.5.6</ProductVersion>
+		<Version>3.0.5.7</Version>
+		<AssemblyVersion>3.0.5.7</AssemblyVersion>
+		<FileVersion>3.0.5.7</FileVersion>
+		<ProductVersion>3.0.5.7</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -197,6 +197,7 @@
 		<EmbeddedResource Include="Assets\Models\kwcube.obj" />
 		<EmbeddedResource Include="Assets\Models\kwcube6.mtl" />
 		<EmbeddedResource Include="Assets\Models\kwcube6.obj" />
+		<EmbeddedResource Include="Assets\Models\kwgrass_imposter.obj" />
 		<EmbeddedResource Include="Assets\Models\kwgrass_fern.obj" />
 		<EmbeddedResource Include="Assets\Models\kwgrass_minecraft.obj" />
 		<EmbeddedResource Include="Assets\Models\kwmapquadxy.obj" />

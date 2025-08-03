@@ -1,5 +1,6 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldFoliageTest;
 using System;
@@ -27,11 +28,14 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap.png", 5);
+            
+            KWEngine.BuildTerrainModel("T1", "./Textures/heightmap.png", 3);
             TerrainObject t = new TerrainObject("T1");
             t.Name = "TestTerrain";
             t.SetPosition(0, 0, 0);
+            //t.SetTexture("./Textures/grass_albedo.png");
             AddTerrainObject(t);
+            
             /*
             FoliageObject tf1 = new FoliageObject(FoliageType.Fern, 2000);
             tf1.SetPosition(0, 0, 0);
@@ -43,9 +47,9 @@ namespace KWEngine3TestProject.Worlds
             tf1.IsSizeReducedAtCorners = true;
             AddFoliageObject(tf1);
             */
-
+            
             FoliageObject tf2 = new FoliageObject(FoliageType.GrassFresh, 50000);
-            tf2.SetPosition(0, 0, 0);
+            tf2.SetPosition(-22, 0, 0);
             tf2.SetPatchSize(20, 40);
             tf2.SetScale(3f, 0.75f, 3f);
             tf2.SetSwayFactor(0.1f);
@@ -53,11 +57,25 @@ namespace KWEngine3TestProject.Worlds
             tf2.IsShadowReceiver = true;
             tf2.IsSizeReducedAtCorners = true;
             AddFoliageObject(tf2);
+            
 
+
+            FoliageObjectCustom tf3 = new FoliageObjectCustom(256);
+            for(int i = 0; i < 256; i++)
+            {
+                tf3.SetPosition(i, HelperRandom.GetRandomNumber(-5f, 5f), -0.25f, HelperRandom.GetRandomNumber(-5f, 5f));
+            }
+            //tf3.SetPosition(0, -1, 0, 3);
+            //tf3.SetScale(0, 10, 1, 1);
+            tf3.Name = "tf3";
+            tf3.SetColor(1, 1, 1, 1);
+            tf3.SetTexture("./Textures/bush01_albedo.png");
+            tf3.AttachToTerrain(t);
+            AddFoliageObject(tf3);
 
             PlayerFoliageTest player = new PlayerFoliageTest();
             player.SetRotation(0, 180, 0);
-            player.SetPosition(15, 2f, -20f);
+            player.SetPosition(0, 2f, 16f);
             player.SetOpacity(0);
             SetCameraToFirstPersonGameObject(player, 0f);
             MouseCursorGrab();
@@ -92,7 +110,7 @@ namespace KWEngine3TestProject.Worlds
             sun.SetPosition(100, 100, 100);
             sun.SetNearFar(20, 400);
             sun.SetFOV(100);
-            sun.SetColor(1, 0.75f, 0.5f, 3);
+            sun.SetColor(1, 0.75f, 0.5f, 2.5f);
             AddLightObject(sun);
 
             /*

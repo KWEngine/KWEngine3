@@ -49,27 +49,66 @@ namespace KWEngine3.Helper
             t.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(t._stateCurrent._center, t._stateCurrent._dimensions.X * 1.25f / 2, t._stateCurrent._dimensions.Y * 1.25f / 2, t._stateCurrent._dimensions.Z * 1.25f / 2);
         }
 
-        internal void UpdateScreenSpaceStatus(FoliageObject f)
+        internal void UpdateScreenSpaceStatus(FoliageBase fb)
         {
-            if(f._terrainObject != null)
+            if (fb is FoliageObject)
             {
-                f.IsInsideScreenSpace = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f, f._patchSize.Y * 0.5f);
-                f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f * 1.25f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f * 1.25f, f._patchSize.Y * 0.5f * 1.25f);
+                FoliageObject f = fb as FoliageObject;
+                if (f._terrainObject != null)
+                {
+                    f.IsInsideScreenSpace = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f, f._patchSize.Y * 0.5f);
+                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f * 1.25f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f * 1.25f, f._patchSize.Y * 0.5f * 1.25f);
+                }
+                else
+                {
+                    f.IsInsideScreenSpace = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X, f._scale.Y, f._patchSize.Y);
+                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 1.25f, f._scale.Y * 1.25f, f._patchSize.Y * 1.25f);
+                }
             }
             else
             {
-                f.IsInsideScreenSpace = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X, f._scale.Y, f._patchSize.Y);
-                f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 1.25f, f._scale.Y * 1.25f, f._patchSize.Y * 1.25f);
+                FoliageObjectCustom f = fb as FoliageObjectCustom;
+                if (f._terrainObject != null)
+                {
+                    float tCenter = f._terrainObject._stateCurrent._center.Y;
+                    float xCenter = f._patchSizeMin.X + (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f;
+                    float zCenter = f._patchSizeMin.Z + (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f;
+                    f.IsInsideScreenSpace = VolumeVsFrustum(
+                        new Vector3(xCenter, tCenter, zCenter),
+                        f._patchSizeMax.X - f._patchSizeMin.X,
+                        f._terrainObject.Height - f._terrainObject._stateCurrent._position.Y,
+                        f._patchSizeMax.Z - f._patchSizeMin.Z);
+
+                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(
+                        new Vector3(xCenter, tCenter, zCenter),
+                        (f._patchSizeMax.X - f._patchSizeMin.X) * 1.25f,
+                        (f._terrainObject.Height - f._terrainObject._stateCurrent._position.Y) * 1.25f,
+                        (f._patchSizeMax.Z - f._patchSizeMin.Z) * 1.25f
+                        );
+
+                }
+                else
+                {
+                    float xCenter = f._patchSizeMin.X + (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f;
+                    float yCenter = f._patchSizeMin.Y + (f._patchSizeMax.Y - f._patchSizeMin.Y) * 0.5f;
+                    float zCenter = f._patchSizeMin.Z + (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f;
+                    f.IsInsideScreenSpace = VolumeVsFrustum(
+                        new Vector3(xCenter, yCenter, zCenter),
+                        f._patchSizeMax.X - f._patchSizeMin.X,
+                        f._patchSizeMax.Y - f._patchSizeMin.Y,
+                        f._patchSizeMax.Z - f._patchSizeMin.Z
+                        );
+
+                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(
+                        new Vector3(xCenter, yCenter, zCenter),
+                        (f._patchSizeMax.X - f._patchSizeMin.X) * 1.25f,
+                        (f._patchSizeMax.Y - f._patchSizeMin.Y) * 1.25f,
+                        (f._patchSizeMax.Z - f._patchSizeMin.Z) * 1.25f
+                        );
+                }
             }
         }
-        /*
-        internal void UpdateScreenSpaceStatus(LightObject l)
-        {
-            l.GetVolume(out Vector3 center, out Vector3 dimensions);
-            l.IsInsideScreenSpace = VolumeVsFrustum(center, dimensions.X, dimensions.Y, dimensions.Z);
-            l.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(center, dimensions.X * 1.25f, dimensions.Y * 1.25f, dimensions.Z * 1.25f);
-        }
-        */
+
         internal enum ClippingPlane : int
         {
             Right = 0,

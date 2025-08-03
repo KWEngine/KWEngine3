@@ -43,7 +43,7 @@ namespace KWEngine3TestProject.Worlds
             r1.IsShadowCaster = true;
             r1.SetAdditionalInstanceCount(2);
             r1.SetPositionRotationScaleForInstance(1, new Vector3(10, 5, 0), Quaternion.Identity, Vector3.One);
-            r1.SetPositionRotationScaleForInstance(2, new Vector3(0, -2, 0), Quaternion.Identity, Vector3.One);
+            r1.SetPositionRotationScaleForInstance(2, new Vector3(0, 5, 0), Quaternion.Identity, Vector3.One);
             AddRenderObject(r1);
 
             StaticObject r2 = new StaticObject();

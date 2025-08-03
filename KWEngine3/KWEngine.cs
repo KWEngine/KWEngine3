@@ -735,7 +735,7 @@ namespace KWEngine3
 
         internal static EngineMode Mode { get; set; } = EngineMode.Play;
 
-        internal static Matrix4 Matrix4Dummy = Matrix4.Identity;
+        internal static Matrix4 Matrix4DummyIdentity = Matrix4.Identity;
         internal static int TextureDefault = -1;
         internal static int TextureBlack = -1;
         internal static int TextureWhite = -1;
@@ -812,7 +812,7 @@ namespace KWEngine3
             TextureWhite3D = HelperTexture.LoadTextureInternal3D("white.png");
             TextureAlpha = HelperTexture.LoadTextureInternal("alpha.png");
             TextureNormalEmpty = HelperTexture.LoadTextureInternal("normalmap.png");
-            TextureNoise = HelperTexture.LoadTextureInternal("noise.png");
+            TextureNoise = HelperTexture.LoadTextureInternal("noise.png", true);
             TextureCheckerboard = HelperTexture.LoadTextureInternal("checkerboard.png");
 
             TextureFlowFieldArrow = HelperTexture.LoadTextureInternal("arrow.png");
@@ -845,6 +845,7 @@ namespace KWEngine3
         internal static GeoMeshCollider KWSphereCollider;
         internal static GeoModel KWFoliageMinecraft;
         internal static GeoModel KWFoliageFern;
+        internal static GeoModel KWFoliageImposter;
         internal static GeoModel KWMapItemXZ;
         internal static GeoModel KWMapItemXY;
 
@@ -867,6 +868,7 @@ namespace KWEngine3
             KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
             KWMapItemXZ = SceneImporter.LoadModel("kwmapquadxz.obj", false, SceneImporter.AssemblyMode.Internal);
             KWMapItemXY = SceneImporter.LoadModel("kwmapquadxy.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWFoliageImposter = SceneImporter.LoadModel("kwgrass_imposter.obj", true, SceneImporter.AssemblyMode.Internal);
 
             KWFoliageGrass.Init();
 

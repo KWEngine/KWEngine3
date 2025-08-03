@@ -45,6 +45,17 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Destruktor
+        /// </summary>
+        ~RenderObject()
+        {
+            if(_ubo > 0)
+            {
+                DeleteUBO();
+            }
+        }
+
+        /// <summary>
         /// Konfiguriert die Anzahl der gewünschten Instanzen (Kopien) für das Objekt. 
         /// Es sind maximal 1023 zusätzliche Instanzen möglich.
         /// </summary>
@@ -210,7 +221,25 @@ namespace KWEngine3.GameObjects
 
         internal Vector3[] _instancePositions;
         internal Vector3[] _instanceScales;
+        /*
+        internal void ReInitUBO()
+        {
+            if (_ubo > 0)
+            {
+                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+                GL.DeleteBuffers(1, new int[] { _ubo });
+            }
 
+            _ubo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
+            GL.BufferData(BufferTarget.UniformBuffer, InstanceCount * BYTESPERINSTANCE, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+            for (int i = 0; i < InstanceCount; i++)
+            {
+                GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboData);
+            }
+            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+        }
+        */
         internal void InitUBO()
         {
             _instancePositions = new Vector3[InstanceCount];
@@ -252,7 +281,17 @@ namespace KWEngine3.GameObjects
             }
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
-
+        
+        internal void DeleteUBO()
+        {
+            if (_ubo > 0)
+            {
+                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+                GL.DeleteBuffers(1, new int[] { _ubo });
+                _ubo = -1;
+            }
+        }
+        
         internal bool IsConfigured { get { return InstanceCount >= 0; } }
 
         internal override void InitHitboxes()

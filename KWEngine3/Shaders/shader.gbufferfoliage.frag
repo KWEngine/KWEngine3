@@ -16,6 +16,7 @@ uniform sampler2D uTextureAlbedo;
 uniform sampler2D uTextureNormal;
 uniform int uLightConfig;
 uniform vec2 uRoughnessMetallic;
+uniform int uMode;
 
 vec2 encodeNormalToRG16F(vec3 n) {
     n /= (abs(n.x) + abs(n.y) + abs(n.z));
@@ -62,8 +63,29 @@ vec2 encode16BitUintTo8Bit(uint value16)
 
 void main()
 {
-	albedo = vColor * texture(uTextureAlbedo, vTexture).xyz * uColorTintEmissive.xyz * uColorTintEmissive.w;
-	normal = encodeNormalToRG16F(normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0)));
+    vec4 colorFromTexture = texture(uTextureAlbedo, vTexture);
+    if(uMode > 0)
+    {
+        if(colorFromTexture.w < 0.5) 
+            discard;
+        /*
+        else
+        {
+            float stepresult = smoothstep(0.0, 1.0, colorFromTexture.w);
+            colorFromTexture.xyz *= stepresult; 
+        }
+        */
+    }
+
+	albedo = vColor * colorFromTexture.xyz * uColorTintEmissive.xyz * uColorTintEmissive.w;
+    if(uMode == 0)
+    {
+	    normal = encodeNormalToRG16F(normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0)));
+    }
+    else
+    {
+        
+    }
 	metallicRoughnessMetallicType = vec3(uRoughnessMetallic.y, uRoughnessMetallic.x, 0.0);
 	idShadowCaster = vec3(encode16BitUintTo8Bit(65535), (uLightConfig + 10) / 255.0);
 }

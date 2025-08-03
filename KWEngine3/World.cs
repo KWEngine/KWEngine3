@@ -26,9 +26,9 @@ namespace KWEngine3
 
         internal WorldMap _map = null;
 
-        internal List<FoliageObject> _foliageObjects = new();
-        internal List<FoliageObject> _foliageObjectsToBeAdded = new();
-        internal List<FoliageObject> _foliageObjectsToBeRemoved = new();
+        internal List<FoliageBase> _foliageObjects = new();
+        internal List<FoliageBase> _foliageObjectsToBeAdded = new();
+        internal List<FoliageBase> _foliageObjectsToBeRemoved = new();
 
         internal List<GameObject> _gameObjects = new();
         internal List<GameObject> _gameObjectsToBeAdded = new();
@@ -316,15 +316,29 @@ namespace KWEngine3
                 }
             }
 
-            foreach (FoliageObject f in _foliageObjectsToBeRemoved)
+            foreach (FoliageBase f in _foliageObjectsToBeRemoved)
             {
                 _foliageObjects.Remove(f);
+                if(f is FoliageObjectCustom)
+                {
+                    (f as FoliageObjectCustom)._isInWorld = null;
+                    //(f as FoliageObjectCustom).DeleteUBO();
+                }
             }
             _foliageObjectsToBeRemoved.Clear();
 
-            foreach (FoliageObject f in _foliageObjectsToBeAdded)
+            for(int i = 0; i < _foliageObjectsToBeAdded.Count; i++)
             {
-                _foliageObjects.Add(f);
+                if (_foliageObjectsToBeAdded[i] is FoliageObject)
+                {
+                    _foliageObjects.Add(_foliageObjectsToBeAdded[i]);
+                }
+                else if(_foliageObjectsToBeAdded[i] is FoliageObjectCustom)
+                {
+                    _foliageObjects.Add(_foliageObjectsToBeAdded[i]);
+                    (_foliageObjectsToBeAdded[i] as FoliageObjectCustom)._isInWorld = this;
+                    //(_foliageObjectsToBeAdded[i] as FoliageObjectCustom).InitUBO();
+                }
             }
             _foliageObjectsToBeAdded.Clear();
         }
@@ -343,6 +357,7 @@ namespace KWEngine3
             foreach (RenderObject r in _renderObjectsToBeRemoved)
             {
                 _renderObjects.Remove(r);
+                //r.DeleteUBO();
                 r._myWorld = null;
             }
             _gameObjectsToBeRemoved.Clear();
@@ -350,6 +365,7 @@ namespace KWEngine3
             foreach (RenderObject r in _renderObjectsToBeAdded)
             {
                 _renderObjects.Add(r);
+                //r.ReInitUBO();
                 r._myWorld = this;
             }
             _renderObjectsToBeAdded.Clear();
@@ -495,9 +511,12 @@ namespace KWEngine3
             }
             AddRemoveGameObjects();
 
-            foreach (FoliageObject f in _foliageObjects)
+            foreach (FoliageBase f in _foliageObjects)
             {
-                RemoveFoliageObject(f);
+                if(f is FoliageObject)
+                    RemoveFoliageObject(f as FoliageObject);
+                else
+                    RemoveFoliageObject(f as FoliageObjectCustom);
             }
             AddRemoveFoliageObjects();
 
@@ -1151,6 +1170,41 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Fügt ein Gewächsobjekt (Custom) hinzu
+        /// </summary>
+        /// <param name="f">hinzuzufügendes Objekt</param>
+        public void AddFoliageObject(FoliageObjectCustom f)
+        {
+            if (f == null)
+                return;
+
+            if (IsPrepared == false)
+            {
+                if (!_foliageObjects.Contains(f))
+                {
+                    _foliageObjects.Add(f);
+                    f._isInWorld = this;
+                    //f.InitUBO();
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[FoliageObject] Object " + f.Name + " already in world.");
+                }
+            }
+            else
+            {
+                if (!_foliageObjects.Contains(f) && !_foliageObjectsToBeAdded.Contains(f))
+                {
+                    _foliageObjectsToBeAdded.Add(f);
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[FoliageObject] Object " + f.Name + " already in world.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Löscht ein Gewächsobjekt (z.B. Gras) aus der Welt
         /// </summary>
         /// <param name="f">zu entfernendes Objekt</param>
@@ -1162,6 +1216,30 @@ namespace KWEngine3
             if (IsPrepared == false)
             {
                 _foliageObjects.Remove(f);
+            }
+            else
+            {
+                if (!_foliageObjectsToBeRemoved.Contains(f))
+                {
+                    _foliageObjectsToBeRemoved.Add(f);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Löscht ein Gewächsobjekt (Custom) aus der Welt
+        /// </summary>
+        /// <param name="f">zu entfernendes Objekt</param>
+        public void RemoveFoliageObject(FoliageObjectCustom f)
+        {
+            if (f == null)
+                return;
+
+            if (IsPrepared == false)
+            {
+                _foliageObjects.Remove(f);
+                f._isInWorld = null;
+                //f.DeleteUBO();
             }
             else
             {
@@ -1290,6 +1368,7 @@ namespace KWEngine3
             if (r.IsConfigured == false)
             {
                 KWEngine.LogWriteLine("[World] RenderObject instance '" + r.Name + "' incomplete. Set additional instance count first.");
+                return;
             }
 
             if (IsPrepared == false)
@@ -1297,6 +1376,7 @@ namespace KWEngine3
                 if (!_renderObjects.Contains(r))
                 {
                     _renderObjects.Add(r);
+                    //r.ReInitUBO();
                     r._myWorld = this;
                 }
                 else
@@ -1329,6 +1409,7 @@ namespace KWEngine3
             {
                 _renderObjects.Remove(r);
                 r._myWorld = null;
+                //r.DeleteUBO();
             }
             else
             {

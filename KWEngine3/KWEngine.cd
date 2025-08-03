@@ -84,6 +84,7 @@
       <Field Name="KWCapsule2" Hidden="true" />
       <Field Name="KWDollar" Hidden="true" />
       <Field Name="KWFoliageFern" Hidden="true" />
+      <Field Name="KWFoliageImposter" Hidden="true" />
       <Field Name="KWFoliageMinecraft" Hidden="true" />
       <Field Name="KWHeart" Hidden="true" />
       <Field Name="KWLightBulb" Hidden="true" />
@@ -95,7 +96,7 @@
       <Property Name="LastFrameTime" Hidden="true" />
       <Property Name="LastSimulationUpdateCycleCount" Hidden="true" />
       <Field Name="LIGHTINDEXDIVIDER" Hidden="true" />
-      <Field Name="Matrix4Dummy" Hidden="true" />
+      <Field Name="Matrix4DummyIdentity" Hidden="true" />
       <Property Name="Mode" Hidden="true" />
       <Property Name="Models" Hidden="true" />
       <Field Name="ParticleDictionary" Hidden="true" />
@@ -130,7 +131,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BdgARbBNA6SJgLEcpAruAZARVCgCAmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>BdgQRbBNA6SJgLEcpAruAZARVCgCAmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -289,7 +290,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="12.5" Y="6" Width="2.75" />
+    <Position X="18.5" Y="15.75" Width="2.75" />
     <Members>
       <Field Name="_behindCamera" Hidden="true" />
       <Field Name="_fbShadowMap" Hidden="true" />
@@ -600,7 +601,9 @@
       <Field Name="_instanceScales" Hidden="true" />
       <Field Name="_ubo" Hidden="true" />
       <Field Name="_uboData" Hidden="true" />
+      <Method Name="~RenderObject" Hidden="true" />
       <Field Name="BYTESPERINSTANCE" Hidden="true" />
+      <Method Name="DeleteUBO" Hidden="true" />
       <Method Name="GetMinMaxForBaseInstance" Hidden="true" />
       <Method Name="GetMinMaxForInstances" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
@@ -641,6 +644,7 @@
       <HashCode>QABAIAAwAAAIACQxAgAADCQKAEAAAkgIAQgIogBCbSQ=</HashCode>
       <FileName>GameObjects\FoliageObject.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.Helper.FlowField">
     <Position X="18.5" Y="6.75" Width="2.75" />
@@ -848,6 +852,35 @@
       <HashCode>ASggAbCAhEGICQAAQ6QxCEEAAAAIkgQFpkFBLABwgUA=</HashCode>
       <FileName>Helper\HelperTexture.cs</FileName>
     </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.FoliageObjectCustom">
+    <Position X="12.5" Y="6" Width="2.75" />
+    <Members>
+      <Field Name="_camDistanceMax" Hidden="true" />
+      <Field Name="_color" Hidden="true" />
+      <Field Name="_instanceCount" Hidden="true" />
+      <Field Name="_isInWorld" Hidden="true" />
+      <Field Name="_name" Hidden="true" />
+      <Field Name="_noise" Hidden="true" />
+      <Field Name="_patchSizeMax" Hidden="true" />
+      <Field Name="_patchSizeMin" Hidden="true" />
+      <Field Name="_posScaleArray1" Hidden="true" />
+      <Field Name="_posScaleArray2" Hidden="true" />
+      <Field Name="_roughness" Hidden="true" />
+      <Field Name="_swayFactor" Hidden="true" />
+      <Field Name="_terrainObject" Hidden="true" />
+      <Field Name="_textureId" Hidden="true" />
+      <Method Name="CreateArray" Hidden="true" />
+      <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
+      <Method Name="SetInstanceCount" Hidden="true" />
+      <Method Name="Update" Hidden="true" />
+      <Method Name="UpdateArrayAndPatchSize" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>QARCIAAwAAAIAAQBAgAACAQIAGAAAkAEAAgJggBBYQU=</HashCode>
+      <FileName>GameObjects\FoliageObjectCustom.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
     <Position X="18.5" Y="3.5" Width="2.75" />

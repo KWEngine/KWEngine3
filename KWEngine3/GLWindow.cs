@@ -374,17 +374,17 @@ namespace KWEngine3
                     renderObjectsForForwardRendering.AddRange(RendererGBufferInstanced.RenderScene());
                 }
 
-                if (KWEngine.CurrentWorld._foliageObjects.Count > 0)
-                {
-                    RendererGBufferFoliage.Bind();
-                    RendererGBufferFoliage.RenderScene();
-                }
-
                 // Render terrain objects to G-Buffer:
                 if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
                 {
                     RendererTerrainGBufferNew.Bind();
                     RendererTerrainGBufferNew.RenderScene();
+                }
+
+                if (KWEngine.CurrentWorld._foliageObjects.Count > 0)
+                {
+                    RendererGBufferFoliage.Bind();
+                    RendererGBufferFoliage.RenderScene();
                 }
 
                 if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
@@ -1146,7 +1146,7 @@ namespace KWEngine3
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
                     }
 
-                    foreach (FoliageObject f in KWEngine.CurrentWorld._foliageObjects)
+                    foreach (FoliageBase f in KWEngine.CurrentWorld._foliageObjects)
                     {
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(f);
                     }

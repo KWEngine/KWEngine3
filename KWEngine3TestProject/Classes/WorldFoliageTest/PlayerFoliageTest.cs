@@ -5,7 +5,7 @@ namespace KWEngine3TestProject.Classes.WorldFoliageTest
 {
     internal class PlayerFoliageTest : GameObject
     {
-        private float _speed = 0.01f;
+        private float _speed = 0.02f;
 
         public override void Act()
         {

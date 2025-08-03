@@ -20,7 +20,7 @@ namespace KWEngine3.Renderer
         public static int UTextureNoise { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
         public static int UPatchSizeTime { get; private set; } = -1;
-        public static int UInstanceCount { get; private set; } = -1;
+        //public static int UInstanceCount { get; private set; } = -1;
         public static int UNXNZ { get; private set; } = -1;
         public static int UDXDZSwayRound { get; private set; } = -1;
         public static int UNoise { get; private set; } = -1;
@@ -29,6 +29,10 @@ namespace KWEngine3.Renderer
         public static int UTerrainHeightMap { get; private set; } = -1;
         public static int ULightConfig { get; private set; } = -1;
         public static int URoughnessMetallic { get; private set; } = -1;
+        public static int UBlockIndex { get; private set; } = -1;
+        public static int UMode { get; private set; } = -1;
+        public static int UPosScaleUV1 { get; private set; } = -1;
+        public static int UPosScaleUV2 { get; private set; } = -1;
 
         public static void Init()
         {
@@ -55,6 +59,11 @@ namespace KWEngine3.Renderer
                 GL.LinkProgram(ProgramID);
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
+                UMode = GL.GetUniformLocation(ProgramID, "uMode");
+
+                //UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");
+                //GL.UniformBlockBinding(ProgramID, UBlockIndex, 0);
+
                 UColorTintAndEmissive = GL.GetUniformLocation(ProgramID, "uColorTintEmissive");
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
@@ -65,7 +74,7 @@ namespace KWEngine3.Renderer
                 UTextureNormal = GL.GetUniformLocation(ProgramID, "uTextureNormal");
                 
                 UPatchSizeTime = GL.GetUniformLocation(ProgramID, "uPatchSizeTime");
-                UInstanceCount = GL.GetUniformLocation(ProgramID, "uInstanceCount");
+                //UInstanceCount = GL.GetUniformLocation(ProgramID, "uInstanceCount");
                 UNXNZ = GL.GetUniformLocation(ProgramID, "uNXNZ");
                 UDXDZSwayRound = GL.GetUniformLocation(ProgramID, "uDXDZSwayRound");
 
@@ -78,6 +87,9 @@ namespace KWEngine3.Renderer
                 UTextureNoise = GL.GetUniformLocation(ProgramID, "uNoiseMap");
 
                 URoughnessMetallic = GL.GetUniformLocation(ProgramID, "uRoughnessMetallic");
+
+                UPosScaleUV1 = GL.GetUniformLocation(ProgramID, "uPosScaleUV1");
+                UPosScaleUV2 = GL.GetUniformLocation(ProgramID, "uPosScaleUV2");
             }
         }
 
@@ -98,28 +110,120 @@ namespace KWEngine3.Renderer
             if (KWEngine.CurrentWorld != null)
             {
                 SetGlobals();
-                foreach (FoliageObject f in KWEngine.CurrentWorld._foliageObjects)
+                for(int i = 0; i < KWEngine.CurrentWorld._foliageObjects.Count; i++)
                 {
-                    if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpaceForRenderPass)
+                    if (KWEngine.CurrentWorld._foliageObjects[i] is FoliageObject)
                     {
-                        continue;
+                        FoliageObject f = KWEngine.CurrentWorld._foliageObjects[i] as FoliageObject;
+                        if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpaceForRenderPass)
+                        {
+                            continue;
+                        }
+                        else
+                            Draw(f);
                     }
-                    Draw(f);
+                    else
+                    {
+                        FoliageObjectCustom f = KWEngine.CurrentWorld._foliageObjects[i] as FoliageObjectCustom;
+                        if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpaceForRenderPass)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            Vector3 cntr = (f._patchSizeMax - f._patchSizeMin) * 0.5f;
+                            Vector3 camPos = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position;
+                            Vector3 delta = cntr - camPos;
+                            float camDistSq = Vector3.Dot(delta, delta);
+                            if(camDistSq < f._camDistanceMax)
+                                Draw(f);
+                        }
+                    }
                 }
             }
+        }
+
+        public static void Draw(FoliageObjectCustom f)
+        {
+            GL.Disable(EnableCap.CullFace);
+
+            GL.Uniform4(UPosScaleUV1, f._instanceCount, f._posScaleArray1);
+            GL.Uniform4(UPosScaleUV2, f._instanceCount, f._posScaleArray2);
+
+            GL.UniformMatrix4(UModelMatrix, false, ref KWEngine.Matrix4DummyIdentity);
+            GL.UniformMatrix4(UNormalMatrix, false, ref KWEngine.Matrix4DummyIdentity);
+
+            // Bind uniforms
+            GL.Uniform1(UMode, 1);
+            GL.Uniform4(UColorTintAndEmissive, f._color);
+            GL.Uniform3(UPatchSizeTime, new Vector3(0f, 0f, KWEngine.CurrentWorld.WorldTime));
+            //GL.Uniform1(UInstanceCount, (float)f._instanceCount);
+            GL.Uniform2(UNXNZ, 0, 0);
+            GL.Uniform4(UDXDZSwayRound, 0f, 0f, f._swayFactor, 1.0f);
+            GL.Uniform2(UNoise, f._noise.Length / 2, f._noise); // TODO: check if /2 really cuts it here ;-)
+
+            GL.Uniform2(URoughnessMetallic, f._roughness, 0.0f);
+
+            int val = f.IsShadowReceiver ? 1 : -1;
+            val *= f.IsAffectedByLight ? 1 : 10;
+            GL.Uniform1(ULightConfig, val);
+
+            // Bind textures
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, f._textureId != -1 ? f._textureId : KWEngine.TextureWhite);
+            GL.Uniform1(UTextureAlbedo, 0);
+
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNormalEmpty);
+            GL.Uniform1(UTextureNormal, 1);
+
+            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNoise);
+            GL.Uniform1(UTextureNoise, 2);
+
+            if (f._terrainObject != null && f._terrainObject.ID != 0)
+            {
+                GeoTerrain t = f._terrainObject._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                GL.Uniform3(UTerrainScale, (float)t.GetWidth(), (float)t.GetHeight(), (float)t.GetDepth());
+                GL.Uniform3(UTerrainPosition, f._terrainObject._stateRender._position);
+                GL.ActiveTexture(TextureUnit.Texture3);
+                GL.BindTexture(TextureTarget.Texture2D, t._texHeight);
+                GL.Uniform1(UTerrainHeightMap, 3);
+            }
+            else
+            {
+                GL.Uniform3(UTerrainScale, 0f, 0f, 0f);
+                GL.Uniform3(UTerrainPosition, 0f, 0f, 0f);
+                GL.ActiveTexture(TextureUnit.Texture3);
+                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
+                GL.Uniform1(UTerrainHeightMap, 3);
+            }
+
+            GeoMesh m = KWEngine.KWFoliageImposter.Meshes.ElementAt(0).Value;
+            GL.BindVertexArray(m.VAO);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
+            GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
+            HelperGeneral.CheckGLErrors();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
+
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            GL.Enable(EnableCap.CullFace);
         }
 
         public static void Draw(FoliageObject f)
         {
             // Bind uniforms
+            GL.Uniform1(UMode, 0);
             GL.UniformMatrix4(UModelMatrix, false, ref f._modelMatrix);
             GL.UniformMatrix4(UNormalMatrix, false, ref f._normalMatrix);
             GL.Uniform4(UColorTintAndEmissive, f._color);
             GL.Uniform3(UPatchSizeTime, new Vector3(f._patchSize.X, f._patchSize.Y, KWEngine.CurrentWorld.WorldTime));
-            GL.Uniform1(UInstanceCount, (float)f._instanceCount);
+            //GL.Uniform1(UInstanceCount, (float)f._instanceCount);
             GL.Uniform2(UNXNZ, f._nXZ);
             GL.Uniform4(UDXDZSwayRound, f._dXZ.X, f._dXZ.Y, f._swayFactor, f.IsSizeReducedAtCorners ? 0.05f : 1.0f);
-            GL.Uniform2(UNoise, f._noise.Length, f._noise);
+            GL.Uniform2(UNoise, f._noise.Length / 2, f._noise); // TODO: check if /2 really cuts it here ;-)
 
             GL.Uniform2(URoughnessMetallic, f._roughness, 0.0f);
 

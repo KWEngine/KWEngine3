@@ -1953,7 +1953,7 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        internal static int LoadTextureFromAssembly(string resourceName, Assembly assembly)
+        internal static int LoadTextureFromAssembly(string resourceName, Assembly assembly, bool noFiltering = false)
         {
             int texID = -1;
             using (Stream s = assembly.GetManifestResourceStream(resourceName))
@@ -1994,15 +1994,26 @@ namespace KWEngine3.Helper
                      OpenTK.Graphics.OpenGL4.PixelFormat.Bgr, PixelType.UnsignedByte, data);
                 }
 
-                GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                int mipMapCount = GetMaxMipMapLevels(image.Width, image.Height);
+                if (noFiltering)
+                {
+                    //GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, 0);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+                    mipMapCount = 0;
+                }
+                else
+                {
+                    GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapCount - 2));
+                    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+                }
+                
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-                int mipMapCount = GetMaxMipMapLevels(image.Width, image.Height);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapCount - 2));
 
                 image.Dispose();
                 GL.BindTexture(TextureTarget.Texture2D, 0);
@@ -2067,11 +2078,11 @@ namespace KWEngine3.Helper
             return texID;
         }
 
-        internal static int LoadTextureInternal(string filename)
+        internal static int LoadTextureInternal(string filename, bool noFiltering = false)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = "KWEngine3.Assets.Textures." + filename;
-            return LoadTextureFromAssembly(resourceName, assembly);
+            return LoadTextureFromAssembly(resourceName, assembly, noFiltering);
         }
 
         internal static int LoadTextureInternal3D(string filename)
