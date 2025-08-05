@@ -177,15 +177,17 @@ namespace KWEngine3.Audio
 
         private bool StreamIntoBuffer(int buffer)
         {
+            int bytesReadTotal = 0;
             int bytesRead = SafeCopyBytes(mSound.AudioData, mReadPosition, mTempBuffer, 0, mBytesPerBuffer);
-
+            bytesReadTotal += bytesRead;
             if (bytesRead < mBytesPerBuffer)
             {
                 if (IsLooping)
                 {
                     int delta = mBytesPerBuffer - bytesRead;
                     bytesRead = SafeCopyBytes(mSound.AudioData, 0, mTempBuffer, bytesRead, delta);
-                    mReadPosition = bytesRead;
+                    mReadPosition = delta;
+                    bytesReadTotal += delta;
                 }
                 else
                 {
@@ -193,10 +195,14 @@ namespace KWEngine3.Audio
                     byte value = mSound.WaveFormat.BitsPerSample == 16 ? (byte)0 : (byte)128;
                     Span<byte> span = mTempBuffer;
                     span.Slice(bytesRead).Fill(value);
+                    bytesReadTotal += mBytesPerBuffer - bytesRead;
                 }
             }
             else
+            {
                 mReadPosition += bytesRead;
+            }
+                
 
             lock (mTempBuffer)
             {
@@ -204,7 +210,7 @@ namespace KWEngine3.Audio
                 {
                     fixed (byte* ptr = mTempBuffer)
                     {
-                        AL.BufferData(buffer, mSound.GetFormat(), ptr, bytesRead, mSound.WaveFormat.SampleRate);
+                        AL.BufferData(buffer, mSound.GetFormat(), ptr, bytesReadTotal, mSound.WaveFormat.SampleRate);
                     }
                 }
                 AnalyseData();
