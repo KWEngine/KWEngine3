@@ -119,7 +119,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.GlowStyleFactor1 = 0.2f;
             KWEngine.GlowStyleFactor2 = 0.75f;
 
-            SetCameraPosition(-3, 0, 10f);
+            SetCameraPosition(-3, 0, 7.5f);
             SetCameraTarget(-3, 0, 0);
             SetCameraFOV(10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
