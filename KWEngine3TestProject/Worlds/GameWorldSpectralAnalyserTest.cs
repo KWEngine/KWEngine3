@@ -5,6 +5,7 @@ using KWEngine3.Audio;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using KWEngine3TestProject.Classes.WorldEQ;
+using KWEngine3TestProject.Classes;
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -118,7 +119,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.GlowStyleFactor1 = 0.2f;
             KWEngine.GlowStyleFactor2 = 0.75f;
 
-            SetCameraPosition(-3, 0, 7.5f);
+            SetCameraPosition(-3, 0, 10f);
             SetCameraTarget(-3, 0, 0);
             SetCameraFOV(10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
@@ -130,11 +131,12 @@ namespace KWEngine3TestProject.Worlds
             front.SetTexture("./Textures/EQ/Metal009_2K-PNG_NormalGL.png", TextureType.Normal);
             front.SetTexture("./Textures/EQ/Metal009_2K-PNG_Metalness.png", TextureType.Metallic);
             front.SetTexture("./Textures/EQ/Metal009_2K-PNG_Roughness.png", TextureType.Roughness);
-            front.SetScale(10, 3, 0.00001f);
+            front.SetScale(10, 10, 0.00001f);
             front.SetPosition(0, 0, -0.1f);
-            front.SetTextureRepeat(2, 1);
+            front.SetTextureRepeat(6, 6);
+            front.SetColor(0.5f, 0.5f, 0.5f);
             AddGameObject(front);
-
+            /*
             Sony s = new Sony();
             s.SetModel("Sony");
             s.SetPosition(-3.95f, 0.55f, -0.09f);
@@ -143,6 +145,7 @@ namespace KWEngine3TestProject.Worlds
             s.SetMetallic(0.5f);
             s.SetRoughness(0.6f);
             AddGameObject(s);
+            */
 
             LightObject light = new LightObjectDirectional(ShadowQuality.NoShadow);
             light.SetPosition(5, 10, 10);
@@ -190,6 +193,27 @@ namespace KWEngine3TestProject.Worlds
             const float XSIZE = 0.125f * 0.6f;
             const float YSIZE = 0.05f * 0.25f;
 
+            const float ZPOSROD = 0.055f;
+            /*
+            RenderObjectDefault rod1 = new RenderObjectDefault();
+            rod1.SetAdditionalInstanceCount(599);
+            rod1.SetModel("KWQuad");
+            rod1.IsAffectedByLight = false;
+            rod1.SetTexture("./Textures/EQ/dotmatrixpattern.png");
+            rod1.SetOpacity(0.5f);
+            rod1.SetTextureRepeat(XSIZE * 3, YSIZE * 5);
+            rod1.SetScale(XSIZE, YSIZE, 0.000001f);
+            RenderObjectDefault rod2 = new RenderObjectDefault();
+            rod2.SetAdditionalInstanceCount(599);
+            rod2.SetModel("KWQuad");
+            rod2.IsAffectedByLight = false;
+            rod2.SetTexture("./Textures/EQ/dotmatrixpattern.png");
+            rod2.SetOpacity(0.5f);
+            rod2.SetTextureRepeat(XSIZE * 3, YSIZE * 5);
+            rod2.SetScale(XSIZE, YSIZE, 0.000001f);
+            */
+
+            int counter = 0;
             // columns:
             for (int column = 0; column < _eqBlips.GetLength(0); column++)
             {
@@ -208,9 +232,49 @@ namespace KWEngine3TestProject.Worlds
                     e.HasTransparencyTexture = true;
                     AddGameObject(e);
 
+                    RenderObjectDefault rod = new RenderObjectDefault();
+                    rod.SetModel("KWQuad");
+                    rod.IsAffectedByLight = false;
+                    rod.SetTexture("./Textures/EQ/dotmatrixpattern2.png");
+                    rod.SetOpacity(HelperRandom.GetRandomNumber(0.45f, 0.55f));
+                    //rod.SetTextureRepeat(XSIZE * 3, YSIZE * 5);
+                    //rod.SetTextureOffset(HelperRandom.GetRandomNumber(0f, 1f), HelperRandom.GetRandomNumber(0f, 1f));
+                    rod.SetScale(XSIZE, YSIZE, 0.000001f);
+                    rod.SetPosition(XBASE + column * XMARGIN, YBASE + row * YMARGIN, ZPOSROD);
+                    AddRenderObject(rod);
+
+                    /*
+                    if (counter < 600)
+                    {
+                        if (counter == 0)
+                            rod1.SetPosition(XBASE + column * XMARGIN, YBASE + row * YMARGIN, ZPOSROD);
+                        else
+                        {
+                            rod1.SetPositionRotationScaleForInstance(
+                                counter,
+                                new Vector3(XBASE + column * XMARGIN, YBASE + row * YMARGIN, ZPOSROD), Quaternion.Identity, new Vector3(XSIZE, YSIZE, 0.000001f)
+                                );
+                        }
+                    }
+                    else
+                    {
+                        if (counter == 600)
+                            rod2.SetPosition(XBASE + column * XMARGIN, YBASE + row * YMARGIN, ZPOSROD);
+                        else
+                            rod2.SetPositionRotationScaleForInstance(
+                                counter - 600,
+                                new Vector3(XBASE + column * XMARGIN, YBASE + row * YMARGIN, ZPOSROD), Quaternion.Identity, new Vector3(XSIZE, YSIZE, 0.000001f)
+                                );
+                    }
+                    */
+                    counter++;
+
                     _eqBlips[column, row] = e;
                 }
             }
+
+            //AddRenderObject(rod1);
+            //AddRenderObject(rod2);
         }
     }
 }
