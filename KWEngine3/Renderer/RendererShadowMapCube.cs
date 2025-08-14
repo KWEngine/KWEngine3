@@ -22,6 +22,11 @@ namespace KWEngine3.Renderer
         public int UTextureAlbedo { get; private set; } = -1;
         public int UTextureClip { get; private set; } = -1;
 
+        public void UnbindUBO(int ubo)
+        {
+            
+        }
+
         public void Init()
         {
             if (ProgramID < 0)

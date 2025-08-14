@@ -326,7 +326,14 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            if (_disposed) return;
+            if (_disposed)
+            {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                GL.ClearColor(0, 0, 0, 1f);
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
+                SwapBuffers();
+                return;
+            }
 
             if (_worldNew != null)
             {
@@ -680,7 +687,7 @@ namespace KWEngine3
             // Final screen pass:
             Vector4 fadeColor = new Vector4(
                 Vector3.Lerp(KWEngine.CurrentWorld._fadeStatePrevious.Color, KWEngine.CurrentWorld._fadeStateCurrent.Color, alpha),
-                KWEngine.CurrentWorld._fadeStatePrevious.Factor * alpha + KWEngine.CurrentWorld._fadeStatePrevious.Factor * (1f - alpha)
+                KWEngine.CurrentWorld._fadeStatePrevious.Factor * (1f - alpha) + KWEngine.CurrentWorld._fadeStateCurrent.Factor * alpha
                 );
 
             RenderManager.BindScreen();

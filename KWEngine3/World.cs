@@ -322,7 +322,6 @@ namespace KWEngine3
                 if(f is FoliageObjectCustom)
                 {
                     (f as FoliageObjectCustom)._isInWorld = null;
-                    //(f as FoliageObjectCustom).DeleteUBO();
                 }
             }
             _foliageObjectsToBeRemoved.Clear();
@@ -343,7 +342,7 @@ namespace KWEngine3
             _foliageObjectsToBeAdded.Clear();
         }
 
-        internal void AddRemoveRenderObjects()
+        internal void AddRemoveRenderObjects(bool worldSwitch = false)
         {
             for (int i = _renderObjectsToBeRemoved.Count - 1; i >= 0; i--)
             {
@@ -357,7 +356,8 @@ namespace KWEngine3
             foreach (RenderObject r in _renderObjectsToBeRemoved)
             {
                 _renderObjects.Remove(r);
-                //r.DeleteUBO();
+                if(worldSwitch) 
+                    r.DeleteUBO();
                 r._myWorld = null;
             }
             _gameObjectsToBeRemoved.Clear();
@@ -524,7 +524,7 @@ namespace KWEngine3
             {
                 RemoveRenderObject(r);
             }
-            AddRemoveRenderObjects();
+            AddRemoveRenderObjects(true);
 
             foreach (TerrainObject t in _terrainObjects)
             {

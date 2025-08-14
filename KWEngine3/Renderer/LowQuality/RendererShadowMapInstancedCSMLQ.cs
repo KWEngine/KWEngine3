@@ -72,6 +72,10 @@ namespace KWEngine3.Renderer.LowQuality
             }
         }
 
+        public void UnbindUBO(int ubo)
+        {
+            RenderManager.UnbindUBOFromShader(ProgramID, UBlockIndex, ubo);
+        }
         public void Bind()
         {
             GL.UseProgram(ProgramID);

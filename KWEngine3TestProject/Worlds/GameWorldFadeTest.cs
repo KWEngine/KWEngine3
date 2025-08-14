@@ -25,6 +25,7 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             SetFadeColor(1f, 0f, 1f);
+            SetFadeFactor(1f);
             HUDObjectText test = new HUDObjectText("World #1");
             test.CenterOnScreen();
             AddHUDObject(test);

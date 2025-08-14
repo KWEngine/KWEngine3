@@ -25,6 +25,11 @@ namespace KWEngine3.Renderer.LowQuality
 
         }
 
+        public void UnbindUBO(int ubo)
+        {
+            
+        }
+
         public void Init()
         {
             if (ProgramID < 0)

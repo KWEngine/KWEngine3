@@ -20,6 +20,11 @@ namespace KWEngine3.Renderer
         public int UCamDirection { get; private set; } = -1;
         public int UTerrainThreshold { get; private set; } = -1;
 
+        public void UnbindUBO(int ubo)
+        {
+            
+        }
+
         public void Init()
         {
             if (ProgramID < 0)

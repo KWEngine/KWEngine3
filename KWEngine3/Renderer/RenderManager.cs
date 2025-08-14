@@ -77,12 +77,36 @@ namespace KWEngine3.Renderer
             GL.ClearColor(0, 0, 0, 0);
         }
 
+        public static void UnbindUBOFromShader(int program, int index, int ubo)
+        {
+            if (GL.IsBuffer(ubo))
+            {
+                GL.UseProgram(program);
+                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, index, 0);
+                GL.UseProgram(0);
+            }
+        }
+
+        public static void UnbindUBOFromAllInstanceShaders(int ubo)
+        {
+            RendererGBufferInstanced.Bind();
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RendererGBufferInstanced.UBlockIndex, 0);
+
+            // general shaders:
+            IRendererForwardInstanced.UnbindUBO(ubo);
+
+            // shadow map stuff:
+            IRendererShadowMapInstanced.UnbindUBO(ubo);
+            IRendererShadowMapCubeInstanced.UnbindUBO(ubo);
+            IRendererShadowMapInstancedCSM.UnbindUBO(ubo);
+        }
+
         public static void InitializeShaders()
         {
             PrimitiveQuad.Init();
             PrimitivePoint.Init();
             RendererGBuffer.Init();
-            RendererGBufferInstanced.Init();
+            RendererGBufferInstanced.Init(); // ok
             RendererTerrainGBufferNew.Init();
             RendererGBufferFoliage.Init();
             RendererForwardSimple.Init();

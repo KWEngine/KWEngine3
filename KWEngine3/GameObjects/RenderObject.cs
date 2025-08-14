@@ -1,5 +1,6 @@
 ﻿using KWEngine3.Helper;
 using KWEngine3.Model;
+using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
@@ -42,17 +43,6 @@ namespace KWEngine3.GameObjects
 
             SetAdditionalInstanceCount(0);
             InitStates();
-        }
-
-        /// <summary>
-        /// Destruktor
-        /// </summary>
-        ~RenderObject()
-        {
-            if(_ubo > 0)
-            {
-                DeleteUBO();
-            }
         }
 
         /// <summary>
@@ -286,8 +276,10 @@ namespace KWEngine3.GameObjects
         {
             if (_ubo > 0)
             {
-                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-                GL.DeleteBuffers(1, new int[] { _ubo });
+                // unbind this ubo from all shaders that might use it:
+                RenderManager.UnbindUBOFromAllInstanceShaders(_ubo);
+
+                GL.DeleteBuffer(_ubo);
                 _ubo = -1;
             }
         }

@@ -50,8 +50,12 @@ namespace KWEngine3.Renderer.LowQuality
         public float[] _uboData2;
         public int[] _uboData3;
         public int[] _indexCounts;
-        
-        
+
+        public void UnbindUBO(int ubo)
+        {
+            
+        }
+
         internal void InitUBOs()
         {
             if (_uboData == null)

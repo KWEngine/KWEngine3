@@ -19,6 +19,7 @@ namespace KWEngine3.Renderer
         public void Draw(TerrainObject t);
         public void Draw(RenderObject r);
         public void Draw(ViewSpaceGameObject vsgo);
+        public void UnbindUBO(int ubo);
 
     }
 }

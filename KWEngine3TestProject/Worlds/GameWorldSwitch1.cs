@@ -1,5 +1,6 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
+using KWEngine3TestProject.Classes;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
@@ -34,6 +35,11 @@ namespace KWEngine3TestProject.Worlds
             h = new HUDObjectText("Switch to World 2");
             h.CenterOnScreen();
             AddHUDObject(h);
+
+            RenderObjectDefault block = new RenderObjectDefault();
+            block.SetColor(1, 1, 0);
+            block.SetPosition(-3, 0, 0);
+            AddRenderObject(block);
         }
     }
 }

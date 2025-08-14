@@ -29,7 +29,12 @@ namespace KWEngine3.Renderer.LowQuality
         public int UWidths { get; private set; } = -1;
         public int UShadowCaster { get; private set; } = -1;
 
-        private const int TEXTUREOFFSET = 0;        
+        private const int TEXTUREOFFSET = 0;
+
+        public void UnbindUBO(int ubo)
+        {
+            
+        }
 
         public void Init()
         {

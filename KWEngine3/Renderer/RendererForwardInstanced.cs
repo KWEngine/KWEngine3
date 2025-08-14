@@ -49,7 +49,12 @@ namespace KWEngine3.Renderer
         public int UBlockIndex { get; private set; } = -1;
 
 
-        private const int TEXTUREOFFSET = 0;        
+        private const int TEXTUREOFFSET = 0;
+
+        public void UnbindUBO(int ubo)
+        {
+            RenderManager.UnbindUBOFromShader(ProgramID, UBlockIndex, ubo);
+        }
 
         public void Init()
         {

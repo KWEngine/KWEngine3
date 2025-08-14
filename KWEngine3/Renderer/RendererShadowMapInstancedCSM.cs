@@ -27,6 +27,10 @@ namespace KWEngine3.Renderer
 
         }
 
+        public void UnbindUBO(int ubo)
+        {
+            RenderManager.UnbindUBOFromShader(ProgramID, UBlockIndex, ubo);
+        }
         public void Init()
         {
             if (ProgramID < 0)
