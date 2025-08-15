@@ -230,7 +230,7 @@
       <Field Name="_bufferSizeMs" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>gAIIACCAIAAAAAAAEAAAAEgAAAAIAAAAADAAAAOAgAA=</HashCode>
+      <HashCode>gAIIACCAIAAAAAAAEAAAAEgAAAAIAAAAADAAAAOggAA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -317,7 +317,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="14.75" Width="2.75" />
+    <Position X="9.5" Y="15.25" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
@@ -598,21 +598,24 @@
     <Position X="9.5" Y="11.5" Width="2.75" />
     <Members>
       <Field Name="_instancePositions" Hidden="true" />
+      <Field Name="_instanceRotations" Hidden="true" />
       <Field Name="_instanceScales" Hidden="true" />
       <Field Name="_ubo" Hidden="true" />
-      <Field Name="_uboData" Hidden="true" />
-      <Method Name="~RenderObject" Hidden="true" />
+      <Field Name="_uboTempData" Hidden="true" />
       <Field Name="BYTESPERINSTANCE" Hidden="true" />
       <Method Name="DeleteUBO" Hidden="true" />
       <Method Name="GetMinMaxForBaseInstance" Hidden="true" />
       <Method Name="GetMinMaxForInstances" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
+      <Method Name="InitInstancesData" Hidden="true" />
       <Method Name="InitUBO" Hidden="true" />
       <Property Name="IsConfigured" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
+      <Method Name="WriteAllDataToUBO" Hidden="true" />
+      <Method Name="WriteDataToUBOForInstance" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AADAAAAACICAAARAABAABAAAgAgABQABAAAACEAgCAA=</HashCode>
+      <HashCode>AADAAAAACICAAATAABAABIAAgAgCQwgBAIAACkAgCAA=</HashCode>
       <FileName>GameObjects\RenderObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

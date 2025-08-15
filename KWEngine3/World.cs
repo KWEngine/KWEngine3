@@ -356,17 +356,16 @@ namespace KWEngine3
             foreach (RenderObject r in _renderObjectsToBeRemoved)
             {
                 _renderObjects.Remove(r);
-                if(worldSwitch) 
-                    r.DeleteUBO();
                 r._myWorld = null;
+                r.DeleteUBO();
             }
             _gameObjectsToBeRemoved.Clear();
 
             foreach (RenderObject r in _renderObjectsToBeAdded)
             {
                 _renderObjects.Add(r);
-                //r.ReInitUBO();
                 r._myWorld = this;
+                r.InitUBO(true);
             }
             _renderObjectsToBeAdded.Clear();
         }
@@ -1376,7 +1375,7 @@ namespace KWEngine3
                 if (!_renderObjects.Contains(r))
                 {
                     _renderObjects.Add(r);
-                    //r.ReInitUBO();
+                    r.InitUBO(true);
                     r._myWorld = this;
                 }
                 else
@@ -1408,8 +1407,8 @@ namespace KWEngine3
             if (IsPrepared == false)
             {
                 _renderObjects.Remove(r);
+                r.DeleteUBO();
                 r._myWorld = null;
-                //r.DeleteUBO();
             }
             else
             {

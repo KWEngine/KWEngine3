@@ -600,7 +600,7 @@ namespace KWEngine3.GameObjects
         /// Setzt die Position des Objekts
         /// </summary>
         /// <param name="position">Position in 3D</param>
-        public void SetPosition(Vector3 position)
+        public virtual void SetPosition(Vector3 position)
         {
             _stateCurrent._position = position;
             UpdateModelMatrixAndHitboxes();
@@ -649,7 +649,8 @@ namespace KWEngine3.GameObjects
         /// <param name="additionalRotation">hinzuzufügende Rotatation</param>
         public void AddRotation(Quaternion additionalRotation)
         {
-            _stateCurrent._rotation *= additionalRotation;
+            Quaternion tmpRotate = _stateCurrent._rotation * additionalRotation;
+            SetRotation(tmpRotate);
         }
 
         /// <summary>
@@ -662,13 +663,13 @@ namespace KWEngine3.GameObjects
             Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitX, HelperRotation.CalculateRadiansFromDegrees(r));
             if (worldSpace)
             {
-                _stateCurrent._rotation = tmpRotate * _stateCurrent._rotation;
+                tmpRotate = tmpRotate * _stateCurrent._rotation;
             }
             else
             {
-                _stateCurrent._rotation *= tmpRotate;
+                tmpRotate = _stateCurrent._rotation * tmpRotate;
             }
-            UpdateModelMatrixAndHitboxes();
+            SetRotation(tmpRotate);
         }
 
         /// <summary>
@@ -681,13 +682,13 @@ namespace KWEngine3.GameObjects
             Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitY, HelperRotation.CalculateRadiansFromDegrees(r));
             if (worldSpace)
             {
-                _stateCurrent._rotation = tmpRotate * _stateCurrent._rotation;
+                tmpRotate = tmpRotate * _stateCurrent._rotation;
             }
             else
             {
-                _stateCurrent._rotation *= tmpRotate;
+                tmpRotate = _stateCurrent._rotation * tmpRotate;
             }
-            UpdateModelMatrixAndHitboxes();
+            SetRotation(tmpRotate);
         }
 
         /// <summary>
@@ -700,32 +701,34 @@ namespace KWEngine3.GameObjects
             Quaternion tmpRotate = Quaternion.FromAxisAngle(Vector3.UnitZ, HelperRotation.CalculateRadiansFromDegrees(r));
             if (worldSpace)
             {
-                _stateCurrent._rotation = tmpRotate * _stateCurrent._rotation;
+                tmpRotate = tmpRotate * _stateCurrent._rotation;
             }
             else
             {
-                _stateCurrent._rotation *= tmpRotate;
+                tmpRotate = _stateCurrent._rotation * tmpRotate;
             }
-            UpdateModelMatrixAndHitboxes();
+            SetRotation(tmpRotate);
         }
 
         /// <summary>
         /// Setzt die Rotation mit Hilfe eines Quaternion-Objekts
         /// </summary>
         /// <param name="rotation">Rotation</param>
-        public void SetRotation(Quaternion rotation)
+        public virtual void SetRotation(Quaternion rotation)
         {
             _stateCurrent._rotation = rotation;
             UpdateModelMatrixAndHitboxes();
         }
+
         /// <summary>
         /// Setzt die Größenskalierung des Objekts entlang seiner lokalen drei Achsen
         /// </summary>
         /// <param name="x">Skalierung in x-Richtung</param>
         /// <param name="y">Skalierung in y-Richtung</param>
         /// <param name="z">Skalierung in z-Richtung</param>
-        public void SetScale(float x, float y, float z)
+        public virtual void SetScale(float x, float y, float z)
         {
+            
             _stateCurrent._scale = new Vector3(
                 Math.Max(0.000001f, x),
                 Math.Max(0.000001f, y),

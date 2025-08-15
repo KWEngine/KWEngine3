@@ -118,7 +118,10 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             KWEngine.LoadModel("Sony", "./Models/sony.obj");
+
             Audio.BufferSizeMs = 50;
+            Audio.AnalyserActive = true;
+
             KWEngine.GlowRadius = 0.018f;
             KWEngine.GlowStyleFactor1 = 0.204f;
             KWEngine.GlowStyleFactor2 = 1.000f;

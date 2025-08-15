@@ -60,7 +60,7 @@ namespace KWEngine3.GameObjects
             Mode = mode;
             instanceCount = Math.Clamp(instanceCount, 0, KWEngine.MAXADDITIONALINSTANCECOUNT);
             InstanceCount = instanceCount + 1;
-            InitUBO();
+            InitInstancesData();
         }
 
         /// <summary>
@@ -121,6 +121,38 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Position des Objekts
+        /// </summary>
+        /// <param name="position">Position in 3D</param>
+        public override void SetPosition(Vector3 position)
+        {
+            base.SetPosition(position);
+            WriteDataToUBOForInstance(0);
+        }
+
+        /// <summary>
+        /// Setzt die Größenskalierung des Objekts entlang seiner lokalen drei Achsen
+        /// </summary>
+        /// <param name="x">Skalierung in x-Richtung</param>
+        /// <param name="y">Skalierung in y-Richtung</param>
+        /// <param name="z">Skalierung in z-Richtung</param>
+        public override void SetScale(float x, float y, float z)
+        {
+            base.SetScale(x, y, z);
+            WriteDataToUBOForInstance(0);
+        }
+
+        /// <summary>
+        /// Setzt die Rotation mit Hilfe eines Quaternion-Objekts
+        /// </summary>
+        /// <param name="rotation">Rotation</param>
+        public override void SetRotation(Quaternion rotation)
+        {
+            base.SetRotation(rotation);
+            WriteDataToUBOForInstance(0);
+        }
+
+        /// <summary>
         /// Setzt die Position für eine bestimmte Instanz. Die Rotation und Skalierung der angegebenen Instanz werden zurück auf die Standardwerte gesetzt.
         /// </summary>
         /// <param name="instanceIndex">Index der Instanz (muss zwischen 1 und 1023 liegen)</param>
@@ -151,127 +183,223 @@ namespace KWEngine3.GameObjects
         /// <param name="scale">Skalierung der Instanz</param>
         public void SetPositionRotationScaleForInstance(int instanceIndex, Vector3 position, Quaternion rotation, Vector3 scale)
         {
-            if(instanceIndex <= 0)
+            if (instanceIndex <= 0)
             {
                 KWEngine.LogWriteLine("[RenderObject] Instance index must be >= 1");
                 throw new Exceptions.GameObjectException("[RenderObject] Instance index must be >= 1");
             }
-
-            if(instanceIndex > InstanceCount - 1)
+            else if (instanceIndex > InstanceCount - 1)
             {
                 KWEngine.LogWriteLine("[RenderObject] Instance index must be below instance count");
                 throw new Exceptions.GameObjectException("[RenderObject] Instance index must be < instance count");
             }
-            if(scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0)
+            else if (scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0)
             {
                 KWEngine.LogWriteLine("[RenderObject] Instance index has invalid scale value");
                 throw new Exceptions.GameObjectException("[RenderObject] Instance index has invalid scale value");
             }
+            else
+            {
+                Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref scale, ref rotation, ref position);
+                if (Mode == InstanceMode.Absolute)
+                    tmp = _stateCurrent._modelMatrixInverse * tmp;
 
-            Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref scale, ref rotation, ref position);
-            if(Mode == InstanceMode.Absolute)
-                tmp = _stateCurrent._modelMatrixInverse * tmp;
+                _instancePositions[instanceIndex] = position;
+                _instanceScales[instanceIndex] = scale;
+                _instanceRotations[instanceIndex] = rotation;
 
-            // MODEL MATRIX
-            _uboData[00] = tmp.M11;
-            _uboData[01] = tmp.M12;
-            _uboData[02] = tmp.M13;
-            _uboData[03] = tmp.M14;
-
-            _uboData[04] = tmp.M21;
-            _uboData[05] = tmp.M22;
-            _uboData[06] = tmp.M23;
-            _uboData[07] = tmp.M24;
-
-            _uboData[08] = tmp.M31;
-            _uboData[09] = tmp.M32;
-            _uboData[10] = tmp.M33;
-            _uboData[11] = tmp.M34;
-
-            _uboData[12] = tmp.M41;
-            _uboData[13] = tmp.M42;
-            _uboData[14] = tmp.M43;
-            _uboData[15] = tmp.M44;
-
-            GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
-            IntPtr ptr = IntPtr.Add(IntPtr.Zero, instanceIndex * BYTESPERINSTANCE);
-            GL.BufferSubData(BufferTarget.UniformBuffer, ptr, BYTESPERINSTANCE, _uboData);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-
-            _instancePositions[instanceIndex] = position;
-            _instanceScales[instanceIndex] = scale;
-
-            UpdateModelMatrixAndHitboxes();
+                WriteDataToUBOForInstance(instanceIndex);
+                UpdateModelMatrixAndHitboxes();
+            }
         }
 
         #region internals
         internal const int BYTESPERINSTANCE = 16 * 4; // 64 Bytes for 1 matrix
         internal int _ubo = -1;
-        internal static float[] _uboData;
+        internal static float[] _uboTempData;
 
         internal Vector3[] _instancePositions;
         internal Vector3[] _instanceScales;
-        /*
-        internal void ReInitUBO()
-        {
-            if (_ubo > 0)
-            {
-                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-                GL.DeleteBuffers(1, new int[] { _ubo });
-            }
+        internal Quaternion[] _instanceRotations;
 
-            _ubo = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
-            GL.BufferData(BufferTarget.UniformBuffer, InstanceCount * BYTESPERINSTANCE, IntPtr.Zero, BufferUsageHint.DynamicDraw);
-            for (int i = 0; i < InstanceCount; i++)
-            {
-                GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboData);
-            }
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-        }
-        */
-        internal void InitUBO()
+        internal void InitInstancesData()
         {
             _instancePositions = new Vector3[InstanceCount];
             _instanceScales = new Vector3[InstanceCount];
+            _instanceRotations = new Quaternion[InstanceCount];
 
-            _uboData = new float[BYTESPERINSTANCE / 4];
-            for(int i = 0; i < _uboData.Length; i+=16)
+            _uboTempData = new float[BYTESPERINSTANCE / 4];
+
+            for (int i = 0; i < _uboTempData.Length; i += 16)
             {
-                _uboData[i + 00] = 1f;
-                _uboData[i + 01] = 0f;
-                _uboData[i + 02] = 0f;
-                _uboData[i + 03] = 0f;
-                _uboData[i + 04] = 0f;
-                _uboData[i + 05] = 1f;
-                _uboData[i + 06] = 0f;
-                _uboData[i + 07] = 0f;
-                _uboData[i + 08] = 0f;
-                _uboData[i + 09] = 0f;
-                _uboData[i + 10] = 1f;
-                _uboData[i + 11] = 0f;
-                _uboData[i + 12] = 0f;
-                _uboData[i + 13] = 0f;
-                _uboData[i + 14] = 0f;
-                _uboData[i + 15] = 1f;
+                _uboTempData[i + 00] = 1f;
+                _uboTempData[i + 01] = 0f;
+                _uboTempData[i + 02] = 0f;
+                _uboTempData[i + 03] = 0f;
+                _uboTempData[i + 04] = 0f;
+                _uboTempData[i + 05] = 1f;
+                _uboTempData[i + 06] = 0f;
+                _uboTempData[i + 07] = 0f;
+                _uboTempData[i + 08] = 0f;
+                _uboTempData[i + 09] = 0f;
+                _uboTempData[i + 10] = 1f;
+                _uboTempData[i + 11] = 0f;
+                _uboTempData[i + 12] = 0f;
+                _uboTempData[i + 13] = 0f;
+                _uboTempData[i + 14] = 0f;
+                _uboTempData[i + 15] = 1f;
             }
-            
-            if(_ubo > 0)
+        }
+
+        internal void InitUBO(bool deletePreviousUBO)
+        {
+            if(_ubo > 0 && deletePreviousUBO)
             {
-                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-                GL.DeleteBuffers(1, new int[] { _ubo });
+                this.DeleteUBO();
             }
 
             _ubo = GL.GenBuffer();
+            WriteAllDataToUBO();
+        }
+
+        internal void WriteDataToUBOForInstance(int i)
+        {
+            if (_ubo > 0 && IsInCurrentWorld)
+            {
+                GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
+
+                if (i == 0)
+                {
+                    Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _stateCurrent._scale, ref _stateCurrent._rotation, ref _stateCurrent._position);
+                    if (Mode == InstanceMode.Absolute)
+                        tmp = _stateCurrent._modelMatrixInverse * tmp;
+
+                    // MODEL MATRIX
+                    _uboTempData[00] = tmp.M11;
+                    _uboTempData[01] = tmp.M12;
+                    _uboTempData[02] = tmp.M13;
+                    _uboTempData[03] = tmp.M14;
+
+                    _uboTempData[04] = tmp.M21;
+                    _uboTempData[05] = tmp.M22;
+                    _uboTempData[06] = tmp.M23;
+                    _uboTempData[07] = tmp.M24;
+
+                    _uboTempData[08] = tmp.M31;
+                    _uboTempData[09] = tmp.M32;
+                    _uboTempData[10] = tmp.M33;
+                    _uboTempData[11] = tmp.M34;
+
+                    _uboTempData[12] = tmp.M41;
+                    _uboTempData[13] = tmp.M42;
+                    _uboTempData[14] = tmp.M43;
+                    _uboTempData[15] = tmp.M44;
+
+                    GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
+                }
+                else
+                {
+                    Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
+                    if (Mode == InstanceMode.Absolute)
+                        tmp = _stateCurrent._modelMatrixInverse * tmp;
+
+                    // MODEL MATRIX
+                    _uboTempData[00] = tmp.M11;
+                    _uboTempData[01] = tmp.M12;
+                    _uboTempData[02] = tmp.M13;
+                    _uboTempData[03] = tmp.M14;
+
+                    _uboTempData[04] = tmp.M21;
+                    _uboTempData[05] = tmp.M22;
+                    _uboTempData[06] = tmp.M23;
+                    _uboTempData[07] = tmp.M24;
+
+                    _uboTempData[08] = tmp.M31;
+                    _uboTempData[09] = tmp.M32;
+                    _uboTempData[10] = tmp.M33;
+                    _uboTempData[11] = tmp.M34;
+
+                    _uboTempData[12] = tmp.M41;
+                    _uboTempData[13] = tmp.M42;
+                    _uboTempData[14] = tmp.M43;
+                    _uboTempData[15] = tmp.M44;
+
+                    GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
+                }
+
+                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+            }
+        }
+
+        internal void WriteAllDataToUBO()
+        {
             GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
             GL.BufferData(BufferTarget.UniformBuffer, InstanceCount * BYTESPERINSTANCE, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
             for (int i = 0; i < InstanceCount; i++)
             {
-                GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboData);
+                if(i == 0)
+                {
+                    
+                    Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _stateCurrent._scale, ref _stateCurrent._rotation, ref _stateCurrent._position);
+
+                    // MODEL MATRIX
+                    _uboTempData[00] = tmp.M11;
+                    _uboTempData[01] = tmp.M12;
+                    _uboTempData[02] = tmp.M13;
+                    _uboTempData[03] = tmp.M14;
+
+                    _uboTempData[04] = tmp.M21;
+                    _uboTempData[05] = tmp.M22;
+                    _uboTempData[06] = tmp.M23;
+                    _uboTempData[07] = tmp.M24;
+
+                    _uboTempData[08] = tmp.M31;
+                    _uboTempData[09] = tmp.M32;
+                    _uboTempData[10] = tmp.M33;
+                    _uboTempData[11] = tmp.M34;
+
+                    _uboTempData[12] = tmp.M41;
+                    _uboTempData[13] = tmp.M42;
+                    _uboTempData[14] = tmp.M43;
+                    _uboTempData[15] = tmp.M44;
+
+                    GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
+                }
+                else
+                {
+                    Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
+                    if (Mode == InstanceMode.Absolute)
+                        tmp = _stateCurrent._modelMatrixInverse * tmp;
+
+                    // MODEL MATRIX
+                    _uboTempData[00] = tmp.M11;
+                    _uboTempData[01] = tmp.M12;
+                    _uboTempData[02] = tmp.M13;
+                    _uboTempData[03] = tmp.M14;
+
+                    _uboTempData[04] = tmp.M21;
+                    _uboTempData[05] = tmp.M22;
+                    _uboTempData[06] = tmp.M23;
+                    _uboTempData[07] = tmp.M24;
+
+                    _uboTempData[08] = tmp.M31;
+                    _uboTempData[09] = tmp.M32;
+                    _uboTempData[10] = tmp.M33;
+                    _uboTempData[11] = tmp.M34;
+
+                    _uboTempData[12] = tmp.M41;
+                    _uboTempData[13] = tmp.M42;
+                    _uboTempData[14] = tmp.M43;
+                    _uboTempData[15] = tmp.M44;
+
+                    GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
+                }
             }
+
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
-        
+
         internal void DeleteUBO()
         {
             if (_ubo > 0)

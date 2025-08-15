@@ -267,6 +267,9 @@ namespace KWEngine3.Audio
 
         private void AnalyseData()
         {
+            if (Audio.AnalyserActive == false)
+                return;
+
             double sumVolume = 0;
             if (mSound.WaveFormat.BitsPerSample == 16 && mSound.WaveFormat.Channels == 2)
             {

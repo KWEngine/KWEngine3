@@ -7,18 +7,12 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3TestProject.Worlds
 {
-    internal class GameWorldRenderObjectTest : World
+    internal class GameWorldRenderObjectTest2 : World
     {
-        private float _offset = 0f;
         public override void Act()
         {
-            _offset = MathF.Sin(WorldTime) * 2f;
-            StaticObject r1 = GetRenderObjectByName<StaticObject>("Würfelpack +3X");
-            if(r1 != null)
-                r1.SetPositionRotationScaleForInstance(1, new Vector3(10, 5 + _offset, 0), Quaternion.Identity, Vector3.One);
-
-            if (Keyboard.IsKeyPressed(Keys.F2))
-                Window.SetWorld(new GameWorldRenderObjectTest2());
+            if (Keyboard.IsKeyPressed(Keys.F1))
+                Window.SetWorld(new GameWorldRenderObjectTest());
         }
 
         public override void Prepare()
@@ -27,10 +21,10 @@ namespace KWEngine3TestProject.Worlds
             SetCameraFOV(90);
             KWEngine.LoadModel("Bee", "./Models/PlatformerPack/Bee.gltf");
             SetColorAmbient(0.2f, 0.2f, 0.2f);
-            SetBackgroundFillColor(1, 0, 1);
+            SetBackgroundFillColor(1, 1, 0);
 
             PlayerFirstPerson player = new PlayerFirstPerson();
-            player.SetPosition(0, 2.5f, 25);
+            player.SetPosition(0, 2.5f, 20);
             player.SetRotation(0, 180, 0);
             player.SkipRender = true;
             SetCameraToFirstPersonGameObject(player, 0f);
@@ -39,15 +33,13 @@ namespace KWEngine3TestProject.Worlds
 
             StaticObject floor = new StaticObject();
             floor.Name = "Floor";
-            AddRenderObject(floor);
             floor.SetPosition(0, -0.5f, 0);
             floor.SetScale(50, 1, 50);
             floor.SetColor(0, 1, 0);
             floor.IsShadowCaster = true;
             floor.SetAdditionalInstanceCount(0);
-            
+            AddRenderObject(floor);
 
-            
             StaticObject r1 = new StaticObject();
             r1.Name = "Würfelpack +3X";
             r1.SetPosition(3, 2.5f, 0);
@@ -56,8 +48,6 @@ namespace KWEngine3TestProject.Worlds
             r1.SetPositionRotationScaleForInstance(1, new Vector3(10, 5, 0), Quaternion.Identity, Vector3.One);
             r1.SetPositionRotationScaleForInstance(2, new Vector3(0, 5, 0), Quaternion.Identity, Vector3.One);
             AddRenderObject(r1);
-            
-
             
             StaticObject r2 = new StaticObject();
             r2.Name = "Würfelpack -3X";

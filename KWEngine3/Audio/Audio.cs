@@ -11,6 +11,11 @@ namespace KWEngine3.Audio
         internal static byte _bufferSizeMs = 50;
 
         /// <summary>
+        /// Gibt an, ob beim Abspielen von Tönen auch die Lautstärke und Frequenzen analysiert werden
+        /// </summary>
+        public static bool AnalyserActive { get; set; } = false;
+
+        /// <summary>
         /// Gibt die Puffergröße in Millisekunden für alle Audiokanäle an (Minimum: 20ms, Standardwert: 50ms)
         /// </summary>
         /// <remarks>Es sind nur 10er-Schritte erlaubt (20, 30, usw.)</remarks>
@@ -220,7 +225,12 @@ namespace KWEngine3.Audio
         /// <returns>Analysedaten</returns>
         public static AudioAnalysis GetAudioAnalysisForChannel(int channel)
         {
-            if (channel < 0 || channel >= GLAudioEngine.MAX_CHANNELS)
+            if(!AnalyserActive)
+            {
+                KWEngine.LogWriteLine("[Audio] Global property Audio.AnalyserActive is set to false");
+                return new AudioAnalysis();
+            }
+            else if (channel < 0 || channel >= GLAudioEngine.MAX_CHANNELS)
             {
                 KWEngine.LogWriteLine("[Audio] invalid channel id");
                 return new AudioAnalysis();
@@ -237,6 +247,11 @@ namespace KWEngine3.Audio
         /// <returns></returns>
         public static bool IsNewAudioAnalysisDataAvailable(int channel, float timestampWorldOfPreviousData)
         {
+            if (!AnalyserActive)
+            {
+                KWEngine.LogWriteLine("[Audio] Global property Audio.AnalyserActive is set to false");
+                return false;
+            }
             if (channel < 0 || channel >= GLAudioEngine.MAX_CHANNELS)
             {
                 KWEngine.LogWriteLine("[Audio] invalid channel id");

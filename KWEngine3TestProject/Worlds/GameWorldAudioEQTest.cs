@@ -146,7 +146,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            Audio.BufferSizeMs = 45;
+            Audio.AnalyserActive = true;
+            Audio.BufferSizeMs = 50;
 
             SetColorAmbient(1, 1, 1);
             SetCameraPosition(0, 30, 80);
