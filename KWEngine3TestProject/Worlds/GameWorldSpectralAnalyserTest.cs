@@ -117,21 +117,21 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.LoadModel("Sony", "./Models/sony.obj");
+            //KWEngine.LoadModel("Sony", "./Models/sony.obj");
 
             Audio.BufferSizeMs = 50;
             Audio.AnalyserActive = true;
 
-            KWEngine.GlowRadius = 0.018f;
-            KWEngine.GlowStyleFactor1 = 0.204f;
-            KWEngine.GlowStyleFactor2 = 1.000f;
+            KWEngine.GlowRadius = 0.4f;
+            KWEngine.GlowStyleFactor1 = 0.065f;
+            KWEngine.GlowStyleFactor2 = 0.010f;
 
-            SetCameraPosition(-3, 0, 13.5f);
+            SetCameraPosition(-3, 0, 5.75f);
             SetCameraTarget(-3, 0, 0);
             SetCameraFOV(10);
             SetColorAmbient(0.45f, 0.45f, 0.45f);
             SetCameraRenderDistance(50);
-            
+            /*
             MetalFront front = new MetalFront();
             front.SetModel("KWQuad");
             front.SetTexture("./Textures/EQ/Metal009_2K-PNG_Color2.png");
@@ -143,19 +143,8 @@ namespace KWEngine3TestProject.Worlds
             front.SetTextureRepeat(8, 8);
             front.SetColor(0.5f, 0.5f, 0.5f);
             AddGameObject(front);
-            
-            /*
-            Sony s = new Sony();
-            s.SetModel("Sony");
-            s.SetPosition(-3.95f, 0.55f, -0.09f);
-            s.SetScale(0.15f, 0.1f, 0.5f);
-            s.SetColor(0.19f, 0.19f, 0.19f);
-            s.SetMetallic(0.5f);
-            s.SetRoughness(0.6f);
-            AddGameObject(s);
             */
-            
-
+            /*
             LightObject light = new LightObjectDirectional(ShadowQuality.NoShadow);
             light.SetPosition(1.25f, 0.25f, 5.0f);
             light.SetTarget(-2.9f, 0.0f, 0.0f);
@@ -163,6 +152,7 @@ namespace KWEngine3TestProject.Worlds
             light.SetNearFar(0.01f, 200.0f);
             light.SetFOV(45.0f);
             AddLightObject(light);
+            */
 
             GlassFront backG = new GlassFront();
             backG.SetModel("KWQuad");
@@ -174,7 +164,7 @@ namespace KWEngine3TestProject.Worlds
             backG.SetRoughness(1.0f);
             backG.SetColor(0.0f, 0.0f, 0.0f);
             AddGameObject(backG);
-
+            /*
             GlassFront frontG = new GlassFront();
             frontG.SetModel("KWQuad");
             frontG.SetScale(2, 1, 0.000001f);
@@ -185,7 +175,7 @@ namespace KWEngine3TestProject.Worlds
             frontG.SetTexture("./Textures/EQ/glass.png");
             frontG.HasTransparencyTexture = true;
             AddGameObject(frontG);
-
+            */
             GenerateBlips();
 
             _channelId = Audio.PlaySound("./SFX/stage01_main.ogg", true, 1.0f);
@@ -228,12 +218,14 @@ namespace KWEngine3TestProject.Worlds
                     RenderObjectDefault rod = new RenderObjectDefault();
                     rod.SetModel("KWQuad");
                     rod.IsAffectedByLight = false;
+                    rod.HasTransparencyTexture = true;
                     rod.SetTexture("./Textures/EQ/dotmatrixpattern2.png");
-                    rod.SetOpacity(HelperRandom.GetRandomNumber(0.45f, 0.55f));
-                    //rod.SetTextureRepeat(XSIZE * 3, YSIZE * 5);
-                    //rod.SetTextureOffset(HelperRandom.GetRandomNumber(0f, 1f), HelperRandom.GetRandomNumber(0f, 1f));
-                    rod.SetScale(XSIZE, YSIZE, 0.000001f);
-                    rod.SetPosition(XBASE + column * XMARGIN, YBASE + row * YMARGIN, ZPOSROD);
+                    rod.SetColor(1, 1, 1);
+                    rod.SetOpacity(HelperRandom.GetRandomNumber(0.15f, 0.25f));
+                    rod.SetTextureRepeat(1, 1);
+                    rod.SetTextureOffset(HelperRandom.GetRandomNumber(0f, 1f), HelperRandom.GetRandomNumber(0f, 1f));
+                    rod.SetScale(XSIZE * 0.9f, YSIZE * 0.9f, 0.000001f);
+                    rod.SetPosition(XBASE + column * XMARGIN, YBASE + row * YMARGIN, 0.0025f + 0.001f);
                     AddRenderObject(rod);
 
                     counter++;

@@ -342,6 +342,8 @@ namespace KWEngine3.GameObjects
                 {
                     
                     Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _stateCurrent._scale, ref _stateCurrent._rotation, ref _stateCurrent._position);
+                    if (Mode == InstanceMode.Absolute)
+                        tmp = _stateCurrent._modelMatrixInverse * tmp;
 
                     // MODEL MATRIX
                     _uboTempData[00] = tmp.M11;

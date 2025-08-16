@@ -13,8 +13,8 @@ namespace KWEngine3TestProject.Classes.WorldEQ
         private bool _isActivated = false;
         private const float REDUCE = 0.2f;
         private const float MAXEMISSIVE = 2.25f;
-        private const float R = 0.2f;
-        private const float G = 0.6f;
+        private const float R = 0.6f;
+        private const float G = 0.8f;
         private const float B = 1.0f;
         private bool _isTop = false;
 

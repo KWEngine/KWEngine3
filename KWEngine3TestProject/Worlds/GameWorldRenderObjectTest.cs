@@ -50,25 +50,25 @@ namespace KWEngine3TestProject.Worlds
             
             StaticObject r1 = new StaticObject();
             r1.Name = "Würfelpack +3X";
-            r1.SetPosition(3, 2.5f, 0);
+            r1.SetPosition(7.5f, 2.5f, 0);
             r1.IsShadowCaster = true;
             r1.SetAdditionalInstanceCount(2);
             r1.SetPositionRotationScaleForInstance(1, new Vector3(10, 5, 0), Quaternion.Identity, Vector3.One);
-            r1.SetPositionRotationScaleForInstance(2, new Vector3(0, 5, 0), Quaternion.Identity, Vector3.One);
+            r1.SetPositionRotationScaleForInstance(2, new Vector3(5, 5, 0), Quaternion.Identity, Vector3.One);
             AddRenderObject(r1);
             
 
             
             StaticObject r2 = new StaticObject();
             r2.Name = "Würfelpack -3X";
-            r2.SetPosition(-3, 3.5f, 0);
+            r2.SetPosition(0, 1.5f, 0);
             r2.SetRotation(45, 45, 0);
             r2.SetScale(1);
             r2.SetOpacity(0.5f);
             r2.IsShadowCaster = true;
-            r2.SetAdditionalInstanceCount(2);
-            r2.SetPositionRotationScaleForInstance(1, new Vector3(-3, 6, 0), Quaternion.Identity, Vector3.One);
-            r2.SetPositionRotationScaleForInstance(2, new Vector3(-3, 0.5f, 0), Quaternion.Identity, Vector3.One);
+            //r2.SetAdditionalInstanceCount(2);
+            //r2.SetPositionRotationScaleForInstance(1, new Vector3(-3, 6, 0), Quaternion.Identity, Vector3.One);
+            //r2.SetPositionRotationScaleForInstance(2, new Vector3(-3, 0.5f, 0), Quaternion.Identity, Vector3.One);
             AddRenderObject(r2);
             
 
