@@ -18,11 +18,11 @@
       <Field Name="_worldNew" Hidden="true" />
       <Property Name="AnisotropicFilteringLevel" Hidden="true" />
       <Field Name="DELTASFORMOVINGAVG" Hidden="true" />
+      <Method Name="DisposeInternal" Hidden="true" />
       <Method Name="GatherWeightedMovingAvg" Hidden="true" />
       <Method Name="GetMonitorHandleForPointer" Hidden="true" />
       <Field Name="lastCycleCount" Hidden="true" />
       <Field Name="MOUSEDELTAMAXSAMPLECOUNT" Hidden="true" />
-      <Method Name="OnClosing" Hidden="true" />
       <Method Name="OnKeyDown" Hidden="true" />
       <Method Name="OnKeyUp" Hidden="true" />
       <Method Name="OnLoad" Hidden="true" />
@@ -42,8 +42,18 @@
       <Method Name="UpdateDeltaTime" Hidden="true" />
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="KWEngine3.GLWindow.DisposeStatus" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>GLWindow.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QDyEBAAABUCEAQ6AUAEBgEASghoABCQAaAEEWEUuAgA=</HashCode>
+      <HashCode>QDyEBAAABUCEAQ6AUAEBAEASkhoABCQAaAEEWEWuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -470,7 +480,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="15.25" Width="2.75" />
+    <Position X="0.5" Y="16.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -720,7 +730,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="0.5" Y="17.75" Width="2.75" />
+    <Position X="0.5" Y="18.75" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />

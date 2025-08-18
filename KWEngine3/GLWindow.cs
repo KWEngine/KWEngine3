@@ -22,6 +22,9 @@ namespace KWEngine3
     /// </summary>
     public abstract class GLWindow : GameWindow
     {
+        internal enum DisposeStatus { None, Marked, Ready, Done };
+        internal DisposeStatus _disposed = DisposeStatus.None;
+
         // input related:
         internal KeyboardExt _keyboard = new();
         internal MouseExt _mouse = new();
@@ -31,8 +34,7 @@ namespace KWEngine3
         internal int _mouseScrollPosition = 0;
         internal int _mouseScrollDelta = 0;
         internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
-        internal bool _disposed = false;
-
+        
         internal void ResetMouseDeltas()
         {
             _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
@@ -326,12 +328,28 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            if (_disposed)
+            if (_disposed > DisposeStatus.None)
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 GL.ClearColor(0, 0, 0, 1f);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
                 SwapBuffers();
+
+                if(_disposed == DisposeStatus.Marked)
+                {
+                    if(KWEngine.CurrentWorld != null)
+                    {
+                        DisposeInternal();
+                    }
+                    else
+                    {
+                        _disposed = DisposeStatus.Ready;
+                    }
+                }
+                else if(_disposed == DisposeStatus.Ready)
+                {
+                    base.Close();
+                }
                 return;
             }
 
@@ -347,7 +365,6 @@ namespace KWEngine3
             if (KWEngine.CurrentWorld._mouseCursorJustGrabbed)
                 KWEngine.CurrentWorld._mouseCursorJustGrabbed = false;
 
-            
             float alpha = UpdateScene(out lastCycleCount);
             List<LightObject> pointLights = new();
             List<GameObject> gameObjectsForForwardRendering = new();
@@ -888,10 +905,7 @@ namespace KWEngine3
             Overlay.MouseScroll(e.Offset);
         }
 
-        /// <summary>
-        /// Wird ausgelöst, wenn das aktuelle Fenster geschlossen wird
-        /// </summary>
-        protected override void OnClosing(CancelEventArgs e)
+        internal void DisposeInternal()
         {
             foreach (var item in HelperDebug._renderTimesIDDict.Keys)
             {
@@ -902,10 +916,11 @@ namespace KWEngine3
 
             if (KWEngine.CurrentWorld != null)
             {
+
                 KWEngine.CurrentWorld.Dispose();
             }
             GLAudioEngine.Dispose();
-            _disposed = true;
+            _disposed = DisposeStatus.Ready;
         }
 
         /// <summary>
@@ -917,8 +932,16 @@ namespace KWEngine3
             base.OnKeyDown(e);
             if (Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4))
             {
-                this.Close();
+                Close();
             }
+        }
+
+        /// <summary>
+        /// Schließt das Anwendungsfenster
+        /// </summary>
+        public override void Close()
+        {
+            _disposed = DisposeStatus.Marked;
         }
 
         /// <summary>
