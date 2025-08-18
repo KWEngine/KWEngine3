@@ -21,6 +21,9 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
+            if(_channelId == -1 && Keyboard.IsKeyPressed(Keys.Space))
+                _channelId = Audio.PlaySound("./SFX/maninthemirror.wav", true, 1.0f);
+
             for (int i = 0; i < _eqDbs.Length; i++)
             {
                 _eqDbs[i] = MathF.Max(_eqDbs[i] - REDUCE, 0f);
@@ -177,8 +180,6 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(frontG);
             */
             GenerateBlips();
-
-            _channelId = Audio.PlaySound("./SFX/stage01_main.ogg", true, 1.0f);
         }
 
         private void GenerateBlips()
