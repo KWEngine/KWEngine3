@@ -13,6 +13,12 @@ namespace KWEngine3.Helper
         {
             while (DoRun)
             {
+                if (KWEngine.Window._disposed > GLWindow.DisposeStatus.None)
+                {
+                    DoRun = false;
+                    break;
+                }
+
                 if (KWEngine.WorldTime - WorldTimeLast > SLOTTIME)
                 {
                     UpdateFlowField();

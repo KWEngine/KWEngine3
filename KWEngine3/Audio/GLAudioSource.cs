@@ -450,6 +450,11 @@ namespace KWEngine3.Audio
         {
             while (IsPlayingOrPaused)
             {
+                if(KWEngine.Window._disposed > GLWindow.DisposeStatus.None)
+                {
+                    break;
+                }
+
                 int processed;
                 AL.GetSource(mSource, ALGetSourcei.BuffersProcessed, out processed);
 
