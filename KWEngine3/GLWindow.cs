@@ -282,8 +282,12 @@ namespace KWEngine3
             KWBuilderOverlay.InitFrameTimeQueue();
 
             IsVisible = true;
+        }
 
-            
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            if (_disposed == DisposeStatus.None) _disposed = DisposeStatus.Marked;
         }
 
         /// <summary>

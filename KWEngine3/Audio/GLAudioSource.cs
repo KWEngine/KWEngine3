@@ -53,11 +53,11 @@ namespace KWEngine3.Audio
             new float[]
             {
                 50,
-                90,
-                130,
-                176,
-                240,
-                330,
+                100,
+                150,
+                200,
+                300,
+                370,
                 450,
                 560,
                 650,
@@ -330,9 +330,11 @@ namespace KWEngine3.Audio
             Array.Clear(_magnitudesAddedPerBin);
             Array.Clear(_magnitudesPerBin);
             double sum = 0;
+            //Console.WriteLine("----------");
             for (int i = 2; i < mAnalyzeBuffer.Length / 2; i += 2)
             {
                 double binFrequency = (i - 0) * mSound.WaveFormat.SampleRate / (double)mAnalyzeBuffer.Length;
+                //Console.WriteLine(binFrequency);
                 double amp = Math.Sqrt(Math.Pow(mAnalyzeBuffer[i], 2) * Math.Pow(mAnalyzeBuffer[i + 1], 2));
                 sum += amp;
 
