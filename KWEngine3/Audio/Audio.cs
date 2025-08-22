@@ -16,7 +16,7 @@ namespace KWEngine3.Audio
         public static bool AnalyserActive { get; set; } = false;
 
         /// <summary>
-        /// Gibt die Puffergröße in Millisekunden für alle Audiokanäle an (Minimum: 20ms, Standardwert: 50ms)
+        /// Gibt die Puffergröße in Millisekunden für alle Audiokanäle an (Minimum: 20ms, Maximum: 100ms, Standardwert: 50ms)
         /// </summary>
         /// <remarks>Es sind nur 10er-Schritte erlaubt (20, 30, usw.)</remarks>
         public static byte BufferSizeMs 
@@ -26,7 +26,9 @@ namespace KWEngine3.Audio
             {
                 if (value < 20)
                     _bufferSizeMs = 20;
-                else 
+                else if(value > 100)
+                    _bufferSizeMs = 100;
+                else
                 {
                     _bufferSizeMs = (byte)((value + 9) / 10 * 10);
                 }

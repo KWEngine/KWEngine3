@@ -71,9 +71,9 @@ namespace KWEngine3.Audio
                 7700,
                 11000,
                 14000,
-                22050
+                24000
             };
-
+      
         public GLAudioSource()
         {
             mSource = AL.GenSource();
@@ -139,15 +139,12 @@ namespace KWEngine3.Audio
                     mBytesTotal = sound.AudioData.Length;
                     mBytesPerBuffer = CalculateBytesPerBuffer();
                     mTempBuffer = new byte[mBytesPerBuffer];
-                    //byte value = 0;
-                    //if (mSound.WaveFormat.BitsPerSample == 8) value = 128;
-                    //_empty = new byte[mTempBuffer.Length];
-                    //Array.Fill(_empty, value);
 
                     EraseBuffers();
 
                     int bytesInPublicBuffer = mBytesPerBuffer / mSound.WaveFormat.Channels / (mSound.WaveFormat.BitsPerSample == 16 ? 2 : 1);
                     mAnalyzeBuffer = new double[HelperTexture.RoundDownToPowerOf2(bytesInPublicBuffer)];
+                    DistributeFrequencyBands(2f * mSound.WaveFormat.SampleRate / (float)mAnalyzeBuffer.Length);
                 }
             }
             else
@@ -156,17 +153,40 @@ namespace KWEngine3.Audio
                 mBytesTotal = sound.AudioData.Length;
                 mBytesPerBuffer = CalculateBytesPerBuffer();
                 mTempBuffer = new byte[mBytesPerBuffer];
-                //byte value = 0;
-                //if (mSound.WaveFormat.BitsPerSample == 8) value = 128;
-                //_empty = new byte[mTempBuffer.Length];
-                //Array.Fill(_empty, value);
 
                 EraseBuffers();
 
                 int bytesInPublicBuffer = mBytesPerBuffer / mSound.WaveFormat.Channels / (mSound.WaveFormat.BitsPerSample == 16 ? 2 : 1);
                 mAnalyzeBuffer = new double[HelperTexture.RoundDownToPowerOf2(bytesInPublicBuffer)];
+                DistributeFrequencyBands(2f * mSound.WaveFormat.SampleRate / (float)mAnalyzeBuffer.Length);
             }
             mReadPosition = 0;
+        }
+
+        private void DistributeFrequencyBands(float minstep)
+        {
+            minstep = MathF.Ceiling(minstep);
+            _binFrequencyMaximums[00] = minstep;
+            _binFrequencyMaximums[01] = minstep * 2;
+            _binFrequencyMaximums[02] = minstep * 3;
+            _binFrequencyMaximums[03] = minstep * 4;
+            _binFrequencyMaximums[04] = minstep * 5;
+            _binFrequencyMaximums[05] = minstep * 6;
+            _binFrequencyMaximums[06] = minstep * 7;
+            _binFrequencyMaximums[07] = minstep * 8;
+            _binFrequencyMaximums[08] = minstep * 9;
+            _binFrequencyMaximums[09] = minstep * 10;
+
+            _binFrequencyMaximums[10] = minstep * 11;
+            _binFrequencyMaximums[11] = minstep * 13;
+            _binFrequencyMaximums[12] = minstep * 16;
+            _binFrequencyMaximums[13] = minstep * 20;
+            _binFrequencyMaximums[14] = minstep * 26;
+            _binFrequencyMaximums[15] = minstep * 34;
+            _binFrequencyMaximums[16] = minstep * 50;
+            _binFrequencyMaximums[17] = minstep * 68;
+            _binFrequencyMaximums[18] = minstep * 90;
+            _binFrequencyMaximums[19] = 24000f;
         }
 
         private int CalculateBytesPerBuffer()
@@ -330,17 +350,16 @@ namespace KWEngine3.Audio
             Array.Clear(_magnitudesAddedPerBin);
             Array.Clear(_magnitudesPerBin);
             double sum = 0;
-            //Console.WriteLine("----------");
+
             for (int i = 2; i < mAnalyzeBuffer.Length / 2; i += 2)
             {
-                double binFrequency = (i - 0) * mSound.WaveFormat.SampleRate / (double)mAnalyzeBuffer.Length;
+                double binFrequency = i * mSound.WaveFormat.SampleRate / (double)mAnalyzeBuffer.Length;
                 //Console.WriteLine(binFrequency);
                 double amp = Math.Sqrt(Math.Pow(mAnalyzeBuffer[i], 2) * Math.Pow(mAnalyzeBuffer[i + 1], 2));
                 sum += amp;
 
                 double reference = 1e-6;
                 float db = (float)(20 * Math.Log10(Math.Max(amp, reference) / reference));
-                //Console.WriteLine(binFrequency + ": " + amp + " (" + db + "dB)");
 
                 if (binFrequency < _binFrequencyMaximums[0])
                 {
