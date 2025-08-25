@@ -99,7 +99,7 @@ namespace KWEngine3.Renderer
                 {
                     GL.Uniform3(UCenter, f.Grid[x, z].Position);
 
-                    Matrix4 rm = Matrix4.CreateRotationX((float)(Math.PI / 2));
+                    Matrix4 rm = Matrix4.CreateRotationX(-(MathF.PI / 2f));
                     GL.ActiveTexture(TextureUnit.Texture0);
                     if (f.Grid[x, z]._gridIndex == f.Destination._gridIndex)
                     {
