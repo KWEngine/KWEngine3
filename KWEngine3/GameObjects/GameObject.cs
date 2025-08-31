@@ -639,6 +639,48 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Prüft auf Kollisionen mit umgebenden GameObject-Instanzen bestimmter Typen
+        /// </summary>
+        /// <param name="types">Liste der zu betrachtenden Klassen</param>
+        /// <returns>Liste mit gefundenen Kollisionen</returns>
+        public List<Intersection> GetIntersections(params Type[] types)
+        {
+            List<Intersection> intersections = new();
+            if (_isCollisionObject == false)
+            {
+                KWEngine.LogWriteLine("GameObject " + ID + " is not a collision object.");
+                return intersections;
+            }
+            else if (ID <= 0)
+                return intersections;
+
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
+            {
+                if (!HelperGeneral.IsObjectClassOrSubclassOfTypes(types, hbother.Owner) || hbother.Owner.ID <= 0)
+                {
+                    continue;
+                }
+                
+                foreach (GameObjectHitbox hbcaller in _colliderModel._hitboxes)
+                {
+                    if (hbother._colliderType == ColliderType.PlaneCollider)
+                    {
+                        List<Intersection> intersectionsTemp = HelperIntersection.TestIntersectionsWithPlaneCollider(hbcaller, hbother, Vector3.Zero);
+                        if (intersectionsTemp.Count > 0)
+                            intersections.AddRange(intersectionsTemp);
+                    }
+                    else
+                    {
+                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother, Vector3.Zero);
+                        if (i != null)
+                            intersections.Add(i);
+                    }
+                }
+            }
+            return intersections;
+        }
+
+        /// <summary>
         /// Prüft auf Kollisionen mit umgebenden GameObject-Instanzen eines bestimmten Typs
         /// </summary>
         /// <param name="offset">Optionale Verschiebung der Hitbox</param>
