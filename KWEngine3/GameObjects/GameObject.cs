@@ -588,6 +588,57 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Prüft auf Kollisionen mit umgebenden GameObject-Instanzen bestimmter Typen
+        /// </summary>
+        /// <param name="offset">Optionale Verschiebung der Hitbox</param>
+        /// <param name="mode">Gibt an, ob die Kollisionsmessung auf einen bestimmten Hitboxtyp eingegrenzt werden soll (Standard: CheckAllHitboxTypes)</param>
+        /// <param name="types">Liste der zu betrachtenden Klassen</param>
+        /// <returns>Liste mit gefundenen Kollisionen</returns>
+        public List<Intersection> GetIntersections(Vector3 offset, IntersectionTestMode mode = IntersectionTestMode.CheckAllHitboxTypes, params Type[] types)
+        {
+            List<Intersection> intersections = new();
+            if (_isCollisionObject == false)
+            {
+                KWEngine.LogWriteLine("GameObject " + ID + " is not a collision object.");
+                return intersections;
+            }
+            else if (ID <= 0)
+                return intersections;
+
+            foreach (GameObjectHitbox hbother in _collisionCandidates)
+            {
+                if (!HelperGeneral.IsObjectClassOrSubclassOfTypes(types, hbother.Owner) || hbother.Owner.ID <= 0)
+                {
+                    continue;
+                }
+                if (mode != IntersectionTestMode.CheckAllHitboxTypes)
+                {
+                    if (mode == IntersectionTestMode.CheckConvexHullsOnly && hbother._colliderType != ColliderType.ConvexHull)
+                        continue;
+                    else if (mode == IntersectionTestMode.CheckPlanesOnly && hbother._colliderType != ColliderType.PlaneCollider)
+                        continue;
+                }
+
+                foreach (GameObjectHitbox hbcaller in _colliderModel._hitboxes)
+                {
+                    if (hbother._colliderType == ColliderType.PlaneCollider)
+                    {
+                        List<Intersection> intersectionsTemp = HelperIntersection.TestIntersectionsWithPlaneCollider(hbcaller, hbother, offset);
+                        if (intersectionsTemp.Count > 0)
+                            intersections.AddRange(intersectionsTemp);
+                    }
+                    else
+                    {
+                        Intersection i = HelperIntersection.TestIntersection(hbcaller, hbother, offset);
+                        if (i != null)
+                            intersections.Add(i);
+                    }
+                }
+            }
+            return intersections;
+        }
+
+        /// <summary>
         /// Prüft auf Kollisionen mit umgebenden GameObject-Instanzen eines bestimmten Typs
         /// </summary>
         /// <param name="offset">Optionale Verschiebung der Hitbox</param>
