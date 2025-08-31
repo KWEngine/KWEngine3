@@ -66,12 +66,20 @@ namespace KWEngine3TestProject.Worlds
             p01.SetRotation(0, 180, 0);
             p01.SetHitboxToCapsule();
             AddGameObject(p01);
+
+            CollisionChecker cc = new CollisionChecker();
+            cc.SetModel("KWSphere");
+            cc.IsCollisionObject = true;
+            cc.SkipRender = true;
+            cc.SetScale(0.5f);
+            AddGameObject(cc);
+            p01.SetCollisionChecker(cc);
             
             
 
             Immovable box01 = new Immovable();
             box01.SetScale(2);
-            box01.SetPosition(4, 1, -4);
+            box01.SetPosition(4, 10, -4);
             box01.IsCollisionObject = true;
             box01.IsShadowCaster = true;
             AddGameObject(box01);
@@ -83,7 +91,7 @@ namespace KWEngine3TestProject.Worlds
             */
 
             
-            LightObject sun = new LightObjectSun(ShadowQuality.High, SunShadowType.Default);
+            LightObject sun = new LightObjectSun(ShadowQuality.Medium, SunShadowType.Default);
             sun.Name = "Sun";
             sun.SetFOV(32);
             sun.SetNearFar(1, 200);
@@ -99,7 +107,7 @@ namespace KWEngine3TestProject.Worlds
             t.SetTexture("./Textures/sand_normal.dds", TextureType.Normal);
             t.SetTextureRepeat(1, 1);
             t.IsCollisionObject = true;
-            t.IsShadowCaster = true;
+            //t.IsShadowCaster = true;
             t.SetColor(1, 0, 0);
             t.Name = "t";
             t.TessellationThreshold = TerrainThresholdValue.T64;

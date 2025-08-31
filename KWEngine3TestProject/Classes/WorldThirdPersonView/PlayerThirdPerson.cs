@@ -13,6 +13,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
     {
         private float _rotationScaleFactor = 1f;
         private Vector2 _currentCameraRotation = new Vector2(0, -5);
+        private float _currentCameraDistance = 20f;
         private float _limitYUp = 5;
         private float _limitYDown = -75;
         private PlayerState _state = PlayerState.Fall;
@@ -25,12 +26,18 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
         private bool _debug = false;
 
         private AimingSphere _aimingSphere = null;
+        private CollisionChecker _cc = null;
 
         private enum PlayerState
         {
             OnFloor = 0,
             Jump = 2,
             Fall = 3
+        }
+
+        public void SetCollisionChecker(CollisionChecker cc)
+        {
+            this._cc = cc;
         }
 
         public void SetAimingSphere(AimingSphere g)
@@ -291,27 +298,77 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             }
             // Erfrage aktuelle Blickrichtung und Position der Spielfigur:
             Vector3 lookAtVector = LookAtVector;
-            Vector3 playerPosition = Center;
+            Vector3 playerPosition = Center - this.LookAtVectorLocalRight * 5;
+
             // Berechne für Kameraposition und -ziel einen individuellen Offset-Wert:
+            /*
             float lav_factor = (0.00012f * (_currentCameraRotation.Y * _currentCameraRotation.Y) + 0.02099f * _currentCameraRotation.Y + 0.89190f);
             float lav_factor2 = _currentCameraRotation.Y >= -15 ? (_currentCameraRotation.Y + 15) / 20f : 0f;
             Vector3 offsetCamPos = HelperRotation.RotateVector(lookAtVector, 90, Plane.XZ) + lookAtVector * 5 * lav_factor;
             Vector3 offsetCamTarget = HelperRotation.RotateVector(lookAtVector, 90, Plane.XZ) + lookAtVector * 2 + Vector3.UnitY * 2 * lav_factor2;
+            */
 
             // Berechne die neue Kameraposition anhand der gesammelten Infos:
             Vector3 newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
                     playerPosition,                  // Drehpunkt
-                    20f,                             // Distanz zum Drehpunkt
+                    _currentCameraDistance,                             // Distanz zum Drehpunkt
                     _currentCameraRotation.X,        // Drehung links/rechts
                     _currentCameraRotation.Y,        // Drehung oben/unten
                     false,                           // invertiere links/rechts?
                     false                            // invertiere oben/unten?
             );
             // Setze die neue Kameraposition und das Kameraziel:
-            CurrentWorld.SetCameraPosition(newCamPos + offsetCamPos);
-            CurrentWorld.SetCameraTarget(playerPosition + offsetCamTarget);
+            CurrentWorld.SetCameraPosition(newCamPos);
+            CurrentWorld.SetCameraTarget(playerPosition);
 
-            
+
+            if (_cc != null)
+            {
+                _cc.SetPosition(newCamPos);
+
+                RayTerrainIntersection rti = HelperIntersection.RaytraceTerrainBelowPosition(newCamPos);
+                if(rti.IsValid)
+                {
+                    //Console.WriteLine("cc distance to terrain: " + rti.Distance);
+                    if(rti.Distance < 1f)
+                    {
+                        float newHeight = rti.IntersectionPoint.Y + 1f;
+                        newCamPos.Y = newHeight;
+                        _cc.SetPositionY(newHeight);
+                        CurrentWorld.SetCameraPosition(newCamPos);
+
+                        ArcballRotation arc = HelperRotation.GetArcballRotation(_cc.Position, playerPosition);
+                        if (arc.IsValid)
+                        {
+                            _currentCameraRotation.X = arc.XAngle;
+                            _currentCameraRotation.Y = arc.YAngle;
+                        }
+                    }
+                }
+
+                
+
+                List<Intersection> intersections = HelperIntersection.GetIntersectionsForAllObjects<Immovable>(_cc);
+                if (intersections.Count > 0)
+                {
+                    foreach (Intersection intersection in intersections)
+                    {
+                        _cc.MoveOffset(intersection.MTVUpToTop);
+                    }
+                    CurrentWorld.SetCameraPosition(_cc.Position);
+
+                    ArcballRotation arc = HelperRotation.GetArcballRotation(_cc.Position, playerPosition);
+                    if (arc.IsValid)
+                    {
+                        _currentCameraRotation.X = arc.XAngle;
+                        _currentCameraRotation.Y = arc.YAngle;
+                        _currentCameraDistance = arc.Distance;
+                    }
+                }
+                
+
+                //Console.WriteLine("---");
+            }
         }
     }
 }

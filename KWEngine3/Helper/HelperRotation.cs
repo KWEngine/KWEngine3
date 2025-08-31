@@ -233,6 +233,44 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Berechnet aus einem Welt-Punkt und dem dazugehörigen Drehpunkt die Arcball-Rotation
+        /// in Grad (pitch = X-Winkel, yaw = Y-Winkel).
+        /// </summary>
+        /// <param name="point">Position des Punktes</param>
+        /// <param name="pivot">Drehpunkt</param>
+        /// <param name="invertX">invertiert die Links-Rechts-Rotation, wenn aktiv</param>
+        /// <param name="invertY">invertiert die Oben-Unten-Rotation, wenn aktiv</param>
+        /// <returns>
+        /// Informationsobjekt mit den berechneten Werten
+        /// </returns>
+        public static ArcballRotation GetArcballRotation(Vector3 point, Vector3 pivot, bool invertX = false, bool invertY = false)
+        {
+            ArcballRotation result = new ArcballRotation();
+
+            Vector3 dir = point - pivot;
+            if (dir.LengthSquared < float.Epsilon)
+                return result;
+
+            result.Distance = dir.LengthFast;
+            result.IsValid = true;
+
+            dir.NormalizeFast();
+
+            float yaw = MathF.Atan2(dir.X, dir.Z);
+
+            float lengthXZ = MathF.Sqrt(dir.X * dir.X + dir.Z * dir.Z);
+            float pitch = MathF.Atan2(dir.Y, lengthXZ);
+
+            float pitchDeg = MathHelper.RadiansToDegrees(pitch);
+            float yawDeg = MathHelper.RadiansToDegrees(yaw);
+
+            result.XAngle = yawDeg * (invertX ? 1f : -1f);
+            result.YAngle = pitchDeg * (invertY ? 1f : -1f);
+
+            return result;
+        }
+
+        /// <summary>
         /// Berechnet die neue Kameraposition in Abhängigkeit der Mausbewegung.
         /// </summary>
         /// <param name="pivot">Dreh- und Angelpunkt</param>

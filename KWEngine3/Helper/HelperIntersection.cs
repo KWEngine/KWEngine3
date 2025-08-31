@@ -13,6 +13,80 @@ namespace KWEngine3.Helper
     public static class HelperIntersection
     {
         /// <summary>
+        /// Prüft auf eine Strahlenkollision mit einem Terrain-Objekt direkt unterhalb der angegebenen Position
+        /// </summary>
+        /// <param name="position">Startposition des nach unten gerichteten Teststrahls</param>
+        /// <returns>Ergebnis der Strahlenkollisionsmessung</returns>
+        public static RayTerrainIntersection RaytraceTerrainBelowPosition(Vector3 position)
+        {
+            RayTerrainIntersection intersectionResult = new RayTerrainIntersection();
+            Vector3[] rayOrigins = GameObject._rayOrigins1;
+            rayOrigins[0] = position;
+
+            foreach (TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
+            {
+                if (!to.IsCollisionObject)
+                {
+                    continue;
+                }
+                else if (!IsPointInsideRectangle(position, to._stateCurrent._position, to.Width, to.Depth))
+                {
+                    continue;
+                }
+
+                GeoTerrain terrain = to._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                foreach (Vector3 ray in rayOrigins)
+                {
+                    Vector3 untranslatedPosition = ray - new Vector3(to._hitboxes[0]._center.X, to._stateCurrent._position.Y, to._hitboxes[0]._center.Z);
+
+                    if (terrain._collisionModeNew)
+                    {
+                        bool result = GetHeightUnderneathUntranslatedPosition(
+                            untranslatedPosition,
+                            to,
+                            out float height,
+                            out Vector3 normal
+                            );
+                        if (result)
+                        {
+                            Vector3 contactPoint = new(ray.X, height, ray.Z);
+                            float distance = ray.Y - height;
+                            intersectionResult.Object = to;
+                            intersectionResult.Distance = distance;
+                            intersectionResult.IntersectionPoint = contactPoint;
+                            intersectionResult.SurfaceNormal = normal;
+                            return intersectionResult;
+                        }
+                    }
+                    else
+                    {
+                        if (to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+                        {
+                            GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                            if (tris.HasValue)
+                            {
+                                bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                                if (hit)
+                                {
+                                    float distance = (untranslatedPosition - contactPoint).Y;
+
+                                    contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
+
+                                    intersectionResult.Object = to;
+                                    intersectionResult.Distance = distance;
+                                    intersectionResult.IntersectionPoint = contactPoint;
+                                    intersectionResult.SurfaceNormal = Vector3.UnitY;
+                                    return intersectionResult;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return intersectionResult;
+        }
+
+        /// <summary>
         /// Ermittelt für die angegebenen Bildschirmkoordinaten, wo diese Koordinaten in der 3D-Welt liegen
         /// </summary>
         /// <param name="screenposX">X-Bildschirmkoordinate (relativ zum Anwendungsfenster, in Pixeln)</param>
@@ -186,23 +260,39 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Prüft auf Kollisionen für ein Objekt g in Kombinationen mit allen (auch geplanten) anderen GameObject-Instanzen
+        /// Prüft auf Kollisionen für das im Parameter angegebene GameObject in Kombinationen mit allen anderen GameObject-Instanzen
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">GameObject-Datentyp, der geprüft werden soll (nur Objekte dieses Typs werden berücksichtigt)</typeparam>
         /// <param name="gameObject">Instanz, für die auf Kollisionen geprüft werden soll</param>
         /// <returns>Liste der Kollisionen</returns>
         public static List<Intersection> GetIntersectionsForAllObjects<T>(GameObject gameObject) where T : GameObject
         {
             List<Intersection> intersections = new List<Intersection>();
+            List<GameObject> testObjects = new List<GameObject>();
 
             foreach(GameObject g in KWEngine.CurrentWorld._gameObjectsToBeAdded)
             {
                 if(g == gameObject)
                     continue;
-                
+
+                if(HelperGeneral.IsObjectClassOrSubclassOfType<T>(g))
+                    testObjects.Add(g);
+            }
+
+            foreach(GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (g == gameObject)
+                    continue;
+
+                if (HelperGeneral.IsObjectClassOrSubclassOfType<T>(g))
+                    testObjects.Add(g);
+            }
+
+            foreach(GameObject g in testObjects)
+            {
                 foreach (GameObjectHitbox hbCaller in gameObject._colliderModel._hitboxes)
                 {
-                    foreach(GameObjectHitbox hbother in g._colliderModel._hitboxes)
+                    foreach (GameObjectHitbox hbother in g._colliderModel._hitboxes)
                     {
                         Intersection i = TestIntersection(hbCaller, hbother, HelperVector.VectorZero);
                         if (i != null)

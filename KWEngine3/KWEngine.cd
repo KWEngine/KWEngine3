@@ -23,6 +23,7 @@
       <Method Name="GetMonitorHandleForPointer" Hidden="true" />
       <Field Name="lastCycleCount" Hidden="true" />
       <Field Name="MOUSEDELTAMAXSAMPLECOUNT" Hidden="true" />
+      <Method Name="OnClosing" Hidden="true" />
       <Method Name="OnKeyDown" Hidden="true" />
       <Method Name="OnKeyUp" Hidden="true" />
       <Method Name="OnLoad" Hidden="true" />
@@ -53,7 +54,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QDyEBAAABUCEAQ6AUAEBAEASkhoABCQAaAEEWEWuAgA=</HashCode>
+      <HashCode>QDyEBAAABUCEAQ6AUAEBgEASkhoABCQAaAEEWEWuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -430,12 +431,12 @@
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DQCQAhQAALWigCQAsEQASEKEQQAgBLhGALGCABYLZIg=</HashCode>
+      <HashCode>DQCQAhQAALWigCQAsEQAWEKEQQAgBLhGALGCABYLZIg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="17.5" Width="2.75" />
+    <Position X="21.5" Y="18" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -446,7 +447,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="21.5" Y="6.5" Width="2.75" />
+    <Position X="21.5" Y="6.75" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -460,12 +461,12 @@
       <Field Name="zeroVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFLAIDAAg0AAAAAQAACggA=</HashCode>
+      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFLAIDAAg0AAAAASAACggA=</HashCode>
       <FileName>Helper\HelperRotation.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="10.25" Width="2.75" />
+    <Position X="21.5" Y="10.75" Width="2.75" />
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="ConvertVector2DToOpenTK" Hidden="true" />
@@ -696,7 +697,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="21.5" Y="15.5" Width="2.75" />
+    <Position X="21.5" Y="16" Width="2.75" />
     <Members>
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
@@ -803,7 +804,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperTexture">
-    <Position X="21.5" Y="19" Width="2.75" />
+    <Position X="21.5" Y="19.5" Width="2.75" />
     <Members>
       <Method Name="CheckFBXNestedList" Hidden="true" />
       <Method Name="CheckFBXNestedListNew" Hidden="true" />
