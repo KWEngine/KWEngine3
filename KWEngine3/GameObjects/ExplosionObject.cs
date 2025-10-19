@@ -212,7 +212,7 @@ namespace KWEngine3.GameObjects
                 _secondsAlive = currentTime - _starttime;
                 if(_secondsAlive > _duration)
                 {
-                    _done = true;
+                    Finished = true;
                 }
             }
         }

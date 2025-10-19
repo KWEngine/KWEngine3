@@ -152,14 +152,14 @@ namespace KWEngine3.GameObjects
 
                 if (_aliveInMS > _durationInMS)
                 {
-                    _done = true;
+                    Finished = true;
                 }
             }
             else
             {
                 if (_frame > _info.Samples - 1)
                 {
-                    _done = true;
+                    Finished = true;
                 }
             }
 

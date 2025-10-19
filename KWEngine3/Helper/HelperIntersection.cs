@@ -13,6 +13,17 @@ namespace KWEngine3.Helper
     public static class HelperIntersection
     {
         /// <summary>
+        /// Prüft, ob sich die achsenparallelen Hitboxen zweier Objekte in den XZ-Achsen schneiden
+        /// </summary>
+        /// <param name="a">Objekt A</param>
+        /// <param name="b">Objekt B</param>
+        /// <returns>true, wenn sich die AABB-Hitboxen in den XZ-Achsen überschneiden</returns>
+        public static bool IsAABBIntersectingXZ(GameObject a, GameObject b)
+        {
+            return CheckAABBCollision(a.AABBLeft, a.AABBRight, a.AABBBack, a.AABBFront, b.AABBLeft, b.AABBRight, b.AABBBack, b.AABBFront);
+        }
+
+        /// <summary>
         /// Prüft auf eine Strahlenkollision mit einem Terrain-Objekt direkt unterhalb der angegebenen Position
         /// </summary>
         /// <param name="position">Startposition des nach unten gerichteten Teststrahls</param>

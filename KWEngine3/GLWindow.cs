@@ -284,6 +284,10 @@ namespace KWEngine3
             IsVisible = true;
         }
 
+        /// <summary>
+        /// Wird ausgeführt, kurz bevor sich das Fenster schließt
+        /// </summary>
+        /// <param name="e">Parameter</param>
         protected override void OnClosing(CancelEventArgs e)
         {
             base.OnClosing(e);
@@ -1247,7 +1251,7 @@ namespace KWEngine3
                     for (int i = KWEngine.CurrentWorld._particleAndExplosionObjects.Count - 1; i >= 0; i--)
                     {
                         TimeBasedObject tbo = KWEngine.CurrentWorld._particleAndExplosionObjects[i];
-                        if (tbo._done)
+                        if (tbo.Finished)
                             KWEngine.CurrentWorld._particleAndExplosionObjects.Remove(tbo);
                         else
                         {

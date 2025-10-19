@@ -54,13 +54,23 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Prüft, ob die Richtung dieses Vektors hauptsächlich in die positive Y-Achse zeigt (also aufwärts)
+        /// Prüft, ob die Richtung dieses Vektors hauptsächlich in die positive Y-Achse (also aufwärts) zeigt 
         /// </summary>
         /// <param name="v">zu prüfender Vektor</param>
         /// <returns>true, wenn dieser Vektor hauptsächlich nach oben zeigt</returns>
         public static bool IsVectorPointingUpward(Vector3 v)
         {
             return v.Y > 0 && Math.Abs(v.X) < v.Y && Math.Abs(v.Z) < v.Y;
+        }
+
+        /// <summary>
+        /// Prüft, ob die Richtung dieses Vektors hauptsächlich in die negative Y-Achse (also abwärts) zeigt 
+        /// </summary>
+        /// <param name="v">zu prüfender Vektor</param>
+        /// <returns>true, wenn dieser Vektor hauptsächlich nach oben zeigt</returns>
+        public static bool IsVectorPointingDownward(Vector3 v)
+        {
+            return v.Y < 0 && Math.Abs(v.X) < -v.Y && Math.Abs(v.Z) < -v.Y;
         }
 
         /// <summary>

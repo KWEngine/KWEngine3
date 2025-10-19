@@ -8,22 +8,37 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldParticleTest : World
     {
+        private List<ParticleObject> _objects;
+
         private float _time = 0f;
         public override void Act()
         {
             if(_time == 0f || WorldTime - _time > 3f)
             {
-                ParticleObject p = new ParticleObject(2, ParticleType.BurstFire1);
+                ParticleObject p = new ParticleObject(2, ParticleType.LoopSmoke1);
                 p.SetPosition(0, 3, 0);
                 p.SetHue(200);
+                p.SetDuration(3);
                 AddParticleObject(p);
+                _objects.Add(p);
 
                 _time = WorldTime;
+            }
+
+            if(Keyboard.IsKeyPressed(Keys.Q))
+            {
+                foreach(ParticleObject p in _objects)
+                {
+                    RemoveParticleObject(p);
+                }
+                _objects.Clear();
             }
         }
 
         public override void Prepare()
         {
+            _objects = new List<ParticleObject>();
+
             SetCameraFOV(10);
             SetCameraPosition(0, 2, 50);
             SetCameraTarget(0, 2, 0);

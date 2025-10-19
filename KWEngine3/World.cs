@@ -543,6 +543,8 @@ namespace KWEngine3
             }
             AddRemoveTextObjects();
 
+            _particleAndExplosionObjects.Clear();
+
             KWEngine.DeleteCustomModelsFontsAndTexturesFromCurrentWorld();
 
             _eventQueue.Clear();
@@ -1298,6 +1300,20 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Entfernt ein Partikelobjekt (vorzeitig) aus der Welt
+        /// </summary>
+        /// <param name="p">zu entfernendes Partikelobjekt</param>
+        public void RemoveParticleObject(ParticleObject p)
+        {
+            int index = _particleAndExplosionObjects.IndexOf(p);
+            if(index >= 0)
+            {
+                (_particleAndExplosionObjects[index] as ParticleObject).SetDuration(0.000001f);
+                _particleAndExplosionObjects[index].Finished = true;
+            }
+        }
+
+        /// <summary>
         /// Löscht das angegebene Objekt aus der Welt
         /// </summary>
         /// <param name="g">Objekt</param>
@@ -2037,6 +2053,10 @@ namespace KWEngine3
         /// </summary>
         public static GLWindow Window { get { return KWEngine.Window; } }
 
+        /// <summary>
+        /// FOV-Wert der Kamera
+        /// </summary>
+        public float CameraFOV {  get { return _cameraGame._stateCurrent._fov * 2f; } }
         /// <summary>
         /// Blickrichtung der Kamera
         /// </summary>
