@@ -3,6 +3,7 @@ using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldPlaneCollisionTest;
 using OpenTK.Mathematics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,19 @@ namespace KWEngine3TestProject.Worlds
                 {
                     f.UnsetTarget();
                 }
+            }
+
+            if(Keyboard.IsKeyPressed(Keys.F1))
+            {
+                KWEngine.SSAO_KernelSize = 16;
+            }
+            if (Keyboard.IsKeyPressed(Keys.F2))
+            {
+                KWEngine.SSAO_KernelSize = 32;
+            }
+            if (Keyboard.IsKeyPressed(Keys.F3))
+            {
+                KWEngine.SSAO_KernelSize = 64;
             }
         }
 

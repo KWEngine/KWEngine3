@@ -346,7 +346,8 @@ namespace KWEngine3.Helper
 
             foreach(KWFont id in KWEngine.FontDictionary.Values)
             {
-                bytes += (int)(GetTextureSizeInBytes(new KWTexture(id.Texture, TextureTarget.Texture2D)) * 1.333333f);
+                if(id != null)
+                    bytes += (int)(GetTextureSizeInBytes(new KWTexture(id.Texture, TextureTarget.Texture2D)) * 1.333333f);
             }
 
             return bytes;

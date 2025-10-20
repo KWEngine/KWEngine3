@@ -14,15 +14,16 @@ namespace KWEngine3.Renderer
         public static int ProgramID { get; private set; } = -1;
         public static int UTextureDepth { get; private set; } = -1;
         public static int UTextureNormal { get; private set; } = -1;
-        public static int UTextureAlbedo { get; private set; } = -1;
+        //public static int UTextureAlbedo { get; private set; } = -1;
         public static int UViewProjectionMatrixInverted { get; private set; } = -1;
         public static int UProjectionMatrix { get; private set; } = -1;
         public static int UKernel { get; private set; } = -1;
+        public static int UKernelSize { get; private set; } = -1;
         public static int UTextureNoise { get; private set; } = -1;
         public static int UNoiseScale { get; private set; } = -1;
         public static int URadiusBias { get; private set; } = -1;
 
-        public static float[] Kernel { get; private set; } = new float[64 * 3];
+        public static float[] Kernel { get; private set; }
         public static int NoiseTexture { get; private set; } = -1;
 
         public static void Bind()
@@ -56,7 +57,7 @@ namespace KWEngine3.Renderer
 
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
-                UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
+                //UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
                 UTextureDepth = GL.GetUniformLocation(ProgramID, "uTextureDepth");
                 UTextureNormal = GL.GetUniformLocation(ProgramID, "uTextureNormal");
                 UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
@@ -65,22 +66,24 @@ namespace KWEngine3.Renderer
                 UTextureNoise = GL.GetUniformLocation(ProgramID, "uTextureNoise");
                 UNoiseScale = GL.GetUniformLocation(ProgramID, "uNoiseScale");
                 URadiusBias = GL.GetUniformLocation(ProgramID, "uRadiusBias");
+                UKernelSize = GL.GetUniformLocation(ProgramID, "uKernelSize");
 
                 GenerateKernel();
+                GenerateNoise();
             }
         }
 
         public static void GenerateKernel()
         {
-            Random rng = new Random();
+            Kernel = new float[KWEngine._ssaoKernelSize * 3];
 
             // generate sample kernel:
             for (uint i = 0; i < Kernel.Length; i+=3)
             {
-                Vector3 kernelTmp = Vector3.Normalize(new Vector3(rng.NextSingle() * 2.0f - 1.0f, rng.NextSingle() * 2.0f - 1.0f, rng.NextSingle()));
-                kernelTmp *= rng.NextSingle();
+                Vector3 kernelTmp = Vector3.Normalize(new Vector3(Random.Shared.NextSingle() * 2.0f - 1.0f, Random.Shared.NextSingle() * 2.0f - 1.0f, Random.Shared.NextSingle()));
+                kernelTmp *= Random.Shared.NextSingle();
 
-                float scale = i / 64.0f;
+                float scale = i / (float)KWEngine._ssaoKernelSize;
                 scale = MathHelper.Lerp(0.1f, 1.0f, scale * scale);
                 kernelTmp *= scale;
 
@@ -88,13 +91,16 @@ namespace KWEngine3.Renderer
                 Kernel[i + 1] = kernelTmp.Y;
                 Kernel[i + 2] = kernelTmp.Z;
             }
+        }
 
+        public static void GenerateNoise()
+        {
             // generate noise tex:
             float[] noise = new float[16 * 3];
-            for(uint i = 0; i < noise.Length; i+=3)
+            for (uint i = 0; i < noise.Length; i += 3)
             {
-                noise[i + 0] = rng.NextSingle() * 2.0f - 1.0f;
-                noise[i + 1] = rng.NextSingle() * 2.0f - 1.0f;
+                noise[i + 0] = Random.Shared.NextSingle() * 2.0f - 1.0f;
+                noise[i + 1] = Random.Shared.NextSingle() * 2.0f - 1.0f;
                 noise[i + 2] = 0f;
             }
             NoiseTexture = GL.GenTexture();
@@ -122,22 +128,23 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTextureDepth, 0);
 
             // albedo:
-            GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
-            GL.Uniform1(UTextureAlbedo, 1);
+            //GL.ActiveTexture(TextureUnit.Texture1);
+            //GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
+            //GL.Uniform1(UTextureAlbedo, 1);
 
             // normal:
-            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[1].ID);
-            GL.Uniform1(UTextureNormal, 2);
+            GL.Uniform1(UTextureNormal, 1);
 
             // noise:
-            GL.ActiveTexture(TextureUnit.Texture3);
+            GL.ActiveTexture(TextureUnit.Texture2);
             GL.BindTexture(TextureTarget.Texture2D, NoiseTexture);
-            GL.Uniform1(UTextureNoise, 3);
+            GL.Uniform1(UTextureNoise, 2);
 
             // kernel samples:
             GL.Uniform3(UKernel, Kernel.Length, Kernel);
+            GL.Uniform1(UKernelSize, KWEngine._ssaoKernelSize);
             GL.Uniform2(URadiusBias, KWEngine._ssaoRadius, KWEngine._ssaoBias);
 
             // scale:

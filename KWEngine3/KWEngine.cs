@@ -11,6 +11,7 @@ using System.Diagnostics;
 using OpenTK.Windowing.Desktop;
 using KWEngine3.FontGenerator;
 using SkiaSharp;
+using KWEngine3.Renderer;
 
 
 namespace KWEngine3
@@ -204,16 +205,32 @@ namespace KWEngine3
         /// Aktiviert oder deaktiviert den Post-Processing-Effekt "Screen-Space Ambient Occlusion" (Standard: false)
         /// </summary>
         public static bool SSAO_Enabled { get { return _ssaoEnabled; } set { _ssaoEnabled = value; } }
+
         /// <summary>
-        /// Weite des SSAO-Effekts (Standard: 0.4f, Bereich: 0.01f bis 1.0f)
+        /// Weite des SSAO-Effekts (Standard: 0.35f, Bereich: 0.01f bis 1.0f)
         /// </summary>
         public static float SSAO_Radius { get { return _ssaoRadius; } set { _ssaoRadius = Math.Clamp(value, 0.01f, 1.0f); } }
+
         /// <summary>
-        /// Intensität des SSAO-Effekts (Standard: 0.1f, Bereich: 0.00f bis 0.5f)
+        /// Intensität des SSAO-Effekts (Standard: 0.4f, Bereich: 0.00f bis 0.5f)
         /// </summary>
         public static float SSAO_Bias { get { return _ssaoBias; } set { _ssaoBias = Math.Clamp(value, 0.0f, 0.5f); } }
 
-        
+        /// <summary>
+        /// Größe des Suchfilters für den SSAO-Effekt (Standard: 16, Bereich 16 bis 64)
+        /// </summary>
+        public static uint SSAO_KernelSize
+        {
+            get
+            {
+                return _ssaoKernelSize;
+            }
+            set
+            {
+                _ssaoKernelSize = Math.Clamp(value, 16, 64);
+                RendererSSAO.GenerateKernel();
+            }
+        }
 
         /// <summary>
         /// Gibt an, wie lange die aktuelle Welt bereits aktiv ist
@@ -800,11 +817,11 @@ namespace KWEngine3
             //TERRAIN_PATCH_SIZE = Window._renderQuality >= RenderQualityLevel.Default ? 2 : 16;
             KWTerrainQuad.Init();
 
-            FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf"), "Anonymous", true, "Anonymous.jpg"));
-            FontDictionary.Add("MajorMonoDisplay", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf"), "MajorMonoDisplay", true, "MajorMonoDisplay.jpg"));
-            FontDictionary.Add("NovaMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf"), "NovaMono", true, "NovaMono.jpg"));
-            FontDictionary.Add("XanhMono", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("XanhMono.ttf"), "XanhMono", true, "XanhMono.jpg"));
-            FontDictionary.Add("OpenSans", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf"), "OpenSans", true, "OpenSans.jpg"));
+            FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf"), "Anonymous"));
+            FontDictionary.Add("MajorMonoDisplay", null); // HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf"), "MajorMonoDisplay"));
+            FontDictionary.Add("NovaMono", null); //HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf"), "NovaMono"));
+            FontDictionary.Add("XanhMono", null); //HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("XanhMono.ttf"), "XanhMono"));
+            FontDictionary.Add("OpenSans", null); //HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf"), "OpenSans"));
             
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
@@ -955,9 +972,10 @@ namespace KWEngine3
         }
 
         // SSAO settings
-        internal static float _ssaoRadius = 0.40f;
-        internal static float _ssaoBias = 0.10f;
+        internal static float _ssaoRadius = 0.35f;
+        internal static float _ssaoBias = 0.40f;
         internal static bool _ssaoEnabled = false;
+        internal static uint _ssaoKernelSize = 16;
 
         internal static CursorState _stateCameraGameBeforeToggle = CursorState.Normal;
         internal static float _texMemUsed = 0f;

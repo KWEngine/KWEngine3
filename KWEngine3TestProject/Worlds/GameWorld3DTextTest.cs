@@ -46,9 +46,6 @@ namespace KWEngine3TestProject.Worlds
                 SetCameraPosition(CameraPosition.X, CameraPosition.Y - 0.05f, CameraPosition.Z);
                 SetCameraTarget(CameraTarget.X, CameraTarget.Y - 0.05f, CameraTarget.Z);
             }
-
-            //Console.WriteLine(t1.IsInsideScreenSpace);
-            
         }
 
         public override void Prepare()
@@ -74,13 +71,18 @@ namespace KWEngine3TestProject.Worlds
             p1.SetPosition(0, 0, -1);
             AddGameObject(p1);
             
-            t1 = new TextObject("The QUICK brown fox jumped over the lazy dog.");
+            t1 = new TextObject("The [QUICK] brown fox jumped over the lazy dog.");
             t1.Name = "Test";
             //t1.SetColorEmissive(1, 0, 1, 1.5f);
-            t1.SetFont(FontFace.OpenSans);
+            t1.SetFont("Anonymous");
             t1.SetScale(1.0f);
             t1.SetCharacterDistanceFactor(1f);
             AddTextObject(t1);
+
+            HUDObjectText hudText = new HUDObjectText("[HUD]");
+            hudText.SetFont(FontFace.MajorMonoDisplay);
+            hudText.CenterOnScreen();
+            AddHUDObject(hudText);
             /*
             TextObject t2 = new TextObject("Dies iost ein Test");
             t2.Name = "Test2";

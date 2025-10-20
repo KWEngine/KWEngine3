@@ -4,18 +4,15 @@ in vec2 vTexture;
 
 layout(location = 0) out float shade;
 
-uniform sampler2D uTextureAlbedo;
 uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureDepth;
 uniform sampler2D uTextureNoise;
 uniform mat4 uViewProjectionMatrixInverted;
 uniform mat4 uProjectionMatrix;
 uniform vec3 uKernel[64];
+uniform uint uKernelSize;
 uniform vec2 uNoiseScale;
 uniform vec2 uRadiusBias;
-
-//const float radius = 0.5;
-//const float bias = 0.025;
 
 vec3 decodeNormal(vec2 f)
 {
@@ -56,7 +53,7 @@ void main()
     mat3 TBN       = mat3(tangent, bitangent, normal);  
 
     float occlusion = 0.0;
-    for(int i = 0; i < 64; i++)
+    for(int i = 0; i < uKernelSize; i++)
     {
         // get sample position
         vec3 samplePos = TBN * uKernel[i]; // from tangent to view-space
@@ -70,9 +67,9 @@ void main()
         float sampleDepth = getFragmentPositionOffset(offset.xy).z;
 
         float rangeCheck = smoothstep(0.0, 1.0, uRadiusBias.x / abs(fragmentPosWorldSpace.z - sampleDepth));
-        occlusion += (sampleDepth >= samplePos.z + uRadiusBias.y ? 1.0 : 0.0) * rangeCheck; // 0.025 = optional bias (uniform?)
+        occlusion += (sampleDepth >= samplePos.z + uRadiusBias.y ? 1.0 : 0.0) * rangeCheck;
     }  
-    occlusion = 1.0 - (occlusion / 64.0);
+    occlusion = 1.0 - (occlusion / uKernelSize);
 
 	shade = occlusion;
 }

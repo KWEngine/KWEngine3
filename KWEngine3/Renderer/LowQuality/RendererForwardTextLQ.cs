@@ -175,7 +175,7 @@ namespace KWEngine3.Renderer.LowQuality
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
 
-            GL.Uniform2(UUVOffsets, t._text.Length, t._uvOffsets);
+            GL.Uniform3(UUVOffsets, t._text.Length, t._uvOffsets);
             GL.Uniform1(UAdvanceList, t._text.Length, t._advances);
             GL.Uniform1(UWidths, t._text.Length, t._glyphWidths);
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);

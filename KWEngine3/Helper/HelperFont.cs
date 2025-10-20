@@ -2,6 +2,8 @@
 {
     internal static class HelperFont
     {
+        public static string[] _internals = { "Anonymous", "MajorMonoDisplay", "NovaMono", "XanhMono", "OpenSans" };
+
         public static string GetNameForInternalFontID(int id)
         {
             if (id == 0)
@@ -16,6 +18,11 @@
                 return "OpenSans";
             else
                 return "Anonymous";
+        }
+
+        public static bool IsInternal(string name)
+        {
+            return _internals.Contains(name);
         }
     }
 }

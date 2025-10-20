@@ -43,24 +43,27 @@ namespace KWEngine3.GameObjects
             Font = HelperFont.GetNameForInternalFontID((int)fontFace);
             if(KWEngine.FontDictionary.TryGetValue(Font, out KWFont fontTemp))
             {
-                if(fontTemp.IsValid)
+                if(fontTemp == null)
                 {
-                    _font = KWEngine.FontDictionary[Font];
-                    UpdateOffsetList();
+                    // lazy loading internal font
+                    if(HelperFont.IsInternal(Font))
+                    {
+                        KWFont f = HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal(Font + ".ttf"), Font, false, "");
+                        if(f.IsValid)
+                        {
+                            fontTemp = f;
+                            KWEngine.FontDictionary[Font] = f;
+                        }
+                    }
                 }
-                else
-                {
-                    KWEngine.LogWriteLine("[HUDObjectText] Font unknown or invalid");
-                    _font = KWEngine.FontDictionary["Anonymous"];
-                    UpdateOffsetList();
-                }
-                
+
+                _font = KWEngine.FontDictionary[Font];
+                UpdateOffsetList();
             }
             else
             {
                 KWEngine.LogWriteLine("[HUDObjectText] Font unknown or invalid");
                 _font = KWEngine.FontDictionary["Anonymous"];
-                UpdateOffsetList();
             }
         }
 
@@ -73,8 +76,26 @@ namespace KWEngine3.GameObjects
         {
             if(KWEngine.FontDictionary.TryGetValue(fontname, out KWFont font))
             {
+                if (font == null)
+                {
+                    // lazy loading internal font
+                    if (HelperFont.IsInternal(fontname))
+                    {
+                        KWFont f = HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal(Font + ".ttf"), Font, false, "");
+                        if (f.IsValid)
+                        {
+                            KWEngine.FontDictionary[fontname] = f;
+                            font = f;
+                        }
+                    }
+                }
+
                 _font = font;
                 UpdateOffsetList();
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[HUDObjectText] Font unknown or invalid");
             }
         }
 
@@ -233,12 +254,13 @@ namespace KWEngine3.GameObjects
         internal void UpdateOffsetList()
         {
             KWFontGlyph space = _font.GetGlyphForCodepoint('_');
-            for (int i = 0, j = 0; i < _text.Length; i++, j+=2)
+            for (int i = 0, j = 0; i < _text.Length; i++, j+=3)
             {
                 KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
                
                 _uvOffsets[j + 0] = glyph.UCoordinate.X;
                 _uvOffsets[j + 1] = glyph.UCoordinate.Y;
+                _uvOffsets[j + 2] = glyph.UCoordinate.Z;
 
                 float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Bearing;
                 float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;

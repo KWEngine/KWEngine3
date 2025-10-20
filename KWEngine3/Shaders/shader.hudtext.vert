@@ -7,7 +7,7 @@ out		vec2 vTexture;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
-uniform vec2 uUVOffsetsAndWidths[128];
+uniform vec3 uUVOffsetsAndWidths[128];
 uniform float uAdvanceList[128];
 uniform float uWidths[128];
 uniform float uOffset;
@@ -44,7 +44,7 @@ void main()
 	{
 		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].y;
 	}
-	vTexture.y = aTexture.y;
+	vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID].z;
 
 	vec4 posModel = vec4((uModelMatrix * pos).xyz, 1.0);
 	posModel.x += uOffset;

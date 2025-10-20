@@ -6,12 +6,12 @@ namespace KWEngine3.FontGenerator
     {
         public float Width { get; internal set; }
         public float Height { get; internal set; }
-        public Vector2 UCoordinate { get; internal set; }
+        public Vector3 UCoordinate { get; internal set; }
         public float Advance { get; internal set; }
         public float Bearing { get; internal set; }
         public char CodePoint { get; internal set; }
 
-        public KWFontGlyph(char codepoint, float width, float height, float bearing, float advanceWidth, Vector2 uv)
+        public KWFontGlyph(char codepoint, float width, float height, float bearing, float advanceWidth, Vector3 uv)
         {
             CodePoint = codepoint;
             Width = width;

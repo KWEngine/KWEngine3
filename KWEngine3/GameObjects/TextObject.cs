@@ -52,6 +52,7 @@ namespace KWEngine3.GameObjects
         public TextObject(string text)
         {
             InitStates();
+            SetFont(FontFace.Anonymous);
             SetText(text);
         }
 
@@ -247,6 +248,20 @@ namespace KWEngine3.GameObjects
         {
             string fontname = HelperFont.GetNameForInternalFontID((int)font);
             _font = KWEngine.FontDictionary[fontname];
+
+            if(_font == null)
+            {
+                if (HelperFont.IsInternal(fontname))
+                {
+                    KWFont f = HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal(fontname + ".ttf"), fontname, false, "");
+                    if (f.IsValid)
+                    {
+                        KWEngine.FontDictionary[fontname] = f;
+                        _font = f;
+                    }
+                }
+            }
+
             _fontname = fontname;
             UpdateOffsetList();
         }
@@ -265,6 +280,19 @@ namespace KWEngine3.GameObjects
 
             if(KWEngine.FontDictionary.TryGetValue(font, out KWFont f))
             {
+                if (f == null)
+                {
+                    if (HelperFont.IsInternal(font))
+                    {
+                        KWFont fntLazy = HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal(font + ".ttf"), font, false, "");
+                        if (fntLazy.IsValid)
+                        {
+                            f = fntLazy;
+                            KWEngine.FontDictionary[font] = fntLazy;
+                        }
+                    }
+                }
+
                 _font = f;
                 _fontname = font;
                 UpdateOffsetList();
@@ -272,6 +300,7 @@ namespace KWEngine3.GameObjects
             else
             {
                 KWEngine.LogWriteLine("[Font] Cannot find font '" + font + "'");
+                SetFont(FontFace.Anonymous);
             }
         }
 
@@ -383,7 +412,7 @@ namespace KWEngine3.GameObjects
         internal float[] _glyphWidths = new float[MAX_CHARS + 1];
         internal float[] _advances = new float[MAX_CHARS + 1];
         internal string _text = "";
-        internal KWFont _font = KWEngine.FontDictionary["Anonymous"];
+        internal KWFont _font = KWEngine.FontDictionary.Values.ElementAt(0);
         internal string _fontname = "Anonymous";
         internal float _width = 0f;
         internal float _widthNormalised = 0f;
@@ -392,12 +421,13 @@ namespace KWEngine3.GameObjects
         internal void UpdateOffsetList()
         {
             KWFontGlyph space = _font.GetGlyphForCodepoint(' ');
-            for (int i = 0, j = 0; i < _text.Length; i++, j += 2)
+            for (int i = 0, j = 0; i < _text.Length; i++, j += 3)
             {
                 KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
 
                 _uvOffsets[j + 0] = glyph.UCoordinate.X;
                 _uvOffsets[j + 1] = glyph.UCoordinate.Y;
+                _uvOffsets[j + 2] = glyph.UCoordinate.Z;
 
                 float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Bearing;
                 float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;

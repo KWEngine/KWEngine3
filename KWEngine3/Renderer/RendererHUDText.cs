@@ -105,7 +105,7 @@ namespace KWEngine3.Renderer
 
             GL.Uniform1(UMode, 0);
             GL.Uniform1(UOptions, 0);
-            GL.Uniform2(UUVOffsets, ho._text.Length, ho._uvOffsets);
+            GL.Uniform3(UUVOffsets, ho._text.Length, ho._uvOffsets);
             GL.Uniform1(UAdvanceList, ho._text.Length, ho._advances);
             GL.Uniform1(UWidths, ho._text.Length, ho._glyphWidths);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
