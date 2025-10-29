@@ -16,6 +16,8 @@ namespace KWEngine3.GameObjects
         internal int _shadowMapSize;
         internal float _shadowBias = 0.00002f;
         internal float _shadowOffset = 0.0001f;
+        internal float _lightVolume = 1.0f;
+        internal float _lightVolumeBias = 0.5f;
         
         /// <summary>
         /// Engine-interne ID
@@ -25,6 +27,31 @@ namespace KWEngine3.GameObjects
         /// Name des Objekts
         /// </summary>
         public string Name { get; set; } = "(no name)";
+
+        /// <summary>
+        /// Setzt das Volumen des Lichts (0.0f bis 1.0f)
+        /// </summary>
+        /// <param name="v">Lichtvolumen</param>
+        public void SetVolume(float v)
+        {
+            v = MathF.Max(MathF.Min(v, 1f), 0f);
+            _lightVolume = v;
+        }
+
+        /// <summary>
+        /// Gibt an, ob das Licht beim Rendern berücksichtigt werden soll oder nicht (Standardwert: true)
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// Regelt die Dichteverteilung des Volumens je Entfernung (Werte zwischen 0f und 1f)
+        /// </summary>
+        /// <param name="b">Dichteverteilung</param>
+        public void SetVolumeBias(float b)
+        {
+            b = MathF.Max(MathF.Min(b, 1f), 0f);
+            _lightVolumeBias = b;
+        }
 
         /// <summary>
         /// Schattenqualität des Lichts (maximal 3 Schattenlichter pro Welt möglich)

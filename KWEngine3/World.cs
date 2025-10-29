@@ -618,7 +618,13 @@ namespace KWEngine3
                 int lightIndex = 0;
                 foreach (LightObject l in _lightObjects)
                 {
-                    if(l.Type == LightType.Sun)
+                    if(l.IsActive == false)
+                    {
+                        lightIndex++;
+                        continue;
+                    }
+
+                    if (l.Type == LightType.Sun)
                     {
                         // always fill!
                         tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
@@ -665,6 +671,9 @@ namespace KWEngine3
             int numberOfLightsInsideScreen = 0;
             foreach (LightObject l in _lightObjects)
             {
+                if (l.IsActive == false)
+                    continue;
+
                 bool insideScreen = CalculateNDCs(l, ref vpMatrix, ref lavRight, ref lav, ref camPos);
                 if (insideScreen) numberOfLightsInsideScreen++;
 
@@ -705,6 +714,9 @@ namespace KWEngine3
 
                 _preparedLightsArray[offset + 15] = l._shadowBias;
                 _preparedLightsArray[offset + 16] = l._shadowOffset;
+
+                _preparedLightsArray[offset + 17] = l._lightVolume;
+                _preparedLightsArray[offset + 18] = l._lightVolumeBias;
 
                 offset += KWEngine.LIGHTINDEXDIVIDER;
                 offsetTex += KWEngine.LIGHTINDEXDIVIDER;

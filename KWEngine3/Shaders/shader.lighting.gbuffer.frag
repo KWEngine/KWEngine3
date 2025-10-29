@@ -365,7 +365,7 @@ void main()
             int index = vInstanceID * 50 + li;
             int moduloLight = index % 4;
             int divisoLight = index / 4;
-            int i = instanceData3[divisoLight][moduloLight] * 17;
+            int i = instanceData3[divisoLight][moduloLight] * 19;
             
 
             // multi-draw mode:

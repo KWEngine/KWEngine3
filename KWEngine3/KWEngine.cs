@@ -710,7 +710,7 @@ namespace KWEngine3
         internal static Dictionary<string, GeoMeshCollider> CustomColliders { get; set; } = new Dictionary<string, GeoMeshCollider>();
         internal const float SIMULATIONNIBBLESIZE = 1f / 240f;
         internal const float SIMULATIONMAXACCUMULATOR = 1 / 10f;
-        internal const int LIGHTINDEXDIVIDER = 17;
+        internal const int LIGHTINDEXDIVIDER = 19;
         internal const float RAYTRACE_EPSILON = 0.000001f;
         internal const float RAYTRACE_SAFETY = 0.1f;
         internal const float RAYTRACE_SAFETY_SQ = RAYTRACE_SAFETY * RAYTRACE_SAFETY;

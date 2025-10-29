@@ -1,6 +1,4 @@
-﻿using OpenTK.Mathematics;
-
-namespace KWEngine3.GameObjects
+﻿namespace KWEngine3.GameObjects
 {
     /// <summary>
     /// Klasse für Lichter mit gerichtetem Lichtkegel
