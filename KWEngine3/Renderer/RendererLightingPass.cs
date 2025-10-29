@@ -335,7 +335,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTextureSSAO, 5);
 
             // lights array:
-            GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * 17, KWEngine.CurrentWorld._preparedLightsArray);
+            GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * KWEngine.LIGHTINDEXDIVIDER, KWEngine.CurrentWorld._preparedLightsArray);
             GL.Uniform3(UColorAmbient, KWEngine.CurrentWorld._colorAmbient);
             
             

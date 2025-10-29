@@ -34,6 +34,7 @@ namespace KWEngine3TestProject.Worlds
             floor.Name = "Floor";
             floor.SetScale(20, 2, 20);
             floor.SetPosition(0, -1, 0);
+            floor.SetColor(0, 0, 1);
             floor.IsShadowCaster = true;
             AddGameObject(floor);
 

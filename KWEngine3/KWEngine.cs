@@ -279,7 +279,7 @@ namespace KWEngine3
         /// <summary>
         /// Anzahl der Lichter pro Welt
         /// </summary>
-        public const int MAX_LIGHTS = 50;
+        public const int MAX_LIGHTS = 40;
         /// <summary>
         /// Anzahl der Schattenlichter pro Welt (anteilig an MAX_LIGHTS)
         /// </summary>

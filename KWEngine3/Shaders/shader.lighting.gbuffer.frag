@@ -381,6 +381,8 @@ void main()
             int shadowMapIndex = int(uLights[i + 3]); // -1 = cubemap, 0 = no shadow, 1 = texture2D
             float currentLightBias = uLights[i + 15];
             float currentLightHardness = uLights[i + 16];
+            float currentLightVolume = uLights[i + 17];
+            float currentLightVolumeBias = uLights[i + 18];
 
             // calculate per-light radiance
             if(currentLightType < 0)
@@ -479,7 +481,7 @@ void main()
                         currentLightHardness);
                 }
             }
-
+            // NEW
             Lo += (kD * albedo / PI + specular) * radiance * NdotL * darkeningCurrentLight;
         }
         vec3 reflectionColor = getReflectionColor(V, N, pbr.y, fragPosition);// y = roughness
