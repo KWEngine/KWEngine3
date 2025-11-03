@@ -20,6 +20,16 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
+        internal static bool ListContainsSector(List<Sector> sectors, ref Sector s)
+        {
+            foreach(Sector sec in sectors)
+            {
+                if (sec.Left == s.Left && sec.Right == s.Right && sec.Back == s.Back && sec.Front == s.Front)
+                    return true;
+            }
+            return false;
+        }
+
         internal static string ProcessInputs(out Keys specialKey)
         {
             GetStringForCurrentlyPressedKeys(out string result, out specialKey);

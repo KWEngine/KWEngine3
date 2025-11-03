@@ -459,7 +459,7 @@ namespace KWEngine3.GameObjects
                     {
                         if (to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                         {
-                            GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                            GeoTerrainTriangle? tris = s.GetTriangle(untranslatedPosition);
                             if (tris.HasValue)
                             {
                                 bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
@@ -492,6 +492,64 @@ namespace KWEngine3.GameObjects
             resultSet.IntersectionPointAvg = interAvg / resultSet.IntersectionPoints.Count;
 
             return resultSet;
+        }
+
+
+        internal static Vector3[] _aabbPoints = new Vector3[5];
+        internal static List<Sector> _aabbSectors = new List<Sector>(5);
+        /// <summary>
+        /// Prüft, ob die Hitbox der Instanz mit einem Terrain-Objekt kollidiert, und gibt alle gemessenen Kollisionen zurück
+        /// </summary>
+        /// <returns>Liste mit Terrain-Kollisionen (kann leer sein)</returns>
+        public List<IntersectionTerrain> GetIntersectionsWithTerrain()
+        {
+            List<IntersectionTerrain> intersections = new();
+            foreach (TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
+            {
+                _aabbSectors.Clear();
+
+                if (t.IsCollisionObject && HelperIntersection.CheckAABBCollision(
+                    AABBLeft, AABBRight, AABBLow, AABBHigh, AABBBack, AABBFront,
+                    t._stateCurrent._center.X - t.Width * 0.5f, t._stateCurrent._center.X + t.Width * 0.5f,
+                    t._stateCurrent._position.Y, t._stateCurrent._position.Y + t.Height,
+                    t._stateCurrent._center.Z - t.Depth * 0.5f, t._stateCurrent._center.Z + t.Depth * 0.5f))
+                {
+                    Vector3 untranslatedPosition = this.Position - new Vector3(t._hitboxes[0]._center.X, t._stateCurrent._position.Y, t._hitboxes[0]._center.Z);
+                    _aabbPoints[0] = untranslatedPosition;
+                    _aabbPoints[1] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * 0.5f, 0, (AABBFront - AABBBack) * 0.5f); // right front
+                    _aabbPoints[2] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * 0.5f, 0, (AABBFront - AABBBack) * -0.5f); // right back
+                    _aabbPoints[3] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * -0.5f, 0, (AABBFront - AABBBack) * 0.5f); // left front
+                    _aabbPoints[4] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * -0.5f, 0, (AABBFront - AABBBack) * -0.5f); // left back
+
+                    foreach (Vector3 pos in _aabbPoints)
+                    {
+                        if (t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(pos, out Sector s))
+                        {
+                            if(HelperGeneral.ListContainsSector(_aabbSectors, ref s))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                _aabbSectors.Add(s);
+                            }
+                            GeoTerrainTriangle? tris = s.GetTriangle(pos);
+                            if (tris.HasValue)
+                            {
+                                foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
+                                {
+                                    IntersectionTerrain i = HelperIntersection.TestIntersectionWithTerrainFace(hb, t, tris.Value, HelperVector.VectorZero);
+                                    if (i != null)
+                                    {
+                                        intersections.Add(i);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return intersections;
         }
 
         /// <summary>
@@ -1672,6 +1730,7 @@ namespace KWEngine3.GameObjects
         internal Vector3 _positionOffsetForAttachment = Vector3.Zero;
         internal Vector3 _scaleOffsetForAttachment = Vector3.One;
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
+        internal static List<Sector> _collisionSectors = new List<Sector>(5);
 
         internal bool IsRayModeY(RayMode mode)
         {

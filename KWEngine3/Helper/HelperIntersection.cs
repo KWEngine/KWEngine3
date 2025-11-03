@@ -4,6 +4,7 @@ using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using SkiaSharp;
 
 namespace KWEngine3.Helper
 {
@@ -73,7 +74,7 @@ namespace KWEngine3.Helper
                     {
                         if (to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                         {
-                            GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                            GeoTerrainTriangle? tris = s.GetTriangle(untranslatedPosition);
                             if (tris.HasValue)
                             {
                                 bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
@@ -809,6 +810,33 @@ namespace KWEngine3.Helper
                 list.Sort();
             }
             return list;
+        }
+
+        /// <summary>
+        /// Prüft, ob sich zwei AABB-Hitboxen schneiden
+        /// </summary>
+        /// <param name="minX1">Linke   X-Position von Objekt 1</param>
+        /// <param name="maxX1">Rechte  X-Position von Objekt 1</param>
+        /// <param name="minY1">Untere  Y-Position von Objekt 1</param>
+        /// <param name="maxY1">Obere   Y-Position von Objekt 1</param>
+        /// <param name="minZ1">Hintere Z-Position von Objekt 1</param>
+        /// <param name="maxZ1">Vordere Z-Position von Objekt 1</param>
+        /// <param name="minX2">Linke   X-Position von Objekt 2</param>
+        /// <param name="maxX2">Rechte  X-Position von Objekt 2</param>
+        /// <param name="minY2">Untere  Y-Position von Objekt 2</param>
+        /// <param name="maxY2">Obere   Y-Position von Objekt 2</param>
+        /// <param name="minZ2">Hintere Z-Position von Objekt 2</param>
+        /// <param name="maxZ2">Vordere Z-Position von Objekt 2</param>
+        /// <returns>true, wenn sich die zwei Hitboxen schneiden oder eine der beiden Hitboxen in der anderen enthalten ist</returns>
+        public static bool CheckAABBCollision(float minX1, float maxX1, float minY1, float maxY1, float minZ1, float maxZ1,
+                                float minX2, float maxX2, float minY2, float maxY2, float minZ2, float maxZ2)
+        {
+            bool separated =
+                maxX1 < minX2 || minX1 > maxX2 ||
+                maxY1 < minY2 || minY1 > maxY2 ||
+                maxZ1 < minZ2 || minZ1 > maxZ2;
+
+            return !separated;
         }
 
         internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint, out string hitboxname)
@@ -1583,7 +1611,7 @@ namespace KWEngine3.Helper
 
             if (model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
             {
-                GeoTerrainTriangle? tris = s.GetTriangle(ref untranslatedPosition);
+                GeoTerrainTriangle? tris = s.GetTriangle(untranslatedPosition);
                 if(tris.HasValue)
                 {
                     bool hit = RayTriangleIntersection(untranslatedPosition, rayDirection, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out contactPoint);
@@ -1815,6 +1843,74 @@ namespace KWEngine3.Helper
             return intersections;
         }
 
+        internal static IntersectionTerrain TestIntersectionWithTerrainFace(GameObjectHitbox caller, TerrainObject collider, GeoTerrainTriangle triangle, Vector3 offset)
+        {
+            _planeNormals[0] = triangle.Normal;
+            _planeVertices[0] = triangle.Vertices[0];
+            _planeVertices[1] = triangle.Vertices[1];
+            _planeVertices[2] = triangle.Vertices[2];
+
+            float mtvDistance = float.MaxValue;
+            float mtvDirection = 1;
+            float mtvDistanceUp = float.MaxValue;
+            float mtvDirectionUp = 1;
+
+            Vector3 MTVTemp = Vector3.Zero;
+            Vector3 MTVTempUp = Vector3.Zero;
+            int collisionNormalIndex = 0;
+            bool collisionNormalIndexFlip = false;
+            //bool collisionNormalFromCaller = false;
+
+            for (int i = 0; i < caller._normals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref caller._normals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                {
+                    return null;
+                }
+                else
+                {
+                    OverlapResult m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref triangle.Center, ref offset, true, caller);
+                    if (m.IsBetterResult)
+                    {
+                        collisionNormalIndex = i;
+                        collisionNormalIndexFlip = m.FlipNormal;
+                        //collisionNormalFromCaller = true;
+                    }
+                }
+            }
+
+            for (int i = 0; i < _planeNormals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref _planeNormals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                {
+                    return null;
+                }
+                else
+                {
+                    OverlapResult m = CalculateOverlap(ref _planeNormals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref triangle.Center, ref offset, false, null); // TODO: check if null is ok here :-)
+                    if (m.IsBetterResult)
+                    {
+                        collisionNormalIndex = 0;
+                        collisionNormalIndexFlip = false;
+                        //collisionNormalFromCaller = false;
+                    }
+                }
+            }
+
+            if (MTVTemp == Vector3.Zero)
+                return null;
+
+            IntersectionTerrain o = new IntersectionTerrain(collider, caller, MTVTemp, triangle.Normal);
+            return o;
+        }
 
         internal static Intersection TestIntersection(GameObjectHitbox caller, GameObjectHitbox collider, Vector3 offset)
         {

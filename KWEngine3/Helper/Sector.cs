@@ -5,7 +5,7 @@ namespace KWEngine3.Helper
 {
     internal struct Sector
     {
-        internal bool IsValid { get; set; }
+        //internal bool IsValid { get; set; }
         public float Left { get; set; }
         public float Right { get; set; }
         public float Back { get;  set; }
@@ -25,7 +25,7 @@ namespace KWEngine3.Helper
 
             Center = new Vector2(0, 0);
 
-            IsValid = true; // for overhaul!
+            //IsValid = true; // for overhaul!
             Triangles = new GeoTerrainTriangle[0];
         }
 
@@ -38,7 +38,7 @@ namespace KWEngine3.Helper
 
             Center = new Vector2((l + r) / 2f, (b + f) / 2f);
 
-            IsValid = true;
+            //IsValid = true;
             Triangles = new GeoTerrainTriangle[tCount]; // !!!!!!
         }
         
@@ -48,7 +48,8 @@ namespace KWEngine3.Helper
             Triangles[tcounter++] = t;
         }
 
-        public GeoTerrainTriangle? GetTriangle(ref Vector3 untranslatedPosition)
+
+        public GeoTerrainTriangle? GetTriangle(Vector3 untranslatedPosition)
         {
 
             foreach (GeoTerrainTriangle t in Triangles)
