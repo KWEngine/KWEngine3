@@ -17,7 +17,7 @@ namespace KWEngine3TestProject.Worlds
         {
             SetColorAmbient(0.25f, 0.25f, 0.25f);
 
-            KWEngine.BuildTerrainModel("Terrain", "./Textures/Terrains/16x16.png", 1);
+            KWEngine.BuildTerrainModel("Terrain", "./Textures/Terrains/16x16.png", 5);
             TerrainObject t = new TerrainObject("Terrain");
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
