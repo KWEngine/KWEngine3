@@ -1,10 +1,8 @@
-﻿using Assimp;
-using KWEngine3.GameObjects;
+﻿using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using KWEngine3.Renderer;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using SkiaSharp;
 
 namespace KWEngine3.Helper
 {
@@ -13,6 +11,27 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperIntersection
     {
+        /// <summary>
+        /// Berechnet einen gewichteten MTV-Vektor aus mehreren Terrain-Kollisionsintersektionen
+        /// </summary>
+        /// <param name="intersections">Liste mit gemessenen Terrain-Kollisionen</param>
+        /// <returns>Gewichteter MTV</returns>
+        public static Vector3 CalculateWeightedMTV(List<IntersectionTerrain> intersections)
+        {
+            Vector3 result = Vector3.Zero;
+            Vector3 weightSum = Vector3.Zero;
+            float weightTotal = 0f;
+
+            foreach (IntersectionTerrain terrain in intersections)
+            {
+                float weight = terrain.MTV.LengthFast;
+                weightSum += Vector3.NormalizeFast(terrain.MTV) * weight;
+                weightTotal += weight;
+            }
+
+            return weightTotal > 0f ? weightSum / weightTotal : Vector3.Zero;
+        }
+
         /// <summary>
         /// Prüft, ob sich die achsenparallelen Hitboxen zweier Objekte in den XZ-Achsen schneiden
         /// </summary>

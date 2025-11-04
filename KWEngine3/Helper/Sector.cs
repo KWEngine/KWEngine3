@@ -25,7 +25,6 @@ namespace KWEngine3.Helper
 
             Center = new Vector2(0, 0);
 
-            //IsValid = true; // for overhaul!
             Triangles = new GeoTerrainTriangle[0];
         }
 
@@ -38,7 +37,6 @@ namespace KWEngine3.Helper
 
             Center = new Vector2((l + r) / 2f, (b + f) / 2f);
 
-            //IsValid = true;
             Triangles = new GeoTerrainTriangle[tCount]; // !!!!!!
         }
         

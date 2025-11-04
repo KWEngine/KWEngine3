@@ -1,4 +1,5 @@
 ﻿using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
@@ -27,9 +28,10 @@ namespace KWEngine3TestProject.Classes
                 MoveOffset(0, +0.01f, 0);
 
             List<IntersectionTerrain> intersections = GetIntersectionsWithTerrain();
-            foreach(IntersectionTerrain it in intersections)
+            if (intersections.Count > 0)
             {
-                MoveOffset(it.MTV);
+                Vector3 mtv = HelperIntersection.CalculateWeightedMTV(intersections);
+                MoveOffset(mtv);
             }
 
             CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 10, 10));
