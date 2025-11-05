@@ -1954,6 +1954,38 @@ namespace KWEngine3.Helper
             return o;
         }
 
+        internal static bool TestIntersectionWithTerrainFace(GameObjectHitbox caller, GeoTerrainTriangle triangle, ref Vector3 offset)
+        {
+            _planeNormals[0] = triangle.Normal;
+            _planeVertices[0] = triangle.Vertices[0];
+            _planeVertices[1] = triangle.Vertices[1];
+            _planeVertices[2] = triangle.Vertices[2];
+
+            for (int i = 0; i < caller._normals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref caller._normals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                {
+                    return false;
+                }
+            }
+
+            for (int i = 0; i < _planeNormals.Length; i++)
+            {
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref _planeNormals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         internal static Intersection TestIntersection(GameObjectHitbox caller, GameObjectHitbox collider, Vector3 offset)
         {
             float mtvDistance = float.MaxValue;
@@ -2477,9 +2509,9 @@ namespace KWEngine3.Helper
 
         internal static Vector3[] _aabbPoints = new Vector3[5];
         internal static List<Sector> _aabbSectors = new List<Sector>(5);
-        internal static void GatherTrisForContinuousTerrainCollisionTestsFor(GameObject g, out Dictionary<TerrainObject, List<GeoTerrainTriangle>> results)
+        internal static Dictionary<TerrainObject, List<GeoTerrainTriangle>> GetTrianglesContinuousTerrainCollisionTestsFor(GameObject g)
         {
-            results = new();
+            Dictionary<TerrainObject, List<GeoTerrainTriangle>> results = new();
 
             foreach (TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
             {
@@ -2524,7 +2556,21 @@ namespace KWEngine3.Helper
                     results.Add(t, trianglesUnique);
                 }
             }
+            return results;
         }
+
+        internal static Vector3 CalculateWeightedTerrainMTV(List<IntersectionTerrain> intersections, float weightTotal)
+        {
+            Vector3 weightedAvgMTV = Vector3.Zero;
+
+            foreach (IntersectionTerrain terrain in intersections)
+            {
+                weightedAvgMTV += terrain.MTV * (terrain.MTV.LengthFast / weightTotal);
+            }
+
+            return weightTotal > 0f ? weightedAvgMTV : Vector3.Zero;
+        }
+
         #endregion
     }
 }

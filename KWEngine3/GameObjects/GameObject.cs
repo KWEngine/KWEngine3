@@ -495,73 +495,59 @@ namespace KWEngine3.GameObjects
             return resultSet;
         }
 
-        public void SolveIntersectionsWithTerrain()
-        {
-           
-        }
+        
 
         /// <summary>
         /// Prüft, ob die Hitbox der Instanz mit einem Terrain-Objekt kollidiert, und gibt alle gemessenen Kollisionen zurück
         /// </summary>
-        /// <returns>Liste mit Terrain-Kollisionen (kann leer sein)</returns>
+        /// <remarks>ACHTUNG: Experimenteller Ansatz - Ergebnisse können stark fehlerhaft sein</remarks>
+        /// <returns>Liste mit gefundenen Terrain-Kollisionen (kann leer sein)</returns>
         public List<IntersectionTerrain> GetIntersectionsWithTerrain()
         {
             List<IntersectionTerrain> intersections = new();
-            foreach (TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
+            List<IntersectionTerrain> intersectionsPrev = new();
+            Dictionary<TerrainObject, List<GeoTerrainTriangle>> tris = HelperIntersection.GetTrianglesContinuousTerrainCollisionTestsFor(this);
+
+            int maxIterations = 16;
+            int step = 16; //autoSolve ? 1 : 16;
+            for (; step <= maxIterations; step++)
             {
-                _aabbSectors.Clear();
-
-                if (t.IsCollisionObject && HelperIntersection.CheckAABBCollision(
-                    AABBLeft, AABBRight, AABBLow, AABBHigh, AABBBack, AABBFront,
-                    t._stateCurrent._center.X - t.Width * 0.5f, t._stateCurrent._center.X + t.Width * 0.5f,
-                    t._stateCurrent._position.Y, t._stateCurrent._position.Y + t.Height,
-                    t._stateCurrent._center.Z - t.Depth * 0.5f, t._stateCurrent._center.Z + t.Depth * 0.5f))
+                intersections.Clear();
+                foreach (TerrainObject t in tris.Keys)
                 {
-                    Vector3 untranslatedPosition = this.Position - new Vector3(t._hitboxes[0]._center.X, t._stateCurrent._position.Y, t._hitboxes[0]._center.Z);
-                    _aabbPoints[0] = untranslatedPosition;
-                    _aabbPoints[1] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * 0.5f, 0, (AABBFront - AABBBack) * 0.5f); // right front
-                    _aabbPoints[2] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * 0.5f, 0, (AABBFront - AABBBack) * -0.5f); // right back
-                    _aabbPoints[3] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * -0.5f, 0, (AABBFront - AABBBack) * 0.5f); // left front
-                    _aabbPoints[4] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * -0.5f, 0, (AABBFront - AABBBack) * -0.5f); // left back
-
-
-                    List<GeoTerrainTriangle> trianglesUnique = new List<GeoTerrainTriangle>();
-                    foreach (Vector3 pos in _aabbPoints)
+                    List<GeoTerrainTriangle> trisPerTerrain = tris[t];
+                    foreach (GeoTerrainTriangle tri in trisPerTerrain)
                     {
-                        if (t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(pos, out Sector s))
+                        foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
                         {
-                            if(HelperGeneral.ListContainsSector(_aabbSectors, ref s))
+                            IntersectionTerrain i = HelperIntersection.TestIntersectionWithTerrainFace(hb, t, tri, ref HelperVector.VectorZero);
+                            if (i != null)
                             {
-                                continue;
-                            }
-                            else
-                            {
-                                _aabbSectors.Add(s);
-                            }
-
-                            
-                            GeoTerrainTriangle tris = s.GetTriangle(pos);
-                            if (tris != null)
-                            {
-                                if (!HelperGeneral.ListContainsTriangle(trianglesUnique, tris))
-                                {
-                                    trianglesUnique.Add(tris);
-
-                                    foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
-                                    {
-                                        IntersectionTerrain i = HelperIntersection.TestIntersectionWithTerrainFace(hb, t, tris, ref HelperVector.VectorZero);
-                                        if (i != null)
-                                        {
-                                            intersections.Add(i);
-                                        }
-                                    }
-                                }
+                                intersections.Add(i);
                             }
                         }
                     }
                 }
+                if (intersections.Count > 0)
+                {
+                    if (true == false)
+                    {
+                        Vector3 mtv = HelperIntersection.CalculateWeightedTerrainMTV(intersections);
+                        float stepf = step;
+                        MoveOffset(mtv * (stepf / maxIterations));
+                    }
+
+                    intersectionsPrev.Clear();
+                    intersectionsPrev.AddRange(intersections);
+                }
+                if(intersections.Count == 0)
+                {
+                    break;
+                }
+                    
             }
-            return intersections;
+
+            return intersectionsPrev;
         }
 
         /// <summary>
@@ -1902,6 +1888,70 @@ namespace KWEngine3.GameObjects
             _stateCurrent._scale = s;
             _stateCurrent._position = t;
             UpdateModelMatrixAndHitboxes();
+        }
+
+        internal List<IntersectionTerrain> SolveIntersectionsWithTerrain()
+        {
+            List<IntersectionTerrain> intersections = new();
+            Dictionary<TerrainObject, List<GeoTerrainTriangle>> tris = HelperIntersection.GetTrianglesContinuousTerrainCollisionTestsFor(this);
+            List<GeoTerrainTriangle> collisionTriangles = new();
+            float lengthTotal = 0f;
+            Vector3 mtvSum = Vector3.Zero;
+            foreach (TerrainObject t in tris.Keys)
+            {
+                List<GeoTerrainTriangle> trisPerTerrain = tris[t];
+                foreach (GeoTerrainTriangle tri in trisPerTerrain)
+                {
+                    foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
+                    {
+                        IntersectionTerrain it = HelperIntersection.TestIntersectionWithTerrainFace(hb, t, tri, ref HelperVector.VectorZero);
+                        if (it != null)
+                        {
+                            collisionTriangles.Add(tri);
+                            intersections.Add(it);
+                            lengthTotal += it.MTV.LengthFast;
+                            mtvSum += it.MTV;
+                        }
+                    }
+                }
+            }
+            if(intersections.Count == 0)
+            {
+                return intersections;
+            }
+
+            Vector3 mtv = HelperIntersection.CalculateWeightedTerrainMTV(intersections, lengthTotal);
+            //Vector3 mtv = HelperIntersection.CalculateMaxTerrainMTVPerAxis(intersections);
+
+            Vector3 offset = Vector3.Zero;
+            int maxIterations = 10;
+            if (intersections.Count > 1)
+            {
+                for (int i = 1; i <= maxIterations; i++)
+                {
+                    float ii = i + maxIterations;
+                    offset = mtv * (ii / maxIterations);
+
+                    foreach (GeoTerrainTriangle tri in collisionTriangles)
+                    {
+                        foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
+                        {
+                            bool collision = HelperIntersection.TestIntersectionWithTerrainFace(hb, tri, ref offset);
+                            if (collision == false)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                MoveOffset(offset);
+            }
+            else
+            {
+                MoveOffset(mtv);
+            }
+                
+            return intersections;
         }
 
         internal byte _flowfieldcost = 1;

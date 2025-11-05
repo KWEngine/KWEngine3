@@ -28,10 +28,11 @@ namespace KWEngine3TestProject.Classes
                 MoveOffset(0, +0.01f, 0);
 
             List<IntersectionTerrain> intersections = GetIntersectionsWithTerrain();
-            int maxIterations = 16;
-            if (intersections.Count > 1)
+            
+            int maxIterations = 8;
+            if (intersections.Count >= 1)
             {
-                for(int i = 1; i <= maxIterations; i++)
+                for (int i = 1; i <= maxIterations; i++)
                 {
                     Vector3 mtv = HelperIntersection.CalculateWeightedTerrainMTV(intersections);
                     float ii = i;
@@ -41,6 +42,7 @@ namespace KWEngine3TestProject.Classes
                         break;
                 }
             }
+            
 
             CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 10, 10));
             CurrentWorld.SetCameraTarget(this.Center);
