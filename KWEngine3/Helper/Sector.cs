@@ -47,7 +47,7 @@ namespace KWEngine3.Helper
         }
 
 
-        public GeoTerrainTriangle? GetTriangle(Vector3 untranslatedPosition)
+        public GeoTerrainTriangle GetTriangle(Vector3 untranslatedPosition)
         {
 
             foreach (GeoTerrainTriangle t in Triangles)

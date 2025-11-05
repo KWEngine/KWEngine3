@@ -16,20 +16,41 @@ namespace KWEngine3.Helper
         /// </summary>
         /// <param name="intersections">Liste mit gemessenen Terrain-Kollisionen</param>
         /// <returns>Gewichteter MTV</returns>
-        public static Vector3 CalculateWeightedMTV(List<IntersectionTerrain> intersections)
+        public static Vector3 CalculateWeightedTerrainMTV(List<IntersectionTerrain> intersections)
         {
-            Vector3 result = Vector3.Zero;
-            Vector3 weightSum = Vector3.Zero;
+            Vector3 weightedAvgMTV = Vector3.Zero;
             float weightTotal = 0f;
 
             foreach (IntersectionTerrain terrain in intersections)
             {
-                float weight = terrain.MTV.LengthFast;
-                weightSum += Vector3.NormalizeFast(terrain.MTV) * weight;
-                weightTotal += weight;
+                weightTotal += terrain.MTV.LengthFast;
             }
 
-            return weightTotal > 0f ? weightSum / weightTotal : Vector3.Zero;
+            foreach (IntersectionTerrain terrain in intersections)
+            {
+                weightedAvgMTV += terrain.MTV * (terrain.MTV.LengthFast / weightTotal);
+            }
+
+            return weightTotal > 0f ? weightedAvgMTV : Vector3.Zero;
+        }
+
+        /// <summary>
+        /// Berechnet einen gewichteten MTV-Vektor aus mehreren Terrain-Kollisionsintersektionen
+        /// </summary>
+        /// <param name="intersections">Liste mit gemessenen Terrain-Kollisionen</param>
+        /// <returns>Gewichteter MTV</returns>
+        public static Vector3 CalculateMaxTerrainMTVPerAxis(List<IntersectionTerrain> intersections)
+        {
+            Vector3 resultMTV = Vector3.Zero;
+
+            foreach (IntersectionTerrain terrain in intersections)
+            {
+                if (Math.Abs(terrain.MTV.X) > Math.Abs(resultMTV.X)) resultMTV.X = terrain.MTV.X;
+                if (Math.Abs(terrain.MTV.Y) > Math.Abs(resultMTV.Y)) resultMTV.Y = terrain.MTV.Y;
+                if (Math.Abs(terrain.MTV.Z) > Math.Abs(resultMTV.Z)) resultMTV.Z = terrain.MTV.Z;
+            }
+
+            return resultMTV;
         }
 
         /// <summary>
@@ -93,10 +114,10 @@ namespace KWEngine3.Helper
                     {
                         if (to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                         {
-                            GeoTerrainTriangle? tris = s.GetTriangle(untranslatedPosition);
-                            if (tris.HasValue)
+                            GeoTerrainTriangle tris = s.GetTriangle(untranslatedPosition);
+                            if (tris != null)
                             {
-                                bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                                bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Vertices[0], tris.Vertices[1], tris.Vertices[2], out Vector3 contactPoint);
                                 if (hit)
                                 {
                                     float distance = (untranslatedPosition - contactPoint).Y;
@@ -1630,10 +1651,10 @@ namespace KWEngine3.Helper
 
             if (model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
             {
-                GeoTerrainTriangle? tris = s.GetTriangle(untranslatedPosition);
-                if(tris.HasValue)
+                GeoTerrainTriangle tris = s.GetTriangle(untranslatedPosition);
+                if(tris != null)
                 {
-                    bool hit = RayTriangleIntersection(untranslatedPosition, rayDirection, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out contactPoint);
+                    bool hit = RayTriangleIntersection(untranslatedPosition, rayDirection, tris.Vertices[0], tris.Vertices[1], tris.Vertices[2], out contactPoint);
                     if (hit)
                     {
                         contactPoint += new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
@@ -1862,7 +1883,9 @@ namespace KWEngine3.Helper
             return intersections;
         }
 
-        internal static IntersectionTerrain TestIntersectionWithTerrainFace(GameObjectHitbox caller, TerrainObject collider, GeoTerrainTriangle triangle, Vector3 offset)
+        
+
+        internal static IntersectionTerrain TestIntersectionWithTerrainFace(GameObjectHitbox caller, TerrainObject collider, GeoTerrainTriangle triangle, ref Vector3 offset)
         {
             _planeNormals[0] = triangle.Normal;
             _planeVertices[0] = triangle.Vertices[0];
@@ -2450,6 +2473,57 @@ namespace KWEngine3.Helper
         {
             intersectionPoint = Vector4.TransformRow(new Vector4(originTransformed + dirctnTransformedNormalized * currentDistance, 1.0f), mat).Xyz;
             distanceWorldspace = (originWorldspace - intersectionPoint).LengthFast;
+        }
+
+        internal static Vector3[] _aabbPoints = new Vector3[5];
+        internal static List<Sector> _aabbSectors = new List<Sector>(5);
+        internal static void GatherTrisForContinuousTerrainCollisionTestsFor(GameObject g, out Dictionary<TerrainObject, List<GeoTerrainTriangle>> results)
+        {
+            results = new();
+
+            foreach (TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
+            {
+                _aabbSectors.Clear();
+
+                if (t.IsCollisionObject && HelperIntersection.CheckAABBCollision(
+                    g.AABBLeft, g.AABBRight, g.AABBLow, g.AABBHigh, g.AABBBack, g.AABBFront,
+                    t._stateCurrent._center.X - t.Width * 0.5f, t._stateCurrent._center.X + t.Width * 0.5f,
+                    t._stateCurrent._position.Y, t._stateCurrent._position.Y + t.Height,
+                    t._stateCurrent._center.Z - t.Depth * 0.5f, t._stateCurrent._center.Z + t.Depth * 0.5f))
+                {
+                    Vector3 untranslatedPosition = g.Position - new Vector3(t._hitboxes[0]._center.X, t._stateCurrent._position.Y, t._hitboxes[0]._center.Z);
+                    _aabbPoints[0] = untranslatedPosition;
+                    _aabbPoints[1] = untranslatedPosition + new Vector3((g.AABBRight - g.AABBLeft) * +0.5f, 0, (g.AABBFront - g.AABBBack) * 0.5f); // right front
+                    _aabbPoints[2] = untranslatedPosition + new Vector3((g.AABBRight - g.AABBLeft) * +0.5f, 0, (g.AABBFront - g.AABBBack) * -0.5f); // right back
+                    _aabbPoints[3] = untranslatedPosition + new Vector3((g.AABBRight - g.AABBLeft) * -0.5f, 0, (g.AABBFront - g.AABBBack) * 0.5f); // left front
+                    _aabbPoints[4] = untranslatedPosition + new Vector3((g.AABBRight - g.AABBLeft) * -0.5f, 0, (g.AABBFront - g.AABBBack) * -0.5f); // left back
+
+                    List<GeoTerrainTriangle> trianglesUnique = new List<GeoTerrainTriangle>();
+                    foreach (Vector3 pos in _aabbPoints)
+                    {
+                        if (t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(pos, out Sector s))
+                        {
+                            if (HelperGeneral.ListContainsSector(_aabbSectors, ref s))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                _aabbSectors.Add(s);
+                            }
+                            GeoTerrainTriangle tris = s.GetTriangle(pos);
+                            if (tris != null)
+                            {
+                                if (!HelperGeneral.ListContainsTriangle(trianglesUnique, tris))
+                                {
+                                    trianglesUnique.Add(tris);
+                                }
+                            }
+                        }
+                    }
+                    results.Add(t, trianglesUnique);
+                }
+            }
         }
         #endregion
     }

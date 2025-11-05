@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KWEngine3.Model
 {
-    internal struct GeoTerrainTriangle
+    internal class GeoTerrainTriangle
     {
         private Vector3 v1;
         private Vector3 v2;

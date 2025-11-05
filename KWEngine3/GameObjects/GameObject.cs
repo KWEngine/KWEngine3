@@ -1,6 +1,7 @@
 ﻿using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
+using SkiaSharp;
 
 namespace KWEngine3.GameObjects
 {
@@ -459,10 +460,10 @@ namespace KWEngine3.GameObjects
                     {
                         if (to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                         {
-                            GeoTerrainTriangle? tris = s.GetTriangle(untranslatedPosition);
-                            if (tris.HasValue)
+                            GeoTerrainTriangle tris = s.GetTriangle(untranslatedPosition);
+                            if (tris != null)
                             {
-                                bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Value.Vertices[0], tris.Value.Vertices[1], tris.Value.Vertices[2], out Vector3 contactPoint);
+                                bool hit = HelperIntersection.RayTriangleIntersection(untranslatedPosition, -Vector3.UnitY, tris.Vertices[0], tris.Vertices[1], tris.Vertices[2], out Vector3 contactPoint);
                                 if (hit)
                                 {
                                     float distance = (untranslatedPosition - offset - contactPoint).Y;
@@ -470,15 +471,15 @@ namespace KWEngine3.GameObjects
                                     contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
                                     distanceAvg += distance;
                                     interAvg += contactPoint;
-                                    normalAvg += tris.Value.Normal;
-                                    resultSet.AddSurfaceNormal(tris.Value.Normal);
+                                    normalAvg += tris.Normal;
+                                    resultSet.AddSurfaceNormal(tris.Normal);
                                     resultSet.AddIntersectionPoint(contactPoint);
                                     resultSet.AddObject(to);
 
                                     if (distance < distanceMin)
                                     {
                                         resultSet.DistanceMin = distance;
-                                        resultSet.SurfaceNormalNearest = tris.Value.Normal;
+                                        resultSet.SurfaceNormalNearest = tris.Normal;
                                         resultSet.IntersectionPointNearest = contactPoint;
                                     }
                                 }
@@ -494,9 +495,11 @@ namespace KWEngine3.GameObjects
             return resultSet;
         }
 
+        public void SolveIntersectionsWithTerrain()
+        {
+           
+        }
 
-        internal static Vector3[] _aabbPoints = new Vector3[5];
-        internal static List<Sector> _aabbSectors = new List<Sector>(5);
         /// <summary>
         /// Prüft, ob die Hitbox der Instanz mit einem Terrain-Objekt kollidiert, und gibt alle gemessenen Kollisionen zurück
         /// </summary>
@@ -521,6 +524,8 @@ namespace KWEngine3.GameObjects
                     _aabbPoints[3] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * -0.5f, 0, (AABBFront - AABBBack) * 0.5f); // left front
                     _aabbPoints[4] = untranslatedPosition + new Vector3((AABBRight - AABBLeft) * -0.5f, 0, (AABBFront - AABBBack) * -0.5f); // left back
 
+
+                    List<GeoTerrainTriangle> trianglesUnique = new List<GeoTerrainTriangle>();
                     foreach (Vector3 pos in _aabbPoints)
                     {
                         if (t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(pos, out Sector s))
@@ -533,15 +538,22 @@ namespace KWEngine3.GameObjects
                             {
                                 _aabbSectors.Add(s);
                             }
-                            GeoTerrainTriangle? tris = s.GetTriangle(pos);
-                            if (tris.HasValue)
+
+                            
+                            GeoTerrainTriangle tris = s.GetTriangle(pos);
+                            if (tris != null)
                             {
-                                foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
+                                if (!HelperGeneral.ListContainsTriangle(trianglesUnique, tris))
                                 {
-                                    IntersectionTerrain i = HelperIntersection.TestIntersectionWithTerrainFace(hb, t, tris.Value, HelperVector.VectorZero);
-                                    if (i != null)
+                                    trianglesUnique.Add(tris);
+
+                                    foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
                                     {
-                                        intersections.Add(i);
+                                        IntersectionTerrain i = HelperIntersection.TestIntersectionWithTerrainFace(hb, t, tris, ref HelperVector.VectorZero);
+                                        if (i != null)
+                                        {
+                                            intersections.Add(i);
+                                        }
                                     }
                                 }
                             }
@@ -1731,6 +1743,8 @@ namespace KWEngine3.GameObjects
         internal Vector3 _scaleOffsetForAttachment = Vector3.One;
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
         internal static List<Sector> _collisionSectors = new List<Sector>(5);
+        internal static Vector3[] _aabbPoints = new Vector3[5];
+        internal static List<Sector> _aabbSectors = new List<Sector>(5);
 
         internal bool IsRayModeY(RayMode mode)
         {

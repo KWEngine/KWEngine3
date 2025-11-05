@@ -462,12 +462,29 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Größenskalierung des Objekts entlang seiner lokalen drei Achsen
+        /// </summary>
+        /// <param name="x">Skalierung in x-Richtung</param>
+        /// <param name="y">Skalierung in y-Richtung</param>
+        /// <param name="z">Skalierung in z-Richtung</param>
+        public virtual void SetScale(float x, float y, float z)
+        {
+            _stateCurrent._scale = new Vector3(
+                Math.Max(0.000001f, x),
+                Math.Max(0.000001f, y),
+                Math.Max(0.000001f, z));
+            UpdateModelMatrixAndHitboxes();
+        }
+
+        /// <summary>
         /// Setzt die Größenskalierung des Objekts (muss > 0 sein)
         /// </summary>
         /// <param name="s">Skalierung</param>
         public void SetScale(float s)
         {
-            SetScale(s, s, s);
+            s = Math.Max(0.000001f, s);
+            _stateCurrent._scale = new Vector3(s, s, s);
+            UpdateModelMatrixAndHitboxes();
         }
 
         /// <summary>
@@ -717,22 +734,6 @@ namespace KWEngine3.GameObjects
         public virtual void SetRotation(Quaternion rotation)
         {
             _stateCurrent._rotation = rotation;
-            UpdateModelMatrixAndHitboxes();
-        }
-
-        /// <summary>
-        /// Setzt die Größenskalierung des Objekts entlang seiner lokalen drei Achsen
-        /// </summary>
-        /// <param name="x">Skalierung in x-Richtung</param>
-        /// <param name="y">Skalierung in y-Richtung</param>
-        /// <param name="z">Skalierung in z-Richtung</param>
-        public virtual void SetScale(float x, float y, float z)
-        {
-            
-            _stateCurrent._scale = new Vector3(
-                Math.Max(0.000001f, x),
-                Math.Max(0.000001f, y),
-                Math.Max(0.000001f, z));
             UpdateModelMatrixAndHitboxes();
         }
 
@@ -1123,7 +1124,19 @@ namespace KWEngine3.GameObjects
         internal World _myWorld = null;
 
         internal float _pomScale = 0.0f;
-
+        /*
+        internal bool IsKWSphere 
+        { 
+            get 
+            {
+                foreach(GameObjectHitbox hb in _colliderModel._hitboxes)
+                {
+                    if(hb.)
+                }
+                return ; 
+            } 
+        }
+        */
         internal abstract void InitHitboxes();
 
         internal abstract void UpdateModelMatrixAndHitboxes();

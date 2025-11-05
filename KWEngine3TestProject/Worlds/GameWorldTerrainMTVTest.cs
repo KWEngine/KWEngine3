@@ -26,9 +26,9 @@ namespace KWEngine3TestProject.Worlds
 
             Sphere s = new Sphere();
             s.SetModel("KWSphere");
-            s.SetScale(0.5f);
+            s.SetScale(1.0f);
             s.SetColor(1, 0.5f, 0f);
-            s.SetPosition(0, 1.4f, 7.5f);
+            s.SetPosition(0, 5.5f, 7.5f);
             s.IsCollisionObject = true;
             s.IsShadowCaster = true;
             AddGameObject(s);

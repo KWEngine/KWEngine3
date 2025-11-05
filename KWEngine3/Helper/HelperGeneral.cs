@@ -30,6 +30,16 @@ namespace KWEngine3.Helper
             return false;
         }
 
+        internal static bool ListContainsTriangle(List<GeoTerrainTriangle> triangles, GeoTerrainTriangle t)
+        {
+            foreach (GeoTerrainTriangle tFromList in triangles)
+            {
+                if(t.Vertices[0] == tFromList.Vertices[0] && t.Vertices[1] == tFromList.Vertices[1] && t.Vertices[2] == tFromList.Vertices[2])
+                    return true;
+            }
+            return false;
+        }
+
         internal static string ProcessInputs(out Keys specialKey)
         {
             GetStringForCurrentlyPressedKeys(out string result, out specialKey);
