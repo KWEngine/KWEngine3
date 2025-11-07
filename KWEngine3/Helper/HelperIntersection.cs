@@ -1565,6 +1565,12 @@ namespace KWEngine3.Helper
             return true;
         }
 
+        internal static bool IsInFrontOfPlane(ref Vector3 vertex, ref Vector3 planeNormal, ref Vector3 vertexOnPlane)
+        {
+            float distancePointToPlane = Vector3.Dot(planeNormal, vertex - vertexOnPlane);
+            return distancePointToPlane >= 0;
+        }
+
         internal static List<Vector3> ClipFaces(GameObjectHitbox caller, GameObjectHitbox collider)
         {
             List<Vector3> callerVertices = new List<Vector3>(caller._vertices);
@@ -1629,6 +1635,59 @@ namespace KWEngine3.Helper
             float t = (Vector3.Dot(planeNormal, vertexOnPlane) - Vector3.Dot(planeNormal, vertexToBeClipped)) / Vector3.Dot(planeNormal, lineDirectionNormalized);
             Vector3 clippedVertex = vertexToBeClipped + lineDirectionNormalized * t;
             return clippedVertex;
+        }
+
+        internal static void ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, TerrainObject terrain, List<Vector3> contactPoints)
+        {
+            List<Vector3> collisionVolumeVertices = new List<Vector3>();
+            List<Vector3> callerVertices = new List<Vector3>(hb._vertices);
+
+            for (int colliderFaceIndex = 0; colliderFaceIndex < triangle.Faces.Length; colliderFaceIndex++)
+            {
+                GeoTerrainTrianglePrismFace colliderClippingFace = triangle.Faces[colliderFaceIndex];
+                Vector3 colliderClippingFaceVertex = triangle.Vertices[0];
+                Vector3 colliderClippingFaceNormal = triangle.Normal;
+                for (int callerVertexIndex = 0; callerVertexIndex < callerVertices.Count; callerVertexIndex++)
+                {
+                    Vector3 callerVertex1 = callerVertices[callerVertexIndex];
+                    Vector3 callerVertex2 = callerVertices[(callerVertexIndex + 1) % callerVertices.Count];
+                    Vector3 lineDirection = Vector3.NormalizeFast(callerVertex2 - callerVertex1);
+
+                    bool callerVertex1InsideRegion = !HelperIntersection.IsInFrontOfPlane(ref callerVertex1, ref colliderClippingFaceNormal, ref colliderClippingFaceVertex);
+                    bool callerVertex2InsideRegion = !HelperIntersection.IsInFrontOfPlane(ref callerVertex2, ref colliderClippingFaceNormal, ref colliderClippingFaceVertex);
+
+                    if (callerVertex1InsideRegion)
+                    {
+                        if (callerVertex2InsideRegion)
+                        {
+                            if (!collisionVolumeVertices.Contains(callerVertex2))
+                                collisionVolumeVertices.Add(callerVertex2);
+                        }
+                        else
+                        {
+                            Vector3? clippedVertex = ClipLineToPlane(ref callerVertex2, ref lineDirection, ref colliderClippingFaceVertex, ref colliderClippingFaceNormal);
+                            if (clippedVertex != null && !collisionVolumeVertices.Contains(clippedVertex.Value))
+                                collisionVolumeVertices.Add(clippedVertex.Value);
+                        }
+                    }
+                    else
+                    {
+                        if (callerVertex2InsideRegion)
+                        {
+                            Vector3? clippedVertex = ClipLineToPlane(ref callerVertex1, ref lineDirection, ref colliderClippingFaceVertex, ref colliderClippingFaceNormal);
+                            if (clippedVertex != null && !collisionVolumeVertices.Contains(clippedVertex.Value))
+                                collisionVolumeVertices.Add(clippedVertex.Value);
+                            if (!collisionVolumeVertices.Contains(callerVertex2))
+                                collisionVolumeVertices.Add(callerVertex2);
+                        }
+                    }
+                }
+
+                callerVertices.Clear();
+                callerVertices.AddRange(collisionVolumeVertices);
+                collisionVolumeVertices.Clear();
+            }
+            contactPoints.AddRange(callerVertices);
         }
 
         internal static bool TestIntersectionTerrainBelowForRay(Vector3 rayStart, TerrainObject collider, out Vector3 contactPoint, out Vector3 surfaceNormal)
@@ -1960,7 +2019,7 @@ namespace KWEngine3.Helper
             _planeVertices[0] = triangle.Vertices[0];
             _planeVertices[1] = triangle.Vertices[1];
             _planeVertices[2] = triangle.Vertices[2];
-
+            /*
             for (int i = 0; i < caller._normals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
@@ -1971,7 +2030,7 @@ namespace KWEngine3.Helper
                     return false;
                 }
             }
-
+            */
             for (int i = 0; i < _planeNormals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
@@ -2208,11 +2267,6 @@ namespace KWEngine3.Helper
             float x = (d - Vector3.Dot(normal, rayOrigin)) / Vector3.Dot(normal, ray);
             contact = rayOrigin + ray * x;
             return true;
-        }
-        internal static bool IsInFrontOfPlane(ref Vector3 vertex, ref Vector3 planeNormal, ref Vector3 vertexOnPlane)
-        {
-            float distancePointToPlane = Vector3.Dot(planeNormal, vertex - vertexOnPlane);
-            return distancePointToPlane >= 0;
         }
 
         internal static bool IsPointInsideBox(ref Vector3 pos, float left, float right, float top, float bottom, float front, float back)

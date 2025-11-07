@@ -1890,13 +1890,15 @@ namespace KWEngine3.GameObjects
             UpdateModelMatrixAndHitboxes();
         }
 
-        internal List<IntersectionTerrain> SolveIntersectionsWithTerrain()
+        public List<Vector3> SolveIntersectionsWithTerrain()
         {
             List<IntersectionTerrain> intersections = new();
             Dictionary<TerrainObject, List<GeoTerrainTriangle>> tris = HelperIntersection.GetTrianglesContinuousTerrainCollisionTestsFor(this);
             List<GeoTerrainTriangle> collisionTriangles = new();
-            float lengthTotal = 0f;
-            Vector3 mtvSum = Vector3.Zero;
+            List<Vector3> contactPoints = new();
+
+            bool collisionDetected = false;
+
             foreach (TerrainObject t in tris.Keys)
             {
                 List<GeoTerrainTriangle> trisPerTerrain = tris[t];
@@ -1904,54 +1906,15 @@ namespace KWEngine3.GameObjects
                 {
                     foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
                     {
-                        IntersectionTerrain it = HelperIntersection.TestIntersectionWithTerrainFace(hb, t, tri, ref HelperVector.VectorZero);
-                        if (it != null)
+                        if(HelperIntersection.TestIntersectionWithTerrainFace(hb, tri, ref HelperVector.VectorZero))
                         {
-                            collisionTriangles.Add(tri);
-                            intersections.Add(it);
-                            lengthTotal += it.MTV.LengthFast;
-                            mtvSum += it.MTV;
+                            collisionDetected = true;
+                            HelperIntersection.ClipOBBAgainstTriangle(hb, tri, t, contactPoints);
                         }
                     }
                 }
             }
-            if(intersections.Count == 0)
-            {
-                return intersections;
-            }
-
-            Vector3 mtv = HelperIntersection.CalculateWeightedTerrainMTV(intersections, lengthTotal);
-            //Vector3 mtv = HelperIntersection.CalculateMaxTerrainMTVPerAxis(intersections);
-
-            Vector3 offset = Vector3.Zero;
-            int maxIterations = 10;
-            if (intersections.Count > 1)
-            {
-                for (int i = 1; i <= maxIterations; i++)
-                {
-                    float ii = i + maxIterations;
-                    offset = mtv * (ii / maxIterations);
-
-                    foreach (GeoTerrainTriangle tri in collisionTriangles)
-                    {
-                        foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
-                        {
-                            bool collision = HelperIntersection.TestIntersectionWithTerrainFace(hb, tri, ref offset);
-                            if (collision == false)
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-                MoveOffset(offset);
-            }
-            else
-            {
-                MoveOffset(mtv);
-            }
-                
-            return intersections;
+            return contactPoints;
         }
 
         internal byte _flowfieldcost = 1;

@@ -192,25 +192,37 @@ namespace KWEngine3.Model
 
         internal float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image, byte[] pixelData)
         {
-            float xScaledToImageSize = Math.Clamp(HelperGeneral.ScaleToRange(x, -terrainWidth / 2f + 0.5f, terrainWidth / 2f - 0.5f, 0, image.Width - 1), 0f, image.Width - 1f);
-            float zScaledToImageSize = Math.Clamp(HelperGeneral.ScaleToRange(z, -terrainDepth / 2f + 0.5f, terrainDepth / 2f - 0.5f, 0, image.Height - 1), 0f, image.Height - 1f);
+            //Console.WriteLine(x + " | " + z);
+            //float xScaledToImageSize = Math.Clamp(HelperGeneral.ScaleToRange(x, -terrainWidth / 2f + 0.5f, terrainWidth / 2f - 0.5f, 0, image.Width - 1), 0f, image.Width - 1f);
+            //float zScaledToImageSize = Math.Clamp(HelperGeneral.ScaleToRange(z, -terrainDepth / 2f + 0.5f, terrainDepth / 2f - 0.5f, 0, image.Height - 1), 0f, image.Height - 1f);
+
+            float inputLoX = -(terrainWidth - 0) / 2f;// - 0.5f;
+            float inputHiX = +(terrainWidth - 0) / 2f;// + 0.5f;
+            float inputLoZ = -(terrainDepth - 0) / 2f;// - 0.5f;
+            float inputHiZ = +(terrainDepth - 0) / 2f;// + 0.5f;
+            float xScaledToImageSize = HelperGeneral.ScaleToRange(x, inputLoX, inputHiX, 0, image.Width - 1);
+            float zScaledToImageSize = HelperGeneral.ScaleToRange(z, inputLoZ, inputHiZ, 0, image.Height - 1);
+
+            //Console.WriteLine(xScaledToImageSize + "|" + zScaledToImageSize);
 
             int ix = (int)(xScaledToImageSize);
             int iz = (int)(zScaledToImageSize);
             int offsetX = iz * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
-
+            
+            /*
             int ixNeighbour = Math.Min(ix + 1, image.Width - 1);
             int izNeighbour = Math.Min(iz + 1, image.Height - 1);
             float blendX = xScaledToImageSize - ix;
             float blendZ = zScaledToImageSize - iz;
             int offsetNeighbourX = iz * image.Width * image.BytesPerPixel + ixNeighbour * image.BytesPerPixel;
             int offsetNeighbourZ = izNeighbour * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
-
+            */
             byte colorLoc = pixelData[offsetX];
-            byte colorNX = pixelData[offsetNeighbourX];
-            byte colorNZ = pixelData[offsetNeighbourZ];
+            //byte colorNX = pixelData[offsetNeighbourX];
+            //byte colorNZ = pixelData[offsetNeighbourZ];
 
-            float vertexColor = ((colorLoc * (1f - blendX) + colorNX * blendX) + (colorLoc * (1f - blendZ) + colorNZ * blendZ)) * 0.5f;
+            //float vertexColor = ((colorLoc * (1f - blendX) + colorNX * blendX) + (colorLoc * (1f - blendZ) + colorNZ * blendZ)) * 0.5f;
+            float vertexColor = colorLoc;
             float normalizedRGB = vertexColor / 255f;
             return normalizedRGB * terrainHeight;
         }

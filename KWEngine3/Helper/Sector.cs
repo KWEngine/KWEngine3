@@ -65,5 +65,10 @@ namespace KWEngine3.Helper
             string s = "L: " + Math.Round(Left, 2) + " | R: " + Math.Round(Right, 2) + " | F: " + Math.Round(Back, 2) + " | B: " + Math.Round(Front, 2);
             return s;
         }
+
+        public override string ToString()
+        {
+            return GetInfo();
+        }
     }
 }
