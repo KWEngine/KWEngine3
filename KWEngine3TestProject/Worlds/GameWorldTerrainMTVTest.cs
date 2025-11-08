@@ -34,10 +34,22 @@ namespace KWEngine3TestProject.Worlds
             s.SetModel("KWSphere");
             s.SetScale(1.0f);
             s.SetColor(1, 0.5f, 0f);
-            s.SetPosition(0, 5.25f, 7.5f);
+            s.SetPosition(-0.45f, 5.25f, 7.85f);
             s.IsCollisionObject = true;
             s.IsShadowCaster = true;
+            s.SetOpacity(0.5f);
             AddGameObject(s);
+            /*
+            Immovable wallleft = new Immovable();
+            wallleft.SetPosition(-8.5f, 2.5f, 0);
+            wallleft.SetScale(1, 5, 16);
+            AddGameObject(wallleft);
+
+            Immovable wallright = new Immovable();
+            wallright.SetPosition(8.5f, 2.5f, 0);
+            wallright.SetScale(1, 5, 16);
+            AddGameObject(wallright);
+            */
 
             KWEngine.DebugMode = DebugMode.TerrainCollisionModel;
 

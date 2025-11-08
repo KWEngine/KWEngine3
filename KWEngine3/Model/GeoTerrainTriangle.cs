@@ -2,7 +2,10 @@
 
 namespace KWEngine3.Model
 {
-    internal class GeoTerrainTriangle
+    /// <summary>
+    /// Klasse, die Dreiecke eines Terrain-Objekts repräsentiert
+    /// </summary>
+    public class GeoTerrainTriangle
     {
         private Vector3 v1;
         private Vector3 v2;
@@ -17,7 +20,8 @@ namespace KWEngine3.Model
         internal Vector3 Center;
         internal Vector3 Normal;
 
-        internal Vector3[] Normals;
+        const float EPSILON = 1e-5f;
+        //internal Vector3[] Normals;
 
         internal static Vector3 CalculateSurfaceNormal(Vector3 v1, Vector3 v2, Vector3 v3)
         {
@@ -28,13 +32,17 @@ namespace KWEngine3.Model
             return y;
         }
 
+        /// <summary>
+        /// Einfache Darstellung der Dreieckskoordinaten
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return v1.ToString() + "][" + v2.ToString() + "][" + v3.ToString();
         }
         public GeoTerrainTriangle(Vector3 a, Vector3 b, Vector3 c)
         {
-            Normals = new Vector3[3];
+            //Normals = new Vector3[3];
             Normal = Vector3.Zero;
             v1 = a; v2 = b; v3 = c;
 
@@ -46,13 +54,14 @@ namespace KWEngine3.Model
             Normal = CalculateSurfaceNormal(v1, v2, v3);
 
             // Find other 2 normals:
-            Normals[2] = Vector3.NormalizeFast(Vector3.Cross(Normal, Vector3.UnitZ));
+            /*Normals[2] = Vector3.NormalizeFast(Vector3.Cross(Normal, Vector3.UnitZ));
             if (Normals[2].X < 0)
                 Normals[2] = -Normals[2];
             Normals[1] = Normal;
             Normals[0] = Vector3.NormalizeFast(Vector3.Cross(Normal, Vector3.UnitX));
             if (Normals[0].Z < 0)
                 Normals[0] = -Normals[0];
+            */
 
 
             edge1 = Vertices[1] - Vertices[0];
@@ -93,6 +102,15 @@ namespace KWEngine3.Model
             return (p1.X - p3.X) * (p2.Z - p3.Z) - (p2.X - p3.X) * (p1.Z - p3.Z);
         }
 
+        /// <summary>
+        /// Prüft, ob ein Punkt innerhalb eines durch drei Punkte aufgespanntes Dreieck liegt (die Punkte müssen gegen den Uhrzeigersinn angegeben werden)
+        /// </summary>
+        /// <remarks>Die Methode prüft NICHT, ob die Punkte exakt auf der Dreiecksfläche liegen; nur, ob sie entlang des Ebenenvektors irgendwo innerhalb der äußeren Ränder liegen</remarks>
+        /// <param name="pt">zu prüfender Punkt</param>
+        /// <param name="v1">Dreieckspunkt 1</param>
+        /// <param name="v2">Dreieckspunkt 2</param>
+        /// <param name="v3">Dreieckspunkt 3</param>
+        /// <returns>true, wenn der Punkt innerhalb der Dreiecksränder liegt</returns>
         public static bool IsPointInTriangle(ref Vector3 pt, ref Vector3 v1, ref Vector3 v2, ref Vector3 v3)
         {
             float d1, d2, d3;
@@ -106,6 +124,41 @@ namespace KWEngine3.Model
             has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
 
             return !(has_neg && has_pos);
+        }
+
+        /// <summary>
+        /// Prüft, ob ein Punkt exakt auf der durch drei Punkte aufgespannten Dreiecksfläche liegt (die Punkte müssen gegen den Uhrzeigersinn angegeben werden)
+        /// </summary>
+        /// <param name="p">zu prüfender Punkt</param>
+        /// <param name="a">Dreieckspunkt 1</param>
+        /// <param name="b">Dreieckspunkt 2</param>
+        /// <param name="c">Dreieckspunkt 3</param>
+        /// <param name="n">Dreiecksebenenvektor</param>
+        /// <returns>true, wenn der Punkt exakt auf der Dreiecksfläche liegt</returns>
+        public static bool IsPointOnTriangle(ref Vector3 p, ref Vector3 a, ref Vector3 b, ref Vector3 c, ref Vector3 n)
+        {
+            float dist = Vector3.Dot(p - a, n);
+            if (MathF.Abs(dist) > EPSILON)
+                return false;
+
+            Vector3 v0 = b - a;
+            Vector3 v1 = c - a;
+            Vector3 v2 = p - a;
+
+            float d00 = Vector3.Dot(v0, v0);
+            float d01 = Vector3.Dot(v0, v1);
+            float d11 = Vector3.Dot(v1, v1);
+            float d20 = Vector3.Dot(v2, v0);
+            float d21 = Vector3.Dot(v2, v1);
+
+            float denom = d00 * d11 - d01 * d01;
+
+            float v = (d11 * d20 - d01 * d21) / denom;
+            float w = (d00 * d21 - d01 * d20) / denom;
+            float u = 1.0f - v - w;
+
+            return (u >= -EPSILON) && (v >= -EPSILON) && (w >= -EPSILON)
+                && (u <= 1.0f + EPSILON) && (v <= 1.0f + EPSILON) && (w <= 1.0f + EPSILON);
         }
     }
 }

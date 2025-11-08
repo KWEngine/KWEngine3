@@ -1890,31 +1890,97 @@ namespace KWEngine3.GameObjects
             UpdateModelMatrixAndHitboxes();
         }
 
-        public List<Vector3> SolveIntersectionsWithTerrain()
+        public bool SolveIntersectionsWithTerrain(out Dictionary<GeoTerrainTriangle, List<Vector3>> contactPointsOnTriangle)
         {
-            List<IntersectionTerrain> intersections = new();
             Dictionary<TerrainObject, List<GeoTerrainTriangle>> tris = HelperIntersection.GetTrianglesContinuousTerrainCollisionTestsFor(this);
+
             List<GeoTerrainTriangle> collisionTriangles = new();
             List<Vector3> contactPoints = new();
-
+            contactPointsOnTriangle = new();
             bool collisionDetected = false;
+            Vector3 tryOffset = Vector3.Zero;
+            List<Vector3> mtvs = new();
 
             foreach (TerrainObject t in tris.Keys)
             {
                 List<GeoTerrainTriangle> trisPerTerrain = tris[t];
                 foreach (GeoTerrainTriangle tri in trisPerTerrain)
                 {
+                    Vector3 farthestContactPoint = Vector3.Zero;
+                    float dotMax = 0;
+
                     foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
                     {
-                        if(HelperIntersection.TestIntersectionWithTerrainFace(hb, tri, ref HelperVector.VectorZero))
+                        if(HelperIntersection.TestIntersectionWithTerrainFace(hb, tri, ref tryOffset))
                         {
                             collisionDetected = true;
-                            HelperIntersection.ClipOBBAgainstTriangle(hb, tri, t, contactPoints);
+                            if(!contactPointsOnTriangle.ContainsKey(tri))
+                            {
+                                contactPointsOnTriangle.Add(tri, new List<Vector3>());
+                            }
+                            HelperIntersection.ClipOBBAgainstTriangle(hb, tri, t, contactPoints, ref tryOffset);
+
+                            for(int i = 0; i < contactPoints.Count; i++)
+                            {
+                                Vector3 contactPoint = contactPoints[i];
+
+                                // look for the point that is farthest from the triangle surface:
+                                float dot = Vector3.Dot(contactPoint - tri.Vertices[0], -tri.Normal);
+                                if (dot > 0 && dot >= dotMax)
+                                {
+                                    dotMax = dot;
+                                    farthestContactPoint = contactPoint;
+                                }
+
+                                // filter: only use points that are right on the triangle face
+                                //if (GeoTerrainTriangle.IsPointOnTriangle(ref contactPoint, ref tri.Vertices[0], ref tri.Vertices[1], ref tri.Vertices[2], ref tri.Normal))
+                                if (GeoTerrainTriangle.IsPointInTriangle(ref contactPoint, ref tri.Vertices[0], ref tri.Vertices[1], ref tri.Vertices[2]))
+                                {
+                                    contactPointsOnTriangle[tri].Add(contactPoint);
+                                }
+                            }
+
+                            // calculate mtv
+                            Vector3 mtv = dotMax * tri.Normal;
+                            mtvs.Add(mtv);
                         }
                     }
                 }
             }
-            return contactPoints;
+            
+            Vector3 mtvWeighted = HelperIntersection.CalculateWeightedMTV(mtvs);
+            if (mtvWeighted.LengthSquared > 0.00001f)
+            {
+                Vector3 mtvWeightedSlice = mtvWeighted / 16f;
+                Vector3 mtvOffset = mtvWeightedSlice;
+                bool stillColliding;
+                do
+                {
+                    stillColliding = false;
+                
+                    foreach (TerrainObject t in tris.Keys)
+                    {
+                        foreach (GeoTerrainTriangle tri in tris[t])
+                        {
+                            foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
+                            {
+                                if (HelperIntersection.TestIntersectionWithTerrainFace(hb, tri, ref mtvOffset))
+                                {
+                                    stillColliding = true;
+                                    mtvOffset += mtvWeightedSlice;
+                                    goto JumpTarget;
+                                }
+                            }
+                        }
+                    }
+                    JumpTarget:;
+                }
+                while (stillColliding);
+
+                MoveOffset(mtvOffset);
+            }
+            
+            return collisionDetected;
         }
 
         internal byte _flowfieldcost = 1;

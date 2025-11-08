@@ -35,6 +35,29 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Berechnet einen gewichteten MTV-Vektor aus einer Liste mehrerer MTV-Vektoren
+        /// </summary>
+        /// <param name="mtvs">Liste von MTV-Vektoren</param>
+        /// <returns>Gewichteter MTV</returns>
+        public static Vector3 CalculateWeightedMTV(List<Vector3> mtvs)
+        {
+            Vector3 weightedAvgMTV = Vector3.Zero;
+            float weightTotal = 0f;
+
+            foreach (Vector3 mtv in mtvs)
+            {
+                weightTotal += mtv.LengthFast;
+            }
+
+            foreach (Vector3 mtv in mtvs)
+            {
+                weightedAvgMTV += mtv * (mtv.LengthFast / weightTotal);
+            }
+
+            return weightTotal > 0f ? weightedAvgMTV : Vector3.Zero;
+        }
+
+        /// <summary>
         /// Berechnet einen gewichteten MTV-Vektor aus mehreren Terrain-Kollisionsintersektionen
         /// </summary>
         /// <param name="intersections">Liste mit gemessenen Terrain-Kollisionen</param>
@@ -1637,7 +1660,7 @@ namespace KWEngine3.Helper
             return clippedVertex;
         }
 
-        internal static void ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, TerrainObject terrain, List<Vector3> contactPoints)
+        internal static void ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, TerrainObject terrain, List<Vector3> contactPoints, ref Vector3 offset)
         {
             List<Vector3> collisionVolumeVertices = new List<Vector3>();
             List<Vector3> callerVertices = new List<Vector3>(hb._vertices);
@@ -1649,8 +1672,8 @@ namespace KWEngine3.Helper
                 Vector3 colliderClippingFaceNormal = triangle.Normal;
                 for (int callerVertexIndex = 0; callerVertexIndex < callerVertices.Count; callerVertexIndex++)
                 {
-                    Vector3 callerVertex1 = callerVertices[callerVertexIndex];
-                    Vector3 callerVertex2 = callerVertices[(callerVertexIndex + 1) % callerVertices.Count];
+                    Vector3 callerVertex1 = callerVertices[callerVertexIndex] + offset;
+                    Vector3 callerVertex2 = callerVertices[(callerVertexIndex + 1) % callerVertices.Count] + offset;
                     Vector3 lineDirection = Vector3.NormalizeFast(callerVertex2 - callerVertex1);
 
                     bool callerVertex1InsideRegion = !HelperIntersection.IsInFrontOfPlane(ref callerVertex1, ref colliderClippingFaceNormal, ref colliderClippingFaceVertex);

@@ -1,8 +1,7 @@
 ﻿using KWEngine3.Helper;
-using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using SkiaSharp;
-using System.Diagnostics;
 
 namespace KWEngine3.Model
 {
@@ -67,6 +66,17 @@ namespace KWEngine3.Model
             int sectorCountX = mWidth / mSectorLength;
             int sectorCountZ = mDepth / mSectorLength;
 
+            this._pixelHeights = new float[image.Width, image.Height];
+            // fill float-2dim-array for new collision detection
+            for (int x = 0; x < image.Width; x++)
+            {
+                for (int y = 0; y < image.Height; y++)
+                {
+                    SKColor clr = image.GetPixel(x, y);
+                    this._pixelHeights[x, y] = (clr.Red + clr.Green + clr.Blue) / 3f / 255f;
+                }
+            }
+
             mSectorMap = new Sector[sectorCountX, sectorCountZ];
             for (int i = 0; i < sectorCountX; i++)
             {
@@ -96,22 +106,22 @@ namespace KWEngine3.Model
                     {
                         for(float z = sectorBack; z < sectorFront; z += mTriangleDepth)
                         {
-                            h = GetHeightForVertex(x + mTriangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
+                            h = GetHeightForVertex(x + mTriangleWidth, z);
                             Vector3 t0 = new Vector3(x + mTriangleWidth, h, z);                  // right back
 
-                            h = GetHeightForVertex(x, z, mWidth, mDepth, mHeight, image, pixelData);
+                            h = GetHeightForVertex(x, z);
                             Vector3 t1 = new Vector3(x, h, z);                                  // left back
 
-                            h = GetHeightForVertex(x, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                            h = GetHeightForVertex(x, z + mTriangleDepth);
                             Vector3 t2 = new Vector3(x, h, z + mTriangleDepth);                  // left front
 
-                            h = GetHeightForVertex(x, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                            h = GetHeightForVertex(x, z + mTriangleDepth);
                             Vector3 t3 = new Vector3(x, h, z + mTriangleDepth);                  // left front
 
-                            h = GetHeightForVertex(x + mTriangleWidth, z + mTriangleDepth, mWidth, mDepth, mHeight, image, pixelData);
+                            h = GetHeightForVertex(x + mTriangleWidth, z + mTriangleDepth);
                             Vector3 t4 = new Vector3(x + mTriangleWidth, h, z + mTriangleDepth);  // right front
 
-                            h = GetHeightForVertex(x + mTriangleWidth, z, mWidth, mDepth, mHeight, image, pixelData);
+                            h = GetHeightForVertex(x + mTriangleWidth, z);
                             Vector3 t5 = new Vector3(x + mTriangleWidth, h, z);                  // right back
 
                             GeoTerrainTriangle tri0 = new GeoTerrainTriangle(t0, t1, t2);
@@ -190,41 +200,44 @@ namespace KWEngine3.Model
             }
         }
 
-        internal float GetHeightForVertex(float x, float z, int terrainWidth, int terrainDepth, int terrainHeight, SKBitmap image, byte[] pixelData)
+        internal float GetHeightForVertex(float x, float z)
         {
-            //Console.WriteLine(x + " | " + z);
-            //float xScaledToImageSize = Math.Clamp(HelperGeneral.ScaleToRange(x, -terrainWidth / 2f + 0.5f, terrainWidth / 2f - 0.5f, 0, image.Width - 1), 0f, image.Width - 1f);
-            //float zScaledToImageSize = Math.Clamp(HelperGeneral.ScaleToRange(z, -terrainDepth / 2f + 0.5f, terrainDepth / 2f - 0.5f, 0, image.Height - 1), 0f, image.Height - 1f);
+            Vector3 ray = new Vector3(x, this.mHeight + 1, z);
 
-            float inputLoX = -(terrainWidth - 0) / 2f;// - 0.5f;
-            float inputHiX = +(terrainWidth - 0) / 2f;// + 0.5f;
-            float inputLoZ = -(terrainDepth - 0) / 2f;// - 0.5f;
-            float inputHiZ = +(terrainDepth - 0) / 2f;// + 0.5f;
-            float xScaledToImageSize = HelperGeneral.ScaleToRange(x, inputLoX, inputHiX, 0, image.Width - 1);
-            float zScaledToImageSize = HelperGeneral.ScaleToRange(z, inputLoZ, inputHiZ, 0, image.Height - 1);
+            float rayXOffset = ray.X + this.mWidth / 2f;
+            float rayZOffset = ray.Z + this.mDepth / 2f;
+            float pxX = rayXOffset - 0.5f;
+            float pxZ = rayZOffset - 0.5f;
 
-            //Console.WriteLine(xScaledToImageSize + "|" + zScaledToImageSize);
+            float weightX = 1f - pxX % 1f;
+            float weightZ = 1f - pxZ % 1f;
+            float weightXOther = 1f - weightX;
+            float weightZOther = 1f - weightZ;
 
-            int ix = (int)(xScaledToImageSize);
-            int iz = (int)(zScaledToImageSize);
-            int offsetX = iz * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
-            
-            /*
-            int ixNeighbour = Math.Min(ix + 1, image.Width - 1);
-            int izNeighbour = Math.Min(iz + 1, image.Height - 1);
-            float blendX = xScaledToImageSize - ix;
-            float blendZ = zScaledToImageSize - iz;
-            int offsetNeighbourX = iz * image.Width * image.BytesPerPixel + ixNeighbour * image.BytesPerPixel;
-            int offsetNeighbourZ = izNeighbour * image.Width * image.BytesPerPixel + ix * image.BytesPerPixel;
-            */
-            byte colorLoc = pixelData[offsetX];
-            //byte colorNX = pixelData[offsetNeighbourX];
-            //byte colorNZ = pixelData[offsetNeighbourZ];
+            int pxX0 = (int)(pxX + 0.0f);
+            int pxX1 = MathHelper.Clamp(pxX0 + 1, 0, this.mWidth - 1);
 
-            //float vertexColor = ((colorLoc * (1f - blendX) + colorNX * blendX) + (colorLoc * (1f - blendZ) + colorNZ * blendZ)) * 0.5f;
-            float vertexColor = colorLoc;
-            float normalizedRGB = vertexColor / 255f;
-            return normalizedRGB * terrainHeight;
+            int pxZ0 = (int)(pxZ + 0.0f);
+            int pxZ1 = MathHelper.Clamp(pxZ0 + 1, 0, this.mDepth - 1);
+
+            float i00 = this._pixelHeights[pxX0, pxZ0];
+            float i01 = this._pixelHeights[pxX0, pxZ1];
+            float i10 = this._pixelHeights[pxX1, pxZ0];
+            float i11 = this._pixelHeights[pxX1, pxZ1];
+
+            Vector3 v00 = new Vector3(pxX0, i00 * this.mHeight, pxZ0);
+            Vector3 v01 = new Vector3(pxX0, i01 * this.mHeight, pxZ1);
+            Vector3 v10 = new Vector3(pxX1, i10 * this.mHeight, pxZ0);
+            Vector3 v11 = new Vector3(pxX1, i11 * this.mHeight, pxZ1);
+
+            // bilinear interpolation:
+            float result =
+                i00 * weightX * weightZ +
+                i01 * weightX * weightZOther +
+                i10 * weightXOther * weightZ +
+                i11 * weightXOther * weightZOther;
+
+            return result * this.mHeight;
         }
     }
 }

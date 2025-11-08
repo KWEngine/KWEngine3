@@ -1,8 +1,10 @@
 ﻿using KWEngine3.GameObjects;
 using KWEngine3.Helper;
+using KWEngine3.Model;
 using KWEngine3TestProject.Classes.WorldTerrainMTVTest;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,24 +65,30 @@ namespace KWEngine3TestProject.Classes
                 }
             }
             */
-            List<Vector3> contactPoints = SolveIntersectionsWithTerrain();
-            for(int i = 0; i < _contactPoints.Count; i++)
+            SolveIntersectionsWithTerrain(out Dictionary<GeoTerrainTriangle, List<Vector3>> contactPoints);
+            List<Vector3> pointsOnTriangles = new();
+            foreach(GeoTerrainTriangle tri in contactPoints.Keys)
             {
-                if (i < contactPoints.Count)
+                pointsOnTriangles.AddRange(contactPoints[tri]);
+            }
+            for (int i = 0; i < _contactPoints.Count; i++)
+            {
+
+                if (i < pointsOnTriangles.Count)
                 {
                     _contactPoints[i].SetOpacity(1);
-                    _contactPoints[i].SetPosition(contactPoints[i]);
+                    _contactPoints[i].SetPosition(pointsOnTriangles[i]);
                 }
                 else
                 {
                     _contactPoints[i].SetOpacity(0);
                 }
             }
+            
 
-
-            //CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 0.5f, 2.5f));
+            CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 1.25f, 2.5f));
             //CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 7.5f, 10f));
-            //CurrentWorld.SetCameraTarget(this.Center);
+            CurrentWorld.SetCameraTarget(this.Center);
         }
     }
 }
