@@ -36,17 +36,17 @@ namespace KWEngine3TestProject.Classes
         public override void Act()
         {
             if (Keyboard.IsKeyDown(Keys.W))
-                MoveOffset(0, 0, -0.01f);
+                MoveOffset(0, 0, -0.001f);
             if (Keyboard.IsKeyDown(Keys.S))
-                MoveOffset(0, 0, +0.01f);
+                MoveOffset(0, 0, +0.001f);
             if (Keyboard.IsKeyDown(Keys.A))
-                MoveOffset(-0.01f, 0, 0);
+                MoveOffset(-0.001f, 0, 0);
             if (Keyboard.IsKeyDown(Keys.D))
-                MoveOffset(+0.01f, 0, 0);
+                MoveOffset(+0.001f, 0, 0);
             if (Keyboard.IsKeyDown(Keys.Q))
-                MoveOffset(0, -0.01f, 0);
+                MoveOffset(0, -0.001f, 0);
             if (Keyboard.IsKeyDown(Keys.E))
-                MoveOffset(0, +0.01f, 0);
+                MoveOffset(0, +0.001f, 0);
 
             /*
             List<IntersectionTerrain> intersections = GetIntersectionsWithTerrain();
@@ -86,7 +86,7 @@ namespace KWEngine3TestProject.Classes
             }
             
 
-            CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 1.25f, 2.5f));
+            CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 0.5f, 2.5f));
             //CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 7.5f, 10f));
             CurrentWorld.SetCameraTarget(this.Center);
         }

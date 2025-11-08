@@ -1664,6 +1664,7 @@ namespace KWEngine3.Helper
         {
             List<Vector3> collisionVolumeVertices = new List<Vector3>();
             List<Vector3> callerVertices = new List<Vector3>(hb._vertices);
+            contactPoints.Clear();
 
             for (int colliderFaceIndex = 0; colliderFaceIndex < triangle.Faces.Length; colliderFaceIndex++)
             {
@@ -2278,7 +2279,7 @@ namespace KWEngine3.Helper
                 if (dotVal > maxAlong) maxAlong = dotVal;
             }
         }
-        private static bool LinePlaneIntersection(out Vector3 contact, Vector3 ray, Vector3 rayOrigin,
+        internal static bool LinePlaneIntersection(out Vector3 contact, Vector3 ray, Vector3 rayOrigin,
                                             Vector3 normal, Vector3 coord)
         {
             contact = Vector3.Zero;
@@ -2585,15 +2586,14 @@ namespace KWEngine3.Helper
         }
 
         internal static Vector3[] _aabbPoints = new Vector3[5];
-        internal static List<Sector> _aabbSectors = new List<Sector>(5);
+        internal static List<Sector> _aabbSectors = new List<Sector>();
         internal static Dictionary<TerrainObject, List<GeoTerrainTriangle>> GetTrianglesContinuousTerrainCollisionTestsFor(GameObject g)
         {
             Dictionary<TerrainObject, List<GeoTerrainTriangle>> results = new();
+            _aabbSectors.Clear();
 
             foreach (TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
             {
-                _aabbSectors.Clear();
-
                 if (t.IsCollisionObject && HelperIntersection.CheckAABBCollision(
                     g.AABBLeft, g.AABBRight, g.AABBLow, g.AABBHigh, g.AABBBack, g.AABBFront,
                     t._stateCurrent._center.X - t.Width * 0.5f, t._stateCurrent._center.X + t.Width * 0.5f,
@@ -2612,21 +2612,10 @@ namespace KWEngine3.Helper
                     {
                         if (t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(pos, out Sector s))
                         {
-                            if (HelperGeneral.ListContainsSector(_aabbSectors, ref s))
-                            {
-                                continue;
-                            }
-                            else
+                            if (_aabbSectors.Contains(s) == false)
                             {
                                 _aabbSectors.Add(s);
-                            }
-                            GeoTerrainTriangle tris = s.GetTriangle(pos);
-                            if (tris != null)
-                            {
-                                if (!HelperGeneral.ListContainsTriangle(trianglesUnique, tris))
-                                {
-                                    trianglesUnique.Add(tris);
-                                }
+                                trianglesUnique.AddRange(s.Triangles);
                             }
                         }
                     }

@@ -3,7 +3,7 @@ using OpenTK.Mathematics;
 
 namespace KWEngine3.Helper
 {
-    internal struct Sector
+    internal class Sector
     {
         //internal bool IsValid { get; set; }
         public float Left { get; set; }
@@ -52,7 +52,7 @@ namespace KWEngine3.Helper
 
             foreach (GeoTerrainTriangle t in Triangles)
             {
-                if (GeoTerrainTriangle.IsPointInTriangle(ref untranslatedPosition, ref t.Vertices[0], ref t.Vertices[1], ref t.Vertices[2]))
+                if (GeoTerrainTriangle.IsPointInTriangle(untranslatedPosition, t.Vertices[0], t.Vertices[1], t.Vertices[2]))
                 {
                     return t;
                 }

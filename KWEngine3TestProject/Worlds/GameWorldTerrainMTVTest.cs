@@ -34,7 +34,7 @@ namespace KWEngine3TestProject.Worlds
             s.SetModel("KWSphere");
             s.SetScale(1.0f);
             s.SetColor(1, 0.5f, 0f);
-            s.SetPosition(-0.45f, 5.25f, 7.85f);
+            s.SetPosition(-0.45f, 5.25f, 7.047992f); // (-0,45; 5,4865003; 7,047992)
             s.IsCollisionObject = true;
             s.IsShadowCaster = true;
             s.SetOpacity(0.5f);

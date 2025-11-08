@@ -20,7 +20,7 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperGeneral
     {
-        internal static bool ListContainsSector(List<Sector> sectors, ref Sector s)
+        internal static bool ListContainsSector(List<Sector> sectors, Sector s)
         {
             foreach(Sector sec in sectors)
             {

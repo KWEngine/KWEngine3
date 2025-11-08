@@ -58,7 +58,7 @@ namespace KWEngine3.Model
 
             mTriangleWidth = 1;
             mTriangleDepth = 1;
-            mSectorLength = 8;
+            mSectorLength = 2;
 
             int startX = -mWidth / 2;
             int startZ = -mDepth / 2;
@@ -164,7 +164,7 @@ namespace KWEngine3.Model
             int tmpIndexX = Math.Min((int)(tmpF / mSectorLength), mSectorMap.GetLength(0) - 1);
             tmpF = position.Z + (mDepth / 2);
             int tmpIndexZ = Math.Min((int)(tmpF / mSectorLength), mSectorMap.GetLength(1) - 1);
-            s = new Sector();
+            s = null;
             if (tmpIndexX < 0 || tmpIndexX >= mSectorMap.GetLength(0) || tmpIndexZ < 0 || tmpIndexZ >= mSectorMap.GetLength(1))
             {
                 return false;

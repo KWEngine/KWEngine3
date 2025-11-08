@@ -21,6 +21,7 @@ namespace KWEngine3.Model
         internal Vector3 Normal;
 
         const float EPSILON = 1e-5f;
+        const float EPSILON_TRI_HEIGHT = 0.0001f;
         //internal Vector3[] Normals;
 
         internal static Vector3 CalculateSurfaceNormal(Vector3 v1, Vector3 v2, Vector3 v3)
@@ -74,24 +75,24 @@ namespace KWEngine3.Model
             Faces[1] = new GeoTerrainTrianglePrismFace(
                 v2, 
                 v1, 
-                v1 - new Vector3(0, -1, 0),
-                v2 - new Vector3(0, -1, 0),
+                v1 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
+                v2 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
                 false
                 );
 
             Faces[2] = new GeoTerrainTrianglePrismFace(
                 v3,
                 v2,
-                v2 - new Vector3(0, -1, 0),
-                v3 - new Vector3(0, -1, 0),
+                v2 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
+                v3 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
                 false
                 );
 
             Faces[3] = new GeoTerrainTrianglePrismFace(
                 v1,
                 v3,
-                v3 - new Vector3(0, -1, 0),
-                v1 - new Vector3(0, -1, 0),
+                v3 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
+                v1 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
                 false
                 );
 
@@ -111,7 +112,7 @@ namespace KWEngine3.Model
         /// <param name="v2">Dreieckspunkt 2</param>
         /// <param name="v3">Dreieckspunkt 3</param>
         /// <returns>true, wenn der Punkt innerhalb der Dreiecksränder liegt</returns>
-        public static bool IsPointInTriangle(ref Vector3 pt, ref Vector3 v1, ref Vector3 v2, ref Vector3 v3)
+        public static bool IsPointInTriangle(Vector3 pt, Vector3 v1, Vector3 v2, Vector3 v3)
         {
             float d1, d2, d3;
             bool has_neg, has_pos;
@@ -135,7 +136,7 @@ namespace KWEngine3.Model
         /// <param name="c">Dreieckspunkt 3</param>
         /// <param name="n">Dreiecksebenenvektor</param>
         /// <returns>true, wenn der Punkt exakt auf der Dreiecksfläche liegt</returns>
-        public static bool IsPointOnTriangle(ref Vector3 p, ref Vector3 a, ref Vector3 b, ref Vector3 c, ref Vector3 n)
+        public static bool IsPointOnTriangle(Vector3 p, Vector3 a, Vector3 b, Vector3 c, Vector3 n)
         {
             float dist = Vector3.Dot(p - a, n);
             if (MathF.Abs(dist) > EPSILON)
