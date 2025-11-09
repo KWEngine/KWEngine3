@@ -1896,9 +1896,10 @@ namespace KWEngine3.GameObjects
                                                     it = new IntersectionTerrain();
 
                                                 maxMTVY = deltaY;
-                                                it._mtv = new Vector3(0, maxMTVY, 0);
-                                                it._colliderSurfaceNormal = tri.Normal;
-                                                it._collider = ts.Terrain;
+                                                it.MTV = new Vector3(0, maxMTVY, 0);
+                                                it.ColliderSurfaceNormal = tri.Normal;
+                                                it.Object = ts.Terrain;
+                                                it.ContactPoint = contactPoint;
                                             }
                                         }
                                     }

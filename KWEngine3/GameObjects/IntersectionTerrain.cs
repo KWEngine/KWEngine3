@@ -8,36 +8,26 @@ namespace KWEngine3.GameObjects
     /// </summary>
     public sealed class IntersectionTerrain
     {
-        internal Vector3 _mtv = Vector3.Zero;
-        internal TerrainObject _collider;
-        internal Vector3 _colliderSurfaceNormal = Vector3.UnitZ;
-
         /// <summary>
         /// TerrainObject-Instanz, die für die Kollision maßgeblich verantwortlich ist
         /// </summary>
-        public TerrainObject Object { get { return _collider; } }
+        public TerrainObject Object { get; internal set; }
 
         /// <summary>
         /// Minimal-Translation-Vector (für Kollisionskorrektur)
         /// </summary>
-        public Vector3 MTV
-        {
-            get
-            {
-                return _mtv;
-            }
-        }
+        public Vector3 MTV { get; internal set; }
+
+        /// <summary>
+        /// Gibt den dazugehörigen Punkt auf der Kollisionsebene an
+        /// </summary>
+        public Vector3 ContactPoint { get; internal set; }
 
         /// <summary>
         /// Gibt den Ebenenvektor der Oberfläche des Objekts an, mit dem die Kollision stattfand
         /// </summary>
-        public Vector3 ColliderSurfaceNormal
-        {
-            get
-            {
-                return _colliderSurfaceNormal;
-            }
-        }
+        public Vector3 ColliderSurfaceNormal { get; internal set; }
+       
 
         internal IntersectionTerrain()
         {
