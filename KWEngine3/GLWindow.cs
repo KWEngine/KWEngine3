@@ -1206,6 +1206,18 @@ namespace KWEngine3
                                     g._collisionCandidates = new List<GameObjectHitbox>();
                                 }
                             }
+
+                            lock(HelperSweepAndPrune.OwnersDictTerrainSector)
+                            {
+                                g._collisionCandidatesTerrain.Clear();
+
+                                bool gHasList = HelperSweepAndPrune.OwnersDictTerrainSector.TryGetValue(g, out List<TerrainSector> collisions);
+                                if (gHasList)
+                                {
+                                    g._collisionCandidatesTerrain.AddRange(collisions);
+                                }
+                            }
+
                             if (g.UpdateLast)
                             {
                                 postponedObjects.Add(g);

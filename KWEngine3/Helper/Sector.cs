@@ -5,11 +5,10 @@ namespace KWEngine3.Helper
 {
     internal class Sector
     {
-        //internal bool IsValid { get; set; }
-        public float Left { get; set; }
-        public float Right { get; set; }
-        public float Back { get;  set; }
-        public float Front { get;  set; }
+        public int Left { get; set; }
+        public int Right { get; set; }
+        public int Back { get;  set; }
+        public int Front { get;  set; }
 
         public Vector2 Center { get;  set; }
 
@@ -28,7 +27,7 @@ namespace KWEngine3.Helper
             Triangles = new GeoTerrainTriangle[0];
         }
 
-        public Sector(float l, float r, float b, float f, int tCount)
+        public Sector(int l, int r, int b, int f, int tCount)
         {
             Left = l;
             Right = r;
@@ -62,7 +61,7 @@ namespace KWEngine3.Helper
 
         public string GetInfo()
         {
-            string s = "L: " + Math.Round(Left, 2) + " | R: " + Math.Round(Right, 2) + " | F: " + Math.Round(Back, 2) + " | B: " + Math.Round(Front, 2);
+            string s = "L: " + Left + " | R: " + Right + " | F: " + Back + " | B: " + Front;
             return s;
         }
 

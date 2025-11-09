@@ -58,11 +58,11 @@ namespace KWEngine3.Model
 
             mTriangleWidth = 1;
             mTriangleDepth = 1;
-            mSectorLength = 2;
-
+            
             int startX = -mWidth / 2;
             int startZ = -mDepth / 2;
 
+            mSectorLength = 2;
             int sectorCountX = mWidth / mSectorLength;
             int sectorCountZ = mDepth / mSectorLength;
 
@@ -83,10 +83,10 @@ namespace KWEngine3.Model
                 for(int j = 0; j < sectorCountZ; j++)
                 {
                                 
-                    float sectorLeft = startX + i * mSectorLength;
-                    float sectorRight = startX + (i + 1) * mSectorLength;
-                    float sectorFront = startZ + (j + 1) * mSectorLength;
-                    float sectorBack = startZ + j * mSectorLength;
+                    int sectorLeft = startX + i * mSectorLength;
+                    int sectorRight = startX + (i + 1) * mSectorLength;
+                    int sectorFront = startZ + (j + 1) * mSectorLength;
+                    int sectorBack = startZ + j * mSectorLength;
 
                     float trianglesCountX = (sectorRight - sectorLeft) / mTriangleWidth;
                     float trianglesCountZ = (sectorFront - sectorBack) / mTriangleDepth;

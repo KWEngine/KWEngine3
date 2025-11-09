@@ -69,6 +69,7 @@
       <Field Name="_screenInfo" Hidden="true" />
       <Field Name="_ssaoBias" Hidden="true" />
       <Field Name="_ssaoEnabled" Hidden="true" />
+      <Field Name="_ssaoKernelSize" Hidden="true" />
       <Field Name="_ssaoRadius" Hidden="true" />
       <Field Name="_stateCameraGameBeforeToggle" Hidden="true" />
       <Field Name="_swpruneTolerance" Hidden="true" />
@@ -142,7 +143,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>BdgQRbBNA6SJgLEcpAruAZARVCgCAmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>DdgQRbBNA6SJgLEcpAruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -252,6 +253,7 @@
       <Field Name="_attachedTo" Hidden="true" />
       <Field Name="_attachmentMatrix" Hidden="true" />
       <Field Name="_collisionCandidates" Hidden="true" />
+      <Field Name="_collisionCandidatesTerrain" Hidden="true" />
       <Field Name="_colorHighlight" Hidden="true" />
       <Field Name="_colorHighlightMode" Hidden="true" />
       <Field Name="_flowfieldcost" Hidden="true" />
@@ -278,7 +280,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAEABGGIwqwiSEwIAOEABEBUYyA0EJwEADBA0CUIE=</HashCode>
+      <HashCode>jAiAGABGGIwqwiSEwIAOEABEBUYyA0EJwkADBA0CUIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -301,7 +303,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="18.5" Y="15.75" Width="2.75" />
+    <Position X="6.5" Y="17" Width="2.75" />
     <Members>
       <Field Name="_behindCamera" Hidden="true" />
       <Field Name="_fbShadowMap" Hidden="true" />
@@ -366,11 +368,13 @@
       <Field Name="_myWorld" Hidden="true" />
       <Field Name="_name" Hidden="true" />
       <Field Name="_pomScale" Hidden="true" />
+      <Field Name="_sectorMapCoarseUltra" Hidden="true" />
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
       <Field Name="_stateRender" Hidden="true" />
       <Field Name="_textureSlopeBlendFactor" Hidden="true" />
       <Field Name="_textureSlopeSmoothingFactor" Hidden="true" />
+      <Method Name="GenerateCoarseSectors" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
@@ -380,7 +384,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>YCABIUASDAYgkAQIICCAIEQEACBAAxMhAAkAEABCQYQ=</HashCode>
+      <HashCode>YCABIUASDAYgkAQIICCAIESEACBAAxMhAAkAEABCQYQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -396,6 +400,7 @@
       <Method Name="CheckAABBCollision" Hidden="true" />
       <Method Name="ClipFaces" Hidden="true" />
       <Method Name="ClipLineToPlane" Hidden="true" />
+      <Method Name="ClipOBBAgainstTriangle" Hidden="true" />
       <Method Name="ConvertRayToMeshSpaceForAABBTest" Hidden="true" />
       <Method Name="ConvertRayToWorldSpaceAfterAABBTest" Hidden="true" />
       <Method Name="FramebufferPicking" Hidden="true" />
@@ -429,14 +434,15 @@
       <Method Name="TestIntersectionForPlaneFace" Hidden="true" />
       <Method Name="TestIntersectionsWithPlaneCollider" Hidden="true" />
       <Method Name="TestIntersectionTerrainBelowForRay" Hidden="true" />
+      <Method Name="TestIntersectionWithTerrainFace" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DQCQAhQAAbWigCQAsEQAWEKEQQAgBLhGALGCABYLZIg=</HashCode>
+      <HashCode>DQCQAhQAAbWigKQAsEQAWEKEQQCgBLhGALGCAJ4LZJg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="18.5" Width="2.75" />
+    <Position X="21.5" Y="21" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -447,7 +453,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="21.5" Y="7" Width="2.75" />
+    <Position X="21.5" Y="8" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -466,7 +472,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="11" Width="2.75" />
+    <Position X="21.5" Y="12" Width="2.75" />
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="ConvertVector2DToOpenTK" Hidden="true" />
@@ -661,7 +667,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.Helper.FlowField">
-    <Position X="18.5" Y="6.75" Width="2.75" />
+    <Position X="18.5" Y="8.75" Width="2.75" />
     <Members>
       <Field Name="_allowedDirections" Hidden="true" />
       <Field Name="_cellDiametre" Hidden="true" />
@@ -697,7 +703,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="21.5" Y="16.5" Width="2.75" />
+    <Position X="21.5" Y="17.5" Width="2.75" />
     <Members>
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
@@ -719,6 +725,8 @@
       <Method Name="IsObjectClassOrSubclassOfType" Hidden="true" />
       <Method Name="IsObjectClassOrSubclassOfTypes" Hidden="true" />
       <Method Name="IsTypeClassOrSubclassOfGameObject" Hidden="true" />
+      <Method Name="ListContainsSector" Hidden="true" />
+      <Method Name="ListContainsTriangle" Hidden="true" />
       <Method Name="ProcessInputs" Hidden="true" />
       <Method Name="SwitchToBufferAndClear" Hidden="true" />
       <Method Name="ToQuaternion" Hidden="true" />
@@ -726,7 +734,7 @@
       <Method Name="UnProject" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AQAAARABAAAIAAAAAAxSASEgggAEIAABAEAIAgQAUAE=</HashCode>
+      <HashCode>AQAAARABAAAIAAAAAA1SASEgggAEIAABAkAIAgQAUAE=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -762,7 +770,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowFieldCell">
-    <Position X="18.5" Y="12.5" Width="2.75" />
+    <Position X="18.5" Y="14.5" Width="2.75" />
     <Members>
       <Field Name="_bestCost" Hidden="true" />
       <Field Name="_cost" Hidden="true" />
@@ -804,7 +812,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperTexture">
-    <Position X="21.5" Y="20" Width="2.75" />
+    <Position X="21.5" Y="19.25" Width="2.75" />
     <Members>
       <Method Name="CheckFBXNestedList" Hidden="true" />
       <Method Name="CheckFBXNestedListNew" Hidden="true" />
@@ -895,6 +903,19 @@
       <FileName>GameObjects\FoliageObjectCustom.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="KWEngine3.GameObjects.IntersectionTerrain">
+    <Position X="18.5" Y="6.75" Width="2.75" />
+    <Members>
+      <Field Name="_collider" Hidden="true" />
+      <Field Name="_colliderSurfaceNormal" Hidden="true" />
+      <Field Name="_mtv" Hidden="true" />
+      <Method Name="IntersectionTerrain" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAEEAAgCAAAAAAAAAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>GameObjects\IntersectionTerrain.cs</FileName>
+    </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
     <Position X="18.5" Y="3.5" Width="2.75" />

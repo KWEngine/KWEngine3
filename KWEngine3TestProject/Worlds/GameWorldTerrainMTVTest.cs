@@ -21,10 +21,9 @@ namespace KWEngine3TestProject.Worlds
             SetCameraTarget(0, 0, 0);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
 
-            //KWEngine.BuildTerrainModel("Terrain", "./Textures/Terrains/16x16inv.png", 5);
             KWEngine.BuildTerrainModel("Terrain", "./Textures/Terrains/16x16.png", 5);
-            //KWEngine.BuildTerrainModel("Terrain", "./Textures/heightmap3.png", 5);
             TerrainObject t = new TerrainObject("Terrain");
+            t.SetPosition(0, 0, 0);
             t.IsCollisionObject = true;
             t.IsShadowCaster = true;
             t.SetTexture("./Textures/grass_albedo.png");

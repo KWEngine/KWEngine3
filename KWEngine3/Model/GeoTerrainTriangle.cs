@@ -5,14 +5,11 @@ namespace KWEngine3.Model
     /// <summary>
     /// Klasse, die Dreiecke eines Terrain-Objekts repräsentiert
     /// </summary>
-    public class GeoTerrainTriangle
+    internal class GeoTerrainTriangle
     {
         private Vector3 v1;
         private Vector3 v2;
         private Vector3 v3;
-
-        internal Vector3 edge1;
-        internal Vector3 edge2;
 
         internal Vector3[] Vertices;
         internal GeoTerrainTrianglePrismFace[] Faces;
@@ -22,7 +19,6 @@ namespace KWEngine3.Model
 
         const float EPSILON = 1e-5f;
         const float EPSILON_TRI_HEIGHT = 0.0001f;
-        //internal Vector3[] Normals;
 
         internal static Vector3 CalculateSurfaceNormal(Vector3 v1, Vector3 v2, Vector3 v3)
         {
@@ -43,7 +39,6 @@ namespace KWEngine3.Model
         }
         public GeoTerrainTriangle(Vector3 a, Vector3 b, Vector3 c)
         {
-            //Normals = new Vector3[3];
             Normal = Vector3.Zero;
             v1 = a; v2 = b; v3 = c;
 
@@ -51,27 +46,12 @@ namespace KWEngine3.Model
             Vertices[0] = v1; Vertices[1] = v2; Vertices[2] = v3;
             Center = new Vector3((v1.X + v2.X + v3.X) / 3f, (v1.Y + v2.Y + v3.Y) / 3f, (v1.Z + v2.Z + v3.Z) / 3f);
 
-            // Find Normal that's pointing upward:
             Normal = CalculateSurfaceNormal(v1, v2, v3);
 
-            // Find other 2 normals:
-            /*Normals[2] = Vector3.NormalizeFast(Vector3.Cross(Normal, Vector3.UnitZ));
-            if (Normals[2].X < 0)
-                Normals[2] = -Normals[2];
-            Normals[1] = Normal;
-            Normals[0] = Vector3.NormalizeFast(Vector3.Cross(Normal, Vector3.UnitX));
-            if (Normals[0].Z < 0)
-                Normals[0] = -Normals[0];
-            */
-
-
-            edge1 = Vertices[1] - Vertices[0];
-            edge2 = Vertices[2] - Vertices[0];
-
             Faces = new GeoTerrainTrianglePrismFace[5];
+
             Faces[0] = new GeoTerrainTrianglePrismFace(v1, v2, v3, Normal, true); // top
 
-            
             Faces[1] = new GeoTerrainTrianglePrismFace(
                 v2, 
                 v1, 

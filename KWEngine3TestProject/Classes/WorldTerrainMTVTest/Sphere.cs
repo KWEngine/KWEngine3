@@ -15,10 +15,11 @@ namespace KWEngine3TestProject.Classes
 {
     internal class Sphere : GameObject
     {
-        private List<ContactPoint> _contactPoints = new(100);
+        //private List<ContactPoint> _contactPoints = new(100);
 
         public Sphere()
         {
+            /*
             for (int i = 0; i < 100; i++)
             {
                 ContactPoint cp = new ContactPoint();
@@ -31,41 +32,31 @@ namespace KWEngine3TestProject.Classes
                 _contactPoints.Add(cp);
                 CurrentWorld.AddGameObject(cp);
             }
+            */
         }
 
         public override void Act()
         {
             if (Keyboard.IsKeyDown(Keys.W))
-                MoveOffset(0, 0, -0.001f);
+                MoveOffset(0, 0, -0.005f);
             if (Keyboard.IsKeyDown(Keys.S))
-                MoveOffset(0, 0, +0.001f);
+                MoveOffset(0, 0, +0.005f);
             if (Keyboard.IsKeyDown(Keys.A))
-                MoveOffset(-0.001f, 0, 0);
+                MoveOffset(-0.005f, 0, 0);
             if (Keyboard.IsKeyDown(Keys.D))
-                MoveOffset(+0.001f, 0, 0);
+                MoveOffset(+0.005f, 0, 0);
             if (Keyboard.IsKeyDown(Keys.Q))
-                MoveOffset(0, -0.001f, 0);
+                MoveOffset(0, -0.005f, 0);
             if (Keyboard.IsKeyDown(Keys.E))
-                MoveOffset(0, +0.001f, 0);
+                MoveOffset(0, +0.005f, 0);
+
+            IntersectionTerrain it = GetIntersectionWithTerrain();
+            if(it != null)
+            {
+                MoveOffset(it.MTV);
+            }
 
             /*
-            List<IntersectionTerrain> intersections = GetIntersectionsWithTerrain();
-            
-            int maxIterations = 8;
-            if (intersections.Count >= 1)
-            {
-                for (int i = 1; i <= maxIterations; i++)
-                {
-                    Vector3 mtv = HelperIntersection.CalculateWeightedTerrainMTV(intersections);
-                    float ii = i;
-                    MoveOffset(mtv * (ii / maxIterations));
-                    intersections = GetIntersectionsWithTerrain();
-                    if (intersections.Count == 0)
-                        break;
-                }
-            }
-            */
-            SolveIntersectionsWithTerrain(out Dictionary<GeoTerrainTriangle, List<Vector3>> contactPoints);
             List<Vector3> pointsOnTriangles = new();
             foreach(GeoTerrainTriangle tri in contactPoints.Keys)
             {
@@ -84,7 +75,7 @@ namespace KWEngine3TestProject.Classes
                     _contactPoints[i].SetOpacity(0);
                 }
             }
-            
+            */
 
             CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 0.5f, 2.5f));
             //CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 7.5f, 10f));

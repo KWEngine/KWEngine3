@@ -6,7 +6,7 @@ namespace KWEngine3.GameObjects
     /// <summary>
     /// Kollisionsklasse
     /// </summary>
-    public class Intersection
+    public sealed class Intersection
     {
         internal readonly Vector3 UNIT = Vector3.UnitZ;
 
@@ -19,9 +19,9 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public string MeshName { get; private set; } = "";
         
-        private Vector3 _MTV = Vector3.Zero;
-        private Vector3 _MTVUp = Vector3.Zero;
-        private Vector3 _MTVUpToTop = Vector3.Zero;
+        internal Vector3 _MTV = Vector3.Zero;
+        internal Vector3 _MTVUp = Vector3.Zero;
+        internal Vector3 _MTVUpToTop = Vector3.Zero;
 
         /// <summary>
         /// Art der getroffenen Hitbox
@@ -61,7 +61,7 @@ namespace KWEngine3.GameObjects
             }
         }
 
-        private Vector3 _colliderSurfaceNormal = Vector3.UnitZ;
+        internal Vector3 _colliderSurfaceNormal = Vector3.UnitZ;
 
         /// <summary>
         /// Gibt den Ebenenvektor der Oberfläche des Objekts an, mit dem die Kollision stattfand
@@ -76,7 +76,10 @@ namespace KWEngine3.GameObjects
 
         internal GameObjectHitbox _hitboxCaller = null;
         internal GameObjectHitbox _hitboxCollider = null;
+        internal Intersection()
+        {
 
+        }
         internal Intersection(GameObject collider, GameObjectHitbox hbCaller, GameObjectHitbox hbCollider, Vector3 mtv, Vector3 mtvUp, string mName, Vector3 surfaceNormal, Vector3 mtvUpTop, ColliderType type)
         {
             Type = type;

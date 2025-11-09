@@ -1,4 +1,5 @@
 ﻿using KWEngine3.GameObjects;
+using KWEngine3.Model;
 using OpenTK.Mathematics;
 using System.Diagnostics;
 
@@ -11,6 +12,7 @@ namespace KWEngine3.Helper
         internal static float WorldTimeLast = 0;
         internal static int _sweepTestAxisIndex = 0;
         internal static Dictionary<GameObject, List<GameObjectHitbox>> OwnersDict = new Dictionary<GameObject, List<GameObjectHitbox>>();
+        internal static Dictionary<GameObject, List<TerrainSector>> OwnersDictTerrainSector = new Dictionary<GameObject, List<TerrainSector>>();
         internal const float SLOTTIME = 1f / 30f;
 
         internal static void ThreadMethod()
@@ -39,6 +41,10 @@ namespace KWEngine3.Helper
             lock (OwnersDict)
             {
                 OwnersDict.Clear();
+            }
+            lock (OwnersDictTerrainSector)
+            {
+                OwnersDictTerrainSector.Clear();
             }
             WorldTimeLast = 0;
             SweepAndPrune();
@@ -79,32 +85,108 @@ namespace KWEngine3.Helper
                 }
             }
 
-            //try
-            //{
-                axisList.Sort(
-                    (x, y) =>
+            axisList.Sort(
+                (x, y) =>
+                {
+                    if (_sweepTestAxisIndex == 0)
                     {
-                        if (_sweepTestAxisIndex == 0)
+                        return x._left < y._left ? -1 : 1;
+                    }
+                    else if (_sweepTestAxisIndex == 1)
+                    {
+                        return x._low < y._low ? -1 : 1;
+                    }
+                    else
+                    {
+                        return x._back < y._back ? -1 : 1;
+                    }
+                }
+            );
+
+            // Look for triangles:
+            lock (OwnersDictTerrainSector)
+            {
+                OwnersDictTerrainSector.Clear();
+
+                lock (KWEngine.CurrentWorld._terrainObjects)
+                {
+                    foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+                    {
+                        if (t.IsCollisionObject == false)
+                            continue;
+
+                        lock (t)
                         {
-                            return x._left < y._left ? -1 : 1;
-                        }
-                        else if (_sweepTestAxisIndex == 1)
-                        {
-                            return x._low < y._low ? -1 : 1;
-                        }
-                        else
-                        {
-                            return x._back < y._back ? -1 : 1;
+                            TerrainObjectHitbox thb = t._hitboxes[0];
+                            foreach (GameObjectHitbox hb in axisList)
+                            {
+                                if (hb._colliderType == ColliderType.PlaneCollider || hb.Owner.ID <= 0)
+                                    continue;
+
+                                float hbleftT = hb._left - KWEngine.SweepAndPruneTolerance;
+                                float hbRightT = hb._right + KWEngine.SweepAndPruneTolerance;
+                                float hbLowT = hb._low - KWEngine.SweepAndPruneTolerance;
+                                float hbHighT = hb._high + KWEngine.SweepAndPruneTolerance;
+                                float hbBackT = hb._back - KWEngine.SweepAndPruneTolerance;
+                                float hbFrontT = hb._front + KWEngine.SweepAndPruneTolerance;
+                                if (HelperIntersection.CheckAABBCollision(
+                                        hbleftT, hbRightT, hbLowT, hbHighT, hbBackT, hbFrontT,
+                                        thb._left, thb._right, thb._low, thb._high, thb._back, thb._front
+                                    )
+                                )
+                                {
+                                    // current game object hitbox is inside terrain hitbox
+                                    if (!OwnersDictTerrainSector.ContainsKey(hb.Owner))
+                                    {
+                                        OwnersDictTerrainSector.Add(hb.Owner, new List<TerrainSector>());
+                                    }
+
+                                    foreach (TerrainSectorCoarseUltra sectorUltra in t._sectorMapCoarseUltra)
+                                    {
+                                        if (HelperIntersection.CheckAABBCollision(
+                                            sectorUltra.Left  + t._stateCurrent._position.X, 
+                                            sectorUltra.Right + t._stateCurrent._position.X, 
+                                            sectorUltra.Back  + t._stateCurrent._position.Z, 
+                                            sectorUltra.Front + t._stateCurrent._position.Z,
+                                            hbleftT, hbRightT, hbBackT, hbFrontT)
+                                            )
+                                        {
+                                            foreach (TerrainSectorCoarse sectorCoarse in sectorUltra.SectorsCoarse)
+                                            {
+                                                if (HelperIntersection.CheckAABBCollision(
+                                                    sectorCoarse.Left, sectorCoarse.Right, sectorCoarse.Back, sectorCoarse.Front,
+                                                    hbleftT, hbRightT, hbBackT, hbFrontT)
+                                                    )
+                                                {
+                                                    foreach (TerrainSector sector in sectorCoarse.Sectors)
+                                                    {
+                                                        if (HelperIntersection.CheckAABBCollision(
+                                                            sector.Left  + t._stateCurrent._position.X, 
+                                                            sector.Right + t._stateCurrent._position.X, 
+                                                            sector.Back  + t._stateCurrent._position.Z, 
+                                                            sector.Front + t._stateCurrent._position.Z,
+                                                            hbleftT, hbRightT, hbBackT, hbFrontT)
+                                                        )
+                                                        {
+                                                            if (!OwnersDictTerrainSector[hb.Owner].Contains(sector))
+                                                            {
+                                                                OwnersDictTerrainSector[hb.Owner].Add(sector);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                );
-            //}
-            //catch(Exception ex)
-            //{
-            //    Debug.WriteLine("[Sweep&Prune] Sorting failed due to bad comparer value (" + ex.Message + ")");
-            //    return;
-            //}
-                
+                }
+            }
+
+
+
             Vector3 centerSum = new Vector3(0, 0, 0);
             Vector3 centerSqSum = new Vector3(0, 0, 0);
             lock (OwnersDict)
@@ -117,7 +199,7 @@ namespace KWEngine3.Helper
                     {
                         OwnersDict.Add(axisList[i].Owner, new List<GameObjectHitbox>());
                     }
-                    
+
                     Vector3 currentCenter = axisList[i]._center;
                     centerSum += currentCenter;
                     centerSqSum += (currentCenter * currentCenter);
@@ -180,7 +262,6 @@ namespace KWEngine3.Helper
                                 continue;
                             }
                         }
-
 
                         OwnersDict[axisList[i].Owner].Add(axisList[j]);
                         if (OwnersDict.ContainsKey(axisList[j].Owner))

@@ -876,7 +876,33 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Prüft, ob sich zwei AABB-Hitboxen schneiden
+        /// Prüft, ob sich zwei AABB-Hitboxen schneiden oder berühren
+        /// </summary>
+        /// <param name="minX1">Linke   X-Position von Objekt 1</param>
+        /// <param name="maxX1">Rechte  X-Position von Objekt 1</param>
+        /// <param name="minY1">Untere  Y-Position von Objekt 1</param>
+        /// <param name="maxY1">Obere   Y-Position von Objekt 1</param>
+        /// <param name="minZ1">Hintere Z-Position von Objekt 1</param>
+        /// <param name="maxZ1">Vordere Z-Position von Objekt 1</param>
+        /// <param name="minX2">Linke   X-Position von Objekt 2</param>
+        /// <param name="maxX2">Rechte  X-Position von Objekt 2</param>
+        /// <param name="minY2">Untere  Y-Position von Objekt 2</param>
+        /// <param name="maxY2">Obere   Y-Position von Objekt 2</param>
+        /// <param name="minZ2">Hintere Z-Position von Objekt 2</param>
+        /// <param name="maxZ2">Vordere Z-Position von Objekt 2</param>
+        /// <returns>true, wenn sich die zwei Hitboxen schneiden/berühren oder eine der beiden Hitboxen in der anderen enthalten ist</returns>
+        public static bool CheckAABBCollision(float minX1, float maxX1, float minY1, float maxY1, float minZ1, float maxZ1,
+                                float minX2, float maxX2, float minY2, float maxY2, float minZ2, float maxZ2)
+        {
+            if (maxX1 < minX2 || minX1 > maxX2) return false;
+            if (maxY1 < minY2 || minY1 > maxY2) return false;
+            if (maxZ1 < minZ2 || minZ1 > maxZ2) return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Prüft, ob sich zwei AABB-Hitboxen schneiden (und explizit NICHT berühren)
         /// </summary>
         /// <param name="minX1">Linke   X-Position von Objekt 1</param>
         /// <param name="maxX1">Rechte  X-Position von Objekt 1</param>
@@ -891,15 +917,73 @@ namespace KWEngine3.Helper
         /// <param name="minZ2">Hintere Z-Position von Objekt 2</param>
         /// <param name="maxZ2">Vordere Z-Position von Objekt 2</param>
         /// <returns>true, wenn sich die zwei Hitboxen schneiden oder eine der beiden Hitboxen in der anderen enthalten ist</returns>
-        public static bool CheckAABBCollision(float minX1, float maxX1, float minY1, float maxY1, float minZ1, float maxZ1,
+        public static bool CheckAABBCollisionNoTouch(float minX1, float maxX1, float minY1, float maxY1, float minZ1, float maxZ1,
                                 float minX2, float maxX2, float minY2, float maxY2, float minZ2, float maxZ2)
         {
-            bool separated =
-                maxX1 < minX2 || minX1 > maxX2 ||
-                maxY1 < minY2 || minY1 > maxY2 ||
-                maxZ1 < minZ2 || minZ1 > maxZ2;
+            if (maxX1 <= minX2 || minX1 >= maxX2) return false;
+            if (maxY1 <= minY2 || minY1 >= maxY2) return false;
+            if (maxZ1 <= minZ2 || minZ1 >= maxZ2) return false;
 
-            return !separated;
+            return true;
+        }
+
+        /// <summary>
+        ///  Prüft, ob sich zwei AABB-Hitboxen auf der XZ-Ebene schneiden (der Höhenunterschied wird somit ignoriert)
+        /// </summary>
+        /// <param name="minX1">Linke   X-Position von Objekt 1</param>
+        /// <param name="maxX1">Rechte  X-Position von Objekt 1</param>
+        /// <param name="minZ1">Hintere Z-Position von Objekt 1</param>
+        /// <param name="maxZ1">Vordere Z-Position von Objekt 1</param>
+        /// <param name="minX2">Linke   X-Position von Objekt 2</param>
+        /// <param name="maxX2">Rechte  X-Position von Objekt 2</param>
+        /// <param name="minZ2">Hintere Z-Position von Objekt 2</param>
+        /// <param name="maxZ2">Vordere Z-Position von Objekt 2</param>
+        /// <returns>true, wenn sich die zwei Hitboxen auf der XZ-Ebene schneiden oder eine der beiden Hitboxen in der anderen in dieser Ebene enthalten ist</returns>
+        public static bool CheckAABBCollisionNoTouch(float minX1, float maxX1, float minZ1, float maxZ1,
+                        float minX2, float maxX2, float minZ2, float maxZ2)
+        {
+            if (maxX1 <= minX2 || minX1 >= maxX2) return false;
+            if (maxZ1 <= minZ2 || minZ1 >= maxZ2) return false;
+            return true;
+        }
+
+        /// <summary>
+        ///  Prüft, ob sich zwei AABB-Hitboxen auf der XZ-Ebene schneiden oder berühren (der Höhenunterschied wird somit ignoriert)
+        /// </summary>
+        /// <param name="minX1">Linke   X-Position von Objekt 1</param>
+        /// <param name="maxX1">Rechte  X-Position von Objekt 1</param>
+        /// <param name="minZ1">Hintere Z-Position von Objekt 1</param>
+        /// <param name="maxZ1">Vordere Z-Position von Objekt 1</param>
+        /// <param name="minX2">Linke   X-Position von Objekt 2</param>
+        /// <param name="maxX2">Rechte  X-Position von Objekt 2</param>
+        /// <param name="minZ2">Hintere Z-Position von Objekt 2</param>
+        /// <param name="maxZ2">Vordere Z-Position von Objekt 2</param>
+        /// <returns>true, wenn sich die zwei Hitboxen auf der XZ-Ebene schneiden/berühren oder eine der beiden Hitboxen in der anderen in dieser Ebene enthalten ist</returns>
+        public static bool CheckAABBCollision(float minX1, float maxX1, float minZ1, float maxZ1,
+                        float minX2, float maxX2, float minZ2, float maxZ2)
+        {
+            if (maxX1 < minX2 || minX1 > maxX2) return false;
+            if (maxZ1 < minZ2 || minZ1 > maxZ2) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Prüft, ob sich zwei Kugeln schneiden oder eine Kugel die andere enthält
+        /// </summary>
+        /// <param name="d1">Durchmesser von Kugel #1</param>
+        /// <param name="pos1">Mitte von Kugel #1</param>
+        /// <param name="d2">Durchmesser von Kugel #2</param>
+        /// <param name="pos2">Mitte von Kugel #2</param>
+        /// <returns>true, wenn sich die Kugeln überschneiden oder eine die andere enthält</returns>
+        public static bool CheckSphereCollision(float d1, Vector3 pos1, float d2, Vector3 pos2)
+        {
+            float r1 = d1 * 0.5f;
+            float r2 = d2 * 0.5f;
+
+            float distSq = (pos1 - pos2).LengthSquared;
+
+            float radiusSum = r1 + r2;
+            return distSq <= radiusSum * radiusSum;
         }
 
         internal static bool GetRayIntersectionPointOnGameObject(GameObject g, Vector3 origin, Vector3 worldRay, out Vector3 intersectionPoint, out string hitboxname)
@@ -1660,21 +1744,21 @@ namespace KWEngine3.Helper
             return clippedVertex;
         }
 
-        internal static void ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, TerrainObject terrain, List<Vector3> contactPoints, ref Vector3 offset)
+        internal static List<Vector3> ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, TerrainObject terrain, ref Vector3 offset)
         {
             List<Vector3> collisionVolumeVertices = new List<Vector3>();
             List<Vector3> callerVertices = new List<Vector3>(hb._vertices);
-            contactPoints.Clear();
+            List<Vector3> contactPoints = new List<Vector3>();
 
             for (int colliderFaceIndex = 0; colliderFaceIndex < triangle.Faces.Length; colliderFaceIndex++)
             {
                 GeoTerrainTrianglePrismFace colliderClippingFace = triangle.Faces[colliderFaceIndex];
-                Vector3 colliderClippingFaceVertex = triangle.Vertices[0];
+                Vector3 colliderClippingFaceVertex = triangle.Vertices[0] + offset;
                 Vector3 colliderClippingFaceNormal = triangle.Normal;
                 for (int callerVertexIndex = 0; callerVertexIndex < callerVertices.Count; callerVertexIndex++)
                 {
-                    Vector3 callerVertex1 = callerVertices[callerVertexIndex] + offset;
-                    Vector3 callerVertex2 = callerVertices[(callerVertexIndex + 1) % callerVertices.Count] + offset;
+                    Vector3 callerVertex1 = callerVertices[callerVertexIndex];
+                    Vector3 callerVertex2 = callerVertices[(callerVertexIndex + 1) % callerVertices.Count];
                     Vector3 lineDirection = Vector3.NormalizeFast(callerVertex2 - callerVertex1);
 
                     bool callerVertex1InsideRegion = !HelperIntersection.IsInFrontOfPlane(ref callerVertex1, ref colliderClippingFaceNormal, ref colliderClippingFaceVertex);
@@ -1712,6 +1796,7 @@ namespace KWEngine3.Helper
                 collisionVolumeVertices.Clear();
             }
             contactPoints.AddRange(callerVertices);
+            return contactPoints;
         }
 
         internal static bool TestIntersectionTerrainBelowForRay(Vector3 rayStart, TerrainObject collider, out Vector3 contactPoint, out Vector3 surfaceNormal)
@@ -1966,100 +2051,18 @@ namespace KWEngine3.Helper
             return intersections;
         }
 
-        
-
-        internal static IntersectionTerrain TestIntersectionWithTerrainFace(GameObjectHitbox caller, TerrainObject collider, GeoTerrainTriangle triangle, ref Vector3 offset)
-        {
-            _planeNormals[0] = triangle.Normal;
-            _planeVertices[0] = triangle.Vertices[0];
-            _planeVertices[1] = triangle.Vertices[1];
-            _planeVertices[2] = triangle.Vertices[2];
-
-            float mtvDistance = float.MaxValue;
-            float mtvDirection = 1;
-            float mtvDistanceUp = float.MaxValue;
-            float mtvDirectionUp = 1;
-
-            Vector3 MTVTemp = Vector3.Zero;
-            Vector3 MTVTempUp = Vector3.Zero;
-            int collisionNormalIndex = 0;
-            bool collisionNormalIndexFlip = false;
-            //bool collisionNormalFromCaller = false;
-
-            for (int i = 0; i < caller._normals.Length; i++)
-            {
-                float shape1Min, shape1Max, shape2Min, shape2Max;
-                SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                SatTest(ref caller._normals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
-                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
-                {
-                    return null;
-                }
-                else
-                {
-                    OverlapResult m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref triangle.Center, ref offset, true, caller);
-                    if (m.IsBetterResult)
-                    {
-                        collisionNormalIndex = i;
-                        collisionNormalIndexFlip = m.FlipNormal;
-                        //collisionNormalFromCaller = true;
-                    }
-                }
-            }
-
-            for (int i = 0; i < _planeNormals.Length; i++)
-            {
-                float shape1Min, shape1Max, shape2Min, shape2Max;
-                SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                SatTest(ref _planeNormals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
-                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
-                {
-                    return null;
-                }
-                else
-                {
-                    OverlapResult m = CalculateOverlap(ref _planeNormals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref triangle.Center, ref offset, false, null); // TODO: check if null is ok here :-)
-                    if (m.IsBetterResult)
-                    {
-                        collisionNormalIndex = 0;
-                        collisionNormalIndexFlip = false;
-                        //collisionNormalFromCaller = false;
-                    }
-                }
-            }
-
-            if (MTVTemp == Vector3.Zero)
-                return null;
-
-            IntersectionTerrain o = new IntersectionTerrain(collider, caller, MTVTemp, triangle.Normal);
-            return o;
-        }
-
         internal static bool TestIntersectionWithTerrainFace(GameObjectHitbox caller, GeoTerrainTriangle triangle, ref Vector3 offset)
         {
             _planeNormals[0] = triangle.Normal;
             _planeVertices[0] = triangle.Vertices[0];
             _planeVertices[1] = triangle.Vertices[1];
             _planeVertices[2] = triangle.Vertices[2];
-            /*
-            for (int i = 0; i < caller._normals.Length; i++)
-            {
-                float shape1Min, shape1Max, shape2Min, shape2Max;
-                SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                SatTest(ref caller._normals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
-                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
-                {
-                    return false;
-                }
-            }
-            */
+
             for (int i = 0; i < _planeNormals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
-                SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                SatTest(ref _planeNormals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref HelperVector.VectorZero);
+                SatTest(ref _planeNormals[i], ref _planeVertices, out shape2Min, out shape2Max, ref offset);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
                     return false;
@@ -2555,22 +2558,6 @@ namespace KWEngine3.Helper
             return list;
         }
 
-        internal static bool CheckAABBCollision(float minX1, float maxX1, float minZ1, float maxZ1,
-                                float minX2, float maxX2, float minZ2, float maxZ2)
-        {
-            bool overlapX = (minX1 <= maxX2 && maxX1 >= minX2);
-            bool overlapZ = (minZ1 <= maxZ2 && maxZ1 >= minZ2);
-
-            if (!(overlapX && overlapZ))
-            {
-                bool box1InsideBox2 = (minX1 >= minX2 && maxX1 <= maxX2) && (minZ1 >= minZ2 && maxZ1 <= maxZ2);
-                bool box2InsideBox1 = (minX2 >= minX1 && maxX2 <= maxX1) && (minZ2 >= minZ1 && maxZ2 <= maxZ1);
-                return box1InsideBox2 || box2InsideBox1;
-            }
-            else
-                return true;
-        }
-
         internal static void ConvertRayToMeshSpaceForAABBTest(ref Vector3 origin, ref Vector3 direction, ref Matrix4 matInv, out Vector3 originTransformed, out Vector3 directionTransformed)
         {
             originTransformed = Vector4.TransformRow(new Vector4(origin, 1.0f), matInv).Xyz;
@@ -2583,46 +2570,6 @@ namespace KWEngine3.Helper
         {
             intersectionPoint = Vector4.TransformRow(new Vector4(originTransformed + dirctnTransformedNormalized * currentDistance, 1.0f), mat).Xyz;
             distanceWorldspace = (originWorldspace - intersectionPoint).LengthFast;
-        }
-
-        internal static Vector3[] _aabbPoints = new Vector3[5];
-        internal static List<Sector> _aabbSectors = new List<Sector>();
-        internal static Dictionary<TerrainObject, List<GeoTerrainTriangle>> GetTrianglesContinuousTerrainCollisionTestsFor(GameObject g)
-        {
-            Dictionary<TerrainObject, List<GeoTerrainTriangle>> results = new();
-            _aabbSectors.Clear();
-
-            foreach (TerrainObject t in KWEngine.CurrentWorld.GetTerrainObjects())
-            {
-                if (t.IsCollisionObject && HelperIntersection.CheckAABBCollision(
-                    g.AABBLeft, g.AABBRight, g.AABBLow, g.AABBHigh, g.AABBBack, g.AABBFront,
-                    t._stateCurrent._center.X - t.Width * 0.5f, t._stateCurrent._center.X + t.Width * 0.5f,
-                    t._stateCurrent._position.Y, t._stateCurrent._position.Y + t.Height,
-                    t._stateCurrent._center.Z - t.Depth * 0.5f, t._stateCurrent._center.Z + t.Depth * 0.5f))
-                {
-                    Vector3 untranslatedPosition = g.Position - new Vector3(t._hitboxes[0]._center.X, t._stateCurrent._position.Y, t._hitboxes[0]._center.Z);
-                    _aabbPoints[0] = untranslatedPosition;
-                    _aabbPoints[1] = untranslatedPosition + new Vector3((g.AABBRight - g.AABBLeft) * +0.5f, 0, (g.AABBFront - g.AABBBack) * 0.5f); // right front
-                    _aabbPoints[2] = untranslatedPosition + new Vector3((g.AABBRight - g.AABBLeft) * +0.5f, 0, (g.AABBFront - g.AABBBack) * -0.5f); // right back
-                    _aabbPoints[3] = untranslatedPosition + new Vector3((g.AABBRight - g.AABBLeft) * -0.5f, 0, (g.AABBFront - g.AABBBack) * 0.5f); // left front
-                    _aabbPoints[4] = untranslatedPosition + new Vector3((g.AABBRight - g.AABBLeft) * -0.5f, 0, (g.AABBFront - g.AABBBack) * -0.5f); // left back
-
-                    List<GeoTerrainTriangle> trianglesUnique = new List<GeoTerrainTriangle>();
-                    foreach (Vector3 pos in _aabbPoints)
-                    {
-                        if (t._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(pos, out Sector s))
-                        {
-                            if (_aabbSectors.Contains(s) == false)
-                            {
-                                _aabbSectors.Add(s);
-                                trianglesUnique.AddRange(s.Triangles);
-                            }
-                        }
-                    }
-                    results.Add(t, trianglesUnique);
-                }
-            }
-            return results;
         }
 
         internal static Vector3 CalculateWeightedTerrainMTV(List<IntersectionTerrain> intersections, float weightTotal)

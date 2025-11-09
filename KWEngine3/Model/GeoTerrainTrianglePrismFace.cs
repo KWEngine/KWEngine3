@@ -4,12 +4,6 @@ namespace KWEngine3.Model
 {
     internal class GeoTerrainTrianglePrismFace
     {
-        public enum TriangleFaceType
-        {
-            Top,
-            Side
-        }
-
         public int VertexCount;
         public Vector3[] Vertices;
         public Vector3 Normal;
@@ -35,7 +29,6 @@ namespace KWEngine3.Model
                 Normal = GeoTerrainTriangle.CalculateSurfaceNormal(v3, v2, v1);
                 VertexCount = 4;
             }
-            
         }
 
         public override string ToString()
@@ -48,6 +41,5 @@ namespace KWEngine3.Model
             name += "- | " + Normal;
             return name;
         }
-
     }
 }

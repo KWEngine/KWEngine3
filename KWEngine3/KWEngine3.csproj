@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2025-11-03)</Product>
+		<Product>KWEngine3 (updated: 2025-11-09)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.5.7</Version>
-		<AssemblyVersion>3.0.5.7</AssemblyVersion>
-		<FileVersion>3.0.5.7</FileVersion>
-		<ProductVersion>3.0.5.7</ProductVersion>
+		<Version>3.0.5.8</Version>
+		<AssemblyVersion>3.0.5.8</AssemblyVersion>
+		<FileVersion>3.0.5.8</FileVersion>
+		<ProductVersion>3.0.5.8</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -461,9 +461,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="Lib\macos\libassimp.dylib.x64">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
 		<None Update="Lib\win\OpenAL32.dll">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</None>
@@ -476,14 +473,6 @@
 		<None Update="Lib\macos\libassimp.dylib">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Lib\macos\libassimp.dylib">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-		<Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Model\GeoModel.cs">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</Compile>
-	</ItemGroup>
 </Project>

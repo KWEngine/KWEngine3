@@ -6,19 +6,16 @@ namespace KWEngine3.GameObjects
     /// <summary>
     /// Kollisionsklasse für Terrain-Kollisionen
     /// </summary>
-    public class IntersectionTerrain
+    public sealed class IntersectionTerrain
     {
-        internal readonly Vector3 UNIT = Vector3.UnitZ;
+        internal Vector3 _mtv = Vector3.Zero;
+        internal TerrainObject _collider;
+        internal Vector3 _colliderSurfaceNormal = Vector3.UnitZ;
 
         /// <summary>
-        /// Das Objekt, mit dem kollidiert wurde
+        /// TerrainObject-Instanz, die für die Kollision maßgeblich verantwortlich ist
         /// </summary>
-        public TerrainObject Object { get; private set; } = null;
-        /// <summary>
-        /// Der Name der Hitbox, mit der kollidiert wurde
-        /// </summary>
-        
-        private Vector3 _MTV = Vector3.Zero;
+        public TerrainObject Object { get { return _collider; } }
 
         /// <summary>
         /// Minimal-Translation-Vector (für Kollisionskorrektur)
@@ -27,11 +24,9 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return _MTV;
+                return _mtv;
             }
         }
-
-        private Vector3 _colliderSurfaceNormal = Vector3.UnitZ;
 
         /// <summary>
         /// Gibt den Ebenenvektor der Oberfläche des Objekts an, mit dem die Kollision stattfand
@@ -44,14 +39,9 @@ namespace KWEngine3.GameObjects
             }
         }
 
-        internal GameObjectHitbox _hitboxCaller = null;
-
-        internal IntersectionTerrain(TerrainObject collider, GameObjectHitbox hbCaller, Vector3 mtv, Vector3 surfaceNormal)
+        internal IntersectionTerrain()
         {
-            _hitboxCaller = hbCaller;
-            Object = collider;
-            _MTV = mtv;
-            _colliderSurfaceNormal = surfaceNormal;
+
         }
     }
 }

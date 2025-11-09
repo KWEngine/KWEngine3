@@ -130,32 +130,6 @@ namespace KWEngine3.GameObjects
 
         }
 
-        internal bool SetModel(string modelname)
-        {
-            if (modelname == null || modelname.Length == 0)
-            {
-                return false;
-            }
-
-            bool modelFound = KWEngine.Models.TryGetValue(modelname, out GeoModel model);
-            if (modelFound && model.IsTerrain)
-            {
-                _gModel = new EngineObjectModel(model);
-                _gModel.Material[0] = model.Meshes.Values.ToArray()[0].Material;
-                _gModel.Material[1] = model.Meshes.Values.ToArray()[0].Material;
-
-                Width = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetWidth();
-                Height = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetHeight();
-                Depth = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetDepth();
-                _heightmap = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain._texHeight;
-
-                InitHitboxes();
-                InitRenderStateMatrices();
-                InitStates();
-            }
-            return modelFound;
-        }
-
         /// <summary>
         /// Setzt die Farbtönung des Objekts
         /// </summary>
@@ -381,6 +355,102 @@ namespace KWEngine3.GameObjects
             _stateRender._modelMatrix = Matrix4.Identity;
         }
 
+        internal bool SetModel(string modelname)
+        {
+            if (modelname == null || modelname.Length == 0)
+            {
+                return false;
+            }
+
+            bool modelFound = KWEngine.Models.TryGetValue(modelname, out GeoModel model);
+            if (modelFound && model.IsTerrain)
+            {
+                _gModel = new EngineObjectModel(model);
+                _gModel.Material[0] = model.Meshes.Values.ToArray()[0].Material;
+                _gModel.Material[1] = model.Meshes.Values.ToArray()[0].Material;
+
+                Width = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetWidth();
+                Height = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetHeight();
+                Depth = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.GetDepth();
+                _heightmap = _gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain._texHeight;
+
+                InitHitboxes();
+                InitRenderStateMatrices();
+                InitStates();
+                GenerateCoarseSectors();
+            }
+            return modelFound;
+        }
+
+        internal void GenerateCoarseSectors()
+        {
+            GeoTerrain geoterrain = _gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain;
+
+            // define sector sizes:
+            int startXUltra = -Width / 2;
+            int startZUltra = -Depth / 2;
+            int mSectorLengthCoarseUltra = 16;
+            int mSectorLengthCoarse = 4;
+            int sectorCountXUltra = Width / mSectorLengthCoarseUltra;
+            int sectorCountZUltra = Depth / mSectorLengthCoarseUltra;
+
+            _sectorMapCoarseUltra = new TerrainSectorCoarseUltra[sectorCountXUltra, sectorCountZUltra];
+            for (int i = 0; i < sectorCountXUltra; i++)
+            {
+                for (int j = 0; j < sectorCountZUltra; j++)
+                {
+                    int sectorLeftUltra = startXUltra + i * mSectorLengthCoarseUltra;
+                    int sectorRightUltra = startXUltra + (i + 1) * mSectorLengthCoarseUltra;
+                    int sectorFrontUltra = startZUltra + (j + 1) * mSectorLengthCoarseUltra;
+                    int sectorBackUltra = startZUltra + j * mSectorLengthCoarseUltra;
+
+                    TerrainSectorCoarseUltra currentSectorUltraCoarse = new TerrainSectorCoarseUltra(
+                        sectorLeftUltra,
+                        sectorRightUltra,
+                        sectorBackUltra,
+                        sectorFrontUltra
+                        );
+
+                    // generate inner (less coarse but still coarse) sectors:
+                    int sectorCountXInner = (sectorRightUltra - sectorLeftUltra) / mSectorLengthCoarse;
+                    int sectorCountZInner = (sectorFrontUltra - sectorBackUltra) / mSectorLengthCoarse;
+                    for (int k = 0; k < sectorCountXInner; k++)
+                    {
+                        for (int l = 0; l < sectorCountZInner; l++)
+                        {
+                            int sectorLeftInner = sectorLeftUltra + k * mSectorLengthCoarse;
+                            int sectorRightInner = sectorLeftUltra + (k + 1) * mSectorLengthCoarse;
+                            int sectorFrontInner = sectorBackUltra + (l + 1) * mSectorLengthCoarse;
+                            int sectorBackInner = sectorBackUltra + l * mSectorLengthCoarse;
+
+                            TerrainSectorCoarse currentSectorCoarse = new TerrainSectorCoarse(sectorLeftInner, sectorRightInner, sectorBackInner, sectorFrontInner);
+
+                            // Find usual sectors for the coarse one:
+                            for (int m = 0; m < geoterrain.mSectorMap.GetLength(0); m++)
+                            {
+                                for (int n = 0; n < geoterrain.mSectorMap.GetLength(1); n++)
+                                {
+                                    Sector s = geoterrain.mSectorMap[m, n];
+
+                                    if (HelperIntersection.CheckAABBCollisionNoTouch(s.Left, s.Right, s.Back, s.Front, 
+                                        currentSectorCoarse.Left, currentSectorCoarse.Right, currentSectorCoarse.Back, currentSectorCoarse.Front))
+                                    {
+
+                                        TerrainSector ts = new TerrainSector(s.Left, s.Right, s.Back, s.Front, this);
+                                        ts.AddTriangles(s.Triangles);
+                                        currentSectorCoarse.AddSector(ts);
+                                    }
+                                }
+                            }
+                            currentSectorUltraCoarse.AddSector(currentSectorCoarse);
+                        }
+                    }
+                    _sectorMapCoarseUltra[i, j] = currentSectorUltraCoarse;
+                }
+            }
+        }
+
+        internal TerrainSectorCoarseUltra[,] _sectorMapCoarseUltra;
         internal World _myWorld = null;
         internal float _pomScale = 0.0f;
     }

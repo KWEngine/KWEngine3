@@ -37,6 +37,15 @@ namespace KWEngine3.GameObjects
             _dimensions.Y = _mesh.height;
             _dimensions.Z = _mesh.depth;
 
+            _left = _center.X - _dimensions.X * 0.5f;
+            _right = _center.X + _dimensions.X * 0.5f;
+
+            _low = _center.Y - _dimensions.Y * 0.5f;
+            _high = _center.Y + _dimensions.Y * 0.5f;
+
+            _back = _center.Z - _dimensions.Z * 0.5f;
+            _front = _center.Z + _dimensions.Z * 0.5f;
+
             return true;
         }
     }
