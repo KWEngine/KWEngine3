@@ -368,13 +368,11 @@
       <Field Name="_myWorld" Hidden="true" />
       <Field Name="_name" Hidden="true" />
       <Field Name="_pomScale" Hidden="true" />
-      <Field Name="_sectorMapCoarseUltra" Hidden="true" />
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
       <Field Name="_stateRender" Hidden="true" />
       <Field Name="_textureSlopeBlendFactor" Hidden="true" />
       <Field Name="_textureSlopeSmoothingFactor" Hidden="true" />
-      <Method Name="GenerateCoarseSectors" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
@@ -384,7 +382,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>YCABIUASDAYgkAQIICCAIESEACBAAxMhAAkAEABCQYQ=</HashCode>
+      <HashCode>YCABIUASDAYgkAQIICCAIEQEACBAAxMhAAkAEABCQYQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
