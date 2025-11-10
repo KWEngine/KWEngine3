@@ -119,6 +119,10 @@ namespace KWEngine3.Renderer
                         forwardObjects.Add(r);
                         continue;
                     }
+                    else if(r._stateRender._opacity == 0f)
+                    {
+                        continue;
+                    }
 
                     Draw(r);
                 }

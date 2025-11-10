@@ -382,7 +382,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>YCABIUASDAYgkAQIICCAIEQEACBAAxMhAAkAEABCQYQ=</HashCode>
+      <HashCode>YCABIUASDAYgkAQIICCAIESEACBAAxMhAAkAEABCQYQ=</HashCode>
       <FileName>GameObjects\TerrainObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -905,13 +905,10 @@
   <Class Name="KWEngine3.GameObjects.IntersectionTerrain">
     <Position X="18.5" Y="6.75" Width="2.75" />
     <Members>
-      <Field Name="_collider" Hidden="true" />
-      <Field Name="_colliderSurfaceNormal" Hidden="true" />
-      <Field Name="_mtv" Hidden="true" />
       <Method Name="IntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CAAAAAAAAAAEEAAgCAAAAAAAAAAAAAAAABAAAAAAAAA=</HashCode>
+      <HashCode>CAAAAQAAAAAEAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>GameObjects\IntersectionTerrain.cs</FileName>
     </TypeIdentifier>
   </Class>
