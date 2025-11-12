@@ -24,6 +24,11 @@ namespace KWEngine3.GameObjects
         public Vector3 ContactPoint { get; internal set; }
 
         /// <summary>
+        /// Gibt den Punkt an, der die Mitte des Kollisionsvolumens bildet
+        /// </summary>
+        public Vector3 IntersectionVolumeCenter { get; internal set; }
+
+        /// <summary>
         /// Gibt den Ebenenvektor der Oberfläche des Objekts an, mit dem die Kollision stattfand
         /// </summary>
         public Vector3 ColliderSurfaceNormal { get; internal set; }

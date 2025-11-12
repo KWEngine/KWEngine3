@@ -12,13 +12,11 @@ namespace KWEngine3.Model
         private Vector3 v3;
 
         internal Vector3[] Vertices;
-        internal GeoTerrainTrianglePrismFace[] Faces;
 
         internal Vector3 Center;
         internal Vector3 Normal;
 
         const float EPSILON = 1e-5f;
-        const float EPSILON_TRI_HEIGHT = 0.0001f;
 
         internal static Vector3 CalculateSurfaceNormal(Vector3 v1, Vector3 v2, Vector3 v3)
         {
@@ -47,36 +45,6 @@ namespace KWEngine3.Model
             Center = new Vector3((v1.X + v2.X + v3.X) / 3f, (v1.Y + v2.Y + v3.Y) / 3f, (v1.Z + v2.Z + v3.Z) / 3f);
 
             Normal = CalculateSurfaceNormal(v1, v2, v3);
-
-            Faces = new GeoTerrainTrianglePrismFace[5];
-
-            Faces[0] = new GeoTerrainTrianglePrismFace(v1, v2, v3, Normal, true); // top
-
-            Faces[1] = new GeoTerrainTrianglePrismFace(
-                v2, 
-                v1, 
-                v1 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
-                v2 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
-                false
-                );
-
-            Faces[2] = new GeoTerrainTrianglePrismFace(
-                v3,
-                v2,
-                v2 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
-                v3 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
-                false
-                );
-
-            Faces[3] = new GeoTerrainTrianglePrismFace(
-                v1,
-                v3,
-                v3 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
-                v1 - new Vector3(0, -EPSILON_TRI_HEIGHT, 0),
-                false
-                );
-
-            Faces[4] = new GeoTerrainTrianglePrismFace(v3, v2, v1, -Normal, true); // bottom
         }
         private static float Sign(ref Vector3 p1, ref Vector3 p2, ref Vector3 p3)
         {

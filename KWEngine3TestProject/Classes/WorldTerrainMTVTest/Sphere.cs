@@ -15,7 +15,7 @@ namespace KWEngine3TestProject.Classes
 {
     internal class Sphere : GameObject
     {
-        //private List<ContactPoint> _contactPoints = new(100);
+        private ContactPoint _cp;
 
         public Sphere()
         {
@@ -33,6 +33,14 @@ namespace KWEngine3TestProject.Classes
                 CurrentWorld.AddGameObject(cp);
             }
             */
+
+            _cp = new ContactPoint();
+            _cp.SetModel("KWSphere");
+            _cp.SetColor(1, 0, 0);
+            _cp.SetScale(0.25f);
+            _cp.IsAffectedByLight = false;
+            _cp.SetOpacity(0);
+            CurrentWorld.AddGameObject(_cp);
         }
 
         public override void Act()
@@ -54,30 +62,36 @@ namespace KWEngine3TestProject.Classes
             if(it != null)
             {
                 MoveOffset(it.MTV);
+                _cp.SetPosition(it.IntersectionVolumeCenter);
+                _cp.SetOpacity(1);
             }
-
-            /*
-            List<Vector3> pointsOnTriangles = new();
-            foreach(GeoTerrainTriangle tri in contactPoints.Keys)
+            else
             {
-                pointsOnTriangles.AddRange(contactPoints[tri]);
+                _cp.SetOpacity(0);
             }
-            for (int i = 0; i < _contactPoints.Count; i++)
-            {
 
-                if (i < pointsOnTriangles.Count)
+                /*
+                List<Vector3> pointsOnTriangles = new();
+                foreach(GeoTerrainTriangle tri in contactPoints.Keys)
                 {
-                    _contactPoints[i].SetOpacity(1);
-                    _contactPoints[i].SetPosition(pointsOnTriangles[i]);
+                    pointsOnTriangles.AddRange(contactPoints[tri]);
                 }
-                else
+                for (int i = 0; i < _contactPoints.Count; i++)
                 {
-                    _contactPoints[i].SetOpacity(0);
-                }
-            }
-            */
 
-            CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 0.5f, 2.5f));
+                    if (i < pointsOnTriangles.Count)
+                    {
+                        _contactPoints[i].SetOpacity(1);
+                        _contactPoints[i].SetPosition(pointsOnTriangles[i]);
+                    }
+                    else
+                    {
+                        _contactPoints[i].SetOpacity(0);
+                    }
+                }
+                */
+
+                CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 0.5f, 2.5f));
             //CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 7.5f, 10f));
             CurrentWorld.SetCameraTarget(this.Center);
         }

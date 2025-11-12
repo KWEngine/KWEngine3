@@ -1744,15 +1744,15 @@ namespace KWEngine3.Helper
             return clippedVertex;
         }
 
-        internal static List<Vector3> ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, TerrainObject terrain, ref Vector3 offset)
+        internal static List<Vector3> ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, TerrainObject terrain, ref Vector3 offset, out Vector3 cpAvg)
         {
             List<Vector3> collisionVolumeVertices = new List<Vector3>();
             List<Vector3> callerVertices = new List<Vector3>(hb._vertices);
             List<Vector3> contactPoints = new List<Vector3>();
+            cpAvg = Vector3.Zero;
 
-            for (int colliderFaceIndex = 0; colliderFaceIndex < triangle.Faces.Length; colliderFaceIndex++)
+            for (int colliderFaceIndex = 0; colliderFaceIndex < 1; colliderFaceIndex++)
             {
-                GeoTerrainTrianglePrismFace colliderClippingFace = triangle.Faces[colliderFaceIndex];
                 Vector3 colliderClippingFaceVertex = triangle.Vertices[0] + offset;
                 Vector3 colliderClippingFaceNormal = triangle.Normal;
                 for (int callerVertexIndex = 0; callerVertexIndex < callerVertices.Count; callerVertexIndex++)
@@ -1795,6 +1795,14 @@ namespace KWEngine3.Helper
                 callerVertices.AddRange(collisionVolumeVertices);
                 collisionVolumeVertices.Clear();
             }
+            foreach(Vector3 cv in callerVertices)
+            {
+                cpAvg += cv;
+                contactPoints.Add(cv);
+            }
+            if(callerVertices.Count > 0)
+                cpAvg /= callerVertices.Count;
+
             contactPoints.AddRange(callerVertices);
             return contactPoints;
         }

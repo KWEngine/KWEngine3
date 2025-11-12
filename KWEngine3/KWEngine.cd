@@ -368,11 +368,13 @@
       <Field Name="_myWorld" Hidden="true" />
       <Field Name="_name" Hidden="true" />
       <Field Name="_pomScale" Hidden="true" />
+      <Field Name="_sectorMapCoarseUltra" Hidden="true" />
       <Field Name="_stateCurrent" Hidden="true" />
       <Field Name="_statePrevious" Hidden="true" />
       <Field Name="_stateRender" Hidden="true" />
       <Field Name="_textureSlopeBlendFactor" Hidden="true" />
       <Field Name="_textureSlopeSmoothingFactor" Hidden="true" />
+      <Method Name="GenerateCoarseSectors" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitRenderStateMatrices" Hidden="true" />
       <Method Name="InitStates" Hidden="true" />
@@ -440,7 +442,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="21" Width="2.75" />
+    <Position X="21.5" Y="21.25" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -810,7 +812,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperTexture">
-    <Position X="21.5" Y="19.25" Width="2.75" />
+    <Position X="21.5" Y="19.5" Width="2.75" />
     <Members>
       <Method Name="CheckFBXNestedList" Hidden="true" />
       <Method Name="CheckFBXNestedListNew" Hidden="true" />
@@ -903,12 +905,12 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.IntersectionTerrain">
-    <Position X="18.5" Y="6.75" Width="2.75" />
+    <Position X="18.5" Y="6.5" Width="2.75" />
     <Members>
       <Method Name="IntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CAAAAQAAAAAEAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>CAAAAQAAAAAEAAAgAAAAAAAAAAAAAAAAAAAAAAAAABA=</HashCode>
       <FileName>GameObjects\IntersectionTerrain.cs</FileName>
     </TypeIdentifier>
   </Class>
