@@ -31,9 +31,9 @@ namespace KWEngine3TestProject.Worlds
 
             Sphere s = new Sphere();
             s.SetModel("KWCube");
-            s.SetScale(1.0f);
+            s.SetScale(5, 1, 1);
             s.SetColor(1, 0.5f, 0f);
-            s.SetPosition(-0.45f, 5.25f, 7.047992f); // (-0,45; 5,4865003; 7,047992)
+            s.SetPosition(0.0f, 5.25f, 7.0f);
             s.IsCollisionObject = true;
             s.IsShadowCaster = true;
             s.SetOpacity(0.5f);

@@ -1879,9 +1879,14 @@ namespace KWEngine3.GameObjects
                                     tri.Vertices[1] + ts.Terrain._stateCurrent._position, 
                                     tri.Vertices[2] + ts.Terrain._stateCurrent._position))
                                 {
-                                    cpAvgCount++;
-                                    cpAvg += volumePosCenter;
-
+                                    if(GeoTerrainTriangle.IsPointOnTriangle(contactPoint, tri.Vertices[0] + ts.Terrain._stateCurrent._position,
+                                    tri.Vertices[1] + ts.Terrain._stateCurrent._position,
+                                    tri.Vertices[2] + ts.Terrain._stateCurrent._position,
+                                    tri.Normal))
+                                    {
+                                        cpAvgCount++;
+                                        cpAvg += volumePosCenter;
+                                    }
 
                                     // look for the point that is farthest from the triangle surface:
                                     float dot = Vector3.Dot(contactPoint - (tri.Vertices[0] + ts.Terrain._stateCurrent._position), -tri.Normal);
@@ -1921,10 +1926,11 @@ namespace KWEngine3.GameObjects
                 // END OF TRIANGLE LOOP
             }
             // END OF TERRAIN LOOP
-            if(it != null)
+            if(it != null && cpAvgCount > 0)
             {
                 it.IntersectionVolumeCenter = cpAvg / cpAvgCount;
             }
+
             return it;
         }
 

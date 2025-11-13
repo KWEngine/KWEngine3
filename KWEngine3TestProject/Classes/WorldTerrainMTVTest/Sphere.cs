@@ -91,8 +91,8 @@ namespace KWEngine3TestProject.Classes
                 }
                 */
 
-                CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 0.5f, 2.5f));
-            //CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 7.5f, 10f));
+                //CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 0.5f, 2.5f));
+            CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 7.5f, 10f));
             CurrentWorld.SetCameraTarget(this.Center);
         }
     }
