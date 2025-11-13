@@ -19,14 +19,14 @@ namespace KWEngine3.GameObjects
         public Vector3 MTV { get; internal set; }
 
         /// <summary>
-        /// Gibt den dazugehörigen Punkt auf der Kollisionsebene an
+        /// Gibt den maßgeblich beteiligten Kollisionspunkt
         /// </summary>
         public Vector3 ContactPoint { get; internal set; }
 
         /// <summary>
-        /// Gibt den Punkt an, der die Mitte des Kollisionsvolumens bildet
+        /// Eine Liste aller relevanten Schnittpunkte mit dem Terrain-Objekt
         /// </summary>
-        public Vector3 IntersectionVolumeCenter { get; internal set; }
+        public List<Vector3> ContactPoints { get; internal set; }
 
         /// <summary>
         /// Gibt den Ebenenvektor der Oberfläche des Objekts an, mit dem die Kollision stattfand

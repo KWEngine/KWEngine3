@@ -1840,8 +1840,7 @@ namespace KWEngine3.GameObjects
         public IntersectionTerrain GetIntersectionWithTerrain()
         {
             IntersectionTerrain it = null;
-            Vector3 cpAvg = Vector3.Zero;
-            float cpAvgCount = 0f;
+            List<Vector3> allContactPoints = new();
             float maxMTVY = 0;
             foreach (TerrainSector ts in this._collisionCandidatesTerrain)
             {
@@ -1872,6 +1871,7 @@ namespace KWEngine3.GameObjects
                             for (int i = 0; i < contactPoints.Count; i++)
                             {
                                 Vector3 contactPoint = contactPoints[i];
+                                
 
                                 // filter: only use points that are right on the triangle face
                                 if (GeoTerrainTriangle.IsPointInTriangle(contactPoint, 
@@ -1879,14 +1879,7 @@ namespace KWEngine3.GameObjects
                                     tri.Vertices[1] + ts.Terrain._stateCurrent._position, 
                                     tri.Vertices[2] + ts.Terrain._stateCurrent._position))
                                 {
-                                    if(GeoTerrainTriangle.IsPointOnTriangle(contactPoint, tri.Vertices[0] + ts.Terrain._stateCurrent._position,
-                                    tri.Vertices[1] + ts.Terrain._stateCurrent._position,
-                                    tri.Vertices[2] + ts.Terrain._stateCurrent._position,
-                                    tri.Normal))
-                                    {
-                                        cpAvgCount++;
-                                        cpAvg += volumePosCenter;
-                                    }
+                                    allContactPoints.Add(contactPoint);
 
                                     // look for the point that is farthest from the triangle surface:
                                     float dot = Vector3.Dot(contactPoint - (tri.Vertices[0] + ts.Terrain._stateCurrent._position), -tri.Normal);
@@ -1915,9 +1908,6 @@ namespace KWEngine3.GameObjects
                                             }
                                         }
                                     }
-
-                                    // collect position for average contact point
-
                                 }
                             }
                         }
@@ -1926,11 +1916,10 @@ namespace KWEngine3.GameObjects
                 // END OF TRIANGLE LOOP
             }
             // END OF TERRAIN LOOP
-            if(it != null && cpAvgCount > 0)
+            if(it != null)
             {
-                it.IntersectionVolumeCenter = cpAvg / cpAvgCount;
+                it.ContactPoints = allContactPoints;
             }
-
             return it;
         }
 

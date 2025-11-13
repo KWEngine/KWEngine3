@@ -15,11 +15,11 @@ namespace KWEngine3TestProject.Classes
 {
     internal class Sphere : GameObject
     {
-        private ContactPoint _cp;
+        private List<ContactPoint> _contactPoints = new();
 
         public Sphere()
         {
-            /*
+            
             for (int i = 0; i < 100; i++)
             {
                 ContactPoint cp = new ContactPoint();
@@ -32,8 +32,8 @@ namespace KWEngine3TestProject.Classes
                 _contactPoints.Add(cp);
                 CurrentWorld.AddGameObject(cp);
             }
-            */
-
+            
+            /*
             _cp = new ContactPoint();
             _cp.SetModel("KWSphere");
             _cp.SetColor(1, 0, 0);
@@ -41,6 +41,7 @@ namespace KWEngine3TestProject.Classes
             _cp.IsAffectedByLight = false;
             _cp.SetOpacity(0);
             CurrentWorld.AddGameObject(_cp);
+            */
         }
 
         public override void Act()
@@ -59,39 +60,30 @@ namespace KWEngine3TestProject.Classes
                 MoveOffset(0, +0.005f, 0);
 
             IntersectionTerrain it = GetIntersectionWithTerrain();
-            if(it != null)
+            if (it != null)
             {
                 MoveOffset(it.MTV);
-                _cp.SetPosition(it.IntersectionVolumeCenter);
-                _cp.SetOpacity(1);
-            }
-            else
-            {
-                _cp.SetOpacity(0);
-            }
-
-                /*
-                List<Vector3> pointsOnTriangles = new();
-                foreach(GeoTerrainTriangle tri in contactPoints.Keys)
-                {
-                    pointsOnTriangles.AddRange(contactPoints[tri]);
-                }
                 for (int i = 0; i < _contactPoints.Count; i++)
                 {
-
-                    if (i < pointsOnTriangles.Count)
+                    if (i < it.ContactPoints.Count)
                     {
+                        _contactPoints[i].SetPosition(it.ContactPoints[i]);
                         _contactPoints[i].SetOpacity(1);
-                        _contactPoints[i].SetPosition(pointsOnTriangles[i]);
                     }
                     else
                     {
                         _contactPoints[i].SetOpacity(0);
                     }
                 }
-                */
+            }
+            else
+            {
+                for (int i = 0; i < _contactPoints.Count; i++)
+                {
+                    _contactPoints[i].SetOpacity(0);
+                }
+            }
 
-                //CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 0.5f, 2.5f));
             CurrentWorld.SetCameraPosition(this.Center + new Vector3(0, 7.5f, 10f));
             CurrentWorld.SetCameraTarget(this.Center);
         }
