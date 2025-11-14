@@ -910,12 +910,12 @@
       <Method Name="IntersectionTerrain" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CAAAAQAAAAAEAAAgAAAAAAAAAAAAAAAAAAAAAAAAABA=</HashCode>
+      <HashCode>CAAAASAAAAAEAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>GameObjects\IntersectionTerrain.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">
-    <Position X="18.5" Y="3.5" Width="2.75" />
+    <Position X="18.5" Y="3.25" Width="2.75" />
     <TypeIdentifier>
       <HashCode>AgAAAAAAEAAAAABAiAgAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
       <FileName>GameObjects\IntersectionVolume.cs</FileName>

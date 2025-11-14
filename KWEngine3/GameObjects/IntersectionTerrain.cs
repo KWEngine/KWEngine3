@@ -19,7 +19,7 @@ namespace KWEngine3.GameObjects
         public Vector3 MTV { get; internal set; }
 
         /// <summary>
-        /// Gibt den maßgeblich beteiligten Kollisionspunkt
+        /// Gibt den maßgeblich beteiligten Kollisionspunkt an
         /// </summary>
         public Vector3 ContactPoint { get; internal set; }
 
