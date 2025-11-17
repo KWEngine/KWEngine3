@@ -74,6 +74,12 @@ namespace KWEngine3.GameObjects
 
         public void SetTexture(string filename, TextureType type, int meshId)
         {
+            if (KWEngine.CurrentWorld == null)
+            {
+                KWEngine.LogWriteLine("[EngineObject] No current world found, cannot load texture");
+                return;
+            }
+
             if (Material.Length > meshId)
             {
                 int textureId;

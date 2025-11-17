@@ -199,6 +199,12 @@ namespace KWEngine3.GameObjects
         /// <param name="type">Texturtyp (Standard: Albedo)</param>
         public void SetTexture(string filename, TextureType type = TextureType.Albedo)
         {
+            if (KWEngine.CurrentWorld == null)
+            {
+                KWEngine.LogWriteLine("[TerrainObject] No current world found, cannot load texture");
+                return;
+            }
+
             if (filename == null)
                 filename = "";
             if(type == TextureType.Height && KWEngine.Window._renderQuality < RenderQualityLevel.Default)

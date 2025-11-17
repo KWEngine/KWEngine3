@@ -186,10 +186,9 @@ namespace KWEngine3.Helper
                 }
                 else
                 {
-                    normal = new Vector3(0, 1, 0.000001f);
+                    normal = new Vector3(0, 0, 1); //default to z-axis
                 }
             }
-
 
             screenposX = MathHelper.Clamp(screenposX, 0, KWEngine.Window.Width - 1);
             screenposY = MathHelper.Clamp(screenposY, 0, KWEngine.Window.Height - 1);
@@ -560,6 +559,13 @@ namespace KWEngine3.Helper
 
             if (result)
             {
+                if (planeNormal == Plane.XZ)
+                    intersection.Y = planeHeight;
+                else if (planeNormal == Plane.YZ)
+                    intersection.X = planeHeight;
+                else if (planeNormal == Plane.XY)
+                    intersection.Z = planeHeight;
+
                 return intersection;
             }
             else

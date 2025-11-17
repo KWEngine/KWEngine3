@@ -184,6 +184,13 @@ namespace KWEngine3.GameObjects
             filename = filename.Trim();
             if (File.Exists(filename))
             {
+                if(KWEngine.CurrentWorld == null)
+                {
+                    KWEngine.LogWriteLine("[HUDObject] No current world found, cannot load texture");
+                    _textureId = KWEngine.TextureAlpha;
+                    return;
+                }
+
                 if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
                 {
                     _textureId = KWEngine.CurrentWorld._customTextures[filename].ID;
