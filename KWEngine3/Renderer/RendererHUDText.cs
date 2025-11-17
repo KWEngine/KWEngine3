@@ -74,7 +74,7 @@ namespace KWEngine3.Renderer
 
         public static void SetGlobals()
         {
-            GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
+            KWEngine.Window.SetGLViewportToClientSize();
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
         }
 
