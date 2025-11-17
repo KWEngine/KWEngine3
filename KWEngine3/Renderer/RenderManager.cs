@@ -35,7 +35,7 @@ namespace KWEngine3.Renderer
 
         public static void BindScreen(bool clear = true)
         {
-            GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
+            KWEngine.Window.SetGLViewportToClientSize(); //GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             if (clear)
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
@@ -43,13 +43,14 @@ namespace KWEngine3.Renderer
         
         public static void InitializeFramebuffers()
         {
-            _screenGrid = new ScreenGrid(KWEngine.Window.Width, KWEngine.Window.Height);
+            Vector2i fbSize = KWEngine.Window.GetWindowFramebufferSize();
+            _screenGrid = new ScreenGrid(fbSize.X, fbSize.Y);
 
             FramebufferQuad.Init();
-            FramebufferDeferred = new FramebufferDeferred(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
-            FramebufferLightingPass = new FramebufferLighting(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y);
-            FramebufferSSAO = new FramebufferSSAO(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point);
-            FramebufferSSAOBlur = new FramebufferSSAOBlur(KWEngine.Window.ClientRectangle.Size.X, KWEngine.Window.ClientRectangle.Size.Y, false, LightType.Point);
+            FramebufferDeferred = new FramebufferDeferred(fbSize.X, fbSize.Y);
+            FramebufferLightingPass = new FramebufferLighting(fbSize.X, fbSize.Y);
+            FramebufferSSAO = new FramebufferSSAO(fbSize.X, fbSize.Y, false, LightType.Point);
+            FramebufferSSAOBlur = new FramebufferSSAOBlur(fbSize.X, fbSize.Y, false, LightType.Point);
 
             // Bloom
             if (KWEngine.Window._renderQuality == RenderQualityLevel.High) // high only

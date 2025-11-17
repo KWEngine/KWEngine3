@@ -75,7 +75,7 @@ namespace KWEngine3.Renderer
 
         public static int RenderHUDObjects(int index, bool back)
         {
-            GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
+            KWEngine.Window.SetGLViewportToClientSize();
             if (back)
             {
                 GL.BindVertexArray(KWQuad2D_05.VAO);
@@ -132,11 +132,11 @@ namespace KWEngine3.Renderer
 
         public static void DrawMap(out bool noReset)
         {
-            //Console.WriteLine("- RENDER START -");
+            Vector2i fbSize = KWEngine.Window.GetWindowFramebufferSize();
 
             GL.Viewport(
                 KWEngine.CurrentWorld.Map._targetCenter.X - KWEngine.CurrentWorld.Map._targetDimensions.X / 2,
-                (KWEngine.Window.ClientSize.Y - KWEngine.CurrentWorld.Map._targetCenter.Y) - KWEngine.CurrentWorld.Map._targetDimensions.Y / 2,
+                (fbSize.Y - KWEngine.CurrentWorld.Map._targetCenter.Y) - KWEngine.CurrentWorld.Map._targetDimensions.Y / 2,
                 KWEngine.CurrentWorld.Map._targetDimensions.X,
                 KWEngine.CurrentWorld.Map._targetDimensions.Y
                 );

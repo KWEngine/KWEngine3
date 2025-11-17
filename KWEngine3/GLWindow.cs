@@ -301,12 +301,37 @@ namespace KWEngine3
         protected override void OnResize(ResizeEventArgs e)
         {
             base.OnResize(e);
-            GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+            Vector2i dims = SetGLViewportToClientSize();
+            Overlay.WindowResized(dims.X, dims.Y);
 
-            Overlay.WindowResized(ClientSize.X, ClientSize.Y);
             _viewMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
             _projectionMatrixHUD = Matrix4.CreateOrthographicOffCenter(0f, ClientSize.X, ClientSize.Y, 0f, 0.01f, 10f);
             _viewProjectionMatrixHUD = _viewMatrixHUD * _projectionMatrixHUD;
+        }
+
+        internal Vector2i GetWindowFramebufferSize()
+        {
+            int width = ClientSize.X;
+            int height = ClientSize.Y;
+            unsafe
+            {
+                GLFW.GetFramebufferSize(this.WindowPtr, out width, out height);
+
+            }
+            return new Vector2i(width, height);
+        }
+
+        internal Vector2i SetGLViewportToClientSize()
+        {
+            int width = ClientSize.X;
+            int height = ClientSize.Y;
+            unsafe
+            {
+                GLFW.GetFramebufferSize(this.WindowPtr, out width, out height);
+
+            }
+            GL.Viewport(0, 0, width, height);
+            return new Vector2i(width, height);
         }
 
         /// <summary>
@@ -546,7 +571,7 @@ namespace KWEngine3
                 // clear inbetween:
                 GL.UseProgram(0);
                 GL.Disable(EnableCap.DepthTest);
-                GL.Viewport(0, 0, ClientSize.X, ClientSize.Y);
+                SetGLViewportToClientSize();
 
 
                 // SSAO pass
