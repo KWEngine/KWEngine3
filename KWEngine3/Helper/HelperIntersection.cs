@@ -472,7 +472,7 @@ namespace KWEngine3.Helper
             }
             else
             {
-                mc = KWEngine.Window.Mouse.Position;
+                mc = GLWindow.Mouse.Position;
             }
 
             return HelperGeneral.Get3DMouseCoords(mc);
@@ -549,7 +549,7 @@ namespace KWEngine3.Helper
             }
             else
             {
-                mc = KWEngine.Window.Mouse.Position;
+                mc = GLWindow.Mouse.Position;
             }
 
             Vector3 worldRay = HelperGeneral.Get3DMouseCoords(mc);
@@ -587,7 +587,7 @@ namespace KWEngine3.Helper
             }
             else
             {
-                mc = KWEngine.Window.Mouse.Position;
+                mc = GLWindow.Mouse.Position;
             }
             Vector3 worldRay = HelperGeneral.Get3DMouseCoords(mc);
             Vector3 normal;

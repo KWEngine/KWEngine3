@@ -2043,11 +2043,11 @@ namespace KWEngine3
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public static KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        public static KeyboardExt Keyboard { get { return GLWindow._keyboard; } }
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public static MouseExt Mouse { get { return KWEngine.Window._mouse; } }
+        public static MouseExt Mouse { get { return GLWindow._mouse; } }
         /// <summary>
         /// Verweis auf das aktuelle Programmfenster
         /// </summary>
@@ -2100,7 +2100,7 @@ namespace KWEngine3
             {
                 GLFW.SetCursorPos(Window.WindowPtr, Window.ClientSize.X / 2, Window.ClientSize.Y / 2);
             }
-            Window.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
+            GLWindow.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
             Window.ResetMouseDeltas();
             _mouseCursorJustGrabbed = true;
         }
@@ -2127,7 +2127,7 @@ namespace KWEngine3
             {
                 GLFW.SetCursorPos(Window.WindowPtr, Window.ClientSize.X / 2, Window.ClientSize.Y / 2);
             }
-            Window.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
+            GLWindow.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
             Window.ResetMouseDeltas();
             _startingFrameActive = true;
         }
@@ -2145,7 +2145,7 @@ namespace KWEngine3
             {
                 GLFW.SetCursorPos(Window.WindowPtr, x, y);
             }
-            Window.Mouse._mousePositionFromGLFW = new Vector2(x, y);
+            GLWindow.Mouse._mousePositionFromGLFW = new Vector2(x, y);
             Window.ResetMouseDeltas();
             _startingFrameActive = true;
             Keyboard.DeleteKeys();

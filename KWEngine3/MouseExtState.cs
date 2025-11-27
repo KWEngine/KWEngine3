@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KWEngine3
+﻿namespace KWEngine3
 {
     internal class MouseExtState
     {
         public float Time { get; set; }
+        public ulong Frame { get; set; }
         public bool OldWorld { get; set; }
 
         public void SwitchToOldWorld()

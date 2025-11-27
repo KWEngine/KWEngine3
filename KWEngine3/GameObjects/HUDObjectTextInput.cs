@@ -117,6 +117,7 @@ namespace KWEngine3.GameObjects
             KWEngine.CurrentWorld.AddWorldEvent(e);
         }
 
+        /*
         internal void KeepENTERESCKeyPressedForOneSimulationStep()
         {
             if(KWEngine.Window._keyboard._keysPressed.ContainsKey(Keys.Enter))
@@ -137,6 +138,7 @@ namespace KWEngine3.GameObjects
                 KWEngine.Window._keyboard._keysPressed.Add(Keys.Escape, new KeyboardExtState() { OldWorld = false, Time = KWEngine.WorldTime + 1.0f });
             }
         }
+        */
 
         /// <summary>
         /// Bestätigt die aktuelle Eingabe und erzeugt ein WorldEvent, das in der jeweiligen OnWorldEvent()-Methode der Welt-Klasse abgefangen werden kann

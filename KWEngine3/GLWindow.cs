@@ -26,14 +26,15 @@ namespace KWEngine3
         internal DisposeStatus _disposed = DisposeStatus.None;
 
         // input related:
-        internal KeyboardExt _keyboard = new();
-        internal MouseExt _mouse = new();
+        internal static KeyboardExt _keyboard = new();
+        internal static MouseExt _mouse = new();
         internal const int DELTASFORMOVINGAVG = 4;
         internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
         internal int _mouseScrollPosition = 0;
         internal int _mouseScrollDelta = 0;
         internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
+        internal static ulong _frame = 0;
         
         internal void ResetMouseDeltas()
         {
@@ -234,11 +235,11 @@ namespace KWEngine3
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public KeyboardExt Keyboard { get { return _keyboard; } }
+        public static KeyboardExt Keyboard { get { return _keyboard; } }
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public MouseExt Mouse { get { return _mouse; } }
+        public static MouseExt Mouse { get { return _mouse; } }
 
         /// <summary>
         /// Standard-Initialisierungen
@@ -957,6 +958,15 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Schließt das Anwendungsfenster
+        /// </summary>
+        public override void Close()
+        {
+            _disposed = DisposeStatus.Marked;
+        }
+
+
+        /// <summary>
         /// Event-Handler, der ausgelöst wird, wenn eine Taste im Fenster gedrückt wird
         /// </summary>
         /// <param name="e">Event-Infos</param>
@@ -967,14 +977,14 @@ namespace KWEngine3
             {
                 Close();
             }
-        }
-
-        /// <summary>
-        /// Schließt das Anwendungsfenster
-        /// </summary>
-        public override void Close()
-        {
-            _disposed = DisposeStatus.Marked;
+            else
+            {
+                lock (_keyboard._keysPressed)
+                {
+                    Console.WriteLine("key press for key " + e.Key + " detected. adding it from list..");
+                    _keyboard._keysPressed.Add(e.Key, new KeyboardExtState() { Frame = _frame, OldWorld = false, Time = KWEngine.WorldTime });
+                }
+            }
         }
 
         /// <summary>
@@ -984,7 +994,11 @@ namespace KWEngine3
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
             base.OnKeyUp(e);
-            _keyboard._keysPressed.Remove(e.Key);
+            lock (_keyboard._keysPressed)
+            {
+                Console.WriteLine("key release for key " + e.Key + " detected. removing it from list..");
+                _keyboard._keysPressed.Remove(e.Key);
+            }
         }
 
         internal World _worldNew = null;
@@ -1022,6 +1036,8 @@ namespace KWEngine3
             KWEngine.CurrentWorld.Prepare();
             KWEngine.CurrentWorld.IsPrepared = true;
             _mouseDeltaToUse = Vector2.Zero;
+
+            _frame = 0;
 
             HelperGeneral.FlushAndFinish(); 
 
@@ -1171,10 +1187,12 @@ namespace KWEngine3
 
                 unsafe
                 {
-                    GLFW.PollEvents();
+                    //GLFW.PollEvents();
                     GLFW.GetCursorPos(this.WindowPtr, out var xPos, out var yPos);
                     Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
                 }
+
+                _frame++;
 
                 if (KWEngine.CurrentWorld != null && _worldNew == null)
                 {

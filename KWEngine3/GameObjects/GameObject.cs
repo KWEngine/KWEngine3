@@ -801,11 +801,11 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Verweis auf die Keyboard-Aktivitäten
         /// </summary>
-        public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        public static KeyboardExt Keyboard { get { return GLWindow._keyboard; } }
         /// <summary>
         /// Verweis auf die Mausaktivitäten
         /// </summary>
-        public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
+        public static MouseExt Mouse { get { return GLWindow._mouse; } }
         /// <summary>
         /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
         /// </summary>

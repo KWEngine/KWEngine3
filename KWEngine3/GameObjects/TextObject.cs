@@ -392,11 +392,11 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public KeyboardExt Keyboard { get { return KWEngine.Window._keyboard; } }
+        public KeyboardExt Keyboard { get { return GLWindow._keyboard; } }
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public MouseExt Mouse { get { return KWEngine.Window._mouse; } }
+        public MouseExt Mouse { get { return GLWindow._mouse; } }
 
         /// <summary>
         /// Anzahl der maximal je Instanz gleichzeitig verwendbarer Zeichen

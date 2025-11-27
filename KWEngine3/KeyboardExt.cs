@@ -23,7 +23,7 @@ namespace KWEngine3
         {
             if (KWEngine.CurrentWorld == null || KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
                 return false;
-            return KWEngine.Window.KeyboardState.IsKeyDown(key);
+            return GLWindow._keyboard._keysPressed.ContainsKey(key);
         }
 
         /// <summary>
@@ -41,26 +41,40 @@ namespace KWEngine3
                 return false;
             }
 
-            bool down = KWEngine.Window.KeyboardState.IsKeyDown(key);
-            if (down)
+
+            float wt = KWEngine.WorldTime;
+
+            bool result = _keysPressed.TryGetValue(key, out KeyboardExtState t);
+            if (result)
             {
-                bool result = _keysPressed.TryGetValue(key, out KeyboardExtState t);
-                if (result)
+                Console.WriteLine("keypress for key " + key + " queried, and key is in hashtable:");
+                if (wt > t.Time || t.OldWorld)
                 {
-                    if (KWEngine.WorldTime > t.Time || t.OldWorld)
-                        return false;
-                    else
-                    {
-                        return true;
-                    }
+                    Console.WriteLine("\tWorldTime: " + wt + " | t.Time: " + t.Time + " (t.OldWorld = " + t.OldWorld + ")");
+                    Console.WriteLine("\treturning false...");
+                    return false;
                 }
                 else
                 {
-                    _keysPressed.Add(key, new KeyboardExtState() { Time = KWEngine.WorldTime, OldWorld = false });
+                    Console.WriteLine("\tWorldTime: " + wt + " | t.Time: " + t.Time + " (t.OldWorld = " + t.OldWorld + ")");
+                    Console.WriteLine("\treturning true...");
                     return true;
                 }
             }
-            return false;
+            else
+            {
+                /*
+                Console.WriteLine("keypress for key " + key + " queried, and key is NOT in hashtable:");
+                Console.WriteLine("\tAdding new Entry to Key DB at WorldTime: " + wt);
+                lock (_keysPressed)
+                {
+                    if(_keysPressed.ContainsKey(key) == false)
+                        _keysPressed.Add(key, new KeyboardExtState() { Time = wt, OldWorld = false });
+                }
+                return true;
+                */
+                return false;
+            }
         }
 
         internal void ChangeToOldWorld(Keys k)
