@@ -979,12 +979,8 @@ namespace KWEngine3
             }
             else
             {
-                lock (_keyboard._keysPressed)
-                {
-                    //Console.WriteLine("key press for key " + e.Key + " detected. adding it to list..");
-                    if(_keyboard._keysPressed.ContainsKey(e.Key) == false)
-                        _keyboard._keysPressed.Add(e.Key, new KeyboardExtState() { Frame = _frame, OldWorld = false, Time = KWEngine.WorldTime });
-                }
+                if(_keyboard._keysPressed.ContainsKey(e.Key) == false)
+                    _keyboard._keysPressed.Add(e.Key, new KeyboardExtState() { Frame = _frame, OldWorld = false, Time = KWEngine.WorldTime });
             }
         }
 
@@ -995,11 +991,7 @@ namespace KWEngine3
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
             base.OnKeyUp(e);
-            lock (_keyboard._keysPressed)
-            {
-                //Console.WriteLine("key release for key " + e.Key + " detected. removing it from list..");
-                _keyboard._keysPressed.Remove(e.Key);
-            }
+            _keyboard._keysPressed.Remove(e.Key);
         }
 
         internal World _worldNew = null;
@@ -1188,7 +1180,7 @@ namespace KWEngine3
 
                 unsafe
                 {
-                    //GLFW.PollEvents();
+                    GLFW.PollEvents();
                     GLFW.GetCursorPos(this.WindowPtr, out var xPos, out var yPos);
                     Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
                 }
