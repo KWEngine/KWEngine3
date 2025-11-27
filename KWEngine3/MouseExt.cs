@@ -30,7 +30,6 @@ namespace KWEngine3
         /// Gibt die aktuelle Mauscursorposition an
         /// </summary>
         public Vector2 Position { get { return _mousePositionFromGLFW; } }
-        //public Vector2 Position { get { return KWEngine.Window.MouseState.Position; } }
 
         /// <summary>
         /// Prüft, ob die angegebene Maustaste gerade gedrückt wird
@@ -39,6 +38,9 @@ namespace KWEngine3
         /// <returns>true, wenn Taste gedrückt wird</returns>
         public bool IsButtonDown(MouseButton button)
         {
+            if (!KWEngine.Window.IsFocused || KWEngine.CurrentWorld == null)
+                return false;
+
             return KWEngine.Window.MouseState.IsButtonDown(button);
         }
 
@@ -49,30 +51,39 @@ namespace KWEngine3
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
         public bool IsButtonPressed(MouseButton button)
         {
+            if (!KWEngine.Window.IsFocused || KWEngine.CurrentWorld == null)
+                return false;
+
             bool down = KWEngine.Window.MouseState.IsButtonDown(button);
             if (down)
             {
-                bool result = _buttonsPressed.TryGetValue(button, out MouseExtState t);
-                if (result)
+                bool keyIsInHashtable = _buttonsPressed.TryGetValue(button, out MouseExtState t);
+                if (keyIsInHashtable)
                 {
-                    if (KWEngine.WorldTime > t.Time || t.OldWorld)
+                    if (t.FrameConsumed.HasValue == false || t.OldWorld)
                     {
                         return false;
                     }
                     else
                     {
+                        t.FrameConsumed = GLWindow._frame;
                         return true;
                     }
                 }
                 else
                 {
-                    MouseExtState s = new MouseExtState() { Time = KWEngine.WorldTime, OldWorld = false };
-                    _buttonsPressed.Add(button, s);
+                    if (_buttonsPressed.ContainsKey(button) == false)
+                    {
+                        _buttonsPressed.Add(button, new MouseExtState() { Frame = GLWindow._frame, Time = KWEngine.WorldTime, OldWorld = false });
+                    }
                     return true;
                 }
             }
             else
+            {
+                _buttonsPressed.Remove(button);
                 return false;
+            }
         }
 
         internal void ChangeToOldWorld(MouseButton b)

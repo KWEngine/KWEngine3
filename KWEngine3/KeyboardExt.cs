@@ -21,8 +21,9 @@ namespace KWEngine3
         /// <returns>true, wenn Taste gedrückt wird</returns>
         public bool IsKeyDown(Keys key)
         {
-            if (KWEngine.CurrentWorld == null || KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
+            if (!KWEngine.Window.IsFocused || KWEngine.CurrentWorld == null || KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
                 return false;
+
             return GLWindow._keyboard._keysPressed.ContainsKey(key);
         }
 
@@ -33,7 +34,7 @@ namespace KWEngine3
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
         public bool IsKeyPressed(Keys key)
         {
-            if (KWEngine.CurrentWorld == null || KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
+            if (!KWEngine.Window.IsFocused || KWEngine.CurrentWorld == null || KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
                 return false;
 
             if (KWEngine.CurrentWorld.WorldTime - KWEngine.CurrentWorld._textinputLostFocusTimout < HUDObjectTextInput.TimeoutDuration)
@@ -47,32 +48,36 @@ namespace KWEngine3
             bool result = _keysPressed.TryGetValue(key, out KeyboardExtState t);
             if (result)
             {
-                Console.WriteLine("keypress for key " + key + " queried, and key is in hashtable:");
-                if (wt > t.Time || t.OldWorld)
+                Console.WriteLine("key press for key " + key + " queried, and key is in hashtable:");
+
+                // is this input from a previous world? if so, always return false:
+                if (t.OldWorld)
                 {
-                    Console.WriteLine("\tWorldTime: " + wt + " | t.Time: " + t.Time + " (t.OldWorld = " + t.OldWorld + ")");
+                    Console.WriteLine("\treturning false because of OldWorld = true in key state...");
+                    return false;
+                }
+                
+                // has this input already been consumed by any object?
+                if (t.FrameConsumed.HasValue == true)
+                {
+                    Console.WriteLine("\tFrame: " + t.Frame + " | FrameConsumed: " + t.FrameConsumed.Value + " | " + "WorldTime: " + wt + " | t.Time: " + t.Time + " (t.OldWorld = " + t.OldWorld + ")");
                     Console.WriteLine("\treturning false...");
                     return false;
                 }
+                else if(t.FrameConsumed.HasValue == false)
+                {
+                    Console.WriteLine("\tFrame: " + t.Frame + " | FrameConsumed: " + "not consumed yet" + " | " + "WorldTime: " + wt + " | t.Time: " + t.Time + " (t.OldWorld = " + t.OldWorld + ")");
+                    Console.WriteLine("\treturning true...");
+                    t.FrameConsumed = GLWindow._frame;
+                    return true;
+                }
                 else
                 {
-                    Console.WriteLine("\tWorldTime: " + wt + " | t.Time: " + t.Time + " (t.OldWorld = " + t.OldWorld + ")");
-                    Console.WriteLine("\treturning true...");
-                    return true;
+                    return false;
                 }
             }
             else
             {
-                /*
-                Console.WriteLine("keypress for key " + key + " queried, and key is NOT in hashtable:");
-                Console.WriteLine("\tAdding new Entry to Key DB at WorldTime: " + wt);
-                lock (_keysPressed)
-                {
-                    if(_keysPressed.ContainsKey(key) == false)
-                        _keysPressed.Add(key, new KeyboardExtState() { Time = wt, OldWorld = false });
-                }
-                return true;
-                */
                 return false;
             }
         }

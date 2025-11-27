@@ -981,8 +981,9 @@ namespace KWEngine3
             {
                 lock (_keyboard._keysPressed)
                 {
-                    Console.WriteLine("key press for key " + e.Key + " detected. adding it from list..");
-                    _keyboard._keysPressed.Add(e.Key, new KeyboardExtState() { Frame = _frame, OldWorld = false, Time = KWEngine.WorldTime });
+                    Console.WriteLine("key press for key " + e.Key + " detected. adding it to list..");
+                    if(_keyboard._keysPressed.ContainsKey(e.Key) == false)
+                        _keyboard._keysPressed.Add(e.Key, new KeyboardExtState() { Frame = _frame, OldWorld = false, Time = KWEngine.WorldTime });
                 }
             }
         }

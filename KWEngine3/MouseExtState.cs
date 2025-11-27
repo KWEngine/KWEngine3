@@ -4,6 +4,7 @@
     {
         public float Time { get; set; }
         public ulong Frame { get; set; }
+        public ulong? FrameConsumed { get; set; }
         public bool OldWorld { get; set; }
 
         public void SwitchToOldWorld()

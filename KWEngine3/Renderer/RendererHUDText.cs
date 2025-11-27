@@ -27,7 +27,7 @@ namespace KWEngine3.Renderer
         public static int UOptions { get; private set; } = -1;
 
         public static float[] _dummyWidthAndAdvance = new float[2];
-        public static float[] _dummyOffset = new float[2];
+        public static float[] _dummyOffset = new float[3];
 
         public static void Init()
         {
@@ -118,12 +118,13 @@ namespace KWEngine3.Renderer
                 HUDObjectTextInput i = (HUDObjectTextInput)ho;
                 if(i.HasFocus)
                 {
-                    Vector4 details = GetUOffsetForGlyph(i);
+                    Vector4 details = GetUOffsetForGlyph(i, out float vOffset);
                     _dummyWidthAndAdvance[0] = details.Z;
                     _dummyWidthAndAdvance[1] = i._advanceForCursor;
                     _dummyOffset[0] = details.X; 
                     _dummyOffset[1] = details.Y;
-                    GL.Uniform2(UUVOffsets, 1, _dummyOffset);
+                    _dummyOffset[2] = vOffset;
+                    GL.Uniform3(UUVOffsets, 1, _dummyOffset);
                     GL.Uniform1(UWidths, 2, _dummyWidthAndAdvance);
                     GL.Uniform4(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed, (float)i.CursorPosition);
                     GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, 1);
@@ -133,9 +134,10 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        internal static Vector4 GetUOffsetForGlyph(HUDObjectTextInput ti)
+        internal static Vector4 GetUOffsetForGlyph(HUDObjectTextInput ti, out float vOffset)
         {
             KWFontGlyph glyph = ti._font.GlyphDict[ti._cursorType == KeyboardCursorType.Pipe ? '|' : ti._cursorType == KeyboardCursorType.Underscore ? '_' : '·'];
+            vOffset = glyph.UCoordinate.Z;
             return new Vector4(glyph.UCoordinate.X, glyph.UCoordinate.Y, glyph.Width, ti._advances[ti.CursorPosition]);
         }
     }

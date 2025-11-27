@@ -2148,8 +2148,8 @@ namespace KWEngine3
             GLWindow.Mouse._mousePositionFromGLFW = new Vector2(x, y);
             Window.ResetMouseDeltas();
             _startingFrameActive = true;
-            Keyboard.DeleteKeys();
-            Mouse.DeleteButtons();
+            //Keyboard.DeleteKeys();
+            //Mouse.DeleteButtons();
         }
 
         /// <summary>
