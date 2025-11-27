@@ -71,12 +71,13 @@ namespace KWEngine3
                     }
                     else
                     {
-                        if(limitToOneConsumption)
+                        if (limitToOneConsumption)
                         {
                             return false;
+
                         }
                         else
-                        {
+                        { 
                             return t.FrameConsumed == GLWindow._frame;
                         }
                     }
@@ -85,7 +86,7 @@ namespace KWEngine3
                 {
                     if (_buttonsPressed.ContainsKey(button) == false)
                     {
-                        _buttonsPressed.Add(button, new MouseExtState() { Frame = GLWindow._frame, Time = KWEngine.WorldTime, OldWorld = false });
+                        _buttonsPressed.Add(button, new MouseExtState() { Frame = GLWindow._frame, FrameConsumed = GLWindow._frame, Time = KWEngine.WorldTime, OldWorld = false });
                     }
                     return true;
                 }
