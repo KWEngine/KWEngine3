@@ -48,8 +48,9 @@ namespace KWEngine3
         /// Prüft, ob die angegebene Maustaste gerade gedrückt wird und im vorherigen Frame nicht gedrückt wurde
         /// </summary>
         /// <param name="button">zu prüfende Taste</param>
+        /// <param name="limitToOneConsumption">Wenn true, wird die Taste nur vom ersten Objekt fragenden Objekt als gedrückt erkannt (sollte nur in absoluten Sonderfällen verwendet werden)</param>
         /// <returns>true, wenn die Taste gedrückt und im vorherigen Frame nicht gedrückt wurde</returns>
-        public bool IsButtonPressed(MouseButton button)
+        public bool IsButtonPressed(MouseButton button, bool limitToOneConsumption = false)
         {
             if (!KWEngine.Window.IsFocused || KWEngine.CurrentWorld == null)
                 return false;
@@ -60,14 +61,24 @@ namespace KWEngine3
                 bool keyIsInHashtable = _buttonsPressed.TryGetValue(button, out MouseExtState t);
                 if (keyIsInHashtable)
                 {
-                    if (t.FrameConsumed.HasValue == false || t.OldWorld)
-                    {
+                    if (t.OldWorld)
                         return false;
-                    }
-                    else
+
+                    if (t.FrameConsumed.HasValue == false)
                     {
                         t.FrameConsumed = GLWindow._frame;
                         return true;
+                    }
+                    else
+                    {
+                        if(limitToOneConsumption)
+                        {
+                            return false;
+                        }
+                        else
+                        {
+                            return t.FrameConsumed == GLWindow._frame;
+                        }
                     }
                 }
                 else

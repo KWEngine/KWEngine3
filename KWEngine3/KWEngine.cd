@@ -4,6 +4,7 @@
     <Position X="0.5" Y="9.75" Width="2.75" />
     <Members>
       <Field Name="_disposed" Hidden="true" />
+      <Field Name="_frame" Hidden="true" />
       <Field Name="_keyboard" Hidden="true" />
       <Field Name="_mouse" Hidden="true" />
       <Field Name="_mouseDeltas" Hidden="true" />
@@ -21,6 +22,7 @@
       <Method Name="DisposeInternal" Hidden="true" />
       <Method Name="GatherWeightedMovingAvg" Hidden="true" />
       <Method Name="GetMonitorHandleForPointer" Hidden="true" />
+      <Method Name="GetWindowFramebufferSize" Hidden="true" />
       <Field Name="lastCycleCount" Hidden="true" />
       <Field Name="MOUSEDELTAMAXSAMPLECOUNT" Hidden="true" />
       <Method Name="OnClosing" Hidden="true" />
@@ -38,6 +40,7 @@
       <Method Name="ProcessKeysForHUDObjectTextInput" Hidden="true" />
       <Method Name="RenderOverlay" Hidden="true" />
       <Method Name="ResetMouseDeltas" Hidden="true" />
+      <Method Name="SetGLViewportToClientSize" Hidden="true" />
       <Method Name="SetWorldInternal" Hidden="true" />
       <Method Name="UpdateCurrentWorldAndObjects" Hidden="true" />
       <Method Name="UpdateDeltaTime" Hidden="true" />
@@ -54,7 +57,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QDyEBAAABUCEAQ6AUAEBgEASkhoABCQAaAEEWEWuAgA=</HashCode>
+      <HashCode>QDyEBAAAhUCEAQ6AUAEBgEASkhoEBCQAaAEE2EWuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -802,12 +805,11 @@
       <Method Name="ConfirmAndRaiseWorldEvent" Hidden="true" />
       <Method Name="Delete" Hidden="true" />
       <Method Name="GetGlyphForCursor" Hidden="true" />
-      <Method Name="KeepENTERESCKeyPressedForOneSimulationStep" Hidden="true" />
       <Method Name="MoveCursor" Hidden="true" />
       <Method Name="UpdateCursorOffset" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CEgkQAAACEQAAUEAAIAAAACQAAEAAQAECEUERASAAAA=</HashCode>
+      <HashCode>CEgkQAAACEQAAUEAAIAAAACQAAEAAQAACEUERASAAAA=</HashCode>
       <FileName>GameObjects\HUDObjectTextInput.cs</FileName>
     </TypeIdentifier>
   </Class>

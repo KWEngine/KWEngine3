@@ -981,7 +981,7 @@ namespace KWEngine3
             {
                 lock (_keyboard._keysPressed)
                 {
-                    Console.WriteLine("key press for key " + e.Key + " detected. adding it to list..");
+                    //Console.WriteLine("key press for key " + e.Key + " detected. adding it to list..");
                     if(_keyboard._keysPressed.ContainsKey(e.Key) == false)
                         _keyboard._keysPressed.Add(e.Key, new KeyboardExtState() { Frame = _frame, OldWorld = false, Time = KWEngine.WorldTime });
                 }
@@ -997,7 +997,7 @@ namespace KWEngine3
             base.OnKeyUp(e);
             lock (_keyboard._keysPressed)
             {
-                Console.WriteLine("key release for key " + e.Key + " detected. removing it from list..");
+                //Console.WriteLine("key release for key " + e.Key + " detected. removing it from list..");
                 _keyboard._keysPressed.Remove(e.Key);
             }
         }
