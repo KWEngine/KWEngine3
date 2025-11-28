@@ -24,7 +24,7 @@ namespace KWEngine3
             if (!KWEngine.Window.IsFocused || KWEngine.CurrentWorld == null || KWEngine.CurrentWorld.HasObjectWithActiveInputFocus)
                 return false;
 
-            return GLWindow._keyboard._keysPressed.ContainsKey(key);
+            return KWEngine.Window.KeyboardState.IsKeyDown(key);
         }
 
         /// <summary>
@@ -43,48 +43,45 @@ namespace KWEngine3
                 return false;
             }
 
-            float wt = KWEngine.WorldTime;
-
-            bool result = _keysPressed.TryGetValue(key, out KeyboardExtState t);
-            if (result)
+            bool down = KWEngine.Window.KeyboardState.IsKeyDown(key);
+            if (down)
             {
-                //Console.WriteLine("key press for key " + key + " queried, and key is in hashtable:");
-
-                // is this input from a previous world? if so, always return false:
-                if (t.OldWorld)
+                bool keyIsInHashtable = _keysPressed.TryGetValue(key, out KeyboardExtState t);
+                if (keyIsInHashtable)
                 {
-                    //Console.WriteLine("\treturning false because of OldWorld = true in key state...");
-                    return false;
-                }
-                
-                // has this input already been consumed by any object?
-                if (t.FrameConsumed.HasValue == true)
-                {
-                    if (limitToOneConsumption == false)
-                    {
-                        //Console.WriteLine("\tFrame: " + t.Frame + " | FrameConsumed: " + t.FrameConsumed.Value + " | " + "WorldTime: " + wt + " | t.Time: " + t.Time + " (t.OldWorld = " + t.OldWorld + ")");
-                        //Console.WriteLine("\treturning false...");
+                    if (t.OldWorld)
                         return false;
+
+                    if (t.FrameConsumed.HasValue == false)
+                    {
+                        t.FrameConsumed = GLWindow._frame;
+                        return true;
                     }
                     else
                     {
-                        return t.FrameConsumed.Value == GLWindow._frame;
+                        if (limitToOneConsumption)
+                        {
+                            return false;
+
+                        }
+                        else
+                        {
+                            return t.FrameConsumed == GLWindow._frame;
+                        }
                     }
-                }
-                else if(t.FrameConsumed.HasValue == false)
-                {
-                    //Console.WriteLine("\tFrame: " + t.Frame + " | FrameConsumed: " + "not consumed yet" + " | " + "WorldTime: " + wt + " | t.Time: " + t.Time + " (t.OldWorld = " + t.OldWorld + ")");
-                    //Console.WriteLine("\treturning true...");
-                    t.FrameConsumed = GLWindow._frame;
-                    return true;
                 }
                 else
                 {
-                    return false;
+                    if (_keysPressed.ContainsKey(key) == false)
+                    {
+                        _keysPressed.Add(key, new KeyboardExtState() { Frame = GLWindow._frame, FrameConsumed = GLWindow._frame, Time = KWEngine.WorldTime, OldWorld = false });
+                    }
+                    return true;
                 }
             }
             else
             {
+                _keysPressed.Remove(key);
                 return false;
             }
         }

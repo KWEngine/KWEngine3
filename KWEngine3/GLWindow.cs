@@ -362,6 +362,11 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
+            if (Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4))
+            {
+                Close();
+            }
+
             if (_disposed > DisposeStatus.None)
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -963,35 +968,6 @@ namespace KWEngine3
         public override void Close()
         {
             _disposed = DisposeStatus.Marked;
-        }
-
-
-        /// <summary>
-        /// Event-Handler, der ausgelöst wird, wenn eine Taste im Fenster gedrückt wird
-        /// </summary>
-        /// <param name="e">Event-Infos</param>
-        protected override void OnKeyDown(KeyboardKeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-            if (Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4))
-            {
-                Close();
-            }
-            else
-            {
-                if(_keyboard._keysPressed.ContainsKey(e.Key) == false)
-                    _keyboard._keysPressed.Add(e.Key, new KeyboardExtState() { Frame = _frame, OldWorld = false, Time = KWEngine.WorldTime });
-            }
-        }
-
-        /// <summary>
-        /// Event-Handler, der ausgelöst wird, wenn eine Taste im Fenster losgelassen wird
-        /// </summary>
-        /// <param name="e">Event-Infos</param>
-        protected override void OnKeyUp(KeyboardKeyEventArgs e)
-        {
-            base.OnKeyUp(e);
-            _keyboard._keysPressed.Remove(e.Key);
         }
 
         internal World _worldNew = null;

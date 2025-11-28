@@ -15,7 +15,7 @@ namespace KWEngine3TestProject.Worlds
         private HUDObject h;
         public override void Act()
         {
-            if(Mouse.IsButtonPressed(MouseButton.Right))
+            if(Mouse.IsButtonPressed(MouseButton.Right) || Keyboard.IsKeyPressed(Keys.Space))
             {
                 Console.WriteLine("World 1 - RIGHT: " + WorldTime);
             }
