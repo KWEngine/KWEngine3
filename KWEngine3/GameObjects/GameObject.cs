@@ -1,8 +1,10 @@
-﻿using KWEngine3.Helper;
+﻿using KWEngine3.EngineCamera;
+using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
 using SkiaSharp;
 using System;
+using System.Collections.Specialized;
 
 namespace KWEngine3.GameObjects
 {
@@ -1084,6 +1086,7 @@ namespace KWEngine3.GameObjects
             return null;
         }
 
+
         /// <summary>
         /// Vergleicht das Objekt bzgl. seiner Entfernung zur Kamera mit einem anderen Objekt
         /// </summary>
@@ -1091,12 +1094,50 @@ namespace KWEngine3.GameObjects
         /// <returns>1, wenn das aufrufende Objekt näher an der Kamera ist, sonst -1</returns>
         public int CompareTo(GameObject other)
         {
-            Vector3 camPos = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateCurrent._position: KWEngine.CurrentWorld.CameraPosition;
+            Camera cam = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor : KWEngine.CurrentWorld._cameraGame;
 
-            float distanceToCameraThis = (this.Center - camPos).LengthSquared;
-            float distanceToCameraOther = (other.Center - camPos).LengthSquared;
-            return _colorHighlightMode != HighlightMode.Disabled ? 1 : distanceToCameraOther > distanceToCameraThis ? 1 : -1;
+            Vector3 camPos = cam._stateCurrent._position;
+            Vector3 camDir = cam._stateCurrent.LookAtVector;
+            Matrix4 viewMatrix = cam._stateCurrent.ViewMatrix;
+
+            Vector3 thisMin = new Vector3(this.AABBLeft, this.AABBLow, this.AABBBack);
+            Vector3 thisMax = new Vector3(this.AABBRight, this.AABBHigh, this.AABBFront);
+
+            Vector3 otherMin = new Vector3(other.AABBLeft, other.AABBLow, other.AABBBack);
+            Vector3 otherMax = new Vector3(other.AABBRight, other.AABBHigh, other.AABBFront);
+
+            float zThis = -ComputeMinZ(ref thisMin, ref thisMax, ref viewMatrix);
+            Console.WriteLine("player distance to cam: " + zThis);
+            
+            float zOther = -ComputeMinZ(ref otherMin, ref otherMax, ref viewMatrix);
+            Console.WriteLine("wall distance to cam: " + zOther);
+
+            return _colorHighlightMode != HighlightMode.Disabled ? 1 : zOther > zThis ? 1 : 0;
         }
+
+
+
+        internal static float ComputeMinZ(ref Vector3 boxMin, ref Vector3 boxMax, ref Matrix4 view)
+        {
+            // Center und Halbachsen
+            Vector3 center = (boxMin + boxMax) * 0.5f;
+            Vector3 half = (boxMax - boxMin) * 0.5f;
+
+            // Z-Spalte der View-Matrix (bei Vector4 * Matrix4)
+            Vector3 viewZ = new Vector3(view.M13, view.M23, view.M33);
+            float viewZOffset = view.M43;
+
+            // Z des Centers im View-Space
+            float zCenter = center.X * viewZ.X + center.Y * viewZ.Y + center.Z * viewZ.Z + viewZOffset;
+
+            // Betrag der Projektion der Halbachsen auf Z
+            float radiusZ = MathF.Abs(viewZ.X) * half.X + MathF.Abs(viewZ.Y) * half.Y + MathF.Abs(viewZ.Z) * half.Z;
+
+            // Minimum des Z-Intervalls
+            return zCenter - radiusZ;
+        }
+
+
 
         /// <summary>
         /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
