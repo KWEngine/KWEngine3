@@ -131,32 +131,34 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Erfragt die auf der Y-Achse niedrigste Position des Objekts
         /// </summary>
-        public float AABBLow { get { return _stateCurrent._center.Y - _stateCurrent._dimensions.Y * 0.5f; } }
+        public float AABBLow { get; internal set; } = -0.5f;
 
         /// <summary>
         /// Erfragt die auf der X-Achse linkste Position des Objekts
         /// </summary>
-        public float AABBLeft { get { return _stateCurrent._center.X - _stateCurrent._dimensions.X * 0.5f; } }
+        public float AABBLeft { get; internal set; } = -0.5f;
 
         /// <summary>
         /// Erfragt die auf der X-Achse rechteste Position des Objekts
         /// </summary>
-        public float AABBRight { get { return _stateCurrent._center.X + _stateCurrent._dimensions.X * 0.5f; } }
+        public float AABBRight { get; internal set; } = 0.5f;
 
         /// <summary>
         /// Erfragt die auf der Y-Achse höchste Position des Objekts
         /// </summary>
-        public float AABBHigh { get { return _stateCurrent._center.Y + _stateCurrent._dimensions.Y * 0.5f; } }
+        public float AABBHigh { get; internal set; } = 0.5f;
 
         /// <summary>
         /// Erfragt die auf der Z-Achse hinterste Position des Objekts
         /// </summary>
-        public float AABBBack { get { return _stateCurrent._center.Z - _stateCurrent._dimensions.Z * 0.5f; } }
+        public float AABBBack { get; internal set; } = -0.5f;
 
         /// <summary>
         /// Erfragt die auf der Z-Achse vorderste Position des Objekts
         /// </summary>
-        public float AABBFront { get { return _stateCurrent._center.Z + _stateCurrent._dimensions.Z * 0.5f; } }
+        public float AABBFront { get; internal set; } = 0.5f;
+
+        internal float _projZ = 1f;
 
         /// <summary>
         /// (Normalisierter) Blickrichtungsvektor des Objekts

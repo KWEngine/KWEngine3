@@ -1,6 +1,21 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Bestimmt wie transparente Objekte für das Rendern sortiert werden (Standard: NearestEdge)
+    /// </summary>
+    public enum ZOrderMode
+    {
+        /// <summary>
+        /// Sortiert transparente Objekte für das Rendern gemäß der Entfernung ihrer zur Kamera am wenigsten entfernten Ecke
+        /// </summary>
+        NearestEdge,
+        /// <summary>
+        /// Sortiert transparente Objekte für das Rendern gemäß der Hauptblickrichtung der Kamera (gut für 2D bzw. 2,5D Games)
+        /// </summary>
+        CameraMainPlane
+    }
+
+    /// <summary>
     /// Gibt an, wie der Beleuchtungsschritt in der Engine ablaufen soll
     /// </summary>
     public enum GBufferLightingMode

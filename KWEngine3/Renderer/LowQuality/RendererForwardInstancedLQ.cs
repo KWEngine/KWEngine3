@@ -239,21 +239,11 @@ namespace KWEngine3.Renderer.LowQuality
             }
         }
 
-        private void SortByZ(List<GameObject> transparentObjects)
-        {
-            transparentObjects.Sort();
-        }
-
-        private void SortByZ(List<RenderObject> transparentObjects)
-        {
-            transparentObjects.Sort();
-        }
-
         public void RenderScene(List<RenderObject> transparentObjects)
         {
             if (KWEngine.CurrentWorld != null)
             {
-                SortByZ(transparentObjects);
+                HelperMatrix.SortByZ(transparentObjects);
                 GL.Enable(EnableCap.Blend);
                 foreach (RenderObject r in transparentObjects)
                 {

@@ -22,10 +22,31 @@ namespace KWEngine3
     public class KWEngine
     {
         /// <summary>
-        /// Gibt an, wie viele Puffer pro Audiokanal verwendet werden sollen (Minimum: 2, Standardwert: 2, Maximum: 4)
+        /// Gibt an, wie groß der Durchmesser eines Objekts sein muss, damit bei der Bestimmung der Render-Sortierreihenfolge genauere Berechnungen stattfinden (Standardwert: 10f)
+        /// </summary>
+        /// <remarks>Dieser Wert muss verringert werden, wenn Objekte hinter transparenten Objekten nicht korrekt gezeichnet werden. Der Wert kann testweise erhöht werden, wenn dies nicht der Fall ist.</remarks>
+        public static float ZOrderModeThreshold
+        {
+            get
+            {
+                return _zOrderModeThreshold;
+            }
+            set 
+            {
+                _zOrderModeThreshold = MathF.Max(0f, value);
+            }
+        }
+
+        /// <summary>
+        /// Bestimmt wie transparente Objekte für das Rendern sortiert werden (Standard: NearestEdge)
+        /// </summary>
+        public static ZOrderMode ZOderMode { get; set; } = ZOrderMode.NearestEdge;
+
+        /// <summary>
+        /// Gibt an, wie viele Puffer pro Audiokanal verwendet werden sollen (Minimum: 2, Standardwert: 3, Maximum: 4)
         /// </summary>
         /// <remarks>Je mehr Puffer, desto verlässlicher ist die Wiedergabe auf langsamen CPUs, aber die Auswertung der Audiodaten kann dadurch leicht verzögert werden</remarks>
-        public static int AudioBuffersPerChannel { get; set; } = 2;
+        public static int AudioBuffersPerChannel { get; set; } = 3;
 
         /// <summary>
         /// Gibt an, wie der Beleuchtungsschritt in der Engine ablaufen soll
@@ -999,6 +1020,7 @@ namespace KWEngine3
         internal static double DeltaTimeCurrentNibbleSize { get; set; } = SIMULATIONNIBBLESIZE;
         internal static float LastFrameTime { get; set; } = 0.0f;
         internal static int LastSimulationUpdateCycleCount { get; set; } = 0;
+        internal static float _zOrderModeThreshold = 10f;
 
         internal static GeoModel GetModel(string name)
         {

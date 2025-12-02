@@ -27,8 +27,8 @@ namespace KWEngine3TestProject.Classes.WorldOpacityZOrderTest
                 MoveOffset(0.0f, 0.0f, +0.01f);
             }
 
-            CurrentWorld.SetCameraPosition(Center + new Vector3(0.0f, 0.0f, 10.0f));
-            CurrentWorld.SetCameraTarget(Center);
+            //CurrentWorld.SetCameraPosition(Center + new Vector3(0.0f, 0.0f, 10.0f));
+            //CurrentWorld.SetCameraTarget(Center);
         }
     }
 }

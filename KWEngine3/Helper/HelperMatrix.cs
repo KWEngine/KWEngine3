@@ -7,6 +7,163 @@ namespace KWEngine3.Helper
 {
     internal static class HelperMatrix
     {
+        internal enum MainCamDirection
+        {
+            MinusX,
+            PlusX,
+            MinusY,
+            PlusY,
+            MinusZ,
+            PlusZ
+        }
+
+        internal static Vector3[] aabbpoints = new Vector3[8];
+
+        public static MainCamDirection FindMainCamDirection()
+        {
+            Vector3 lav = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector;
+
+            if(MathF.Abs(lav.X) >= MathF.Abs(lav.Y) && MathF.Abs(lav.X) >= MathF.Abs(lav.Z))
+            {
+                return lav.X > 0 ? MainCamDirection.PlusX : MainCamDirection.MinusX;
+            }
+            else if(MathF.Abs(lav.Y) >= MathF.Abs(lav.X) && MathF.Abs(lav.Y) >= MathF.Abs(lav.Z))
+            {
+                return lav.Y > 0 ? MainCamDirection.PlusY : MainCamDirection.MinusY;
+            }
+            else
+            {
+                return lav.Z > 0 ? MainCamDirection.PlusZ : MainCamDirection.MinusZ;
+            }
+        }
+
+        public static float GetProjZForCameraMainPlane(EngineObject e, MainCamDirection camDir, ref Vector3 camPos)
+        {
+            switch(camDir)
+            {
+                case MainCamDirection.MinusX:
+                    return MathF.Abs(camPos.X - e.AABBRight);
+                case MainCamDirection.PlusX:
+                    return MathF.Abs(camPos.X - e.AABBLeft);
+                case MainCamDirection.MinusY:
+                    return MathF.Abs(camPos.Y - e.AABBHigh);
+                case MainCamDirection.PlusY:
+                    return MathF.Abs(camPos.Y - e.AABBLow);
+                case MainCamDirection.MinusZ:
+                    return MathF.Abs(camPos.Z - e.AABBFront);
+                case MainCamDirection.PlusZ:
+                    return MathF.Abs(camPos.Z - e.AABBBack);
+                default:
+                    return MathF.Abs(camPos.Z - e.AABBFront);
+            }
+        }
+
+        public static void SortByZ(List<RenderObject> transparentObjects)
+        {
+            if (KWEngine.ZOderMode == ZOrderMode.CameraMainPlane)
+            {
+                Vector3 camPos = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender._position : KWEngine.CurrentWorld._cameraGame._stateRender._position;
+                MainCamDirection camDirMain = FindMainCamDirection();
+
+                foreach (RenderObject g in transparentObjects)
+                {
+                    g._projZ = GetProjZForCameraMainPlane(g, camDirMain, ref camPos);
+                }
+            }
+            else
+            {
+                Matrix4 m = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix;
+                foreach (RenderObject g in transparentObjects)
+                {
+                    g._projZ = HelperMatrix.FindCenterZOfAABB(g, ref m);
+                }
+            }
+            transparentObjects.Sort();
+        }
+
+        public static void SortByZ(List<GameObject> transparentObjects)
+        {
+            if (KWEngine.ZOderMode == ZOrderMode.CameraMainPlane)
+            {
+                Vector3 camPos = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender._position : KWEngine.CurrentWorld._cameraGame._stateRender._position;
+                MainCamDirection camDirMain = FindMainCamDirection();
+
+                foreach (GameObject g in transparentObjects)
+                {
+                    g._projZ = GetProjZForCameraMainPlane(g, camDirMain, ref camPos);
+                }
+            }
+            else
+            {
+                Matrix4 m = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix;
+                foreach (GameObject g in transparentObjects)
+                {
+                    if (g._fullDiameter > KWEngine.ZOrderModeThreshold)
+                    {
+                        g._projZ = HelperMatrix.FindNearestZOfAABB(g, ref m);
+                    }
+                    else
+                    {
+                        g._projZ = HelperMatrix.FindCenterZOfAABB(g, ref m);
+                    }
+                }
+            }
+            transparentObjects.Sort();
+        }
+
+        public static float FindCenterZOfAABB(EngineObject e, ref Matrix4 matrix)
+        {
+            Vector4 projected = new Vector4(e.Center, 1.0f) * matrix;
+            float z = (projected.Xyz / projected.W).Z;
+            return z;
+        }
+
+        public static float FindNearestZOfAABB(EngineObject e, ref Matrix4 matrix)
+        {
+            aabbpoints[0] = new Vector3(e.AABBLeft, e.AABBLow, e.AABBBack);
+            aabbpoints[1] = new Vector3(e.AABBRight, e.AABBLow, e.AABBBack);
+            aabbpoints[2] = new Vector3(e.AABBLeft, e.AABBHigh, e.AABBBack);
+            aabbpoints[3] = new Vector3(e.AABBRight, e.AABBHigh, e.AABBBack);
+
+            aabbpoints[4] = new Vector3(e.AABBLeft, e.AABBLow, e.AABBFront);
+            aabbpoints[5] = new Vector3(e.AABBRight, e.AABBLow, e.AABBFront);
+            aabbpoints[6] = new Vector3(e.AABBLeft, e.AABBHigh, e.AABBFront);
+            aabbpoints[7] = new Vector3(e.AABBRight, e.AABBHigh, e.AABBFront);
+
+            float closest = float.MaxValue;
+            foreach(Vector3 v in aabbpoints)
+            {
+                Vector4 projected = new Vector4(v, 1.0f) * matrix;
+                float z = (projected.Xyz / projected.W).Z;
+                if (z < closest)
+                    closest = z;
+            }
+            return closest;
+        }
+
+        public static float FindFarestZOfAABB(EngineObject e, ref Matrix4 matrix)
+        {
+            aabbpoints[0] = new Vector3(e.AABBLeft, e.AABBLow, e.AABBBack);
+            aabbpoints[1] = new Vector3(e.AABBRight, e.AABBLow, e.AABBBack);
+            aabbpoints[2] = new Vector3(e.AABBLeft, e.AABBHigh, e.AABBBack);
+            aabbpoints[3] = new Vector3(e.AABBRight, e.AABBHigh, e.AABBBack);
+
+            aabbpoints[4] = new Vector3(e.AABBLeft, e.AABBLow, e.AABBFront);
+            aabbpoints[5] = new Vector3(e.AABBRight, e.AABBLow, e.AABBFront);
+            aabbpoints[6] = new Vector3(e.AABBLeft, e.AABBHigh, e.AABBFront);
+            aabbpoints[7] = new Vector3(e.AABBRight, e.AABBHigh, e.AABBFront);
+
+            float farest = float.MinValue;
+            foreach (Vector3 v in aabbpoints)
+            {
+                Vector4 projected = new Vector4(v, 1.0f) * matrix;
+                float z = (projected.Xyz / projected.W).Z;
+                if (z > farest)
+                    farest = z;
+            }
+            return farest;
+        }
+
         public static Matrix4 CreateModelMatrix(ref Vector3 s, ref Vector3 t)
         {
             Matrix4 m = Matrix4.Identity;

@@ -70,11 +70,10 @@ namespace KWEngine3.GameObjects
         /// <returns>1, wenn das aufrufende Objekt näher an der Kamera ist, sonst -1</returns>
         public int CompareTo(RenderObject other)
         {
-            Vector3 camPos = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateCurrent._position : KWEngine.CurrentWorld.CameraPosition;
-
-            float distanceToCameraThis = (this.Position - camPos).LengthSquared;
-            float distanceToCameraOther = (other.Position - camPos).LengthSquared;
-            return distanceToCameraOther > distanceToCameraThis ? 1 : -1;
+            if (other._projZ > this._projZ)
+                return 1;
+            else
+                return -1;
         }
 
         /// <summary>
@@ -447,6 +446,13 @@ namespace KWEngine3.GameObjects
             _stateCurrent._dimensions.Y = max.Y - min.Y;
             _stateCurrent._dimensions.Z = max.Z - min.Z;
             _stateCurrent._center = (max + min) / 2f;
+
+            AABBLeft = _stateCurrent._center.X - _stateCurrent._dimensions.X * 0.5f;
+            AABBRight = _stateCurrent._center.X + _stateCurrent._dimensions.X * 0.5f;
+            AABBLow = _stateCurrent._center.Y - _stateCurrent._dimensions.Y * 0.5f;
+            AABBHigh = _stateCurrent._center.Y + _stateCurrent._dimensions.Y * 0.5f;
+            AABBBack = _stateCurrent._center.Z - _stateCurrent._dimensions.Z * 0.5f;
+            AABBFront = _stateCurrent._center.Z + _stateCurrent._dimensions.Z * 0.5f;
         }
 
         internal void GetMinMaxForBaseInstance(ref Vector3 min, ref Vector3 max)

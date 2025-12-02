@@ -1094,50 +1094,18 @@ namespace KWEngine3.GameObjects
         /// <returns>1, wenn das aufrufende Objekt näher an der Kamera ist, sonst -1</returns>
         public int CompareTo(GameObject other)
         {
-            Camera cam = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor : KWEngine.CurrentWorld._cameraGame;
-
-            Vector3 camPos = cam._stateCurrent._position;
-            Vector3 camDir = cam._stateCurrent.LookAtVector;
-            Matrix4 viewMatrix = cam._stateCurrent.ViewMatrix;
-
-            Vector3 thisMin = new Vector3(this.AABBLeft, this.AABBLow, this.AABBBack);
-            Vector3 thisMax = new Vector3(this.AABBRight, this.AABBHigh, this.AABBFront);
-
-            Vector3 otherMin = new Vector3(other.AABBLeft, other.AABBLow, other.AABBBack);
-            Vector3 otherMax = new Vector3(other.AABBRight, other.AABBHigh, other.AABBFront);
-
-            float zThis = -ComputeMinZ(ref thisMin, ref thisMax, ref viewMatrix);
-            Console.WriteLine("player distance to cam: " + zThis);
-            
-            float zOther = -ComputeMinZ(ref otherMin, ref otherMax, ref viewMatrix);
-            Console.WriteLine("wall distance to cam: " + zOther);
-
-            return _colorHighlightMode != HighlightMode.Disabled ? 1 : zOther > zThis ? 1 : 0;
+            if(_colorHighlightMode != HighlightMode.Disabled)
+            {
+                return 1;
+            }
+            else
+            {
+                if (other._projZ > this._projZ)
+                    return 1;
+                else
+                    return -1;
+            }
         }
-
-
-
-        internal static float ComputeMinZ(ref Vector3 boxMin, ref Vector3 boxMax, ref Matrix4 view)
-        {
-            // Center und Halbachsen
-            Vector3 center = (boxMin + boxMax) * 0.5f;
-            Vector3 half = (boxMax - boxMin) * 0.5f;
-
-            // Z-Spalte der View-Matrix (bei Vector4 * Matrix4)
-            Vector3 viewZ = new Vector3(view.M13, view.M23, view.M33);
-            float viewZOffset = view.M43;
-
-            // Z des Centers im View-Space
-            float zCenter = center.X * viewZ.X + center.Y * viewZ.Y + center.Z * viewZ.Z + viewZOffset;
-
-            // Betrag der Projektion der Halbachsen auf Z
-            float radiusZ = MathF.Abs(viewZ.X) * half.X + MathF.Abs(viewZ.Y) * half.Y + MathF.Abs(viewZ.Z) * half.Z;
-
-            // Minimum des Z-Intervalls
-            return zCenter - radiusZ;
-        }
-
-
 
         /// <summary>
         /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
@@ -1859,6 +1827,14 @@ namespace KWEngine3.GameObjects
             _stateCurrent._dimensions.Y = dimMax.Y - dimMin.Y;
             _stateCurrent._dimensions.Z = dimMax.Z - dimMin.Z;
             _stateCurrent._center = (dimMax + dimMin) / 2f;
+
+            AABBLeft = _stateCurrent._center.X - _stateCurrent._dimensions.X * 0.5f;
+            AABBRight = _stateCurrent._center.X + _stateCurrent._dimensions.X * 0.5f;
+            AABBLow = _stateCurrent._center.Y - _stateCurrent._dimensions.Y * 0.5f;
+            AABBHigh = _stateCurrent._center.Y + _stateCurrent._dimensions.Y * 0.5f;
+            AABBBack = _stateCurrent._center.Z - _stateCurrent._dimensions.Z * 0.5f;
+            AABBFront = _stateCurrent._center.Z + _stateCurrent._dimensions.Z * 0.5f;
+
             _fullDiameter = (new Vector3(dimMax.X, dimMax.Y, dimMax.Z) - new Vector3(dimMin.X, dimMin.Y, dimMin.Z)).LengthFast;
             _obbRadii = obbRadii;
         }

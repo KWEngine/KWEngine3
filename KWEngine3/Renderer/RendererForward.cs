@@ -1,4 +1,5 @@
-﻿using KWEngine3.Framebuffers;
+﻿using KWEngine3.EngineCamera;
+using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
@@ -227,16 +228,11 @@ namespace KWEngine3.Renderer
             }
         }
 
-        private void SortByZ(List<GameObject> transparentObjects)
-        {
-            transparentObjects.Sort();
-        }
-
         public void RenderScene(List<GameObject> transparentObjects, List<GameObject> stencilObjects)
         {
             if (KWEngine.CurrentWorld != null)
             {
-                SortByZ(transparentObjects);
+                HelperMatrix.SortByZ(transparentObjects);
                 GL.Enable(EnableCap.Blend);
 
                 foreach (GameObject g in transparentObjects)
