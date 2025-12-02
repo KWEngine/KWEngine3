@@ -688,9 +688,9 @@ namespace KWEngine3.Helper
             gameObject = null;
             GameObject[] list;
             if (includeNonCollisionObjects)
-                list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T).ToArray();
+                list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T && go.IsInsideScreenSpace).ToArray();
             else
-                list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T && go.IsCollisionObject).ToArray();
+                list = KWEngine.CurrentWorld._gameObjects.FindAll(go => go is T && go.IsInsideScreenSpace && go.IsCollisionObject).ToArray();
             if (list.Length == 0)
                 return false;
 
@@ -744,6 +744,58 @@ namespace KWEngine3.Helper
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
                 if (g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                {
+                    foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
+                    {
+                        ConvertRayToMeshSpaceForAABBTest(ref origin, ref direction, ref hb._modelMatrixFinalInv, out Vector3 originTransformed, out Vector3 directionTransformed);
+                        Vector3 directionTransformedInv = new Vector3(1f / directionTransformed.X, 1f / directionTransformed.Y, 1f / directionTransformed.Z);
+
+                        bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
+                        if (result == true)
+                        {
+                            ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref hb._modelMatrixFinal, ref origin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                            if (distanceWorldspace >= 0 && distanceWorldspace <= maxDistance)
+                            {
+                                RayIntersection gd = new RayIntersection()
+                                {
+                                    Distance = (intersectionPoint - origin).LengthFast,
+                                    Object = g,
+                                    IntersectionPoint = intersectionPoint
+                                };
+                                list.Add(gd);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (sort)
+                list.Sort();
+
+            return list;
+        }
+
+        /// <summary>
+        /// Prüft, ob der angegebene Strahl (origin, direction) auf die Hitbox von auf dem Bildschirm sichtbaren Objekten bestimmter Klassen trifft
+        /// </summary>
+        /// <param name="origin">Ausgangspunkt des Strahls</param>
+        /// <param name="direction">Richtung des Strahls (MUSS normalisiert sein)</param>
+        /// <param name="caller">Aufruferinstanz, damit die Instanz sich nicht selbst überprüft</param>
+        /// <param name="maxDistance">maximale Länge des Strahls</param>
+        /// <param name="typelist">Klassen, deren Objekte geprüft werden sollen (mehrere möglich)</param>
+        /// <param name="sort">Wenn true, wird die Ergebnisliste aufsteigend nach Objektentfernung sortiert</param>
+        /// <returns>Liste der Strahlentreffer</returns>
+        public static List<RayIntersection> RayTraceObjectsForViewVectorInScreenSpaceFast(Vector3 origin, Vector3 direction, GameObject caller, float maxDistance, bool sort, params Type[] typelist)
+        {
+            List<RayIntersection> list = new List<RayIntersection>();
+            if (maxDistance <= 0)
+            {
+                maxDistance = float.MaxValue;
+            }
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (g.IsInsideScreenSpace && g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
                     foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
@@ -830,6 +882,60 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Prüft, ob der angegebene Strahl (origin, direction) auf die achsenparallele Hitbox von auf dem Bildschirm sichtbaren Objekten bestimmter Klassen trifft
+        /// </summary>
+        /// <param name="origin">Ausgangspunkt des Strahls</param>
+        /// <param name="direction">Richtung des Strahls (MUSS normalisiert sein)</param>
+        /// <param name="caller">Aufruferinstanz, damit die Instanz sich nicht selbst überprüft</param>
+        /// <param name="maxDistance">maximale Länge des Strahls</param>
+        /// <param name="typelist">Klassen, deren Objekte geprüft werden sollen (mehrere möglich)</param>
+        /// <param name="sort">Wenn true, wird die Ergebnisliste aufsteigend nach Objektentfernung sortiert</param>
+        /// <returns>Liste der Strahlentreffer</returns>
+        public static List<RayIntersection> RayTraceObjectsForViewVectorInScreenSpaceFastest(Vector3 origin, Vector3 direction, GameObject caller, float maxDistance, bool sort, params Type[] typelist)
+        {
+            Vector3 dirOrg = direction;
+
+            direction.X = 1f / (direction.X == 0 ? 0.000001f : direction.X);
+            direction.Y = 1f / (direction.Y == 0 ? 0.000001f : direction.Y);
+            direction.Z = 1f / (direction.Z == 0 ? 0.000001f : direction.Z);
+
+            List<RayIntersection> list = new List<RayIntersection>();
+            if (maxDistance <= 0)
+            {
+                maxDistance = float.MaxValue;
+            }
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (g == caller || !g.IsInsideScreenSpace)
+                    continue;
+
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                {
+                    bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
+                    if (result == true && currentDistance >= 0)
+                    {
+                        if (maxDistance > 0 && currentDistance <= maxDistance)
+                        {
+                            RayIntersection gd = new RayIntersection()
+                            {
+                                Distance = currentDistance,
+                                Object = g,
+                                IntersectionPoint = new Vector3(origin + dirOrg * currentDistance)
+                            };
+                            list.Add(gd);
+                        }
+                    }
+                }
+            }
+
+            if (sort)
+                list.Sort();
+
+            return list;
+        }
+
+        /// <summary>
         /// Prüft, welche Objekte (bzw. deren Hitboxen) in der angegebenen Blickrichtung liegen und gibt diese als Liste zurück
         /// </summary>
         /// <param name="origin">Ursprung des Strahls</param>
@@ -838,7 +944,7 @@ namespace KWEngine3.Helper
         /// <param name="sort">true, falls die Objekte ihrer Entfernung nach aufsteigend sortiert werden sollen</param>
         /// <param name="caller">Aufrufendes Objekt, das bei Nennung ignoriert wird</param>
         /// <param name="typelist">Liste der Klassen, die getestet werden sollen</param>
-        /// <returns>Liste der GameObjectDistance-Instanzen</returns>
+        /// <returns>Liste der Messungen</returns>
         public static List<RayIntersectionExt> RayTraceObjectsForViewVector(Vector3 origin, Vector3 direction, float maxDistance, bool sort, GameObject caller, params Type[] typelist)
         {
             List<RayIntersectionExt> list = new List<RayIntersectionExt>();
@@ -849,9 +955,61 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-
                 if (caller == g)
                     continue;
+
+                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                {
+                    bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal, out string hitboxname);
+                    if (result)
+                    {
+                        float currentDistance = (intersectionPoint - origin).LengthFast;
+                        if (maxDistance > 0 && currentDistance <= maxDistance)
+                        {
+                            RayIntersectionExt gd = new RayIntersectionExt()
+                            {
+                                Distance = currentDistance,
+                                IntersectionPoint = intersectionPoint,
+                                SurfaceNormal = normal,
+                                HitboxName = hitboxname,
+                                Object = g
+                            };
+                            list.Add(gd);
+                        }
+                    }
+                }
+            }
+
+            if (sort)
+            {
+                list.Sort();
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Prüft, welche auf dem Bildschirm sichtbaren Objekte (bzw. deren Hitboxen) in der angegebenen Blickrichtung liegen und gibt diese als Liste zurück
+        /// </summary>
+        /// <param name="origin">Ursprung des Strahls</param>
+        /// <param name="direction">Blickrichtung des Strahls (MUSS normalisiert sein!)</param>
+        /// <param name="maxDistance">Objekte weiter weg als dieser Wert werden ignoriert (Standard: 0 = unendliche Entfernung)</param>
+        /// <param name="sort">true, falls die Objekte ihrer Entfernung nach aufsteigend sortiert werden sollen</param>
+        /// <param name="caller">Aufrufendes Objekt, das bei Nennung ignoriert wird</param>
+        /// <param name="typelist">Liste der Klassen, die getestet werden sollen</param>
+        /// <returns>Liste der Messungen</returns>
+        public static List<RayIntersectionExt> RayTraceObjectsForViewVectorInScreenSpace(Vector3 origin, Vector3 direction, float maxDistance, bool sort, GameObject caller, params Type[] typelist)
+        {
+            List<RayIntersectionExt> list = new List<RayIntersectionExt>();
+            if (maxDistance <= 0)
+            {
+                maxDistance = float.MaxValue;
+            }
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                if (!g.IsInsideScreenSpace || caller == g)
+                    continue;
+
                 if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
                     bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal, out string hitboxname);

@@ -439,12 +439,12 @@
       <Method Name="TestIntersectionWithTerrainFace" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DQCQAhQAAbWigKQAsEQAWEKEQQCgBLhGALGCAJ4LZJg=</HashCode>
+      <HashCode>DQCQAhQAAbWigKUAsEQAWEKEQQCgBLhGALGDAJ4LZJg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="21.5" Y="21.25" Width="2.75" />
+    <Position X="24.5" Y="16.75" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -455,7 +455,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRotation">
-    <Position X="21.5" Y="8" Width="2.75" />
+    <Position X="21.5" Y="8.5" Width="2.75" />
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
@@ -474,7 +474,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="12" Width="2.75" />
+    <Position X="21.5" Y="12.5" Width="2.75" />
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="ConvertVector2DToOpenTK" Hidden="true" />
@@ -706,7 +706,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="21.5" Y="17.5" Width="2.75" />
+    <Position X="24.5" Y="13" Width="2.75" />
     <Members>
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
@@ -814,7 +814,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperTexture">
-    <Position X="21.5" Y="19.5" Width="2.75" />
+    <Position X="24.5" Y="15" Width="2.75" />
     <Members>
       <Method Name="CheckFBXNestedList" Hidden="true" />
       <Method Name="CheckFBXNestedListNew" Hidden="true" />
