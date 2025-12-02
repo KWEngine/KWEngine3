@@ -219,6 +219,9 @@
     <None Update="Models\FBXTest\PirateShipScene.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Models\FBXTest\Plane.004.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Models\FBXTest\Textures\PirateShipScene.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

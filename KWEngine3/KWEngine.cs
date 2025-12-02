@@ -40,7 +40,7 @@ namespace KWEngine3
         /// <summary>
         /// Bestimmt wie transparente Objekte für das Rendern sortiert werden (Standard: NearestEdge)
         /// </summary>
-        public static ZOrderMode ZOderMode { get; set; } = ZOrderMode.NearestEdge;
+        public static ZOrderMode ZOrderMode { get; set; } = ZOrderMode.NearestEdge;
 
         /// <summary>
         /// Gibt an, wie viele Puffer pro Audiokanal verwendet werden sollen (Minimum: 2, Standardwert: 3, Maximum: 4)

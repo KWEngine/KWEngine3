@@ -23,7 +23,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            KWEngine.ZOderMode = ZOrderMode.CameraMainPlane;
+            KWEngine.ZOrderMode = ZOrderMode.CameraMainPlane;
             SetCameraPosition(-10, 5, 10);
             SetCameraTarget(-5, 0, 0);
 

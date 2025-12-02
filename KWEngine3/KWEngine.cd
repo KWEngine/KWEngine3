@@ -145,7 +145,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DdgQRbBNA6SJgPEcrAruAZARVCgCgmqSjHn2SP2KEIk=</HashCode>
+      <HashCode>DdgQRbBNA6SJgPEcrAruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>

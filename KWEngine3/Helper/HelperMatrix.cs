@@ -60,7 +60,7 @@ namespace KWEngine3.Helper
 
         public static void SortByZ(List<RenderObject> transparentObjects)
         {
-            if (KWEngine.ZOderMode == ZOrderMode.CameraMainPlane)
+            if (KWEngine.ZOrderMode == ZOrderMode.CameraMainPlane)
             {
                 Vector3 camPos = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender._position : KWEngine.CurrentWorld._cameraGame._stateRender._position;
                 MainCamDirection camDirMain = FindMainCamDirection();
@@ -83,7 +83,7 @@ namespace KWEngine3.Helper
 
         public static void SortByZ(List<GameObject> transparentObjects)
         {
-            if (KWEngine.ZOderMode == ZOrderMode.CameraMainPlane)
+            if (KWEngine.ZOrderMode == ZOrderMode.CameraMainPlane)
             {
                 Vector3 camPos = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender._position : KWEngine.CurrentWorld._cameraGame._stateRender._position;
                 MainCamDirection camDirMain = FindMainCamDirection();
