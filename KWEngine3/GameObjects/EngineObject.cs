@@ -250,12 +250,97 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Sichtbarkeit des Objekts (Standard: 1)
+        /// Setzt die Sichtbarkeit des Objekts (Standardwert: 1)
+        /// </summary>
+        /// <remarks>Ist der optionale zweite Parameter leer bzw. behält er seinen Standardwert, wird die Transparenz für das gesamte Objekt gesetzt (Standard)</remarks>
+        /// <param name="o">Sichtbarkeit (0 bis 1)</param>
+        /// <param name="materialId">Index des Instanzmaterials (nullbasiert)</param>
+        public void SetOpacity(float o, int materialId = -1)
+        {
+            o = MathHelper.Clamp(o, 0f, 1f);
+
+            if (materialId < 0)
+            {
+                _stateCurrent._opacity = o;
+            }
+            else if(materialId < _model.Material.Length)
+            {
+                _model.Material[materialId].SetOpacity(o);
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] SetOpacity() call ignored due to invalid parameter values");
+            }
+        }
+
+        /// <summary>
+        /// Setzt die Sichtbarkeit des Objekts (Standardwert: 1)
+        /// </summary>
+        /// <remarks>Ist der zweite Parameter leer, wird die Transparenz für das gesamte Objekt gesetzt (Standard)</remarks>
+        /// <param name="o">Sichtbarkeit (0 bis 1)</param>
+        /// <param name="materialName">Name des Materials, für das die Transparenz gesetzt werden soll</param>
+        public void SetOpacity(float o, string materialName)
+        {
+            if (materialName != null && materialName.Trim().Length > 0)
+            {
+                o = MathHelper.Clamp(o, 0f, 1f);
+
+                for (int i = 0; i < _model.Material.Length; i++)
+                {
+                    if(_model.Material[i].Name != null && _model.Material[i].Name == materialName)
+                    {
+                        _model.Material[i].SetOpacity(o);
+                    }
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] SetOpacity() call ignored due to invalid parameter values");
+            }
+        }
+
+        /// <summary>
+        /// Setzt die Sichtbarkeit für ein Teil des Objekts (Standardwert: 1)
         /// </summary>
         /// <param name="o">Sichtbarkeit (0 bis 1)</param>
-        public void SetOpacity(float o)
+        /// <param name="meshName">Names des Objektteils (Mesh)</param>
+        /// <param name="matchNameExactly">wenn false, muss der Mesh-Name nicht exakt übereinstimmen, sondern es reicht eine Teilübereinstimmung (Standardwert: true)</param>
+        public void SetOpacityForMesh(float o, string meshName, bool matchNameExactly = true)
         {
-            _stateCurrent._opacity = MathHelper.Clamp(o, 0f, 1f);
+            if (meshName != null && meshName.Length > 0)
+            {
+                bool meshFound = false;
+                o = MathHelper.Clamp(o, 0f, 1f);
+
+                for (int i = 0; i < _model.Material.Length; i++)
+                {
+                    if (matchNameExactly)
+                    {
+                        if (_model.Material[i].AttachedToMesh == meshName)
+                        {
+                            _model.Material[i].SetOpacity(o);
+                            meshFound = true;
+                        }
+                    }
+                    else
+                    {
+                        if (_model.Material[i].AttachedToMesh.Contains(meshName))
+                        {
+                            _model.Material[i].SetOpacity(o);
+                            meshFound = true;
+                        }
+                    }
+                }
+
+                if(meshFound == false)
+                {
+                    KWEngine.LogWriteLine("[EngineObject] Cannot find mesh in object - cannot set opacity");
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] Invalid mesh name in parameter - cannot set opacity");
+            }
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ namespace KWEngine3.Model
     internal struct GeoMaterial
     {
         public string Name;
+        public string AttachedToMesh;
         public BlendingFactor BlendMode;
         public Vector4 ColorEmissive;
         public Vector4 ColorAlbedo;
@@ -27,6 +28,11 @@ namespace KWEngine3.Model
         public bool TextureRoughnessIsSpecular;
         public bool TextureRoughnessInMetallic;
         public bool RenderBackFace;
+
+        public void SetOpacity(float o)
+        {
+            this.ColorAlbedo.W = o;
+        }
 
         public void SetTexture(string texture, TextureType type, int id)
         {

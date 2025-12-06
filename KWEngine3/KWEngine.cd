@@ -305,7 +305,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="6.5" Y="17" Width="2.75" />
+    <Position X="6.5" Y="17.25" Width="2.75" />
     <Members>
       <Field Name="_behindCamera" Hidden="true" />
       <Field Name="_fbShadowMap" Hidden="true" />
@@ -444,7 +444,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="24.5" Y="16.75" Width="2.75" />
+    <Position X="24.5" Y="17" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -737,7 +737,7 @@
       <Method Name="UnProject" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AQAAARABAAAIAAAAAA1SASEgggAEIAABAkAIAgQAUAE=</HashCode>
+      <HashCode>AQAAARABAIAIAAAAAA1SASFgggAEIAABAkAIAgQAUAE=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -814,7 +814,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperTexture">
-    <Position X="24.5" Y="15" Width="2.75" />
+    <Position X="24.5" Y="15.25" Width="2.75" />
     <Members>
       <Method Name="CheckFBXNestedList" Hidden="true" />
       <Method Name="CheckFBXNestedListNew" Hidden="true" />

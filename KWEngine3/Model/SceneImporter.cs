@@ -590,6 +590,7 @@ namespace KWEngine3.Model
         private static void ProcessMaterialsForMesh(Scene scene, Mesh mesh, ref GeoModel model, ref GeoMesh geoMesh, bool isKWCube = false)
         {
             GeoMaterial geoMaterial = new GeoMaterial();
+            geoMaterial.AttachedToMesh = mesh.Name;
             Material material = null;
             if (isKWCube)
             {

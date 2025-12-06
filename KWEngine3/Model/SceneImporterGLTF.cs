@@ -435,6 +435,7 @@ namespace KWEngine3.Model
         private static void ProcessMaterialsForMesh(Gltf scene, Mesh mesh, MeshPrimitive currentPrimitive, ref GeoModel model, ref GeoMesh geoMesh, Dictionary<string, int> glbTextures)
         {
             GeoMaterial geoMaterial = new GeoMaterial();
+            geoMaterial.AttachedToMesh = mesh.Name;
             int materialId = currentPrimitive.Material == null ? -1 : (int)currentPrimitive.Material;
 
             if (materialId < 0)

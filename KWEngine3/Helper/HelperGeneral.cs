@@ -522,6 +522,49 @@ namespace KWEngine3.Helper
             }
         }
 
+        /// <summary>
+        /// Gibt alle Mesh-Namen des angegebenen Modells auf der Entwicklerkonsole aus
+        /// </summary>
+        /// <param name="modelName">Name des Modells</param>
+        public static void PrintMeshNames(string modelName)
+        {
+            if(KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                KWEngine.LogWriteLine("[Helper] Printing mesh names for model '" + modelName + "':");
+                foreach(GeoMesh mesh in model.Meshes.Values)
+                {
+                    KWEngine.LogWriteLine("  -> " + mesh.NameOrg);
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[Helper] Model name '" + modelName + "' not found in model database");
+            }
+        }
+
+        /// <summary>
+        /// Gibt alle Materialnamen des angegebenen Modells auf der Entwicklerkonsole aus (Materialnamen können in der Liste öfters auftauchen, wenn es mehrere Meshes gibt, die dasselbe Material teilen)
+        /// </summary>
+        /// <param name="modelName">Name des Modells</param>
+        public static void PrintMaterialNames(string modelName)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                KWEngine.LogWriteLine("[Helper] Printing material names for model '" + modelName + "':");
+                for(int i = 0; i < model.Meshes.Values.Count; i++)
+                {
+                    string mat = model.Meshes.Values.ElementAt(i).Material.Name;
+                    string msh = model.Meshes.Values.ElementAt(i).NameOrg;
+
+                    KWEngine.LogWriteLine("  -> " + mat + " (found on mesh: " + msh + ")");
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[Helper] Model name '" + modelName + "' not found in model database");
+            }
+        }
+
         internal static Vector3 ToVector3(byte[] ar, int start, int length)
         {
 
