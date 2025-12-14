@@ -417,13 +417,48 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die selbstleuchtende Farbtönung des Objekts für ein individuelles Mesh
+        /// </summary>
+        /// <param name="color">RGB-Anteil (Werte jeweils zwischen 0 und 1)</param>
+        /// <param name="intensity">Intensitätsanteil (Intensität von 0 bis 10)</param>
+        /// <param name="meshId">Nullbasierter Index des Modell-Mesh</param>
+        public void SetColorEmissive(Vector3 color, float intensity, int meshId)
+        {
+            if(meshId < 0 || meshId >= this._model.Material.Length)
+            {
+                KWEngine.LogWriteLine("[EngineObject] Invalid mesh id - setting emissive values for the whole object instead");
+                SetColorEmissive(color, intensity);
+            }
+            else
+            {
+                _model.Material[meshId].ColorEmissive = new Vector4(
+                MathHelper.Clamp(color.X, 0, 1),
+                MathHelper.Clamp(color.Y, 0, 1),
+                MathHelper.Clamp(color.Z, 0, 1),
+                MathHelper.Clamp(intensity, 0, 10));
+            }
+        }
+        /// <summary>
+        /// Setzt die selbstleuchtende Farbtönung des Objekts für ein individuelles Mesh
+        /// </summary>
+        /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
+        /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
+        /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
+        /// <param name="intensity">Intensitätsanteil (Intensität von 0 bis 10)</param>
+        /// <param name="meshId">Nullbasierter Index des Modell-Mesh</param>
+        public void SetColorEmissive(float r, float g, float b, float intensity, int meshId)
+        {
+            SetColorEmissive(new Vector3(r, g, b), intensity, meshId);
+        }
+
+        /// <summary>
         /// Setzt fest, wie metallisch das Objekt ist
         /// </summary>
         /// <param name="m">Metallwert (zwischen 0 und 1)</param>
         /// <param name="meshId">ID des zu ändernden Meshs/Materials (Standard: 0)</param>
         public void SetMetallic(float m, int meshId = 0)
         {
-            if (meshId < _model.Material.Length)
+            if (meshId >= 0 && meshId < _model.Material.Length)
                 _model.Material[meshId].Metallic = MathHelper.Clamp(m, 0f, 1f);
         }
 
@@ -443,7 +478,7 @@ namespace KWEngine3.GameObjects
         /// <param name="meshId">ID des zu ändernden Meshs/Materials (Standard: 0)</param>
         public void SetRoughness(float r, int meshId = 0)
         {
-            if (meshId < _model.Material.Length)
+            if (meshId >= 0 && meshId < _model.Material.Length)
                 _model.Material[meshId].Roughness = MathHelper.Clamp(r, 0.00001f, 1f);
         }
 

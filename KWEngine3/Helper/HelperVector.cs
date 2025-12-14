@@ -567,5 +567,15 @@ namespace KWEngine3.Helper
         {
             return new Vector2(src.X, src.Y);
         }
+
+        internal static Vector4 EmissiveMax(Vector4 a, Vector4 b)
+        {
+            return a.W > b.W ? a : b;
+        }
+
+        internal static Vector4 EmissiveMin(Vector4 a, Vector4 b)
+        {
+            return a.W < b.W ? a : b;
+        }
     }
 }

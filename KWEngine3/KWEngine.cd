@@ -479,12 +479,14 @@
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="ConvertVector2DToOpenTK" Hidden="true" />
       <Method Name="ConvertVector3DToOpenTK" Hidden="true" />
+      <Method Name="EmissiveMax" Hidden="true" />
+      <Method Name="EmissiveMin" Hidden="true" />
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="QIdentity" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAEAEABAAAQAAAEGFiAAAGADABCiAAgAAACAAAEAAEA=</HashCode>
+      <HashCode>EAEAUABAAAQAAAEGFiAAAGADABCiAAgAAACAEAEAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>

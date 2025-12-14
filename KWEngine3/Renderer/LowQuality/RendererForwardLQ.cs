@@ -267,7 +267,6 @@ namespace KWEngine3.Renderer.LowQuality
             }
 
             GL.Uniform4(UColorTint, new Vector4(g._stateRender._colorTint, g._stateRender._opacity));
-            GL.Uniform4(UColorEmissive, g._stateRender._colorEmissive);
             GL.Uniform1(UMetallicType, (int)g._model._metallicType);
 
             int val = g.IsShadowCaster ? 1 : -1;
@@ -282,6 +281,8 @@ namespace KWEngine3.Renderer.LowQuality
                 GeoMaterial material = g._model.Material[i];
                 if (material.ColorAlbedo.W <= 0)
                     continue;
+
+                GL.Uniform4(UColorEmissive, HelperVector.EmissiveMax(g._stateRender._colorEmissive, material.ColorEmissive));
 
                 GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, g._hues[i]));
 

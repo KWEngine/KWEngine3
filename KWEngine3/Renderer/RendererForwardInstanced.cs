@@ -258,7 +258,6 @@ namespace KWEngine3.Renderer
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
 
             GL.Uniform4(UColorTint, new Vector4(r._stateRender._colorTint, r._stateRender._opacity));
-            GL.Uniform4(UColorEmissive, r._stateRender._colorEmissive);
             GL.Uniform1(UMetallicType, (int)r._model._metallicType);
 
             // camera pos:
@@ -279,6 +278,7 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W <= 0)
                     continue;
 
+                GL.Uniform4(UColorEmissive, HelperVector.EmissiveMax(r._stateRender._colorEmissive, material.ColorEmissive));
 
                 if (r.IsAnimated)
                 {
