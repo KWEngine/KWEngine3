@@ -186,16 +186,16 @@ namespace KWEngine3.Audio
                 Band09 = new AudioAnalysisBand() { FrequencyStart = src.Bands[8].FrequencyStart, FrequencyEnd = src.Bands[8].FrequencyEnd, Decibel = src.Bands[8].Decibel, Index = 8 };
                 Band10 = new AudioAnalysisBand() { FrequencyStart = src.Bands[9].FrequencyStart, FrequencyEnd = src.Bands[9].FrequencyEnd, Decibel = src.Bands[9].Decibel, Index = 9 };
 
-                Band11 = new AudioAnalysisBand() { FrequencyStart = src.Bands[10].FrequencyStart, FrequencyEnd = src.Bands[10].FrequencyEnd, Decibel = src.Bands[10].Decibel = 10 };
-                Band12 = new AudioAnalysisBand() { FrequencyStart = src.Bands[11].FrequencyStart, FrequencyEnd = src.Bands[11].FrequencyEnd, Decibel = src.Bands[11].Decibel = 11 };
-                Band13 = new AudioAnalysisBand() { FrequencyStart = src.Bands[12].FrequencyStart, FrequencyEnd = src.Bands[12].FrequencyEnd, Decibel = src.Bands[12].Decibel = 12 };
-                Band14 = new AudioAnalysisBand() { FrequencyStart = src.Bands[13].FrequencyStart, FrequencyEnd = src.Bands[13].FrequencyEnd, Decibel = src.Bands[13].Decibel = 13 };
-                Band15 = new AudioAnalysisBand() { FrequencyStart = src.Bands[14].FrequencyStart, FrequencyEnd = src.Bands[14].FrequencyEnd, Decibel = src.Bands[14].Decibel = 14 };
-                Band16 = new AudioAnalysisBand() { FrequencyStart = src.Bands[15].FrequencyStart, FrequencyEnd = src.Bands[15].FrequencyEnd, Decibel = src.Bands[15].Decibel = 15 };
-                Band17 = new AudioAnalysisBand() { FrequencyStart = src.Bands[16].FrequencyStart, FrequencyEnd = src.Bands[16].FrequencyEnd, Decibel = src.Bands[16].Decibel = 16 };
-                Band18 = new AudioAnalysisBand() { FrequencyStart = src.Bands[17].FrequencyStart, FrequencyEnd = src.Bands[17].FrequencyEnd, Decibel = src.Bands[17].Decibel = 17 };
-                Band19 = new AudioAnalysisBand() { FrequencyStart = src.Bands[18].FrequencyStart, FrequencyEnd = src.Bands[18].FrequencyEnd, Decibel = src.Bands[18].Decibel = 18 };
-                Band20 = new AudioAnalysisBand() { FrequencyStart = src.Bands[19].FrequencyStart, FrequencyEnd = src.Bands[19].FrequencyEnd, Decibel = src.Bands[19].Decibel = 19 };
+                Band11 = new AudioAnalysisBand() { FrequencyStart = src.Bands[10].FrequencyStart, FrequencyEnd = src.Bands[10].FrequencyEnd, Decibel = src.Bands[10].Decibel, Index = 10 };
+                Band12 = new AudioAnalysisBand() { FrequencyStart = src.Bands[11].FrequencyStart, FrequencyEnd = src.Bands[11].FrequencyEnd, Decibel = src.Bands[11].Decibel, Index = 11 };
+                Band13 = new AudioAnalysisBand() { FrequencyStart = src.Bands[12].FrequencyStart, FrequencyEnd = src.Bands[12].FrequencyEnd, Decibel = src.Bands[12].Decibel, Index = 12 };
+                Band14 = new AudioAnalysisBand() { FrequencyStart = src.Bands[13].FrequencyStart, FrequencyEnd = src.Bands[13].FrequencyEnd, Decibel = src.Bands[13].Decibel, Index = 13 };
+                Band15 = new AudioAnalysisBand() { FrequencyStart = src.Bands[14].FrequencyStart, FrequencyEnd = src.Bands[14].FrequencyEnd, Decibel = src.Bands[14].Decibel, Index = 14 };
+                Band16 = new AudioAnalysisBand() { FrequencyStart = src.Bands[15].FrequencyStart, FrequencyEnd = src.Bands[15].FrequencyEnd, Decibel = src.Bands[15].Decibel, Index = 15 };
+                Band17 = new AudioAnalysisBand() { FrequencyStart = src.Bands[16].FrequencyStart, FrequencyEnd = src.Bands[16].FrequencyEnd, Decibel = src.Bands[16].Decibel, Index = 16 };
+                Band18 = new AudioAnalysisBand() { FrequencyStart = src.Bands[17].FrequencyStart, FrequencyEnd = src.Bands[17].FrequencyEnd, Decibel = src.Bands[17].Decibel, Index = 17 };
+                Band19 = new AudioAnalysisBand() { FrequencyStart = src.Bands[18].FrequencyStart, FrequencyEnd = src.Bands[18].FrequencyEnd, Decibel = src.Bands[18].Decibel, Index = 18 };
+                Band20 = new AudioAnalysisBand() { FrequencyStart = src.Bands[19].FrequencyStart, FrequencyEnd = src.Bands[19].FrequencyEnd, Decibel = src.Bands[19].Decibel, Index = 19 };
 
                 TimestampApplication = src.TimestampApplication;
                 TimestampWorld = src.TimestampWorld;
