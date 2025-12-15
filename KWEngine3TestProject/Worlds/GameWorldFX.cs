@@ -11,7 +11,16 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-            
+            if(Keyboard.IsKeyDown(Keys.Left))
+            {
+                SetCameraPosition(CameraPosition.X - 0.05f, CameraPosition.Y, CameraPosition.Z);
+                SetCameraTarget(CameraTarget.X - 0.05f, CameraTarget.Y, CameraTarget.Z);
+            }
+            else if (Keyboard.IsKeyDown(Keys.Right))
+            {
+                SetCameraPosition(CameraPosition.X + 0.05f, CameraPosition.Y, CameraPosition.Z);
+                SetCameraTarget(CameraTarget.X + 0.05f, CameraTarget.Y, CameraTarget.Z);
+            }
         }
         public override void Prepare()
         {
@@ -50,15 +59,17 @@ namespace KWEngine3TestProject.Worlds
             player.SetAura(a);
             AddGameObject(player);
 
+            /*
             TextObject to = new TextObject("Test");
             to.SetPosition(0, 1, 2.5f);
-            to.SetTextAlignment(TextAlignMode.Center);
+            to.SetTextAlignment(TextAlignMode.Right);
             AddTextObject(to);
 
             TextObject to2 = new TextObject("Test Test");
             to2.SetPosition(0, 3, 2.5f);
             to2.SetTextAlignment(TextAlignMode.Center);
             AddTextObject(to2);
+            */
         }
     }
 }
