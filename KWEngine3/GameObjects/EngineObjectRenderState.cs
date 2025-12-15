@@ -17,7 +17,6 @@ namespace KWEngine3.GameObjects
         internal Matrix4[] _modelMatrices;
         internal Matrix4 _normalMatrix = Matrix4.Identity;
         internal Matrix4[] _normalMatrices;
-        internal Vector4 _colorEmissive = new Vector4(0, 0, 0, 1);
         internal Vector3 _colorTint = Vector3.One;
         internal Vector3 _lookAtVector = Vector3.UnitZ;
         internal float _animationPercentage = 0f;

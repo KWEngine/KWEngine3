@@ -93,6 +93,15 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt den Modus der Textanordnung (Standard: Center)
+        /// </summary>
+        /// <param name="mode">neuer Modus</param>
+        public void SetTextAlignment(TextAlignMode mode)
+        {
+            _textAlignMode = mode;
+        }
+
+        /// <summary>
         /// Gibt den aktuell verwendeten Distanzfaktor für den Zeichenzwischenraum an
         /// </summary>
         public float CharacterDistanceFactor { get { return _stateCurrent._spreadFactor; } }
@@ -414,9 +423,9 @@ namespace KWEngine3.GameObjects
         internal string _text = "";
         internal KWFont _font = KWEngine.FontDictionary.Values.ElementAt(0);
         internal string _fontname = "Anonymous";
-        internal float _width = 0f;
         internal float _widthNormalised = 0f;
         internal string _name = "undefined TextObject name";
+        internal TextAlignMode _textAlignMode = TextAlignMode.Center;
 
         internal void UpdateOffsetList()
         {
@@ -440,12 +449,12 @@ namespace KWEngine3.GameObjects
             if (_text.Length > 0)
             {
                 _widthNormalised = _advances[_text.Length];
-                _width = _widthNormalised * _stateCurrent._scale;
+                _stateCurrent._width = _widthNormalised * _stateCurrent._scale;
             }
             else
             {
                 _widthNormalised = 0f;
-                _width = 0f;
+                _stateCurrent._width = 0f;
             }
         }
 

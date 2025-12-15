@@ -278,7 +278,7 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W <= 0)
                     continue;
 
-                GL.Uniform4(UColorEmissive, HelperVector.EmissiveMax(r._stateRender._colorEmissive, material.ColorEmissive));
+                GL.Uniform4(UColorEmissive, material.ColorEmissive);
 
                 if (r.IsAnimated)
                 {

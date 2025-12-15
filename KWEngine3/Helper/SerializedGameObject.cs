@@ -91,7 +91,15 @@ namespace KWEngine3.Helper
             sg.ScaleHitbox = new float[] { g._stateCurrent._scaleHitboxMat.M11, g._stateCurrent._scaleHitboxMat.M22, g._stateCurrent._scaleHitboxMat.M33 };
 
             sg.Color = new float[] { g._stateCurrent._colorTint.X, g._stateCurrent._colorTint.Y, g._stateCurrent._colorTint.Z };
-            sg.ColorEmissive = new float[] { g._stateCurrent._colorEmissive.X, g._stateCurrent._colorEmissive.Y, g._stateCurrent._colorEmissive.Z, g._stateCurrent._colorEmissive.W };
+
+            sg.ColorEmissive = new float[g._model.Material.Length * 4];
+            for(int m = 0; m < g._model.Material.Length; m++)
+            {
+                sg.ColorEmissive[m + 0] = g._model.Material[m].ColorEmissive.X;
+                sg.ColorEmissive[m + 1] = g._model.Material[m].ColorEmissive.Y;
+                sg.ColorEmissive[m + 2] = g._model.Material[m].ColorEmissive.Z;
+                sg.ColorEmissive[m + 3] = g._model.Material[m].ColorEmissive.W;
+            }
             
             sg.MetallicType = g._model._metallicType;
 

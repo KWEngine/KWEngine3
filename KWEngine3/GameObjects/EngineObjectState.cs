@@ -10,7 +10,6 @@ namespace KWEngine3.GameObjects
         internal EngineObject _engineObject = null;
         internal Matrix4 _modelMatrix = Matrix4.Identity;
         internal Matrix4 _modelMatrixInverse = Matrix4.Identity;
-        internal Vector4 _colorEmissive = new(0, 0, 0, 1);
         internal Vector3 _colorTint = Vector3.One;
         internal Vector3 _lookAtVector = Vector3.UnitZ;
         internal Vector3 _lookAtVectorUp = Vector3.UnitY;

@@ -60,8 +60,15 @@ namespace KWEngine3.Helper
             rg.ScaleHitbox = new float[] { r._stateCurrent._scaleHitboxMat.M11, r._stateCurrent._scaleHitboxMat.M22, r._stateCurrent._scaleHitboxMat.M33 };
 
             rg.Color = new float[] { r._stateCurrent._colorTint.X, r._stateCurrent._colorTint.Y, r._stateCurrent._colorTint.Z };
-            rg.ColorEmissive = new float[] { r._stateCurrent._colorEmissive.X, r._stateCurrent._colorEmissive.Y, r._stateCurrent._colorEmissive.Z, r._stateCurrent._colorEmissive.W };
-            
+            rg.ColorEmissive = new float[r._model.Material.Length * 4];
+            for (int m = 0; m < r._model.Material.Length; m++)
+            {
+                rg.ColorEmissive[m + 0] = r._model.Material[m].ColorEmissive.X;
+                rg.ColorEmissive[m + 1] = r._model.Material[m].ColorEmissive.Y;
+                rg.ColorEmissive[m + 2] = r._model.Material[m].ColorEmissive.Z;
+                rg.ColorEmissive[m + 3] = r._model.Material[m].ColorEmissive.W;
+            }
+
             rg.MetallicType = r._model._metallicType;
 
             // Export/import repeat for all materials...

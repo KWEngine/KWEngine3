@@ -151,7 +151,7 @@ namespace KWEngine3.Renderer
 
                 GL.Uniform4(UColorTint, new Vector4(g._stateRender._colorTint, g._hues[i]));
                 GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, Convert.ToSingle((int)g._model._metallicType)));
-                GL.Uniform4(UColorEmissive, HelperVector.EmissiveMax(g._stateRender._colorEmissive, material.ColorEmissive));
+                GL.Uniform4(UColorEmissive, material.ColorEmissive);
 
                 if (g.IsAnimated)
                 {

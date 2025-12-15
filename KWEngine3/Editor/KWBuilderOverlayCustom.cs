@@ -142,8 +142,8 @@ namespace KWEngine3.Editor
                 System.Numerics.Vector3 sNew = new(SelectedGameObject.Scale.X, SelectedGameObject.Scale.Y, SelectedGameObject.Scale.Z);
                 System.Numerics.Vector3 rNew = new();
                 System.Numerics.Vector3 colorTintNew = new(SelectedGameObject._stateCurrent._colorTint.X, SelectedGameObject._stateCurrent._colorTint.Y, SelectedGameObject._stateCurrent._colorTint.Z);
-                System.Numerics.Vector3 colorEmissiveNew = new(SelectedGameObject._stateCurrent._colorEmissive.X, SelectedGameObject._stateCurrent._colorEmissive.Y, SelectedGameObject._stateCurrent._colorEmissive.Z);
-                float colorEmissiveIntensityNew = SelectedGameObject._stateCurrent._colorEmissive.W;
+                System.Numerics.Vector3 colorEmissiveNew = new(SelectedGameObject._model.Material[0].ColorEmissive.X, SelectedGameObject._model.Material[0].ColorEmissive.Y, SelectedGameObject._model.Material[0].ColorEmissive.Z);
+                float colorEmissiveIntensityNew = SelectedGameObject._model.Material[0].ColorEmissive.W;
                 string gName = SelectedGameObject.Name;
                 string modelName = SelectedGameObject._model.ModelOriginal.Name;
                 if (modelName == "kwcube.obj")
@@ -288,7 +288,7 @@ namespace KWEngine3.Editor
                 {
                     if (ImGui.ColorEdit3("Color emissive", ref colorEmissiveNew, ImGuiColorEditFlags.Float))
                     {
-                        SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, SelectedGameObject._stateCurrent._colorEmissive.W);
+                        SelectedGameObject.SetColorEmissive(colorEmissiveNew.X, colorEmissiveNew.Y, colorEmissiveNew.Z, SelectedGameObject._model.Material[0].ColorEmissive.W);
                     }
                     if (ImGui.SliderFloat("Emissive intensity", ref colorEmissiveIntensityNew, 0, 2, "%.2f", ImGuiSliderFlags.AlwaysClamp))
                     {

@@ -96,17 +96,31 @@ namespace KWEngine3.Helper
 
         public static void BlendTextObjectStates(TextObject t, float alpha)
         {
+            t._stateRender._width = Vector3.Lerp(new Vector3(t._statePrevious._width), new Vector3(t._stateCurrent._width), alpha).X;
             t._stateRender._position = Vector3.Lerp(t._statePrevious._position, t._stateCurrent._position, alpha);
-            t._stateRender._position.X -= t._width * 0.5f;
             t._stateRender._color = Vector4.Lerp(t._statePrevious._color, t._stateCurrent._color, alpha);
             t._stateRender._colorEmissive = Vector4.Lerp(t._statePrevious._colorEmissive, t._stateCurrent._colorEmissive, alpha);
             t._stateRender._scale = Vector3.Lerp(new Vector3(t._statePrevious._scale), new Vector3(t._stateCurrent._scale), alpha).X;
             t._stateRender._rotation = Quaternion.Slerp(t._statePrevious._rotation, t._stateCurrent._rotation, alpha);
-            t._stateRender._width = Vector3.Lerp(new Vector3(t._statePrevious._width), new Vector3(t._stateCurrent._width), alpha).X;
+            
             t._stateRender._spreadFactor = t._statePrevious._spreadFactor * (1f - alpha) + t._stateCurrent._spreadFactor * alpha;
 
             Vector3 tmpScale = new(t._stateRender._scale);
-            t._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref tmpScale, ref t._stateRender._rotation, ref t._stateRender._position);
+
+            Vector3 finalPos = Vector3.Zero;
+            if(t._textAlignMode == TextAlignMode.Left)
+            {
+                finalPos = t._stateRender._position;
+            }
+            else if(t._textAlignMode == TextAlignMode.Right)
+            {
+                finalPos = t._stateRender._position - new Vector3(t._stateRender._width, 0, 0);
+            }
+            else
+            {
+                finalPos = t._stateRender._position - new Vector3(t._stateRender._width * 0.5f, 0, 0);
+            }
+            t._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref tmpScale, ref t._stateRender._rotation, ref finalPos);
         }
         public static void BlendTerrainObjectStates(TerrainObject t, float alpha)
         {
@@ -134,7 +148,7 @@ namespace KWEngine3.Helper
             g._stateRender._animationPercentage = g._statePrevious._animationPercentage * alpha + g._stateCurrent._animationPercentage * (1f - alpha);
             g._stateRender._opacity = g._statePrevious._opacity* alpha +g._stateCurrent._opacity * (1f - alpha);
             g._stateRender._colorTint = Vector3.Lerp(g._statePrevious._colorTint, g._stateCurrent._colorTint, alpha);
-            g._stateRender._colorEmissive = Vector4.Lerp(g._statePrevious._colorEmissive, g._stateCurrent._colorEmissive, alpha);
+            //g._stateRender._colorEmissive = Vector4.Lerp(g._statePrevious._colorEmissive, g._stateCurrent._colorEmissive, alpha);
             if(g.BlendTextureStates)
                 g._stateRender._uvTransform = Vector4.Lerp(g._statePrevious._uvTransform, g._stateCurrent._uvTransform, alpha);
             else
@@ -177,7 +191,7 @@ namespace KWEngine3.Helper
             r._stateRender._animationPercentage = r._statePrevious._animationPercentage * alpha + r._stateCurrent._animationPercentage * (1f - alpha);
             r._stateRender._opacity = r._statePrevious._opacity * alpha + r._stateCurrent._opacity * (1f - alpha);
             r._stateRender._colorTint = Vector3.Lerp(r._statePrevious._colorTint, r._stateCurrent._colorTint, alpha);
-            r._stateRender._colorEmissive = Vector4.Lerp(r._statePrevious._colorEmissive, r._stateCurrent._colorEmissive, alpha);
+            //r._stateRender._colorEmissive = Vector4.Lerp(r._statePrevious._colorEmissive, r._stateCurrent._colorEmissive, alpha);
             r._stateRender._uvTransform = Vector4.Lerp(r._statePrevious._uvTransform, r._stateCurrent._uvTransform, alpha);
             r._stateRender._uvClip = Vector2.Lerp(r._statePrevious._uvClip, r._stateCurrent._uvClip, alpha);
             r._stateRender._center = Vector3.Lerp(r._statePrevious._center, r._stateCurrent._center, alpha);

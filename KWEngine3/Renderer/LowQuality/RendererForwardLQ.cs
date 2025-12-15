@@ -282,7 +282,7 @@ namespace KWEngine3.Renderer.LowQuality
                 if (material.ColorAlbedo.W <= 0)
                     continue;
 
-                GL.Uniform4(UColorEmissive, HelperVector.EmissiveMax(g._stateRender._colorEmissive, material.ColorEmissive));
+                GL.Uniform4(UColorEmissive, material.ColorEmissive);
 
                 GL.Uniform3(UMetallicRoughness, new Vector3(material.Metallic, material.Roughness, g._hues[i]));
 

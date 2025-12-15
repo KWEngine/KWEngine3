@@ -363,7 +363,7 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return _stateCurrent._colorEmissive;
+                return _model.Material[0].ColorEmissive;
             }
         }
 
@@ -400,11 +400,14 @@ namespace KWEngine3.GameObjects
         /// <param name="intensity">Helligkeit (zwischen 0 und 10)</param>
         public void SetColorEmissive(Vector3 color, float intensity)
         {
-            _stateCurrent._colorEmissive = new Vector4(
+            for(int i = 0; i < _model.Material.Length; i++)
+            {
+                _model.Material[i].ColorEmissive = new Vector4(
                 MathHelper.Clamp(color.X, 0, 1),
                 MathHelper.Clamp(color.Y, 0, 1),
                 MathHelper.Clamp(color.Z, 0, 1),
                 MathHelper.Clamp(intensity, 0, 10));
+            }
         }
 
         /// <summary>

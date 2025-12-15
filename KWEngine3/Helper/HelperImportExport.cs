@@ -439,7 +439,11 @@ namespace KWEngine3.Helper
             g.SetHitboxScale(sg.ScaleHitbox[0], sg.ScaleHitbox[1], sg.ScaleHitbox[2]);
 
             g.SetColor(sg.Color[0], sg.Color[1], sg.Color[2]);
-            g.SetColorEmissive(sg.ColorEmissive[0], sg.ColorEmissive[1], sg.ColorEmissive[2], sg.ColorEmissive[3]);
+            for(int m = 0; m < sg.ColorEmissive.Length; m+=4)
+            {
+                g.SetColorEmissive(sg.ColorEmissive[m + 0], sg.ColorEmissive[m + 1], sg.ColorEmissive[m + 2], sg.ColorEmissive[m + 3], m / 4);
+            }
+            
             for(int i = 0; i < sg.Metallic.Count; i++)
             {
                 g.SetMetallic(sg.Metallic[i], i);
