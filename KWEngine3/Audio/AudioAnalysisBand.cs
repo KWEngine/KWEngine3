@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KWEngine3.Audio
+﻿namespace KWEngine3.Audio
 {
     /// <summary>
     /// Daten eines Frequenzbands bei der spektrografischen Analyse
@@ -23,12 +17,10 @@ namespace KWEngine3.Audio
         /// Gemessene Decibel
         /// </summary>
         public float Decibel;
+        /// <summary>
+        /// Index des Bands
+        /// </summary>
+        public int Index;
 
-        internal void Set(float start, float end, float db)
-        {
-            FrequencyStart = start;
-            FrequencyEnd = end;
-            Decibel = db;
-        }
     }
 }
