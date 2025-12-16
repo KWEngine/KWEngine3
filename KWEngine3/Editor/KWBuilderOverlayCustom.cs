@@ -28,6 +28,7 @@ namespace KWEngine3.Editor
             { MouseButton.Right, new KWMouseButtonState() },
             { MouseButton.Middle, new KWMouseButtonState() },
             };
+        private static readonly string[] SSAO_KernelSizes = { "16", "32", "64"};
         private static bool _isSkybox = false;
         private static double _lastUpdateCycleTime = 0;
         private static double _lastRenderCallsTime = 0;
@@ -1043,11 +1044,21 @@ namespace KWEngine3.Editor
                 //SSAO
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Screen-Space Ambient Occlusion (SSAO):");
                 ImGui.Checkbox("Enabled?", ref KWEngine._ssaoEnabled);
-                ImGui.SameLine();
-                ImGui.SliderFloat("Radius", ref KWEngine._ssaoRadius, 0.01f, 1.0f);
-                ImGui.SameLine();
-                ImGui.SliderFloat("Bias", ref KWEngine._ssaoBias, 0.00f, 0.5f);
-                
+                if (KWEngine._ssaoEnabled)
+                {
+                    ImGui.SameLine();
+                    ImGui.SliderFloat("Radius", ref KWEngine._ssaoRadius, 0.01f, 1.0f, "%.5f", ImGuiSliderFlags.Logarithmic);
+                    ImGui.SameLine();
+                    ImGui.SliderFloat("Bias", ref KWEngine._ssaoBias, 0.00f, 1.0f, "%.5f", ImGuiSliderFlags.Logarithmic);
+                    ImGui.SameLine();
+                    int kernelSize = (int)KWEngine.SSAO_KernelSize;
+                    if (ImGui.SliderInt("SSAO kernel size:", ref kernelSize, 16, 64, "%", ImGuiSliderFlags.Logarithmic))
+                    {
+                        KWEngine.SSAO_KernelSize = (uint)kernelSize;
+                    }
+                    ImGui.SameLine();
+                    ImGui.Text(KWEngine.SSAO_KernelSize.ToString().PadLeft(2, '0'));
+                }
                 ImGui.PopItemWidth();
 
                 ImGui.NewLine();
