@@ -853,7 +853,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g == caller || Vector3.Dot(direction, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (g == caller || Vector3.Dot(dirOrg, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                     continue;
 
                 bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
@@ -904,7 +904,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (!g.IsInsideScreenSpace || g == caller || Vector3.Dot(direction, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (!g.IsInsideScreenSpace || g == caller || Vector3.Dot(dirOrg, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                     continue;
 
                 bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
