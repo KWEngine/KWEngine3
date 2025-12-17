@@ -743,7 +743,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g) && Vector3.Dot(direction, g.Center - origin) >= 0)
                 {
                     foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
@@ -795,7 +795,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g.IsInsideScreenSpace && g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (g.IsInsideScreenSpace && g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g) && Vector3.Dot(direction, g.Center - origin) >= 0)
                 {
                     foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
@@ -853,24 +853,21 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g == caller)
+                if (g == caller || Vector3.Dot(direction, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                     continue;
-                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
-                {
 
-                    bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
-                    if (result == true && currentDistance >= 0)
+                bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
+                if (result == true && currentDistance >= 0)
+                {
+                    if (maxDistance > 0 && currentDistance <= maxDistance)
                     {
-                        if (maxDistance > 0 && currentDistance <= maxDistance)
+                        RayIntersection gd = new RayIntersection()
                         {
-                            RayIntersection gd = new RayIntersection()
-                            {
-                                Distance = currentDistance,
-                                Object = g,
-                                IntersectionPoint = new Vector3(origin + dirOrg * currentDistance)
-                            };
-                            list.Add(gd);
-                        }
+                            Distance = currentDistance,
+                            Object = g,
+                            IntersectionPoint = new Vector3(origin + dirOrg * currentDistance)
+                        };
+                        list.Add(gd);
                     }
                 }
             }
@@ -907,24 +904,21 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g == caller || !g.IsInsideScreenSpace)
+                if (!g.IsInsideScreenSpace || g == caller || Vector3.Dot(direction, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                     continue;
 
-                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
+                if (result == true && currentDistance >= 0)
                 {
-                    bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
-                    if (result == true && currentDistance >= 0)
+                    if (maxDistance > 0 && currentDistance <= maxDistance)
                     {
-                        if (maxDistance > 0 && currentDistance <= maxDistance)
+                        RayIntersection gd = new RayIntersection()
                         {
-                            RayIntersection gd = new RayIntersection()
-                            {
-                                Distance = currentDistance,
-                                Object = g,
-                                IntersectionPoint = new Vector3(origin + dirOrg * currentDistance)
-                            };
-                            list.Add(gd);
-                        }
+                            Distance = currentDistance,
+                            Object = g,
+                            IntersectionPoint = new Vector3(origin + dirOrg * currentDistance)
+                        };
+                        list.Add(gd);
                     }
                 }
             }
@@ -955,29 +949,27 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (caller == g)
+                if (caller == g || Vector3.Dot(direction, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                     continue;
 
-                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal, out string hitboxname);
+                if (result)
                 {
-                    bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal, out string hitboxname);
-                    if (result)
+                    float currentDistance = (intersectionPoint - origin).LengthFast;
+                    if (currentDistance <= maxDistance)
                     {
-                        float currentDistance = (intersectionPoint - origin).LengthFast;
-                        if (maxDistance > 0 && currentDistance <= maxDistance)
+                        RayIntersectionExt gd = new RayIntersectionExt()
                         {
-                            RayIntersectionExt gd = new RayIntersectionExt()
-                            {
-                                Distance = currentDistance,
-                                IntersectionPoint = intersectionPoint,
-                                SurfaceNormal = normal,
-                                HitboxName = hitboxname,
-                                Object = g
-                            };
-                            list.Add(gd);
-                        }
+                            Distance = currentDistance,
+                            IntersectionPoint = intersectionPoint,
+                            SurfaceNormal = normal,
+                            HitboxName = hitboxname,
+                            Object = g
+                        };
+                        list.Add(gd);
                     }
                 }
+                
             }
 
             if (sort)
@@ -1007,27 +999,29 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (!g.IsInsideScreenSpace || caller == g)
-                    continue;
-
-                if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (!g.IsInsideScreenSpace || 
+                    caller == g ||
+                    Vector3.Dot(direction, g.Center - origin) < 0 ||
+                    !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
-                    bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal, out string hitboxname);
-                    if (result)
+                    continue;
+                }
+
+                bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal, out string hitboxname);
+                if (result)
+                {
+                    float currentDistance = (intersectionPoint - origin).LengthFast;
+                    if (currentDistance <= maxDistance)
                     {
-                        float currentDistance = (intersectionPoint - origin).LengthFast;
-                        if (maxDistance > 0 && currentDistance <= maxDistance)
+                        RayIntersectionExt gd = new RayIntersectionExt()
                         {
-                            RayIntersectionExt gd = new RayIntersectionExt()
-                            {
-                                Distance = currentDistance,
-                                IntersectionPoint = intersectionPoint,
-                                SurfaceNormal = normal,
-                                HitboxName = hitboxname,
-                                Object = g
-                            };
-                            list.Add(gd);
-                        }
+                            Distance = currentDistance,
+                            IntersectionPoint = intersectionPoint,
+                            SurfaceNormal = normal,
+                            HitboxName = hitboxname,
+                            Object = g
+                        };
+                        list.Add(gd);
                     }
                 }
             }
