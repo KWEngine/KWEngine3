@@ -20,6 +20,7 @@ namespace KWEngine3.Audio
     {
         private readonly ALFormat mFormat;
         private readonly string mName;
+        private readonly string mFilename;
 
         /// <summary>
         /// Audiodaten
@@ -97,7 +98,8 @@ namespace KWEngine3.Audio
             {
                 throw new Exception("Only 8bit/16bit mono and stereo wave or ogg vorbis sources are supported.");
             }
-            
+
+            mFilename = audioFileName;
             mName = audioFileName.Substring(audioFileName.LastIndexOf('/') + 1);
         }
 
@@ -200,6 +202,11 @@ namespace KWEngine3.Audio
         public string GetName()
         {
             return mName;
+        }
+
+        public string GetFilename()
+        {
+            return mFilename;
         }
 
         public int GetChannels()

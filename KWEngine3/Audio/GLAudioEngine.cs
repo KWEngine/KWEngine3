@@ -125,17 +125,17 @@ namespace KWEngine3.Audio
 
         public static void SoundChangeGain(string audiofile, float gain)
         {
-            int source = FindSourceIdThatIsPlayingAudiofile(HelperGeneral.EqualizePathDividers(audiofile));
-            if(source != 1)
+            int channelIndex = FindChannelIndexThatIsPlayingAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+            if(channelIndex != 1)
             {
-                SoundChangeGain(source, gain);
+                SoundChangeGain(channelIndex, gain);
             }
             else
             {
-                source = FindSourceIdThatIsPausedOnAudiofile(HelperGeneral.EqualizePathDividers(audiofile));
-                if (source != 1)
+                channelIndex = FindChannelIndexThatIsPausedOnAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+                if (channelIndex != 1)
                 {
-                    SoundChangeGain(source, gain);
+                    SoundChangeGain(channelIndex, gain);
                 }
                 else
                 {
@@ -184,7 +184,7 @@ namespace KWEngine3.Audio
             }
         }
 
-        public static int FindSourceIdThatIsPlayingAudiofile(string audiofile)
+        public static int FindChannelIndexThatIsPlayingAudioFile(string audiofile)
         {
             if (!mAudioOn)
             {
@@ -196,7 +196,7 @@ namespace KWEngine3.Audio
             {
                 if (mSources[i].IsPlaying && mSources[i].GetFileName() == audiofile)
                 {
-                    return mSources[i].GetSourceId();
+                    return i;
                 }
             }
             return -1;
@@ -217,7 +217,7 @@ namespace KWEngine3.Audio
             return mSources[src].IsPlayingOrPaused;
         }
 
-        public static int FindSourceIdThatIsPausedOnAudiofile(string audiofile)
+        public static int FindChannelIndexThatIsPausedOnAudioFile(string audiofile)
         {
             if (!mAudioOn)
             {
@@ -229,7 +229,7 @@ namespace KWEngine3.Audio
             {
                 if (mSources[i].IsPaused && mSources[i].GetFileName() == audiofile)
                 {
-                    return mSources[i].GetSourceId();
+                    return i;
                 }
             }
             return -1;
@@ -242,15 +242,20 @@ namespace KWEngine3.Audio
                 KWEngine.LogWriteLine("[Audio] device not available");
                 return;
             }
-
+            if (mSources[channel].IsPaused)
+            {
+                mSources[channel].Continue();
+            }
+            /*
             ALSourceState state = (ALSourceState)AL.GetSource(mSources[channel].GetSourceId(), ALGetSourcei.SourceState);
             if (state == ALSourceState.Paused)
             {
                 AL.SourcePlay(mSources[channel].GetSourceId());
             }
+            */
             else
             {
-                KWEngine.LogWriteLine("[Audio] source already paused or stopped");
+                KWEngine.LogWriteLine("[Audio] source " + channel + " already paused or stopped");
             }
         }
 
@@ -262,14 +267,20 @@ namespace KWEngine3.Audio
                 return;
             }
 
+            if (mSources[channel].IsPlaying)
+            {
+                mSources[channel].Pause();
+            }
+            /*
             ALSourceState state = (ALSourceState)AL.GetSource(mSources[channel].GetSourceId(), ALGetSourcei.SourceState);
             if(state == ALSourceState.Playing)
             {
-                AL.SourcePause(mSources[channel].GetSourceId());
+                
             }
+            */
             else
             {
-                KWEngine.LogWriteLine("[Audio] source already paused or stopped");
+                KWEngine.LogWriteLine("[Audio] source " + channel + " already paused or stopped");
             }
         }
 

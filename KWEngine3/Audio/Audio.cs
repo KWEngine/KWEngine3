@@ -104,7 +104,7 @@ namespace KWEngine3.Audio
         /// <param name="audiofile">zu pausierende Audiodatei</param>
         public static void PauseSound(string audiofile)
         {
-            int source = GLAudioEngine.FindSourceIdThatIsPlayingAudiofile(HelperGeneral.EqualizePathDividers(audiofile));
+            int source = GLAudioEngine.FindChannelIndexThatIsPlayingAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
             if(source != -1)
             {
                 PauseSound(source);
@@ -154,6 +154,95 @@ namespace KWEngine3.Audio
         }
 
         /// <summary>
+        /// Erfragt, ob die angegebene Audiodatei gerade pausiert wird
+        /// </summary>
+        /// <remarks>Sollte ausschließlich bei Audiodateien verwendet werden, die als Loop abgespielt werden!</remarks>
+        /// <param name="audiofile">Audiodatei, nach deren Abspielstatus gesucht werden soll</param>
+        /// <returns>true, wenn die angegebene Datei gerade pausiert wird</returns>
+        public static bool IsAudioFilePaused(string audiofile)
+        {
+            int channelIndex = GLAudioEngine.FindChannelIndexThatIsPausedOnAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+            return channelIndex != -1;
+        }
+
+        /// <summary>
+        /// Erfragt, ob die angegebene Audiodatei gerade pausiert wird und gibt ggf. den abspielenden Kanal via out-Parameter zurück
+        /// </summary>
+        /// <remarks>Sollte ausschließlich bei Audiodateien verwendet werden, die als Loop abgespielt werden!</remarks>
+        /// <param name="audiofile">Audiodatei, nach deren Abspielstatus gesucht werden soll</param>
+        /// <param name="channelIndex">enthält die ID des Audiokanals, der die Datei gerade abspielt (ist -1, falls die Methode false zurückgibt)</param>
+        /// <returns>true, wenn die angegebene Datei gerade pausiert wird</returns>
+        public static bool IsAudioFilePaused(string audiofile, out int channelIndex)
+        {
+            channelIndex = GLAudioEngine.FindChannelIndexThatIsPausedOnAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+            return channelIndex != -1;
+        }
+
+        /// <summary>
+        /// Erfragt, ob die angegebene Audiodatei gerade abgespielt wird und gibt ggf. den abspielenden Kanal via out-Parameter zurück
+        /// </summary>
+        /// <remarks>Sollte ausschließlich bei Audiodateien verwendet werden, die als Loop abgespielt werden!</remarks>
+        /// <param name="audiofile">Audiodatei, nach deren Abspielstatus gesucht werden soll</param>
+        /// <returns>true, wenn die angegebene Datei gerade abgespielt wird</returns>
+        public static bool IsAudioFilePlaying(string audiofile)
+        {
+            int channelIndex = GLAudioEngine.FindChannelIndexThatIsPlayingAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+            return channelIndex != -1;
+        }
+
+        /// <summary>
+        /// Erfragt, ob die angegebene Audiodatei gerade abgespielt wird
+        /// </summary>
+        /// <remarks>Sollte ausschließlich bei Audiodateien verwendet werden, die als Loop abgespielt werden!</remarks>
+        /// <param name="audiofile">Audiodatei, nach deren Abspielstatus gesucht werden soll</param>
+        /// <param name="channelIndex">enthält die ID des Audiokanals, der die Datei gerade abspielt (ist -1, falls die Methode false zurückgibt)</param>
+        /// <returns>true, wenn die angegebene Datei gerade abgespielt wird</returns>
+        public static bool IsAudioFilePlaying(string audiofile, out int channelIndex)
+        {
+            channelIndex = GLAudioEngine.FindChannelIndexThatIsPlayingAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+            return channelIndex != -1;
+        }
+
+        /// <summary>
+        /// Erfragt, ob die angegebene Audiodatei gerade abgespielt oder pausiert wird
+        /// </summary>
+        /// <remarks>Sollte ausschließlich bei Audiodateien verwendet werden, die als Loop abgespielt werden!</remarks>
+        /// <param name="audiofile">Audiodatei, nach deren Abspielstatus gesucht werden soll</param>
+        /// <returns>true, wenn die angegebene Datei gerade abgespielt oder pausiert wird</returns>
+        public static bool IsAudioFilePlayingOrPaused(string audiofile)
+        {
+            int channelIndexPlay = GLAudioEngine.FindChannelIndexThatIsPlayingAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+            if(channelIndexPlay < 0)
+            {
+                int channelIndexPaused = GLAudioEngine.FindChannelIndexThatIsPausedOnAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+                return channelIndexPaused >= 0;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Erfragt, ob die angegebene Audiodatei gerade abgespielt oder pausiert wird
+        /// </summary>
+        /// <remarks>Sollte ausschließlich bei Audiodateien verwendet werden, die als Loop abgespielt werden!</remarks>
+        /// <param name="audiofile">Audiodatei, nach deren Abspielstatus gesucht werden soll</param>
+        /// <param name="channelIndex">enthält die ID des Audiokanals, der die Datei gerade abspielt (ist -1, falls die Methode false zurückgibt)</param>
+        /// <returns>true, wenn die angegebene Datei gerade abgespielt oder pausiert wird</returns>
+        public static bool IsAudioFilePlayingOrPaused(string audiofile, out int channelIndex)
+        {
+            channelIndex = -1;
+            int channelIndexPlay = GLAudioEngine.FindChannelIndexThatIsPlayingAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+            if (channelIndexPlay < 0)
+            {
+                int channelIndexPaused = GLAudioEngine.FindChannelIndexThatIsPausedOnAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+                channelIndex = channelIndexPaused;
+                return channelIndexPaused >= 0;
+            }
+            channelIndex = channelIndexPlay;
+            return true;
+        }
+
+
+        /// <summary>
         /// Erfragt, ob der angegebene Audiokanal gerade etwas abspielt oder pausiert ist
         /// </summary>
         /// <param name="channel">Kanalnummer</param>
@@ -171,7 +260,7 @@ namespace KWEngine3.Audio
         /// <param name="audiofile">fortzusetzende Audiodatei</param>
         public static void ContinueSound(string audiofile)
         {
-            int source = GLAudioEngine.FindSourceIdThatIsPausedOnAudiofile(HelperGeneral.EqualizePathDividers(audiofile));
+            int source = GLAudioEngine.FindChannelIndexThatIsPausedOnAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
             if(source != -1)
             {
                 ContinueSound(source);

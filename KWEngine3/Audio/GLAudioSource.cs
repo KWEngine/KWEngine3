@@ -402,7 +402,7 @@ namespace KWEngine3.Audio
 
         public string GetFileName()
         {
-            return mSound.GetName();
+            return mSound.GetFilename();
         }
 
         public bool IsAvailable
@@ -514,6 +514,7 @@ namespace KWEngine3.Audio
         {
             if (IsPlayingOrPaused)
             {
+                AL.SourceStop(mSource);
                 State = PlaybackState.Stopped;
                 _currentSpectrum.IsValid = false;
             }
