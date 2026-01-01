@@ -44,7 +44,7 @@ void main()
 	else
 	{
 		//vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].y;
-		vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 1];
+		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 1];
 	}
 	//vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID].z;
 	vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
