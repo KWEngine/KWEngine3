@@ -27,7 +27,7 @@ namespace KWEngine3.Renderer
         public static int UOptions { get; private set; } = -1;
 
         public static float[] _dummyWidthAndAdvance = new float[2];
-        public static float[] _dummyOffset = new float[3];
+        public static float[] _dummyOffset = new float[4];
 
         public static void Init()
         {
@@ -105,7 +105,7 @@ namespace KWEngine3.Renderer
 
             GL.Uniform1(UMode, 0);
             GL.Uniform1(UOptions, 0);
-            GL.Uniform3(UUVOffsets, ho._text.Length, ho._uvOffsets);
+            GL.Uniform1(UUVOffsets, ho._text.Length * 4, ho._uvOffsets);
             GL.Uniform1(UAdvanceList, ho._text.Length, ho._advances);
             GL.Uniform1(UWidths, ho._text.Length, ho._glyphWidths);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
@@ -124,7 +124,7 @@ namespace KWEngine3.Renderer
                     _dummyOffset[0] = details.X; 
                     _dummyOffset[1] = details.Y;
                     _dummyOffset[2] = vOffset;
-                    GL.Uniform3(UUVOffsets, 1, _dummyOffset);
+                    GL.Uniform4(UUVOffsets, 1, _dummyOffset);
                     GL.Uniform1(UWidths, 2, _dummyWidthAndAdvance);
                     GL.Uniform4(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed, (float)i.CursorPosition);
                     GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, 1);

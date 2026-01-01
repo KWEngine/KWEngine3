@@ -238,7 +238,7 @@ namespace KWEngine3.GameObjects
 
         #region Internals
         internal float _spread = 1f;
-        internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 2];
+        internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 4];
         internal float[] _glyphWidths = new float[MAX_CHARS + 1];
         internal float[] _advances = new float[MAX_CHARS + 1];
         internal string _text = "";
@@ -254,13 +254,14 @@ namespace KWEngine3.GameObjects
         internal void UpdateOffsetList()
         {
             KWFontGlyph space = _font.GetGlyphForCodepoint('_');
-            for (int i = 0, j = 0; i < _text.Length; i++, j+=3)
+            for (int i = 0, j = 0; i < _text.Length; i++, j+=4)
             {
                 KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
                
                 _uvOffsets[j + 0] = glyph.UCoordinate.X;
                 _uvOffsets[j + 1] = glyph.UCoordinate.Y;
                 _uvOffsets[j + 2] = glyph.UCoordinate.Z;
+                _uvOffsets[j + 3] = 0f;
 
                 float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Bearing;
                 float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;

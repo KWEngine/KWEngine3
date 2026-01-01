@@ -100,8 +100,8 @@ namespace KWEngine3TestProject.Worlds
             _player.SetHitboxToCapsule();
             _player.IsShadowCaster = true;
 
-            _player.SetColorHighlight(1, 1, 0, 1);
-            _player.SetColorHighlightMode(HighlightMode.WhenOccluded);
+            //_player.SetColorHighlight(1, 1, 0, 1);
+            //_player.SetColorHighlightMode(HighlightMode.WhenOccluded);
 
             //_player.SetOpacity(0.5f);
             AddGameObject(_player);

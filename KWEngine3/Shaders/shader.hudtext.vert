@@ -7,7 +7,7 @@ out		vec2 vTexture;
 
 uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
-uniform vec3 uUVOffsetsAndWidths[128];
+uniform float uUVOffsetsAndWidths[128 * 4];
 uniform float uAdvanceList[128];
 uniform float uWidths[128];
 uniform float uOffset;
@@ -38,13 +38,16 @@ void main()
 
 	if(isLeftVertex())
 	{
-		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].x;
+		//vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].x;
+		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 0];
 	}
 	else
 	{
-		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].y;
+		//vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].y;
+		vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 1];
 	}
-	vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID].z;
+	//vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID].z;
+	vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
 
 	vec4 posModel = vec4((uModelMatrix * pos).xyz, 1.0);
 	posModel.x += uOffset;
