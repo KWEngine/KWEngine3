@@ -4,7 +4,7 @@ in vec2 vTexture;
 
 layout(location = 0) out vec4 color;
 
-uniform sampler2D uTexture;
+uniform sampler2DArray uTexture;
 uniform ivec4 uOptions; // x = type, y = value, z = near, w = far
 
 float linearizeDepth(float d)
@@ -29,7 +29,7 @@ vec3 decodeNormal(vec2 encoded)
 void main()
 {
 	int val = uOptions.y;
-	vec4 color2D = texture(uTexture, vTexture);
+	vec4 color2D = texture(uTexture, vec3(vTexture, 0));
 	color = vec4(0.0, 0.0, 0.0, 1.0);
 
 	// Debug Modes:

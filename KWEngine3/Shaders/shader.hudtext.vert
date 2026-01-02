@@ -38,15 +38,12 @@ void main()
 
 	if(isLeftVertex())
 	{
-		//vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].x;
 		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 0];
 	}
 	else
 	{
-		//vTexture.x = uUVOffsetsAndWidths[gl_InstanceID].y;
 		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 1];
 	}
-	//vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID].z;
 	vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
 
 	vec4 posModel = vec4((uModelMatrix * pos).xyz, 1.0);

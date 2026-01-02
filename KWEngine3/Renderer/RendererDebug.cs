@@ -132,7 +132,7 @@ namespace KWEngine3.Renderer
 
 
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, attachmentID);
+            GL.BindTexture(TextureTarget.Texture2DArray, attachmentID);
             GL.Uniform1(UTexture, 0);
 
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
