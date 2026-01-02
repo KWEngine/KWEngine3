@@ -86,9 +86,13 @@ namespace KWEngine3
             Overlay = new KWBuilderOverlay(ClientSize.X, ClientSize.Y);
             CenterWindow();
             KWEngine.Window = this;
+            //HelperGeneral.CheckGLErrors();
             KWEngine.InitializeModels();
+            //HelperGeneral.CheckGLErrors();
             KWEngine.InitializeParticles();
+            //HelperGeneral.CheckGLErrors();
             GLAudioEngine.InitAudioEngine();
+            //HelperGeneral.CheckGLErrors();
         }
 
         /// <summary>
@@ -598,7 +602,9 @@ namespace KWEngine3
                 HelperDebug.StartTimeQuery(RenderType.Lighting);
                 GL.Enable(EnableCap.DepthTest);
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
-                if(KWEngine.GBufferLighting == GBufferLightingMode.Default)
+
+                // if uniformoffsetmultiplier does not equal 1, we are on macOS and need to use the multi-draw shader
+                if(KWEngine.GBufferLighting == GBufferLightingMode.Default && KWEngine._uniformOffsetMultiplier == 1)
                 {
                     RenderManager.IRendererLightingPass.Bind();
                     RenderManager.IRendererLightingPass.SetGlobals();

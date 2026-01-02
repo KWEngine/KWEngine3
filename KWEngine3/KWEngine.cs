@@ -794,16 +794,18 @@ namespace KWEngine3
 
         internal static void InitializeFontsAndDefaultTextures()
         {
+            //HelperGeneral.CheckGLErrors();
             int twoPowerOf14 = (int)Math.Pow(2, 14);
             int twoPowerOf10 = (int)Math.Pow(2, 10);
             int maxUBOBlockSize = GL.GetInteger(GetPName.MaxUniformBlockSize);
             int maxTextureSize = GL.GetInteger(GetPName.MaxTextureSize);
-            int maxUniformVertexComponents = GL.GetInteger(GetPName.MaxVertexUniformComponents);
-            int maxUniformFragmentComponents = GL.GetInteger(GetPName.MaxFragmentUniformComponents);
+            //int maxUniformVertexComponents = GL.GetInteger(GetPName.MaxVertexUniformComponents);
+            //int maxUniformFragmentComponents = GL.GetInteger(GetPName.MaxFragmentUniformComponents);
             int maxUniformVertexVectors = GL.GetInteger(GetPName.MaxVertexUniformVectors);
             int maxUniformFragmentVectors = GL.GetInteger(GetPName.MaxFragmentUniformVectors);
 
-            int maxUniformLocations = GL.GetInteger(GetPName.MaxUniformLocations);
+            //int maxUniformLocations = GL.GetInteger(GetPName.MaxUniformLocations);
+            //HelperGeneral.CheckGLErrors();
             if (maxUBOBlockSize < twoPowerOf14)
             {
                 throw new Exception("[OpenGL] Fatal error: Your graphics device does not support uniform buffers with at least " + twoPowerOf14 + " bytes of memory.");
@@ -821,12 +823,14 @@ namespace KWEngine3
 
             int mipMaps;
 
+            //HelperGeneral.CheckGLErrors();
             KWQuad2D.Init();
+            //HelperGeneral.CheckGLErrors();
             KWQuad2D_05.Init();
             //_tesselationMax = GL.GetInteger(GetPName.MaxTessGenLevel);
             //TERRAIN_PATCH_SIZE = Window._renderQuality >= RenderQualityLevel.Default ? 2 : 16;
             KWTerrainQuad.Init();
-
+            //HelperGeneral.CheckGLErrors();
             FontDictionary.Add("Anonymous", HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("Anonymous.ttf"), "Anonymous"));
             FontDictionary.Add("MajorMonoDisplay", null); // HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf"), "MajorMonoDisplay"));
             FontDictionary.Add("NovaMono", null); //HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf"), "NovaMono"));

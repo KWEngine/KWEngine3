@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using KWEngine3.Helper;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using SkiaSharp;
 using System.Reflection;
@@ -110,6 +111,7 @@ namespace KWEngine3.FontGenerator
             {
                 txPixels = GenerateTextureForRes(f, Math.Max(mipmap0Width[0], mipmap0Width[1]), res * 2, ref kwfont);
                 int texture = GL.GenTexture();
+                //HelperGeneral.CheckGLErrors();
                 GL.BindTexture(TextureTarget.Texture2D, texture);
                 GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
@@ -117,9 +119,10 @@ namespace KWEngine3.FontGenerator
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapR, (float)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (float)TextureWrapMode.ClampToEdge);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (float)TextureWrapMode.ClampToEdge);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, Math.Max(mipmap0Width[0], mipmap0Width[1]), res * 2, 0, PixelFormat.Bgra, PixelType.UnsignedByte, txPixels);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, Math.Max(mipmap0Width[0], mipmap0Width[1]), res * 2, 0, KWEngine._uniformOffsetMultiplier == 4 ? PixelFormat.Rgba : PixelFormat.Bgra, PixelType.UnsignedByte, txPixels);
                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
+                //HelperGeneral.CheckGLErrors();
                 kwfont.Texture = texture;
                 kwfont.TextureSize = (int)(txPixels.Length / 4 * 1.333333f);
             }
@@ -213,7 +216,7 @@ namespace KWEngine3.FontGenerator
             f.GetFontVMetrics(out int ascentInt, out int descentInt, out int lineGap);
             float ascent = ascentInt * renderScale;
             float descent = descentInt * renderScale;
-            SKBitmap bigTex = new SKBitmap(width, height, SKColorType.Rgba8888, SKAlphaType.Premul);
+            SKBitmap bigTex = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
             SKCanvas canvas = new SKCanvas(bigTex);
 
             for (int row = 0; row < GLYPHS.Length; row++)
@@ -259,18 +262,15 @@ namespace KWEngine3.FontGenerator
             string tmpFilename = "" + kwfont.Name + ".jpg";
             using (SKWStream stream = SKFileWStream.OpenStream(tmpFilename))
             {
-
                 bigTex.Encode(stream, SKEncodedImageFormat.Jpeg, 100);
             }
-            bigTex.Dispose();
 
-            
-            SKBitmap tmp = SKBitmap.Decode(tmpFilename);
+            SKBitmap tmp = SKBitmap.Decode(tmpFilename, bigTex.Info);
             byte[] imageData = new byte[tmp.ByteCount];
             Array.Copy(tmp.Bytes, imageData, tmp.ByteCount);
             tmp.Dispose();
             File.Delete(tmpFilename);
-            
+            bigTex.Dispose();
             return imageData;
         }
 
