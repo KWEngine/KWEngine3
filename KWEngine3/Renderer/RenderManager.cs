@@ -33,9 +33,12 @@ namespace KWEngine3.Renderer
             FramebufferLightingPass.ClearColorValues[0][2] = newFillColor.Z;
         }
 
-        public static void BindScreen(bool clear = true)
+        public static void BindScreen(bool clear = true, bool scaled = false)
         {
-            KWEngine.Window.SetGLViewportToClientSize(); //GL.Viewport(0, 0, KWEngine.Window.ClientSize.X, KWEngine.Window.ClientSize.Y);
+            if(!scaled)
+                KWEngine.Window.SetGLViewportToClientSize();
+            else
+                KWEngine.Window.SetGLViewportToScaledClientSize();
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             if (clear)
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);

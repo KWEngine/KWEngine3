@@ -83,7 +83,9 @@ namespace KWEngine3
 
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
-            Overlay = new KWBuilderOverlay(ClientSize.X, ClientSize.Y);
+            Vector2i scaledClientSize = GetWindowFramebufferSize();
+            Overlay = new KWBuilderOverlay(scaledClientSize.X, scaledClientSize.Y);
+            ClientSize = scaledClientSize;
             CenterWindow();
             KWEngine.Window = this;
             //HelperGeneral.CheckGLErrors();
@@ -307,7 +309,8 @@ namespace KWEngine3
         {
             base.OnResize(e);
             Vector2i dims = SetGLViewportToClientSize();
-            Overlay.WindowResized(dims.X, dims.Y);
+            if(Overlay != null)
+                Overlay.WindowResized(dims.X, dims.Y);
 
             _viewMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
             _projectionMatrixHUD = Matrix4.CreateOrthographicOffCenter(0f, dims.X, dims.Y, 0f, 0.01f, 10f);
@@ -320,8 +323,7 @@ namespace KWEngine3
             int height = ClientSize.Y;
             unsafe
             {
-                GLFW.GetFramebufferSize(this.WindowPtr, out width, out height);
-
+                //GLFW.GetFramebufferSize(this.WindowPtr, out width, out height);
             }
             return new Vector2i(width, height);
         }
@@ -330,10 +332,17 @@ namespace KWEngine3
         {
             int width = ClientSize.X;
             int height = ClientSize.Y;
+            GL.Viewport(0, 0, width, height);
+            return new Vector2i(width, height);
+        }
+
+        internal Vector2i SetGLViewportToScaledClientSize()
+        {
+            int width = ClientSize.X;
+            int height = ClientSize.Y;
             unsafe
             {
                 GLFW.GetFramebufferSize(this.WindowPtr, out width, out height);
-
             }
             GL.Viewport(0, 0, width, height);
             return new Vector2i(width, height);
@@ -617,14 +626,9 @@ namespace KWEngine3
                     RenderManager.IRendererLightingPassMultiDraw.Draw(RenderManager.FramebufferDeferred);
                 }
 
-                //GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, RenderManager.FramebufferDeferred.ID);
-                //GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, RenderManager.FramebufferLightingPass.ID);
-                //GL.BlitFramebuffer(0, 0, Width, Height, 0, 0, Width, Height, ClearBufferMask.StencilBufferBit, BlitFramebufferFilter.Nearest);
-                //GL.BindFramebuffer(FramebufferTarget.Framebuffer, RenderManager.FramebufferLightingPass.ID);
-
                 HelperDebug.StopTimeQuery(RenderType.Lighting);
+                SetGLViewportToClientSize();
 
-                GL.Viewport(0, 0, Width, Height);
                 if (KWEngine.CurrentWorld._background.Type != BackgroundType.None)
                 {
                     if (KWEngine.CurrentWorld._background.Type == BackgroundType.Skybox)
@@ -752,14 +756,14 @@ namespace KWEngine3
                 KWEngine.CurrentWorld._fadeStatePrevious.Factor * (1f - alpha) + KWEngine.CurrentWorld._fadeStateCurrent.Factor * alpha
                 );
 
-            RenderManager.BindScreen();
+            RenderManager.BindScreen(true, true);
             RendererCopy.Bind();
             RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0], fadeColor);
             HelperDebug.StopTimeQuery(RenderType.PostProcessing);
 
             if ((int)KWEngine.DebugMode > 0 && (int)KWEngine.DebugMode < 10)
             {
-                RenderManager.BindScreen();
+                RenderManager.BindScreen(true, true);
 
                 List<FramebufferShadowMap> maps = new();
                 bool isCubeMap = false;
@@ -854,6 +858,8 @@ namespace KWEngine3
 
             // bring image to monitor screen:
             SwapBuffers();
+
+            SetGLViewportToClientSize();
         }
 
         /// <summary>
