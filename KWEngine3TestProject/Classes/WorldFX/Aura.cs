@@ -26,7 +26,7 @@ namespace KWEngine3TestProject.Classes.WorldFX
         public override void Act()
         {
             HelperRotation.SetMeshPreRotationYZX(this, 0, 0, MathF.Sin(WorldTime) * 360f, 0);
-            HelperRotation.SetMeshPreRotationYZX(this, 1, 0, MathF.Cos(WorldTime) * 360f, 0);
+            //HelperRotation.SetMeshPreRotationYZX(this, 1, 0, MathF.Cos(WorldTime) * 360f, 0);
         }
     }
 }

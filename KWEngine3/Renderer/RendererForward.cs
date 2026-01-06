@@ -339,9 +339,24 @@ namespace KWEngine3.Renderer
                 {
                     GL.Disable(EnableCap.DepthTest);
                 }
+
+
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
+
+
+                // depth pre-pass:
+                GL.ColorMask(false, false, false, false);
+                GL.DepthFunc(DepthFunction.Lequal);
                 GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+
+                // blend pass:
+                GL.ColorMask(true, true, true, true);
+                GL.DepthFunc(DepthFunction.Equal);
+                GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+
+                GL.DepthFunc(DepthFunction.Lequal);
+
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
 

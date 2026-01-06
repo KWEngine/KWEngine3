@@ -52,7 +52,7 @@ namespace KWEngine3TestProject.Classes.WorldFX
         {
             if(this._aura != null)
             {
-                this._aura.SetPosition(this.Position.X, 0.0125f, this.Position.Z);
+                this._aura.SetPosition(this.Position.X, 0.5f, this.Position.Z);
             }
         }
     }

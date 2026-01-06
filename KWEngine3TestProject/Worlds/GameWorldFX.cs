@@ -24,7 +24,7 @@ namespace KWEngine3TestProject.Worlds
         }
         public override void Prepare()
         {
-            SetCameraPosition(0, 5, 10);
+            SetCameraPosition(0, 2, 5);
             SetColorAmbient(1f, 1f, 1f);
 
             KWEngine.LoadModel("Megan", "./Models/GLTFTest/megan.gltf");
@@ -39,8 +39,9 @@ namespace KWEngine3TestProject.Worlds
             AddGameObject(f);
 
             Aura a = new Aura();
-            a.SetModel("Aura");
-            a.SetPosition(0f, 0.0125f, 0f);
+            a.SetModel("Shield");
+            //a.SetPosition(0f, 0.0125f, 0f);
+            a.SetPosition(0f, 0.5f, 0f);
             a.SetScale(2f);
             a.SetTexture("./Textures/rune.png", TextureType.Albedo, 0);
             a.SetTexture("./Textures/rune.png", TextureType.Albedo, 1);
