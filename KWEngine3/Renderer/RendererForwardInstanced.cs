@@ -244,7 +244,9 @@ namespace KWEngine3.Renderer
                 foreach (RenderObject r in transparentObjects)
                 {
                     if ((!r.SkipRender && r.IsInsideScreenSpace) || KWEngine.Mode == EngineMode.Edit)
+                    {
                         Draw(r);
+                    }
                 }
                 GL.Disable(EnableCap.Blend);
             }
@@ -343,11 +345,13 @@ namespace KWEngine3.Renderer
 
                     // blend pass:
                     GL.ColorMask(true, true, true, true);
+                    GL.DepthMask(false);
                     GL.DepthFunc(DepthFunction.Equal);
                     GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
                     GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, r.InstanceCount);
 
-                    GL.DepthFunc((DepthFunction)depthFunc);
+                    GL.DepthMask(true);
+                    GL.DepthFunc(HelperGLLoader.GetDepthFunction(depthFunc));
                 }
                 else
                 {
@@ -362,7 +366,7 @@ namespace KWEngine3.Renderer
 
                 if (material.RenderBackFace && r.DisableBackfaceCulling)
                 {
-                    GL.Disable(EnableCap.CullFace);
+                    GL.Enable(EnableCap.CullFace);
                 }
                 if (r.IsDepthTesting == false)
                 {

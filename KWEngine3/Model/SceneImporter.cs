@@ -1005,6 +1005,12 @@ namespace KWEngine3.Model
                     geoMesh.Vertices[i] = geoVertex;
                 }
                 uint[] indices = mesh.GetUnsignedIndices();
+                if(indices == null)
+                {
+                    KWEngine.LogWriteLine("[Import] Model " + model.Name + " has no indices. Import failed.");
+                    return false;
+
+                }
                 geoMesh.IndexCount = indices.Length;
 
                 if (model.HasBones)

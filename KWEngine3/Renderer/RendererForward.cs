@@ -243,7 +243,6 @@ namespace KWEngine3.Renderer
                         {
                             stencilObjects.Add(g);
                         }
-
                         Draw(g, g.IsAttachedToViewSpaceGameObject);
                     }
                 }
@@ -350,16 +349,17 @@ namespace KWEngine3.Renderer
 
                     // depth pre-pass:
                     GL.ColorMask(false, false, false, false);
-
-                    GL.DepthFunc(DepthFunction.Less);
+                    GL.DepthFunc(DepthFunction.Lequal);
                     GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
 
                     // blend pass:
                     GL.ColorMask(true, true, true, true);
+                    GL.DepthMask(false);
                     GL.DepthFunc(DepthFunction.Equal);
                     GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
 
-                    GL.DepthFunc((DepthFunction)depthFunc);
+                    GL.DepthMask(true);
+                    GL.DepthFunc(HelperGLLoader.GetDepthFunction(depthFunc));
                 }
                 else
                 {
@@ -372,7 +372,7 @@ namespace KWEngine3.Renderer
 
                 if (material.RenderBackFace && g.DisableBackfaceCulling)
                 {
-                    GL.Disable(EnableCap.CullFace);
+                    GL.Enable(EnableCap.CullFace);
                 }
                 if (g.IsDepthTesting == false)
                 {
