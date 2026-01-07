@@ -336,7 +336,27 @@ namespace KWEngine3.Renderer.LowQuality
                 }
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-                GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                if (g.HasTransparencyTexture)
+                {
+                    int depthFunc = GL.GetInteger(GetPName.DepthFunc);
+
+                    // depth pre-pass:
+                    GL.ColorMask(false, false, false, false);
+                    GL.DepthFunc(DepthFunction.Lequal);
+                    GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+
+                    // blend pass:
+                    GL.ColorMask(true, true, true, true);
+                    GL.DepthFunc(DepthFunction.Equal);
+                    GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+
+                    GL.DepthFunc((DepthFunction)depthFunc);
+                }
+                else
+                {
+                    // usual behaviour (one-pass-solution):
+                    GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
+                }
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
 

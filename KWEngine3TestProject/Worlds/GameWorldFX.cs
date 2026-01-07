@@ -28,10 +28,12 @@ namespace KWEngine3TestProject.Worlds
             SetColorAmbient(1f, 1f, 1f);
 
             KWEngine.LoadModel("Megan", "./Models/GLTFTest/megan.gltf");
+            KWEngine.LoadModel("Toon", "./Models/Tutorial/Toon.glb");
             KWEngine.LoadModel("Aura", "./Models/KWFXCircleWide.glb");
             KWEngine.LoadModel("Shield", "./Models/KWFXShield.glb");
 
             Floor f = new Floor();
+            f.Name = "Floor";
             f.SetModel("KWCube");
             f.SetTexture("./Textures/grass_albedo.png", TextureType.Albedo);
             f.SetScale(20f, 1f, 20f);
@@ -40,6 +42,7 @@ namespace KWEngine3TestProject.Worlds
 
             Aura a = new Aura();
             a.SetModel("Shield");
+            a.Name = "Shield";
             //a.SetPosition(0f, 0.0125f, 0f);
             a.SetPosition(0f, 0.5f, 0f);
             a.SetScale(2f);
@@ -49,15 +52,20 @@ namespace KWEngine3TestProject.Worlds
             a.SetTextureRepeat(15, 1, 0);
             a.SetTextureRepeat(15, 1, 1);
             a.DisableBackfaceCulling = true;
-            //a.SetOpacity(1, 1);
+            a.SetOpacity(1);
+            //a.IsDepthTesting = true;
             a.HasTransparencyTexture = true;
             AddGameObject(a);
 
             Player player = new Player();
-            player.SetModel("Megan");
+            player.Name = "Player";
+            player.SetModel("Toon");
             player.SetAnimationID(0);
+            player.SetScale(0.5f);
             player.SetPosition(0f, 0f, 0f);
+            player.HasTransparencyTexture = false;
             player.SetAura(a);
+            player.SetOpacity(0.5f);
             AddGameObject(player);
 
             /*

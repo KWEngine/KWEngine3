@@ -8,7 +8,7 @@ namespace KWEngine3TestProject
         public GameWindow() : base(
             1280,                           // Window width
             720,                            // Window height
-            true,                           // VSync on?
+            false,                           // VSync on?
             RenderQualityLevel.Default,     // Render quality level ('Low' recommended for iGPUs)
             WindowMode.Default              // Window mode
             )

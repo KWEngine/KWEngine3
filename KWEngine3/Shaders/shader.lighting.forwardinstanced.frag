@@ -387,6 +387,7 @@ void main()
     vec4 pbr = getPBR();
     vec4 fragPositionDepth = getFragmentPositionAndDepth();
 	vec4 albedo = getAlbedo();
+    if(albedo.w == 0) discard;
     vec4 emissive4 = getEmissive();
     vec3 emissive = emissive4.xyz;
 
