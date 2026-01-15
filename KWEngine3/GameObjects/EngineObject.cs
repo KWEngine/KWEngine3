@@ -382,6 +382,25 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Farbtönung für ein Teil-Mesh des Objekts
+        /// </summary>
+        /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
+        /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
+        /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
+        /// <param name="meshId">(nullbasierter) Mesh-Index</param>
+        public void SetColor(float r, float g, float b, int meshId)
+        {
+            meshId = MathHelper.Clamp(meshId, 0, _model.Material.Length - 1);
+
+            _model.Material[meshId].ColorAlbedo = new Vector4(
+                MathHelper.Clamp(r, 0, 1),
+                MathHelper.Clamp(g, 0, 1),
+                MathHelper.Clamp(b, 0, 1),
+                _model.Material[meshId].ColorAlbedo.W
+                );
+        }
+
+        /// <summary>
         /// Setzt die selbstleuchtende Farbtönung des Objekts
         /// </summary>
         /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
