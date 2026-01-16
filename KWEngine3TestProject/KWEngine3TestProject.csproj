@@ -1251,6 +1251,24 @@
     <None Update="Models\Tests\pistol.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Models\Tests\shield.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Tests\shield_albedo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Tests\shield_embedded.fbx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Tests\shield_metallic.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Tests\shield_normal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Models\Tests\shield_roughness.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Models\ThirdPersonView\ubot.fbx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

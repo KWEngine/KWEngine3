@@ -353,12 +353,15 @@ namespace KWEngine3.Helper
                                         textureIdApproved = true;
                                         foreach(FBXNode sibling in geometryObjectDetail.Children[0].Siblings)
                                         {
-                                            if(sibling.Name == "Media")
+                                            if(sibling.Name == "FileName" || sibling.Name == "RelativeFilename")
                                             {
                                                 metallicFilename = sibling.Properties[0].Name;
-                                                metallicFilename = metallicFilename.Substring(0, metallicFilename.IndexOf(replaceSymbol));
+                                                int index = metallicFilename.IndexOf(replaceSymbol);
+                                                int limit = index > 0 ? index : metallicFilename.Length;
+                                                metallicFilename = metallicFilename.Substring(0, limit);
                                                 metallicFilename = SceneImporter.StripPathFromFile(metallicFilename);
                                                 result = true;
+                                                break;
                                             }
                                         }
 
@@ -441,12 +444,15 @@ namespace KWEngine3.Helper
                                         textureIdApproved = true;
                                         foreach (FBXNode sibling in geometryObjectDetail.Children[0].Siblings)
                                         {
-                                            if (sibling.Name == "Media")
+                                            if (sibling.Name == "FileName" || sibling.Name == "RelativeFilename")
                                             {
                                                 roughnessFilename = sibling.Properties[0].Name;
-                                                roughnessFilename = roughnessFilename.Substring(0, roughnessFilename.IndexOf(replaceSymbol));
+                                                int index = roughnessFilename.IndexOf(replaceSymbol);
+                                                int limit = index > 0 ? index : roughnessFilename.Length;
+                                                roughnessFilename = roughnessFilename.Substring(0, limit);
                                                 roughnessFilename = SceneImporter.StripPathFromFile(roughnessFilename);
                                                 result = true;
+                                                break;
                                             }
                                         }
 
