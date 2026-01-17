@@ -166,6 +166,25 @@ namespace KWEngine3.Editor
                     SelectedVSG.UpdatePosition();
                 }
                 ImGui.Spacing();
+                if (SelectedVSG._gameObject.HasArmatureAndAnimations)
+                {
+                    string[] animations = new string[SelectedVSG._gameObject._model.ModelOriginal.Animations.Count + 1];
+                    int selectedId = SelectedVSG._gameObject._stateCurrent._animationID + 1;
+                    animations[0] = "no animation";
+                    for (int i = 0; i < SelectedVSG._gameObject._model.ModelOriginal.Animations.Count; i++)
+                    {
+                        animations[i + 1] = "#" + i.ToString().PadLeft(3, '0');
+                    }
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Animation:");
+                    if (ImGui.Combo("Animation ID", ref selectedId, animations, animations.Length))
+                    {
+                        int tmpId = selectedId - 1;
+                        SelectedVSG._gameObject.SetAnimationID(tmpId);
+                    }
+
+                    ImGui.SliderFloat("Animation %", ref SelectedVSG._gameObject._stateCurrent._animationPercentage, 0f, 1f);
+                    ImGui.Spacing();
+                }
                 ImGui.Separator();
                 ImGui.Spacing();
                 if (SelectedVSG.HasAttachedGameObjects)
