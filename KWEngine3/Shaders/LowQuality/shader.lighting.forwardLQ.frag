@@ -178,9 +178,14 @@ vec4 getPBR()
 {
     vec4 specularMetallicRoughnessOcclusion = vec4(0.0, uMetallicRoughness.x, clamp(uMetallicRoughness.y, 0.0001, 1.0), 1.0);
     vec4 textureMetallic = texture(uTextureMetallic, vTexture);
+    vec4 textureRoughness = texture(uTextureRoughness, vTexture);
     if(uUseTexturesMetallicRoughness.x > 0) // check metallic
     {
         specularMetallicRoughnessOcclusion.y = textureMetallic.b; // blue channel for metallic
+        if(uTextureIsMetallicRoughnessCombined > 0)
+        {
+            specularMetallicRoughnessOcclusion.z = clamp(textureMetallic.g, 0.0001, 1.0);
+        }
     }
     if(uUseTexturesMetallicRoughness.y > 0)
     {
@@ -192,13 +197,12 @@ vec4 getPBR()
         {
             if(uUseTexturesMetallicRoughness.z > 0)
             {
-                specularMetallicRoughnessOcclusion.z = clamp(1.0 - texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
+                specularMetallicRoughnessOcclusion.z = clamp(1.0 - textureRoughness.r, 0.0001, 1.0);
             }
             else
             {
-                specularMetallicRoughnessOcclusion.z = clamp(texture(uTextureRoughness, vTexture).r, 0.0001, 1.0);
+                specularMetallicRoughnessOcclusion.z = clamp(textureRoughness.r, 0.0001, 1.0);
             }
-            
         }
     }
     return specularMetallicRoughnessOcclusion;

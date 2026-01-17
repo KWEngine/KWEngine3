@@ -434,7 +434,7 @@ namespace KWEngine3.Model
 
         private static void ProcessMaterialsForMesh(Gltf scene, Mesh mesh, MeshPrimitive currentPrimitive, ref GeoModel model, ref GeoMesh geoMesh, Dictionary<string, int> glbTextures)
         {
-            GeoMaterial geoMaterial = new GeoMaterial();
+            GeoMaterial geoMaterial = new GeoMaterial() { TextureAlbedo = new GeoTexture() };
             geoMaterial.AttachedToMesh = mesh.Name;
             int materialId = currentPrimitive.Material == null ? -1 : (int)currentPrimitive.Material;
 
@@ -617,13 +617,13 @@ namespace KWEngine3.Model
                             }
                             tex.UVTransform = GetTextureRepeatValues(material.PbrMetallicRoughness.MetallicRoughnessTexture);
                             tex.Filename = texFoundInSameFile ? i.Name : filename;
-                            tex.UVMapIndex = material.PbrMetallicRoughness.BaseColorTexture.TexCoord;
+                            tex.UVMapIndex = material.PbrMetallicRoughness.MetallicRoughnessTexture.TexCoord;
                             tex.Type = TextureType.Metallic;
                             tex.OpenGLID = glTextureId;
                         }
                         geoMaterial.TextureMetallic = tex;
                         geoMaterial.TextureRoughnessInMetallic = true;
-                        geoMaterial.TextureRoughnessIsSpecular = true;
+                        geoMaterial.TextureRoughnessIsSpecular = true; // TODO: wtf was i thinking here?
                     }
                     else
                     {
@@ -666,7 +666,7 @@ namespace KWEngine3.Model
                             }
                             tex.UVTransform = GetTextureRepeatValues(material.EmissiveTexture);
                             tex.Filename = texFoundInSameFile ? i.Name : filename;
-                            tex.UVMapIndex = material.PbrMetallicRoughness.BaseColorTexture.TexCoord;
+                            tex.UVMapIndex = material.EmissiveTexture.TexCoord;
                             tex.Type = TextureType.Emissive;
                             tex.OpenGLID = glTextureId;
                         }
