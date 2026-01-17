@@ -12,8 +12,11 @@ namespace KWEngine3.Renderer
     internal static class RendererDebug
     {
         public static int ProgramID { get; private set; } = -1;
+        public static int ProgramIDArray { get; private set; } = -1;
         public static int UTexture { get; private set; } = -1;
         public static int UOptions { get; private set; } = -1;
+        public static int UTextureArray { get; private set; } = -1;
+        public static int UOptionsArray { get; private set; } = -1;
 
         public static void Init()
         {
@@ -41,11 +44,40 @@ namespace KWEngine3.Renderer
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
                 UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
             }
+            if(ProgramIDArray < 0)
+            {
+                ProgramIDArray = GL.CreateProgram();
+
+                string resourceNameVertexShader = "KWEngine3.Shaders.shader.debug.vert";
+                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.debugArray.frag";
+
+                int vertexShader;
+                int fragmentShader;
+                Assembly assembly = Assembly.GetExecutingAssembly();
+                using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
+                {
+                    vertexShader = HelperShader.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramIDArray);
+                }
+
+                using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
+                {
+                    fragmentShader = HelperShader.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramIDArray);
+                }
+
+                GL.LinkProgram(ProgramIDArray);
+                UTextureArray = GL.GetUniformLocation(ProgramIDArray, "uTexture");
+                UOptionsArray = GL.GetUniformLocation(ProgramIDArray, "uOptions");
+            }
         }
 
         public static void Bind()
         {
             GL.UseProgram(ProgramID);
+        }
+
+        public static void BindArray()
+        {
+            GL.UseProgram(ProgramIDArray);
         }
 
         public static void SetGlobals()
@@ -132,14 +164,30 @@ namespace KWEngine3.Renderer
 
 
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2DArray, attachmentID);
+            if (KWEngine.DebugMode >= DebugMode.DepthBufferShadowMap1 && KWEngine.DebugMode <= DebugMode.DepthBufferShadowMap3)
+            {
+                GL.BindTexture(TextureTarget.Texture2DArray, attachmentID);
+            }
+            else
+            {
+                GL.BindTexture(TextureTarget.Texture2D, attachmentID);
+            }
             GL.Uniform1(UTexture, 0);
 
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
             GL.BindVertexArray(0);
 
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+            if (KWEngine.DebugMode >= DebugMode.DepthBufferShadowMap1 && KWEngine.DebugMode <= DebugMode.DepthBufferShadowMap3)
+            {
+                GL.BindTexture(TextureTarget.Texture2DArray, 0);
+            }
+            else
+            {
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+            }
+            
+            
         }
 
     }

@@ -258,6 +258,42 @@ namespace KWEngine3.EngineCamera
             SetPosition(newCamPos);
         }
 
+        internal void ArcBallEditor(Vector2 deltaXY, ViewSpaceGameObject g)
+        {
+            degX = (degX + deltaXY.X * 0.25f) % 360f;
+            degY += deltaXY.Y * 0.25f;
+            if (degY > 89.9f)
+                degY = 89.9f;
+            else if (degY < -89.9f)
+                degY = -89.9f;
+
+            Vector3 newCamPos;
+            if (g != null)
+            {
+                _stateCurrent._target = g._gameObject.Center;
+                newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
+                g._gameObject.Center,
+                (g._gameObject.Center - _stateCurrent._position).LengthFast,
+                degX,
+                degY,
+                true,
+                true
+                );
+            }
+            else
+            {
+                newCamPos = HelperRotation.CalculateRotationForArcBallCamera(
+                _stateCurrent._target,
+                (_stateCurrent._target - _stateCurrent._position).LengthFast,
+                degX,
+                degY,
+                true,
+                true
+                );
+            }
+            SetPosition(newCamPos);
+        }
+
         internal void ResetArcBall()
         {
             degX = 0;

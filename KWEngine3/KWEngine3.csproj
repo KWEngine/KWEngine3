@@ -287,6 +287,7 @@
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.frag" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.geom" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.vert" />
+		<EmbeddedResource Include="Shaders\shader.debugArray.frag" />
 		<EmbeddedResource Include="Shaders\shader.lighting.forward_simple.frag" />
 		<EmbeddedResource Include="Shaders\shader.lighting.forward_simple.vert" />
 		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer_multi.frag" />

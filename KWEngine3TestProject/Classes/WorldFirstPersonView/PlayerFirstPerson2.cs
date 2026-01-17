@@ -45,8 +45,8 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
                     if (Keyboard.IsKeyDown(Keys.D1))
                     {
                         vsg.AttachGameObjectToBone(att, "Weapon_R");
-                        HelperGameObjectAttachment.SetScaleForAttachment(att, 0.2f);
-                        HelperGameObjectAttachment.SetPositionOffsetForAttachment(att, 0, -0.01f, -0.005f);
+                        HelperGameObjectAttachment.SetScaleForAttachment(att, 0.25f);
+                        HelperGameObjectAttachment.SetPositionOffsetForAttachment(att, 0, -0.02f, 0.01f);
                         HelperGameObjectAttachment.SetRotationForAttachment(att, 90, 180, 0);
                     }
                     else
@@ -103,7 +103,7 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
             if (vsg != null)
             {
                 //vsw.SetOffset(0.25f, -0.25f, 0.75f);
-                vsg.SetOffset(0.25f * 0 + bobX * 0.05f, -0.25f - bobY * 0.1f, 0.09f + bobZ * 0.1f);
+                //vsg.SetOffset(0.25f * 0 + bobX * 0.05f, -0.25f - bobY * 0.1f, 0.09f + bobZ * 0.1f);
                 vsg.SetAnimationPercentageAdvance(0.005f);
             }
 

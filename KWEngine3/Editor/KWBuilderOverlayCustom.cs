@@ -137,7 +137,79 @@ namespace KWEngine3.Editor
 
         private static void DrawObjectDetails()
         {
-            if (SelectedGameObject != null)
+            if(SelectedVSG != null)
+            {
+                ImGui.Begin("View-space object properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 720 - 32), ImGuiCond.Once);
+                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
+
+                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Base properties:");
+                float scale = (SelectedVSG._gameObject._stateCurrent._scale.X + SelectedVSG._gameObject._stateCurrent._scale.Y + SelectedVSG._gameObject._stateCurrent._scale.Z) / 3f;
+                if (ImGui.InputFloat("Scale", ref scale, 0.01f, 0.02f, "%.2f"))
+                {
+                    SelectedVSG.SetScale(scale);
+                }
+                System.Numerics.Vector3 offset = new System.Numerics.Vector3(SelectedVSG._offset.X, -SelectedVSG._offset.Y, SelectedVSG._offset.Z);
+                if (ImGui.InputFloat3("Offset", ref offset, "%.2f"))
+                {
+                    SelectedVSG.SetOffset(offset.X, offset.Y, offset.Z);
+                    SelectedVSG.UpdatePosition();
+                }
+                Quaternion.ToEulerAngles(SelectedVSG._rotation, out Vector3 rot);
+                rot.X = MathHelper.RadiansToDegrees(rot.X);
+                rot.Y = MathHelper.RadiansToDegrees(rot.Y);
+                rot.Z = MathHelper.RadiansToDegrees(rot.Z);
+                System.Numerics.Vector3 rotN = new(rot.X, rot.Y, rot.Z);
+                if (ImGui.InputFloat3("Rotation (X/Y/Z)", ref rotN, "%.2f"))
+                {
+                    SelectedVSG.SetRotation(rotN.X, rotN.Y, rotN.Z);
+                    SelectedVSG.UpdatePosition();
+                }
+                ImGui.Spacing();
+                ImGui.Separator();
+                ImGui.Spacing();
+                if (SelectedVSG.HasAttachedGameObjects)
+                {
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Attachments:");
+                    ImGui.Spacing();
+                    ImGui.Indent(16f);
+                    int i = 0;
+                    foreach (string attachedBoneName in SelectedVSG.GetBoneNamesForAttachedGameObject())
+                    {
+                        GameObject att = SelectedVSG.GetAttachedGameObjectForBone(attachedBoneName);
+                        if(att != null)
+                        {
+                            string index = "#" + (i + 1).ToString().PadLeft(2, '0');
+                            ImGui.TextColored(new System.Numerics.Vector4(0.25f, 0.5f, 0.5f, 1), index + ": " + att.Name);
+                            float scaleAtt = (att._scaleOffsetForAttachment.X + att._scaleOffsetForAttachment.Y + att._scaleOffsetForAttachment.Z) / 3f;
+                            if (ImGui.InputFloat("Scale (" + index + ")", ref scaleAtt, 0.01f, 0.02f, "%.2f"))
+                            {
+                                HelperGameObjectAttachment.SetScaleForAttachment(att, scaleAtt);
+                            }
+                            
+                            System.Numerics.Vector3 attOffset = new(att._positionOffsetForAttachment.X, att._positionOffsetForAttachment.Y, att._positionOffsetForAttachment.Z);
+                            if (ImGui.InputFloat3("Offset (" + index + ")", ref attOffset, "%.4f"))
+                            {
+                                HelperGameObjectAttachment.SetPositionOffsetForAttachment(att, attOffset.X, attOffset.Y, attOffset.Z);
+                            }
+
+                            Quaternion.ToEulerAngles(att._rotationOffsetForAttachment, out Vector3 attRot);
+                            attRot.X = MathHelper.RadiansToDegrees(attRot.X);
+                            attRot.Y = MathHelper.RadiansToDegrees(attRot.Y);
+                            attRot.Z = MathHelper.RadiansToDegrees(attRot.Z);
+                            System.Numerics.Vector3 attRotN = new(attRot.X, attRot.Y, attRot.Z);
+                            if (ImGui.InputFloat3("Rotation (" + index + ")", ref attRotN, " % .2f"))
+                            {
+                                HelperGameObjectAttachment.SetRotationForAttachment(att, attRotN.X, attRotN.Y, attRotN.Z);
+                            }
+                            ImGui.Spacing();
+                        }
+                    }
+                    ImGui.Indent(0f);
+                }
+
+            }
+            else if (SelectedGameObject != null)
             {
                 System.Numerics.Vector3 pNew = new(SelectedGameObject.Position.X, SelectedGameObject.Position.Y, SelectedGameObject.Position.Z);
                 System.Numerics.Vector3 sNew = new(SelectedGameObject.Scale.X, SelectedGameObject.Scale.Y, SelectedGameObject.Scale.Z);
@@ -1130,9 +1202,12 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.DebugMode = DebugMode.MetallicRoughness;
                 }
-                if (ImGui.MenuItem("Terrain collision" + (!(KWEngine.CurrentWorld._terrainObjects.Count > 0) ? " (no terrains found)" : ""), "", KWEngine.DebugMode == DebugMode.TerrainCollisionModel))
+                if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
                 {
-                    KWEngine.DebugMode = DebugMode.TerrainCollisionModel;
+                    if (ImGui.MenuItem("Terrain collision", "", KWEngine.DebugMode == DebugMode.TerrainCollisionModel))
+                    {
+                        KWEngine.DebugMode = DebugMode.TerrainCollisionModel;
+                    }
                 }
 
                 // shadow maps
@@ -1318,9 +1393,34 @@ namespace KWEngine3.Editor
                     ImGui.PopStyleColor();
                 }
             }
+
+           
+
             ImGui.PopStyleColor();
 
             ImGui.EndChild();
+
+            ViewSpaceGameObject vsg = KWEngine.CurrentWorld.GetViewSpaceGameObject();
+            if (vsg != null)
+            {
+                if (vsg == SelectedVSG)
+                {
+                    ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.25f, 0.5f, 1f, 0.0f));
+                }
+                else
+                {
+                    ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(1, 1, 0, 0.5f));
+                }
+                ImGui.Indent((300 - 256) / 2);
+                if (ImGui.Button("Show view-space game object", new System.Numerics.Vector2(256, 16)))
+                {
+                    
+                    DeselectAll();
+                    SelectedVSG = vsg;
+                }
+                ImGui.Indent(0);
+                ImGui.PopStyleColor();
+            }
 
             ImGui.End();
 
@@ -1345,6 +1445,7 @@ namespace KWEngine3.Editor
         public static GameObject SelectedGameObject { get; internal set; } = null;
         public static TerrainObject SelectedTerrainObject { get; internal set; } = null;
         public static LightObject SelectedLightObject { get; internal set; } = null;
+        public static ViewSpaceGameObject SelectedVSG { get; internal set; } = null;
 
         public static void HandleKeyboardNavigation()
         {
@@ -1353,17 +1454,28 @@ namespace KWEngine3.Editor
             {
                 float rate = KWEngine.LastFrameTime / (1f/60f * 1000f);
 
+                float step = 0.25f;
+                if (SelectedVSG != null)
+                {
+                    step = Math.Clamp((SelectedVSG._gameObject.Center - KWEngine.CurrentWorld._cameraEditor._stateCurrent._position).LengthSquared / 10, 0.05f, 0.25f);
+                }
+                else if (SelectedGameObject != null)
+                {
+                    step = Math.Clamp((SelectedGameObject.Center - KWEngine.CurrentWorld._cameraEditor._stateCurrent._position).LengthSquared / 10, 0.05f, 0.25f);
+                }
+
+
                 if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.D))
                 {
-                    KWEngine.CurrentWorld._cameraEditor.Strafe(0.25f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) ? -1 : 1));
+                    KWEngine.CurrentWorld._cameraEditor.Strafe(step * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) ? -1 : 1));
                 }
                 if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.W) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.S))
                 {
-                    KWEngine.CurrentWorld._cameraEditor.Move(0.25f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.S) ? -1 : 1));
+                    KWEngine.CurrentWorld._cameraEditor.Move(step * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.S) ? -1 : 1));
                 }
                 if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.E) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q))
                 {
-                    KWEngine.CurrentWorld._cameraEditor.MoveUpDown(0.25f * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q) ? -1 : 1));
+                    KWEngine.CurrentWorld._cameraEditor.MoveUpDown(step * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q) ? -1 : 1));
                 }
 
                 if (KWEngine.CurrentWorld.ApplicationTime - _lastKeyboardTimeInSeconds >= KEYBOARDCOOLDOWN)
@@ -1556,6 +1668,7 @@ namespace KWEngine3.Editor
             SelectedGameObject = null;
             SelectedLightObject = null;
             SelectedTerrainObject = null;
+            SelectedVSG = null;
         }
 
         public static void HandleMouseButtonStatus(MouseButton btn, bool press)

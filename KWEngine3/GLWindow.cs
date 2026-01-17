@@ -815,7 +815,14 @@ namespace KWEngine3
                 }
                 else
                 {
-                    RendererDebug.Bind();
+                    if(KWEngine.DebugMode < DebugMode.DepthBufferShadowMap1)
+                    {
+                        RendererDebug.Bind();
+                    }
+                    else
+                    {
+                        RendererDebug.BindArray();
+                    }
                     RendererDebug.Draw(maps);
                 }
             }
@@ -904,8 +911,18 @@ namespace KWEngine3
                 !KWBuilderOverlay.IsCursorOnAnyControl() && 
                 !shadowMapDebugMode)
             {
-                KWEngine.CurrentWorld._cameraEditor.MoveUpDown(-e.DeltaY * KWEngine.MouseSensitivity * 2f);
-                KWEngine.CurrentWorld._cameraEditor.Strafe(e.DeltaX * KWEngine.MouseSensitivity * 2f);
+                float step = 2f;
+                if (KWBuilderOverlay.SelectedVSG != null)
+                {
+                    step = MathF.Max(0f, (KWBuilderOverlay.SelectedVSG._gameObject.Center - KWEngine.CurrentWorld._cameraEditor._stateCurrent._position).LengthFast / 10);
+                }
+                else if (KWBuilderOverlay.SelectedGameObject != null)
+                {
+                    step = MathF.Max(0f, (KWBuilderOverlay.SelectedGameObject.Center - KWEngine.CurrentWorld._cameraEditor._stateCurrent._position).LengthFast / 10);
+                }
+
+                KWEngine.CurrentWorld._cameraEditor.MoveUpDown(-e.DeltaY * KWEngine.MouseSensitivity * step);
+                KWEngine.CurrentWorld._cameraEditor.Strafe(e.DeltaX * KWEngine.MouseSensitivity * step);
             }
 
             if (KWEngine.Mode == EngineMode.Edit && KWBuilderOverlay.IsButtonActive(MouseButton.Left))
@@ -919,7 +936,15 @@ namespace KWEngine3
                         if (!RenderManager.IsCurrentDebugMapACubeMap())
                             return;
                     }
-                    KWEngine.CurrentWorld._cameraEditor.ArcBallEditor(e.Delta * KWEngine.MouseSensitivity * 20f, KWBuilderOverlay.SelectedGameObject);
+                    if(KWBuilderOverlay.SelectedVSG != null)
+                    {
+                        KWEngine.CurrentWorld._cameraEditor.ArcBallEditor(e.Delta * KWEngine.MouseSensitivity * 20f, KWBuilderOverlay.SelectedVSG);
+                    }
+                    else
+                    {
+                        KWEngine.CurrentWorld._cameraEditor.ArcBallEditor(e.Delta * KWEngine.MouseSensitivity * 20f, KWBuilderOverlay.SelectedGameObject);
+                    }
+                        
                 }
             }
         }
@@ -951,7 +976,16 @@ namespace KWEngine3
                 !KWBuilderOverlay.IsCursorOnAnyControl() &&
                 shadowMapDebugMode == false)
             {
-                KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * 2f);
+                float step = 2f;
+                if (KWBuilderOverlay.SelectedVSG != null)
+                {
+                    step = MathF.Max(0f, (KWBuilderOverlay.SelectedVSG._gameObject.Center - KWEngine.CurrentWorld._cameraEditor._stateCurrent._position).LengthFast / 10);
+                }
+                else if (KWBuilderOverlay.SelectedGameObject != null)
+                {
+                    step = MathF.Max(0f, (KWBuilderOverlay.SelectedGameObject.Center - KWEngine.CurrentWorld._cameraEditor._stateCurrent._position).LengthFast / 10);
+                }
+                KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * step);
             }
             Overlay.MouseScroll(e.Offset);
         }

@@ -27,6 +27,7 @@ namespace KWEngine3TestProject
             SetCameraFOV(90);
             SetColorAmbient(1, 1, 1);
             PlayerFirstPerson2 p1 = new PlayerFirstPerson2();
+            p1.Name = "Player";
             p1.SetOpacity(0);
             AddGameObject(p1);
         // Verbinde die Kamera mit dem Objekt und 
@@ -35,7 +36,7 @@ namespace KWEngine3TestProject
 
             ViewSpaceWeapon fpw = new ViewSpaceWeapon();
             fpw.SetModel("Arms");
-            fpw.SetOffset(5.0f, -1f, .0f); // Verschiebung relativ zur Kamera
+            fpw.SetOffset(0.025f, -0.200f, 0.050f); // Verschiebung relativ zur Kamera
             fpw.SetScale(1.0f); // Skaliere das Objekt entsprechend
             SetViewSpaceGameObject(fpw); // Weapon_R = BONE
 
@@ -47,6 +48,7 @@ namespace KWEngine3TestProject
             MouseCursorGrab();
 
             Immovable floor = new Immovable();
+            floor.Name = "Floor";
             floor.SetScale(100, 1, 100);
             floor.SetPosition(0, -1, 0);
             floor.SetTexture("./Textures/pavement_06_albedo.dds");
@@ -61,12 +63,14 @@ namespace KWEngine3TestProject
             AddGameObject(gun);
 
             Immovable plane = new Immovable();
+            plane.Name = "Plane";
             plane.SetModel("test");
             plane.SetPosition(-3, 0, 4);
             plane.SetRotation(0, 180, 0);
             AddGameObject(plane);
 
             Immovable plane2 = new Immovable();
+            plane2.Name = "Plane2";
             plane2.SetModel("KWQuad");
             plane2.SetColor(1, 1, 0);
             plane2.SetPosition(3, 0, 4);
