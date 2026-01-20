@@ -300,11 +300,11 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Sichtbarkeit für ein Teil des Objekts (Standardwert: 1)
+        /// Setzt die Sichtbarkeit für ein Teil des Objekts
         /// </summary>
         /// <param name="o">Sichtbarkeit (0 bis 1)</param>
-        /// <param name="meshName">Names des Objektteils (Mesh)</param>
-        /// <param name="matchNameExactly">wenn false, muss der Mesh-Name nicht exakt übereinstimmen, sondern es reicht eine Teilübereinstimmung (Standardwert: true)</param>
+        /// <param name="meshName">Names des Objektteils (kann Mesh- oder Materialname sein)</param>
+        /// <param name="matchNameExactly">wenn false, muss der Name nicht exakt übereinstimmen, sondern es reicht eine Teilübereinstimmung (Standardwert: true)</param>
         public void SetOpacityForMesh(float o, string meshName, bool matchNameExactly = true)
         {
             if (meshName != null && meshName.Length > 0)
@@ -316,7 +316,7 @@ namespace KWEngine3.GameObjects
                 {
                     if (matchNameExactly)
                     {
-                        if (_model.Material[i].AttachedToMesh == meshName)
+                        if (_model.Material[i].AttachedToMesh == meshName || _model.Material[i].Name == meshName)
                         {
                             _model.Material[i].SetOpacity(o);
                             meshFound = true;
@@ -324,22 +324,25 @@ namespace KWEngine3.GameObjects
                     }
                     else
                     {
-                        if (_model.Material[i].AttachedToMesh.Contains(meshName))
+                        if (_model.Material[i].AttachedToMesh.ToLower().Contains(meshName.ToLower()) || _model.Material[i].Name.ToLower().Contains(meshName.ToLower()))
                         {
                             _model.Material[i].SetOpacity(o);
                             meshFound = true;
                         }
                     }
+
+                    if (meshFound)
+                        break;
                 }
 
                 if(meshFound == false)
                 {
-                    KWEngine.LogWriteLine("[EngineObject] Cannot find mesh in object - cannot set opacity");
+                    KWEngine.LogWriteLine("[EngineObject] Cannot find mesh/material in object - opacity unchanged");
                 }
             }
             else
             {
-                KWEngine.LogWriteLine("[EngineObject] Invalid mesh name in parameter - cannot set opacity");
+                KWEngine.LogWriteLine("[EngineObject] Invalid mesh/material name in parameter - cannot set opacity");
             }
         }
 
