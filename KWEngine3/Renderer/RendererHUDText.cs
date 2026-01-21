@@ -98,7 +98,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorGlow, ho._glow);
             GL.Uniform4(UCursorInfo, 0f, 0f, 0f, 0f);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
-            
+
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, ho._font.Texture);
             GL.Uniform1(UTexture, 0);
@@ -124,7 +124,7 @@ namespace KWEngine3.Renderer
                     _dummyOffset[0] = details.X; 
                     _dummyOffset[1] = details.Y;
                     _dummyOffset[2] = vOffset;
-                    GL.Uniform4(UUVOffsets, 1, _dummyOffset);
+                    GL.Uniform1(UUVOffsets, 1 * 4, _dummyOffset);
                     GL.Uniform1(UWidths, 2, _dummyWidthAndAdvance);
                     GL.Uniform4(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed, (float)i.CursorPosition);
                     GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, 1);
