@@ -15,12 +15,24 @@ namespace KWEngine3TestProject.Worlds
         {
             if(_time == 0f || WorldTime - _time > 3f)
             {
-                ParticleObject p = new ParticleObject(2, ParticleType.LoopSmoke1);
-                p.SetPosition(0, 3, 0);
-                p.SetHue(200);
-                p.SetDuration(3);
-                AddParticleObject(p);
-                _objects.Add(p);
+
+                {
+                    ParticleObject p = new ParticleObject(2, ParticleType.LoopSmoke2);
+                    p.SetPosition(0, 3, 5);
+                    p.SetHue(200);
+                    p.SetDuration(3);
+                    AddParticleObject(p);
+                    _objects.Add(p);
+                }
+                {
+                    ParticleObject p = new ParticleObject(2, ParticleType.LoopSmoke1);
+                    p.SetPosition(0, 3, 0);
+                    p.SetHue(200);
+                    p.SetDuration(3);
+                    AddParticleObject(p);
+                    _objects.Add(p);
+                }
+                
 
                 _time = WorldTime;
             }

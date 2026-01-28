@@ -43,13 +43,7 @@ namespace KWEngine3.GameObjects
 
         // GameObject stuff
         internal GeoModel _model;
-        /// <summary>
-        /// Position der Explosion
-        /// </summary>
-        public Vector3 Position
-        {
-            get; set;
-        }
+        
         private Vector4 _colorEmissive = Vector4.Zero;
         /// <summary>
         /// Glühfarbe der Explosion

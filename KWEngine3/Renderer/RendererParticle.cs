@@ -59,6 +59,8 @@ namespace KWEngine3.Renderer
         public static void RenderParticles(List<TimeBasedObject> objects)
         {
             GL.Enable(EnableCap.Blend);
+
+            objects.Sort();
             foreach (TimeBasedObject tbo in objects)
             {
                 if (tbo is ParticleObject)
