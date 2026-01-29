@@ -264,6 +264,16 @@ namespace KWEngine3.Renderer
                 GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
             }
 
+            if (g.IsAttachedToViewSpaceGameObject && KWEngine.CurrentWorld._viewSpaceGameObject?.DepthTestingEnabled == false)
+            {
+                GL.DepthRange(0f, 0.1f);
+            }
+
+            if (g.IsDepthTesting == false)
+            {
+                GL.Disable(EnableCap.DepthTest);
+            }
+
             // camera pos:
             if (KWEngine.Mode == EngineMode.Play)
                 GL.Uniform4(UCameraPosition, new Vector4(KWEngine.CurrentWorld._cameraGame._stateRender._position, g._pomScale));
@@ -334,11 +344,6 @@ namespace KWEngine3.Renderer
                 {
                     GL.Disable(EnableCap.CullFace);
                 }
-                if(g.IsDepthTesting == false)
-                {
-                    GL.Disable(EnableCap.DepthTest);
-                }
-
 
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
@@ -374,10 +379,16 @@ namespace KWEngine3.Renderer
                 {
                     GL.Enable(EnableCap.CullFace);
                 }
-                if (g.IsDepthTesting == false)
-                {
-                    GL.Enable(EnableCap.DepthTest);
-                }
+            }
+
+            if (g.IsDepthTesting == false)
+            {
+                GL.Enable(EnableCap.DepthTest);
+            }
+
+            if (g.IsAttachedToViewSpaceGameObject && KWEngine.CurrentWorld._viewSpaceGameObject?.DepthTestingEnabled == false)
+            {
+                GL.DepthRange(0f, 1.0f);
             }
         }
 

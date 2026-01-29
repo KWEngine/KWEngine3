@@ -266,13 +266,23 @@ namespace KWEngine3.Renderer.LowQuality
                 GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
             }
 
+            if (g.IsAttachedToViewSpaceGameObject && KWEngine.CurrentWorld._viewSpaceGameObject?.DepthTestingEnabled == false)
+            {
+                GL.DepthRange(0f, 0.1f);
+            }
+
+            if (g.IsDepthTesting == false)
+            {
+                GL.Disable(EnableCap.DepthTest);
+            }
+
             GL.Uniform4(UColorTint, new Vector4(g._stateRender._colorTint, g._stateRender._opacity));
             GL.Uniform1(UMetallicType, (int)g._model._metallicType);
 
             int val = g.IsShadowCaster ? 1 : -1;
             val *= g.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);
-            
+
             GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
             for (int i = 0; i < meshes.Length; i++)
             {
@@ -330,10 +340,7 @@ namespace KWEngine3.Renderer.LowQuality
                 {
                     GL.Disable(EnableCap.CullFace);
                 }
-                if(g.IsDepthTesting == false)
-                {
-                    GL.Disable(EnableCap.DepthTest);
-                }
+
                 GL.BindVertexArray(mesh.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
 
@@ -368,10 +375,16 @@ namespace KWEngine3.Renderer.LowQuality
                 {
                     GL.Enable(EnableCap.CullFace);
                 }
-                if (g.IsDepthTesting == false)
-                {
-                    GL.Enable(EnableCap.DepthTest);
-                }
+            }
+
+            if (g.IsDepthTesting == false)
+            {
+                GL.Enable(EnableCap.DepthTest);
+            }
+
+            if (g.IsAttachedToViewSpaceGameObject && KWEngine.CurrentWorld._viewSpaceGameObject?.DepthTestingEnabled == false)
+            {
+                GL.DepthRange(0f, 1.0f);
             }
         }
 

@@ -660,12 +660,12 @@ namespace KWEngine3
                     {
                         if (KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
                         {
-                            GL.Disable(EnableCap.DepthTest);
+                            GL.DepthRange(0f, 0.1f);
                         }
                         RenderManager.IRendererForward.Draw(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, true);
                         if (KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
                         {
-                            GL.Enable(EnableCap.DepthTest);
+                            GL.DepthRange(0f, 1.0f);
                         }
                     }
                 }
