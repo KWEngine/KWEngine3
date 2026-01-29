@@ -436,8 +436,10 @@ namespace KWEngine3.Helper
             g.SetPosition(sg.Position[0], sg.Position[1], sg.Position[2]);
             g.SetScale(sg.Scale[0], sg.Scale[1], sg.Scale[2]);
             g.SetRotation(new Quaternion(sg.Rotation[0], sg.Rotation[1], sg.Rotation[2], sg.Rotation[3]));
-            g.SetHitboxScale(sg.ScaleHitbox[0], sg.ScaleHitbox[1], sg.ScaleHitbox[2]);
-
+            if(sg.ScaleHitbox.Length == 3)
+                g.SetHitboxScale(sg.ScaleHitbox[0], sg.ScaleHitbox[1], sg.ScaleHitbox[2], 0f, 0f, 0f);
+            else
+                g.SetHitboxScale(sg.ScaleHitbox[0], sg.ScaleHitbox[1], sg.ScaleHitbox[2], sg.ScaleHitbox[3], sg.ScaleHitbox[4], sg.ScaleHitbox[5]);
             g.SetColor(sg.Color[0], sg.Color[1], sg.Color[2]);
             for(int m = 0; m < sg.ColorEmissive.Length; m+=4)
             {

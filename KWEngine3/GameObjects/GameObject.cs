@@ -831,10 +831,25 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
         /// </summary>
+        /// <param name="s">Skalierung in lokaler x-/y-z-Richtung</param>
+        /// <param name="offsetX">Optionale x-Verschiebung der Hitbox</param>
+        /// <param name="offsetY">Optionale y-Verschiebung der Hitbox</param>
+        /// <param name="offsetZ">Optionale z-Verschiebung der Hitbox</param>
+        public void SetHitboxScale(Vector3 s, float offsetX = 0f, float offsetY = 0f, float offsetZ = 0f)
+        {
+            SetHitboxScale(s.X, s.Y, s.Z, offsetX, offsetY, offsetZ);
+        }
+
+        /// <summary>
+        /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
+        /// </summary>
         /// <param name="x">Skalierung in lokale x-Richtung</param>
         /// <param name="y">Skalierung in lokale x-Richtung</param>
         /// <param name="z">Skalierung in lokale x-Richtung</param>
-        public void SetHitboxScale(float x, float y, float z)
+        /// <param name="offsetX">Optionale x-Verschiebung der Hitbox</param>
+        /// <param name="offsetY">Optionale y-Verschiebung der Hitbox</param>
+        /// <param name="offsetZ">Optionale z-Verschiebung der Hitbox</param>
+        public void SetHitboxScale(float x, float y, float z, float offsetX = 0f, float offsetY = 0f, float offsetZ = 0f)
         {
             if (x > float.Epsilon && y > float.Epsilon && z > float.Epsilon)
             {
@@ -844,16 +859,10 @@ namespace KWEngine3.GameObjects
             {
                 _stateCurrent._scaleHitboxMat = Matrix4.Identity;
             }
+            _stateCurrent._scaleHitboxMat.M41 = offsetX;
+            _stateCurrent._scaleHitboxMat.M42 = offsetY;
+            _stateCurrent._scaleHitboxMat.M43 = offsetZ;
             UpdateModelMatrixAndHitboxes();
-        }
-
-        /// <summary>
-        /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
-        /// </summary>
-        /// <param name="s">Skalierung in lokaler x-/y-z-Richtung</param>
-        public void SetHitboxScale(Vector3 s)
-        {
-            SetHitboxScale(s.X, s.Y, s.Z);
         }
 
         /// <summary>

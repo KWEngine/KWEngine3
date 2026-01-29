@@ -39,6 +39,7 @@
       <Method Name="RenderOverlay" Hidden="true" />
       <Method Name="ResetMouseDeltas" Hidden="true" />
       <Method Name="SetGLViewportToClientSize" Hidden="true" />
+      <Method Name="SetGLViewportToScaledClientSize" Hidden="true" />
       <Method Name="SetWorldInternal" Hidden="true" />
       <Method Name="UpdateCurrentWorldAndObjects" Hidden="true" />
       <Method Name="UpdateDeltaTime" Hidden="true" />
@@ -354,7 +355,7 @@
       <Method Name="GetViewMatrixTowardsCamera" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>IAAgAAAAAAABAAQwggAABAAoAAKAAgAAACgogAEAAWA=</HashCode>
+      <HashCode>IAAgAAAAAAABAAQQggAABAAoAAKAAgAAACgogAEAAWA=</HashCode>
       <FileName>GameObjects\ParticleObject.cs</FileName>
     </TypeIdentifier>
   </Class>
