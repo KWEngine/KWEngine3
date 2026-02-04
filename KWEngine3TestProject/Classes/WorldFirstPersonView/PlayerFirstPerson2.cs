@@ -99,6 +99,7 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
                 MoveOffset(i.MTV);
             }
             CurrentWorld.UpdateCameraPositionForFirstPersonView(Center, bobX * 0.125f * 0.5f, 0.5f + bobY * 0.125f * 1, bobZ * 0.125f * 0.5f * 0);
+            TurnTowardsXZ(CurrentWorld.CameraPosition + CurrentWorld.CameraLookAtVector);
 
             if (vsg != null)
             {
@@ -107,7 +108,14 @@ namespace KWEngine3TestProject.Classes.WorldFirstPersonView
                 vsg.SetAnimationPercentageAdvance(0.005f);
             }
 
-            Console.WriteLine($"bobx: {bobX}, boby: {bobY}, bobz: {bobZ}");
+            //Console.WriteLine($"bobx: {bobX}, boby: {bobY}, bobz: {bobZ}");
+            /*
+            Immovable cop = CurrentWorld.GetGameObjectByName<Immovable>("Cop");
+            if(cop != null)
+            {
+                Console.WriteLine(IsLookingAt(cop.Center, 0.2f));
+            }
+            */
         }
     }
 }

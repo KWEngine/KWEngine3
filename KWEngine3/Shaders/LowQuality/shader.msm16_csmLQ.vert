@@ -28,7 +28,7 @@ void main()
 	{
 		totalLocalPos = vec4(aPosition, 1.0);
 	}
-	totalLocalPos.w = 1.0;
+	//totalLocalPos.w = 1.0;
 
 	vTexture = vec2(uTextureTransformOpacity.x < 0.0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransformOpacity.y < 0.0 ? 1.0 - aTexture.y : aTexture.y) * abs(uTextureTransformOpacity.xy) + uTextureOffset;
 	vec2 uvCenter = uTextureOffset * abs(uTextureTransformOpacity.xy) + abs(uTextureTransformOpacity.xy) * 0.5;
