@@ -1219,11 +1219,6 @@ namespace KWEngine3.GameObjects
             }
         }
 
-        /// <summary>
-        /// Gibt an, ob Änderungen an TextureOffset-Werten für die Render-Phase interpoliert werden (Standard: true) 
-        /// (für 2D-Objekte mit Spritesheet-Animationen sollte dieser Wert auf 'false' gesetzt werden)
-        /// </summary>
-        public bool BlendTextureStates { get; set; } = true;
 
         /// <summary>
         /// Schießt einen Strahl von der angegebenen Position in die angegebene Richtung und prüft, ob dieser Strahl in der Nähe liegende Objekte des angegebenen Typs trifft (Präzise, aber langsam!)

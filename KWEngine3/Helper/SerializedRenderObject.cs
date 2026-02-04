@@ -15,6 +15,7 @@ namespace KWEngine3.Helper
         public string ModelPath { get; set; }
         public bool IsDepthTesting { get; set; } = true;
         public bool IsAffectedByLight { get; set; } = true;
+        public bool BlendTextureStates { get; set; }
         public float Opacity { get; set; } = 1;
 
         // POSITION, ROTATION, SCALE
@@ -49,6 +50,7 @@ namespace KWEngine3.Helper
             rg.Opacity = r._stateCurrent._opacity;
             rg.IsDepthTesting = r.IsDepthTesting;
             rg.IsShadowCaster = r.IsShadowCaster;
+            rg.BlendTextureStates = r.BlendTextureStates;
             rg.Name = r.Name;
             rg.ModelName = r._modelNameInDB;
             rg.ModelPath = r._model.ModelOriginal.Filename;

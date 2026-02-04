@@ -191,8 +191,12 @@ namespace KWEngine3.Helper
             r._stateRender._animationPercentage = r._statePrevious._animationPercentage * alpha + r._stateCurrent._animationPercentage * (1f - alpha);
             r._stateRender._opacity = r._statePrevious._opacity * alpha + r._stateCurrent._opacity * (1f - alpha);
             r._stateRender._colorTint = Vector3.Lerp(r._statePrevious._colorTint, r._stateCurrent._colorTint, alpha);
-            //r._stateRender._colorEmissive = Vector4.Lerp(r._statePrevious._colorEmissive, r._stateCurrent._colorEmissive, alpha);
-            r._stateRender._uvTransform = Vector4.Lerp(r._statePrevious._uvTransform, r._stateCurrent._uvTransform, alpha);
+
+            if (r.BlendTextureStates)
+                r._stateRender._uvTransform = Vector4.Lerp(r._statePrevious._uvTransform, r._stateCurrent._uvTransform, alpha);
+            else
+                r._stateRender._uvTransform = r._stateCurrent._uvTransform;
+
             r._stateRender._uvClip = Vector2.Lerp(r._statePrevious._uvClip, r._stateCurrent._uvClip, alpha);
             r._stateRender._center = Vector3.Lerp(r._statePrevious._center, r._stateCurrent._center, alpha);
             r._stateRender._dimensions = Vector3.Lerp(r._statePrevious._dimensions, r._stateCurrent._dimensions, alpha);

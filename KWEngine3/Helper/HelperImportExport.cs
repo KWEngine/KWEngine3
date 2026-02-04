@@ -517,6 +517,8 @@ namespace KWEngine3.Helper
             r.IsAffectedByLight = sr.IsAffectedByLight;
             r.IsDepthTesting = sr.IsDepthTesting;
             r.IsShadowCaster = sr.IsShadowCaster;
+            r.BlendTextureStates = r.BlendTextureStates;
+
             r.Name = sr.Name;
             r._importedID = sr.ID;
 

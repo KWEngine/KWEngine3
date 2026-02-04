@@ -31,6 +31,12 @@ namespace KWEngine3.GameObjects
         public bool IsDepthTesting { get; set; } = true;
 
         /// <summary>
+        /// Gibt an, ob Änderungen an TextureOffset-Werten für die Render-Phase interpoliert werden (Standard: true) 
+        /// (für 2D-Objekte mit Spritesheet-Animationen sollte dieser Wert auf 'false' gesetzt werden)
+        /// </summary>
+        public bool BlendTextureStates { get; set; } = true;
+
+        /// <summary>
         /// Gibt an, ob für das Objekt auch die der Kamera abgewandten Seiten gerendet werden sollen. Dies kann helfen, einseitige Meshes korrekt zu rendern.
         /// </summary>
         public bool DisableBackfaceCulling { get; set; } = false;
