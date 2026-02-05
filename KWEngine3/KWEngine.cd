@@ -306,7 +306,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="6.5" Y="17.25" Width="2.75" />
+    <Position X="6.5" Y="17.5" Width="2.75" />
     <Members>
       <Field Name="_behindCamera" Hidden="true" />
       <Field Name="_fbShadowMap" Hidden="true" />
