@@ -7,7 +7,6 @@ namespace KWEngine3TestProject.Classes
     {
         public override void Act()
         {
-            
 
         }
     }
