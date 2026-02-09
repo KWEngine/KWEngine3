@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2026-02-06)</Product>
+		<Product>KWEngine3 (updated: 2026-02-08)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.5.9</Version>
-		<AssemblyVersion>3.0.5.9</AssemblyVersion>
-		<FileVersion>3.0.5.9</FileVersion>
-		<ProductVersion>3.0.5.9</ProductVersion>
+		<Version>3.0.6.0</Version>
+		<AssemblyVersion>3.0.6.0</AssemblyVersion>
+		<FileVersion>3.0.6.0</FileVersion>
+		<ProductVersion>3.0.6.0</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -28,6 +28,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Assets\Fonts\Anonymous.bmp" />
+		<None Remove="Assets\Fonts\Anonymous.json" />
+		<None Remove="Assets\Fonts\MajorMonoDisplay.bmp" />
+		<None Remove="Assets\Fonts\MajorMonoDisplay.json" />
+		<None Remove="Assets\Fonts\NovaMono.bmp" />
+		<None Remove="Assets\Fonts\NovaMono.json" />
+		<None Remove="Assets\Fonts\OpenSans.bmp" />
+		<None Remove="Assets\Fonts\OpenSans.json" />
+		<None Remove="Assets\Fonts\XanhMono.bmp" />
+		<None Remove="Assets\Fonts\XanhMono.json" />
 		<None Remove="Assets\Models\capsulehitbox.obj" />
 		<None Remove="Assets\Models\capsulehitbox2.obj" />
 		<None Remove="Assets\Models\dollar.mtl" />
@@ -173,11 +183,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<EmbeddedResource Include="Assets\Fonts\Anonymous.ttf" />
-		<EmbeddedResource Include="Assets\Fonts\MajorMonoDisplay.ttf" />
-		<EmbeddedResource Include="Assets\Fonts\NovaMono.ttf" />
-		<EmbeddedResource Include="Assets\Fonts\OpenSans.ttf" />
-		<EmbeddedResource Include="Assets\Fonts\XanhMono.ttf" />
+		<EmbeddedResource Include="Assets\Fonts\Anonymous.bmp" />
+		<EmbeddedResource Include="Assets\Fonts\Anonymous.json" />
+		<EmbeddedResource Include="Assets\Fonts\MajorMonoDisplay.bmp" />
+		<EmbeddedResource Include="Assets\Fonts\MajorMonoDisplay.json" />
+		<EmbeddedResource Include="Assets\Fonts\NovaMono.bmp" />
+		<EmbeddedResource Include="Assets\Fonts\NovaMono.json" />
+		<EmbeddedResource Include="Assets\Fonts\OpenSans.bmp" />
+		<EmbeddedResource Include="Assets\Fonts\OpenSans.json" />
+		<EmbeddedResource Include="Assets\Fonts\XanhMono.bmp" />
+		<EmbeddedResource Include="Assets\Fonts\XanhMono.json" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox.obj" />
 		<EmbeddedResource Include="Assets\Models\capsulehitbox2.obj" />
 		<EmbeddedResource Include="Assets\Models\dollar.mtl" />
@@ -459,6 +474,12 @@
 		<PackageReference Include="OpenTK" Version="4.9.3" />
 		<PackageReference Include="OpenTK.redist.glfw" Version="3.4.0.44" />
 		<PackageReference Include="SkiaSharp" Version="3.116.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="Typography.OpenFont">
+	    <HintPath>Typography.OpenFont.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 	<ItemGroup>

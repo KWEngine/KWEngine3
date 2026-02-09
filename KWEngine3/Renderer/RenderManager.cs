@@ -22,6 +22,19 @@ namespace KWEngine3.Renderer
         public const int LQPENALTY_H = 112;
         public static ScreenGrid _screenGrid;
 
+        public static int LoadCompileAttachShader(Stream stream, ShaderType type, int program)
+        {
+            int address = GL.CreateShader(type);
+            using (StreamReader sr = new StreamReader(stream))
+            {
+                GL.ShaderSource(address, sr.ReadToEnd());
+            }
+            GL.CompileShader(address);
+            GL.AttachShader(program, address);
+            return address;
+        }
+
+
         public static void UpdateFramebufferClearColor(Vector3 newFillColor)
         {
             FramebufferDeferred.ClearColorValues[0][0] = newFillColor.X;

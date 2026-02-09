@@ -18,6 +18,12 @@ bool isLeftVertex()
 	return gl_VertexID == 0 || gl_VertexID == 4 || gl_VertexID == 5;
 }
 
+bool isTopVertex()
+{
+	//return gl_VertexID == 2 || gl_VertexID == 3 || gl_VertexID == 4;
+	return gl_VertexID == 0 || gl_VertexID == 1 || gl_VertexID == 5;
+}
+
 void main()
 {
 	vec2 p = aPosition;
@@ -44,7 +50,15 @@ void main()
 	{
 		vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 1];
 	}
-	vTexture.y = aTexture.y * 0.5 + uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
+	
+	if(isTopVertex())
+	{
+		vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 3];
+	}
+	else
+	{
+		vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
+	}
 
 	vec4 posModel = vec4((uModelMatrix * pos).xyz, 1.0);
 	posModel.x += uOffset;

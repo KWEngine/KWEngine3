@@ -1,54 +1,84 @@
-﻿using KWEngine3;
+﻿using Assimp;
+using KWEngine3;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace KWEngine3TestProject.Classes
+namespace SpriteSheetQuad
 {
-    internal class SpritesheetQuad : GameObject
+    public class SpritesheetQuad : RenderObject
     {
+        public enum Speed
+        {
+            FPS120,
+            FPS060,
+            FPS030
+        }
+
+        public enum Anchor
+        {
+            Center,
+            Bottom
+        }
+
+        private const float SPEED_030FPS = 0.033333f;
+        private const float SPEED_060FPS = 0.016666f;
+        private const float SPEED_120FPS = 0.008333f;
+
         private int _columns;
         private int _rows;
         private int _offsetX = 0;
         private int _offsetY = 0;
         private float _framesPlayed = 0;
         private float _timestamp;
-        private LightObjectPoint l;
+        private float _speed = SPEED_060FPS;
+        private bool _loop;
+        private float _framesTotal;
 
-        public SpritesheetQuad(string texture, int columns, int rows)
+        public SpritesheetQuad(string texture, int columns, int rows, Anchor anchor = Anchor.Center)
         {
             _columns = columns;
             _rows = rows;
+            _framesTotal = _columns * _rows;
+            _loop = false;
 
-            SetModel("KWQuad2D");
+            SetModel(anchor == Anchor.Center ? "KWQuad" : "KWQuad2D");
             IsAffectedByLight = false;
             HasTransparencyTexture = true;
             BlendTextureStates = false;
-            SetColorEmissive(1, 0.5f, 0, 0.05f);
+
             SetTexture(texture, KWEngine3.TextureType.Albedo);
+            SetTexture(texture, KWEngine3.TextureType.Emissive);
             SetTextureRepeat(1f / _columns, 1f / _rows);
 
-            _timestamp = KWEngine.WorldTime;
+            SetColorEmissive(0, 0, 0, 0.0f);
 
-            l = new LightObjectPoint(ShadowQuality.NoShadow);
-            CurrentWorld.AddLightObject(l);
+            _timestamp = KWEngine.WorldTime;
         }
 
-        public void SetPosition(float x, float y, float z)
+        public void SetSpriteSheetLooping(bool isLooping)
         {
-            base.SetPosition(x, y, z);
-            l.SetPosition(x, y + 2.5f, z);
-            l.SetNearFar(0, 7);
-            l.SetColor(1, 0.5f, 0.25f, 5);
+            _loop = isLooping;
+        }
+
+        public void SetSpriteSheetEmissiveLevel(float emissive)
+        {
+            SetColorEmissive(0f, 0f, 0f, Math.Clamp(emissive, 0f, 2f));
+        }
+
+        public void SetSpriteSheetSpeed(Speed s)
+        {
+            _speed = s switch
+            {
+                Speed.FPS030 => SPEED_030FPS,
+                Speed.FPS060 => SPEED_060FPS,
+                Speed.FPS120 => SPEED_120FPS,
+                _ => SPEED_060FPS
+            };
         }
 
         public override void Act()
         {
-            if(KWEngine.WorldTime - _timestamp > 0.0166666f)
+            if(KWEngine.WorldTime - _timestamp >= _speed)
             {
                 _framesPlayed++;
                 _offsetX++;
@@ -65,19 +95,15 @@ namespace KWEngine3TestProject.Classes
                 SetTextureOffset(_offsetX, _offsetY);
                 _timestamp = KWEngine.WorldTime;
 
-                float framesTotal = _columns * _rows;
-                float lightIntensity = -framesTotal * 0.5f * ((_framesPlayed - framesTotal * 0.5f) / framesTotal) + 5f;
-
-
-                float o = HelperVector.SmoothStep(0.9f, 1.0f, _framesPlayed / (_columns * _rows));
-                SetOpacity(1f - o);
-
-                l.SetColor(l.Color.X, l.Color.Y, l.Color.Z, lightIntensity);
-
-                if (_framesPlayed >= _columns * _rows)
+                if(!_loop)
                 {
-                    CurrentWorld.RemoveGameObject(this);
-                    CurrentWorld.RemoveLightObject(l);
+                    float o = HelperVector.SmoothStep(0.5f, 1.0f, _framesPlayed / _framesTotal);
+                    SetOpacity(1f - o);
+
+                    if (_framesPlayed >= _framesTotal)
+                    {
+                        CurrentWorld.RemoveRenderObject(this);
+                    }
                 }
             }
         }

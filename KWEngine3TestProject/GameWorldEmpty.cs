@@ -17,7 +17,11 @@ namespace KWEngine3TestProject
 
         public override void Prepare()
         {
-            
+            HUDObjectText t = new HUDObjectText("Hello World!");
+            t.SetScale(128);
+            t.SetTextAlignment(TextAlignMode.Center);
+            t.CenterOnScreen();
+            AddHUDObject(t);
         }
     }
 }

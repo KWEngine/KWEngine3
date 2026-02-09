@@ -6,12 +6,12 @@ namespace KWEngine3.FontGenerator
     {
         public float Width { get; internal set; }
         public float Height { get; internal set; }
-        public Vector3 UCoordinate { get; internal set; }
+        public Vector4 UCoordinate { get; internal set; }
         public float Advance { get; internal set; }
         public float Bearing { get; internal set; }
-        public char CodePoint { get; internal set; }
+        public int CodePoint { get; internal set; }
 
-        public KWFontGlyph(char codepoint, float width, float height, float bearing, float advanceWidth, Vector3 uv)
+        public KWFontGlyph(int codepoint, float width, float height, float bearing, float advanceWidth, Vector4 uv)
         {
             CodePoint = codepoint;
             Width = width;
@@ -20,9 +20,10 @@ namespace KWEngine3.FontGenerator
             Advance = advanceWidth;
             Bearing = bearing;
         }
+
         public override string ToString()
         {
-            return CodePoint.ToString();
+            return char.ConvertFromUtf32(CodePoint);
         }
     }
 }

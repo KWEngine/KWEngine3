@@ -45,23 +45,23 @@ namespace KWEngine3.Renderer
                 Assembly assembly = Assembly.GetExecutingAssembly();
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
                 {
-                    vertexShader = HelperShader.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
+                    vertexShader = RenderManager.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
                 }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameGeometryShader))
                 {
-                    geometryShader = HelperShader.LoadCompileAttachShader(s, ShaderType.GeometryShader, ProgramID);
+                    geometryShader = RenderManager.LoadCompileAttachShader(s, ShaderType.GeometryShader, ProgramID);
                 }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameTesselationControlShader))
                 {
-                    tessControl = HelperShader.LoadCompileAttachShader(s, ShaderType.TessControlShader, ProgramID);
+                    tessControl = RenderManager.LoadCompileAttachShader(s, ShaderType.TessControlShader, ProgramID);
                 }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameTesselationEvaluationShader))
                 {
-                    tessEval = HelperShader.LoadCompileAttachShader(s, ShaderType.TessEvaluationShader, ProgramID);
+                    tessEval = RenderManager.LoadCompileAttachShader(s, ShaderType.TessEvaluationShader, ProgramID);
                 }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
                 {
-                    fragmentShader = HelperShader.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
+                    fragmentShader = RenderManager.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
                 }
 
                 GL.LinkProgram(ProgramID);

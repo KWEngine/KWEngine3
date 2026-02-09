@@ -55,6 +55,47 @@ namespace KWEngine3.FontGenerator
             kwfont.Descent = descent * scaleNormalised;
         }
 
+        public static KWFont LoadFontSDF_Internal(string imagefile, string jsonfile)
+        {
+            try
+            {
+                int textureId = HelperTexture.LoadSDFTextureFromAssembly(imagefile);
+                AtlasRoot textureAtlas = HelperSDF.GenerateFontDictionaryFromAssembly(jsonfile);
+
+                KWFont kwfont = new KWFont();
+                kwfont.Texture = textureId;
+                kwfont.ConvertSDFAtlas(textureAtlas);
+                return kwfont;
+            }
+            catch (Exception ex)
+            {
+                KWEngine.LogWriteLine("[Font] Invalid sdf font file: " + ex.Message);
+                return new KWFont() { IsValid = false };
+            }
+        }
+
+        public static KWFont LoadFontSDF_External(string imagefile, string jsonfile)
+        {
+            if (imagefile == null || jsonfile == null || !File.Exists(imagefile) || !File.Exists(jsonfile))
+                return new KWFont() { IsValid = false };
+
+            try
+            {
+                int textureId = HelperTexture.LoadSDFTextureFromDisk(imagefile);
+                AtlasRoot textureAtlas = HelperSDF.GenerateFontDictionaryFromDisk(jsonfile);
+
+                KWFont kwfont = new KWFont();
+
+
+                return kwfont;
+            }
+            catch(Exception ex)
+            {
+                KWEngine.LogWriteLine("[Font] Invalid sdf font file: " + ex.Message);
+                return new KWFont() { IsValid = false };
+            }
+        }
+
         public static KWFont LoadFont(Font f, string fontName, bool isBitmap = false, string bitmapName = "")
         {
             if (f == null || fontName == null)
@@ -63,7 +104,7 @@ namespace KWEngine3.FontGenerator
             KWFont kwfont = new KWFont();
             kwfont.Name = fontName;
             int res = 256;
-            Dictionary<char, KWFontGlyph> tmpDict = GenerateGlyphsAndDict(f, res, out int[] mipmap0Width);
+            Dictionary<int, KWFontGlyph> tmpDict = GenerateGlyphsAndDict(f, res, out int[] mipmap0Width);
             
             int maxTexSize = GL.GetInteger(GetPName.MaxTextureSize);
             if (Math.Max(mipmap0Width[0], mipmap0Width[1]) >= maxTexSize)
@@ -111,7 +152,6 @@ namespace KWEngine3.FontGenerator
             {
                 txPixels = GenerateTextureForRes(f, Math.Max(mipmap0Width[0], mipmap0Width[1]), res * 2, ref kwfont);
                 int texture = GL.GenTexture();
-                //HelperGeneral.CheckGLErrors();
                 GL.BindTexture(TextureTarget.Texture2D, texture);
                 GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.LinearMipmapLinear);
@@ -122,7 +162,6 @@ namespace KWEngine3.FontGenerator
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, Math.Max(mipmap0Width[0], mipmap0Width[1]), res * 2, 0, KWEngine._uniformOffsetMultiplier == 4 ? PixelFormat.Rgba : PixelFormat.Bgra, PixelType.UnsignedByte, txPixels);
                 GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                 GL.BindTexture(TextureTarget.Texture2D, 0);
-                //HelperGeneral.CheckGLErrors();
                 kwfont.Texture = texture;
                 kwfont.TextureSize = (int)(txPixels.Length / 4 * 1.333333f);
             }
@@ -131,7 +170,7 @@ namespace KWEngine3.FontGenerator
             return kwfont;
         }
 
-        internal static Dictionary<char, KWFontGlyph> GenerateGlyphsAndDict(Font f, int res, out int[] pixelWidthSumEnlarged)
+        internal static Dictionary<int, KWFontGlyph> GenerateGlyphsAndDict(Font f, int res, out int[] pixelWidthSumEnlarged)
         {
             pixelWidthSumEnlarged = new int[2];
             int pixelGap = res / 8;
@@ -167,7 +206,7 @@ namespace KWEngine3.FontGenerator
                 pixelWidthSumEnlarged[row] = FindNextDivisibleNumber((int)pixelWidthSum);
             }
 
-            Dictionary<char, KWFontGlyph> glyphDict = new();
+            Dictionary<int, KWFontGlyph> glyphDict = new();
 
             for (int row = 0; row < GLYPHS.Length; row++)
             {
@@ -202,7 +241,7 @@ namespace KWEngine3.FontGenerator
                     }
 
                     int sum = Math.Max(pixelWidthSumEnlarged[0], pixelWidthSumEnlarged[1]);
-                    KWFontGlyph kwGlyph = new KWFontGlyph(theChar, widthNormalised, heightNormalised, bearingLeftNormalised, advanceNormalised, new Vector3(offsetX / sum, Math.Min(1f, (offsetX + (int)width) / sum), row == 0 ? 0f : 0.5f));
+                    KWFontGlyph kwGlyph = new KWFontGlyph(theChar, widthNormalised, heightNormalised, bearingLeftNormalised, advanceNormalised, new Vector4(offsetX / sum, Math.Min(1f, (offsetX + (int)width) / sum), row == 0 ? 0f : 0.5f, 0f));
                     glyphDict.Add(theChar, kwGlyph);
                     offsetX += (int)width + pixelGap;
                 }
@@ -224,7 +263,7 @@ namespace KWEngine3.FontGenerator
                 for (int x = 0; x < GLYPHS[row].Length; x++)
                 {
                     char theChar = GLYPHS[row][x];
-                    Vector3 glyphPositionInTexture = kwfont.GlyphDict[theChar].UCoordinate;
+                    Vector4 glyphPositionInTexture = kwfont.GlyphDict[theChar].UCoordinate;
                     SKBitmap currentBitmap = new SKBitmap();
 
                     int glyphIndex = f.FindGlyphIndex(theChar);

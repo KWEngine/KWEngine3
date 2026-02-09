@@ -46,12 +46,12 @@ namespace KWEngine3.Renderer
                 Assembly assembly = Assembly.GetExecutingAssembly();
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
                 {
-                    vertexShader = HelperShader.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
+                    vertexShader = RenderManager.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
                 }
 
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
                 {
-                    fragmentShader = HelperShader.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
+                    fragmentShader = RenderManager.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
                 }
 
                 GL.LinkProgram(ProgramID);

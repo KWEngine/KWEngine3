@@ -240,6 +240,7 @@ namespace KWEngine3.GameObjects
         internal float _spread = 1f;
         internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 4];
         internal float[] _glyphWidths = new float[MAX_CHARS + 1];
+        internal float[] _glyphHeights = new float[MAX_CHARS + 1];
         internal float[] _advances = new float[MAX_CHARS + 1];
         internal string _text = "";
         internal KWFont _font;
@@ -261,12 +262,13 @@ namespace KWEngine3.GameObjects
                 _uvOffsets[j + 0] = glyph.UCoordinate.X;
                 _uvOffsets[j + 1] = glyph.UCoordinate.Y;
                 _uvOffsets[j + 2] = glyph.UCoordinate.Z;
-                _uvOffsets[j + 3] = 0f;
+                _uvOffsets[j + 3] = glyph.UCoordinate.W;
 
                 float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Bearing;
                 float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;
 
                 _glyphWidths[i] = glyph.Width;
+                _glyphHeights[i] = glyph.Height;
                 if(ForceMonospace)
                 {
                     _advances[i + 1] = _advances[i] + space.Advance - space.Bearing + (space.Width * (_spread - 1f));

@@ -68,19 +68,19 @@ namespace KWEngine3.Renderer
                 Assembly assembly = Assembly.GetExecutingAssembly();
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
                 {
-                    vertexShader = HelperShader.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
+                    vertexShader = RenderManager.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
                 }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameTCShader))
                 {
-                    tcshader = HelperShader.LoadCompileAttachShader(s, ShaderType.TessControlShader, ProgramID);
+                    tcshader = RenderManager.LoadCompileAttachShader(s, ShaderType.TessControlShader, ProgramID);
                 }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameTEShader))
                 {
-                    teshader = HelperShader.LoadCompileAttachShader(s, ShaderType.TessEvaluationShader, ProgramID);
+                    teshader = RenderManager.LoadCompileAttachShader(s, ShaderType.TessEvaluationShader, ProgramID);
                 }
                 using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
                 {
-                    fragmentShader = HelperShader.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
+                    fragmentShader = RenderManager.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
                 }
 
                 GL.LinkProgram(ProgramID);
