@@ -25,9 +25,9 @@ namespace KWEngine3.Renderer
         public int ULightCount { get; private set; } = -1;
         public int UColorAmbient { get; private set; } = -1;
         public int UUVOffsets { get; private set; } = -1;
-        public int UAdvanceList { get; private set; } = -1;
-        public int UWidths { get; private set; } = -1;
+        public int UColorOutline { get; private set; } = -1;
         public int UShadowCaster { get; private set; } = -1;
+        public int UGlyphInfo { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;
 
@@ -69,9 +69,9 @@ namespace KWEngine3.Renderer
                 ULightCount = GL.GetUniformLocation(ProgramID, "uLightCount");
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
                 UUVOffsets = GL.GetUniformLocation(ProgramID, "uUVOffsetsAndWidths");
-                UWidths = GL.GetUniformLocation(ProgramID, "uWidths");
-                UAdvanceList = GL.GetUniformLocation(ProgramID, "uAdvanceList");
-                
+                UColorOutline = GL.GetUniformLocation(ProgramID, "uColorOutline");
+                UGlyphInfo = GL.GetUniformLocation(ProgramID, "uGlyphInfo");
+
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
@@ -107,8 +107,8 @@ namespace KWEngine3.Renderer
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
 
-            TextureUnit currentTextureUnit = TextureUnit.Texture1;
-            int currentTextureNumber = 1;
+            TextureUnit currentTextureUnit = TextureUnit.Texture2;
+            int currentTextureNumber = 2;
             // upload shadow maps (tex2d):
             int i;
             for (i = 0; i < KWEngine.CurrentWorld._preparedTex2DIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
@@ -172,11 +172,10 @@ namespace KWEngine3.Renderer
         {
             GL.Uniform4(UColorTint, t._stateRender._color);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
+            GL.Uniform4(UColorOutline, t._colorOutline);
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
-
-            GL.Uniform3(UUVOffsets, t._text.Length, t._uvOffsets);
-            GL.Uniform1(UAdvanceList, t._text.Length, t._advances);
-            GL.Uniform1(UWidths, t._text.Length, t._glyphWidths);
+            
+            GL.Uniform1(UUVOffsets, t._text.Length * 4, t._uvOffsets);
             GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
             
             int val = t.IsShadowReceiver ? 1 : -1;
@@ -195,9 +194,13 @@ namespace KWEngine3.Renderer
         private void UploadTextures(TextObject t)
         {
             // Albedo
-            GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
+            GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, t._font.Texture);
-            GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
+            GL.Uniform1(UTextureAlbedo, 0);
+
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.TextureBuffer, t._textureBufferTex);
+            GL.Uniform1(UGlyphInfo, 1);
         }
 
         public void Draw()

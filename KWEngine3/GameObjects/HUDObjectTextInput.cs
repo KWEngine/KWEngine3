@@ -251,10 +251,7 @@ namespace KWEngine3.GameObjects
         internal int _maxInputLength = MAX_CHARS;
         internal string _textBeforeAbort = "";
         internal float _advanceForCursor = 0f;
-        /// <summary>
-        /// Fügt die angegebenen Zeichen dem Text ab der Cursorposition hinzu
-        /// </summary>
-        /// <param name="characters">Hinzuzufügende Zeichen</param>
+
         internal void AddCharacters(string characters)
         {
             if (characters != null && Text.Length < MaxInputLength)
@@ -285,7 +282,6 @@ namespace KWEngine3.GameObjects
                 {
                     MoveCursor(-1);
                 }
-                //UpdateCursorOffset();
             }
         }
 
@@ -304,10 +300,6 @@ namespace KWEngine3.GameObjects
             }
         }
 
-        /// <summary>
-        /// Bewegt den Cursor relativ zu seiner jetztigen Position
-        /// </summary>
-        /// <param name="offset"></param>
         internal void MoveCursor(int offset)
         {
             CursorPosition = CursorPosition + offset;
@@ -316,7 +308,7 @@ namespace KWEngine3.GameObjects
         internal void UpdateCursorOffset()
         {
             KWFontGlyph glyph = GetGlyphForCursor();
-            _advanceForCursor = _advances[CursorPosition] + glyph.Width * 0.5f;
+            _advanceForCursor = _glyphInfo[CursorPosition * 4] + glyph.Width * 0.5f;
         }
 
         internal KWFontGlyph GetGlyphForCursor()

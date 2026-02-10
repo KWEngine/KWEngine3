@@ -55,7 +55,7 @@ namespace KWEngine3.FontGenerator
             kwfont.Descent = descent * scaleNormalised;
         }
 
-        public static KWFont LoadFontSDF_Internal(string imagefile, string jsonfile)
+        public static KWFont LoadFontSDF_Internal(string imagefile, string jsonfile, string fontname)
         {
             try
             {
@@ -65,6 +65,7 @@ namespace KWEngine3.FontGenerator
                 KWFont kwfont = new KWFont();
                 kwfont.Texture = textureId;
                 kwfont.ConvertSDFAtlas(textureAtlas);
+                kwfont.Name = fontname;
                 return kwfont;
             }
             catch (Exception ex)
@@ -74,7 +75,7 @@ namespace KWEngine3.FontGenerator
             }
         }
 
-        public static KWFont LoadFontSDF_External(string imagefile, string jsonfile)
+        public static KWFont LoadFontSDF_External(string imagefile, string jsonfile, string fontname)
         {
             if (imagefile == null || jsonfile == null || !File.Exists(imagefile) || !File.Exists(jsonfile))
                 return new KWFont() { IsValid = false };
@@ -85,8 +86,9 @@ namespace KWEngine3.FontGenerator
                 AtlasRoot textureAtlas = HelperSDF.GenerateFontDictionaryFromDisk(jsonfile);
 
                 KWFont kwfont = new KWFont();
-
-
+                kwfont.Texture = textureId;
+                kwfont.ConvertSDFAtlas(textureAtlas);
+                kwfont.Name = fontname;
                 return kwfont;
             }
             catch(Exception ex)
@@ -232,6 +234,7 @@ namespace KWEngine3.FontGenerator
 
                     float advanceNormalised = advanceWInt * normalisedScale;
                     float bearingLeftNormalised = leftBearingInt * normalisedScale;
+                    float bearingTopNormalised = topBearingInt * normalisedScale;
                     float widthNormalised = x1 * normalisedScale - x0 * normalisedScale;
                     float heightNormalised = y1 * normalisedScale - y0 * normalisedScale;
                     if (widthNormalised == 0)
@@ -241,7 +244,7 @@ namespace KWEngine3.FontGenerator
                     }
 
                     int sum = Math.Max(pixelWidthSumEnlarged[0], pixelWidthSumEnlarged[1]);
-                    KWFontGlyph kwGlyph = new KWFontGlyph(theChar, widthNormalised, heightNormalised, bearingLeftNormalised, advanceNormalised, new Vector4(offsetX / sum, Math.Min(1f, (offsetX + (int)width) / sum), row == 0 ? 0f : 0.5f, 0f));
+                    KWFontGlyph kwGlyph = new KWFontGlyph(theChar, widthNormalised, heightNormalised, heightNormalised, advanceNormalised, new Vector4(offsetX / sum, Math.Min(1f, (offsetX + (int)width) / sum), row == 0 ? 0f : 0.5f, 0f));
                     glyphDict.Add(theChar, kwGlyph);
                     offsetX += (int)width + pixelGap;
                 }

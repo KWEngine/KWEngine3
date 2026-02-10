@@ -822,11 +822,11 @@ namespace KWEngine3
             KWQuad2D_05.Init();
             KWTerrainQuad.Init();
 
-            FontDictionary.Add("Anonymous", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.Anonymous.bmp", "KWEngine3.Assets.Fonts.Anonymous.json"));
-            FontDictionary.Add("MajorMonoDisplay", null); // HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("MajorMonoDisplay.ttf"), "MajorMonoDisplay"));
-            FontDictionary.Add("NovaMono", null); //HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("NovaMono.ttf"), "NovaMono"));
-            FontDictionary.Add("XanhMono", null); //HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("XanhMono.ttf"), "XanhMono"));
-            FontDictionary.Add("OpenSans", null); //HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal("OpenSans.ttf"), "OpenSans"));
+            FontDictionary.Add("Anonymous", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.Anonymous.png", "KWEngine3.Assets.Fonts.Anonymous.json", "Anonymous"));
+            FontDictionary.Add("MajorMonoDisplay", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.MajorMonoDisplay.png", "KWEngine3.Assets.Fonts.MajorMonoDisplay.json", "MajorMonoDisplay"));
+            FontDictionary.Add("NovaMono", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.NovaMono.png", "KWEngine3.Assets.Fonts.NovaMono.json", "NovaMono"));
+            FontDictionary.Add("XanhMono", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.XanhMono.png", "KWEngine3.Assets.Fonts.XanhMono.json", "XanhMono"));
+            FontDictionary.Add("OpenSans", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.OpenSans.png", "KWEngine3.Assets.Fonts.OpenSans.json", "OpenSans"));
             
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");

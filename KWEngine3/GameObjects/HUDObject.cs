@@ -141,9 +141,9 @@ namespace KWEngine3.GameObjects
         /// <param name="blue">Blau</param>
         public void SetColor(float red, float green, float blue)
         {
-            _tint.X = HelperGeneral.Clamp(red, 0, 1);
-            _tint.Y = HelperGeneral.Clamp(green, 0, 1);
-            _tint.Z = HelperGeneral.Clamp(blue, 0, 1);
+            _tint.X = HelperGeneral.Clamp(red, 0, 2);
+            _tint.Y = HelperGeneral.Clamp(green, 0, 2);
+            _tint.Z = HelperGeneral.Clamp(blue, 0, 2);
             _tint.W = 1.0f;
         }
 

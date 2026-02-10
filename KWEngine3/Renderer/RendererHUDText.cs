@@ -18,16 +18,17 @@ namespace KWEngine3.Renderer
         public static int UColorTint { get; private set; } = -1;
         public static int UColorGlow { get; private set; } = -1;
         public static int UUVOffsets { get; private set; } = -1;
-        public static int UAdvanceList { get; private set; } = -1;
-        public static int UWidths { get; private set; } = -1;
+        public static int UColorOutline { get; private set; } = -1;
         public static int UScreenOffset { get; private set; } = -1;
         public static int UTextAlign { get; private set; } = -1;
         public static int UCursorInfo { get; private set; } = -1;
         public static int UMode { get; private set; } = -1;
         public static int UOptions { get; private set; } = -1;
+        public static int UGlyphInfo { get; private set; } = -1;
+        public static int UCursorBounds { get; private set; } = -1;
 
-        public static float[] _dummyWidthAndAdvance = new float[2];
-        public static float[] _dummyOffset = new float[4];
+        public static float[] _dummyCursorBounds = new float[4];
+        public static float[] _dummyUVOffsets = new float[4];
 
         public static void Init()
         {
@@ -58,12 +59,15 @@ namespace KWEngine3.Renderer
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UColorGlow = GL.GetUniformLocation(ProgramID, "uColorGlow");
                 UUVOffsets = GL.GetUniformLocation(ProgramID, "uUVOffsetsAndWidths");
-                UWidths = GL.GetUniformLocation(ProgramID, "uWidths");
                 UScreenOffset = GL.GetUniformLocation(ProgramID, "uOffset");
-                UAdvanceList = GL.GetUniformLocation(ProgramID, "uAdvanceList");
                 UTextAlign = GL.GetUniformLocation(ProgramID, "uTextAlign");
                 UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
                 UCursorInfo = GL.GetUniformLocation(ProgramID, "uCursorInfo");
+                UColorOutline = GL.GetUniformLocation(ProgramID, "uColorOutline");
+                UGlyphInfo = GL.GetUniformLocation(ProgramID, "uGlyphInfo");
+                UCursorBounds = GL.GetUniformLocation(ProgramID, "uCursorBounds");
+
+                RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
             }
         }
 
@@ -103,12 +107,15 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, ho._font.Texture);
             GL.Uniform1(UTexture, 0);
 
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.TextureBuffer, ho._textureBufferTex);
+            GL.Uniform1(UGlyphInfo, 1);
+
             GL.Uniform1(UMode, 0);
             GL.Uniform1(UOptions, 0);
             GL.Uniform1(UUVOffsets, ho._text.Length * 4, ho._uvOffsets);
-            GL.Uniform1(UAdvanceList, ho._text.Length, ho._advances);
-            GL.Uniform1(UWidths, ho._text.Length, ho._glyphWidths);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
+            GL.Uniform4(UColorOutline, ho._colorOutline);
             GL.Uniform1(UScreenOffset, ho.TextAlignment == TextAlignMode.Left ? 0f : ho.TextAlignment == TextAlignMode.Center ? -ho._width * 0.5f : -ho._width);
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._text.Length);
 
@@ -118,15 +125,19 @@ namespace KWEngine3.Renderer
                 HUDObjectTextInput i = (HUDObjectTextInput)ho;
                 if(i.HasFocus)
                 {
-                    Vector4 details = GetUOffsetForGlyph(i, out float vOffset);
-                    _dummyWidthAndAdvance[0] = details.Z;
-                    _dummyWidthAndAdvance[1] = i._advanceForCursor;
-                    _dummyOffset[0] = details.X; 
-                    _dummyOffset[1] = details.Y;
-                    _dummyOffset[2] = vOffset;
-                    GL.Uniform1(UUVOffsets, 1 * 4, _dummyOffset);
-                    GL.Uniform1(UWidths, 2, _dummyWidthAndAdvance);
-                    GL.Uniform4(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed, (float)i.CursorPosition);
+                    Vector4 details = GetUOffsetForGlyph(i, out Vector4 bounds);
+                    _dummyCursorBounds[0] = bounds.X;
+                    _dummyCursorBounds[1] = bounds.Y;
+                    _dummyCursorBounds[2] = bounds.Z;
+                    _dummyCursorBounds[3] = bounds.W;
+                    _dummyUVOffsets[0] = details.X;
+                    _dummyUVOffsets[1] = details.Y;
+                    _dummyUVOffsets[2] = details.Z;
+                    _dummyUVOffsets[3] = details.W;
+                    GL.Uniform1(UUVOffsets, 4, _dummyUVOffsets);
+                    GL.Uniform1(UCursorBounds, 4, _dummyCursorBounds);
+
+                    GL.Uniform4(UCursorInfo, (float)i.CursorBehaviour, KWEngine.CurrentWorld.WorldTime, i.CursorBlinkSpeed, i._advanceForCursor);
                     GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, 1);
                 }
             }
@@ -134,11 +145,11 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        internal static Vector4 GetUOffsetForGlyph(HUDObjectTextInput ti, out float vOffset)
+        internal static Vector4 GetUOffsetForGlyph(HUDObjectTextInput ti, out Vector4 bounds)
         {
             KWFontGlyph glyph = ti._font.GlyphDict[ti._cursorType == KeyboardCursorType.Pipe ? '|' : ti._cursorType == KeyboardCursorType.Underscore ? '_' : '·'];
-            vOffset = glyph.UCoordinate.Z;
-            return new Vector4(glyph.UCoordinate.X, glyph.UCoordinate.Y, glyph.Width, ti._advances[ti.CursorPosition]);
+            bounds = new Vector4(glyph.Width, glyph.Top, glyph.Bottom, 0f);
+            return new Vector4(glyph.UCoordinate.X, glyph.UCoordinate.Y, glyph.UCoordinate.Z, glyph.UCoordinate.W);
         }
     }
 }

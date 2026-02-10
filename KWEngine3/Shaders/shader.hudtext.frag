@@ -6,6 +6,7 @@ uniform sampler2D uTexture;
 uniform vec4 uColorTint;
 uniform vec4 uColorGlow;
 uniform vec4 uCursorInfo;
+uniform vec4 uColorOutline; // w = outlinewidth
 
 layout(location = 0) out vec4 color;
 layout(location = 1) out vec4 bloom;
@@ -21,28 +22,30 @@ float median(vec3 rgb)
     return max(min(rgb.r, rgb.g), min(max(rgb.r, rgb.g), rgb.b));
 }
 
-float pxRange = 2.0;
+float pxRange = 6.0;
 
 void main()
 {
-    float outlineWidth = 0.0;
-    vec3 outlineColor = vec3(1, 0, 0);
-
-    float globalVisibility = 1.0;
     vec3 tex = texture(uTexture, vTexture).rgb;
-    float sd = median(tex.r, tex.g, tex.b);
+    float sd = median(tex);
 
-    float screenPxDistance = pxRange * (sd - 0.5);
+    float sdDeriv = fwidth(sd);
+    float unitRange = max(sdDeriv, 0.000001);
+
+    float screenPxDistance = (sd - 0.5) / unitRange;
     float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
 
-    float outlineFactor = clamp(screenPxDistance + 0.5 + outlineWidth, 0.0, 1.0);
+    float outlineEdge = (sd - 0.5 + uColorOutline.w) / unitRange;
+    float outlineFactor = clamp(outlineEdge + 0.5, 0.0, 1.0);
+
     if(outlineFactor < 0.0001)
     {
         discard;
     }
 
-    vec3 finalColor = mix(outlineColor, uColorTint.rgb, opacity);
-
+    vec3 finalColor = mix(uColorOutline.rgb, uColorTint.rgb, opacity);
+    
+    float globalVisibility = 1.0;
     if(uCursorInfo.x != 0)
     {
         // blink = -1
@@ -50,10 +53,19 @@ void main()
         float sinV = sin(uCursorInfo.y * uCursorInfo.z * 10.0) * 0.5 + 0.5;
         globalVisibility *= uCursorInfo.x < 0 ? step(0.5, sinV) : sinV;
     }
+    float finalAlpha = outlineFactor * uColorTint.w * globalVisibility;
 
-    color = vec4(finalColor, uColorTint.w * globalVisibility);
-    bloom.x = uColorGlow.x * uColorGlow.w;
-    bloom.y = uColorGlow.y * uColorGlow.w;
-    bloom.z = uColorGlow.z * uColorGlow.w;
-    bloom.w = uColorTint.w * opacity * globalVisibility;
+    color = vec4(finalColor, finalAlpha);
+
+    if(color.x > 1.0)
+        bloom.x = color.x - 1.0;
+    if(color.y > 1.0)
+        bloom.y = color.y - 1.0;
+    if(color.z > 1.0)
+        bloom.z = color.z - 1.0;
+
+    bloom.x += uColorGlow.x * uColorGlow.w;
+    bloom.y += uColorGlow.y * uColorGlow.w;
+    bloom.z += uColorGlow.z * uColorGlow.w;
+    bloom.w += uColorTint.w * globalVisibility;
 }

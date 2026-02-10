@@ -52,12 +52,11 @@ namespace KWEngine3.FontGenerator
             GlyphDict[codepoint] = glyph;
         }
 
-        public void ConvertSDFAtlas(AtlasRoot atlas, string fontfilename = "placeholder value")
+        public void ConvertSDFAtlas(AtlasRoot atlas)
         {
             IsSDF = true;
             IsValid = true;
             TextureSize = atlas.Atlas.Width * atlas.Atlas.Height * 3;
-            FontFilename = fontfilename;
             Ascent = (float)atlas.Metrics.Ascender;
             Descent = (float)atlas.Metrics.Descender;
 
@@ -84,8 +83,8 @@ namespace KWEngine3.FontGenerator
                     kwGlyph = new KWFontGlyph(
                         sdfGlyph.Unicode,
                         (float)(sdfGlyph.PlaneBounds.Right - sdfGlyph.PlaneBounds.Left),
-                        (float)(sdfGlyph.PlaneBounds.Top - sdfGlyph.PlaneBounds.Bottom),
-                        (float)sdfGlyph.PlaneBounds.Left,
+                        (float)sdfGlyph.PlaneBounds.Top,
+                        (float)sdfGlyph.PlaneBounds.Bottom,
                         (float)sdfGlyph.Advance,
                         new Vector4(uvleft, uvright, uvbottom, uvtop)
                     );

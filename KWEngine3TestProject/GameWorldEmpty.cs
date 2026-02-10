@@ -17,11 +17,25 @@ namespace KWEngine3TestProject
 
         public override void Prepare()
         {
-            HUDObjectText t = new HUDObjectText("Hello World!");
-            t.SetScale(128);
+            HUDObjectTextInput t = new HUDObjectTextInput("Franz");
+            t.SetFont(FontFace.OpenSans);
+            t.SetScale(48);
+            t.CursorType = KeyboardCursorType.Dot;
+            t.CursorBehaviour = KeyboardCursorBehaviour.Fade;
+            t.SetColorOutline(1.9f, 1.6f, 0, 0.75f);
+            t.SetColor(0, 0, 0);
+            t.SetColorEmissiveIntensity(1.1f);
+            t.SetColorEmissive(0, 0, 1);
             t.SetTextAlignment(TextAlignMode.Center);
             t.CenterOnScreen();
+            t.GetFocus();
             AddHUDObject(t);
+
+            TextObject txt = new TextObject("Franz 3D");
+            txt.SetPosition(0, -2, 0);
+            txt.SetColor(1, 1, 1);
+            txt.IsAffectedByLight = true;
+            AddTextObject(txt);
         }
     }
 }

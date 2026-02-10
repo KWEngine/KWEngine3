@@ -1,6 +1,8 @@
 ﻿using KWEngine3.FontGenerator;
 using KWEngine3.Helper;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using Typography.OpenFont;
 
 namespace KWEngine3.GameObjects
 {
@@ -54,6 +56,20 @@ namespace KWEngine3.GameObjects
             InitStates();
             SetFont(FontFace.Anonymous);
             SetText(text);
+        }
+
+        /// <summary>
+        /// Destruktormethode
+        /// </summary>
+        ~TextObject()
+        {
+            if (KWEngine.Window._disposed == GLWindow.DisposeStatus.None)
+            {
+                GL.DeleteBuffers(1, new int[] { _textureBuffer });
+                GL.DeleteTextures(1, new int[] { _textureBufferTex });
+                _textureBuffer = -1;
+                _textureBufferTex = -1;
+            }
         }
 
         /// <summary>
@@ -321,14 +337,51 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Farbe der Instanz
         /// </summary>
-        /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
-        /// <param name="g">Grünanteil (zwischen 0 und 1)</param>
-        /// <param name="b">Blauanteil (zwischen 0 und 1)</param>
+        /// <param name="r">Rotanteil (zwischen 0 und 2)</param>
+        /// <param name="g">Grünanteil (zwischen 0 und 2)</param>
+        /// <param name="b">Blauanteil (zwischen 0 und 2)</param>
         public void SetColor(float r, float g, float b)
         {
-            _stateCurrent._color.X = Math.Clamp(r, 0f, 1f);
-            _stateCurrent._color.Y = Math.Clamp(g, 0f, 1f);
-            _stateCurrent._color.Z = Math.Clamp(b, 0f, 1f);
+            _stateCurrent._color.X = Math.Clamp(r, 0f, 2f);
+            _stateCurrent._color.Y = Math.Clamp(g, 0f, 2f);
+            _stateCurrent._color.Z = Math.Clamp(b, 0f, 2f);
+        }
+
+        /// <summary>
+        /// Setzt die (optionale) Outline des Texts
+        /// </summary>
+        /// <param name="r">Rotanteil (0 bis 2)</param>
+        /// <param name="g">Grünanteil (0 bis 2)</param>
+        /// <param name="b">Blauanteil (0 bis 2)</param>
+        /// <param name="width">Outline-Breite (0 bis 1)</param>
+        public void SetColorOutline(float r, float g, float b, float width = 0.5f)
+        {
+            _colorOutline.X = Math.Clamp(r, 0f, 2f);
+            _colorOutline.Y = Math.Clamp(g, 0f, 2f);
+            _colorOutline.Z = Math.Clamp(b, 0f, 2f);
+            _colorOutline.W = Math.Clamp(width * 0.5f - 0.01f, 0f, 0.49f);
+        }
+
+        /// <summary>
+        /// Gibt die aktuell gesetzte Farbe für die Outline an
+        /// </summary>
+        public Vector3 ColorOutline
+        {
+            get
+            {
+                return new Vector3(_colorOutline.X, _colorOutline.Y, _colorOutline.Z);
+            }
+        }
+
+        /// <summary>
+        /// Gibt die aktuelle Breite für die Outline an
+        /// </summary>
+        public float ColorOutlineWidth
+        {
+            get
+            {
+                return _colorOutline.W > 0f ? _colorOutline.W * 2f + 0.01f : 0f;
+            }
         }
 
         /// <summary>
@@ -417,9 +470,12 @@ namespace KWEngine3.GameObjects
         internal TextObjectState _statePrevious;
         internal TextObjectState _stateRender;
 
-        internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 2];
-        internal float[] _glyphWidths = new float[MAX_CHARS + 1];
-        internal float[] _advances = new float[MAX_CHARS + 1];
+        internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 4];
+        internal int _textureBuffer = -1;
+        internal int _textureBufferTex = -1;
+        internal float[] _glyphInfo = new float[(MAX_CHARS + 1) * 4];
+        internal Vector4 _colorOutline = new Vector4(0f, 0f, 0f, 0f);
+
         internal string _text = "";
         internal KWFont _font = KWEngine.FontDictionary.Values.ElementAt(0);
         internal string _fontname = "Anonymous";
@@ -430,36 +486,58 @@ namespace KWEngine3.GameObjects
         internal void UpdateOffsetList()
         {
             KWFontGlyph space = _font.GetGlyphForCodepoint(' ');
-            for (int i = 0, j = 0; i < _text.Length; i++, j += 3)
+            for (int i = 0, j = 0; i < _text.Length; i++, j += 4)
             {
                 KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
 
                 _uvOffsets[j + 0] = glyph.UCoordinate.X;
                 _uvOffsets[j + 1] = glyph.UCoordinate.Y;
                 _uvOffsets[j + 2] = glyph.UCoordinate.Z;
+                _uvOffsets[j + 3] = glyph.UCoordinate.W;
 
-                float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Bearing;
-                float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;
+                float posNext = _glyphInfo[i * 4 + 0] + glyph.Advance + (space.Width * (CharacterDistanceFactor - 1f));
+                _glyphInfo[i * 4 + 4] = posNext;
 
-                _glyphWidths[i] = glyph.Width;
-
-                _advances[i + 1] = _advances[i] + glyph.Advance - glyph.Bearing + (space.Width * (_stateCurrent._spreadFactor - 1f));
+                _glyphInfo[i * 4 + 1] = glyph.Width;
+                _glyphInfo[i * 4 + 2] = glyph.Top;
+                _glyphInfo[i * 4 + 3] = glyph.Bottom;
             }
 
             if (_text.Length > 0)
             {
-                _widthNormalised = _advances[_text.Length];
-                _stateCurrent._width = _widthNormalised * _stateCurrent._scale;
+                _widthNormalised = _glyphInfo[(_text.Length - 1) * 4 + 0] + _font.GetGlyphForCodepoint(_text[_text.Length - 1]).Width;
             }
             else
             {
                 _widthNormalised = 0f;
-                _stateCurrent._width = 0f;
             }
+
+            // update tbo:
+            GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
+            IntPtr ptr = GL.MapBuffer(BufferTarget.TextureBuffer, BufferAccess.WriteOnly);
+
+            unsafe
+            {
+                float* dest = (float*)ptr.ToPointer();
+
+                for (int i = 0; i < _text.Length * 4; i++)
+                    dest[i] = _glyphInfo[i];
+            }
+
+            GL.UnmapBuffer(BufferTarget.TextureBuffer);
+            GL.BindBuffer(BufferTarget.TextureBuffer, 0);
         }
 
         internal void InitStates()
         {
+            _textureBuffer = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
+            GL.BufferData(BufferTarget.TextureBuffer, 4 * sizeof(float) * (MAX_CHARS + 1), IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+            _textureBufferTex = GL.GenTexture();
+            GL.BindTexture(TextureTarget.TextureBuffer, _textureBufferTex);
+            GL.TexBuffer(TextureBufferTarget.TextureBuffer, SizedInternalFormat.Rgba32f, _textureBuffer);
+
             _stateCurrent = new TextObjectState(this);
             _stateRender = new TextObjectState(this);
             _statePrevious = _stateCurrent;

@@ -1,5 +1,6 @@
 ﻿using KWEngine3.FontGenerator;
 using KWEngine3.Helper;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace KWEngine3.GameObjects
@@ -25,8 +26,30 @@ namespace KWEngine3.GameObjects
         /// <param name="text">Darzustellender Text (maximal 256 Zeichen)</param>
         public HUDObjectText(string text)
         {
+            _textureBuffer = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
+            GL.BufferData(BufferTarget.TextureBuffer, 4 * sizeof(float) * (MAX_CHARS + 1), IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+            _textureBufferTex = GL.GenTexture();
+            GL.BindTexture(TextureTarget.TextureBuffer, _textureBufferTex);
+            GL.TexBuffer(TextureBufferTarget.TextureBuffer, SizedInternalFormat.Rgba32f, _textureBuffer);
+
             SetFont(FontFace.Anonymous);
             SetText(text);
+        }
+
+        /// <summary>
+        /// Destruktormethode
+        /// </summary>
+        ~HUDObjectText()
+        {
+            if (KWEngine.Window._disposed == GLWindow.DisposeStatus.None)
+            {
+                GL.DeleteBuffers(1, new int[] { _textureBuffer });
+                GL.DeleteTextures(1, new int[] { _textureBufferTex });
+                _textureBuffer = -1;
+                _textureBufferTex = -1;
+            }
         }
 
         /// <summary>
@@ -163,6 +186,44 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die (optionale) Outline des Texts
+        /// </summary>
+        /// <param name="r">Rotanteil (0 bis 2)</param>
+        /// <param name="g">Grünanteil (0 bis 2)</param>
+        /// <param name="b">Blauanteil (0 bis 2)</param>
+        /// <param name="width">Outline-Breite (0 bis 1)</param>
+        public void SetColorOutline(float r, float g, float b, float width = 0.5f)
+        {
+            _colorOutline.X = Math.Clamp(r, 0f, 2f);
+            _colorOutline.Y = Math.Clamp(g, 0f, 2f);
+            _colorOutline.Z = Math.Clamp(b, 0f, 2f);
+            _colorOutline.W = Math.Clamp(width * 0.5f - 0.01f, 0f, 0.49f);
+        }
+
+        /// <summary>
+        /// Gibt die aktuell gesetzte Farbe für die Outline an
+        /// </summary>
+        public Vector3 ColorOutline
+        {
+            get
+            {
+                return new Vector3(_colorOutline.X, _colorOutline.Y, _colorOutline.Z);
+            }
+        }
+
+        /// <summary>
+        /// Gibt die aktuelle Breite für die Outline an
+        /// </summary>
+        public float ColorOutlineWidth
+        {
+            get
+            {
+                return _colorOutline.W > 0f ? _colorOutline.W * 2f + 0.01f : 0f;
+            }
+        }
+
+
+        /// <summary>
         /// Setzt die Größe pro Zeichen in Pixeln (Standardwert: 32)
         /// </summary>
         /// <param name="scale">Größe (in Pixeln, Maximalwert: 512)</param>
@@ -239,13 +300,15 @@ namespace KWEngine3.GameObjects
         #region Internals
         internal float _spread = 1f;
         internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 4];
-        internal float[] _glyphWidths = new float[MAX_CHARS + 1];
-        internal float[] _glyphHeights = new float[MAX_CHARS + 1];
-        internal float[] _advances = new float[MAX_CHARS + 1];
+        internal int _textureBuffer = -1;
+        internal int _textureBufferTex = -1;
+        internal float[] _glyphInfo = new float[(MAX_CHARS + 1) * 4];
+        internal Vector4 _colorOutline = new Vector4(0f, 0f, 0f, 0f);
         internal string _text = "";
         internal KWFont _font;
         internal float _width = 0f;
         internal float _widthNormalised = 0f;
+
 
         internal HUDObjectText()
         {
@@ -264,24 +327,28 @@ namespace KWEngine3.GameObjects
                 _uvOffsets[j + 2] = glyph.UCoordinate.Z;
                 _uvOffsets[j + 3] = glyph.UCoordinate.W;
 
-                float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Bearing;
-                float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;
+                //float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).BearingLeft;
+                //float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;
 
-                _glyphWidths[i] = glyph.Width;
-                _glyphHeights[i] = glyph.Height;
                 if(ForceMonospace)
                 {
-                    _advances[i + 1] = _advances[i] + space.Advance - space.Bearing + (space.Width * (_spread - 1f));
+                    float posNext = _glyphInfo[i * 4 + 0] + space.Advance + (space.Width * (_spread - 1f));
+                    _glyphInfo[i * 4 + 4] = posNext;
                 }
                 else
                 {
-                    _advances[i + 1] = _advances[i] + glyph.Advance - glyph.Bearing + (space.Width * (_spread - 1f));
+                    float posNext = _glyphInfo[i * 4 + 0] + glyph.Advance + (space.Width * (_spread - 1f));
+                    _glyphInfo[i * 4 + 4] = posNext;
                 }
+                _glyphInfo[i * 4 + 1] = glyph.Width;
+                _glyphInfo[i * 4 + 2] = glyph.Top;
+                _glyphInfo[i * 4 + 3] = glyph.Bottom;
+
             }
             
             if (_text.Length > 0)
             {
-                _widthNormalised = _advances[_text.Length - 1] + _font.GetGlyphForCodepoint(_text[_text.Length - 1]).Width;
+                _widthNormalised = _glyphInfo[(_text.Length - 1) * 4 + 0] + _font.GetGlyphForCodepoint(_text[_text.Length - 1]).Width;
                 _width = _widthNormalised * _scale.X;
             }
             else
@@ -290,7 +357,22 @@ namespace KWEngine3.GameObjects
                 _width = 0f;
             }
 
-            if(this is HUDObjectTextInput)
+            // update tbo:
+            GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
+            IntPtr ptr = GL.MapBuffer(BufferTarget.TextureBuffer, BufferAccess.WriteOnly);
+
+            unsafe
+            {
+                float* dest = (float*)ptr.ToPointer();
+
+                for (int i = 0; i < _text.Length * 4; i++)
+                    dest[i] = _glyphInfo[i];
+            }
+
+            GL.UnmapBuffer(BufferTarget.TextureBuffer);
+            GL.BindBuffer(BufferTarget.TextureBuffer, 0);
+
+            if (this is HUDObjectTextInput)
             {
                 (this as HUDObjectTextInput).UpdateCursorOffset();
             }
