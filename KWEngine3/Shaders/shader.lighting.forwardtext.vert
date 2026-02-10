@@ -35,7 +35,7 @@ void main()
 	vec4 pos = vec4(aPosition, 1.0);
     pos.x *= glyphInfo.g;
     float left = pos.x + glyphInfo.g * 0.5 + glyphInfo.r;
-	float y = 0.0;
+	float y = pos.y;
 
 	if(isLeftVertex())
 	{
@@ -49,12 +49,12 @@ void main()
 	if(isTopVertex())
 	{
 		vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 3];
-		y = -glyphInfo.w;
+		y = y * glyphInfo.z + glyphInfo.z - 0.5;
 	}
 	else
 	{
 		vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
-		y = -glyphInfo.z;
+		y = y * glyphInfo.w + glyphInfo.w - 0.5;
 	}
 
 	pos = vec4(left, y, pos.z, 1.0);

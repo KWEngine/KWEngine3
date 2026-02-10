@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using KWEngine3;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
+using KWEngine3TestProject.Classes;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -19,7 +20,7 @@ namespace KWEngine3TestProject
         {
             HUDObjectTextInput t = new HUDObjectTextInput("Franz");
             t.SetFont(FontFace.OpenSans);
-            t.SetScale(48);
+            t.SetScale(96);
             t.CursorType = KeyboardCursorType.Dot;
             t.CursorBehaviour = KeyboardCursorBehaviour.Fade;
             t.SetColorOutline(1.9f, 1.6f, 0, 0.75f);
@@ -33,9 +34,16 @@ namespace KWEngine3TestProject
 
             TextObject txt = new TextObject("Franz 3D");
             txt.SetPosition(0, -2, 0);
+            txt.SetScale(1);
             txt.SetColor(1, 1, 1);
             txt.IsAffectedByLight = true;
+            txt.SetTextAlignment(TextAlignMode.Center);
             AddTextObject(txt);
+
+            Immovable i = new Immovable();
+            i.SetPosition(0, -2, -0.001f);
+            i.SetScale(50, 1, 0.001f);
+            AddGameObject(i);
         }
     }
 }
