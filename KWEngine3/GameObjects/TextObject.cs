@@ -499,8 +499,8 @@ namespace KWEngine3.GameObjects
                 _glyphInfo[i * 4 + 4] = posNext;
 
                 _glyphInfo[i * 4 + 1] = glyph.Width;
-                _glyphInfo[i * 4 + 2] = glyph.Top;
-                _glyphInfo[i * 4 + 3] = glyph.Bottom;
+                _glyphInfo[i * 4 + 2] = glyph.Top - _font.Descent * 0.5f;
+                _glyphInfo[i * 4 + 3] = glyph.Bottom - _font.Descent * 0.5f;
             }
 
             if (_text.Length > 0)

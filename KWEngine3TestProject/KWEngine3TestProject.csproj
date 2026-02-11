@@ -1707,6 +1707,12 @@
     <None Update="Textures\7.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Textures\red.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Textures\blue.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Textures\Bark_01_512.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

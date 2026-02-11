@@ -127,8 +127,8 @@ namespace KWEngine3.Renderer
                 {
                     Vector4 details = GetUOffsetForGlyph(i, out Vector4 bounds);
                     _dummyCursorBounds[0] = bounds.X;
-                    _dummyCursorBounds[1] = bounds.Y;
-                    _dummyCursorBounds[2] = bounds.Z;
+                    _dummyCursorBounds[1] = bounds.Y - i._font.Descent * 0.5f;
+                    _dummyCursorBounds[2] = bounds.Z - i._font.Descent * 0.5f;
                     _dummyCursorBounds[3] = bounds.W;
                     _dummyUVOffsets[0] = details.X;
                     _dummyUVOffsets[1] = details.Y;

@@ -44,12 +44,12 @@ void main()
 		if(isTopVertex())
 		{
 			vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 3];
-			y = -uCursorBounds[1];
+			y = -uCursorBounds[1] + 0.5;
 		}
 		else
 		{
 			vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
-			y = -uCursorBounds[2];
+			y = -uCursorBounds[2] + 0.5;
 		}
 	}
 	else
@@ -68,12 +68,12 @@ void main()
 		if(isTopVertex())
 		{
 			vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 3];
-			y = -glyphInfo.z;
+			y = -glyphInfo.z + 0.5;
 		}
 		else
 		{
 			vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
-			y = -glyphInfo.w;
+			y = -glyphInfo.w + 0.5;
 		}
 	}
 	

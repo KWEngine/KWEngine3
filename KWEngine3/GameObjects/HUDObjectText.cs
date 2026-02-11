@@ -191,8 +191,21 @@ namespace KWEngine3.GameObjects
         /// <param name="r">Rotanteil (0 bis 2)</param>
         /// <param name="g">Grünanteil (0 bis 2)</param>
         /// <param name="b">Blauanteil (0 bis 2)</param>
+        public void SetColorOutline(float r, float g, float b)
+        {
+            _colorOutline.X = Math.Clamp(r, 0f, 2f);
+            _colorOutline.Y = Math.Clamp(g, 0f, 2f);
+            _colorOutline.Z = Math.Clamp(b, 0f, 2f);
+        }
+
+        /// <summary>
+        /// Setzt die (optionale) Outline des Texts
+        /// </summary>
+        /// <param name="r">Rotanteil (0 bis 2)</param>
+        /// <param name="g">Grünanteil (0 bis 2)</param>
+        /// <param name="b">Blauanteil (0 bis 2)</param>
         /// <param name="width">Outline-Breite (0 bis 1)</param>
-        public void SetColorOutline(float r, float g, float b, float width = 0.5f)
+        public void SetColorOutline(float r, float g, float b, float width)
         {
             _colorOutline.X = Math.Clamp(r, 0f, 2f);
             _colorOutline.Y = Math.Clamp(g, 0f, 2f);
@@ -274,8 +287,8 @@ namespace KWEngine3.GameObjects
             {
                 Vector2 mouseCoords = GLWindow.Mouse.Position;
                 float left, right, top, bottom;
-                top = Position.Y - _scale.Y * 0.5f - _font.Descent * _scale.Y;
-                bottom = Position.Y + _scale.Y * 0.5f + _font.Descent * _scale.Y;
+                top = Position.Y - _scale.Y * 0.5f;
+                bottom = Position.Y + _scale.Y * 0.5f;
 
                 if (TextAlignment == TextAlignMode.Left)
                 {
@@ -341,8 +354,8 @@ namespace KWEngine3.GameObjects
                     _glyphInfo[i * 4 + 4] = posNext;
                 }
                 _glyphInfo[i * 4 + 1] = glyph.Width;
-                _glyphInfo[i * 4 + 2] = glyph.Top;
-                _glyphInfo[i * 4 + 3] = glyph.Bottom;
+                _glyphInfo[i * 4 + 2] = glyph.Top - _font.Descent * 0.5f;
+                _glyphInfo[i * 4 + 3] = glyph.Bottom - _font.Descent * 0.5f;
 
             }
             

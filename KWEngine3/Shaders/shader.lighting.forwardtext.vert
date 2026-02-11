@@ -49,12 +49,12 @@ void main()
 	if(isTopVertex())
 	{
 		vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 3];
-		y = y * glyphInfo.z + glyphInfo.z - 0.5;
+		y = -0.5 + glyphInfo.z;
 	}
 	else
 	{
 		vTexture.y = uUVOffsetsAndWidths[gl_InstanceID * 4 + 2];
-		y = y * glyphInfo.w + glyphInfo.w - 0.5;
+		y = -0.5 + glyphInfo.w;
 	}
 
 	pos = vec4(left, y, pos.z, 1.0);
