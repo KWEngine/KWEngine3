@@ -26,30 +26,8 @@ namespace KWEngine3.GameObjects
         /// <param name="text">Darzustellender Text (maximal 256 Zeichen)</param>
         public HUDObjectText(string text)
         {
-            _textureBuffer = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
-            GL.BufferData(BufferTarget.TextureBuffer, 4 * sizeof(float) * (MAX_CHARS + 1), IntPtr.Zero, BufferUsageHint.DynamicDraw);
-
-            _textureBufferTex = GL.GenTexture();
-            GL.BindTexture(TextureTarget.TextureBuffer, _textureBufferTex);
-            GL.TexBuffer(TextureBufferTarget.TextureBuffer, SizedInternalFormat.Rgba32f, _textureBuffer);
-
             SetFont(FontFace.Anonymous);
             SetText(text);
-        }
-
-        /// <summary>
-        /// Destruktormethode
-        /// </summary>
-        ~HUDObjectText()
-        {
-            if (KWEngine.Window._disposed == GLWindow.DisposeStatus.None)
-            {
-                GL.DeleteBuffers(1, new int[] { _textureBuffer });
-                GL.DeleteTextures(1, new int[] { _textureBufferTex });
-                _textureBuffer = -1;
-                _textureBufferTex = -1;
-            }
         }
 
         /// <summary>
@@ -66,21 +44,8 @@ namespace KWEngine3.GameObjects
             Font = HelperFont.GetNameForInternalFontID((int)fontFace);
             if(KWEngine.FontDictionary.TryGetValue(Font, out KWFont fontTemp))
             {
-                if(fontTemp == null)
-                {
-                    // lazy loading internal font
-                    if(HelperFont.IsInternal(Font))
-                    {
-                        KWFont f = HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal(Font + ".ttf"), Font, false, "");
-                        if(f.IsValid)
-                        {
-                            fontTemp = f;
-                            KWEngine.FontDictionary[Font] = f;
-                        }
-                    }
-                }
-
                 _font = KWEngine.FontDictionary[Font];
+                CreateBuffers();
                 UpdateOffsetList();
             }
             else
@@ -99,20 +64,6 @@ namespace KWEngine3.GameObjects
         {
             if(KWEngine.FontDictionary.TryGetValue(fontname, out KWFont font))
             {
-                if (font == null)
-                {
-                    // lazy loading internal font
-                    if (HelperFont.IsInternal(fontname))
-                    {
-                        KWFont f = HelperGlyph.LoadFont(HelperGlyph.LoadFontInternal(Font + ".ttf"), Font, false, "");
-                        if (f.IsValid)
-                        {
-                            KWEngine.FontDictionary[fontname] = f;
-                            font = f;
-                        }
-                    }
-                }
-
                 _font = font;
                 UpdateOffsetList();
             }
@@ -210,7 +161,7 @@ namespace KWEngine3.GameObjects
             _colorOutline.X = Math.Clamp(r, 0f, 2f);
             _colorOutline.Y = Math.Clamp(g, 0f, 2f);
             _colorOutline.Z = Math.Clamp(b, 0f, 2f);
-            _colorOutline.W = Math.Clamp(width * 0.5f - 0.01f, 0f, 0.49f);
+            _colorOutline.W = Math.Clamp(width * 0.5f, 0f, 0.5f);
         }
 
         /// <summary>
@@ -231,7 +182,7 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return _colorOutline.W > 0f ? _colorOutline.W * 2f + 0.01f : 0f;
+                return _colorOutline.W > 0f ? _colorOutline.W * 2f : 0f;
             }
         }
 
@@ -316,6 +267,7 @@ namespace KWEngine3.GameObjects
         internal int _textureBuffer = -1;
         internal int _textureBufferTex = -1;
         internal float[] _glyphInfo = new float[(MAX_CHARS + 1) * 4];
+        internal float[] _advances = new float[MAX_CHARS + 1];
         internal Vector4 _colorOutline = new Vector4(0f, 0f, 0f, 0f);
         internal string _text = "";
         internal KWFont _font;
@@ -330,6 +282,7 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateOffsetList()
         {
+            //Console.WriteLine("updating for word: " + _text);
             KWFontGlyph space = _font.GetGlyphForCodepoint('_');
             for (int i = 0, j = 0; i < _text.Length; i++, j+=4)
             {
@@ -340,20 +293,24 @@ namespace KWEngine3.GameObjects
                 _uvOffsets[j + 2] = glyph.UCoordinate.Z;
                 _uvOffsets[j + 3] = glyph.UCoordinate.W;
 
-                //float previousBearing = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).BearingLeft;
-                //float previousAdvance = i == 0 ? 0 : _font.GetGlyphForCodepoint(_text[i - 1]).Advance;
-
                 if(ForceMonospace)
                 {
-                    float posNext = _glyphInfo[i * 4 + 0] + space.Advance + (space.Width * (_spread - 1f));
-                    _glyphInfo[i * 4 + 4] = posNext;
+                    float posNext = _advances[i] + space.Advance + ((space.Right - space.Left) * (_spread - 1f));
+                    _advances[i + 1] = posNext;
                 }
                 else
                 {
-                    float posNext = _glyphInfo[i * 4 + 0] + glyph.Advance + (space.Width * (_spread - 1f));
-                    _glyphInfo[i * 4 + 4] = posNext;
+                    //Console.WriteLine(glyph.ToString() + " ADV: " + glyph.Advance);
+                    float kerning = 0f;
+                    if(i < _text.Length - 1)
+                    {
+                        kerning = glyph.Kerning[_text[i + 1]];
+                    }
+                    float posNext = _advances[i] + glyph.Advance + kerning + ((space.Right - space.Left) * (_spread - 1f));
+                    _advances[i + 1] = posNext;
                 }
-                _glyphInfo[i * 4 + 1] = glyph.Width;
+                _glyphInfo[i * 4 + 0] = glyph.Left;
+                _glyphInfo[i * 4 + 1] = glyph.Right;
                 _glyphInfo[i * 4 + 2] = glyph.Top - _font.Descent * 0.5f;
                 _glyphInfo[i * 4 + 3] = glyph.Bottom - _font.Descent * 0.5f;
 
@@ -361,7 +318,7 @@ namespace KWEngine3.GameObjects
             
             if (_text.Length > 0)
             {
-                _widthNormalised = _glyphInfo[(_text.Length - 1) * 4 + 0] + _font.GetGlyphForCodepoint(_text[_text.Length - 1]).Width;
+                _widthNormalised = _advances[_text.Length - 1] + (_font.GetGlyphForCodepoint(_text[_text.Length - 1]).Right - _font.GetGlyphForCodepoint(_text[_text.Length - 1]).Left);
                 _width = _widthNormalised * _scale.X;
             }
             else
@@ -388,6 +345,31 @@ namespace KWEngine3.GameObjects
             if (this is HUDObjectTextInput)
             {
                 (this as HUDObjectTextInput).UpdateCursorOffset();
+            }
+        }
+
+        internal void CreateBuffers()
+        {
+            if (_textureBuffer < 0)
+            {
+                _textureBuffer = GL.GenBuffer();
+                GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
+                GL.BufferData(BufferTarget.TextureBuffer, 4 * sizeof(float) * (MAX_CHARS + 1), IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+                _textureBufferTex = GL.GenTexture();
+                GL.BindTexture(TextureTarget.TextureBuffer, _textureBufferTex);
+                GL.TexBuffer(TextureBufferTarget.TextureBuffer, SizedInternalFormat.Rgba32f, _textureBuffer);
+            }
+            UpdateOffsetList();
+        }
+        internal void DeleteBuffers()
+        {
+            if (KWEngine.Window._disposed == GLWindow.DisposeStatus.None)
+            {
+                GL.DeleteBuffers(1, new int[] { _textureBuffer });
+                GL.DeleteTextures(1, new int[] { _textureBufferTex });
+                _textureBuffer = -1;
+                _textureBufferTex = -1;
             }
         }
         #endregion

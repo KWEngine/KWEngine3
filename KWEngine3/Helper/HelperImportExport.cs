@@ -283,23 +283,8 @@ namespace KWEngine3.Helper
             }
             else
             {
-                if(st.FontFilename != null && st.FontFilename.Length > 0)
-                {
-                    bool result = KWEngine.LoadFont(st.Font, st.FontFilename);
-                    if(result)
-                    {
-                        t.SetFont(st.Font);
-                    }
-                    else
-                    {
-                        t.SetFont(FontFace.Anonymous);
-                    }
-                }
-                else
-                {
-                    t.SetFont(FontFace.Anonymous);
-
-                }
+                KWEngine.LogWriteLine("[Import] Cannot find font " + st.Font + ". You need to import it in the world's Prepare() first.");
+                t.SetFont(FontFace.Anonymous);
             }
 
             t.SetText(st.Text);

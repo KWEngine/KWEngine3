@@ -35,10 +35,10 @@ void main()
     float screenPxDistance = (sd - 0.5) / unitRange;
     float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
 
-    float outlineEdge = (sd - 0.5 + uColorOutline.w) / unitRange;
+    float outlineEdge = (sd - 0.5 + clamp(uColorOutline.w, 0.0, 0.49)) / unitRange;
     float outlineFactor = clamp(outlineEdge + 0.5, 0.0, 1.0);
 
-    if(outlineFactor < 0.0001)
+    if(outlineFactor < 0.00001)
     {
         discard;
     }

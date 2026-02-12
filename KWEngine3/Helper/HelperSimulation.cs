@@ -100,28 +100,11 @@ namespace KWEngine3.Helper
             t._stateRender._position = Vector3.Lerp(t._statePrevious._position, t._stateCurrent._position, alpha);
             t._stateRender._color = Vector4.Lerp(t._statePrevious._color, t._stateCurrent._color, alpha);
             t._stateRender._colorEmissive = Vector4.Lerp(t._statePrevious._colorEmissive, t._stateCurrent._colorEmissive, alpha);
-            t._stateRender._scale = Vector3.Lerp(new Vector3(t._statePrevious._scale), new Vector3(t._stateCurrent._scale), alpha).X;
+            t._stateRender._scale = Vector3.Lerp(t._statePrevious._scale, t._stateCurrent._scale, alpha);
             t._stateRender._rotation = Quaternion.Slerp(t._statePrevious._rotation, t._stateCurrent._rotation, alpha);
-            
             t._stateRender._spreadFactor = t._statePrevious._spreadFactor * (1f - alpha) + t._stateCurrent._spreadFactor * alpha;
-
-            Vector3 tmpScale = new(t._stateRender._scale);
-
-            Vector3 finalPos = Vector3.Zero;
-            if(t._textAlignMode == TextAlignMode.Left)
-            {
-                finalPos = t._stateRender._position;
-            }
-            else if(t._textAlignMode == TextAlignMode.Right)
-            {
-                finalPos = t._stateRender._position - new Vector3(t._stateRender._width, 0, 0);
-            }
-            else
-            {
-                finalPos = t._stateRender._position - new Vector3(t._stateRender._width * 0.5f, 0, 0);
-            }
-            t._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref tmpScale, ref t._stateRender._rotation, ref finalPos);
         }
+
         public static void BlendTerrainObjectStates(TerrainObject t, float alpha)
         {
             t._stateRender._position = Vector3.Lerp(t._statePrevious._position, t._stateCurrent._position, alpha);

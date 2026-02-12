@@ -1444,6 +1444,7 @@ namespace KWEngine3.Editor
             ImGui.End();
 
             DrawObjectDetails();
+            DrawObjectDebugValues();
 
             HandleKeyboardNavigation();
         }
@@ -1785,6 +1786,38 @@ namespace KWEngine3.Editor
                 }
             }
             return names.ToArray();
+        }
+
+        private static void DrawObjectDebugValues()
+        {
+            if (SelectedGameObject != null)
+            {
+                Type type = SelectedGameObject.GetType();
+                FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (fields != null && fields.Length > 0)
+                {
+                    ImGui.Begin("Debug", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+                    ImGui.SetWindowSize(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - 316 - WINDOW_RIGHT_WIDTH - 8, 128));
+                    ImGui.SetWindowPos(new System.Numerics.Vector2(316 + 4, KWEngine.Window.ClientSize.Y - 16 - 128), ImGuiCond.Once);
+
+
+
+                    foreach (FieldInfo field in fields)
+                    {
+                        // Prüfen, ob das Attribut vorhanden ist
+                        KWDebugAttribute attr = field.GetCustomAttribute<KWDebugAttribute>();
+                        if (attr != null)
+                        {
+                            var value = field.GetValue(SelectedGameObject);
+                            string label = attr.Label ?? field.Name;
+                            Console.WriteLine($"{label}: {value}");
+                        }
+                    }
+
+                    ImGui.End();
+                }
+            }
         }
     }
 }

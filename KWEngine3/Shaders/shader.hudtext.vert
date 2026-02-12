@@ -8,8 +8,9 @@ out		vec2 vTexture;
 uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
 uniform float uUVOffsetsAndWidths[128 * 4];
-uniform float uCursorBounds[4]; // width, top, bottom, <empty>
-uniform samplerBuffer uGlyphInfo; //r=advance, g=widths, b=top, a=bottom
+uniform float uCursorBounds[4]; // left, top, bottom, right
+uniform samplerBuffer uGlyphInfo; //r=left, g=right, b=top, a=bottom
+uniform float uAdvances[128];
 uniform float uOffset;
 uniform vec4 uCursorInfo; // x=behaviour, y=worldtime, z=blinkspeed, w=advanceToCursor
 
@@ -31,14 +32,17 @@ void main()
 
 	if(uCursorInfo.x != 0)
 	{
-		left = p.x * uCursorBounds[0] + uCursorInfo.w;
+		// left, top, bottom, right
+		
 		if(isLeftVertex())
 		{
 			vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 0];
+			left = uCursorInfo.w + uCursorBounds[0];
 		}
 		else
 		{
 			vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 1];
+			left = uCursorInfo.w + uCursorBounds[3];
 		}
 	
 		if(isTopVertex())
@@ -54,15 +58,16 @@ void main()
 	}
 	else
 	{
-		vec4 glyphInfo = texelFetch(uGlyphInfo, gl_InstanceID); //r=advance, g=widths, b=top, a=bottom
-		left = p.x * glyphInfo.y + glyphInfo.y * 0.5 + glyphInfo.x;
+		vec4 glyphInfo = texelFetch(uGlyphInfo, gl_InstanceID); //r=left, g=right, b=top, a=bottom
 		if(isLeftVertex())
 		{
 			vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 0];
+			left = 0 + uAdvances[gl_InstanceID] + glyphInfo.r;
 		}
 		else
 		{
 			vTexture.x = uUVOffsetsAndWidths[gl_InstanceID * 4 + 1];
+			left = 0 +uAdvances[gl_InstanceID] + glyphInfo.g;
 		}
 	
 		if(isTopVertex())

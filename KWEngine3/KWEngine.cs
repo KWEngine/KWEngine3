@@ -560,44 +560,35 @@ namespace KWEngine3
         /// Lädt eine Truetype-Schriftart (TTF) aus einer Datei und speichert Sie intern unter dem im ersten Parameter angegebenen Namen ab
         /// </summary>
         /// <param name="name">Name der Schriftart (wird später zum Setzen der Schriftart bei textbasierten Objekten verwendet)</param>
-        /// <param name="filename">Dateiname der Schriftart (inkl. Pfad) - muss eine TTF-Datei sein</param>
-        public static bool LoadFont(string name, string filename)
+        /// <param name="msdf">Dateiname des MSDF-Schriftart-Atlas (inkl. Pfad) - muss eine RGB8-Bitmap-Datei sein</param>
+        /// <param name="jsonfile">Beschreibungsdatei zum MSDF-Atlas</param>
+        public static bool LoadFont(string name, string msdf, string jsonfile)
         {
             MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
             string callerName = caller.Name;
             if (callerName != "Prepare" && callerName != "BuildWorld" && callerName != "BuildTextObject")
             {
-                LogWriteLine("[Import] Font " + filename + " must be imported in Prepare() - aborting import");
+                LogWriteLine("[Import] Font " + msdf + " must be imported in Prepare() - aborting import");
                 return false;
             }
 
-            if (name == null || name.Trim().Length == 0 || filename.ToLower().Trim().EndsWith(".ttf") == false || FontDictionary.ContainsKey(name) || File.Exists(filename) == false)
+            if (name == null || name.Trim().Length == 0 || FontDictionary.ContainsKey(name) || File.Exists(msdf) == false)
             {
-                LogWriteLine("[Import] Font or file name invalid - aborting import");
+                LogWriteLine("[Import] One or more file names are invalid - aborting import");
                 return false;
             }
-            
-            Font f = HelperGlyph.LoadFont(filename.Trim());
-            if(f != null)
+
+            KWFont kwfont = HelperGlyph.LoadFontSDF_External(msdf, jsonfile, name);
+            if (kwfont != null && kwfont.IsValid)
             {
-                KWFont kwfont = HelperGlyph.LoadFont(f, name);
-                if(kwfont != null && kwfont.IsValid)
-                {
-                    kwfont.FontFilename = filename.Trim();
-                    FontDictionary.Add(name, kwfont);
-                }
-                else
-                {
-                    LogWriteLine("[Import] Font '" + name + "' invalid - aborting import");
-                    return false;
-                }
+                FontDictionary.Add(name, kwfont);
+                return true;
             }
             else
             {
                 LogWriteLine("[Import] Font '" + name + "' invalid - aborting import");
                 return false;
             }
-            return true;
         }
 
         /// <summary>

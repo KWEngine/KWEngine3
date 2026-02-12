@@ -272,12 +272,19 @@ namespace KWEngine3
         {
             foreach (HUDObject h in _hudObjectsToBeRemoved)
             {
+                if(h is HUDObjectText)
+                {
+                    (h as HUDObjectText).DeleteBuffers();
+                }
+
                 if(h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
                 {
                     _hudObjectInputWithFocus = null;
+                    
                 }
                 h._currentWorld = null;
                 _hudObjects.Remove(h);
+                
             }
             _hudObjectsToBeRemoved.Clear();
 
@@ -285,6 +292,10 @@ namespace KWEngine3
             {
                 _hudObjects.Add(h);
                 h._currentWorld = this;
+                if (h is HUDObjectText)
+                {
+                    (h as HUDObjectText).CreateBuffers();
+                }
             }
             _hudObjectsToBeAdded.Clear();
             Map.Reset();
@@ -295,12 +306,14 @@ namespace KWEngine3
             foreach (TextObject t in _textObjectsToBeRemoved)
             {
                 _textObjects.Remove(t);
+                t.DeleteBuffers();
             }
             _textObjectsToBeRemoved.Clear();
 
             foreach (TextObject t in _textObjectsToBeAdded)
             {
                 _textObjects.Add(t);
+                t.CreateBuffers();
             }
             _textObjectsToBeAdded.Clear();
         }

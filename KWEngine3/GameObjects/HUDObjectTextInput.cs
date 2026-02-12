@@ -308,7 +308,7 @@ namespace KWEngine3.GameObjects
         internal void UpdateCursorOffset()
         {
             KWFontGlyph glyph = GetGlyphForCursor();
-            _advanceForCursor = _glyphInfo[CursorPosition * 4] + glyph.Width * 0.5f;
+            _advanceForCursor = _advances[CursorPosition];
         }
 
         internal KWFontGlyph GetGlyphForCursor()

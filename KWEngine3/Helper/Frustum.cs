@@ -19,21 +19,8 @@ namespace KWEngine3.Helper
         }
         internal void UpdateScreenSpaceStatus(TextObject t)
         {
-            Vector3 pos = Vector3.Zero;
-            if (t._textAlignMode == TextAlignMode.Left)
-            {
-                pos = t._stateCurrent._position + new Vector3(t._stateCurrent._width * 0.5f, 0, 0);
-            }
-            else if (t._textAlignMode == TextAlignMode.Right)
-            {
-                pos = t._stateCurrent._position - new Vector3(t._stateCurrent._width * 0.5f, 0, 0);
-            }
-            else
-            {
-                pos = t._stateCurrent._position;
-            }
-            t.IsInsideScreenSpace = SphereVsFrustum(pos, t._stateCurrent._width / 2f);
-            t.IsInsideScreenSpaceForRenderPass = SphereVsFrustum(pos, t._stateCurrent._width / 2f * 1.25f);
+            t.IsInsideScreenSpace = SphereVsFrustum(t._stateCurrent._position, t._stateCurrent._width);
+            t.IsInsideScreenSpaceForRenderPass = SphereVsFrustum(t._stateCurrent._position, t._stateCurrent._width * 1.25f);
         }
         internal void UpdateScreenSpaceStatus(EngineObject e)
         {
@@ -45,14 +32,6 @@ namespace KWEngine3.Helper
             else if(e is RenderObject)
             {
                 e.IsInsideScreenSpace = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast / 2f);
-                /*if (e.IsInsideScreenSpace)
-                {
-                    Console.WriteLine("+");
-                }
-                else
-                {
-                    Console.WriteLine("-");
-                }*/
                 e.IsInsideScreenSpaceForRenderPass = e.IsInsideScreenSpace;
             }
         }

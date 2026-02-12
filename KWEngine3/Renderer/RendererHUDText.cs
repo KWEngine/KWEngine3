@@ -25,6 +25,7 @@ namespace KWEngine3.Renderer
         public static int UMode { get; private set; } = -1;
         public static int UOptions { get; private set; } = -1;
         public static int UGlyphInfo { get; private set; } = -1;
+        public static int UAdvances { get; private set; } = -1;
         public static int UCursorBounds { get; private set; } = -1;
 
         public static float[] _dummyCursorBounds = new float[4];
@@ -66,6 +67,7 @@ namespace KWEngine3.Renderer
                 UColorOutline = GL.GetUniformLocation(ProgramID, "uColorOutline");
                 UGlyphInfo = GL.GetUniformLocation(ProgramID, "uGlyphInfo");
                 UCursorBounds = GL.GetUniformLocation(ProgramID, "uCursorBounds");
+                UAdvances = GL.GetUniformLocation(ProgramID, "uAdvances");
 
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
             }
@@ -80,17 +82,6 @@ namespace KWEngine3.Renderer
         {
             KWEngine.Window.SetGLViewportToClientSize();
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
-        }
-
-        public static void RenderHUDObjectTexts()
-        {
-            GL.BindVertexArray(KWQuad2D_05.VAO);
-            for (int i = 0; i < KWEngine.CurrentWorld._hudObjects.Count; i++)
-            {
-                if(KWEngine.CurrentWorld._hudObjects[i] is HUDObjectText)
-                    Draw(KWEngine.CurrentWorld._hudObjects[i] as HUDObjectText);
-            }
-            GL.BindVertexArray(0);
         }
 
         public static void Draw(HUDObjectText ho)
@@ -116,6 +107,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UUVOffsets, ho._text.Length * 4, ho._uvOffsets);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
             GL.Uniform4(UColorOutline, ho._colorOutline);
+            GL.Uniform1(UAdvances, ho._text.Length, ho._advances);
             GL.Uniform1(UScreenOffset, ho.TextAlignment == TextAlignMode.Left ? 0f : ho.TextAlignment == TextAlignMode.Center ? -ho._width * 0.5f : -ho._width);
             GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._text.Length);
 
@@ -148,7 +140,7 @@ namespace KWEngine3.Renderer
         internal static Vector4 GetUOffsetForGlyph(HUDObjectTextInput ti, out Vector4 bounds)
         {
             KWFontGlyph glyph = ti._font.GlyphDict[ti._cursorType == KeyboardCursorType.Pipe ? '|' : ti._cursorType == KeyboardCursorType.Underscore ? '_' : '·'];
-            bounds = new Vector4(glyph.Width, glyph.Top, glyph.Bottom, 0f);
+            bounds = new Vector4(glyph.Left, glyph.Top, glyph.Bottom, glyph.Right);
             return new Vector4(glyph.UCoordinate.X, glyph.UCoordinate.Y, glyph.UCoordinate.Z, glyph.UCoordinate.W);
         }
     }

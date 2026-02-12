@@ -38,7 +38,6 @@ namespace KWEngine3.Helper
 
             st.Text = t.Text;
             st.Font = t._fontname;
-            st.FontFilename = t._font.FontFilename;
             st.Spread = t._stateCurrent._spreadFactor;
 
             return st;

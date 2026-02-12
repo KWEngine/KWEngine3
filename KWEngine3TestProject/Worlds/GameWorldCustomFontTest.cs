@@ -43,7 +43,7 @@ namespace KWEngine3TestProject.Worlds
         {
             SetCameraFOV(90);
             SetCameraPosition(5.0f, 5.0f, 2.5f);
-            KWEngine.LoadFont("Playwrite", "./Fonts/Playwrite.ttf");
+            //KWEngine.LoadFont("Playwrite", "./Fonts/Playwrite.ttf");
             
             t1 = new TextObject("The QUICK brown fox jumped over the lazy dog.");
             t1.Name = "Test";

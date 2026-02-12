@@ -18,10 +18,21 @@ uniform vec3 uColorAmbient;
 uniform vec4 uColorEmissive;
 uniform sampler2D uTextureAlbedo;
 uniform vec4 uColorTint;
+uniform vec4 uColorOutline;
 uniform int uShadowCaster;
 
 const float PI = 3.141593;
 const float ninetydegrees = 1.5708;
+
+float median(float r, float g, float b) 
+{
+    return max(min(r, g), min(max(r, g), b));
+}
+
+float median(vec3 rgb)
+{
+    return max(min(rgb.r, rgb.g), min(max(rgb.r, rgb.g), rgb.b));
+}
 
 float calculateShadow(vec4 bQuantized, float fragmentDepth, float alpha, float hardness)
 {
@@ -93,10 +104,26 @@ vec4 getFragmentPositionAndDepth()
 
 vec4 getAlbedo()
 {
-    float r8sample = texture(uTextureAlbedo, vTexture).r;
-    vec4 albedo = vec4(uColorTint.xyz, r8sample);
-    albedo.w *= uColorTint.w;
-    return albedo;
+    vec3 tex = texture(uTextureAlbedo, vTexture).rgb;
+    float sd = median(tex);
+
+    float sdDeriv = fwidth(sd);
+    float unitRange = max(sdDeriv, 0.000001);
+
+    float screenPxDistance = (sd - 0.5) / unitRange;
+    float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+
+    float outlineEdge = (sd - 0.5 + clamp(uColorOutline.w, 0.0, 0.49)) / unitRange;
+    float outlineFactor = clamp(outlineEdge + 0.5, 0.0, 1.0);
+
+    if(outlineFactor < 0.00001)
+    {
+        discard;
+    }
+
+    vec3 finalColor = mix(uColorOutline.rgb, uColorTint.rgb, opacity);
+    float finalAlpha = outlineFactor * uColorTint.w;
+    return vec4(finalColor, finalAlpha);
 }
 
 vec4 getEmissive()
@@ -170,10 +197,8 @@ vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
 void main()
 {
     vec4 albedo = getAlbedo();
-    if(albedo.w <= 0)
-    {
-        discard;
-    }
+    //if(albedo.w <= 0) { discard; }
+
     vec4 normalId = getNormalId();
 
     vec4 pbr = getPBR();

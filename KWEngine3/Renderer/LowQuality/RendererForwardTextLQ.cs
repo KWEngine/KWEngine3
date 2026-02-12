@@ -1,4 +1,5 @@
-﻿using KWEngine3.Framebuffers;
+﻿using KWEngine3.Assets;
+using KWEngine3.Framebuffers;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.Model;
@@ -12,7 +13,6 @@ namespace KWEngine3.Renderer.LowQuality
     {
         public int ProgramID { get; private set; } = -1;
         public int UViewProjectionMatrix { get; private set; } = -1;
-        public int UModelMatrix { get; private set; } = -1;
         public int UColorTint { get; private set; } = -1;
         public int UColorEmissive { get; private set; } = -1;
         public int UTextureAlbedo { get; private set; } = -1;
@@ -25,9 +25,13 @@ namespace KWEngine3.Renderer.LowQuality
         public int ULightCount { get; private set; } = -1;
         public int UColorAmbient { get; private set; } = -1;
         public int UUVOffsets { get; private set; } = -1;
-        public int UAdvanceList { get; private set; } = -1;
-        public int UWidths { get; private set; } = -1;
+        public int UColorOutline { get; private set; } = -1;
         public int UShadowCaster { get; private set; } = -1;
+        public int UGlyphInfo { get; private set; } = -1;
+        public int UPositionAndOffset { get; private set; } = -1;
+        public int URotation { get; private set; } = -1;
+        public int UScale { get; private set; } = -1;
+        public int UAdvances { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;
 
@@ -69,11 +73,9 @@ namespace KWEngine3.Renderer.LowQuality
                 ULightCount = GL.GetUniformLocation(ProgramID, "uLightCount");
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
                 UUVOffsets = GL.GetUniformLocation(ProgramID, "uUVOffsetsAndWidths");
-                UUVOffsets = GL.GetUniformLocation(ProgramID, "uUVOffsetsAndWidths");
-                UWidths = GL.GetUniformLocation(ProgramID, "uWidths");
-                UAdvanceList = GL.GetUniformLocation(ProgramID, "uAdvanceList");
-                
-                UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
+                UColorOutline = GL.GetUniformLocation(ProgramID, "uColorOutline");
+                UGlyphInfo = GL.GetUniformLocation(ProgramID, "uGlyphInfo");
+
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UViewProjectionMatrixShadowMap = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMap");
                 UViewProjectionMatrixShadowMapOuter = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixShadowMapOuter");
@@ -84,6 +86,11 @@ namespace KWEngine3.Renderer.LowQuality
                 UShadowMapCube = GL.GetUniformLocation(ProgramID, "uShadowMapCube");
                 
                 UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
+
+                UPositionAndOffset = GL.GetUniformLocation(ProgramID, "uPositionAndOffset");
+                URotation = GL.GetUniformLocation(ProgramID, "uRotation");
+                UScale = GL.GetUniformLocation(ProgramID, "uScale");
+                UAdvances = GL.GetUniformLocation(ProgramID, "uAdvances");
             }
         }
 
@@ -108,8 +115,8 @@ namespace KWEngine3.Renderer.LowQuality
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
 
-            TextureUnit currentTextureUnit = TextureUnit.Texture1;
-            int currentTextureNumber = 1;
+            TextureUnit currentTextureUnit = TextureUnit.Texture2;
+            int currentTextureNumber = 2;
             // upload shadow maps (tex2d):
             int i;
             for (i = 0; i < KWEngine.CurrentWorld._preparedTex2DIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
@@ -157,15 +164,16 @@ namespace KWEngine3.Renderer.LowQuality
             {
                 SortByZ();
                 GL.Enable(EnableCap.Blend);
-                GeoMesh mesh = KWEngine.Models["KWQuad"].Meshes.Values.ElementAt(0);
+                GL.Disable(EnableCap.CullFace);
                 foreach (TextObject t in KWEngine.CurrentWorld._textObjects)
                 {
                     if (KWEngine.EditModeActive || t.IsInsideScreenSpace)
                     {
-                        Draw(t, mesh);
+                        Draw(t, null);
                     }
                 }
                 GL.Disable(EnableCap.Blend);
+                GL.Enable(EnableCap.CullFace);
             }
         }
 
@@ -173,23 +181,23 @@ namespace KWEngine3.Renderer.LowQuality
         {
             GL.Uniform4(UColorTint, t._stateRender._color);
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
-            GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
+            GL.Uniform4(UColorOutline, t._colorOutline);
+            GL.Uniform1(UUVOffsets, t._text.Length * 4, t._uvOffsets);
+            GL.Uniform4(UScale, new Vector4(t._stateRender._scale, 0f));
+            GL.Uniform1(UAdvances, t._text.Length, t._advances);
+            GL.Uniform4(URotation, new Vector4(t._stateRender._rotation.X, t._stateRender._rotation.Y, t._stateRender._rotation.Z, t._stateRender._rotation.W));
+            GL.Uniform4(UPositionAndOffset, new Vector4(t._stateRender._position,
+                t._textAlignMode == TextAlignMode.Left ? 0f :
+                t._textAlignMode == TextAlignMode.Right ? -t._widthNormalised : -t._widthNormalised * 0.5f));
 
-            GL.Uniform3(UUVOffsets, t._text.Length, t._uvOffsets);
-            //GL.Uniform1(UAdvanceList, t._text.Length, t._advances);
-            //GL.Uniform1(UWidths, t._text.Length, t._glyphWidths);
-            GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
-            
             int val = t.IsShadowReceiver ? 1 : -1;
             val *= t.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);
 
             UploadTextures(t);
 
-            GL.BindVertexArray(mesh.VAO);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
-            GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, t._text.Length);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(KWQuad2D_05.VAO);
+            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, t._text.Length);
             GL.BindVertexArray(0);
         }
 
@@ -199,6 +207,11 @@ namespace KWEngine3.Renderer.LowQuality
             GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET);
             GL.BindTexture(TextureTarget.Texture2D, t._font.Texture);
             GL.Uniform1(UTextureAlbedo, TEXTUREOFFSET);
+
+            //MSDF-Info
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.TextureBuffer, t._textureBufferTex);
+            GL.Uniform1(UGlyphInfo, 1);
         }
 
         public void Draw()
