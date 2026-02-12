@@ -2,7 +2,6 @@
 using KWEngine3.Helper;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
-using Typography.OpenFont;
 
 namespace KWEngine3.GameObjects
 {
