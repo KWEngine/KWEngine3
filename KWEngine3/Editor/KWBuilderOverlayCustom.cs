@@ -1798,9 +1798,15 @@ namespace KWEngine3.Editor
                 if (fields != null && fields.Length > 0)
                 {
                     ImGui.Begin("Debug", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
-                    ImGui.SetWindowSize(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - 316 - WINDOW_RIGHT_WIDTH - 8, 128));
+                    float size = KWEngine.Window.ClientSize.X - 316 - WINDOW_RIGHT_WIDTH - 8;
+                    ImGui.SetWindowSize(new System.Numerics.Vector2(size, 128));
                     ImGui.SetWindowPos(new System.Numerics.Vector2(316 + 4, KWEngine.Window.ClientSize.Y - 16 - 128), ImGuiCond.Once);
 
+                    ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
+
+                    ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.5f);
+                    ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.5f);
+                    ImGui.TableHeadersRow();
 
 
                     foreach (FieldInfo field in fields)
@@ -1809,12 +1815,18 @@ namespace KWEngine3.Editor
                         KWDebugAttribute attr = field.GetCustomAttribute<KWDebugAttribute>();
                         if (attr != null)
                         {
-                            var value = field.GetValue(SelectedGameObject);
+                            object value = field.GetValue(SelectedGameObject);
                             string label = attr.Label ?? field.Name;
-                            Console.WriteLine($"{label}: {value}");
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            ImGui.Text(label);
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.Text(value == null ? "null" : value.ToString());
+                            
                         }
                     }
 
+                    ImGui.EndTable();
                     ImGui.End();
                 }
             }

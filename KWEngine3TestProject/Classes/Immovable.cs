@@ -6,8 +6,6 @@ namespace KWEngine3TestProject.Classes
 {
     public class Immovable : GameObject
     {
-        [KWDebug("Testfeld")]
-        private string _debugField;
         public override void Act()
         {
 

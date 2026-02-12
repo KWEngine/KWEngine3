@@ -472,7 +472,7 @@ namespace KWEngine3.GameObjects
 
             if (_text.Length > 0)
             {
-                _widthNormalised = _glyphInfo[(_text.Length - 1) * 4 + 0];
+                _widthNormalised = _advances[_text.Length - 1];
                 _stateCurrent._width = _widthNormalised * _stateCurrent._scale.X;
             }
             else
