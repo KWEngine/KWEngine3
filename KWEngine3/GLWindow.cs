@@ -84,9 +84,7 @@ namespace KWEngine3
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             Vector2i scaledClientSize = GetWindowFramebufferSize();
-#if DEBUG
             Overlay = new KWBuilderOverlay(scaledClientSize.X, scaledClientSize.Y);
-#endif
             ClientSize = scaledClientSize;
             CenterWindow();
             KWEngine.Window = this;
@@ -874,7 +872,7 @@ namespace KWEngine3
         protected override void OnTextInput(TextInputEventArgs e)
         {
             base.OnTextInput(e);
-            Overlay?.PressChar((char)e.Unicode);
+            Overlay.PressChar((char)e.Unicode);
         }
 
         /// <summary>
@@ -985,7 +983,7 @@ namespace KWEngine3
                 }
                 KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * step);
             }
-            Overlay?.MouseScroll(e.Offset);
+            Overlay.MouseScroll(e.Offset);
         }
 
         internal void DisposeInternal()
@@ -1476,7 +1474,6 @@ namespace KWEngine3
 
         internal void RenderOverlay(float t)
         {
-#if DEBUG
             if (KeyboardState.IsKeyPressed(Keys.F11))
             {
                 KWEngine.ToggleEditMode();
@@ -1494,7 +1491,6 @@ namespace KWEngine3
                 KWBuilderOverlay.DrawDebugOverlay();
             }
             Overlay.Render();
-#endif
         }
 
         /// <summary>
