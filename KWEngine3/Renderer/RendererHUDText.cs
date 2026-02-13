@@ -20,6 +20,7 @@ namespace KWEngine3.Renderer
         public static int UUVOffsets { get; private set; } = -1;
         public static int UColorOutline { get; private set; } = -1;
         public static int UScreenOffset { get; private set; } = -1;
+        public static int UScale { get; private set; } = -1;
         public static int UTextAlign { get; private set; } = -1;
         public static int UCursorInfo { get; private set; } = -1;
         public static int UMode { get; private set; } = -1;
@@ -68,6 +69,7 @@ namespace KWEngine3.Renderer
                 UGlyphInfo = GL.GetUniformLocation(ProgramID, "uGlyphInfo");
                 UCursorBounds = GL.GetUniformLocation(ProgramID, "uCursorBounds");
                 UAdvances = GL.GetUniformLocation(ProgramID, "uAdvances");
+                UScale = GL.GetUniformLocation(ProgramID, "uScale");
 
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
             }
@@ -103,6 +105,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UGlyphInfo, 1);
 
             GL.Uniform1(UMode, 0);
+            GL.Uniform1(UScale, ho._scale.X);
             GL.Uniform1(UOptions, 0);
             GL.Uniform1(UUVOffsets, ho._text.Length * 4, ho._uvOffsets);
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);

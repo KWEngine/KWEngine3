@@ -11,16 +11,22 @@ namespace KWEngine3TestProject
 {
     public class GameWorldHUDTextTest : World
     {
-        HUDObjectTextInput _t32;
+        HUDObjectTextInput _t16;
+        HUDObjectTextInput _t24;
         HUDObjectTextInput _t64;
         HUDObjectTextInput _t128;
 
         public override void Act()
         {
-            if(_t32.IsMouseCursorOnMe())
-                _t32.SetColorOutline(1, 1, 0, 0.75f);
+            if (_t16.IsMouseCursorOnMe())
+                _t16.SetColorOutline(1, 1, 0, 0.75f);
             else
-                _t32.SetColorOutline(0, 0, 0, 0);
+                _t16.SetColorOutline(0, 0, 0, 0);
+
+            if (_t24.IsMouseCursorOnMe())
+                _t24.SetColorOutline(1, 1, 0, 0.75f);
+            else
+                _t24.SetColorOutline(0, 0, 0, 0);
 
             if (_t64.IsMouseCursorOnMe())
                 _t64.SetColorOutline(1, 1, 0, 0.75f);
@@ -33,21 +39,34 @@ namespace KWEngine3TestProject
                 _t128.SetColorOutline(0, 0, 0, 0);
         }
 
+        private FontFace _face = FontFace.Anonymous;
+
         public override void Prepare()
         {
-            //KWEngine.DebugOverlayEnabled = true;
+            KWEngine.LoadFont("Playwrite", "./Fonts/Playwrite.png", "./Fonts/Playwrite.json");
 
-            _t32 = new HUDObjectTextInput("SensititÄV");
-            _t32.SetFont(FontFace.OpenSans);
-            _t32.Name = "T32";
-            _t32.SetScale(32);
-            _t32.SetPosition(8, Window.Height / 2);
-            _t32.SetTextAlignment(TextAlignMode.Left);
+            //KWEngine.DebugOverlayEnabled = true;
+            _t16 = new HUDObjectTextInput("SensititÄV");
+            _t16.SetFont(_face);
+            _t16.Name = "T16";
+            _t16.SetScale(16);
+            _t16.SetPosition(8, Window.Height / 2 + 64);
+            _t16.SetTextAlignment(TextAlignMode.Left);
             //_t32.GetFocus();
-            AddHUDObject(_t32);
+            AddHUDObject(_t16);
+
+
+            _t24 = new HUDObjectTextInput("SensititÄV");
+            _t24.SetFont(_face);
+            _t24.Name = "T24";
+            _t24.SetScale(24);
+            _t24.SetPosition(8, Window.Height / 2);
+            _t24.SetTextAlignment(TextAlignMode.Left);
+            //_t32.GetFocus();
+            AddHUDObject(_t24);
 
             _t64 = new HUDObjectTextInput("SensititÄV");
-            _t64.SetFont(FontFace.OpenSans);
+            _t64.SetFont("Playwrite");
             _t64.Name = "T64";
             _t64.SetScale(64);
             _t64.SetPosition(Window.Width / 2, Window.Height / 2);
@@ -55,7 +74,7 @@ namespace KWEngine3TestProject
             AddHUDObject(_t64);
 
             _t128 = new HUDObjectTextInput("SensititÄV");
-            _t128.SetFont(FontFace.OpenSans);
+            _t128.SetFont(_face);
             _t128.Name = "T64";
             _t128.SetScale(128);
             _t128.SetPosition(Window.Width -8, Window.Height / 2 + 64);
@@ -69,6 +88,14 @@ namespace KWEngine3TestProject
             Immovable i2 = new Immovable();
             i2.Name = "Debug test object #2";
             AddGameObject(i2);
+
+            TextObject t = new TextObject("SensititÄV");
+            t.Name = "TextObject test instance";
+            t.SetFont(_face);
+            t.SetScale(0.2f);
+            t.SetPosition(0, -2, 0);
+            t.SetTextAlignment(TextAlignMode.Center);
+            AddTextObject(t);
 
         }
     }
