@@ -139,8 +139,8 @@ namespace KWEngine3.Editor
         {
             if(SelectedVSG != null)
             {
-                ImGui.Begin("View-space object properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 720 - 32), ImGuiCond.Once);
+                ImGui.Begin("View-space object properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
                 ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
 
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Base properties:");
@@ -249,8 +249,8 @@ namespace KWEngine3.Editor
                 else if (modelName == "kwplatform.obj")
                     modelName = "KWPlatform";
 
-                ImGui.Begin("GameObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 720 - 32), ImGuiCond.Once);
+                ImGui.Begin("GameObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, KWEngine.Window.ClientSize.Y - 32), ImGuiCond.Once);
                 ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
                 ImGui.Text("ID: " + SelectedGameObject.ID.ToString().PadLeft(8, '0'));
                 ImGui.SameLine();
@@ -706,8 +706,8 @@ namespace KWEngine3.Editor
                     );
                 float colorIntensityNew = SelectedLightObject._stateCurrent._color.W;
 
-                ImGui.Begin("LightObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 600), ImGuiCond.Once);
+                ImGui.Begin("LightObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
                 ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
                 //LightType.Point ? 0 : l._type == LightType.Sun ? -1 : 1
                 string lighttype = SelectedLightObject._stateCurrent._nearFarFOVType.W == 0f ? "Point" : SelectedLightObject._stateCurrent._nearFarFOVType.W > 0f ? "Directional" : "Sun";
@@ -801,8 +801,8 @@ namespace KWEngine3.Editor
                 float colorEmissiveIntensityNew = SelectedTerrainObject._stateCurrent._colorEmissive.W;
                 string gName = SelectedTerrainObject.Name;
 
-                ImGui.Begin("TerrainObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, 600), ImGuiCond.Once);
+                ImGui.Begin("TerrainObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
                 ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
                 ImGui.Text("ID: " + SelectedTerrainObject.ID.ToString().PadLeft(8, '0'));
                 ImGui.SameLine();
@@ -1004,6 +1004,11 @@ namespace KWEngine3.Editor
                 RendererLightFrustum.Draw(SelectedLightObject);
                 GL.Enable(EnableCap.DepthTest);
             }
+        }
+
+        public static void DrawDebugOverlay()
+        {
+            DrawObjectDebugOverlay();
         }
 
         public static void Draw()
@@ -1448,19 +1453,6 @@ namespace KWEngine3.Editor
 
             HandleKeyboardNavigation();
         }
-        /*
-        private static readonly float[] pixelColor = new float[4];
-        internal static int FramebufferPicking(Vector2 mousePosition)
-        {
-            GL.GetInteger(GetPName.FramebufferBinding, out int previousFBID);
-            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, RenderManager.FramebufferDeferred.ID);
-            GL.PixelStore(PixelStoreParameter.PackAlignment, 1);
-            GL.ReadBuffer(ReadBufferMode.ColorAttachment2);
-            GL.ReadPixels((int)mousePosition.X, KWEngine.Window.ClientSize.Y - (int)mousePosition.Y, 1, 1, PixelFormat.Rgba, PixelType.Float, pixelColor);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, previousFBID);
-            return (int)pixelColor[3];
-        }
-        */
 
         public static GameObject SelectedGameObject { get; internal set; } = null;
         public static TerrainObject SelectedTerrainObject { get; internal set; } = null;
@@ -1795,17 +1787,17 @@ namespace KWEngine3.Editor
                 Type type = SelectedGameObject.GetType();
                 FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-                if (fields != null && fields.Length > 0)
+                if (fields != null && fields.Length > 0 && fields.Any(x => x.GetCustomAttribute<KWDebugAttribute>() != null))
                 {
-                    ImGui.Begin("Debug", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+                    ImGui.Begin("Instance's debug properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
                     float size = KWEngine.Window.ClientSize.X - 316 - WINDOW_RIGHT_WIDTH - 8;
                     ImGui.SetWindowSize(new System.Numerics.Vector2(size, 128));
-                    ImGui.SetWindowPos(new System.Numerics.Vector2(316 + 4, KWEngine.Window.ClientSize.Y - 16 - 128), ImGuiCond.Once);
+                    ImGui.SetWindowPos(new System.Numerics.Vector2(316 + 4, KWEngine.Window.ClientSize.Y - 16 - 128), ImGuiCond.Always);
 
                     ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
 
-                    ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.5f);
-                    ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.5f);
+                    ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.6f);
+                    ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.4f);
                     ImGui.TableHeadersRow();
 
 
@@ -1819,7 +1811,7 @@ namespace KWEngine3.Editor
                             string label = attr.Label ?? field.Name;
                             ImGui.TableNextRow();
                             ImGui.TableSetColumnIndex(0);
-                            ImGui.Text(label);
+                            ImGui.Text(label + ":");
                             ImGui.TableSetColumnIndex(1);
                             ImGui.Text(value == null ? "null" : value.ToString());
                             
@@ -1830,6 +1822,60 @@ namespace KWEngine3.Editor
                     ImGui.End();
                 }
             }
+        }
+
+        private static void DrawObjectDebugOverlay()
+        {
+            if (KWEngine.CurrentWorld == null || KWEngine.DebugOverlayEnabled == false) return;
+
+            ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(1f, 1f, 1f, 0.2f));
+            ImGui.Begin("Debug Overlay", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
+            ImGui.PopStyleColor();
+            float size = 412;
+            ImGui.SetWindowSize(new System.Numerics.Vector2(size, 256));
+            ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - size * 1.25f, 0 + KWEngine.Window.ClientSize.Y * 0.01f), ImGuiCond.Always);
+
+            ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
+
+            ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.6f);
+            ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.4f);
+
+            foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+            {
+                Type type = g.GetType();
+                FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (fields != null && fields.Length > 0)
+                {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(1f, 1f, 0f, 1f));
+                    ImGui.Text(g.Name + " (#" + g.ID + ")");
+                    ImGui.TableSetColumnIndex(1);
+                    ImGui.Text("(" + g.GetType().Name + ")");
+                    ImGui.PopStyleColor();
+
+                    foreach (FieldInfo field in fields)
+                    {
+                        // Prüfen, ob das Attribut vorhanden ist
+                        KWDebugAttribute attr = field.GetCustomAttribute<KWDebugAttribute>();
+                        if (attr != null)
+                        {
+                            object value = field.GetValue(g);
+                            string label = attr.Label ?? field.Name;
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            ImGui.Text("  " + label + ":");
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.Text(value == null ? "null" : value.ToString());
+                        }
+                    }
+                    ImGui.TableNextRow();
+                }
+            }
+            ImGui.EndTable();
+            ImGui.End();
+            
         }
     }
 }

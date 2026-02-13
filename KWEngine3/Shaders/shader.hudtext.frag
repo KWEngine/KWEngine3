@@ -28,20 +28,17 @@ void main()
 {
     vec3 tex = texture(uTexture, vTexture).rgb;
     float sd = median(tex);
+    float sdw = fwidth(sd);
 
-    float sdDeriv = fwidth(sd);
-    float unitRange = max(sdDeriv, 0.000001);
+    float screenPxDistance = (sd - 0.5) * pxRange / max(sdw, 1e-6);
+    float opacity = smoothstep(-4.5, +4.5, screenPxDistance);
 
-    float screenPxDistance = (sd - 0.5) / unitRange;
-    float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+    
+    float outlinePxDistance = ((sd - 0.5) + clamp(uColorOutline.w, 0.0, 0.49)) * pxRange / fwidth(sd);
+    float outlineFactor =  smoothstep(-2.5, +2.5, outlinePxDistance);
 
-    float outlineEdge = (sd - 0.5 + clamp(uColorOutline.w, 0.0, 0.49)) / unitRange;
-    float outlineFactor = clamp(outlineEdge + 0.5, 0.0, 1.0);
 
-    if(outlineFactor < 0.00001)
-    {
-        discard;
-    }
+    if(outlineFactor < 0.00001) discard;
 
     vec3 finalColor = mix(uColorOutline.rgb, uColorTint.rgb, opacity);
     

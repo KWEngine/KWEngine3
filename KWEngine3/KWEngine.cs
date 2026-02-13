@@ -65,6 +65,12 @@ namespace KWEngine3
         public static bool DebugPerformanceEnabled { get; set; } = false;
 
         /// <summary>
+        /// Gibt an, ob im Debug-Modus stets ein Overlay angezeigt wird, in dem markierte Felder inkl. deren aktuellen Werten angezeigt werden (Standard: false)
+        /// </summary>
+        /// <remarks>Achtung: Kann Mausradeingaben ggf. abfangen oder doppeln</remarks>
+        public static bool DebugOverlayEnabled { get; set; } = false;
+
+        /// <summary>
         /// Gibt die für das Rendern eines bestimmten Passes benötigte Zeit in Millisekunden zurück
         /// </summary>
         /// <remarks>Sollte KWEngine.DebugPerformanceEnabled nicht 'true' sein, wird stets der Wert 0 zurückgegeben</remarks>
