@@ -83,8 +83,10 @@ namespace KWEngine3
 
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
+            HelperGeneral.DecideBuildType();
             Vector2i scaledClientSize = GetWindowFramebufferSize();
-            Overlay = new KWBuilderOverlay(scaledClientSize.X, scaledClientSize.Y);
+            if(HelperGeneral.IsDebugBuild)
+                Overlay = new KWBuilderOverlay(scaledClientSize.X, scaledClientSize.Y);
             ClientSize = scaledClientSize;
             CenterWindow();
             KWEngine.Window = this;
@@ -121,8 +123,10 @@ namespace KWEngine3
                  }
                  )
         {
+            HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
+            CenterWindow();
         }
 
         /// <summary>
@@ -151,6 +155,7 @@ namespace KWEngine3
                  }
         )
         {
+            HelperGeneral.DecideBuildType();
             _renderQuality = RenderQualityLevel.Default;
             KWEngine.InitializeFontsAndDefaultTextures();
             CenterWindow();
@@ -184,6 +189,7 @@ namespace KWEngine3
                  }
         )
         {
+            HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
             CenterWindow();
@@ -219,6 +225,7 @@ namespace KWEngine3
                  }
         )
         {
+            HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
             CenterWindow();
@@ -305,8 +312,10 @@ namespace KWEngine3
         {
             base.OnResize(e);
             Vector2i dims = SetGLViewportToClientSize();
-            if(Overlay != null)
-                Overlay.WindowResized(dims.X, dims.Y);
+            if (HelperGeneral.IsDebugBuild)
+            {
+                if (Overlay != null) Overlay.WindowResized(dims.X, dims.Y);
+            }
 
             _viewMatrixHUD = Matrix4.LookAt(0, 0, 1, 0, 0, 0, 0, 1, 0);
             _projectionMatrixHUD = Matrix4.CreateOrthographicOffCenter(0f, dims.X, dims.Y, 0f, 0.01f, 10f);
@@ -853,11 +862,14 @@ namespace KWEngine3
             GL.UseProgram(0);
 
             HelperDebug.UpdateTimesAVG();
-            KWBuilderOverlay.AddFrameTime(KWEngine.LastFrameTime);
-            RenderOverlay((float)e.Time);
+            if (HelperGeneral.IsDebugBuild)
+            {
+                KWBuilderOverlay.AddFrameTime(KWEngine.LastFrameTime);
+                RenderOverlay((float)e.Time);
 
-            double elapsedTimeForCallsInMS = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency * 1000.0;
-            KWBuilderOverlay.UpdateLastRenderCallsTime(elapsedTimeForCallsInMS);
+                double elapsedTimeForCallsInMS = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency * 1000.0;
+                KWBuilderOverlay.UpdateLastRenderCallsTime(elapsedTimeForCallsInMS);
+            }
 
             // bring image to monitor screen:
             SwapBuffers();
@@ -872,7 +884,10 @@ namespace KWEngine3
         protected override void OnTextInput(TextInputEventArgs e)
         {
             base.OnTextInput(e);
-            Overlay.PressChar((char)e.Unicode);
+            if (HelperGeneral.IsDebugBuild)
+            {
+                Overlay.PressChar((char)e.Unicode);
+            }
         }
 
         /// <summary>
@@ -952,7 +967,10 @@ namespace KWEngine3
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
             base.OnMouseUp(e);
-            KWBuilderOverlay.HandleMouseButtonStatus(e.Button, false);
+            if (HelperGeneral.IsDebugBuild)
+            {
+                KWBuilderOverlay.HandleMouseButtonStatus(e.Button, false);
+            }
 
             if (_mouse._buttonsPressed.TryGetValue(e.Button, out MouseExtState m))
             {
@@ -982,8 +1000,8 @@ namespace KWEngine3
                     step = MathF.Max(0f, (KWBuilderOverlay.SelectedGameObject.Center - KWEngine.CurrentWorld._cameraEditor._stateCurrent._position).LengthFast / 10);
                 }
                 KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * step);
+                Overlay.MouseScroll(e.Offset);
             }
-            Overlay.MouseScroll(e.Offset);
         }
 
         internal void DisposeInternal()

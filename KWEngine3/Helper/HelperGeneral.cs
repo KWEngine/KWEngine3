@@ -413,7 +413,13 @@ namespace KWEngine3.Helper
             return currentSize;
         }
 
-        internal static bool IsAssemblyDebugBuild(Assembly assembly)
+        internal static bool _isDebugBuild = false;
+        internal static void DecideBuildType()
+        {
+            _isDebugBuild = CheckIfDebugBuild(Assembly.GetEntryAssembly());
+        }
+
+        internal static bool CheckIfDebugBuild(Assembly assembly)
         {
             foreach (var attribute in assembly.GetCustomAttributes(false))
             {
@@ -471,6 +477,11 @@ namespace KWEngine3.Helper
             Type gt = typeof(GameObject);
             return t == gt || t.IsSubclassOf(gt);
         }
+
+        /// <summary>
+        /// Gibt an, ob die aktuell ausgeführte App as Debug-Build läuft
+        /// </summary>
+        public static bool IsDebugBuild => _isDebugBuild;
 
         /// <summary>
         /// Prüft, ob der Dateiname darauf hindeutet, dass ein 3D-Modell in der Datei gespeichert ist

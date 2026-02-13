@@ -279,7 +279,7 @@ namespace KWEngine3
         /// <param name="message">Zu schreibende Nachricht</param>
         public static void LogWriteLine(object message)
         {
-            if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
+            if (HelperGeneral.IsDebugBuild)
                 EngineLog.AddMessage(message.ToString());
         }
 
@@ -984,7 +984,7 @@ namespace KWEngine3
         internal static float _geometryMemUsed = 0f;
         internal static void ToggleEditMode()
         {
-            if (HelperGeneral.IsAssemblyDebugBuild(Assembly.GetEntryAssembly()))
+            if (HelperGeneral.IsDebugBuild)
             {
                 Mode = Mode == EngineMode.Play ? EngineMode.Edit : EngineMode.Play;
                 if (EditModeActive)
