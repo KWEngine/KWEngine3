@@ -318,7 +318,7 @@ namespace KWEngine3.GameObjects
             _colorOutline.X = Math.Clamp(r, 0f, 2f);
             _colorOutline.Y = Math.Clamp(g, 0f, 2f);
             _colorOutline.Z = Math.Clamp(b, 0f, 2f);
-            _colorOutline.W = Math.Clamp(width * 0.5f, 0f, 0.5f);
+            _colorOutline.W = Math.Clamp(width, 0f, 1f);
         }
 
         /// <summary>
@@ -339,7 +339,7 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return _colorOutline.W > 0f ? _colorOutline.W * 2f : 0f;
+                return _colorOutline.W;
             }
         }
 

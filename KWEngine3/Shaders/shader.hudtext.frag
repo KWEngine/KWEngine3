@@ -48,7 +48,7 @@ void main()
 
     float opacity = smoothstep(-SoftnessPxFill, +SoftnessPxFill, pxDist);
 
-    float outlineShiftAtlas = clamp(uColorOutline.w, 0.0, 0.49);
+    float outlineShiftAtlas = min(uColorOutline.w * 0.5, 0.49);
     float pxDistOutline = ((sd_msdf - 0.5) + outlineShiftAtlas) * inv;
 
     float pxDistOutlineMix = mix(pxDistOutline,
@@ -81,5 +81,5 @@ void main()
     bloom.x += uColorGlow.x * uColorGlow.w;
     bloom.y += uColorGlow.y * uColorGlow.w;
     bloom.z += uColorGlow.z * uColorGlow.w;
-    bloom.w += finalAlpha + uColorGlow.w;
+    bloom.w = uColorTint.w;
 }

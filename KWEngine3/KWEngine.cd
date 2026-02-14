@@ -445,7 +445,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="24.5" Y="18.25" Width="2.75" />
+    <Position X="24.5" Y="18.75" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -721,10 +721,13 @@
   <Class Name="KWEngine3.Helper.HelperGeneral">
     <Position X="24.5" Y="14.25" Width="2.75" />
     <Members>
+      <Field Name="_isDebugBuild" Hidden="true" />
       <Method Name="CheckGLErrors" Hidden="true" />
+      <Method Name="CheckIfDebugBuild" Hidden="true" />
       <Method Name="ConvertByteArrayToFloatList" Hidden="true" />
       <Method Name="ConvertByteArrayToQuaternionList" Hidden="true" />
       <Method Name="ConvertByteArrayToVector3List" Hidden="true" />
+      <Method Name="DecideBuildType" Hidden="true" />
       <Method Name="EqualizePathDividers" Hidden="true" />
       <Method Name="FlushAndFinish" Hidden="true" />
       <Method Name="GenerateWindowIconFromAssemblyIcon" Hidden="true" />
@@ -736,7 +739,6 @@
       <Method Name="GetStringForCurrentlyPressedKeys" Hidden="true" />
       <Method Name="GetTextureSizeInBytes" Hidden="true" />
       <Method Name="GetTextureStorageSize" Hidden="true" />
-      <Method Name="IsAssemblyDebugBuild" Hidden="true" />
       <Method Name="IsObjectClassOfType" Hidden="true" />
       <Method Name="IsObjectClassOrSubclassOfType" Hidden="true" />
       <Method Name="IsObjectClassOrSubclassOfTypes" Hidden="true" />
@@ -750,7 +752,7 @@
       <Method Name="UnProject" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AQAAARABAIAIAAAAAA1SASFgggAEIAABAkAIAgQAUAE=</HashCode>
+      <HashCode>AQAAARABAIAIAAAAAA1SASFgggAEIAgBCkCIAgQAUAE=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -827,7 +829,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperTexture">
-    <Position X="24.5" Y="16.5" Width="2.75" />
+    <Position X="24.5" Y="17" Width="2.75" />
     <Members>
       <Method Name="CheckFBXNestedList" Hidden="true" />
       <Method Name="CheckFBXNestedListNew" Hidden="true" />

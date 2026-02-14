@@ -52,7 +52,7 @@ namespace KWEngine3TestProject
             _t16.SetScale(16);
             _t16.SetPosition(8, Window.Height / 2 + 64);
             _t16.SetTextAlignment(TextAlignMode.Left);
-            //_t32.GetFocus();
+            //_t16.GetFocus();
             AddHUDObject(_t16);
 
 
@@ -62,7 +62,8 @@ namespace KWEngine3TestProject
             _t24.SetScale(24);
             _t24.SetPosition(8, Window.Height / 2);
             _t24.SetTextAlignment(TextAlignMode.Left);
-            //_t32.GetFocus();
+            _t24.SetCharacterDistanceFactor(2f);
+            _t24.GetFocus();
             AddHUDObject(_t24);
 
             _t64 = new HUDObjectTextInput("SensititÄV");
@@ -71,6 +72,7 @@ namespace KWEngine3TestProject
             _t64.SetScale(64);
             _t64.SetColorEmissiveIntensity(1);
             _t64.SetColorEmissive(1, 0, 0);
+            _t64.SetOpacity(0.2f);
             _t64.SetPosition(Window.Width / 2, Window.Height / 2);
             _t64.SetTextAlignment(TextAlignMode.Center);
             AddHUDObject(_t64);
@@ -112,6 +114,7 @@ namespace KWEngine3TestProject
             t2.SetColorOutline(0, 0, 0, 0);
             t2.SetColorEmissive(1.0f, 1.0f, 1.0f, 1.0f);
             t2.SetTextAlignment(TextAlignMode.Center);
+            t2.SetOpacity(0.5f);
             AddTextObject(t2);
 
         }
