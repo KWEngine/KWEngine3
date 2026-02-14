@@ -126,9 +126,9 @@ vec4 getAlbedo()
     return vec4(finalColor, finalAlpha);
 }
 
-vec4 getEmissive()
+vec3 getEmissive()
 {
-    return uColorEmissive;
+    return uColorEmissive.xyz * uColorEmissive.w;
 }
 
 vec4 getNormalId()
@@ -197,15 +197,13 @@ vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
 void main()
 {
     vec4 albedo = getAlbedo();
-    //if(albedo.w <= 0) { discard; }
 
     vec4 normalId = getNormalId();
 
     vec4 pbr = getPBR();
     vec4 fragPositionDepth = getFragmentPositionAndDepth();
 	
-    vec4 emissive4 = getEmissive();
-    vec3 emissive = emissive4.xyz;
+    vec3 emissive = getEmissive();
 
     vec3 N = normalId.xyz;
     vec3 V = normalize(uCameraPos - fragPositionDepth.xyz);
@@ -215,7 +213,7 @@ void main()
     vec3 colorTemp = vec3(0.0);
     if(abs(uShadowCaster) > 1)
     {
-        colorTemp = albedo.xyz * albedo.w + emissive * emissive4.w;
+        colorTemp = albedo.xyz * albedo.w + emissive;
         color = vec4(colorTemp, albedo.w);
     }
     else
@@ -325,20 +323,17 @@ void main()
         vec3 kDW = 1.0 - F;
         kDW *= (1.0 - pbr.y); // y = metallic	
         vec3 specularW = F * uColorAmbient; 
-        vec3 ambient = uColorAmbient * kDW * albedo.xyz + specularW + emissive * emissive4.w;
+        vec3 ambient = uColorAmbient * kDW * albedo.xyz + specularW;
         colorTemp = ambient + Lo;
-        color = vec4(colorTemp, albedo.w);
+        color = vec4(colorTemp + emissive, albedo.w);
     }
 
-    float bloomR = 0.0;
-    float bloomG = 0.0;
-    float bloomB = 0.0;
-    if(colorTemp.x > 1.0)
-        bloomR = colorTemp.x - 1.0;
-    if(colorTemp.y > 1.0)
-        bloomG = colorTemp.y - 1.0;
-    if(colorTemp.z > 1.0)
-        bloomB = colorTemp.z - 1.0;
+    float bloomR = max(0.0, color.x - 1.0);
+    float bloomG = max(0.0, color.y - 1.0);
+    float bloomB = max(0.0, color.z - 1.0);
+    color.x -= bloomR;
+    color.y -= bloomG;
+    color.z -= bloomB;
     bloom = vec4(bloomR, bloomG, bloomB, albedo.w);
 }
 

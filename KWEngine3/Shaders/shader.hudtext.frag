@@ -74,15 +74,12 @@ void main()
 
     color = vec4(finalColor, finalAlpha);
 
-    if(color.x > 1.0)
-        bloom.x = color.x - 1.0;
-    if(color.y > 1.0)
-        bloom.y = color.y - 1.0;
-    if(color.z > 1.0)
-        bloom.z = color.z - 1.0;
+    bloom.x = max(0.0, color.x - 1.0);
+    bloom.y = max(0.0, color.y - 1.0);
+    bloom.z = max(0.0, color.z - 1.0);
 
     bloom.x += uColorGlow.x * uColorGlow.w;
     bloom.y += uColorGlow.y * uColorGlow.w;
     bloom.z += uColorGlow.z * uColorGlow.w;
-    bloom.w += uColorTint.w * globalVisibility;
+    bloom.w += finalAlpha + uColorGlow.w;
 }

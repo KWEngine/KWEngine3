@@ -287,17 +287,17 @@ vec4 getAlbedo()
     return albedo;
 }
 
-vec4 getEmissive()
+vec3 getEmissive()
 {
     if(uUseTexturesAlbedoNormalEmissive.z > 0)
     {
-        vec4 emissiveFromTexture = texture(uTextureEmissive, vTexture2);
-        vec4 result = vec4(hueShift(emissiveFromTexture.xyz * emissiveFromTexture.w, uMetallicRoughness.z), uColorEmissive.w);
-        return result;
+        vec4 tmp = texture(uTextureEmissive, vTexture2);
+		vec3 emissiveFromTexture = hueShift(tmp.xyz, uMetallicRoughness.z) * uColorEmissive.w * tmp.w;
+		return emissiveFromTexture;
     }
     else
     {
-        return uColorEmissive;
+        return uColorEmissive.xyz * uColorEmissive.w;
     }
 }
 
@@ -378,18 +378,17 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
 void main()
 {
+    vec4 albedo = getAlbedo();
+    if(albedo.w <= 0) discard;
+
     vec3 viewDir = normalize(vTangentView - vTangentPosition);
 	vTexture2 = ParallaxMapping(vTexture, viewDir);
-
     vec4 normalId = getNormalId();
 
     // actual shading:
     vec4 pbr = getPBR();
     vec4 fragPositionDepth = getFragmentPositionAndDepth();
-	vec4 albedo = getAlbedo();
-    if(albedo.w == 0) discard;
-    vec4 emissive4 = getEmissive();
-    vec3 emissive = emissive4.xyz;
+    vec3 emissive = getEmissive();
 
     vec3 N = normalId.xyz;
     vec3 V = normalize(uCameraPosition.xyz - fragPositionDepth.xyz);
@@ -399,8 +398,7 @@ void main()
     vec3 colorTemp = vec3(0.0);
     if(abs(uShadowCaster) > 1)
     {
-        //colorTemp = albedo.xyz * albedo.w + emissive * emissive4.w;
-        colorTemp = albedo.xyz + emissive * emissive4.w;
+        colorTemp = albedo.xyz + emissive;
         color = vec4(colorTemp, albedo.w);
     }
     else
@@ -525,27 +523,23 @@ void main()
             }
 
             Lo += (kD * albedo.xyz / PI + specular) * radiance * NdotL * darkeningCurrentLight;
-            //Lo += (kD + specular) * radiance * NdotL * darkeningCurrentLight;
         }
         vec3 reflectionColor = getReflectionColor(V, N, pbr.z, fragPositionDepth.xyz);// z = roughness
         vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.z); // z = roughness
         vec3 kDW = 1.0 - F;
         kDW *= (1.0 - pbr.y); // y = metallic	
         vec3 specularW = reflectionColor * F * uColorAmbient; 
-        vec3 ambient = uColorAmbient * kDW * albedo.xyz + specularW + emissive * emissive4.w;
+        vec3 ambient = uColorAmbient * kDW * albedo.xyz + specularW;
         colorTemp = ambient + Lo;
-        color = vec4(colorTemp, albedo.w);
+        color = vec4(colorTemp + emissive, albedo.w);
     }
 
-    float bloomR = 0.0;
-    float bloomG = 0.0;
-    float bloomB = 0.0;
-    if(colorTemp.x > 1.0)
-        bloomR = colorTemp.x - 1.0;
-    if(colorTemp.y > 1.0)
-        bloomG = colorTemp.y - 1.0;
-    if(colorTemp.z > 1.0)
-        bloomB = colorTemp.z - 1.0;
+    float bloomR = max(0.0, color.x - 1.0);
+    float bloomG = max(0.0, color.y - 1.0);
+    float bloomB = max(0.0, color.z - 1.0);
+    color.x -= bloomR;
+    color.y -= bloomG;
+    color.z -= bloomB;
     bloom = vec4(bloomR, bloomG, bloomB, albedo.w);
 }
 

@@ -15,6 +15,7 @@ namespace KWEngine3.Renderer
         public int UTextureNormal { get; private set; } = -1;
         public int UTextureID { get; private set; } = -1;
         public int UTextureSSAO { get; private set; } = -1;
+        public int UTextureEmissive { get; private set; } = -1;
         public int UTextureMetallicRoughnessMetallicType { get; private set; } = -1;
         public int ULights { get; private set; } = -1;
         
@@ -138,6 +139,7 @@ namespace KWEngine3.Renderer
                 UTextureID = GL.GetUniformLocation(ProgramID, "uTextureId");
                 UTextureDepth = GL.GetUniformLocation(ProgramID, "uTextureDepth");
                 UTextureSSAO = GL.GetUniformLocation(ProgramID, "uTextureSSAO");
+                UTextureEmissive = GL.GetUniformLocation(ProgramID, "uTextureEmissive");
 
                 ULights = GL.GetUniformLocation(ProgramID, "uLights");
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
@@ -180,8 +182,8 @@ namespace KWEngine3.Renderer
 
         public void SetGlobals()
         {
-            TextureUnit currentTextureUnit = TextureUnit.Texture6;
-            int currentTextureNumber = 6;
+            TextureUnit currentTextureUnit = TextureUnit.Texture7;
+            int currentTextureNumber = 7;
             // upload shadow maps (tex2d):
             int i = 0;
             for (i = 0; i < KWEngine.CurrentWorld._preparedTex2DIndices.Count; i++, currentTextureUnit++, currentTextureNumber++)
@@ -307,7 +309,7 @@ namespace KWEngine3.Renderer
         {
             // depth tex:
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[4].ID);
+            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[5].ID);
             GL.Uniform1(UTextureDepth, 0);
             // albedo:
             GL.ActiveTexture(TextureUnit.Texture1);
@@ -333,6 +335,11 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture5);
             GL.BindTexture(TextureTarget.Texture2D, KWEngine.SSAO_Enabled ? RenderManager.FramebufferSSAOBlur.Attachments[0].ID : KWEngine.TextureWhite);
             GL.Uniform1(UTextureSSAO, 5);
+
+            // emissive:
+            GL.ActiveTexture(TextureUnit.Texture6);
+            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[4].ID);
+            GL.Uniform1(UTextureEmissive, 6);
 
             // lights array:
             GL.Uniform1(ULights, KWEngine.CurrentWorld._preparedLightsCount * 17, KWEngine.CurrentWorld._preparedLightsArray);

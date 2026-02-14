@@ -14,16 +14,18 @@ namespace KWEngine3.Framebuffers
         public override void Init(int width, int height)
         {
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R11G11B10f, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Albedo
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Albedo
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RG16F, width, height, 1, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // Normal
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 2, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // Metallic, Roughness, MetallicType attachment
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 3, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // ID, ShadowCaster
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH24STENCIL8, width, height, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // Emissive
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH24STENCIL8, width, height, 5, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
             SizeInBytes =
-                width * height * 4 +
+                width * height * 4 * sizeof(byte)  +
                 width * height * 2 * sizeof(short) +
-                width * height * 3 * sizeof(byte) +
-                width * height * 3 * sizeof(byte) +
+                width * height * 3 * sizeof(byte)  +
+                width * height * 3 * sizeof(byte)  +
+                width * height * 3 * sizeof(byte)  +
                 width * height * 1 * sizeof(float);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
@@ -38,6 +40,7 @@ namespace KWEngine3.Framebuffers
             ClearColorValues.Add(1, new float[] { 0, 0, 0 });
             ClearColorValues.Add(2, new float[] { 0, 1, 0 });
             ClearColorValues.Add(3, new float[] { 0, 0, 0 });
+            ClearColorValues.Add(4, new float[] { 0, 0, 0 });
         }
 
         public override void Clear(bool keepDepth = false)

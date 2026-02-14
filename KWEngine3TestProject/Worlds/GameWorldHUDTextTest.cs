@@ -69,6 +69,8 @@ namespace KWEngine3TestProject
             _t64.SetFont("Playwrite");
             _t64.Name = "T64";
             _t64.SetScale(64);
+            _t64.SetColorEmissiveIntensity(1);
+            _t64.SetColorEmissive(1, 0, 0);
             _t64.SetPosition(Window.Width / 2, Window.Height / 2);
             _t64.SetTextAlignment(TextAlignMode.Center);
             AddHUDObject(_t64);
@@ -92,10 +94,25 @@ namespace KWEngine3TestProject
             TextObject t = new TextObject("SensititÄV");
             t.Name = "TextObject test instance";
             t.SetFont(_face);
-            t.SetScale(0.2f);
-            t.SetPosition(0, -2, 0);
+            t.SetScale(2f);
+            //t.IsAffectedByLight = false;
+            t.SetPosition(0, -1.5f, 0);
+            t.SetColorOutline(2, 0, 2, 1);
+            t.SetColorEmissive(1.0f, 1.0f, 1.0f, 0.25f);
             t.SetTextAlignment(TextAlignMode.Center);
             AddTextObject(t);
+
+
+            TextObject t2 = new TextObject("SensititÄV");
+            t2.Name = "TextObject test instance";
+            t2.SetFont(_face);
+            t2.SetScale(1.5f);
+            //t2.IsAffectedByLight = false;
+            t2.SetPosition(0, -3.5f, 0);
+            t2.SetColorOutline(0, 0, 0, 0);
+            t2.SetColorEmissive(1.0f, 1.0f, 1.0f, 1.0f);
+            t2.SetTextAlignment(TextAlignMode.Center);
+            AddTextObject(t2);
 
         }
     }

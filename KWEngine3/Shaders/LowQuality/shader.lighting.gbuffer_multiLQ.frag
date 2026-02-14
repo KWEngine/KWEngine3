@@ -11,6 +11,7 @@ uniform sampler2D uTexturePBR; //x=metallic, y = roughness, z = metallic type
 uniform sampler2D uTextureDepth;
 uniform sampler2D uTextureId;
 uniform sampler2D uTextureSSAO;
+uniform sampler2D uTextureEmissive;
 
 uniform sampler2DArray uShadowMap[3];
 uniform samplerCubeArray uShadowMapCube[3];
@@ -182,6 +183,11 @@ vec3 getAlbedo()
     return texture(uTextureAlbedo, vTexture).xyz;
 }
 
+vec3 getEmissive()
+{
+    return texture(uTextureEmissive, vTexture).xyz * 2.0;
+}
+
 vec3 getNormal()
 {
     return decodeNormalFromRG16F(texture(uTextureNormal, vTexture).xy);
@@ -274,9 +280,7 @@ void main()
     int shadowCaster = getShadowCaster(sampleIdShadowCaster);
     vec3 normal = getNormal();
     vec3 pbr = getPBR();
-	
-    vec3 emissive = vec3(max(0, albedo.x - 1.0), max(0, albedo.y - 1.0), max(0, albedo.z - 1.0));
-    albedo = vec3(min(albedo.x, 1.0), min(albedo.y, 1.0), min(albedo.z, 1.0));
+    vec3 emissive = getEmissive();
     
     vec4 fragPosition4 = getFragmentPosition();
     vec3 fragPosition = fragPosition4.xyz;
@@ -391,20 +395,17 @@ void main()
         vec3 kDW = 1.0 - F;
         kDW *= (1.0 - pbr.x); // x = metallic	
         vec3 specularW = reflectionColor * F * uColorAmbient; 
-        vec3 ambient = uColorAmbient * texture(uTextureSSAO, vTexture).r * kDW * albedo + specularW + emissive;
+        vec3 ambient = uColorAmbient * texture(uTextureSSAO, vTexture).r * kDW * albedo + specularW;
         colorTemp = ambient + Lo;
-        color = vec4(colorTemp, 1.0);
+        color = vec4(colorTemp + emissive, 1.0);
     }
     
-    float bloomR = 0.0;
-    float bloomG = 0.0;
-    float bloomB = 0.0;
-    if(colorTemp.x > 1.0)
-        bloomR = colorTemp.x - 1.0;
-    if(colorTemp.y > 1.0)
-        bloomG = colorTemp.y - 1.0;
-    if(colorTemp.z > 1.0)
-        bloomB = colorTemp.z - 1.0;
+    float bloomR = max(0.0, color.x - 1.0);
+    float bloomG = max(0.0, color.y - 1.0);
+    float bloomB = max(0.0, color.z - 1.0);
+    color.x -= bloomR;
+    color.y -= bloomG;
+    color.z -= bloomB;
     bloom = vec4(bloomR, bloomG, bloomB, 1.0);
 
     gl_FragDepth = id >= 32768 && id < 65535 ? 0.0 : fragPosition4.w;

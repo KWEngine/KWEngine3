@@ -664,7 +664,7 @@ namespace KWEngine3.Model
                         {
                             geoMaterial.ColorAlbedo = material.HasColorDiffuse ? new Vector4(material.ColorDiffuse.R, material.ColorDiffuse.G, material.ColorDiffuse.B, material.ColorDiffuse.A) : new Vector4(1, 1, 1, 1);
                         }
-                        geoMaterial.ColorEmissive = material.HasColorEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
+                        geoMaterial.ColorEmissive = material.HasColorEmissive && !material.HasTextureEmissive ? new Vector4(material.ColorEmissive.R, material.ColorEmissive.G, material.ColorEmissive.B, material.ColorEmissive.A) : new Vector4(0, 0, 0, 1);
                         geoMaterial.TextureRoughnessIsSpecular = false;
                         geoMaterial.ColorAlbedo.W = material.HasOpacity ? material.Opacity : 1;
                         if (

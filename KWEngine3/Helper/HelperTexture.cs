@@ -181,7 +181,7 @@ namespace KWEngine3.Helper
                 case TextureType.Albedo: return KWEngine.TextureDefault;
                 case TextureType.Normal: return KWEngine.TextureNormalEmpty;
                 case TextureType.Roughness: return KWEngine.TextureWhite;
-                case TextureType.Emissive: return KWEngine.TextureBlack;
+                case TextureType.Emissive: return -1;
                 case TextureType.Metallic: return KWEngine.TextureBlack;
                 case TextureType.Transparency: return KWEngine.TextureWhite;
                 default: return KWEngine.TextureDefault;
@@ -1427,7 +1427,7 @@ namespace KWEngine3.Helper
                             }
                             tex.UVTransform = new Vector4(1, 1, 0, 0);
                             tex.MipMaps = 0;
-                            tex.IsKWEngineTexture = true;
+                            tex.IsKWEngineTexture = tex.OpenGLID > 0;
                         }
                     }
                 }

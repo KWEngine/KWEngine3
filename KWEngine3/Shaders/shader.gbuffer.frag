@@ -7,10 +7,11 @@ in mat3 vTBN;
 in vec3 vTangentView;
 in vec3 vTangentPosition;
 
-layout(location = 0) out vec3 albedo; //R11G11B10f
+layout(location = 0) out vec3 albedo; //rgb8
 layout(location = 1) out vec2 normal; // rg16f
 layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
+layout(location = 4) out vec3 emissive; // rgb8
 
 uniform vec4 uColorTint; // 2025-06-13 vec3 -> vec4 for hue
 uniform vec3 uColorMaterial;
@@ -118,27 +119,25 @@ void main()
 	vec3 viewDir = normalize(vTangentView - vTangentPosition);
 	vec2 vTexture2 = ParallaxMapping(vTexture, viewDir);
 
-	vec3 emissive;
 	// Emissive color:
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
 	{
 		vec4 tmp = texture(uTextureEmissive, vTexture2);
-		vec3 emissiveFromTexture = hueShift(tmp.xyz, uColorTint.w) * tmp.w;
-		emissive = (emissiveFromTexture + uColorEmissive.xyz) * uColorEmissive.w;
+		emissive = tmp.xyz * uColorEmissive.w * tmp.w * 0.5;
 	}
 	else
 	{
-		emissive = uColorEmissive.xyz * uColorEmissive.w;
+		emissive = uColorEmissive.xyz * uColorEmissive.w * 0.5;
 	}
 
 	// Albedo color:
 	if(uUseTexturesAlbedoNormalEmissive.x > 0)
 	{
-		albedo = hueShift(texture(uTextureAlbedo, vTexture2).xyz, uColorTint.w) * uColorTint.xyz  + emissive;
+		albedo = hueShift(texture(uTextureAlbedo, vTexture2).xyz, uColorTint.w) * uColorTint.xyz;
 	}
 	else
 	{
-		albedo = hueShift(uColorMaterial.xyz, uColorTint.w) * uColorTint.xyz + emissive;
+		albedo = hueShift(uColorMaterial.xyz, uColorTint.w) * uColorTint.xyz;
 	}
 
 	

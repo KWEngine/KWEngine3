@@ -5,10 +5,11 @@ in vec3 vNormal;
 in vec3 vColor;
 in mat3 vTBN;
 
-layout(location = 0) out vec3 albedo; //R11G11B10f
+layout(location = 0) out vec3 albedo; //rgb8
 layout(location = 1) out vec2 normal; // rg16f
 layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
+layout(location = 4) out vec3 emissive; // rgb8
 
 uniform vec4 uColorTintEmissive;
 uniform vec4 uPlayerPosShadowCaster;
@@ -68,16 +69,10 @@ void main()
     {
         if(colorFromTexture.w < 0.5) 
             discard;
-        /*
-        else
-        {
-            float stepresult = smoothstep(0.0, 1.0, colorFromTexture.w);
-            colorFromTexture.xyz *= stepresult; 
-        }
-        */
     }
 
-	albedo = vColor * colorFromTexture.xyz * uColorTintEmissive.xyz * uColorTintEmissive.w;
+	albedo = vColor * colorFromTexture.xyz; // * uColorTintEmissive.xyz * uColorTintEmissive.w;
+    emissive = uColorTintEmissive.xyz * uColorTintEmissive.w * 0.5;
     if(uMode == 0)
     {
 	    normal = encodeNormalToRG16F(normalize(vTBN * (texture(uTextureNormal, vTexture).xyz * 2.0 - 1.0)));
