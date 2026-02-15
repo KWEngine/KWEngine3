@@ -21,18 +21,26 @@ namespace KWEngine3TestProject.Worlds
                     p.SetPosition(0, 3, 5);
                     p.SetHue(200);
                     p.SetDuration(3);
+                    p.SetColor(0, 1, 1, 1.0f);
                     AddParticleObject(p);
                     _objects.Add(p);
                 }
                 {
+                    
                     ParticleObject p = new ParticleObject(2, ParticleType.LoopSmoke1);
                     p.SetPosition(0, 3, 0);
                     p.SetHue(200);
                     p.SetDuration(3);
                     AddParticleObject(p);
                     _objects.Add(p);
+                    
                 }
-                
+                {
+                    ExplosionObject e = new ExplosionObject(512, 0.5f, 10, 2.5f, ExplosionType.Heart);
+                    e.SetColorEmissive(1, 0, 1, 0.75f);
+                    e.SetPosition(5, 2, 0);
+                    AddExplosionObject(e);
+                }
 
                 _time = WorldTime;
             }
