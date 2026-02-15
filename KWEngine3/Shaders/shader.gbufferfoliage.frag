@@ -71,7 +71,7 @@ void main()
             discard;
     }
 
-	albedo = vColor * colorFromTexture.xyz; // * uColorTintEmissive.xyz * uColorTintEmissive.w;
+	albedo = vColor * colorFromTexture.xyz * uColorTintEmissive.xyz;
     emissive = uColorTintEmissive.xyz * uColorTintEmissive.w * 0.5;
     if(uMode == 0)
     {

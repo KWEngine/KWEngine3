@@ -71,6 +71,7 @@ namespace KWEngine3TestProject.Worlds
             tf3.SetColor(1, 1, 1, 1);
             tf3.SetTexture("./Textures/bush01_albedo.png");
             tf3.AttachToTerrain(t);
+            tf3.SetColor(1, 1, 1, 0.0f);
             AddFoliageObject(tf3);
 
             PlayerFoliageTest player = new PlayerFoliageTest();

@@ -98,13 +98,13 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Tönung und Leuchtkraft des Bodengewächses
         /// </summary>
-        /// <param name="color">Tönung (RGB zwischen 0 und 1) und Leuchtkraft (zwischen 0 und 8, Standardwert: 0)</param>
+        /// <param name="color">Tönung (RGB zwischen 0 und 1) und Leuchtkraft (zwischen 0 und 2, Standardwert: 0)</param>
         public void SetColor(Vector4 color)
         {
             _color.X = Math.Clamp(color.X, 0f, 1f);
             _color.Y = Math.Clamp(color.Y, 0f, 1f);
             _color.Z = Math.Clamp(color.Z, 0f, 1f);
-            _color.W = Math.Clamp(color.W, 0f, 8f);
+            _color.W = Math.Clamp(color.W, 0f, 2f);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace KWEngine3.GameObjects
         /// <param name="r">Rotanteil (zwischen 0 und 1)</param>
         /// <param name="g">Rotanteil (zwischen 0 und 1)</param>
         /// <param name="b">Rotanteil (zwischen 0 und 1)</param>
-        /// <param name="intensity">Leuchtkraft (zwischen 0 und 8, Standardwert: 0)</param>
+        /// <param name="intensity">Leuchtkraft (zwischen 0 und 2, Standardwert: 0)</param>
         public void SetColor(float r, float g, float b, float intensity = 0)
         {
             SetColor(new Vector4(r, g, b, intensity));
@@ -231,7 +231,7 @@ namespace KWEngine3.GameObjects
         }
 
         #region internals
-        internal Vector4 _color = new(1, 1, 1, 1);
+        internal Vector4 _color = new(1f, 1f, 1f, 0f);
         internal float _roughness = 1.0f;
         internal Vector3 _patchSizeMax = Vector3.Zero;
         internal Vector3 _patchSizeMin = Vector3.Zero;
