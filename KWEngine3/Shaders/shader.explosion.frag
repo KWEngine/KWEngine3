@@ -2,8 +2,10 @@
 
 in		vec4 vPosition;
 
-uniform vec4 uColorEmissive;
+uniform vec3 uColorEmissive;
 uniform vec3 uColorAmbient;
+uniform vec3 uColor;
+uniform vec2 uRoughnessMetallic;
 
 layout(location = 0) out vec3 albedo; //rgb8
 layout(location = 1) out vec3 normal; 
@@ -11,25 +13,11 @@ layout(location = 2) out vec3 metallicRoughnessMetallicType; // rgb8
 layout(location = 3) out vec3 idShadowCaster; // rgb8
 layout(location = 4) out vec3 emissive; // rgb8
 
-vec2 octWrap(vec2 v)
-{
-    //return (1.0 - abs(v.yx)) * (v.xy >= 0.0 ? 1.0 : -1.0);
-    return (1.0 - abs(v.yx)) * sign(v.xy);
-}
- 
-vec2 encodeNormal(vec3 n)
-{
-    n /= (abs(n.x) + abs(n.y) + abs(n.z));
-    n.xy = n.z >= 0.0 ? n.xy : octWrap(n.xy);
-    n.xy = n.xy * 0.5 + vec2(0.5);
-    return n.xy;
-}
-
 void main()
 {
-	albedo = uColorAmbient * uColorEmissive.xyz;
+	albedo = uColorAmbient * uColor;
 	normal = vec3(0.0, 0.0, 0.0);
 	idShadowCaster = vec3(1.0, 1.0, 1 / 255.0); 
-	metallicRoughnessMetallicType = vec3(0.0, 1.0, 0.0);
-    emissive = uColorEmissive.xyz * uColorEmissive.w * 0.5;
+	metallicRoughnessMetallicType = vec3(uRoughnessMetallic.y, max(uRoughnessMetallic.x, 0.0001), 0.0);
+    emissive = uColorEmissive.xyz * 0.5;
 }

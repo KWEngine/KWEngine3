@@ -23,7 +23,9 @@ namespace KWEngine3.Renderer
         public static int UTowardsIndex { get; private set; } = -1;
         public static int UColorEmissive { get; private set; } = -1;
         public static int UColorAmbient { get; private set; } = -1;
+        public static int UColor { get; private set; } = -1;
         public static int UId { get; private set; } = -1;
+        public static int URoughnessMetallic { get; private set; } = -1;
         
 
         public static void Init()
@@ -62,6 +64,8 @@ namespace KWEngine3.Renderer
                 UAxes = GL.GetUniformLocation(ProgramID, "uAxes");
                 UAlgorithm = GL.GetUniformLocation(ProgramID, "uAlgorithm");
                 UTowardsIndex = GL.GetUniformLocation(ProgramID, "uTowardsIndex");
+                UColor = GL.GetUniformLocation(ProgramID, "uColor");
+                URoughnessMetallic = GL.GetUniformLocation(ProgramID, "uRoughnessMetallic");
             }
         }
 
@@ -94,13 +98,15 @@ namespace KWEngine3.Renderer
         {
             int type = (int)e._type;
 
-            GL.Uniform4(UColorEmissive, e.ColorEmissive);
+            GL.Uniform3(UColorEmissive, e.ColorEmissive);
             GL.Uniform1(UNumber, (float)e._amount);
             GL.Uniform1(USpread, e._spread);
             GL.Uniform3(UPosition, e.Position);
             GL.Uniform1(UTime, e._secondsAlive / e._duration);
             GL.Uniform1(USize, e._particleSize);
-            GL.Uniform1(UAlgorithm, e._algorithm);
+            GL.Uniform1(UAlgorithm, (int)e._algorithm);
+            GL.Uniform3(UColor, e.Color);
+            GL.Uniform2(URoughnessMetallic, e._roughness, e._metallic);
 
             if (type < 100)
                 GL.Uniform1(UTowardsIndex, 0);
@@ -111,7 +117,6 @@ namespace KWEngine3.Renderer
             GL.Uniform2(UAxes, e._amount, e._directions);
 
             
-
             GeoMesh mesh = e._model.Meshes.ElementAt(0).Value;
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
