@@ -5,6 +5,7 @@
 #define M_PIE 3.141592 * 2.0
 
 layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec3 aNormal;
 
 out vec4 vPosition;
 
@@ -132,7 +133,6 @@ void main()
         modelMatrix[3][1] = uPosition.y + tmp.y;
         modelMatrix[3][2] = uPosition.z + tmp.z;
     }
-
     mat4 mvp = uViewProjectionMatrix * modelMatrix;
     vPosition = modelMatrix * vec4(aPosition, 1.0);
 	gl_Position = mvp * vec4(aPosition, 1.0);

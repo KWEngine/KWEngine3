@@ -127,7 +127,7 @@ namespace KWEngine3.GameObjects
         {
             _algorithm = e;
         }
-
+        /*
         /// <summary>
         /// Setzt die Rauheit der Oberfläche von Explosionspartikeln
         /// </summary>
@@ -145,7 +145,7 @@ namespace KWEngine3.GameObjects
         {
             _metallic = Math.Clamp(m, 0f, 1f);
         }
-
+        */
         /// <summary>
         /// Explosionskonstruktormethode
         /// </summary>
@@ -253,8 +253,8 @@ namespace KWEngine3.GameObjects
         internal GeoModel _model;
         internal Vector3 _colorEmissive = Vector3.Zero;
         internal Vector3 _color = Vector3.One;
-        internal float _roughness = 1f;
-        internal float _metallic = 0f;
+        //internal float _roughness = 1f;
+        //internal float _metallic = 0f;
 
         internal override void Act()
         {

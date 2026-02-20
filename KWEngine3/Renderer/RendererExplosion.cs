@@ -25,7 +25,7 @@ namespace KWEngine3.Renderer
         public static int UColorAmbient { get; private set; } = -1;
         public static int UColor { get; private set; } = -1;
         public static int UId { get; private set; } = -1;
-        public static int URoughnessMetallic { get; private set; } = -1;
+        //public static int URoughnessMetallic { get; private set; } = -1;
         
 
         public static void Init()
@@ -65,7 +65,7 @@ namespace KWEngine3.Renderer
                 UAlgorithm = GL.GetUniformLocation(ProgramID, "uAlgorithm");
                 UTowardsIndex = GL.GetUniformLocation(ProgramID, "uTowardsIndex");
                 UColor = GL.GetUniformLocation(ProgramID, "uColor");
-                URoughnessMetallic = GL.GetUniformLocation(ProgramID, "uRoughnessMetallic");
+                //URoughnessMetallic = GL.GetUniformLocation(ProgramID, "uRoughnessMetallic");
             }
         }
 
@@ -106,7 +106,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(USize, e._particleSize);
             GL.Uniform1(UAlgorithm, (int)e._algorithm);
             GL.Uniform3(UColor, e.Color);
-            GL.Uniform2(URoughnessMetallic, e._roughness, e._metallic);
+            //GL.Uniform2(URoughnessMetallic, e._roughness, e._metallic);
 
             if (type < 100)
                 GL.Uniform1(UTowardsIndex, 0);
