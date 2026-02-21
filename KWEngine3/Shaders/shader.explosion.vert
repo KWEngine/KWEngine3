@@ -8,16 +8,18 @@ layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec3 aNormal;
 
 out vec4 vPosition;
+out vec3 vNormal;
 
 uniform mat4 uViewProjectionMatrix;
 uniform float uTime;
-uniform float uSpread;
+uniform vec3 uSpreadSizeLength;
 uniform float uNumber;
-uniform float uSize;
 uniform vec3 uPosition;
 uniform int uAlgorithm;
 uniform int uTowardsIndex;
 uniform vec2 uAxes[512];
+uniform vec3 uDirection;
+uniform mat4 uDirectionMatrix;
 
 const vec3 AXES[22] = vec3[] (
             vec3(1,0,0),
@@ -87,15 +89,15 @@ void main()
 	mat4 modelMatrix = mat4(1.0);
 
     float sizeFactor = max(pow(sin(2.0 * uTime + 1.25), 4.0), 0.0);
-    modelMatrix[0][0] *= sizeFactor * uSize * axis.w;
-    modelMatrix[0][1] *= sizeFactor * uSize * axis.w;
-    modelMatrix[0][2] *= sizeFactor * uSize * axis.w;
-    modelMatrix[1][0] *= sizeFactor * uSize * axis.w;
-    modelMatrix[1][1] *= sizeFactor * uSize * axis.w;
-    modelMatrix[1][2] *= sizeFactor * uSize * axis.w;
-    modelMatrix[2][0] *= sizeFactor * uSize * axis.w;
-    modelMatrix[2][1] *= sizeFactor * uSize * axis.w;
-    modelMatrix[2][2] *= sizeFactor * uSize * axis.w;
+    modelMatrix[0][0] *= sizeFactor * uSpreadSizeLength.y * axis.w;
+    modelMatrix[0][1] *= sizeFactor * uSpreadSizeLength.y * axis.w;
+    modelMatrix[0][2] *= sizeFactor * uSpreadSizeLength.y * axis.w;
+    modelMatrix[1][0] *= sizeFactor * uSpreadSizeLength.y * axis.w;
+    modelMatrix[1][1] *= sizeFactor * uSpreadSizeLength.y * axis.w;
+    modelMatrix[1][2] *= sizeFactor * uSpreadSizeLength.y * axis.w;
+    modelMatrix[2][0] *= sizeFactor * uSpreadSizeLength.y * axis.w;
+    modelMatrix[2][1] *= sizeFactor * uSpreadSizeLength.y * axis.w;
+    modelMatrix[2][2] *= sizeFactor * uSpreadSizeLength.y * axis.w;
 
     if(uTowardsIndex == 0)
     {
@@ -109,22 +111,24 @@ void main()
 
     if(uAlgorithm == 0) // spread
     {
-        modelMatrix[3][0] = uPosition.x + uSpread * uTime * lookAt.x * axis.w;
-        modelMatrix[3][1] = uPosition.y + uSpread * uTime * lookAt.y * axis.w;
-        modelMatrix[3][2] = uPosition.z + uSpread * uTime * lookAt.z * axis.w;
+        modelMatrix[3][0] = uPosition.x + uSpreadSizeLength.x * uTime * lookAt.x * axis.w;
+        modelMatrix[3][1] = uPosition.y + uSpreadSizeLength.x * uTime * lookAt.y * axis.w;
+        modelMatrix[3][2] = uPosition.z + uSpreadSizeLength.x * uTime * lookAt.z * axis.w;
     }
     else if(uAlgorithm == 1) // wind up
     {
       
-        modelMatrix[3][0] = uPosition.x + uSpread * uTime * lookAt.x * axis.w + lookAt.x * sin(uTime * 1.5 * M_PI);
-        modelMatrix[3][1] = uPosition.y + uSpread * uTime * abs(lookAt.y) * axis.w + uSpread * 1.5 * uTime;
-        modelMatrix[3][2] = uPosition.z + uSpread * uTime * lookAt.z * axis.w + lookAt.z * sin(uTime * 1.5 * M_PI);
+        modelMatrix[3][0] = uPosition.x + uSpreadSizeLength.x * uTime * lookAt.x * axis.w + lookAt.x * sin(uTime * 1.5 * M_PI);
+        modelMatrix[3][1] = uPosition.y + uSpreadSizeLength.x * uTime * abs(lookAt.y) * axis.w + uSpreadSizeLength.z * uTime;
+        modelMatrix[3][2] = uPosition.z + uSpreadSizeLength.x * uTime * lookAt.z * axis.w + lookAt.z * sin(uTime * 1.5 * M_PI);
+
+        modelMatrix = uDirectionMatrix * modelMatrix;
     }
-    else // whirlwind up
+    else if(uAlgorithm == 2) // whirlwind up
     {
-        modelMatrix[3][0] = 0.5 * uSpread * sin(uTime * M_PI) * (1.0 - lookAt.x) * axis.w;
-        modelMatrix[3][1] = uSpread * uTime * abs(lookAt.y) * axis.w * 4.0;
-        modelMatrix[3][2] = 0.5 * uSpread * sin(uTime * M_PI) *(1.0 - lookAt.z) * axis.w;
+        modelMatrix[3][0] = 0.5 * uSpreadSizeLength.x * sin(uTime * M_PI) * (1.0 - lookAt.x) * axis.w;
+        modelMatrix[3][1] = uPosition.y + uSpreadSizeLength.x * uTime * abs(lookAt.y) * axis.w + uSpreadSizeLength.z * uTime;
+        modelMatrix[3][2] = 0.5 * uSpreadSizeLength.x * sin(uTime * M_PI) *(1.0 - lookAt.z) * axis.w;
 
         vec3 tmp = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
         tmp = rotateVectorY(tmp, instancePercent * uTime * M_PIE * 2.0);
@@ -132,8 +136,30 @@ void main()
         modelMatrix[3][0] = uPosition.x + tmp.x;
         modelMatrix[3][1] = uPosition.y + tmp.y;
         modelMatrix[3][2] = uPosition.z + tmp.z;
+
+        modelMatrix = uDirectionMatrix * modelMatrix;
     }
+    else if(uAlgorithm == 3) // exhaust
+    {
+        modelMatrix[3][0] = uSpreadSizeLength.x * lookAt.x * axis.w - lookAt.x * 0.5 * uTime;
+        modelMatrix[3][1] = uTime * abs(lookAt.y) * axis.w + uSpreadSizeLength.z * uTime;
+        modelMatrix[3][2] = uSpreadSizeLength.x * lookAt.z * axis.w - lookAt.z * 0.5 * uTime;
+
+        modelMatrix = uDirectionMatrix * modelMatrix;
+    }
+    else // spark
+    {
+        float downfactor = smoothstep(0.1, 1.0, uTime); 
+
+        modelMatrix[3][0] = uPosition.x + uSpreadSizeLength.x * uTime * lookAt.x * axis.w + uDirection.x * uSpreadSizeLength.z * uTime;
+        modelMatrix[3][1] = uPosition.y + uSpreadSizeLength.x * uTime * lookAt.y * axis.w + uDirection.y * uSpreadSizeLength.z * uTime - 1.0 * uSpreadSizeLength.z * downfactor;
+        modelMatrix[3][2] = uPosition.z + uSpreadSizeLength.x * uTime * lookAt.z * axis.w + uDirection.z * uSpreadSizeLength.z * uTime;
+    }
+
+    
+    
     mat4 mvp = uViewProjectionMatrix * modelMatrix;
     vPosition = modelMatrix * vec4(aPosition, 1.0);
+    vNormal = (modelMatrix * vec4(aNormal, 0.0)).xyz;
 	gl_Position = mvp * vec4(aPosition, 1.0);
 }

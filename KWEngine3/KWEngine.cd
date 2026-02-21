@@ -105,6 +105,7 @@
       <Field Name="KWLightBulb" Hidden="true" />
       <Field Name="KWMapItemXY" Hidden="true" />
       <Field Name="KWMapItemXZ" Hidden="true" />
+      <Field Name="KWShard" Hidden="true" />
       <Field Name="KWSkull" Hidden="true" />
       <Field Name="KWSphereCollider" Hidden="true" />
       <Field Name="KWStar" Hidden="true" />
@@ -146,7 +147,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DdgQRbBNA6SJgPEcrAruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>DdgQRbBNA6SJgPGcrAruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -933,6 +934,34 @@
     <TypeIdentifier>
       <HashCode>CAAAASAAAAAEAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>GameObjects\IntersectionTerrain.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="KWEngine3.GameObjects.ExplosionObject">
+    <Position X="9.5" Y="18" Width="2.75" />
+    <Members>
+      <Field Name="_algorithm" Hidden="true" />
+      <Field Name="_amount" Hidden="true" />
+      <Field Name="_color" Hidden="true" />
+      <Field Name="_colorEmissive" Hidden="true" />
+      <Field Name="_direction" Hidden="true" />
+      <Field Name="_directionLength" Hidden="true" />
+      <Field Name="_directionMatrix" Hidden="true" />
+      <Field Name="_directions" Hidden="true" />
+      <Field Name="_duration" Hidden="true" />
+      <Field Name="_model" Hidden="true" />
+      <Field Name="_particleSize" Hidden="true" />
+      <Field Name="_secondsAlive" Hidden="true" />
+      <Field Name="_spread" Hidden="true" />
+      <Field Name="_starttime" Hidden="true" />
+      <Field Name="_type" Hidden="true" />
+      <Method Name="Act" Hidden="true" />
+      <Field Name="Axes" Hidden="true" />
+      <Field Name="AxesCount" Hidden="true" />
+      <Field Name="MAX_PARTICLES" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AEBgAACAAQAIAQQEApQAAQgAAAAAQgAAAAjIgADRIEA=</HashCode>
+      <FileName>GameObjects\ExplosionObject.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Struct Name="KWEngine3.GameObjects.IntersectionVolume">

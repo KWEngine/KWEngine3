@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Buffers;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -1336,7 +1337,14 @@ namespace KWEngine3
                     {
                         TimeBasedObject tbo = KWEngine.CurrentWorld._particleAndExplosionObjects[i];
                         if (tbo.Finished)
+                        {
+                            if(tbo is ExplosionObject)
+                            {
+                                ExplosionObject ex = tbo as ExplosionObject;
+                                ArrayPool<float>.Shared.Return(ex._directions, clearArray: false);
+                            }
                             KWEngine.CurrentWorld._particleAndExplosionObjects.Remove(tbo);
+                        }
                         else
                         {
                             tbo.Act();

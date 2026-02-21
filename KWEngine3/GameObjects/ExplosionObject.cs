@@ -1,8 +1,7 @@
-﻿using System;
-using OpenTK.Mathematics;
-using KWEngine3.Helper;
+﻿using KWEngine3.Helper;
 using KWEngine3.Model;
-using KWEngine3;
+using OpenTK.Mathematics;
+using System.Buffers;
 
 namespace KWEngine3.GameObjects
 {
@@ -77,7 +76,7 @@ namespace KWEngine3.GameObjects
         /// <param name="blue">Blau (0 bis 1)</param>
         public void SetColor(float red, float green, float blue)
         {
-            ColorEmissive = new Vector3(red, green, blue);
+            Color = new Vector3(red, green, blue);
         }
 
 
@@ -176,6 +175,10 @@ namespace KWEngine3.GameObjects
             {
                 _model = (KWEngine.KWSkull);
             }
+            else if (type == ExplosionType.Shard || type == ExplosionType.ShardRingY || type == ExplosionType.ShardRingZ)
+            {
+                _model = (KWEngine.KWShard);
+            }
             else
             {
                 _model = (KWEngine.KWDollar);
@@ -186,28 +189,59 @@ namespace KWEngine3.GameObjects
             _spread = explosionRadius > 0 ? explosionRadius : 10;
             _duration = durationInSeconds > 0 ? durationInSeconds : 2;
             _particleSize = particleSize > 0 ? particleSize : 1f;
+            _directions = ArrayPool<float>.Shared.Rent(_amount * 2);
 
             for (int i = 0, arrayindex = 0; i < _amount; i++, arrayindex += 2)
             {
-
                 if ((int)type < 100)
-                {
-                    int randomIndex = HelperRandom.GetRandomNumber(0, AxesCount - 1);
-                    _directions[arrayindex] = randomIndex;
-                    _directions[arrayindex + 1] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
-                }
-                else if ((int)type >= 100 && (int)type < 1000)
-                {
+                    _directions[arrayindex] = HelperRandom.GetRandomNumber(0f, AxesCount - 1);
+                else if ((int)type < 1000)
                     _directions[arrayindex] = 1;
-                    _directions[arrayindex + 1] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
-
-                }
                 else
-                {
                     _directions[arrayindex] = 2;
-                    _directions[arrayindex + 1] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
-                }
+
+                _directions[arrayindex + 1] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
             }
+        }
+
+        /// <summary>
+        /// Setzt die Richtung der Explosion
+        /// </summary>
+        /// <remarks>Wirkt nicht für alle Explosionsalgorithmen gleich</remarks>
+        /// <param name="x">x-Komponente des relativen Richtungsvektors</param>
+        /// <param name="y">y-Komponente des relativen Richtungsvektors</param>
+        /// <param name="z">z-Komponente des relativen Richtungsvektors</param>
+        public void SetDirection(float x, float y, float z)
+        {
+            SetDirection(new Vector3(x, y, z));
+        }
+
+        /// <summary>
+        /// Setzt die Richtung der Explosion
+        /// </summary>
+        /// <remarks>Wirkt nicht für alle Explosionsalgorithmen gleich</remarks>
+        /// <param name="direction">relativer Richtungsvektor</param>
+        public void SetDirection(Vector3 direction)
+        {
+            Vector3 target = Vector3.NormalizeFast(direction);
+            Vector3 defaultUp = Vector3.UnitY;
+
+            float dot = Vector3.Dot(defaultUp, target);
+            if (dot > 0.99f)
+            {
+                _directionMatrix = Matrix4.Identity;
+            }
+            else if (dot < -0.99f)
+            {
+                _directionMatrix = Matrix4.CreateRotationX(MathHelper.Pi);
+            }
+            else
+            {
+                Vector3 rotationAxis = Vector3.NormalizeFast(Vector3.Cross(defaultUp, target));
+                _directionMatrix = Matrix4.CreateFromAxisAngle(rotationAxis, MathF.Acos(dot));
+            }
+            _direction = target;
+            _directionLength = direction.LengthFast;
         }
 
 
@@ -218,7 +252,10 @@ namespace KWEngine3.GameObjects
         internal float _starttime = -1;
         internal float _secondsAlive = 0;
         internal float _particleSize = 0.5f;
-        internal float[] _directions = new float[MAX_PARTICLES * 2];
+        internal Matrix4 _directionMatrix = Matrix4.Identity;
+        internal float _directionLength = 1.0f;
+        internal Vector3 _direction = Vector3.One;
+        internal float[] _directions; // = new float[MAX_PARTICLES * 2];
         internal ExplosionAnimation _algorithm = 0;
         internal ExplosionType _type = ExplosionType.Cube;
         internal static readonly Vector3[] Axes = new Vector3[] {
@@ -253,8 +290,6 @@ namespace KWEngine3.GameObjects
         internal GeoModel _model;
         internal Vector3 _colorEmissive = Vector3.Zero;
         internal Vector3 _color = Vector3.One;
-        //internal float _roughness = 1f;
-        //internal float _metallic = 0f;
 
         internal override void Act()
         {

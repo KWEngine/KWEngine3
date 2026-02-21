@@ -474,17 +474,25 @@
     public enum ExplosionAnimation
     {
         /// <summary>
-        /// Standard-Animationsalgorithmus
+        /// Standard-Animationsalgorithmus (Partikel fliegen in randomisierte Richtungen)
         /// </summary>
         Spread = 0,
         /// <summary>
-        /// Partikel wandern entlang der positiven y-Achse nach oben
+        /// Partikel wandern in die durch SetDirection() vorgegebene Richtung
         /// </summary>
         WindUp = 1,
         /// <summary>
-        /// Partikel wirbeln entlang der positiven y-Achse nach oben
+        /// Partikel wirbeln entlang der durch SetDirection() vorgegebenen Richtung
         /// </summary>
-        WhirlwindUp = 2
+        WhirlwindUp = 2,
+        /// <summary>
+        /// Partikel fliegen entlang der durch SetDirection() vorgegebenen Richtung 
+        /// </summary>
+        Exhaust = 3,
+        /// <summary>
+        /// Partikel simulieren einen Funkenflug entlang der durch SetDirection() vorgegebenen Richtung
+        /// </summary>
+        Spark = 4
 
     }
 
@@ -673,7 +681,20 @@
         /// <summary>
         /// Dollarpartikel um die Z-Achse
         /// </summary>
-        DollarRingZ = 1005
+        DollarRingZ = 1005,
+        /// <summary>
+        /// Scherbenpartikel in alle Richtungen
+        /// </summary>
+        Shard = 6,
+        /// <summary>
+        /// Scherbenpartikel um die Y-Achse
+        /// </summary>
+        ShardRingY = 106,
+        /// <summary>
+        /// Scherbenpartikel um die Z-Achse
+        /// </summary>
+        ShardRingZ = 1006
+
     }
     internal enum BackgroundType
     {

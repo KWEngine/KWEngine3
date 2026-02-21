@@ -15,9 +15,9 @@ namespace KWEngine3.Renderer
         public static int UTime { get; private set; } = -1;
         public static int UViewProjectionMatrix { get; private set; } = -1;
         public static int UNumber { get; private set; } = -1;
-        public static int USpread { get; private set; } = -1;
+        public static int USpreadSizeLength { get; private set; } = -1;
+        public static int UDirection { get; private set; } = -1;
         public static int UPosition { get; private set; } = -1;
-        public static int USize { get; private set; } = -1;
         public static int UAxes { get; private set; } = -1;
         public static int UAlgorithm { get; private set; } = -1;
         public static int UTowardsIndex { get; private set; } = -1;
@@ -25,7 +25,7 @@ namespace KWEngine3.Renderer
         public static int UColorAmbient { get; private set; } = -1;
         public static int UColor { get; private set; } = -1;
         public static int UId { get; private set; } = -1;
-        //public static int URoughnessMetallic { get; private set; } = -1;
+        public static int UDirectionMatrix { get; private set; } = -1;
         
 
         public static void Init()
@@ -58,14 +58,14 @@ namespace KWEngine3.Renderer
                 UColorAmbient = GL.GetUniformLocation(ProgramID, "uColorAmbient");
                 UTime = GL.GetUniformLocation(ProgramID, "uTime");
                 UNumber = GL.GetUniformLocation(ProgramID, "uNumber");
-                USpread = GL.GetUniformLocation(ProgramID, "uSpread");
-                USize = GL.GetUniformLocation(ProgramID, "uSize");
+                USpreadSizeLength = GL.GetUniformLocation(ProgramID, "uSpreadSizeLength");
                 UPosition = GL.GetUniformLocation(ProgramID, "uPosition");
                 UAxes = GL.GetUniformLocation(ProgramID, "uAxes");
                 UAlgorithm = GL.GetUniformLocation(ProgramID, "uAlgorithm");
                 UTowardsIndex = GL.GetUniformLocation(ProgramID, "uTowardsIndex");
                 UColor = GL.GetUniformLocation(ProgramID, "uColor");
-                //URoughnessMetallic = GL.GetUniformLocation(ProgramID, "uRoughnessMetallic");
+                UDirectionMatrix = GL.GetUniformLocation(ProgramID, "uDirectionMatrix");
+                UDirection = GL.GetUniformLocation(ProgramID, "uDirection");
             }
         }
 
@@ -95,22 +95,22 @@ namespace KWEngine3.Renderer
         }
 
         public static void Draw(ExplosionObject e)
-        {
+        { 
             int type = (int)e._type;
 
             GL.Uniform3(UColorEmissive, e.ColorEmissive);
             GL.Uniform1(UNumber, (float)e._amount);
-            GL.Uniform1(USpread, e._spread);
+            GL.Uniform3(USpreadSizeLength, e._spread, e._particleSize, e._directionLength);
             GL.Uniform3(UPosition, e.Position);
             GL.Uniform1(UTime, e._secondsAlive / e._duration);
-            GL.Uniform1(USize, e._particleSize);
             GL.Uniform1(UAlgorithm, (int)e._algorithm);
             GL.Uniform3(UColor, e.Color);
-            //GL.Uniform2(URoughnessMetallic, e._roughness, e._metallic);
+            GL.Uniform3(UDirection, e._direction);
+            GL.UniformMatrix4(UDirectionMatrix, false, ref e._directionMatrix);
 
             if (type < 100)
                 GL.Uniform1(UTowardsIndex, 0);
-            else if (type >= 100 && type < 1000)
+            else if (type < 1000)
                 GL.Uniform1(UTowardsIndex, 1);
             else
                 GL.Uniform1(UTowardsIndex, 2);

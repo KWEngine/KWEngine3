@@ -859,6 +859,7 @@ namespace KWEngine3
         internal static GeoModel KWSkull;
         internal static GeoModel KWDollar;
         internal static GeoModel KWLightBulb;
+        internal static GeoModel KWShard;
         internal static GeoMeshCollider KWCapsule;
         internal static GeoMeshCollider KWCapsule2;
         internal static GeoMeshCollider KWSphereCollider;
@@ -880,6 +881,7 @@ namespace KWEngine3
             KWSkull = SceneImporter.LoadModel("skull.obj", false, SceneImporter.AssemblyMode.Internal);
             KWDollar = SceneImporter.LoadModel("dollar.obj", false, SceneImporter.AssemblyMode.Internal);
             KWLightBulb = SceneImporter.LoadModel("lightbulb.obj", false, SceneImporter.AssemblyMode.Internal);
+            KWShard = SceneImporter.LoadModel("kwshard.obj", false, SceneImporter.AssemblyMode.Internal);
             KWSphereCollider = SceneImporter.LoadColliderInternal("kwsphere_collider.obj", ColliderType.ConvexHull);
             KWCapsule = SceneImporter.LoadColliderInternal("capsulehitbox.obj", ColliderType.ConvexHull);
             KWCapsule2 = SceneImporter.LoadColliderInternal("capsulehitbox2.obj", ColliderType.ConvexHull);
