@@ -78,7 +78,7 @@ namespace KWEngine3.Renderer
                 _uboData[j + 2] = tile._ndcCenter.X;
                 _uboData[j + 3] = tile._ndcCenter.Y;
             }
-            GL.BufferData(BufferTarget.UniformBuffer, _uboData.Length * sizeof(float), _uboData, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.UniformBuffer, _uboData.Length * sizeof(float), _uboData, BufferUsageHint.DynamicDraw);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 
             UBO2 = GL.GenBuffer();
@@ -95,7 +95,7 @@ namespace KWEngine3.Renderer
                 _uboData2[j + 2] = uvT;
                 _uboData2[j + 3] = uvB;
             }
-            GL.BufferData(BufferTarget.UniformBuffer, _uboData2.Length * sizeof(float), _uboData2, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.UniformBuffer, _uboData2.Length * sizeof(float), _uboData2, BufferUsageHint.DynamicDraw);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
 
             UBO3 = GL.GenBuffer();

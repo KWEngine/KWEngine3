@@ -66,10 +66,12 @@ namespace KWEngine3.Renderer
                 UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
                 UCursorInfo = GL.GetUniformLocation(ProgramID, "uCursorInfo");
                 UColorOutline = GL.GetUniformLocation(ProgramID, "uColorOutline");
-                UGlyphInfo = GL.GetUniformLocation(ProgramID, "uGlyphInfo");
                 UCursorBounds = GL.GetUniformLocation(ProgramID, "uCursorBounds");
                 UAdvances = GL.GetUniformLocation(ProgramID, "uAdvances");
                 UScale = GL.GetUniformLocation(ProgramID, "uScale");
+
+                UGlyphInfo = GL.GetUniformBlockIndex(ProgramID, "GlyphBlock");
+                GL.UniformBlockBinding(ProgramID, UGlyphInfo, 10);
 
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
             }
@@ -100,9 +102,7 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, ho._font.Texture);
             GL.Uniform1(UTexture, 0);
 
-            GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.TextureBuffer, ho._textureBufferTex);
-            GL.Uniform1(UGlyphInfo, 1);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 10, ho._uboGlyphInfo);
 
             GL.Uniform1(UMode, 0);
             GL.Uniform1(UScale, ho._scale.X);

@@ -9,7 +9,11 @@ uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
 uniform float uUVOffsetsAndWidths[128 * 4];
 uniform float uCursorBounds[4]; // left, top, bottom, right
-uniform samplerBuffer uGlyphInfo; //r=left, g=right, b=top, a=bottom
+
+layout(std140) uniform GlyphBlock {
+    vec4 uGlyphInfo[128]; //r=left, g=right, b=top, a=bottom
+};
+ 
 uniform float uAdvances[128];
 uniform vec4 uOffset; // x = offset (left/center/right), y = offset in advances, z = glyph count, w = vertical offset
 uniform vec4 uCursorInfo; // x=behaviour, y=worldtime, z=blinkspeed, w=advanceToCursor
@@ -60,7 +64,7 @@ void main()
 	}
 	else
 	{
-		vec4 glyphInfo = texelFetch(uGlyphInfo, instanceOffset); //r=left, g=right, b=top, a=bottom
+		vec4 glyphInfo = uGlyphInfo[instanceOffset]; //r=left, g=right, b=top, a=bottom
 		if(isLeftVertex())
 		{
 			vTexture.x = uUVOffsetsAndWidths[instanceOffset * 4 + 0];

@@ -303,8 +303,9 @@ namespace KWEngine3.GameObjects
         #region Internals
         internal float _spread = 1f;
         internal float[] _uvOffsets = new float[(MAX_CHARS + 1) * 4];
-        internal int _textureBuffer = -1;
-        internal int _textureBufferTex = -1;
+        //internal int _textureBuffer = -1;
+        //internal int _textureBufferTex = -1;
+        internal int _uboGlyphInfo = -1;
         internal float[] _glyphInfo = new float[(MAX_CHARS + 1) * 4];
         internal float[] _advances = new float[MAX_CHARS + 1];
         internal Vector4 _colorOutline = new Vector4(0f, 0f, 0f, 0f);
@@ -435,21 +436,9 @@ namespace KWEngine3.GameObjects
 
             _height = MathF.Max(_scale.Y * _newlinePositions.Count * _lineHeightFactor, _scale.Y);
 
-            // update tbo:
-            GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
-            IntPtr ptr = GL.MapBuffer(BufferTarget.TextureBuffer, BufferAccess.WriteOnly);
-
-            unsafe
-            {
-                float* dest = (float*)ptr.ToPointer();
-
-                for (int i = 0; i < _text.Length * 4; i++)
-                    dest[i] = _glyphInfo[i];
-            }
-
-            GL.UnmapBuffer(BufferTarget.TextureBuffer);
-            GL.BindBuffer(BufferTarget.TextureBuffer, 0);
-
+            // update ubo:
+            UpdateBuffer();
+          
             if (this is HUDObjectTextInput)
             {
                 (this as HUDObjectTextInput).UpdateCursorOffset();
@@ -458,15 +447,13 @@ namespace KWEngine3.GameObjects
 
         internal void CreateBuffers()
         {
-            if (_textureBuffer < 0)
+            if (_uboGlyphInfo < 0)
             {
-                _textureBuffer = GL.GenBuffer();
-                GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
-                GL.BufferData(BufferTarget.TextureBuffer, 4 * sizeof(float) * (MAX_CHARS + 1), IntPtr.Zero, BufferUsageHint.DynamicDraw);
-
-                _textureBufferTex = GL.GenTexture();
-                GL.BindTexture(TextureTarget.TextureBuffer, _textureBufferTex);
-                GL.TexBuffer(TextureBufferTarget.TextureBuffer, SizedInternalFormat.Rgba32f, _textureBuffer);
+                _uboGlyphInfo = GL.GenBuffer();
+                int blockSize = (MAX_CHARS + 1) * 4 * 16;
+                GL.BindBuffer(BufferTarget.UniformBuffer, _uboGlyphInfo);
+                GL.BufferData(BufferTarget.UniformBuffer, blockSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
             }
             UpdateOffsetList();
         }
@@ -474,10 +461,8 @@ namespace KWEngine3.GameObjects
         {
             if (KWEngine.Window._disposed == GLWindow.DisposeStatus.None)
             {
-                GL.DeleteBuffers(1, new int[] { _textureBuffer });
-                GL.DeleteTextures(1, new int[] { _textureBufferTex });
-                _textureBuffer = -1;
-                _textureBufferTex = -1;
+                GL.DeleteBuffers(1, new int[] { _uboGlyphInfo });
+                _uboGlyphInfo = -1;
             }
         }
 
@@ -493,6 +478,19 @@ namespace KWEngine3.GameObjects
                 i--;
             }
             return currentIndex;
+        }
+
+        internal void UpdateBuffer()
+        {
+            int byteSize = _glyphInfo.Length * sizeof(float);
+            GL.BindBuffer(BufferTarget.UniformBuffer, _uboGlyphInfo);
+
+            // orphaning:
+            GL.BufferData(BufferTarget.UniformBuffer, byteSize, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+
+            // update:
+            GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, byteSize, _glyphInfo);
+            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
         #endregion
     }
