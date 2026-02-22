@@ -519,7 +519,14 @@ namespace KWEngine3.Audio
         {
             if (IsPlayingOrPaused)
             {
-                _cts.Cancel();
+                try
+                {
+                    _cts?.Cancel();
+                }
+                catch(ObjectDisposedException)
+                {
+                    // :-)
+                }
                 //AL.SourceStop(mSource);
                 //State = PlaybackState.Stopped;
                 _currentSpectrum.IsValid = false;
@@ -527,7 +534,7 @@ namespace KWEngine3.Audio
             EraseBuffers();
             
             mReadPosition = 0;
-            _cts?.Dispose();
+            //_cts?.Dispose();
         }
 
         public void Pause()
