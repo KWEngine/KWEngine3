@@ -111,9 +111,29 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UTextAlign, (int)ho.TextAlignment);
             GL.Uniform4(UColorOutline, ho._colorOutline);
             GL.Uniform1(UAdvances, ho._text.Length, ho._advances);
-            GL.Uniform1(UScreenOffset, ho.TextAlignment == TextAlignMode.Left ? 0f : ho.TextAlignment == TextAlignMode.Center ? -ho._width * 0.5f : -ho._width);
-            GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._text.Length);
 
+            if (ho._maxwidth > 0f && ho._newlinePositions.Count > 0)
+            {
+                for (int i = 0; i < ho._newlinePositions.Count; i++)
+                {
+                    HUDObjectTextLine line = ho._newlinePositions[i];
+                    GL.Uniform4(UScreenOffset,
+                        0f,
+                        line._offset,
+                        line._length,
+                        i * ho._lineHeightFactor);
+                    GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, line._length);
+                }
+            }
+            else
+            {
+                GL.Uniform4(UScreenOffset,
+                    ho.TextAlignment == TextAlignMode.Left ? 0f : ho.TextAlignment == TextAlignMode.Center ? -ho._width * 0.5f : -ho._width,
+                    0,
+                    ho._text.Length,
+                    0);
+                GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._text.Length);
+            }
             
             if(ho is HUDObjectTextInput)
             {

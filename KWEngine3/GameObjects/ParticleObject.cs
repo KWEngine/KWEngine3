@@ -16,6 +16,7 @@ namespace KWEngine3.GameObjects
         internal Matrix4 _rotation = Matrix4.Identity;
         internal Matrix4 _modelMatrix = Matrix4.Identity;
         internal Vector4 _tint = new Vector4(1f, 1f, 1f, 1f);
+        internal float _colorIntensity = 1f;
         internal ParticleType _type = ParticleType.BurstFire1;
         internal float _starttime = -1;
         internal float _lastUpdate = -1;
@@ -38,6 +39,15 @@ namespace KWEngine3.GameObjects
             {
                 KWEngine.LogWriteLine("Cannot set duration on this ParticleObject.");
             }
+        }
+
+        /// <summary>
+        /// Setzt, wie stark die Pixelfarben des Partikeleffekts verstärkt werden
+        /// </summary>
+        /// <param name="intensity">Verstärkungswert (zwischen 0 und 100; Standardwert: 1f)</param>
+        public void SetColorIntensity(float intensity)
+        {
+            _colorIntensity = Math.Clamp(intensity, 0f, 100f);
         }
 
         /// <summary>

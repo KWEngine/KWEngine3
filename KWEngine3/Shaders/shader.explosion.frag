@@ -32,9 +32,12 @@ float median(vec3 rgb)
 
 void main()
 {
-	albedo = uColorAmbient * hueShift(uColor, median(vNormal) * 1.25);
+	float m = median(vNormal);
+	const float factor = 0.25;
+
+	albedo = uColorAmbient * hueShift(uColor, m * factor);
 	normal = vec2(0.0);
 	idShadowCaster = vec3(1.0, 1.0, 1.0 / 255.0); 
 	metallicRoughnessMetallicType = vec3(0.0, 1.0, 0.0);
-    emissive = hueShift(uColorEmissive.xyz, median(vNormal) * 1.25) * 0.5;
+    emissive = hueShift(uColorEmissive.xyz, m * factor) * 0.5;
 }

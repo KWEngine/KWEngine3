@@ -36,6 +36,37 @@ namespace KWEngine3.GameObjects
         public string Font { get; internal set; } = "Anonymous";
 
         /// <summary>
+        /// Setzt die maximale Breite einer Textzeile. Der Text wird mehrzeilig, wenn die Textbreite die maximale Breite überschreitet.
+        /// </summary>
+        /// <param name="lineWidth">Maximale Textzeilenbreite (in Pixeln, Mindestwert: 256)</param>
+        public void SetMaxLineWidth(float lineWidth)
+        {
+            if(this is HUDObjectTextInput)
+            {
+                KWEngine.LogWriteLine("[HUDObjectTextInput] Input fields cannot be multiline");
+                _maxwidth = 0f;
+                return;
+            }
+            _maxwidth = MathF.Max(lineWidth, _scale.X * 10f);
+            UpdateOffsetList();
+        }
+
+        /// <summary>
+        /// Wenn die Instanz mehrzeiligen Text enthält, regelt dieser Faktor den Zeilenabstand.
+        /// </summary>
+        /// <param name="lhf">Zeilenabstandsfaktor (Ab 0.25f; Standardwert ist 1f für einen einfachen Zeilenabstand)</param>
+        public void SetLineHeightFactor(float lhf)
+        {
+            if (this is HUDObjectTextInput)
+            {
+                KWEngine.LogWriteLine("[HUDObjectTextInput] Input fields cannot be multiline");
+                _lineHeightFactor = 1f;
+                return;
+            }
+            _lineHeightFactor = MathF.Max(0.25f, lhf);
+        }
+
+        /// <summary>
         /// Setzt die Schriftart der Instanz
         /// </summary>
         /// <param name="fontFace">zu nutzende Schriftart</param>
@@ -81,6 +112,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt den Modus der Textanordnung
         /// </summary>
+        /// <remarks>Funktioniert nicht für Multiline-Instanzen</remarks>
         /// <param name="textAlignment">neuer Modus</param>
         public void SetTextAlignment(TextAlignMode textAlignment)
         {
@@ -196,6 +228,10 @@ namespace KWEngine3.GameObjects
             _scale.X = HelperGeneral.Clamp(scale, 0.001f, 512f);
             _scale.Y = _scale.X;
             _scale.Z = 1;
+            if(_maxwidth > 0f)
+            {
+                _maxwidth = MathF.Max(_maxwidth, _scale.X * 10f);
+            }
             UpdateOffsetList();
             UpdateMVP();
         }
@@ -205,7 +241,10 @@ namespace KWEngine3.GameObjects
         /// </summary>
         /// <returns>true, wenn das Objekt zu sehen ist</returns>
         public override bool IsInsideScreenSpace()
-        {
+        {   
+            if(_maxwidth > 0f)
+                return true;
+
             float left, right, top, bottom;
             top = Position.Y - _scale.Y * 0.5f - _font.Descent * _scale.Y;
             bottom = Position.Y + _scale.Y * 0.5f + _font.Descent * _scale.Y;
@@ -239,22 +278,22 @@ namespace KWEngine3.GameObjects
                 Vector2 mouseCoords = GLWindow.Mouse.Position;
                 float left, right, top, bottom;
                 top = Position.Y - _scale.Y * 0.5f;
-                bottom = Position.Y + _scale.Y * 0.5f;
+                bottom = Position.Y + _scale.Y * 0.5f + _lineHeightFactor * Math.Max(0, _newlinePositions.Count - 1) * _scale.Y;
 
-                if (TextAlignment == TextAlignMode.Left)
+                if (TextAlignment == TextAlignMode.Left || _newlinePositions.Count > 0)
                 {
                     left = Position.X;
-                    right = left + _width;
+                    right = left + (_maxwidth > 0f ? _maxwidth :  _width);
                 }
                 else if(TextAlignment == TextAlignMode.Center)
                 {
-                    left = Position.X - _width * 0.5f;
-                    right = left + _width;
+                    left = Position.X - (_maxwidth > 0f ? _maxwidth : _width) * 0.5f;
+                    right = left + (_maxwidth > 0f ? _maxwidth : _width);
                 }
                 else
                 {
-                    left = Position.X - _width;
-                    right = left + _width;
+                    left = Position.X - (_maxwidth > 0f ? _maxwidth : _width);
+                    right = left + (_maxwidth > 0f ? _maxwidth : _width);
                 }
                 return (mouseCoords.X >= left && mouseCoords.X <= right && mouseCoords.Y >= top && mouseCoords.Y <= bottom);
             }
@@ -272,8 +311,12 @@ namespace KWEngine3.GameObjects
         internal string _text = "";
         internal KWFont _font;
         internal float _width = 0f;
+        internal float _height = 0f;
         internal float _widthNormalised = 0f;
-
+        internal bool _multiline = false;
+        internal float _maxwidth = 0f;
+        internal float _lineHeightFactor = 1f;
+        internal List<HUDObjectTextLine> _newlinePositions = new List<HUDObjectTextLine>();
 
         internal HUDObjectText()
         {
@@ -282,8 +325,14 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateOffsetList()
         {
-            //Console.WriteLine("updating for word: " + _text);
+            _newlinePositions.Clear();
+
             KWFontGlyph space = _font.GetGlyphForCodepoint('_');
+            float spaceWidthHalf = (space.Right - space.Left) * 0.5f;
+            float currentRowWidth = 0f;
+            int lastRowGlyphCount = 0;
+            int offset = 0;
+
             for (int i = 0, j = 0; i < _text.Length; i++, j+=4)
             {
                 KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
@@ -297,10 +346,11 @@ namespace KWEngine3.GameObjects
                 {
                     float posNext = _advances[i] + space.Advance + ((space.Right - space.Left) * (_spread - 1f));
                     _advances[i + 1] = posNext;
+
+                    currentRowWidth += glyph.Advance + ((space.Right - space.Left) * (_spread - 1f));
                 }
                 else
                 {
-                    //Console.WriteLine(glyph.ToString() + " ADV: " + glyph.Advance);
                     float kerning = 0f;
                     if(i < _text.Length - 1)
                     {
@@ -308,12 +358,68 @@ namespace KWEngine3.GameObjects
                     }
                     float posNext = _advances[i] + glyph.Advance + kerning + ((space.Right - space.Left) * (_spread - 1f));
                     _advances[i + 1] = posNext;
+
+                    currentRowWidth += glyph.Advance + kerning + ((space.Right - space.Left) * (_spread - 1f));
                 }
+                if (_maxwidth > 0f && (currentRowWidth + spaceWidthHalf) * _scale.X > _maxwidth)
+                {
+                    // find the first index of a space or a hyphen
+                    int dividerIndex = FindPreviousDividerIndex(i, _text);
+                    int delta = i - dividerIndex;
+                    j = dividerIndex * 4;
+                    i = dividerIndex;
+                    glyph = _font.GetGlyphForCodepoint(_text[i]);
+
+                    /*while(delta > 0)
+                    {
+                        _advances[i + delta] = 0f;
+                        delta--;
+                    }*/
+
+                    HUDObjectTextLine line = new HUDObjectTextLine()
+                    {
+                        _line = _text.Substring(lastRowGlyphCount, i - lastRowGlyphCount),
+                        _length = i - lastRowGlyphCount,
+                        _offset = offset
+                    };
+                    _newlinePositions.Add(line);
+                    _advances[i] = 0f;
+                    if(ForceMonospace)
+                    {
+                        _advances[i + 1] = space.Advance + ((space.Right - space.Left) * (_spread - 1f));
+                    }
+                    else
+                    {
+                        float kerning = 0f;
+                        if (i < _text.Length - 1)
+                        {
+                            kerning = glyph.Kerning[_text[i + 1]];
+                            
+                        }
+                        _advances[i + 1] = glyph.Advance + kerning + ((space.Right - space.Left) * (_spread - 1f));
+                    }
+
+                    lastRowGlyphCount = i;
+                    offset = i;
+                    currentRowWidth = 0f;
+                }
+
                 _glyphInfo[i * 4 + 0] = glyph.Left;
                 _glyphInfo[i * 4 + 1] = glyph.Right;
                 _glyphInfo[i * 4 + 2] = glyph.Top - _font.Descent * 0.5f;
                 _glyphInfo[i * 4 + 3] = glyph.Bottom - _font.Descent * 0.5f;
 
+            }
+
+            if(_maxwidth > 0f && currentRowWidth > 0f)
+            {
+                HUDObjectTextLine line = new HUDObjectTextLine()
+                {
+                    _line = _text.Substring(lastRowGlyphCount),
+                    _length = _text.Length - lastRowGlyphCount,
+                    _offset = offset
+                };
+                _newlinePositions.Add(line);
             }
             
             if (_text.Length > 0)
@@ -326,6 +432,8 @@ namespace KWEngine3.GameObjects
                 _widthNormalised = 0f;
                 _width = 0f;
             }
+
+            _height = MathF.Max(_scale.Y * _newlinePositions.Count * _lineHeightFactor, _scale.Y);
 
             // update tbo:
             GL.BindBuffer(BufferTarget.TextureBuffer, _textureBuffer);
@@ -371,6 +479,20 @@ namespace KWEngine3.GameObjects
                 _textureBuffer = -1;
                 _textureBufferTex = -1;
             }
+        }
+
+        internal int FindPreviousDividerIndex(int currentIndex, string text)
+        {
+            int i = currentIndex;
+            while(i > 0)
+            {
+                if (text[i] == ' ' || text[i] == '-')
+                {
+                    return i + 1;
+                }
+                i--;
+            }
+            return currentIndex;
         }
         #endregion
     }

@@ -16,11 +16,11 @@ namespace KWEngine3TestProject.Worlds
             {
                 if(WorldTime - _timestamps[i] >= 1f)
                 {
-                    ExplosionObject ex = new ExplosionObject(8, 1f, 1, 0.95f, ExplosionType.Shard);
+                    ExplosionObject ex = new ExplosionObject(8, 1f, 1, 0.95f, ExplosionType.Cube);
                         
                     ex.SetPosition((i - 2) * 3f, 4f, 0f);
                     ex.SetColor(1, 0, 0);
-                    ex.SetColorEmissive(0.55f, 0.0f, 0.55f);
+                    //ex.SetColorEmissive(0.55f, 0.0f, 0.55f);
                     ex.SetDirection(4, 0, 0);
                     ex.SetAlgorithm(ExplosionAnimation.Spark);
 

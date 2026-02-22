@@ -2,7 +2,7 @@
 in		vec2 vTexture;
 
 uniform vec4        uColorTint;
-uniform float		uColorHue;
+uniform vec2		uColorHue;
 uniform sampler2D   uTexture;
 
 layout(location = 0) out vec4 color;
@@ -19,13 +19,13 @@ vec3 hueShift(vec3 color, float hue)
 void main()
 {
 	vec4 tex = texture(uTexture, vTexture);
-	vec3 texTmp = hueShift(tex.xyz, uColorHue);
+	vec3 texTmp = hueShift(tex.xyz * uColorHue.y, uColorHue.x);
 	tex.xyz = texTmp;
 	color = (tex * vec4(uColorTint.xyz, 1.0)) * uColorTint.w;
 	
-	bloom.x = color.x;
-	bloom.y = color.y;
-	bloom.z = color.z;
-	bloom.w = color.w * 0.05;
+	bloom.x = max(0.0, color.x * tex.w - 1.0);
+	bloom.y = max(0.0, color.y * tex.w - 1.0);
+	bloom.z = max(0.0, color.z * tex.w - 1.0);
+	bloom.w = tex.w * uColorTint.w;
 
 }

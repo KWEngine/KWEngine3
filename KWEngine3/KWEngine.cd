@@ -337,6 +337,7 @@
     <Position X="9.5" Y="15.25" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
+      <Field Name="_colorIntensity" Hidden="true" />
       <Field Name="_durationInMS" Hidden="true" />
       <Field Name="_frame" Hidden="true" />
       <Field Name="_hue" Hidden="true" />
@@ -356,7 +357,7 @@
       <Method Name="GetViewMatrixTowardsCamera" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>IAAgAAAAAAABAAQQggAABAAoAAKAAgAAACgogAEAAWA=</HashCode>
+      <HashCode>IAAgAAAAAAABAAQQggAABAgoAAKAAgAAACgogAEAAXA=</HashCode>
       <FileName>GameObjects\ParticleObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -534,7 +535,7 @@
     <Lollipop Position="0.2" />
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectImage">
-    <Position X="15.5" Y="14.75" Width="2.75" />
+    <Position X="15.5" Y="15.25" Width="2.75" />
     <Members>
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
@@ -554,6 +555,11 @@
       <Field Name="_colorOutline" Hidden="true" />
       <Field Name="_font" Hidden="true" />
       <Field Name="_glyphInfo" Hidden="true" />
+      <Field Name="_height" Hidden="true" />
+      <Field Name="_lineHeightFactor" Hidden="true" />
+      <Field Name="_maxwidth" Hidden="true" />
+      <Field Name="_multiline" Hidden="true" />
+      <Field Name="_newlinePositions" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
       <Field Name="_text" Hidden="true" />
       <Field Name="_textureBuffer" Hidden="true" />
@@ -563,10 +569,11 @@
       <Field Name="_widthNormalised" Hidden="true" />
       <Method Name="CreateBuffers" Hidden="true" />
       <Method Name="DeleteBuffers" Hidden="true" />
+      <Method Name="FindPreviousDividerIndex" Hidden="true" />
       <Method Name="UpdateOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>kACCCAAQAoAIAACAEIACAACAAJKQAAAIQACASgASIAU=</HashCode>
+      <HashCode>kACCCAAwAoCIAACAGJACAACAiJOQAAAIQACASgASIAU=</HashCode>
       <FileName>GameObjects\HUDObjectText.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -806,7 +813,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.HUDObjectTextInput">
-    <Position X="15.5" Y="10.75" Width="2.75" />
+    <Position X="15.5" Y="11.25" Width="2.75" />
     <Members>
       <Field Name="_advanceForCursor" Hidden="true" />
       <Field Name="_cursorBlinkSpeed" Hidden="true" />
@@ -937,7 +944,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ExplosionObject">
-    <Position X="9.5" Y="18" Width="2.75" />
+    <Position X="9.5" Y="18.25" Width="2.75" />
     <Members>
       <Field Name="_algorithm" Hidden="true" />
       <Field Name="_amount" Hidden="true" />
