@@ -1782,45 +1782,41 @@ namespace KWEngine3.Editor
 
         private static void DrawObjectDebugValues()
         {
-            if (SelectedGameObject != null)
+            if (SelectedGameObject != null && HelperDebug.HasDebugFields(SelectedGameObject))
             {
                 Type type = SelectedGameObject.GetType();
-                FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                List<FieldInfo> fields = HelperDebug.GetKWDebugFields(SelectedGameObject);
 
-                if (fields != null && fields.Length > 0 && fields.Any(x => x.GetCustomAttribute<KWDebugAttribute>() != null))
+                ImGui.Begin("Instance's debug properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+                float size = KWEngine.Window.ClientSize.X - 316 - WINDOW_RIGHT_WIDTH - 8;
+                ImGui.SetWindowSize(new System.Numerics.Vector2(size, 128));
+                ImGui.SetWindowPos(new System.Numerics.Vector2(316 + 4, KWEngine.Window.ClientSize.Y - 16 - 128), ImGuiCond.Always);
+
+                ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
+
+                ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.6f);
+                ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.4f);
+                ImGui.TableHeadersRow();
+
+
+                foreach (FieldInfo field in fields)
                 {
-                    ImGui.Begin("Instance's debug properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
-                    float size = KWEngine.Window.ClientSize.X - 316 - WINDOW_RIGHT_WIDTH - 8;
-                    ImGui.SetWindowSize(new System.Numerics.Vector2(size, 128));
-                    ImGui.SetWindowPos(new System.Numerics.Vector2(316 + 4, KWEngine.Window.ClientSize.Y - 16 - 128), ImGuiCond.Always);
-
-                    ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
-
-                    ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.6f);
-                    ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.4f);
-                    ImGui.TableHeadersRow();
-
-
-                    foreach (FieldInfo field in fields)
+                    // Prüfen, ob das Attribut vorhanden ist
+                    KWDebugAttribute attr = field.GetCustomAttribute<KWDebugAttribute>();
+                    if (attr != null)
                     {
-                        // Prüfen, ob das Attribut vorhanden ist
-                        KWDebugAttribute attr = field.GetCustomAttribute<KWDebugAttribute>();
-                        if (attr != null)
-                        {
-                            object value = field.GetValue(SelectedGameObject);
-                            string label = attr.Label ?? field.Name;
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(0);
-                            ImGui.Text(label + ":");
-                            ImGui.TableSetColumnIndex(1);
-                            ImGui.Text(value == null ? "null" : value.ToString());
-                            
-                        }
+                        object value = field.GetValue(SelectedGameObject);
+                        string label = attr.Label ?? field.Name;
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        ImGui.Text(label + ":");
+                        ImGui.TableSetColumnIndex(1);
+                        ImGui.Text(value == null ? "null" : value.ToString());
                     }
-
-                    ImGui.EndTable();
-                    ImGui.End();
                 }
+
+                ImGui.EndTable();
+                ImGui.End();
             }
         }
 
@@ -1843,10 +1839,10 @@ namespace KWEngine3.Editor
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
                 Type type = g.GetType();
-                FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (fields != null && fields.Length > 0)
+                if (HelperDebug.HasDebugFields(g))
                 {
+                    List<FieldInfo> fields = HelperDebug.GetKWDebugFields(g);
+
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
                     ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(1f, 1f, 0f, 1f));
@@ -1870,6 +1866,7 @@ namespace KWEngine3.Editor
                             ImGui.Text(value == null ? "null" : value.ToString());
                         }
                     }
+                    
                     ImGui.TableNextRow();
                 }
             }
