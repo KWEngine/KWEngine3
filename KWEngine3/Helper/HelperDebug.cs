@@ -6,7 +6,7 @@ namespace KWEngine3.Helper
 {
     internal static class HelperDebug
     {
-        internal static readonly Dictionary<Type, List<FieldInfo>> TypesWithDebugAttribute = new();
+        internal static readonly Dictionary<Type, List<MemberInfo>> TypesWithDebugAttribute = new();
         internal static Dictionary<RenderType, int> _renderTimesIDDict = new();
         internal static Dictionary<RenderType, List<long>> _renderTimesDict = new();
         internal static Dictionary<RenderType, double> _renderTimesAvgDict = new();
@@ -20,7 +20,7 @@ namespace KWEngine3.Helper
             return g != null && TypesWithDebugAttribute.ContainsKey(g.GetType());
         }
 
-        internal static List<FieldInfo> GetKWDebugFields(GameObject g)
+        internal static List<MemberInfo> GetKWDebugFields(GameObject g)
         {
             return TypesWithDebugAttribute[g.GetType()];
         }
@@ -28,26 +28,40 @@ namespace KWEngine3.Helper
         internal static void InitDebugRegistry()
         {
             IEnumerable<Type> allTypes = Assembly.GetEntryAssembly().GetTypes().Where(t => typeof(GameObject).IsAssignableFrom(t) || typeof(World).IsAssignableFrom(t));
-           
+            
             foreach (Type type in allTypes)
             {
-                var fieldsWithAttribute = GetFieldsInHierarchy(type, _bindingFlags)
+                List<MemberInfo> mInfo = new();
+                List<FieldInfo> fieldsWithAttribute = GetFieldsInHierarchy(type, _bindingFlags)
+                    .Where(f => f.IsDefined(typeof(KWDebugAttribute), true))
+                    .ToList();
+                foreach(FieldInfo f in fieldsWithAttribute)
+                {
+                    mInfo.Add(f);
+                }
+
+                List<PropertyInfo> propertiesWithAttribute = GetPropertiesInHierarchy(type, _bindingFlags)
                     .Where(f => f.IsDefined(typeof(KWDebugAttribute), true))
                     .ToList();
 
-                if (fieldsWithAttribute.Count > 0 && !TypesWithDebugAttribute.ContainsKey(type))
+                foreach (PropertyInfo p in propertiesWithAttribute)
                 {
-                    TypesWithDebugAttribute.Add(type, fieldsWithAttribute);
+                    mInfo.Add(p);
+                }
+
+                if (mInfo.Count > 0 && !TypesWithDebugAttribute.ContainsKey(type))
+                {
+                    TypesWithDebugAttribute.Add(type, mInfo);
                 }
             }
         }
 
         internal static IEnumerable<FieldInfo> GetFieldsInHierarchy(Type type, BindingFlags flags)
         {
-            var currentType = type;
+            Type currentType = type;
             while (currentType != null && currentType != typeof(object))
             {
-                var fields = currentType.GetFields(flags);
+                FieldInfo[] fields = currentType.GetFields(flags);
 
                 foreach (var field in fields)
                 {
@@ -56,6 +70,28 @@ namespace KWEngine3.Helper
                         yield return field;
                     }
                 }
+
+
+
+                currentType = currentType.BaseType;
+            }
+        }
+
+        internal static IEnumerable<PropertyInfo> GetPropertiesInHierarchy(Type type, BindingFlags flags)
+        {
+            Type currentType = type;
+            while (currentType != null && currentType != typeof(object))
+            {
+                PropertyInfo[] properties = currentType.GetProperties(flags);
+
+                foreach (var prop in properties)
+                {
+                    if (prop.DeclaringType == currentType)
+                    {
+                        yield return prop;
+                    }
+                }
+
                 currentType = currentType.BaseType;
             }
         }

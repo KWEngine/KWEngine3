@@ -1785,7 +1785,7 @@ namespace KWEngine3.Editor
             if (SelectedGameObject != null && HelperDebug.HasDebugFields(SelectedGameObject))
             {
                 Type type = SelectedGameObject.GetType();
-                List<FieldInfo> fields = HelperDebug.GetKWDebugFields(SelectedGameObject);
+                List<MemberInfo> fields = HelperDebug.GetKWDebugFields(SelectedGameObject);
 
                 ImGui.Begin("Instance's debug properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
                 float size = KWEngine.Window.ClientSize.X - 316 - WINDOW_RIGHT_WIDTH - 8;
@@ -1841,7 +1841,7 @@ namespace KWEngine3.Editor
                 Type type = g.GetType();
                 if (HelperDebug.HasDebugFields(g))
                 {
-                    List<FieldInfo> fields = HelperDebug.GetKWDebugFields(g);
+                    List<MemberInfo> fields = HelperDebug.GetKWDebugFields(g);
 
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
@@ -1851,14 +1851,14 @@ namespace KWEngine3.Editor
                     ImGui.Text("(" + g.GetType().Name + ")");
                     ImGui.PopStyleColor();
 
-                    foreach (FieldInfo field in fields)
+                    foreach (MemberInfo m in fields)
                     {
                         // Prüfen, ob das Attribut vorhanden ist
-                        KWDebugAttribute attr = field.GetCustomAttribute<KWDebugAttribute>();
+                        KWDebugAttribute attr = m.GetCustomAttribute<KWDebugAttribute>();
                         if (attr != null)
                         {
-                            object value = field.GetValue(g);
-                            string label = attr.Label ?? field.Name;
+                            object value = m is PropertyInfo ? (m as PropertyInfo).GetValue(g) : (m as FieldInfo).GetValue(g);
+                            string label = attr.Label ?? m.Name;
                             ImGui.TableNextRow();
                             ImGui.TableSetColumnIndex(0);
                             ImGui.Text("  " + label + ":");
