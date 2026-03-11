@@ -844,8 +844,8 @@ namespace KWEngine3.GameObjects
         /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
         /// </summary>
         /// <param name="x">Skalierung in lokale x-Richtung</param>
-        /// <param name="y">Skalierung in lokale x-Richtung</param>
-        /// <param name="z">Skalierung in lokale x-Richtung</param>
+        /// <param name="y">Skalierung in lokale y-Richtung</param>
+        /// <param name="z">Skalierung in lokale z-Richtung</param>
         /// <param name="offsetX">Optionale x-Verschiebung der Hitbox</param>
         /// <param name="offsetY">Optionale y-Verschiebung der Hitbox</param>
         /// <param name="offsetZ">Optionale z-Verschiebung der Hitbox</param>
