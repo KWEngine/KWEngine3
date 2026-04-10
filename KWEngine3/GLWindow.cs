@@ -84,12 +84,13 @@ namespace KWEngine3
 
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
+            GLFWProvider.SetErrorCallback(GlfwErrorHandler);
             HelperGeneral.DecideBuildType();
             Vector2i scaledClientSize = GetWindowFramebufferSize();
             if(HelperGeneral.IsDebugBuild)
                 Overlay = new KWBuilderOverlay(scaledClientSize.X, scaledClientSize.Y);
             ClientSize = scaledClientSize;
-            if(!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
+            CenterWindow();
             KWEngine.Window = this;
             KWEngine.InitializeModels();
             KWEngine.InitializeParticles();
@@ -127,7 +128,7 @@ namespace KWEngine3
             HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
+            //CenterWindow();
         }
 
         /// <summary>
@@ -159,7 +160,7 @@ namespace KWEngine3
             HelperGeneral.DecideBuildType();
             _renderQuality = RenderQualityLevel.Default;
             KWEngine.InitializeFontsAndDefaultTextures();
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
+            //CenterWindow();
         }
 
         /// <summary>
@@ -193,7 +194,7 @@ namespace KWEngine3
             HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
+            //CenterWindow();
         }
 
         /// <summary>
@@ -229,7 +230,7 @@ namespace KWEngine3
             HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
+            //CenterWindow();
         }
 
         /// <summary>
@@ -1594,5 +1595,18 @@ namespace KWEngine3
             }
             return Monitors.GetPrimaryMonitor().Handle;
         }
+
+        
+        internal static void GlfwErrorHandler(OpenTK.Windowing.GraphicsLibraryFramework.ErrorCode errorCode, string description)
+        {
+            // Wayland / nicht unterstützte Features nur protokollieren, nicht abstürzen ;-)
+            if (errorCode == OpenTK.Windowing.GraphicsLibraryFramework.ErrorCode.FeatureUnavailable)
+            {
+                KWEngine.LogWriteLine("[GLFW] " + errorCode + ": " + description);
+                return;
+            }
+            throw new GLFWException(description, errorCode);
+        }
+
     }
 }
