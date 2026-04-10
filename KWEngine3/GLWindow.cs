@@ -89,7 +89,7 @@ namespace KWEngine3
             if(HelperGeneral.IsDebugBuild)
                 Overlay = new KWBuilderOverlay(scaledClientSize.X, scaledClientSize.Y);
             ClientSize = scaledClientSize;
-            CenterWindow();
+            if(!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
             KWEngine.Window = this;
             KWEngine.InitializeModels();
             KWEngine.InitializeParticles();
@@ -127,7 +127,7 @@ namespace KWEngine3
             HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
-            CenterWindow();
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace KWEngine3
             HelperGeneral.DecideBuildType();
             _renderQuality = RenderQualityLevel.Default;
             KWEngine.InitializeFontsAndDefaultTextures();
-            CenterWindow();
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace KWEngine3
             HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
-            CenterWindow();
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace KWEngine3
             HelperGeneral.DecideBuildType();
             _renderQuality = quality;
             KWEngine.InitializeFontsAndDefaultTextures();
-            CenterWindow();
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) CenterWindow();
         }
 
         /// <summary>

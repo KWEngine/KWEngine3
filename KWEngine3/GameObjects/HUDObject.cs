@@ -1,6 +1,5 @@
 ﻿using OpenTK.Mathematics;
 using KWEngine3.Helper;
-using Assimp;
 
 namespace KWEngine3.GameObjects
 {
