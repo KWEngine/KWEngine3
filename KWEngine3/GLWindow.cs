@@ -84,7 +84,6 @@ namespace KWEngine3
 
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
-            GLFWProvider.SetErrorCallback(GlfwErrorHandler);
             HelperGeneral.DecideBuildType();
             Vector2i scaledClientSize = GetWindowFramebufferSize();
             if(HelperGeneral.IsDebugBuild)
@@ -1595,18 +1594,5 @@ namespace KWEngine3
             }
             return Monitors.GetPrimaryMonitor().Handle;
         }
-
-        
-        internal static void GlfwErrorHandler(OpenTK.Windowing.GraphicsLibraryFramework.ErrorCode errorCode, string description)
-        {
-            // Wayland / nicht unterstützte Features nur protokollieren, nicht abstürzen ;-)
-            if (errorCode == OpenTK.Windowing.GraphicsLibraryFramework.ErrorCode.FeatureUnavailable)
-            {
-                KWEngine.LogWriteLine("[GLFW] " + errorCode + ": " + description);
-                return;
-            }
-            throw new GLFWException(description, errorCode);
-        }
-
     }
 }
