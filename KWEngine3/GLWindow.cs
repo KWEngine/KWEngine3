@@ -245,11 +245,23 @@ namespace KWEngine3
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public static KeyboardExt Keyboard { get { return _keyboard; } }
+        public KeyboardExt Keyboard { get { return _keyboard; } }
+
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public static MouseExt Mouse { get { return _mouse; } }
+        public MouseExt Mouse { get { return GLWindow._mouse; } }
+
+        /// <summary>
+        /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
+        /// </summary>
+        public Vector2 MouseMovement
+        {
+            get
+            {
+                return KWEngine.Window._mouseDeltaToUse;
+            }
+        }
 
         /// <summary>
         /// Standard-Initialisierungen

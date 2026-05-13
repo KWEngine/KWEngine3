@@ -275,7 +275,7 @@ namespace KWEngine3.GameObjects
         {
             if (KWEngine.Window.IsMouseInWindow && IsInWorld)
             {
-                Vector2 mouseCoords = GLWindow.Mouse.Position;
+                Vector2 mouseCoords = KWEngine.Mouse.Position;
                 float left, right, top, bottom;
                 top = Position.Y - _scale.Y * 0.5f;
                 bottom = Position.Y + _scale.Y * 0.5f + _lineHeightFactor * Math.Max(0, _newlinePositions.Count - 1) * _scale.Y;

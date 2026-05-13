@@ -802,7 +802,7 @@ namespace KWEngine3
         /// <summary>
         /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
         /// </summary>
-        public static Vector2 MouseMovement
+        public Vector2 MouseMovement
         {
             get
             {
@@ -2056,11 +2056,11 @@ namespace KWEngine3
         /// <summary>
         /// Verweis auf Keyboardeingaben
         /// </summary>
-        public static KeyboardExt Keyboard { get { return GLWindow._keyboard; } }
+        public KeyboardExt Keyboard { get { return GLWindow._keyboard; } }
         /// <summary>
         /// Verweis auf Mauseingaben
         /// </summary>
-        public static MouseExt Mouse { get { return GLWindow._mouse; } }
+        public MouseExt Mouse { get { return GLWindow._mouse; } }
         /// <summary>
         /// Verweis auf das aktuelle Programmfenster
         /// </summary>
@@ -2113,7 +2113,7 @@ namespace KWEngine3
             {
                 GLFW.SetCursorPos(Window.WindowPtr, Window.ClientSize.X / 2, Window.ClientSize.Y / 2);
             }
-            GLWindow.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
+            Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
             Window.ResetMouseDeltas();
             _mouseCursorJustGrabbed = true;
         }
@@ -2140,7 +2140,7 @@ namespace KWEngine3
             {
                 GLFW.SetCursorPos(Window.WindowPtr, Window.ClientSize.X / 2, Window.ClientSize.Y / 2);
             }
-            GLWindow.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
+            KWEngine.Mouse._mousePositionFromGLFW = Window.ClientSize / 2;
             Window.ResetMouseDeltas();
             _startingFrameActive = true;
         }
@@ -2158,11 +2158,10 @@ namespace KWEngine3
             {
                 GLFW.SetCursorPos(Window.WindowPtr, x, y);
             }
-            GLWindow.Mouse._mousePositionFromGLFW = new Vector2(x, y);
+            KWEngine.Mouse._mousePositionFromGLFW = new Vector2(x, y);
             Window.ResetMouseDeltas();
+
             _startingFrameActive = true;
-            //Keyboard.DeleteKeys();
-            //Mouse.DeleteButtons();
         }
 
         /// <summary>

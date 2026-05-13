@@ -60,6 +60,27 @@ namespace KWEngine3
         public static float MouseSensitivity { get; set; } = 0.05f;
 
         /// <summary>
+        /// Verweis auf Mauseingaben
+        /// </summary>
+        public static MouseExt Mouse { get { return GLWindow._mouse; } }
+
+        /// <summary>
+        /// Verweis auf Keyboardeingaben
+        /// </summary>
+        public static KeyboardExt Keyboard { get { return GLWindow._keyboard; } }
+
+        /// <summary>
+        /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
+        /// </summary>
+        public static Vector2 MouseMovement
+        {
+            get
+            {
+                return Window._mouseDeltaToUse;
+            }
+        }
+
+        /// <summary>
         /// Gibt an, ob die Performance für alle draw calls gemessen wird und mit der Methode KWEngine.GetRenderTime() abgefragt werden kann (Standard: false)
         /// </summary>
         public static bool DebugPerformanceEnabled { get; set; } = false;
