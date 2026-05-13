@@ -1846,11 +1846,18 @@ namespace KWEngine3.GameObjects
         internal List<GameObjectHitbox> _collisionCandidates = new();
         internal List<TerrainSector> _collisionCandidatesTerrain = new();
 
-        internal void SetScaleRotationAndTranslation(Vector3 s, Quaternion r, Vector3 t)
+        internal void SetScaleRotationAndTranslation(Vector3 s, Quaternion r, Vector3 t, bool interpolate = true)
         {
+
             _stateCurrent._rotation = r;
             _stateCurrent._scale = s;
             _stateCurrent._position = t;
+
+            if(interpolate == false)
+            {
+                _statePrevious = _stateCurrent;
+            }
+
             UpdateModelMatrixAndHitboxes();
         }
 

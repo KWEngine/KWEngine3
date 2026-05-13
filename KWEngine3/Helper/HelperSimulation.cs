@@ -323,23 +323,24 @@ namespace KWEngine3.Helper
                         if (attachedObject != null)
                         {
                         Matrix4 attachmentMatrix;
-                            if (isVSG)
-                            {
-                                attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
-                            }
-                            else
-                            {
-                                attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
-                            }
+                        if (isVSG)
+                        {
+                            attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
+                        }
+                        else
+                        {
+                            attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                        }
 
-                            Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
-                            Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
-                            Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
-                            attachedObject.SetScaleRotationAndTranslation(
-                                attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
-                                attachmentMatrix.ExtractRotation(true) * attachedObject._rotationOffsetForAttachment,
-                                attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward
-                                );
+                        Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
+                        Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
+                        Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
+                        attachedObject.SetScaleRotationAndTranslation(
+                            attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
+                            attachmentMatrix.ExtractRotation(true) * attachedObject._rotationOffsetForAttachment,
+                            attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward,
+                            false
+                            );
                         }
                     }
                 }
