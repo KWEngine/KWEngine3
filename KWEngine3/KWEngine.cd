@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="10.25" Width="2.75" />
+    <Position X="0.5" Y="11" Width="2.75" />
     <Members>
       <Field Name="_disposed" Hidden="true" />
       <Field Name="_frame" Hidden="true" />
@@ -56,7 +56,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QDyEBAAAhUAEAQ6AUAEBgEASkhoEBCQAaAEE2EWuAgA=</HashCode>
+      <HashCode>QDyEBAAAhUAEAQ6A0AEBgEASkhoEBCQAaAEE2EWuAgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -147,7 +147,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DdgQRbBNA6SJgPGcrAruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>DdgQRbBNA6SJgPGc7AruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -494,7 +494,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="16.75" Width="2.75" />
+    <Position X="0.5" Y="17.75" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -562,8 +562,6 @@
       <Field Name="_newlinePositions" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
       <Field Name="_text" Hidden="true" />
-      <Field Name="_textureBuffer" Hidden="true" />
-      <Field Name="_textureBufferTex" Hidden="true" />
       <Field Name="_uvOffsets" Hidden="true" />
       <Field Name="_width" Hidden="true" />
       <Field Name="_widthNormalised" Hidden="true" />
@@ -573,7 +571,7 @@
       <Method Name="UpdateOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>kACCCAAwAoCIAACAGJACAACAiJOQAAAIQACASgASIAU=</HashCode>
+      <HashCode>kACCCAAwAgCIAACAGJICAACAiJOAAAAIQACASgASYAU=</HashCode>
       <FileName>GameObjects\HUDObjectText.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -765,7 +763,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="0.5" Y="19.25" Width="2.75" />
+    <Position X="0.5" Y="20.25" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />
