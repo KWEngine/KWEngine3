@@ -111,24 +111,7 @@ namespace KWEngine3.Audio
 
         private void EraseBuffers()
         {
-            AL.GetSource(mSource, ALGetSourcei.BuffersQueued, out int queued);
-            if (queued > 0)
-            {
-                int[] buffers = new int[queued];
-                AL.SourceUnqueueBuffers(mSource, queued, buffers);
-            }
-            
-            /*unsafe
-            {
-                fixed (byte* ptr = _empty)
-                { 
-                    foreach (int buffer in mBuffers)
-                    {
-                        AL.BufferData(buffer, mSound.GetFormat(), ptr, _empty.Length, mSound.WaveFormat.SampleRate);
-                    }
-                }
-            }*/
-            
+            UnqueueBuffers();
         }
 
         public void SetCachedSound(CachedSound sound)
@@ -446,8 +429,7 @@ namespace KWEngine3.Audio
         {
             Stop();
 
-            foreach (int buffer in mBuffers)
-                AL.SourceUnqueueBuffer(mSource);
+            UnqueueBuffers();
 
             int buffersFilled = 0;
             foreach (int buffer in mBuffers)
@@ -467,9 +449,6 @@ namespace KWEngine3.Audio
 
             _cts = new CancellationTokenSource();
             _playbackTask = Task.Run(() => StartAndStreamAudio(_cts.Token), _cts.Token);
-            //_playbackThread?.Join(1);
-            //_playbackThread = new Thread(StartAndStreamAudio);
-            //_playbackThread.Start();
         }
 
         private void StartAndStreamAudio(CancellationToken token)
@@ -590,13 +569,27 @@ namespace KWEngine3.Audio
 
         private void DeleteBuffers()
         {
-            foreach (int buffer in mBuffers)
-                AL.SourceUnqueueBuffer(mSource);
+            UnqueueBuffers();
+
 
             foreach (int buffer in mBuffers)
             {
                 AL.DeleteBuffer(buffer);
             }
+        }
+
+        private void UnqueueBuffers()
+        {
+            int buffercount = AL.GetSource(mSource, ALGetSourcei.BuffersQueued);
+
+            if(buffercount > 0)
+            {
+                for(int i = 0; i < buffercount; i++)
+                {
+                    AL.SourceUnqueueBuffer(mSource);
+                }
+            }
+            
         }
     }
 }
