@@ -1,6 +1,5 @@
 ﻿using Assimp;
 using KWEngine3.Helper;
-using Newtonsoft.Json.Linq;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System;
