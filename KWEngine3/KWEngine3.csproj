@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>Library</OutputType>
-		<TargetFramework>net10.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -10,10 +10,10 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<Product>KWEngine3 (updated: 2026-05-15)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.6.3</Version>
-		<AssemblyVersion>3.0.6.3</AssemblyVersion>
-		<FileVersion>3.0.6.3</FileVersion>
-		<ProductVersion>3.0.6.3</ProductVersion>
+		<Version>3.0.6.4</Version>
+		<AssemblyVersion>3.0.6.4</AssemblyVersion>
+		<FileVersion>3.0.6.4</FileVersion>
+		<ProductVersion>3.0.6.4</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
