@@ -198,29 +198,38 @@ namespace KWEngine3.Editor
                         GameObject att = SelectedVSG.GetAttachedGameObjectForBone(attachedBoneName);
                         if(att != null)
                         {
+                            float oX = att._positionOffsetForAttachment.X;
+                            float oY = att._positionOffsetForAttachment.Y;
+                            float oZ = att._positionOffsetForAttachment.Z;
+                            System.Numerics.Vector3 sNew = new(att._scaleOffsetForAttachment.X, att._scaleOffsetForAttachment.Y, att._scaleOffsetForAttachment.Z);
+                            System.Numerics.Vector3 rNew = new(att._rotationOffsetForAttachmentEuler.X, att._rotationOffsetForAttachmentEuler.Y, att._rotationOffsetForAttachmentEuler.Z);
+
                             string index = "#" + (i + 1).ToString().PadLeft(2, '0');
                             ImGui.TextColored(new System.Numerics.Vector4(0.25f, 0.5f, 0.5f, 1), index + ": " + att.Name);
-                            float scaleAtt = (att._scaleOffsetForAttachment.X + att._scaleOffsetForAttachment.Y + att._scaleOffsetForAttachment.Z) / 3f;
-                            if (ImGui.InputFloat("Scale (" + index + ")", ref scaleAtt, 0.01f, 0.02f, "%.2f"))
+                            if (ImGui.SliderFloat3("Scale (X,Y,Z)", ref sNew, 0.0001f, 100f, "%.2f", ImGuiSliderFlags.Logarithmic))
                             {
-                                HelperGameObjectAttachment.SetScaleForAttachment(att, scaleAtt);
-                            }
-                            
-                            System.Numerics.Vector3 attOffset = new(att._positionOffsetForAttachment.X, att._positionOffsetForAttachment.Y, att._positionOffsetForAttachment.Z);
-                            if (ImGui.InputFloat3("Offset (" + index + ")", ref attOffset, "%.4f"))
-                            {
-                                HelperGameObjectAttachment.SetPositionOffsetForAttachment(att, attOffset.X, attOffset.Y, attOffset.Z);
+                                HelperGameObjectAttachment.SetScaleForAttachment(att, sNew.X, sNew.Y, sNew.Z);
                             }
 
-                            Quaternion.ToEulerAngles(att._rotationOffsetForAttachment, out Vector3 attRot);
-                            attRot.X = MathHelper.RadiansToDegrees(attRot.X);
-                            attRot.Y = MathHelper.RadiansToDegrees(attRot.Y);
-                            attRot.Z = MathHelper.RadiansToDegrees(attRot.Z);
-                            System.Numerics.Vector3 attRotN = new(attRot.X, attRot.Y, attRot.Z);
-                            if (ImGui.InputFloat3("Rotation (" + index + ")", ref attRotN, " % .2f"))
+                            
+
+                            if (ImGui.SliderFloat3("Rotation (X,Y,Z)", ref rNew, 0f, 359.9999f, "%.1f"))
                             {
-                                HelperGameObjectAttachment.SetRotationForAttachment(att, attRotN.X, attRotN.Y, attRotN.Z);
+                                HelperGameObjectAttachment.SetRotationForAttachment(att, rNew.X, rNew.Y, rNew.Z);
                             }
+                            if (ImGui.Button("Reset rotation"))
+                            {
+                                HelperGameObjectAttachment.SetRotationForAttachment(att, 0f, 0f, 0f);
+                            }
+
+                            bool x = ImGui.SliderFloat("X Offset (" + index + ")", ref oX, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                            bool y = ImGui.SliderFloat("Y Offset (" + index + ")", ref oY, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                            bool z = ImGui.SliderFloat("Z Offset (" + index + ")", ref oZ, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                            if (x || y || z)
+                            {
+                                HelperGameObjectAttachment.SetPositionOffsetForAttachment(att, oX, oY, oZ);
+                            }
+
                             ImGui.Spacing();
                         }
                     }
@@ -230,9 +239,7 @@ namespace KWEngine3.Editor
             }
             else if (SelectedGameObject != null)
             {
-                System.Numerics.Vector3 pNew = new(SelectedGameObject.Position.X, SelectedGameObject.Position.Y, SelectedGameObject.Position.Z);
-                System.Numerics.Vector3 sNew = new(SelectedGameObject.Scale.X, SelectedGameObject.Scale.Y, SelectedGameObject.Scale.Z);
-                System.Numerics.Vector3 rNew = new();
+                
                 System.Numerics.Vector3 colorTintNew = new(SelectedGameObject._stateCurrent._colorTint.X, SelectedGameObject._stateCurrent._colorTint.Y, SelectedGameObject._stateCurrent._colorTint.Z);
                 System.Numerics.Vector3 colorEmissiveNew = new(SelectedGameObject._model.Material[0].ColorEmissive.X, SelectedGameObject._model.Material[0].ColorEmissive.Y, SelectedGameObject._model.Material[0].ColorEmissive.Z);
                 float colorEmissiveIntensityNew = SelectedGameObject._model.Material[0].ColorEmissive.W;
@@ -298,15 +305,7 @@ namespace KWEngine3.Editor
 
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Misc. properties:");
-                /*
-                bool isCollObj = SelectedGameObject._colliderType != ColliderType.None;
-                if(ImGui.Checkbox("Collider?", ref isCollObj))
-                {
-                    if(_)
-                    SelectedGameObject.IsCollisionObject = isCollObj;
-                }
-                ImGui.SameLine();
-                */
+
                 
                 ImGui.Checkbox("Affected by light?", ref SelectedGameObject._isAffectedByLight);
                 ImGui.SameLine();
@@ -314,54 +313,104 @@ namespace KWEngine3.Editor
                 {
                     ImGui.Checkbox("Shadow caster/receiver?", ref SelectedGameObject._isShadowCaster);
                 }
-                    
-                //ImGui.SameLine();
-                //ImGui.Text("In view: " + (SelectedGameObject.IsInsideScreenSpace ? "YES" : "NO"));
+
 
                 // Position/Rotation/Scale
-                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Position, Rotation & Scale:");
-                if (ImGui.InputFloat3("Position (X,Y,Z)", ref pNew, "%.2f"))
+                // 2026-05: Check if instance is an attachment to another gameobject:
+                if (SelectedGameObject.IsAttachedToGameObject)
                 {
-                    SelectedGameObject.SetPosition(new Vector3(pNew.X, pNew.Y, pNew.Z));
-                }
-                ImGui.Separator();
-                if (ImGui.SliderFloat3("Rotation (X,Y,Z)", ref rNew, -5, 5))
-                {
-                    SelectedGameObject.AddRotationZFromEditor(rNew.Z * KWEngine.DeltaTimeFactorForOverlay, rWorldSpace);
-                    SelectedGameObject.AddRotationYFromEditor(rNew.Y * KWEngine.DeltaTimeFactorForOverlay, rWorldSpace);
-                    SelectedGameObject.AddRotationXFromEditor(rNew.X * KWEngine.DeltaTimeFactorForOverlay, rWorldSpace);
-                }
-                if (ImGui.Button("Reset"))
-                {
-                    SelectedGameObject.SetRotation(0, 0, 0);
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("X +45"))
-                {
-                    SelectedGameObject.AddRotationXFromEditor(-45, rWorldSpace);
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Y +45"))
-                {
-                    SelectedGameObject.AddRotationYFromEditor(-45, rWorldSpace);
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Z +45"))
-                {
-                    SelectedGameObject.AddRotationZFromEditor(-45, rWorldSpace);
-                }
-                ImGui.SameLine();
-                ImGui.Checkbox(" ", ref rWorldSpace);
-                ImGui.SameLine();
-                ImGui.Text("Rotation around world axes?");
+                    float oX = SelectedGameObject._positionOffsetForAttachment.X;
+                    float oY = SelectedGameObject._positionOffsetForAttachment.Y;
+                    float oZ = SelectedGameObject._positionOffsetForAttachment.Z;
+                    System.Numerics.Vector3 sNew = new(SelectedGameObject._scaleOffsetForAttachment.X, SelectedGameObject._scaleOffsetForAttachment.Y, SelectedGameObject._scaleOffsetForAttachment.Z);
+                    System.Numerics.Vector3 rNew = new(SelectedGameObject._rotationOffsetForAttachmentEuler.X, SelectedGameObject._rotationOffsetForAttachmentEuler.Y, SelectedGameObject._rotationOffsetForAttachmentEuler.Z);
 
-                OpenTK.Mathematics.Vector3 angles = HelperRotation.ConvertQuaternionToEulerAngles(SelectedGameObject.Rotation);
-                ImGui.Text("Computed rotation angles: " + Math.Round(angles.X, 0) + " | " + Math.Round(angles.Y, 0) + " | " + Math.Round(angles.Z, 0));
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 0, 1), "Scale, Rotation & Offset (Attachment):");
 
-                ImGui.Separator();
-                if (ImGui.InputFloat3("Scale (X,Y,Z)", ref sNew, "%.2f"))
+                    ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new System.Numerics.Vector4(0.5f, 0.5f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.SliderGrab, new System.Numerics.Vector4(0.5f, 0.25f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.SliderGrabActive, new System.Numerics.Vector4(1.00f, 0.25f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
+
+                    if (ImGui.SliderFloat3("Scale (X,Y,Z)", ref sNew, 0.01f, 100f, "%.2f"))
+                    {
+                        HelperGameObjectAttachment.SetScaleForAttachment(SelectedGameObject, sNew.X, sNew.Y, sNew.Z);
+                    }
+
+                    ImGui.Separator();
+
+                    if (ImGui.SliderFloat3("Rotation (X,Y,Z)", ref rNew, 0f, 359.9999f, "%.1f"))
+                    {
+                        HelperGameObjectAttachment.SetRotationForAttachment(SelectedGameObject, rNew.X, rNew.Y, rNew.Z);
+                    }
+                    if (ImGui.Button("Reset rotation"))
+                    {
+                        HelperGameObjectAttachment.SetRotationForAttachment(SelectedGameObject, 0f, 0f, 0f);
+                    }
+
+                    ImGui.Separator();
+
+                    bool x = ImGui.SliderFloat("X offset", ref oX, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                    bool y = ImGui.SliderFloat("Y offset", ref oY, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                    bool z = ImGui.SliderFloat("Z offset", ref oZ, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                    if (x || y || z)
+                    {
+                        HelperGameObjectAttachment.SetPositionOffsetForAttachment(SelectedGameObject, oX, oY, oZ);
+                    }
+                    ImGui.PopStyleColor(6);
+                }
+                else
                 {
-                    SelectedGameObject.SetScale(sNew.X, sNew.Y, sNew.Z);
+                    System.Numerics.Vector3 pNew = new(SelectedGameObject.Position.X, SelectedGameObject.Position.Y, SelectedGameObject.Position.Z);
+                    System.Numerics.Vector3 sNew = new(SelectedGameObject.Scale.X, SelectedGameObject.Scale.Y, SelectedGameObject.Scale.Z);
+                    System.Numerics.Vector3 rNew = new();
+
+                    ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Position, Rotation & Scale:");
+                    if (ImGui.InputFloat3("Position (X,Y,Z)", ref pNew, "%.2f"))
+                    {
+                        SelectedGameObject.SetPosition(new Vector3(pNew.X, pNew.Y, pNew.Z));
+                    }
+                    ImGui.Separator();
+                    if (ImGui.SliderFloat3("Rotation (X,Y,Z)", ref rNew, -5, 5))
+                    {
+                        SelectedGameObject.AddRotationZFromEditor(rNew.Z * KWEngine.DeltaTimeFactorForOverlay, rWorldSpace);
+                        SelectedGameObject.AddRotationYFromEditor(rNew.Y * KWEngine.DeltaTimeFactorForOverlay, rWorldSpace);
+                        SelectedGameObject.AddRotationXFromEditor(rNew.X * KWEngine.DeltaTimeFactorForOverlay, rWorldSpace);
+                    }
+                    if (ImGui.Button("Reset"))
+                    {
+                        SelectedGameObject.SetRotation(0, 0, 0);
+                    }
+                    ImGui.SameLine();
+                    if (ImGui.Button("X +45"))
+                    {
+                        SelectedGameObject.AddRotationXFromEditor(-45, rWorldSpace);
+                    }
+                    ImGui.SameLine();
+                    if (ImGui.Button("Y +45"))
+                    {
+                        SelectedGameObject.AddRotationYFromEditor(-45, rWorldSpace);
+                    }
+                    ImGui.SameLine();
+                    if (ImGui.Button("Z +45"))
+                    {
+                        SelectedGameObject.AddRotationZFromEditor(-45, rWorldSpace);
+                    }
+                    ImGui.SameLine();
+                    ImGui.Checkbox(" ", ref rWorldSpace);
+                    ImGui.SameLine();
+                    ImGui.Text("Rotation around world axes?");
+
+                    OpenTK.Mathematics.Vector3 angles = HelperRotation.ConvertQuaternionToEulerAngles(SelectedGameObject.Rotation);
+                    ImGui.Text("Computed rotation angles: " + Math.Round(angles.X, 0) + " | " + Math.Round(angles.Y, 0) + " | " + Math.Round(angles.Z, 0));
+
+                    ImGui.Separator();
+                    if (ImGui.InputFloat3("Scale (X,Y,Z)", ref sNew, "%.2f"))
+                    {
+                        SelectedGameObject.SetScale(sNew.X, sNew.Y, sNew.Z);
+                    }
                 }
                 ImGui.Separator();
 

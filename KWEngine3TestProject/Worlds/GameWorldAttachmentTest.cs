@@ -37,7 +37,7 @@ namespace KWEngine3TestProject.Worlds
             Attachment a = new Attachment();
             a.SetColor(0, 1, 0);
             a.SetOpacity(0.5f);
-            test.AttachGameObjectToBone(a, "mixamorig:LeftArm");
+            test.AttachGameObjectToBone(a, "mixamorig:RightHand");
             HelperGameObjectAttachment.SetScaleForAttachment(a, 10);
             AddGameObject(a);
 

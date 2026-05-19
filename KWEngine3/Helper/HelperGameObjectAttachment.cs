@@ -27,6 +27,8 @@ namespace KWEngine3.Helper
         /// <param name="offset">Abstand</param>
         public static void SetPositionOffsetForAttachment(GameObject attachedObject, Vector3 offset)
         {
+            if (attachedObject == null)
+                return;
             attachedObject._positionOffsetForAttachment = offset;
         }
 
@@ -59,6 +61,9 @@ namespace KWEngine3.Helper
         /// <param name="scale">Skalierung</param>
         public static void SetScaleForAttachment(GameObject attachedObject, Vector3 scale)
         {
+            if (attachedObject == null)
+                return;
+
             if (scale.X <= 0 || scale.Y <= 0 || scale.Z <= 0)
                 scale = Vector3.One;
             attachedObject._scaleOffsetForAttachment = scale;
@@ -73,6 +78,9 @@ namespace KWEngine3.Helper
         /// <param name="z">Skalierung um die lokale z-Achse in Grad</param>
         public static void SetRotationForAttachment(GameObject attachedObject, float x, float y, float z)
         {
+            if (attachedObject == null)
+                return;
+            attachedObject._rotationOffsetForAttachmentEuler = new Vector3(x, y, z);
             attachedObject._rotationOffsetForAttachment = Quaternion.FromEulerAngles(
                 MathHelper.DegreesToRadians(x), 
                 MathHelper.DegreesToRadians(y), 
@@ -82,6 +90,9 @@ namespace KWEngine3.Helper
 
         internal static void CleanAttachments(GameObject obj)
         {
+            if (obj == null)
+                return;
+
             obj.DetachAllBoneAttachments(false);
 
             if (obj.IsAttachedToGameObject)

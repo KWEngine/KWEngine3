@@ -1686,6 +1686,7 @@ namespace KWEngine3.GameObjects
         internal Vector3 _positionOffsetForAttachment = Vector3.Zero;
         internal Vector3 _scaleOffsetForAttachment = Vector3.One;
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
+        internal Vector3 _rotationOffsetForAttachmentEuler = Vector3.Zero;
 
         internal bool IsRayModeY(RayMode mode)
         {
