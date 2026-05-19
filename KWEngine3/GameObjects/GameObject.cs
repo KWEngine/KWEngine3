@@ -1204,7 +1204,7 @@ namespace KWEngine3.GameObjects
         { 
             get
             {
-                return _stateCurrent._animationPercentage;
+                return _stateCurrent.AnimationPercentageDefault;
             }
         }
 
@@ -1215,7 +1215,7 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return _stateCurrent._animationID;
+                return _stateCurrent.AnimationIDDefault;
             }
         }
 

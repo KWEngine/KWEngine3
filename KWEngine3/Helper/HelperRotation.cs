@@ -20,6 +20,19 @@ namespace KWEngine3.Helper
 
 
         /// <summary>
+        /// Berechnet das Skalarprodukt zweier Quaternionen.
+        /// Wird intern verwendet, um festzustellen ob zwei Quaternionen in derselben Halbkugel liegen
+        /// (positives Ergebnis = gleiche Halbkugel, negatives Ergebnis = entgegengesetzte Halbkugel).
+        /// </summary>
+        /// <param name="a">Erster Quaternion</param>
+        /// <param name="b">Zweiter Quaternion</param>
+        /// <returns>Skalarprodukt</returns>
+        internal static float Dot(Quaternion a, Quaternion b)
+        {
+            return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
+        }
+
+        /// <summary>
         /// Setzt die Vorab-Rotation eines Objekts für ein bestimmten Objektteil (Mesh) auf die angegebenen Gradzahlen (funktioniert nur für Objekte ohne Animationen)
         /// </summary>
         /// <remarks>Die Rotation wird in der Reihenfolge Y-&gt;Z-&gt;X durchgeführt</remarks>

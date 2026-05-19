@@ -96,6 +96,13 @@ namespace KWEngine3.Model
         }
 
         internal List<string> BoneNames { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Benannte Knochen-Presets für dieses Modell.
+        /// Key = Preset-Name, Value = Menge der enthaltenen Knochennamen (bereits expandiert inkl. Kindknochen).
+        /// Wird über KWEngine.AddBonePresetToModel / AddBoneToPreset / RemoveBoneFromPreset verwaltet.
+        /// </summary>
+        internal Dictionary<string, HashSet<string>> BonePresets { get; set; } = new Dictionary<string, HashSet<string>>();
         internal List<GeoNode> NodesWithoutHierarchy = new List<GeoNode>();
         internal Dictionary<string, GeoTexture> Textures { get; set; }
 
@@ -143,6 +150,7 @@ namespace KWEngine3.Model
             this.Animations = null;
             this.Armature = null;
             this.BoneNames = null;
+            this.BonePresets = null;
             this.Root = null;
             this.Textures = null;
         }

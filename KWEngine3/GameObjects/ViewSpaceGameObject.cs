@@ -215,11 +215,11 @@ namespace KWEngine3.GameObjects
         public void SetAnimationID(int id)
         {
             if (IsValid && _gameObject._model.ModelOriginal.Animations != null)
-                _gameObject._stateCurrent._animationID = MathHelper.Clamp(id, -1, _gameObject._model.ModelOriginal.Animations.Count - 1);
+                _gameObject._stateCurrent.AnimationIDDefault = MathHelper.Clamp(id, -1, _gameObject._model.ModelOriginal.Animations.Count - 1);
             else
             {
                 if(IsValid)
-                    _gameObject._stateCurrent._animationID = -1;
+                    _gameObject._stateCurrent.AnimationIDDefault = -1;
             }
         }
 

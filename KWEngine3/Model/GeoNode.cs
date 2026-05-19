@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using System.Collections.Generic;
 
 namespace KWEngine3.Model
 {
@@ -36,6 +37,19 @@ namespace KWEngine3.Model
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Sammelt den Namen dieses Knotens sowie aller Nachfahren rekursiv in das übergebene HashSet.
+        /// Wird für Bone-Presets mit includeChildren=true genutzt.
+        /// </summary>
+        internal static void CollectDescendantNames(GeoNode node, HashSet<string> target)
+        {
+            target.Add(node.Name);
+            if (node.NameWithoutFBXSuffix != null && node.NameWithoutFBXSuffix != node.Name)
+                target.Add(node.NameWithoutFBXSuffix);
+            foreach (GeoNode child in node.Children)
+                CollectDescendantNames(child, target);
         }
     }
 }

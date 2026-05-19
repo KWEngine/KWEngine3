@@ -1030,7 +1030,7 @@ namespace KWEngine3.GameObjects
         {
             get
             {
-                return _model.ModelOriginal.HasBones && _statePrevious._animationID >= 0;
+                return _model.ModelOriginal.HasBones && _statePrevious.AnimationIDDefault >= 0;
             }
         }
 
@@ -1046,47 +1046,150 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Animationsnummer des Objekts (muss >= 0 sein)
+        /// Setzt die Animationsnummer des Objekts.
         /// </summary>
-        /// <param name="id">ID</param>
+        /// <param name="id">ID (muss >= 0 sein, -1 um die Animation abzuwählen)</param>
         public void SetAnimationID(int id)
         {
-            if (_model.ModelOriginal.Animations != null)
-                _stateCurrent._animationID = MathHelper.Clamp(id, -1, _model.ModelOriginal.Animations.Count - 1);
-            else
-                _stateCurrent._animationID = -1;
+            SetAnimationID(id, 0);
         }
 
         /// <summary>
-        /// Setzt den Stand der Animation zwischen 0% und 100% (0 bis 1)
+        /// Setzt die Animationsnummer für einen bestimmten Layer (0 bis 3).
+        /// Mit dem optionalen Parameter presetName kann ein Knochen-Preset angegeben werden,
+        /// das zuvor über KWEngine.AddBonePresetToModel() und KWEngine.AddBoneToPreset() definiert wurde.
+        /// Ist kein Preset angegeben (oder null), gilt die Animation für alle Knochen.
+        /// </summary>
+        /// <param name="id">Animations-ID (-1 = Layer deaktivieren)</param>
+        /// <param name="layerIndex">Layer-Index (0 bis 3)</param>
+        /// <param name="weight">Blending-Gewicht des Layers (0 bis 1, Standard: 1)</param>
+        /// <param name="presetName">Name des Knochen-Presets (null = alle Knochen)</param>
+        public void SetAnimationID(int id, int layerIndex, float weight = 1f, string presetName = null)
+        {
+            layerIndex = MathHelper.Clamp(layerIndex, 0, EngineObjectState.MAX_ANIMATION_LAYERS - 1);
+            AnimationLayer layer = _stateCurrent.GetAnimationLayer(layerIndex);
+            layer.AnimationID = _model.ModelOriginal.Animations != null
+                ? MathHelper.Clamp(id, -1, _model.ModelOriginal.Animations.Count - 1)
+                : -1;
+            layer.Weight = MathHelper.Clamp(weight, 0f, 1f);
+            if (presetName == null)
+            {
+                layer.BoneMask = null;
+            }
+            else if (_model.ModelOriginal.BonePresets != null && _model.ModelOriginal.BonePresets.TryGetValue(presetName, out HashSet<string> mask))
+            {
+                layer.BoneMask = mask;
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] Bone preset '" + presetName + "' not found – layer bone mask unchanged");
+            }
+            _stateCurrent.SetAnimationLayer(layerIndex, layer);
+        }
+
+        /// <summary>
+        /// Setzt den Stand der Animation zwischen 0% und 100% (0 bis 1) für Layer 0.
         /// </summary>
         /// <param name="p">Stand (Werte zwischen 0 und 1)</param>
         public void SetAnimationPercentage(float p)
         {
+            SetAnimationPercentage(p, 0);
+        }
+
+        /// <summary>
+        /// Setzt den Stand der Animation für einen bestimmten Layer (0 bis 3).
+        /// </summary>
+        /// <param name="p">Stand (Werte zwischen 0 und 1)</param>
+        /// <param name="layerIndex">Layer-Index (0 bis 3)</param>
+        public void SetAnimationPercentage(float p, int layerIndex)
+        {
+            layerIndex = MathHelper.Clamp(layerIndex, 0, EngineObjectState.MAX_ANIMATION_LAYERS - 1);
             p = MathHelper.Clamp(p, 0f, 1f);
-            if (Math.Abs(p - _stateCurrent._animationPercentage) > 0.5f)
+            AnimationLayer layerC = _stateCurrent.GetAnimationLayer(layerIndex);
+            if (Math.Abs(p - layerC.Percentage) > 0.5f)
             {
-                _stateCurrent._animationPercentage = p;
-                _statePrevious._animationPercentage = _stateCurrent._animationPercentage;
+                layerC.Percentage = p;
+                _stateCurrent.SetAnimationLayer(layerIndex, layerC);
+                AnimationLayer layerP = _statePrevious.GetAnimationLayer(layerIndex);
+                layerP.Percentage = p;
+                _statePrevious.SetAnimationLayer(layerIndex, layerP);
             }
             else
             {
-                _stateCurrent._animationPercentage = p;
+                layerC.Percentage = p;
+                _stateCurrent.SetAnimationLayer(layerIndex, layerC);
             }
         }
 
         /// <summary>
-        /// Führt die Animation um einen gegebenen Teil fort
+        /// Führt die Animation für Layer 0 um einen gegebenen Teil fort.
         /// </summary>
         /// <param name="p">relativer Fortschritt der Animation</param>
         public void SetAnimationPercentageAdvance(float p)
         {
-            _stateCurrent._animationPercentage += p;
-            if (_stateCurrent._animationPercentage > 1f)
+            SetAnimationPercentageAdvance(p, 0);
+        }
+
+        /// <summary>
+        /// Führt die Animation für einen bestimmten Layer (0 bis 3) um einen gegebenen Teil fort.
+        /// </summary>
+        /// <param name="p">relativer Fortschritt der Animation</param>
+        /// <param name="layerIndex">Layer-Index (0 bis 3)</param>
+        public void SetAnimationPercentageAdvance(float p, int layerIndex)
+        {
+            layerIndex = MathHelper.Clamp(layerIndex, 0, EngineObjectState.MAX_ANIMATION_LAYERS - 1);
+            AnimationLayer layerC = _stateCurrent.GetAnimationLayer(layerIndex);
+            layerC.Percentage += p;
+            if (layerC.Percentage > 1f)
             {
-                _stateCurrent._animationPercentage--;
-                _statePrevious._animationPercentage = _stateCurrent._animationPercentage;
+                layerC.Percentage--;
+                _stateCurrent.SetAnimationLayer(layerIndex, layerC);
+                AnimationLayer layerP = _statePrevious.GetAnimationLayer(layerIndex);
+                layerP.Percentage = layerC.Percentage;
+                _statePrevious.SetAnimationLayer(layerIndex, layerP);
             }
+            else
+            {
+                _stateCurrent.SetAnimationLayer(layerIndex, layerC);
+            }
+        }
+
+        /// <summary>
+        /// Setzt das Blending-Gewicht für einen bestimmten Layer (0 bis 3).
+        /// </summary>
+        /// <param name="weight">Gewicht (0 bis 1)</param>
+        /// <param name="layerIndex">Layer-Index (0 bis 3)</param>
+        public void SetAnimationLayerWeight(float weight, int layerIndex)
+        {
+            layerIndex = MathHelper.Clamp(layerIndex, 0, EngineObjectState.MAX_ANIMATION_LAYERS - 1);
+            AnimationLayer layer = _stateCurrent.GetAnimationLayer(layerIndex);
+            layer.Weight = MathHelper.Clamp(weight, 0f, 1f);
+            _stateCurrent.SetAnimationLayer(layerIndex, layer);
+        }
+
+        /// <summary>
+        /// Setzt das Knochen-Preset für einen bestimmten Layer (0 bis 3) nachträglich.
+        /// Das Preset muss zuvor über KWEngine.AddBonePresetToModel() und KWEngine.AddBoneToPreset() definiert worden sein.
+        /// </summary>
+        /// <param name="presetName">Name des Knochen-Presets (null = alle Knochen)</param>
+        /// <param name="layerIndex">Layer-Index (0 bis 3)</param>
+        public void SetAnimationLayerBonePreset(string presetName, int layerIndex)
+        {
+            layerIndex = MathHelper.Clamp(layerIndex, 0, EngineObjectState.MAX_ANIMATION_LAYERS - 1);
+            AnimationLayer layer = _stateCurrent.GetAnimationLayer(layerIndex);
+            if (presetName == null)
+            {
+                layer.BoneMask = null;
+            }
+            else if (_model.ModelOriginal.BonePresets != null && _model.ModelOriginal.BonePresets.TryGetValue(presetName, out HashSet<string> mask))
+            {
+                layer.BoneMask = mask;
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] Bone preset '" + presetName + "' not found – layer bone mask unchanged");
+            }
+            _stateCurrent.SetAnimationLayer(layerIndex, layer);
         }
 
         /// <summary>

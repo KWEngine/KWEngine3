@@ -684,6 +684,121 @@ namespace KWEngine3
             return resultList;
         }
 
+        /// <summary>
+        /// Legt ein neues leeres Knochen-Preset für das angegebene Modell an (falls noch nicht vorhanden).
+        /// Knochennamen können danach über AddBoneToPreset() hinzugefügt werden.
+        /// </summary>
+        /// <param name="modelname">Name des geladenen Modells</param>
+        /// <param name="presetName">Name des Presets</param>
+        public static void AddBonePresetToModel(string modelname, string presetName)
+        {
+            if (string.IsNullOrWhiteSpace(modelname) || string.IsNullOrWhiteSpace(presetName))
+            {
+                LogWriteLine("[BonePreset] Invalid model or preset name");
+                return;
+            }
+            if (!Models.TryGetValue(modelname, out GeoModel model))
+            {
+                LogWriteLine("[BonePreset] Model '" + modelname + "' not found");
+                return;
+            }
+            if (!model.BonePresets.ContainsKey(presetName))
+            {
+                model.BonePresets[presetName] = new HashSet<string>();
+                LogWriteLine("[BonePreset] Preset '" + presetName + "' created for model '" + modelname + "'");
+            }
+        }
+
+        /// <summary>
+        /// Fügt einen Knochen (und optional alle seine Kindknochen) zu einem Preset hinzu.
+        /// Das Preset muss zuvor über AddBonePresetToModel() angelegt worden sein.
+        /// Knochennamen können über GetModelBoneNames() abgefragt werden.
+        /// </summary>
+        /// <param name="modelname">Name des geladenen Modells</param>
+        /// <param name="presetName">Name des Presets</param>
+        /// <param name="boneName">Name des Knochens</param>
+        /// <param name="includeChildren">true = Kindknochen werden automatisch mit aufgenommen (Standard: true)</param>
+        public static void AddBoneToPreset(string modelname, string presetName, string boneName, bool includeChildren = true)
+        {
+            if (string.IsNullOrWhiteSpace(modelname) || string.IsNullOrWhiteSpace(presetName) || string.IsNullOrWhiteSpace(boneName))
+            {
+                LogWriteLine("[BonePreset] Invalid model, preset or bone name");
+                return;
+            }
+            if (!Models.TryGetValue(modelname, out GeoModel model))
+            {
+                LogWriteLine("[BonePreset] Model '" + modelname + "' not found");
+                return;
+            }
+            if (!model.BonePresets.TryGetValue(presetName, out HashSet<string> preset))
+            {
+                LogWriteLine("[BonePreset] Preset '" + presetName + "' not found in model '" + modelname + "' – call AddBonePresetToModel() first");
+                return;
+            }
+            if (model.Armature == null)
+            {
+                LogWriteLine("[BonePreset] Model '" + modelname + "' has no armature");
+                return;
+            }
+            GeoNode startNode = GeoNode.FindChild(model.Armature, boneName);
+            if (startNode == null)
+            {
+                LogWriteLine("[BonePreset] Bone '" + boneName + "' not found in model '" + modelname + "'");
+                return;
+            }
+            if (includeChildren)
+                GeoNode.CollectDescendantNames(startNode, preset);
+            else
+                preset.Add(startNode.Name);
+        }
+
+        /// <summary>
+        /// Entfernt einen Knochen (und optional alle seine Kindknochen) aus einem Preset.
+        /// </summary>
+        /// <param name="modelname">Name des geladenen Modells</param>
+        /// <param name="presetName">Name des Presets</param>
+        /// <param name="boneName">Name des Knochens</param>
+        /// <param name="includeChildren">true = Kindknochen werden ebenfalls entfernt (Standard: true)</param>
+        public static void RemoveBoneFromPreset(string modelname, string presetName, string boneName, bool includeChildren = true)
+        {
+            if (string.IsNullOrWhiteSpace(modelname) || string.IsNullOrWhiteSpace(presetName) || string.IsNullOrWhiteSpace(boneName))
+            {
+                LogWriteLine("[BonePreset] Invalid model, preset or bone name");
+                return;
+            }
+            if (!Models.TryGetValue(modelname, out GeoModel model))
+            {
+                LogWriteLine("[BonePreset] Model '" + modelname + "' not found");
+                return;
+            }
+            if (!model.BonePresets.TryGetValue(presetName, out HashSet<string> preset))
+            {
+                LogWriteLine("[BonePreset] Preset '" + presetName + "' not found in model '" + modelname + "'");
+                return;
+            }
+            if (model.Armature == null)
+            {
+                LogWriteLine("[BonePreset] Model '" + modelname + "' has no armature");
+                return;
+            }
+            GeoNode startNode = GeoNode.FindChild(model.Armature, boneName);
+            if (startNode == null)
+            {
+                LogWriteLine("[BonePreset] Bone '" + boneName + "' not found in model '" + modelname + "'");
+                return;
+            }
+            if (includeChildren)
+            {
+                HashSet<string> toRemove = new();
+                GeoNode.CollectDescendantNames(startNode, toRemove);
+                preset.ExceptWith(toRemove);
+            }
+            else
+            {
+                preset.Remove(startNode.Name);
+            }
+        }
+
         #region Internals
         internal static float _octreeSafetyZone = 1f;
         internal static float _swpruneTolerance = 2.0f;

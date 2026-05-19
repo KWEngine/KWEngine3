@@ -169,7 +169,7 @@ namespace KWEngine3.Editor
                 if (SelectedVSG._gameObject.HasArmatureAndAnimations)
                 {
                     string[] animations = new string[SelectedVSG._gameObject._model.ModelOriginal.Animations.Count + 1];
-                    int selectedId = SelectedVSG._gameObject._stateCurrent._animationID + 1;
+                    int selectedId = SelectedVSG._gameObject._stateCurrent.AnimationIDDefault + 1;
                     animations[0] = "no animation";
                     for (int i = 0; i < SelectedVSG._gameObject._model.ModelOriginal.Animations.Count; i++)
                     {
@@ -182,7 +182,9 @@ namespace KWEngine3.Editor
                         SelectedVSG._gameObject.SetAnimationID(tmpId);
                     }
 
-                    ImGui.SliderFloat("Animation %", ref SelectedVSG._gameObject._stateCurrent._animationPercentage, 0f, 1f);
+                    float vsgAnimPct = SelectedVSG._gameObject._stateCurrent.AnimationPercentageDefault;
+                    if (ImGui.SliderFloat("Animation %", ref vsgAnimPct, 0f, 1f))
+                        SelectedVSG._gameObject.SetAnimationPercentage(vsgAnimPct);
                     ImGui.Spacing();
                 }
                 ImGui.Separator();
@@ -716,7 +718,7 @@ namespace KWEngine3.Editor
                 else if(SelectedGameObject.HasArmatureAndAnimations)
                 {
                     string[] animations = new string[SelectedGameObject._model.ModelOriginal.Animations.Count + 1];
-                    int selectedId = SelectedGameObject._stateCurrent._animationID + 1;
+                    int selectedId = SelectedGameObject._stateCurrent.AnimationIDDefault + 1;
                     animations[0] = "no animation";
                     for(int i = 0; i < SelectedGameObject._model.ModelOriginal.Animations.Count; i++)
                     {
@@ -729,7 +731,9 @@ namespace KWEngine3.Editor
                         SelectedGameObject.SetAnimationID(tmpId);
                     }
 
-                    ImGui.SliderFloat("Animation %", ref SelectedGameObject._stateCurrent._animationPercentage, 0f, 1f);
+                    float goAnimPct = SelectedGameObject._stateCurrent.AnimationPercentageDefault;
+                    if (ImGui.SliderFloat("Animation %", ref goAnimPct, 0f, 1f))
+                        SelectedGameObject.SetAnimationPercentage(goAnimPct);
                 }
                 
                 ImGui.End();

@@ -3,6 +3,7 @@ using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
 using OpenTK.Platform.Windows;
+using System.Collections.Generic;
 
 namespace KWEngine3.Helper
 {
@@ -127,8 +128,15 @@ namespace KWEngine3.Helper
             g._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrix));
             g._stateRender._lookAtVector = Vector3.Lerp(g._statePrevious._lookAtVector, g._stateCurrent._lookAtVector, alpha);
 
-            g._stateRender._animationID = g._stateCurrent._animationID;
-            g._stateRender._animationPercentage = g._statePrevious._animationPercentage * alpha + g._stateCurrent._animationPercentage * (1f - alpha);
+            // Animations-Layer von _stateCurrent in _stateRender übernehmen und Percentage interpolieren
+            for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
+            {
+                AnimationLayer lc = g._stateCurrent.GetAnimationLayer(li);
+                AnimationLayer lp = g._statePrevious.GetAnimationLayer(li);
+                AnimationLayer lr = lc;
+                lr.Percentage = lp.Percentage * alpha + lc.Percentage * (1f - alpha);
+                g._stateRender.SetAnimationLayer(li, lr);
+            }
             g._stateRender._opacity = g._statePrevious._opacity* alpha +g._stateCurrent._opacity * (1f - alpha);
             g._stateRender._colorTint = Vector3.Lerp(g._statePrevious._colorTint, g._stateCurrent._colorTint, alpha);
             //g._stateRender._colorEmissive = Vector4.Lerp(g._statePrevious._colorEmissive, g._stateCurrent._colorEmissive, alpha);
@@ -170,8 +178,15 @@ namespace KWEngine3.Helper
             r._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(r._stateRender._modelMatrix));
             r._stateRender._lookAtVector = Vector3.Lerp(r._statePrevious._lookAtVector, r._stateCurrent._lookAtVector, alpha);
 
-            r._stateRender._animationID = r._stateCurrent._animationID;
-            r._stateRender._animationPercentage = r._statePrevious._animationPercentage * alpha + r._stateCurrent._animationPercentage * (1f - alpha);
+            // Animations-Layer von _stateCurrent in _stateRender übernehmen und Percentage interpolieren
+            for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
+            {
+                AnimationLayer lc = r._stateCurrent.GetAnimationLayer(li);
+                AnimationLayer lp = r._statePrevious.GetAnimationLayer(li);
+                AnimationLayer lr = lc;
+                lr.Percentage = lp.Percentage * alpha + lc.Percentage * (1f - alpha);
+                r._stateRender.SetAnimationLayer(li, lr);
+            }
             r._stateRender._opacity = r._statePrevious._opacity * alpha + r._stateCurrent._opacity * (1f - alpha);
             r._stateRender._colorTint = Vector3.Lerp(r._statePrevious._colorTint, r._stateCurrent._colorTint, alpha);
 
@@ -255,101 +270,270 @@ namespace KWEngine3.Helper
         {
             if (vsg._gameObject.IsAnimated)
             {
-                GeoAnimation a = vsg._gameObject._model.ModelOriginal.Animations[vsg._gameObject._stateCurrent._animationID];
-                Matrix4 identity = Matrix4.Identity;
                 vsg._gameObject._attachBoneNodes.Clear();
                 for (int i = 0; i < vsg._gameObject._gameObjectsAttached.Keys.Count; i++)
                 {
                     GeoNode boneNode = vsg._gameObject._gameObjectsAttached.Keys.ElementAt(i);
                     vsg._gameObject._attachBoneNodes.Add(boneNode);
                 }
-                ReadNodeHierarchy(vsg._gameObject, a.DurationInTicks * vsg._gameObject._stateCurrent._animationPercentage, ref a, vsg._gameObject._model.ModelOriginal.Root, ref identity, vsg._gameObject._attachBoneNodes, true);
+                // Layer aus _stateCurrent nehmen (VSG nutzt den Simulations-Zustand)
+                BlendAndApplyAnimationLayers(vsg._gameObject, ref vsg._gameObject._stateCurrent, vsg._gameObject._attachBoneNodes, isVSG: true);
             }
         }
 
         internal static void UpdateBoneTransforms(EngineObject g)
         {
-            if (g.IsAnimated)
+            if (g.IsAnimated && g.IsInsideScreenSpaceForRenderPass)
             {
-                if (g.IsInsideScreenSpaceForRenderPass)
+                List<GeoNode> attachBones = null;
+                if (g is GameObject go)
                 {
-                    GeoAnimation a = g._model.ModelOriginal.Animations[g._stateRender._animationID];
-                    Matrix4 identity = Matrix4.Identity;
-                    if (g is GameObject)
-                    {
-                        GameObject go = g as GameObject;
-                        go._attachBoneNodes.Clear();
-                        for (int i = 0; i < go._gameObjectsAttached.Keys.Count; i++)
-                        {
-                            GeoNode boneNode = go._gameObjectsAttached.Keys.ElementAt(i);
-                            go._attachBoneNodes.Add(boneNode);
-                        }
-                        ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, go._attachBoneNodes);
-                    }
-                    else
-                    {
-                        ReadNodeHierarchy(g, a.DurationInTicks * g._stateRender._animationPercentage, ref a, g._model.ModelOriginal.Root, ref identity, null);
-                    }
+                    go._attachBoneNodes.Clear();
+                    for (int i = 0; i < go._gameObjectsAttached.Keys.Count; i++)
+                        go._attachBoneNodes.Add(go._gameObjectsAttached.Keys.ElementAt(i));
+                    attachBones = go._attachBoneNodes;
                 }
+                BlendAndApplyAnimationLayers(g, ref g._stateRender, attachBones, isVSG: false);
             }
         }
 
-        private static void ReadNodeHierarchy(EngineObject g, float timestamp, ref GeoAnimation animation, GeoNode node, ref Matrix4 parentTransform, List<GeoNode> attachBones, bool isVSG = false)
+        private static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectState state, List<GeoNode> attachBones, bool isVSG)
         {
-            Matrix4 nodeTransformation = node.Transform;
-            string channelLookup = node.Name;
-            animation.AnimationChannels.TryGetValue(channelLookup, out GeoNodeAnimationChannel channel);
-
-            if (channel != null)
+            GeoAnimation[]    activeAnims      = new GeoAnimation[EngineObjectState.MAX_ANIMATION_LAYERS];
+            float[]           activeTimestamps = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
+            float[]           activeWeights    = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
+            HashSet<string>[] activeMasks      = new HashSet<string>[EngineObjectState.MAX_ANIMATION_LAYERS];
+            int activeCount = 0;
+            for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
             {
-                Vector3 s = channel.ScaleKeys == null ? nodeTransformation.ExtractScale() : CalcInterpolatedScaling(timestamp, ref channel);
-                Quaternion r = channel.RotationKeys == null ? nodeTransformation.ExtractRotation(false) : CalcInterpolatedRotation(timestamp, ref channel);
-                Vector3 t = channel.TranslationKeys == null ? nodeTransformation.ExtractTranslation() : CalcInterpolatedTranslation(timestamp, ref channel);
-                nodeTransformation = HelperMatrix.CreateModelMatrix(ref s, ref r, ref t);
+                AnimationLayer layer = state.GetAnimationLayer(li);
+                if (!layer.Active || layer.Weight <= 0f) continue;
+                GeoAnimation anim = g._model.ModelOriginal.Animations[layer.AnimationID];
+                activeAnims[activeCount]      = anim;
+                activeTimestamps[activeCount] = layer.Percentage * anim.DurationInTicks;
+                activeWeights[activeCount]    = layer.Weight;
+                activeMasks[activeCount]      = layer.BoneMask;
+                activeCount++;
             }
-            Matrix4 globalTransform = nodeTransformation * parentTransform;
+            if (activeCount == 0) return;
+            Matrix4 identity = Matrix4.Identity;
+            ReadNodeHierarchyBlended(g, activeAnims, activeTimestamps, activeWeights, activeMasks, activeCount,
+                                     g._model.ModelOriginal.Root, ref identity, attachBones, isVSG);
+        }
 
+        private static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectRenderState state, List<GeoNode> attachBones, bool isVSG)
+        {
+            GeoAnimation[]    activeAnims      = new GeoAnimation[EngineObjectState.MAX_ANIMATION_LAYERS];
+            float[]           activeTimestamps = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
+            float[]           activeWeights    = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
+            HashSet<string>[] activeMasks      = new HashSet<string>[EngineObjectState.MAX_ANIMATION_LAYERS];
+            int activeCount = 0;
+            for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
+            {
+                AnimationLayer layer = state.GetAnimationLayer(li);
+                if (!layer.Active || layer.Weight <= 0f) continue;
+                GeoAnimation anim = g._model.ModelOriginal.Animations[layer.AnimationID];
+                activeAnims[activeCount]      = anim;
+                activeTimestamps[activeCount] = layer.Percentage * anim.DurationInTicks;
+                activeWeights[activeCount]    = layer.Weight;
+                activeMasks[activeCount]      = layer.BoneMask;
+                activeCount++;
+            }
+            if (activeCount == 0) return;
+            Matrix4 identity = Matrix4.Identity;
+            ReadNodeHierarchyBlended(g, activeAnims, activeTimestamps, activeWeights, activeMasks, activeCount,
+                                     g._model.ModelOriginal.Root, ref identity, attachBones, isVSG);
+        }
+
+        /// <summary>
+        /// Traversiert die Knochen-Hierarchie einmalig. Pro Knoten werden alle aktiven Layer
+        /// auf TRS-Ebene gemischt, bevor der globalTransform aufgebaut und die Bone-Matrix
+        /// berechnet wird. Entspricht strukturell genau dem originalen ReadNodeHierarchy,
+        /// erweitert um den Layer-Blend-Schritt.
+        /// </summary>
+        private static void ReadNodeHierarchyBlended(
+            EngineObject g,
+            GeoAnimation[] anims,
+            float[] timestamps,
+            float[] weights,
+            HashSet<string>[] masks,
+            int count,
+            GeoNode node,
+            ref Matrix4 parentTransform,
+            List<GeoNode> attachBones,
+            bool isVSG)
+        {
+            // --- Schritt 1: TRS für diesen Knoten aus allen Layern gewichtet mischen ---
+            Vector3    blendedS = Vector3.Zero;
+            Vector3    blendedT = Vector3.Zero;
+            float      blendedRx = 0f, blendedRy = 0f, blendedRz = 0f, blendedRw = 0f;
+            float      totalWeight = 0f;
+            bool       anyLayerContributed = false;
+
+            // Sonderfall: nur ein Layer aktiv und keine BoneMask → exakt wie Original ReadNodeHierarchy
+            if (count == 1 && (masks[0] == null || masks[0].Count == 0))
+            {
+                Matrix4 nodeTransformation = node.Transform;
+                anims[0].AnimationChannels.TryGetValue(node.Name, out GeoNodeAnimationChannel channel);
+                if (channel != null)
+                {
+                    Vector3    s = channel.ScaleKeys       == null ? nodeTransformation.ExtractScale()         : CalcInterpolatedScaling(timestamps[0], ref channel);
+                    Quaternion r = channel.RotationKeys    == null ? nodeTransformation.ExtractRotation(false) : CalcInterpolatedRotation(timestamps[0], ref channel);
+                    Vector3    t = channel.TranslationKeys == null ? nodeTransformation.ExtractTranslation()   : CalcInterpolatedTranslation(timestamps[0], ref channel);
+                    nodeTransformation = HelperMatrix.CreateModelMatrix(ref s, ref r, ref t);
+                }
+                Matrix4 globalTransformSingle = nodeTransformation * parentTransform;
+
+                string boneLookupSingle = node.NameWithoutFBXSuffix;
+                foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
+                {
+                    int index = mesh.BoneNames.IndexOf(boneLookupSingle);
+                    if (index >= 0)
+                    {
+                        Matrix4 boneMatrix = mesh.BoneOffset[index] * globalTransformSingle * g._model.ModelOriginal.TransformGlobalInverse;
+                        g._stateRender._boneTranslationMatrices[mesh.Name][index] = boneMatrix;
+
+                        int tempIndex = attachBones != null ? attachBones.IndexOf(node) : -1;
+                        if (tempIndex >= 0 && g is GameObject goSingle)
+                        {
+                            GameObject attachedObject = goSingle._gameObjectsAttached[node];
+                            if (attachedObject != null)
+                            {
+                                Matrix4 attachmentMatrix = isVSG
+                                    ? mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix
+                                    : mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                                Vector3 tmpUp      = attachedObject.LookAtVectorLocalUp    * attachedObject._positionOffsetForAttachment.Y;
+                                Vector3 tmpRight   = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
+                                Vector3 tmpForward = attachedObject.LookAtVector           * attachedObject._positionOffsetForAttachment.Z;
+                                attachedObject.SetScaleRotationAndTranslation(
+                                    attachmentMatrix.ExtractScale()        * attachedObject._scaleOffsetForAttachment,
+                                    attachmentMatrix.ExtractRotation(true) * attachedObject._rotationOffsetForAttachment,
+                                    attachmentMatrix.ExtractTranslation()  + tmpUp + tmpRight + tmpForward,
+                                    false);
+                            }
+                        }
+                    }
+                }
+                for (int i = 0; i < node.Children.Count; i++)
+                    ReadNodeHierarchyBlended(g, anims, timestamps, weights, masks, count,
+                                             node.Children[i], ref globalTransformSingle, attachBones, isVSG);
+                return;
+            }
+
+            // Mehrere Layer oder BoneMask aktiv: TRS-Blend
+            for (int li = 0; li < count; li++)
+            {
+                // Bone-Masken-Check: Gilt dieser Layer für diesen Knoten?
+                HashSet<string> mask = masks[li];
+                bool inMask = mask == null || mask.Count == 0
+                              || mask.Contains(node.Name)
+                              || (node.NameWithoutFBXSuffix != null && mask.Contains(node.NameWithoutFBXSuffix));
+                if (!inMask)
+                    continue;
+
+                Matrix4 nodeTransformation = node.Transform;
+                anims[li].AnimationChannels.TryGetValue(node.Name, out GeoNodeAnimationChannel channelMulti);
+
+                Vector3    s;
+                Quaternion r;
+                Vector3    t;
+
+                if (channelMulti != null)
+                {
+                    s = channelMulti.ScaleKeys       == null ? nodeTransformation.ExtractScale()         : CalcInterpolatedScaling(timestamps[li], ref channelMulti);
+                    r = channelMulti.RotationKeys    == null ? nodeTransformation.ExtractRotation(false) : CalcInterpolatedRotation(timestamps[li], ref channelMulti);
+                    t = channelMulti.TranslationKeys == null ? nodeTransformation.ExtractTranslation()   : CalcInterpolatedTranslation(timestamps[li], ref channelMulti);
+                }
+                else
+                {
+                    s = nodeTransformation.ExtractScale();
+                    r = nodeTransformation.ExtractRotation(false);
+                    t = nodeTransformation.ExtractTranslation();
+                }
+
+                float w = weights[li];
+                blendedS += s * w;
+                blendedT += t * w;
+
+                // Quaternion-Akkumulation: beim ersten Layer direkt setzen, danach Halbkugel prüfen
+                if (!anyLayerContributed)
+                {
+                    blendedRx = r.X * w;
+                    blendedRy = r.Y * w;
+                    blendedRz = r.Z * w;
+                    blendedRw = r.W * w;
+                }
+                else
+                {
+                    Quaternion acc = new Quaternion(blendedRx, blendedRy, blendedRz, blendedRw);
+                    if (HelperRotation.Dot(acc, r) < 0f)
+                        r = new Quaternion(-r.X, -r.Y, -r.Z, -r.W);
+                    blendedRx += r.X * w;
+                    blendedRy += r.Y * w;
+                    blendedRz += r.Z * w;
+                    blendedRw += r.W * w;
+                }
+
+                totalWeight        += w;
+                anyLayerContributed = true;
+            }
+
+            // --- Schritt 2: globalTransform aufbauen ---
+            Matrix4 globalTransform;
+            if (anyLayerContributed)
+            {
+                blendedS /= totalWeight;
+                blendedT /= totalWeight;
+                Quaternion blendedR = Quaternion.Normalize(new Quaternion(blendedRx, blendedRy, blendedRz, blendedRw));
+                Matrix4 nodeTransformation = HelperMatrix.CreateModelMatrix(ref blendedS, ref blendedR, ref blendedT);
+                globalTransform = nodeTransformation * parentTransform;
+            }
+            else
+            {
+                // Kein Layer gilt für diesen Knoten (BoneMask): unveränderter Node-Transform
+                Matrix4 nodeTransformation = node.Transform;
+                globalTransform = nodeTransformation * parentTransform;
+            }
+
+            // --- Schritt 3: Bone-Matrix berechnen und speichern (identisch zum Original) ---
+            string boneLookup = node.NameWithoutFBXSuffix;
             foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
             {
-                int index = mesh.BoneNames.IndexOf(node.NameWithoutFBXSuffix);
+                int index = mesh.BoneNames.IndexOf(boneLookup);
                 if (index >= 0)
                 {
                     Matrix4 boneMatrix = mesh.BoneOffset[index] * globalTransform * g._model.ModelOriginal.TransformGlobalInverse;
                     g._stateRender._boneTranslationMatrices[mesh.Name][index] = boneMatrix;
+
                     int tempIndex = attachBones != null ? attachBones.IndexOf(node) : -1;
-                    if (tempIndex >= 0 && g is GameObject)
+                    if (tempIndex >= 0 && g is GameObject go2)
                     {
-                        GameObject attachedObject = (g as GameObject)._gameObjectsAttached[node];
+                        GameObject attachedObject = go2._gameObjectsAttached[node];
                         if (attachedObject != null)
                         {
-                        Matrix4 attachmentMatrix;
-                        if (isVSG)
-                        {
-                            attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
-                        }
-                        else
-                        {
-                            attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
-                        }
+                            Matrix4 attachmentMatrix;
+                            if (isVSG)
+                                attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
+                            else
+                                attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
 
-                        Vector3 tmpUp = attachedObject.LookAtVectorLocalUp * attachedObject._positionOffsetForAttachment.Y;
-                        Vector3 tmpRight = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
-                        Vector3 tmpForward = attachedObject.LookAtVector * attachedObject._positionOffsetForAttachment.Z;
-                        attachedObject.SetScaleRotationAndTranslation(
-                            attachmentMatrix.ExtractScale() * attachedObject._scaleOffsetForAttachment,
-                            attachmentMatrix.ExtractRotation(true) * attachedObject._rotationOffsetForAttachment,
-                            attachmentMatrix.ExtractTranslation() + tmpUp + tmpRight + tmpForward,
-                            false
-                            );
+                            Vector3 tmpUp      = attachedObject.LookAtVectorLocalUp    * attachedObject._positionOffsetForAttachment.Y;
+                            Vector3 tmpRight   = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
+                            Vector3 tmpForward = attachedObject.LookAtVector           * attachedObject._positionOffsetForAttachment.Z;
+                            attachedObject.SetScaleRotationAndTranslation(
+                                attachmentMatrix.ExtractScale()        * attachedObject._scaleOffsetForAttachment,
+                                attachmentMatrix.ExtractRotation(true) * attachedObject._rotationOffsetForAttachment,
+                                attachmentMatrix.ExtractTranslation()  + tmpUp + tmpRight + tmpForward,
+                                false);
                         }
                     }
                 }
             }
 
+            // --- Schritt 4: Kindknoten rekursiv verarbeiten ---
             for (int i = 0; i < node.Children.Count; i++)
-            {
-                ReadNodeHierarchy(g, timestamp, ref animation, node.Children[i], ref globalTransform, attachBones);
-            }
+                ReadNodeHierarchyBlended(g, anims, timestamps, weights, masks, count,
+                                         node.Children[i], ref globalTransform, attachBones, isVSG);
         }
 
         private static Vector3 CalcInterpolatedScaling(float timestamp, ref GeoNodeAnimationChannel channel)
