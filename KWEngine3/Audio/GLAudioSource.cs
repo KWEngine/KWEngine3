@@ -501,6 +501,7 @@ namespace KWEngine3.Audio
                 try
                 {
                     _cts?.Cancel();
+                    _currentSpectrum.IsValid = false;
                 }
                 catch(ObjectDisposedException)
                 {
@@ -510,6 +511,9 @@ namespace KWEngine3.Audio
                 //State = PlaybackState.Stopped;
                 _currentSpectrum.IsValid = false;
             }
+
+            AL.SourceStop(mSource);
+
             EraseBuffers();
             
             mReadPosition = 0;
@@ -548,8 +552,24 @@ namespace KWEngine3.Audio
                     if (_cts != null && _cts.Token.CanBeCanceled)
                     {
                         _cts.Cancel();
+
+                        try
+                        {
+                            _playbackTask?.Wait(); // wait for cancellation
+                        }
+                        catch (AggregateException) 
+                        { 
+                            // this exception here is to be expected some times :-)
+                        }
+                        catch (ObjectDisposedException) 
+                        { 
+                            // not sure if this can happen here...
+                        }
+
                         _cts.Dispose();
                     }
+
+
                     _playbackTask.Dispose();
                     _playbackTask = null;
                 }
@@ -569,6 +589,7 @@ namespace KWEngine3.Audio
 
         private void DeleteBuffers()
         {
+            AL.SourceStop(mSource);
             UnqueueBuffers();
 
 
