@@ -14,8 +14,9 @@ namespace KWEngine3.Editor
     internal partial class KWBuilderOverlay
     {
         private const int MAXFRAMETIMES = 240;
-        private const int WINDOW_RIGHT_WIDTH = 460;
         private const int ROUNDDIGITCOUNT = 2;
+        private static int WindowRightWidth => (int)Math.Max(460, KWEngine.Window.ClientSize.X * 0.24f);
+        private static int WindowLeftWidth => (int)Math.Max(316, KWEngine.Window.ClientSize.X * 0.165f);
         private const float KEYBOARDCOOLDOWN = 0.05f;
         private const float POSITIONSTEP = 0.05f;
         private static readonly Queue<float> _frameTimes = new(MAXFRAMETIMES);
@@ -140,8 +141,8 @@ namespace KWEngine3.Editor
             if(SelectedVSG != null)
             {
                 ImGui.Begin("View-space object properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
-                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WindowRightWidth, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
+                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WindowRightWidth, 20), ImGuiCond.Once);
 
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Base properties:");
                 float scale = (SelectedVSG._gameObject._stateCurrent._scale.X + SelectedVSG._gameObject._stateCurrent._scale.Y + SelectedVSG._gameObject._stateCurrent._scale.Z) / 3f;
@@ -259,8 +260,8 @@ namespace KWEngine3.Editor
                     modelName = "KWPlatform";
 
                 ImGui.Begin("GameObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, KWEngine.Window.ClientSize.Y - 32), ImGuiCond.Once);
-                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WindowRightWidth, KWEngine.Window.ClientSize.Y - 32), ImGuiCond.Once);
+                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WindowRightWidth, 20), ImGuiCond.Once);
                 ImGui.Text("ID: " + SelectedGameObject.ID.ToString().PadLeft(8, '0'));
                 ImGui.SameLine();
                 if (ImGui.InputText("Name", ref gName, 64))
@@ -289,7 +290,7 @@ namespace KWEngine3.Editor
                         }
                     }
                 }
-                ImGui.PushItemWidth(200);
+                ImGui.PushItemWidth((int)(WindowRightWidth * 0.43f));
                 if (ImGui.Combo("Model", ref _modelNamesIndex, _modelNames, _modelNames.Length))
                 {
                     _modelNameNew = _modelNames[_modelNamesIndex];
@@ -545,7 +546,7 @@ namespace KWEngine3.Editor
                     {
                         if (SelectedGameObject._model.Material[0].TextureHeight.IsTextureSet && KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
                         {
-                            ImGui.PushItemWidth(96);
+                            ImGui.PushItemWidth((int)(WindowRightWidth * 0.21f));
                             if (ImGui.InputFloat2("Repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
                             {
                                 SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
@@ -555,7 +556,7 @@ namespace KWEngine3.Editor
                             float pomscale = SelectedGameObject._pomScale * 10f;
 
                             ImGui.SameLine();
-                            ImGui.PushItemWidth(62 + 87);
+                            ImGui.PushItemWidth((int)(WindowRightWidth * 0.32f));
                             if (ImGui.SliderFloat("Height", ref pomscale, 0f, 1f, "%.2f", ImGuiSliderFlags.Logarithmic | ImGuiSliderFlags.AlwaysClamp))
                             {
                                 SelectedGameObject.SetParallaxOcclusionMappingScale(pomscale);
@@ -576,7 +577,7 @@ namespace KWEngine3.Editor
                     float[] roughness = new float[SelectedGameObject._model.Material.Length];
                     float[] metallic = new float[SelectedGameObject._model.Material.Length];
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Metallic/Roughness:");
-                    ImGui.PushItemWidth(100);
+                    ImGui.PushItemWidth((int)(WindowRightWidth * 0.22f));
                     for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
                         if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
@@ -638,7 +639,7 @@ namespace KWEngine3.Editor
                     string[] roughness_t = new string[SelectedGameObject._model.Material.Length];
                     string[] emissive_t = new string[SelectedGameObject._model.Material.Length];
 
-                    ImGui.PushItemWidth(150);
+                    ImGui.PushItemWidth((int)(WindowRightWidth * 0.33f));
                     for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
                         if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
@@ -698,7 +699,7 @@ namespace KWEngine3.Editor
 
                     // Texture transform:
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "UV transform:");
-                    ImGui.PushItemWidth(96);
+                    ImGui.PushItemWidth((int)(WindowRightWidth * 0.21f));
                     for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
                         if(SelectedGameObject._model.Material[i].TextureAlbedo.IsTextureSet)
@@ -760,8 +761,8 @@ namespace KWEngine3.Editor
                 float colorIntensityNew = SelectedLightObject._stateCurrent._color.W;
 
                 ImGui.Begin("LightObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
-                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WindowRightWidth, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
+                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WindowRightWidth, 20), ImGuiCond.Once);
                 //LightType.Point ? 0 : l._type == LightType.Sun ? -1 : 1
                 string lighttype = SelectedLightObject._stateCurrent._nearFarFOVType.W == 0f ? "Point" : SelectedLightObject._stateCurrent._nearFarFOVType.W > 0f ? "Directional" : "Sun";
                 ImGui.Text(lighttype + " light ID: " + Math.Abs(SelectedLightObject.ID - 32768).ToString().PadLeft(8, '0'));
@@ -855,8 +856,8 @@ namespace KWEngine3.Editor
                 string gName = SelectedTerrainObject.Name;
 
                 ImGui.Begin("TerrainObject properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(WINDOW_RIGHT_WIDTH, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
-                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WINDOW_RIGHT_WIDTH, 20), ImGuiCond.Once);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(WindowRightWidth, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
+                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - WindowRightWidth, 20), ImGuiCond.Once);
                 ImGui.Text("ID: " + SelectedTerrainObject.ID.ToString().PadLeft(8, '0'));
                 ImGui.SameLine();
                 if (ImGui.InputText("Name", ref gName, 64))
@@ -995,7 +996,7 @@ namespace KWEngine3.Editor
                     */
                     if (SelectedTerrainObject._gModel.Material[0].TextureHeight.IsTextureSet && KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
                     {
-                        ImGui.PushItemWidth(96);
+                        ImGui.PushItemWidth((int)(WindowRightWidth * 0.21f));
                         if (ImGui.InputFloat2("Repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
                         {
                             SelectedTerrainObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
@@ -1005,7 +1006,7 @@ namespace KWEngine3.Editor
                         float pomscale = SelectedTerrainObject._pomScale * 10f;
 
                         ImGui.SameLine();
-                        ImGui.PushItemWidth(62 + 87);
+                        ImGui.PushItemWidth((int)(WindowRightWidth * 0.32f));
                         if (ImGui.SliderFloat("Height", ref pomscale, 0f, 1f, "%.2f", ImGuiSliderFlags.Logarithmic | ImGuiSliderFlags.AlwaysClamp))
                         {
                             SelectedTerrainObject.SetParallaxOcclusionMappingScale(pomscale);
@@ -1135,9 +1136,11 @@ namespace KWEngine3.Editor
                 string bgTexture = GetBackgroundTextureName();
                 float fov = (float)Math.Round(KWEngine.CurrentWorld._cameraEditor._stateCurrent._fov * 2);
                 
+                int worldW = (int)Math.Max(640, KWEngine.Window.ClientSize.X * 0.333f);
+                int worldH = (int)Math.Max(256, KWEngine.Window.ClientSize.Y * 0.20f);
                 ImGui.Begin("World settings", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(640, 256));
-                ImGui.SetWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y - 256), ImGuiCond.Once);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(worldW, worldH));
+                ImGui.SetWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y - worldH), ImGuiCond.Once);
 
                 ImGui.LabelText(KWEngine.CurrentWorld._gameObjects.Count.ToString() + " / " + KWEngine.CurrentWorld._lightObjects.Count.ToString(), "GameObject/LightObject instances:");
                 ImGui.Separator();
@@ -1176,13 +1179,13 @@ namespace KWEngine3.Editor
                 ImGui.SliderFloat("Safety Zone", ref KWEngine._octreeSafetyZone, 0f, 10f);
                 ImGui.Separator();
                 */
-                ImGui.PushItemWidth(96);
+                ImGui.PushItemWidth((int)(worldW * 0.15f));
                 if (ImGui.SliderFloat("Camera FOV", ref fov, 20f, 180f))
                 {
                     KWEngine.CurrentWorld._cameraEditor.SetFOVForPerspectiveProjection(fov);
                 }
                 ImGui.PopItemWidth();
-                ImGui.PushItemWidth(72);
+                ImGui.PushItemWidth((int)(worldW * 0.11f));
                 ImGui.SameLine();
                 ImGui.SliderFloat("Glow Size", ref KWEngine._glowRadius, 0f, 1f);
                 ImGui.SameLine();
@@ -1216,7 +1219,7 @@ namespace KWEngine3.Editor
                     World.Export();
                 }
                 ImGui.SameLine();
-                ImGui.Indent(578);
+                ImGui.Indent(worldW - 62);
                 if (ImGui.Button("Close"))
                 {
                     _worldMenuActive = false;
@@ -1333,8 +1336,10 @@ namespace KWEngine3.Editor
                 {
                     ImGui.Begin("Add LightObject instance", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
                 }
-                ImGui.SetWindowSize(new System.Numerics.Vector2(512, 256));
-                ImGui.SetWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y - 256), ImGuiCond.Once);
+                int addW = (int)Math.Max(512, KWEngine.Window.ClientSize.X * 0.267f);
+                int addH = (int)Math.Max(220, KWEngine.Window.ClientSize.Y * 0.20f);
+                ImGui.SetWindowSize(new System.Numerics.Vector2(addW, addH));
+                ImGui.SetWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y - addH), ImGuiCond.Once);
                 if (_addMenuActive == EditorAddObjectType.GameObject)
                 {
                     ImGui.Combo("Class name", ref _classNamesIndex, _classNames, _classNames.Length);
@@ -1384,7 +1389,7 @@ namespace KWEngine3.Editor
                     }
                 }
                 ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine();
-                ImGui.Indent(512 - 64);
+                ImGui.Indent(addW - 64);
                 if(ImGui.Button("Close"))
                 {
                     _addMenuActive = EditorAddObjectType.None;
@@ -1392,10 +1397,12 @@ namespace KWEngine3.Editor
                 ImGui.End();
             }
 
+            int leftW = WindowLeftWidth;
+            int leftInner = leftW - 16;
             ImGui.Begin("Information", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize);
-            ImGui.SetWindowSize(new System.Numerics.Vector2(316, KWEngine.Window.ClientSize.Y - 32));
+            ImGui.SetWindowSize(new System.Numerics.Vector2(leftW, KWEngine.Window.ClientSize.Y - 32));
             ImGui.SetWindowPos(new System.Numerics.Vector2(0, 20), ImGuiCond.Once);
-            ImGui.BeginChild("LOG", new System.Numerics.Vector2(300, 128-32), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.HorizontalScrollbar);
+            ImGui.BeginChild("LOG", new System.Numerics.Vector2(leftInner, 96), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.HorizontalScrollbar);
             ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Log messages:");
             ImGui.Separator();
             foreach (string logMessage in EngineLog._messages.ToArray())
@@ -1406,7 +1413,7 @@ namespace KWEngine3.Editor
             ImGui.EndChild();
 
             // Frame times
-            ImGui.BeginChild("PERFORMANCE", new System.Numerics.Vector2(300, 144+32), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
+            ImGui.BeginChild("PERFORMANCE", new System.Numerics.Vector2(leftInner, 176), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
             ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Performance analysis:");
             float[] ftimes = _frameTimes.ToArray();
             ImGui.PlotLines("Frame times", ref ftimes[0], _frameTimes.Count, 0, "", 1f, 100f);
@@ -1420,8 +1427,8 @@ namespace KWEngine3.Editor
             ImGui.EndChild();
 
             // Object list:
-            int y = KWEngine.Window.ClientSize.Y - 128 - 144 - 96;
-            ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(300, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);            
+            int y = KWEngine.Window.ClientSize.Y - 96 - 176 - 96;
+            ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(leftInner, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);            
             if (ImGui.TreeNodeEx("GameObject instances", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.CollapsingHeader | ImGuiTreeNodeFlags.DefaultOpen))
             {
                 foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjectsSortedByType())
@@ -1488,8 +1495,9 @@ namespace KWEngine3.Editor
                 {
                     ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(1, 1, 0, 0.5f));
                 }
-                ImGui.Indent((300 - 256) / 2);
-                if (ImGui.Button("Show view-space game object", new System.Numerics.Vector2(256, 16)))
+                int vsgBtnW = (int)(leftInner * 0.85f);
+                ImGui.Indent((leftInner - vsgBtnW) / 2);
+                if (ImGui.Button("Show view-space game object", new System.Numerics.Vector2(vsgBtnW, 16)))
                 {
                     
                     DeselectAll();
@@ -1841,9 +1849,9 @@ namespace KWEngine3.Editor
                 List<MemberInfo> fields = HelperDebug.GetKWDebugFields(SelectedGameObject);
 
                 ImGui.Begin("Instance's debug properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
-                float size = KWEngine.Window.ClientSize.X - 316 - WINDOW_RIGHT_WIDTH - 8;
+                float size = KWEngine.Window.ClientSize.X - WindowLeftWidth - WindowRightWidth - 8;
                 ImGui.SetWindowSize(new System.Numerics.Vector2(size, 128));
-                ImGui.SetWindowPos(new System.Numerics.Vector2(316 + 4, KWEngine.Window.ClientSize.Y - 16 - 128), ImGuiCond.Always);
+                ImGui.SetWindowPos(new System.Numerics.Vector2(WindowLeftWidth + 4, KWEngine.Window.ClientSize.Y - 16 - 128), ImGuiCond.Always);
 
                 ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
 
@@ -1880,7 +1888,7 @@ namespace KWEngine3.Editor
             ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(1f, 1f, 1f, 0.2f));
             ImGui.Begin("Debug Overlay", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
             ImGui.PopStyleColor();
-            float size = 412;
+            float size = KWEngine.Window.ClientSize.X * 0.214f;
             ImGui.SetWindowSize(new System.Numerics.Vector2(size, 256));
             ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - size * 1.25f, 0 + KWEngine.Window.ClientSize.Y * 0.01f), ImGuiCond.Always);
 
