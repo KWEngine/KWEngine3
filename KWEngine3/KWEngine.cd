@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="11" Width="2.75" />
+    <Position X="0.5" Y="11.75" Width="2.75" />
     <Members>
       <Field Name="_disposed" Hidden="true" />
       <Field Name="_frame" Hidden="true" />
@@ -12,8 +12,14 @@
       <Field Name="_mouseScrollDelta" Hidden="true" />
       <Field Name="_mouseScrollPosition" Hidden="true" />
       <Field Name="_projectionMatrixHUD" Hidden="true" />
+      <Field Name="_renderFrameGameObjectsForward" Hidden="true" />
+      <Field Name="_renderFramePointLights" Hidden="true" />
+      <Field Name="_renderFrameRenderObjectsForward" Hidden="true" />
+      <Field Name="_renderFrameStencilObjects" Hidden="true" />
       <Field Name="_renderQuality" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
+      <Field Name="_updatePostponedObjects" Hidden="true" />
+      <Field Name="_updatePostponedObjectsAttachments" Hidden="true" />
       <Field Name="_viewMatrixHUD" Hidden="true" />
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Field Name="_worldNew" Hidden="true" />
@@ -56,7 +62,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QDyEBAAAhUAEAQ6A0AEBgEASkhoEBCQAaAEE2EWuAgA=</HashCode>
+      <HashCode>QDyEBAAAxUAEAQ6Q0BEBgEASkhoEBCQAaAEE2EWuogA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -147,7 +153,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DdgQRbBNA6SJgPGc7AruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>DdgQRbBNA6SJgPGc/AruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -271,6 +277,7 @@
       <Field Name="_rayOrigins4" Hidden="true" />
       <Field Name="_rayOrigins5" Hidden="true" />
       <Field Name="_rotationOffsetForAttachment" Hidden="true" />
+      <Field Name="_rotationOffsetForAttachmentEuler" Hidden="true" />
       <Field Name="_scaleOffsetForAttachment" Hidden="true" />
       <Method Name="GetBoneNameForAttachedGameObject" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
@@ -284,7 +291,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAGABGGIwqwiSEwIAOEABEBUYyA0EJwkADBA0CUIE=</HashCode>
+      <HashCode>jAiAGABGGIwqwiSEwIAOEABEJUYyA0EJwkADBA0CUIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -307,7 +314,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="6.5" Y="17.5" Width="2.75" />
+    <Position X="6.5" Y="17.75" Width="2.75" />
     <Members>
       <Field Name="_behindCamera" Hidden="true" />
       <Field Name="_fbShadowMap" Hidden="true" />
@@ -462,6 +469,7 @@
     <Members>
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
+      <Method Name="Dot" Hidden="true" />
       <Field Name="finalTranslationPoint" Hidden="true" />
       <Method Name="GetRotationTowardsCamera" Hidden="true" />
       <Field Name="rotationMatrix" Hidden="true" />
@@ -472,7 +480,7 @@
       <Field Name="zeroVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFLAIDAAg0AAAAASAACggA=</HashCode>
+      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFLCIDAAg0AAAAASAACggA=</HashCode>
       <FileName>Helper\HelperRotation.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -494,7 +502,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="17.75" Width="2.75" />
+    <Position X="0.5" Y="18.5" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -629,7 +637,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyNDJ1oOGJ6gUIRuwgqBoUYBACTByxgJIImMnkBYRVQ=</HashCode>
+      <HashCode>QyNDJ1oOGJ6gUIRuwgqBoUYBACTJyxgJIImMnkBYRVU=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -763,7 +771,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="0.5" Y="20.25" Width="2.75" />
+    <Position X="12.5" Y="17.5" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />
