@@ -10,6 +10,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using SkiaSharp;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime;
 using System.Runtime.InteropServices;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
 
@@ -649,6 +650,7 @@ namespace KWEngine3.Helper
             GL.Flush();
             GL.Finish();
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
+            GCSettings.LatencyMode = GCLatencyMode.Interactive;
         }
 
         internal static void SwitchToBufferAndClear(int id, ClearColorMode mode = ClearColorMode.ZeroZeroZeroOne)
