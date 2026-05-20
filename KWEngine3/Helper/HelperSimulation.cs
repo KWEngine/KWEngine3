@@ -321,7 +321,7 @@ namespace KWEngine3.Helper
                                      g._model.ModelOriginal.Root, ref identity, attachBones, isVSG);
         }
 
-        private static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectRenderState state, List<GeoNode> attachBones, bool isVSG)
+        internal static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectRenderState state, List<GeoNode> attachBones, bool isVSG)
         {
             GeoAnimation[]    activeAnims      = new GeoAnimation[EngineObjectState.MAX_ANIMATION_LAYERS];
             float[]           activeTimestamps = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
@@ -351,7 +351,7 @@ namespace KWEngine3.Helper
         /// berechnet wird. Entspricht strukturell genau dem originalen ReadNodeHierarchy,
         /// erweitert um den Layer-Blend-Schritt.
         /// </summary>
-        private static void ReadNodeHierarchyBlended(
+        internal static void ReadNodeHierarchyBlended(
             EngineObject g,
             GeoAnimation[] anims,
             float[] timestamps,
@@ -363,14 +363,14 @@ namespace KWEngine3.Helper
             List<GeoNode> attachBones,
             bool isVSG)
         {
-            // --- Schritt 1: TRS für diesen Knoten aus allen Layern gewichtet mischen ---
+            // Mix TRS from all layers:
             Vector3    blendedS = Vector3.Zero;
             Vector3    blendedT = Vector3.Zero;
             float      blendedRx = 0f, blendedRy = 0f, blendedRz = 0f, blendedRw = 0f;
             float      totalWeight = 0f;
             bool       anyLayerContributed = false;
 
-            // Sonderfall: nur ein Layer aktiv und keine BoneMask → exakt wie Original ReadNodeHierarchy
+            // special case: only one layer and no masking active
             if (count == 1 && (masks[0] == null || masks[0].Count == 0))
             {
                 Matrix4 nodeTransformation = node.Transform;

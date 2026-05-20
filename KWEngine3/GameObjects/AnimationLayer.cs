@@ -6,7 +6,7 @@ namespace KWEngine3.GameObjects
     /// Beschreibt einen einzelnen Animations-Layer für ein EngineObject.
     /// Bis zu 4 Layer können gleichzeitig aktiv sein und werden gewichtet gemischt.
     /// </summary>
-    public struct AnimationLayer
+    internal struct AnimationLayer
     {
         /// <summary>
         /// Index der Animation (entspricht dem Index in der Animations-Liste des Modells; -1 = inaktiv)

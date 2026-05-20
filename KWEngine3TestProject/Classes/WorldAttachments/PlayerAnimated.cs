@@ -10,11 +10,14 @@ namespace KWEngine3TestProject.Classes.WorldAttachments
     { 
         public override void Act()
         {
+            
             if(HasAnimations)
             {
-                SetAnimationID(1);
-                SetAnimationPercentageAdvance(0.001f);
+                
+                //SetAnimationPercentageAdvance(0.001f, 0);
+                //SetAnimationPercentageAdvance(0.001f, 1);
             }
+            
         }
     }
 }

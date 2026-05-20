@@ -19,22 +19,14 @@ namespace KWEngine3.Model
 
         public static GeoNode FindChild(GeoNode nodeStart, string name)
         {
-            if(nodeStart.Name == name)
-            {
+            if (nodeStart.Name == name || nodeStart.NameWithoutFBXSuffix == name)
                 return nodeStart;
-            }
-            else
+
+            foreach (GeoNode child in nodeStart.Children)
             {
-                foreach (GeoNode child in nodeStart.Children)
-                {
-                    if(child.Name == name)
-                    {
-                        return child;
-                    }
-                    GeoNode v = FindChild(child, name);
-                    if (v != null && v.Name == name)
-                        return v;
-                }
+                GeoNode v = FindChild(child, name);
+                if (v != null)
+                    return v;
             }
             return null;
         }
