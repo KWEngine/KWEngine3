@@ -13,9 +13,8 @@ namespace KWEngine3TestProject.Classes.WorldAttachments
             
             if(HasAnimations)
             {
-                
-                //SetAnimationPercentageAdvance(0.001f, 0);
-                //SetAnimationPercentageAdvance(0.001f, 1);
+                SetAnimationPercentageAdvance(0.001f, 0);
+                SetAnimationPercentageAdvance(0.001f, 1);
             }
             
         }

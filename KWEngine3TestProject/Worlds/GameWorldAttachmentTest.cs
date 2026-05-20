@@ -18,7 +18,6 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            /*
             KWEngine.LoadModel("Bot", "./Models/GLTFTest/bot.gltf");
             Console.WriteLine("Knochen des Modells 'Bot':");
             foreach(string bone in KWEngine.GetModelBoneNames("Bot"))
@@ -58,13 +57,14 @@ namespace KWEngine3TestProject.Worlds
             test.AttachGameObjectToBone(a, "mixamorig:RightHand");
             HelperGameObjectAttachment.SetScaleForAttachment(a, 10);
             AddGameObject(a);
-            */
-
+            
+            /*
             KWEngine.LoadModel("Brute", "./Models/Brute/brute.fbx");
             PlayerAnimated test = new PlayerAnimated();
             test.SetModel("Brute");
             test.UpdateLast = true;
             AddGameObject(test);
+            */
 
             SetCameraPosition(0, 0.75f, 3.5f);
             SetCameraTarget(0, 0.75f, 0);

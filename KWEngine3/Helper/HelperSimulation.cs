@@ -9,6 +9,11 @@ namespace KWEngine3.Helper
 {
     internal static class HelperSimulation
     {
+        internal static readonly GeoAnimation[]    _activeAnims      = new GeoAnimation[EngineObjectState.MAX_ANIMATION_LAYERS];
+        internal static readonly float[]           _activeTimestamps = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
+        internal static readonly float[]           _activeWeights    = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
+        internal static readonly HashSet<string>[] _activeMasks      = new HashSet<string>[EngineObjectState.MAX_ANIMATION_LAYERS];
+
         public static void BlendWorldBackgroundStates(float alpha)
         {
             if(KWEngine.CurrentWorld._background.Type == BackgroundType.Standard)
@@ -299,49 +304,41 @@ namespace KWEngine3.Helper
 
         private static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectState state, List<GeoNode> attachBones, bool isVSG)
         {
-            GeoAnimation[]    activeAnims      = new GeoAnimation[EngineObjectState.MAX_ANIMATION_LAYERS];
-            float[]           activeTimestamps = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
-            float[]           activeWeights    = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
-            HashSet<string>[] activeMasks      = new HashSet<string>[EngineObjectState.MAX_ANIMATION_LAYERS];
             int activeCount = 0;
             for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
             {
                 AnimationLayer layer = state.GetAnimationLayer(li);
                 if (!layer.Active || layer.Weight <= 0f) continue;
                 GeoAnimation anim = g._model.ModelOriginal.Animations[layer.AnimationID];
-                activeAnims[activeCount]      = anim;
-                activeTimestamps[activeCount] = layer.Percentage * anim.DurationInTicks;
-                activeWeights[activeCount]    = layer.Weight;
-                activeMasks[activeCount]      = layer.BoneMask;
+                _activeAnims[activeCount]      = anim;
+                _activeTimestamps[activeCount] = layer.Percentage * anim.DurationInTicks;
+                _activeWeights[activeCount]    = layer.Weight;
+                _activeMasks[activeCount]      = layer.BoneMask;
                 activeCount++;
             }
             if (activeCount == 0) return;
             Matrix4 identity = Matrix4.Identity;
-            ReadNodeHierarchyBlended(g, activeAnims, activeTimestamps, activeWeights, activeMasks, activeCount,
+            ReadNodeHierarchyBlended(g, _activeAnims, _activeTimestamps, _activeWeights, _activeMasks, activeCount,
                                      g._model.ModelOriginal.Root, ref identity, attachBones, isVSG);
         }
 
         internal static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectRenderState state, List<GeoNode> attachBones, bool isVSG)
         {
-            GeoAnimation[]    activeAnims      = new GeoAnimation[EngineObjectState.MAX_ANIMATION_LAYERS];
-            float[]           activeTimestamps = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
-            float[]           activeWeights    = new float[EngineObjectState.MAX_ANIMATION_LAYERS];
-            HashSet<string>[] activeMasks      = new HashSet<string>[EngineObjectState.MAX_ANIMATION_LAYERS];
             int activeCount = 0;
             for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
             {
                 AnimationLayer layer = state.GetAnimationLayer(li);
                 if (!layer.Active || layer.Weight <= 0f) continue;
                 GeoAnimation anim = g._model.ModelOriginal.Animations[layer.AnimationID];
-                activeAnims[activeCount]      = anim;
-                activeTimestamps[activeCount] = layer.Percentage * anim.DurationInTicks;
-                activeWeights[activeCount]    = layer.Weight;
-                activeMasks[activeCount]      = layer.BoneMask;
+                _activeAnims[activeCount]      = anim;
+                _activeTimestamps[activeCount] = layer.Percentage * anim.DurationInTicks;
+                _activeWeights[activeCount]    = layer.Weight;
+                _activeMasks[activeCount]      = layer.BoneMask;
                 activeCount++;
             }
             if (activeCount == 0) return;
             Matrix4 identity = Matrix4.Identity;
-            ReadNodeHierarchyBlended(g, activeAnims, activeTimestamps, activeWeights, activeMasks, activeCount,
+            ReadNodeHierarchyBlended(g, _activeAnims, _activeTimestamps, _activeWeights, _activeMasks, activeCount,
                                      g._model.ModelOriginal.Root, ref identity, attachBones, isVSG);
         }
 
@@ -478,7 +475,7 @@ namespace KWEngine3.Helper
                 anyLayerContributed = true;
             }
 
-            // --- Schritt 2: globalTransform aufbauen ---
+            // globalTransform aufbauen
             Matrix4 globalTransform;
             if (anyLayerContributed)
             {
@@ -495,7 +492,7 @@ namespace KWEngine3.Helper
                 globalTransform = nodeTransformation * parentTransform;
             }
 
-            // --- Schritt 3: Bone-Matrix berechnen und speichern (identisch zum Original) ---
+            // Bone-Matrix berechnen und speichern (wie vor dem Blending)
             string boneLookup = node.NameWithoutFBXSuffix;
             foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
             {
@@ -530,7 +527,7 @@ namespace KWEngine3.Helper
                 }
             }
 
-            // --- Schritt 4: Kindknoten rekursiv verarbeiten ---
+            // Kindknoten rekursiv verarbeiten:
             for (int i = 0; i < node.Children.Count; i++)
                 ReadNodeHierarchyBlended(g, anims, timestamps, weights, masks, count,
                                          node.Children[i], ref globalTransform, attachBones, isVSG);
@@ -559,22 +556,23 @@ namespace KWEngine3.Helper
                 return channel.ScaleKeys[channel.ScaleKeys.Count - 1].Scale;
             }
 
-            for (int i = 0; i < channel.ScaleKeys.Count - 1; i++)
+            int lo = 0, hi = channel.ScaleKeys.Count - 2;
+            while (lo < hi)
             {
-                GeoAnimationKeyframe key = channel.ScaleKeys[i];
-                if (timestamp >= key.Time && timestamp <= channel.ScaleKeys[i + 1].Time)
-                {
-                    GeoAnimationKeyframe key2 = channel.ScaleKeys[i + 1];
-
-                    float deltaTime = (key2.Time - key.Time);
-                    float factor = (timestamp - key.Time) / deltaTime;
-                    Vector3 scalingStart = key.Scale;
-                    Vector3 scalingEnd = key2.Scale;
-                    Vector3.Lerp(scalingStart, scalingEnd, factor, out Vector3 scaling);
-                    return scaling;
-                }
+                int mid = (lo + hi + 1) / 2;
+                if (channel.ScaleKeys[mid].Time <= timestamp)
+                    lo = mid;
+                else
+                    hi = mid - 1;
             }
-            return new Vector3(1, 1, 1);
+            {
+                GeoAnimationKeyframe key = channel.ScaleKeys[lo];
+                GeoAnimationKeyframe key2 = channel.ScaleKeys[lo + 1];
+                float deltaTime = (key2.Time - key.Time);
+                float factor = (timestamp - key.Time) / deltaTime;
+                Vector3.Lerp(key.Scale, key2.Scale, factor, out Vector3 scaling);
+                return scaling;
+            }
         }
 
         private static Vector3 CalcInterpolatedTranslation(float timestamp, ref GeoNodeAnimationChannel channel)
@@ -600,23 +598,23 @@ namespace KWEngine3.Helper
                 return channel.TranslationKeys[channel.TranslationKeys.Count - 1].Translation;
             }
 
-            for (int i = 0; i < channel.TranslationKeys.Count - 1; i++)
+            int lo = 0, hi = channel.TranslationKeys.Count - 2;
+            while (lo < hi)
             {
-                GeoAnimationKeyframe key = channel.TranslationKeys[i];
-                
-                if (timestamp >= key.Time && timestamp <= channel.TranslationKeys[i + 1].Time)
-                {
-                    GeoAnimationKeyframe key2 = channel.TranslationKeys[i + 1];
-
-                    float deltaTime = (key2.Time - key.Time);
-                    float factor = (timestamp - key.Time) / deltaTime;
-                    Vector3 transStart = key.Translation;
-                    Vector3 transEnd = key2.Translation;
-                    Vector3.Lerp(transStart, transEnd, factor, out Vector3 trans);
-                    return trans;
-                }
+                int mid = (lo + hi + 1) / 2;
+                if (channel.TranslationKeys[mid].Time <= timestamp)
+                    lo = mid;
+                else
+                    hi = mid - 1;
             }
-            return new Vector3(0, 0, 0);
+            {
+                GeoAnimationKeyframe key = channel.TranslationKeys[lo];
+                GeoAnimationKeyframe key2 = channel.TranslationKeys[lo + 1];
+                float deltaTime = (key2.Time - key.Time);
+                float factor = (timestamp - key.Time) / deltaTime;
+                Vector3.Lerp(key.Translation, key2.Translation, factor, out Vector3 trans);
+                return trans;
+            }
         }
 
         private static Quaternion CalcInterpolatedRotation(float timestamp, ref GeoNodeAnimationChannel channel)
@@ -642,21 +640,22 @@ namespace KWEngine3.Helper
                 return channel.RotationKeys[channel.RotationKeys.Count - 1].Rotation;
             }
 
-            for (int i = 0; i < channel.RotationKeys.Count - 1; i++)
+            int lo = 0, hi = channel.RotationKeys.Count - 2;
+            while (lo < hi)
             {
-                if (timestamp >= channel.RotationKeys[i].Time && timestamp <= channel.RotationKeys[i + 1].Time)
-                {
-                    GeoAnimationKeyframe key2 = channel.RotationKeys[i + 1];
-
-                    float deltaTime = key2.Time - channel.RotationKeys[i].Time;
-                    float factor = (timestamp - channel.RotationKeys[i].Time) / deltaTime;
-                    Quaternion rotationStart = channel.RotationKeys[i].Rotation;
-                    Quaternion rotationEnd = key2.Rotation;
-                    Quaternion rotation = Quaternion.Slerp(rotationStart, rotationEnd, factor);
-                    return rotation;
-                }
+                int mid = (lo + hi + 1) / 2;
+                if (channel.RotationKeys[mid].Time <= timestamp)
+                    lo = mid;
+                else
+                    hi = mid - 1;
             }
-            return new Quaternion(0, 0, 0, 1);
+            {
+                GeoAnimationKeyframe key = channel.RotationKeys[lo];
+                GeoAnimationKeyframe key2 = channel.RotationKeys[lo + 1];
+                float deltaTime = key2.Time - key.Time;
+                float factor = (timestamp - key.Time) / deltaTime;
+                return Quaternion.Slerp(key.Rotation, key2.Rotation, factor);
+            }
         }
     }
 }
