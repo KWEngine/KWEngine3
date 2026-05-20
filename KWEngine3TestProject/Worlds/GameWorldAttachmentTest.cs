@@ -18,6 +18,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            KWEngine.LoadModel("FPS_ARMS", "./Models/FirstPersonView/arms.gltf");
+
             KWEngine.LoadModel("Bot", "./Models/GLTFTest/bot.gltf");
             Console.WriteLine("Knochen des Modells 'Bot':");
             foreach(string bone in KWEngine.GetModelBoneNames("Bot"))
@@ -75,6 +77,8 @@ namespace KWEngine3TestProject.Worlds
             sun.SetColor(1, 1, 1, 3);
             AddLightObject(sun);
 
+            VSG vsg = new VSG();
+            SetViewSpaceGameObject(vsg);
 
         }
     }
