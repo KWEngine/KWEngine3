@@ -160,7 +160,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorEmissive, t._stateRender._colorEmissive);
             GL.Uniform2(UIdShadowCaster, new Vector2i(t.ID, t.IsShadowCaster ? 1 : 0));
             GL.Uniform3(UMetallicRoughness, new Vector3(t._gModel._metallicTerrain, t._gModel._roughnessTerrain, Convert.ToSingle((int)t._gModel._metallicType)));
-            GeoMesh mesh = t._gModel.ModelOriginal.Meshes.Values.ToArray()[0];
+            GeoMesh mesh = t._gModel.ModelOriginal.MeshesArray[0];
 
             GeoMaterial material = t._gModel.Material[0]; 
             GeoMaterial materialSlope = t._gModel.Material[1];

@@ -206,7 +206,7 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
             GL.Uniform1(UTexture, 0);
 
-            GeoMesh[] meshes = ho._go._model.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = ho._go._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];

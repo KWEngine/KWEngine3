@@ -74,6 +74,16 @@ namespace KWEngine3.Model
         /// </summary>
         public Matrix4 TransformGlobalInverse { get; internal set; }
         internal SortedDictionary<string, GeoMesh> Meshes { get; set; }
+        private GeoMesh[] _meshesArray = null;
+        internal GeoMesh[] MeshesArray
+        {
+            get
+            {
+                if (_meshesArray == null || _meshesArray.Length != Meshes.Count)
+                    _meshesArray = Meshes.Values.ToArray();
+                return _meshesArray;
+            }
+        }
         //internal List<GeoMeshHitbox> MeshHitboxes { get; set; }
         internal GeoMeshCollider MeshCollider { get; set; } = new GeoMeshCollider();
         /// <summary>

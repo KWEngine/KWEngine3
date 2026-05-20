@@ -119,7 +119,7 @@ namespace KWEngine3.Renderer.LowQuality
 
         public void Draw(GameObject g)
         {
-            GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = g._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];
@@ -159,7 +159,7 @@ namespace KWEngine3.Renderer.LowQuality
 
         public void Draw(ViewSpaceGameObject vsgo)
         {
-            GeoMesh[] meshes = vsgo._gameObject._model.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = vsgo._gameObject._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];
@@ -199,7 +199,7 @@ namespace KWEngine3.Renderer.LowQuality
 
         public void Draw(TerrainObject t)
         {
-            GeoMesh[] meshes = t._gModel.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = t._gModel.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];

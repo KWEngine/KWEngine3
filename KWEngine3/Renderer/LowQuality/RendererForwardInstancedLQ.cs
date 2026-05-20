@@ -268,7 +268,7 @@ namespace KWEngine3.Renderer.LowQuality
             val *= r.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);
 
-            GeoMesh[] meshes = r._model.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = r._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];

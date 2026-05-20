@@ -120,7 +120,7 @@ namespace KWEngine3.Renderer
         {
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
 
-            GeoMesh[] meshes = r._model.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = r._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];

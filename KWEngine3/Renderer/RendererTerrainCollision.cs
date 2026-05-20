@@ -89,7 +89,7 @@ namespace KWEngine3.Renderer
         public static void Draw(TerrainObject t)
         {
             GL.BindVertexArray(VAO);
-            Sector[,] map = t._gModel.ModelOriginal.Meshes.Values.ToArray()[0].Terrain.mSectorMap;
+            Sector[,] map = t._gModel.ModelOriginal.MeshesArray[0].Terrain.mSectorMap;
             foreach (Sector sector in map)
             {
                 List<float> tripositions = new();

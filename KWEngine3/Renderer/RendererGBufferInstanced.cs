@@ -144,7 +144,7 @@ namespace KWEngine3.Renderer
             else
                 GL.Uniform4(UCameraPosition, new Vector4(KWEngine.CurrentWorld._cameraEditor._stateRender._position, KWEngine.Window._renderQuality >= RenderQualityLevel.Default ? r._pomScale : 0.0f));
 
-            GeoMesh[] meshes = r._model.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = r._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];

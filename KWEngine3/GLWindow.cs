@@ -35,6 +35,16 @@ namespace KWEngine3
         internal int _mouseScrollPosition = 0;
         internal int _mouseScrollDelta = 0;
         internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
+
+        // render frame reusable lists (avoid per-frame allocations):
+        internal readonly List<LightObject> _renderFramePointLights = new();
+        internal readonly List<GameObject> _renderFrameGameObjectsForward = new();
+        internal readonly List<RenderObject> _renderFrameRenderObjectsForward = new();
+        internal readonly List<GameObject> _renderFrameStencilObjects = new();
+
+        // update loop reusable lists (avoid per-tick allocations):
+        internal readonly List<GameObject> _updatePostponedObjects = new();
+        internal readonly List<GameObject> _updatePostponedObjectsAttachments = new();
         internal static ulong _frame = 0;
         
         internal void ResetMouseDeltas()
@@ -436,10 +446,14 @@ namespace KWEngine3
                 KWEngine.CurrentWorld._mouseCursorJustGrabbed = false;
 
             float alpha = UpdateScene(out lastCycleCount);
-            List<LightObject> pointLights = new();
-            List<GameObject> gameObjectsForForwardRendering = new();
-            List<RenderObject> renderObjectsForForwardRendering = new();
-            List<GameObject> stencilObjects = new();
+            _renderFramePointLights.Clear();
+            _renderFrameGameObjectsForward.Clear();
+            _renderFrameRenderObjectsForward.Clear();
+            _renderFrameStencilObjects.Clear();
+            List<LightObject> pointLights = _renderFramePointLights;
+            List<GameObject> gameObjectsForForwardRendering = _renderFrameGameObjectsForward;
+            List<RenderObject> renderObjectsForForwardRendering = _renderFrameRenderObjectsForward;
+            List<GameObject> stencilObjects = _renderFrameStencilObjects;
 
             KWEngine.LastFrameTime = (float)e.Time * 1000;
 
@@ -1239,8 +1253,10 @@ namespace KWEngine3
                 if (KWEngine.CurrentWorld != null && _worldNew == null)
                 {
                     KWEngine.CurrentWorld.ResetWorldDimensions();
-                    List<GameObject> postponedObjects = new();
-                    List<GameObject> postponedObjectsAttachments = new();
+                    _updatePostponedObjects.Clear();
+                    _updatePostponedObjectsAttachments.Clear();
+                    List<GameObject> postponedObjects = _updatePostponedObjects;
+                    List<GameObject> postponedObjectsAttachments = _updatePostponedObjectsAttachments;
 
                     KWEngine.CurrentWorld.AddRemoveGameObjects();
                     KWEngine.CurrentWorld.AddRemoveRenderObjects();
@@ -1282,13 +1298,10 @@ namespace KWEngine3
                             lock (HelperSweepAndPrune.OwnersDict)
                             {
                                 bool gHasList = HelperSweepAndPrune.OwnersDict.TryGetValue(g, out List<GameObjectHitbox> collisions);
+                                g._collisionCandidates.Clear();
                                 if (gHasList)
                                 {
-                                    g._collisionCandidates = new List<GameObjectHitbox>(collisions);
-                                }
-                                else
-                                {
-                                    g._collisionCandidates = new List<GameObjectHitbox>();
+                                    g._collisionCandidates.AddRange(collisions);
                                 }
                             }
 
@@ -1402,10 +1415,9 @@ namespace KWEngine3
                             lock (HelperSweepAndPrune.OwnersDict)
                             {
                                 bool hasCCs = HelperSweepAndPrune.OwnersDict.TryGetValue(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, out List<GameObjectHitbox> hitBoxes);
+                                KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.Clear();
                                 if (hasCCs)
-                                    KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates = new List<GameObjectHitbox>(hitBoxes);
-                                else
-                                    KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.Clear();
+                                    KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.AddRange(hitBoxes);
                             }
                             KWEngine.CurrentWorld._viewSpaceGameObject.Act();
                         }
@@ -1418,9 +1430,10 @@ namespace KWEngine3
                                 lock (HelperSweepAndPrune.OwnersDict)
                                 {
                                     bool hasCCs = HelperSweepAndPrune.OwnersDict.TryGetValue(attachment, out List<GameObjectHitbox> hitBoxes);
+                                    attachment._collisionCandidates.Clear();
                                     if (hasCCs)
                                     {
-                                        attachment._collisionCandidates = new List<GameObjectHitbox>(hitBoxes);
+                                        attachment._collisionCandidates.AddRange(hitBoxes);
                                     }
                                 }
                                 attachment.Act();

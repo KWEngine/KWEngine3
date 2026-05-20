@@ -176,7 +176,7 @@ namespace KWEngine3.Renderer
 
             
 
-            GeoMesh[] meshes = g._model.ModelOriginal.Meshes.Values.ToArray();
+            GeoMesh[] meshes = g._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];

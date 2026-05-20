@@ -85,10 +85,9 @@ namespace KWEngine3
 
         internal IReadOnlyCollection<GameObject> GetGameObjectsSortedByType()
         {
-            IReadOnlyCollection<GameObject> myTempList = _gameObjects
-                .OrderBy(item => item.GetType().Name)
-                .ToList().AsReadOnly();
-            return myTempList;
+            List<GameObject> sorted = new List<GameObject>(_gameObjects);
+            sorted.Sort((a, b) => string.Compare(a.GetType().Name, b.GetType().Name, StringComparison.Ordinal));
+            return sorted.AsReadOnly();
         }
 
         internal bool ProcessWorldEventQueue()
@@ -121,15 +120,11 @@ namespace KWEngine3
 
         internal GameObject GetGameObjectByID(int id)
         {
-            int index = _gameObjects.FindIndex(g => g.ID == id);
-            if(index >= 0)
+            for (int i = 0; i < _gameObjects.Count; i++)
             {
-                return _gameObjects[index];
+                if (_gameObjects[i].ID == id) return _gameObjects[i];
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         internal T GetGameObjectByID<T>(int id) where T : GameObject
@@ -1800,7 +1795,11 @@ namespace KWEngine3
         public List<GameObject> GetGameObjectsByName(string name)
         {
             name = name.Trim();
-            List<GameObject> os = _gameObjects.FindAll(go => go.Name == name).ToList();
+            List<GameObject> os = new();
+            foreach (GameObject go in _gameObjects)
+            {
+                if (go.Name == name) os.Add(go);
+            }
             return os;
         }
 
@@ -1814,13 +1813,9 @@ namespace KWEngine3
         {
             name = name.Trim();
             List<T> os = new();
-            var list = _gameObjects.FindAll(go => go is T && go.Name == name);
-            if (list.Count > 0)
+            foreach (GameObject go in _gameObjects)
             {
-                foreach (object o in list)
-                {
-                    os.Add((T)o);
-                }
+                if (go is T t && go.Name == name) os.Add(t);
             }
             return os;
         }
@@ -1833,13 +1828,9 @@ namespace KWEngine3
         public List<T> GetGameObjectsByType<T>()
         {
             List<T> os = new();
-            var list = _gameObjects.FindAll(go => go is T);
-            if (list.Count > 0)
+            foreach (GameObject go in _gameObjects)
             {
-                foreach (object o in list)
-                {
-                    os.Add((T)o);
-                }
+                if (go is T t) os.Add(t);
             }
             return os;
         }
