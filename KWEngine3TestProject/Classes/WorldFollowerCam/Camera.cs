@@ -17,11 +17,11 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
 
         private const float LIMIT_Y_UP = -5f;                   // Limit für Y-Achse (oben, in Grad)
         private const float LIMIT_Y_DOWN = -50f;                // Limit für Y-Achse (unten, in Grad)
-        private const float FOLLOW_DISTANCE = 10f;              // Standarddistanz zum Player
+        private const float FOLLOW_DISTANCE = 8f;              // Standarddistanz zum Player
         private const float FOLLOW_OFFSET_Y_FAR = 2f;           // Y-Abstand zur Player-Höhe direkt am Orb
         private const float FOLLOW_OFFSET_Y_NEAR = 1f;          // Y-Abstand zur Player-Höhe (für den Messpunkt direkt am Player)
 
-        private float _followStrength = 20f;                    // Je höher die Zahl, desto schneller passt sich die Kamera (bzw. der Orb) an
+        private float _followStrength = 0.5f;                    // Je höher die Zahl, desto schneller passt sich die Kamera (bzw. der Orb) an
         private float _t = 0;                                   // Wird aus _followStrength berechnet und enthält am Ende den Interpolationsfaktor (zwischen 0 und 1)
         private Vector2 currentRotation = Vector2.Zero;         // Enthält die aktuelle Kamerarotation
         private float _distance = 0f;                           // Enthält die aktuelle Distanz zum Player (pivot point)
@@ -31,6 +31,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             SetModel("KWSphere");
             SetScale(0.1f);
             SetColorEmissive(1, 1, 0, 1.5f);
+            SetPosition(0, 5, 5);
             
             IsCollisionObject = true;
         }
@@ -39,7 +40,16 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
         {
         }
 
-        public void Update(Player p)
+        public void ResetViewFor(Player p)
+        {
+            Vector3 pivot = p.Center + new Vector3(0f, FOLLOW_OFFSET_Y_NEAR, 0f);
+            Vector3 directionToPlayerXZ = HelperVector.GetDirectionFromVectorToVectorXZ(Position, pivot);
+            Vector3 newPosition = pivot - directionToPlayerXZ * FOLLOW_DISTANCE + new Vector3(0f, Position.Y - pivot.Y, 0f);
+            SetPosition(newPosition);
+            TurnTowardsXYZ(pivot);
+        }
+
+        public void UpdateViewFor(Player p)
         {
             if (!IsInCurrentWorld || p == null || !p.IsInCurrentWorld)
                 return;
@@ -49,6 +59,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
 
             // Dieser Wert wird fast immer weiter unten überschrieben:
             Vector3 newPosition = Position;
+            Vector3 directionToPlayerXZ = HelperVector.GetDirectionFromVectorToVectorXZ(newPosition, pivot);
 
             // Hole anhand der aktuellen Position des Orbs und dem berechneten Pivot (Player-Position) die Orbrotation:
             ArcballRotation rot = HelperRotation.GetArcballRotation(Position, pivot, false, false);
@@ -60,7 +71,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             if (CurrentWorld.MouseMovement.LengthSquared > MOUSE_MOVEMENT_MINUMUM)
             {
                 // Lasse den Orb 2.5x so schnell nachfolgen wie sonst, damit die Kamerabewegung responsive ist:
-                _t = 1f - MathF.Exp(-_followStrength * 2.5f * SIMULATION_FRAME_TIME);
+                _t = 1f - MathF.Exp(-_followStrength * 50.0f * SIMULATION_FRAME_TIME);
 
                 // Interpoliere die neue Distanz des Orbs zwischen der eigentlichen Follow-Distanz und der aktuell gemessenen Distanz:
                 _distance = _distance + (FOLLOW_DISTANCE - _distance) * _t;
@@ -89,11 +100,29 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
                 // Interpoliere die neue Distanz des Orbs zwischen der eigentlichen Follow-Distanz und der aktuell gemessenen Distanz:
                 _distance = _distance + (FOLLOW_DISTANCE - _distance) * _t;
 
+                Vector3 pMotion = p.GetMotionVector();
+                Vector3 pMotionNormalized = Vector3.NormalizeFast(pMotion);
+
+                Vector3 pMotionLocal = p.GetMotionVectorLocal();
+
                 // Wenn der Player sich gerade aktiv bewegt, berechne die neue Position anhand der Follow-Distanz:
-                if (p.GetMotionVector() != Vector3.Zero)
+                if (pMotion != Vector3.Zero)
                 {
-                    //newPosition = pivot - CurrentWorld.CameraLookAtVectorXZ * _distance + new Vector3(0f, Position.Y - pivot.Y, 0f);
-                    newPosition = pivot - CurrentWorld.CameraLookAtVectorXZ * FOLLOW_DISTANCE + new Vector3(0f, Position.Y - pivot.Y, 0f);
+                    
+                    float dot = Vector3.Dot(directionToPlayerXZ, pMotionNormalized);
+                    if(dot > 0)
+                    {
+                        newPosition = pivot - directionToPlayerXZ * FOLLOW_DISTANCE + new Vector3(0f, Position.Y - pivot.Y, 0f);
+                    }
+                    else
+                    {
+                        newPosition = pivot - directionToPlayerXZ * FOLLOW_DISTANCE + new Vector3(0f, Position.Y - pivot.Y, 0f);
+                    }
+                    
+                }
+                else
+                {
+                    // ?
                 }
             }
 
@@ -104,8 +133,8 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             TurnTowardsXYZ(pivot);
 
 
-            //KWEngine.CurrentWorld.SetCameraPosition(finalPos);
-            //KWEngine.CurrentWorld.SetCameraTarget(pivot);
+            CurrentWorld.SetCameraPosition(finalPos);
+            CurrentWorld.SetCameraTarget(pivot);
         }
     }
 }
