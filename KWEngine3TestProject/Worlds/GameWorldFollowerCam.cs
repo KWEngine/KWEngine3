@@ -18,6 +18,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            //KWEngine.DebugOverlayEnabled = true;
+
             KWEngine.LoadModel("Robot", "./Models/GLTFTest/bot.gltf");
 
             SetCameraPosition(0.0f, 20.0f, 0.0f);

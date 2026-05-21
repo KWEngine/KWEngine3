@@ -13,7 +13,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
     internal class Player : GameObject
     {
         private Vector3 _motion = Vector3.Zero;
-        private Vector3 _motionLocal = Vector3.Zero;
+        private Vector3 _motionInput = Vector3.Zero;
         private Camera _cam;
         private float _speed = 0.01f;
         Dictionary<Keys, bool> keyPressDict = new()
@@ -54,7 +54,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             int move = 0;
             int strafe = 0;
 
-            //UpdateDictionaryAndDirection();
+            UpdateDictionaryAndDirection();
 
 
 
@@ -74,14 +74,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             {
                 move--;
             }
-            if (strafe != 0 || move != 0)
-            {
-                _motionLocal = Vector3.NormalizeFast(new Vector3(strafe, 0, move));
-            }
-            else
-            {
-                _motionLocal = Vector3.Zero;
-            }
+
             _motion = MoveAndStrafeAlongCameraXZ(move, strafe, _speed);
             if(_cam != null)
             {
@@ -94,9 +87,9 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             return _motion;
         }
 
-        public Vector3 GetMotionVectorLocal()
+        public Vector3 GetMotionInputVector()
         {
-            return _motionLocal;
+            return _motionInput;
         }
 
         private void UpdateDictionaryAndDirection()
@@ -105,6 +98,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             if(Keyboard.IsKeyPressed(Keys.W))
             {
                 keyPressDict[Keys.W] = true;
+                newDirection += CurrentWorld.CameraLookAtVectorXZ;
             }
             else
             {
@@ -114,6 +108,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             if (Keyboard.IsKeyPressed(Keys.A))
             {
                 keyPressDict[Keys.A] = true;
+                newDirection -= CurrentWorld.CameraLookAtVectorLocalRightXZ;
             }
             else
             {
@@ -123,6 +118,7 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             if (Keyboard.IsKeyPressed(Keys.S))
             {
                 keyPressDict[Keys.S] = true;
+                newDirection -= CurrentWorld.CameraLookAtVectorXZ;
             }
             else
             {
@@ -132,27 +128,19 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             if (Keyboard.IsKeyPressed(Keys.D))
             {
                 keyPressDict[Keys.D] = true;
+                newDirection += CurrentWorld.CameraLookAtVectorLocalRightXZ;
             }
             else
             {
                 keyPressDict[Keys.D] = false;
             }
 
-            if(Keyboard.IsKeyDown(Keys.W))
+            if (newDirection.LengthSquared > 0.1f)
             {
-                if (keyPressDict[Keys.S])
-                {
-                    newDirection = Vector3.Zero;
-                }
-                if (keyPressDict[Keys.D])
-                {
-
-                }
-                if (keyPressDict[Keys.A])
-                {
-
-                }
+                _motionInput = Vector3.NormalizeFast(newDirection);
             }
+            else
+                _motionInput = Vector3.Zero;
         }
     }
 }
