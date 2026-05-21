@@ -871,15 +871,21 @@ namespace KWEngine3.GameObjects
         /// <param name="move">1 = Vorwärts, -1 = Rückwärts</param>
         /// <param name="strafe">1 = Rechts, -1 = Links</param>
         /// <param name="units">Bewegungseinheiten</param>
-        public void MoveAndStrafeAlongCamera(int move, int strafe, float units)
+        /// <returns>Berechneter Bewegungsvektor</returns>
+        public Vector3 MoveAndStrafeAlongCamera(int move, int strafe, float units)
         {
+            if (move == 0 && strafe == 0)
+                return Vector3.Zero;
             move = move > 0 ? 1 : move < 0 ? -1 : 0;
             strafe = strafe > 0 ? 1 : strafe < 0 ? -1 : 0;
+
             Vector3 lavForward = CurrentWorld._cameraGame._stateCurrent.LookAtVector * move;
             Vector3 tmp = CurrentWorld._cameraGame._stateCurrent.LookAtVector;
             Vector3 lavStrafe = Vector3.NormalizeFast(Vector3.Cross(tmp, KWEngine.WorldUp)) * strafe;
             Vector3 movement = Vector3.NormalizeFast(lavForward + lavStrafe);
             MoveOffset(movement * units);
+
+            return movement * units;
         }
 
         /// <summary>
@@ -888,10 +894,11 @@ namespace KWEngine3.GameObjects
         /// <param name="move">1 = Vorwärts, -1 = Rückwärts</param>
         /// <param name="strafe">1 = Rechts, -1 = Links</param>
         /// <param name="units">Bewegungseinheiten</param>
-        public void MoveAndStrafeAlongCameraXZ(int move, int strafe, float units)
+        /// <returns>Berechneter Bewegungsvektor</returns>
+        public Vector3 MoveAndStrafeAlongCameraXZ(int move, int strafe, float units)
         {
             if (move == 0 && strafe == 0)
-                return;
+                return Vector3.Zero;
             move = move > 0 ? 1 : move < 0 ? -1 : 0;
             strafe = strafe > 0 ? 1 : strafe < 0 ? -1 : 0;
             units = Math.Abs(units);
@@ -902,6 +909,8 @@ namespace KWEngine3.GameObjects
             Vector3 lavForward = Vector3.NormalizeFast(lav) * move;
             Vector3 movement = Vector3.NormalizeFast(lavForward + lavStrafe);
             MoveOffset(movement * units);
+
+            return movement * units;
         }
 
         /// <summary>

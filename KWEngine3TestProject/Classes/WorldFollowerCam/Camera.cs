@@ -1,0 +1,111 @@
+﻿using KWEngine3;
+using KWEngine3.GameObjects;
+using KWEngine3.Helper;
+using OpenTK.Mathematics;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace KWEngine3TestProject.Classes.WorldFollowerCam
+{
+    internal class Camera : GameObject
+    {
+        private const float SIMULATION_FRAME_TIME = 1f / 240f;  // Nur wichtig für das Interpolieren (Lerp)
+        private const float MOUSE_MOVEMENT_MINUMUM = 0.001f;    // Menge an Mausbewegung, ab die der Orb die Maus als "sich bewegend" sieht
+
+        private const float LIMIT_Y_UP = -5f;                   // Limit für Y-Achse (oben, in Grad)
+        private const float LIMIT_Y_DOWN = -50f;                // Limit für Y-Achse (unten, in Grad)
+        private const float FOLLOW_DISTANCE = 10f;              // Standarddistanz zum Player
+        private const float FOLLOW_OFFSET_Y_FAR = 2f;           // Y-Abstand zur Player-Höhe direkt am Orb
+        private const float FOLLOW_OFFSET_Y_NEAR = 1f;          // Y-Abstand zur Player-Höhe (für den Messpunkt direkt am Player)
+
+        private float _followStrength = 20f;                    // Je höher die Zahl, desto schneller passt sich die Kamera (bzw. der Orb) an
+        private float _t = 0;                                   // Wird aus _followStrength berechnet und enthält am Ende den Interpolationsfaktor (zwischen 0 und 1)
+        private Vector2 currentRotation = Vector2.Zero;         // Enthält die aktuelle Kamerarotation
+        private float _distance = 0f;                           // Enthält die aktuelle Distanz zum Player (pivot point)
+
+        public Camera()
+        {
+            SetModel("KWSphere");
+            SetScale(0.1f);
+            SetColorEmissive(1, 1, 0, 1.5f);
+            
+            IsCollisionObject = true;
+        }
+
+        public override void Act()
+        {
+        }
+
+        public void Update(Player p)
+        {
+            if (!IsInCurrentWorld || p == null || !p.IsInCurrentWorld)
+                return;
+
+            // Berechne den neuen Dreh-/Angelpunkt anhand der Spielermitte:
+            Vector3 pivot = p.Center + new Vector3(0f, FOLLOW_OFFSET_Y_NEAR, 0f);
+
+            // Dieser Wert wird fast immer weiter unten überschrieben:
+            Vector3 newPosition = Position;
+
+            // Hole anhand der aktuellen Position des Orbs und dem berechneten Pivot (Player-Position) die Orbrotation:
+            ArcballRotation rot = HelperRotation.GetArcballRotation(Position, pivot, false, false);
+            // Überschreibe currentRotation mit diesen Grad-Werten:
+            currentRotation.X = rot.XAngle;
+            currentRotation.Y = rot.YAngle;
+
+            // Wenn sich die Maus irgendwie bewegt..
+            if (CurrentWorld.MouseMovement.LengthSquared > MOUSE_MOVEMENT_MINUMUM)
+            {
+                // Lasse den Orb 2.5x so schnell nachfolgen wie sonst, damit die Kamerabewegung responsive ist:
+                _t = 1f - MathF.Exp(-_followStrength * 2.5f * SIMULATION_FRAME_TIME);
+
+                // Interpoliere die neue Distanz des Orbs zwischen der eigentlichen Follow-Distanz und der aktuell gemessenen Distanz:
+                _distance = _distance + (FOLLOW_DISTANCE - _distance) * _t;
+
+                // Ändere die Rotation gemäß Mausbewegung:
+                currentRotation.X += CurrentWorld.MouseMovement.X;
+                currentRotation.Y += CurrentWorld.MouseMovement.Y;
+                if (currentRotation.Y > LIMIT_Y_UP)
+                    currentRotation.Y = LIMIT_Y_UP;
+                if (currentRotation.Y < LIMIT_Y_DOWN)
+                    currentRotation.Y = LIMIT_Y_DOWN;
+
+                newPosition = HelperRotation.CalculateRotationForArcBallCamera(
+                    pivot,
+                    _distance,
+                    currentRotation.X,
+                    currentRotation.Y,
+                    false,
+                    false);
+            }
+            else
+            {
+                // Berechne den Interpolationsfaktor _t (hier langsamer, falls die Maus gerade nicht angefasst wird):
+                _t = 1f - MathF.Exp(-_followStrength * SIMULATION_FRAME_TIME);
+
+                // Interpoliere die neue Distanz des Orbs zwischen der eigentlichen Follow-Distanz und der aktuell gemessenen Distanz:
+                _distance = _distance + (FOLLOW_DISTANCE - _distance) * _t;
+
+                // Wenn der Player sich gerade aktiv bewegt, berechne die neue Position anhand der Follow-Distanz:
+                if (p.GetMotionVector() != Vector3.Zero)
+                {
+                    //newPosition = pivot - CurrentWorld.CameraLookAtVectorXZ * _distance + new Vector3(0f, Position.Y - pivot.Y, 0f);
+                    newPosition = pivot - CurrentWorld.CameraLookAtVectorXZ * FOLLOW_DISTANCE + new Vector3(0f, Position.Y - pivot.Y, 0f);
+                }
+            }
+
+            // Interpoliere (bei Vector3 nennt man das Lerpen) die neue Position und die alte Position gemäß des Faktors _t:
+            Vector3 finalPos = Vector3.Lerp(Position, newPosition, _t);
+            SetPosition(finalPos);
+
+            TurnTowardsXYZ(pivot);
+
+
+            //KWEngine.CurrentWorld.SetCameraPosition(finalPos);
+            //KWEngine.CurrentWorld.SetCameraTarget(pivot);
+        }
+    }
+}
