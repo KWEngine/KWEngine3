@@ -25,7 +25,7 @@ namespace KWEngine3TestProject.Classes.WorldHitboxConcurrencyTest
                 CurrentWorld.RemoveGameObject(this);
                 ExplosionObject e = new ExplosionObject(32, 1.0f, 2.0f, 2.0f, KWEngine3.ExplosionType.Star);
                 e.SetPosition(i.Object.Position);
-                e.SetColorEmissive(1, 1, 0, 2);
+                e.SetColorEmissive(2, 2, 0);
                 CurrentWorld.AddExplosionObject(e);
             }
         }

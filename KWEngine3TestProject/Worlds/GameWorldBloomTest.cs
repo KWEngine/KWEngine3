@@ -85,7 +85,7 @@ namespace KWEngine3TestProject.Worlds
             if (WorldTime - _timestampLastExplosion > 1.25f)
            {
                 ExplosionObject e = new ExplosionObject(64, 0.5f, 5f, 1f, ExplosionType.Cube);
-                e.SetColorEmissive(1, 1, 1, 2);
+                e.SetColorEmissive(2,2,2);
                 e.SetPosition(HelperRandom.GetRandomNumber(-12, -8), 8, 0);
                 AddExplosionObject(e);
                 _timestampLastExplosion = WorldTime;

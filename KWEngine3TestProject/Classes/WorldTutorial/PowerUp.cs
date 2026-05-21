@@ -40,7 +40,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
             ExplosionObject e = new ExplosionObject(512, 1.0f, 5.0f, 1.0f, ExplosionType.Star);
             e.SetAlgorithm(ExplosionAnimation.WindUp);
             e.SetPosition(Position);
-            e.SetColorEmissive(1, 1, 1, 5);
+            e.SetColorEmissive(2,2,2);
             CurrentWorld.AddExplosionObject(e);
         }
 

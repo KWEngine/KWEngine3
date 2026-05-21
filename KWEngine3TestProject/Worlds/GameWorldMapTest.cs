@@ -17,7 +17,7 @@ namespace KWEngine3TestProject.Worlds
             if(HelperRandom.GetRandomNumber(0, 500) == 0)
             {
                 ExplosionObject ex = new ExplosionObject(256, 1.0f, 10f, 2f, ExplosionType.Sphere);
-                ex.SetColorEmissive(1, 1, 0, 1);
+                ex.SetColorEmissive(1, 1, 0);
                 ex.SetPosition(0, 10, 0);
                 AddExplosionObject(ex);
                 //StartCameraShake(2.5f, 2.5f, 2.5f, 1.0f, 100f, ShakeMode.Additive);
