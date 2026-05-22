@@ -31,6 +31,7 @@ namespace KWEngine3.Editor
             };
         private static readonly string[] SSAO_KernelSizes = { "16", "32", "64"};
         private static bool _isSkybox = false;
+        private static bool _showArmatureWindow = false;
         private static double _lastUpdateCycleTime = 0;
         private static double _lastRenderCallsTime = 0;
 
@@ -1105,7 +1106,7 @@ namespace KWEngine3.Editor
                     {
                         KWEngine.CurrentWorld.RemoveLightObject(SelectedLightObject);
                         SelectedLightObject = null;
-                        
+
                     }
                     else if(SelectedTerrainObject != null)
                     {
@@ -1117,6 +1118,18 @@ namespace KWEngine3.Editor
                         KWEngine.LogWriteLine("Cannot remove object - nothing selected.");
                     }
                 }
+                ImGui.Separator();
+                bool hasArmature = SelectedGameObject != null
+                                   && SelectedGameObject._model.ModelOriginal.HasBones
+                                   && SelectedGameObject._model.ModelOriginal.ArmatureTextureID > 0;
+                if (!hasArmature)
+                {
+                    _showArmatureWindow = false;
+                    ImGui.BeginDisabled(true);
+                }
+                ImGui.MenuItem("Show Armature", "", ref _showArmatureWindow);
+                if (!hasArmature)
+                    ImGui.EndDisabled();
                 ImGui.EndMenu();
             }
 
@@ -1325,6 +1338,39 @@ namespace KWEngine3.Editor
             }
 
             ImGui.EndMainMenuBar();
+
+            // Armature-Vorschaufenster in der Mitte des Viewports
+            if (_showArmatureWindow
+                && SelectedGameObject != null
+                && SelectedGameObject._model.ModelOriginal.ArmatureTextureID > 0)
+            {
+                const float IMG_SIZE = 512f;
+                const float WIN_PAD  = 16f;
+                float winW = IMG_SIZE + WIN_PAD;
+                float winH = IMG_SIZE + 40f; // 40px für Titelzeile + unterer Rand
+
+                // Viewport-Mitte zwischen linkem und rechtem Panel
+                float viewCenterX = WindowLeftWidth + (KWEngine.Window.ClientSize.X - WindowLeftWidth - WindowRightWidth) * 0.5f;
+                float viewCenterY = KWEngine.Window.ClientSize.Y * 0.5f;
+
+                ImGui.SetNextWindowPos(
+                    new System.Numerics.Vector2(viewCenterX - winW * 0.5f, viewCenterY - winH * 0.5f),
+                    ImGuiCond.Always);
+                ImGui.SetNextWindowSize(
+                    new System.Numerics.Vector2(winW, winH),
+                    ImGuiCond.Always);
+
+                string armatureTitle = "Armature: " + SelectedGameObject._model.ModelOriginal.Name;
+                if (ImGui.Begin(armatureTitle, ref _showArmatureWindow,
+                    ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove |
+                    ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoCollapse))
+                {
+                    ImGui.Image(
+                        new IntPtr(SelectedGameObject._model.ModelOriginal.ArmatureTextureID),
+                        new System.Numerics.Vector2(IMG_SIZE, IMG_SIZE));
+                }
+                ImGui.End();
+            }
 
             if (_addMenuActive != EditorAddObjectType.None)
             {
@@ -1742,6 +1788,7 @@ namespace KWEngine3.Editor
             SelectedLightObject = null;
             SelectedTerrainObject = null;
             SelectedVSG = null;
+            _showArmatureWindow = false;
         }
 
         public static void HandleMouseButtonStatus(MouseButton btn, bool press)
@@ -1754,6 +1801,10 @@ namespace KWEngine3.Editor
                     if (IsCursorOnAnyControl())
                     {
                         _mouseButtonsActive[btn].PressedOnOverlay = true;
+                    }
+                    if (btn == MouseButton.Right)
+                    {
+                        _showArmatureWindow = false;
                     }
                 }
                 else

@@ -654,6 +654,10 @@ namespace KWEngine3
                     name = name.Trim();
                     m.Name = name;
                     Models.Add(name, m);
+                    if (m.HasBones)
+                    {
+                        Renderer.RendererArmature.Draw(m);
+                    }
                 }
                 else
                 {

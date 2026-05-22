@@ -20,6 +20,7 @@ namespace KWEngine3.Model
 
         internal bool HasTransparencyTexture { get; set; } = false;
         internal bool IsKWCube6 { get; set; } = false;
+        internal int ArmatureTextureID { get; set; } = -1;
 
         internal bool IsPrimitive { get { return Name == "kwcube.obj" || Name == "kwsphere.obj" || Name.StartsWith("kwquad"); } }
 
@@ -119,6 +120,11 @@ namespace KWEngine3.Model
         internal void Dispose()
         {
             IsValid = false;
+            if (ArmatureTextureID > 0)
+            {
+                GL.DeleteTextures(1, new int[] { ArmatureTextureID });
+                ArmatureTextureID = -1;
+            }
             if (Textures != null)
             {
 
