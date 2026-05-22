@@ -51,15 +51,17 @@ namespace KWEngine3TestProject.Worlds
             p1.SetScale(0.01f);
             p1.Name = "Player #1";
             p1.IsCollisionObject = true;
+            p1.SetHitboxScale(0.25f, 1f, 1f);
             p1.SetColor(1, 1, 0);
             p1.SetPosition(0, 0.5f, 0);
             AddGameObject(p1);
 
             Immovable left = new Immovable();
+            left.SetModel("KWSphere");
             left.IsCollisionObject = true;
             left.SetPosition(-5, 0.5f, 0);
             left.SetColor(0, 1, 1);
-            left.SetHitboxToCapsule();
+            //left.SetHitboxToCapsule();
             AddGameObject(left);
 
             Immovable right = new Immovable();
