@@ -2060,7 +2060,6 @@ namespace KWEngine3.Helper
         internal const float ONETHIRD = 1f / 3f;
         internal static Intersection TestIntersectionForPlaneFace(GameObjectHitbox caller, Span<Vector3> vertices, Vector3 n, Vector3 center, Vector3 offset, GameObjectHitbox collider)
         {
-            bool callerIsSphere = IsSphereHitbox(caller);
             _planeNormals[0] = n;
             _planeVertices = vertices.ToArray();
 
@@ -2074,39 +2073,33 @@ namespace KWEngine3.Helper
             int collisionNormalIndex = 0;
             bool collisionNormalIndexFlip = false;
             bool collisionNormalFromCaller = false;
-
-            if (!callerIsSphere)
+            
+            for (int i = 0; i < caller._normals.Length; i++)
             {
-                for (int i = 0; i < caller._normals.Length; i++)
+                float shape1Min, shape1Max, shape2Min, shape2Max;
+                SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref caller._normals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
-                    float shape1Min, shape1Max, shape2Min, shape2Max;
-                    SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                    SatTest(ref caller._normals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
-                    if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
+                    return null;
+                }
+                else
+                {
+                    OverlapResult m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
+                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref center, ref offset, true, caller);
+                    if (m.IsBetterResult)
                     {
-                        return null;
-                    }
-                    else
-                    {
-                        OverlapResult m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                            ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp, ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref center, ref offset, true, caller);
-                        if (m.IsBetterResult)
-                        {
-                            collisionNormalIndex = i;
-                            collisionNormalIndexFlip = m.FlipNormal;
-                            collisionNormalFromCaller = true;
-                        }
+                        collisionNormalIndex = i;
+                        collisionNormalIndexFlip = m.FlipNormal;
+                        collisionNormalFromCaller = true;
                     }
                 }
             }
-
+            
             for (int i = 0; i < _planeNormals.Length; i++)
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
-                if (callerIsSphere)
-                    EllipsoidSatTest(ref _planeNormals[i], caller._center, ref caller._modelMatrixFinal, ref offset, out shape1Min, out shape1Max);
-                else
-                    SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
+                SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
                 SatTest(ref _planeNormals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
@@ -2247,11 +2240,6 @@ namespace KWEngine3.Helper
 
         internal static Intersection TestIntersection(GameObjectHitbox caller, GameObjectHitbox collider, Vector3 offset)
         {
-            bool callerIsSphere = IsSphereHitbox(caller);
-            bool colliderIsSphere = IsSphereHitbox(collider);
-            if (callerIsSphere || colliderIsSphere)
-                return TestIntersectionWithSphere(caller, collider, offset, callerIsSphere, colliderIsSphere);
-
             float mtvDistance = float.MaxValue;
             float mtvDirection = 1;
             float mtvDistanceUp = float.MaxValue;
@@ -2460,139 +2448,6 @@ namespace KWEngine3.Helper
                 if (dotVal > maxAlong) maxAlong = dotVal;
             }
         }
-
-        internal const float SPHERE_BASE_RADIUS = 0.5f;
-
-        private static bool IsSphereHitbox(GameObjectHitbox hb)
-        {
-            return hb.Owner._modelNameInDB == "KWSphere";
-        }
-
-        private static void EllipsoidSatTest(ref Vector3 axis, Vector3 center, ref Matrix4 modelMatrix, ref Vector3 offset, out float min, out float max)
-        {
-            float wx = modelMatrix.Row0.X * axis.X + modelMatrix.Row0.Y * axis.Y + modelMatrix.Row0.Z * axis.Z;
-            float wy = modelMatrix.Row1.X * axis.X + modelMatrix.Row1.Y * axis.Y + modelMatrix.Row1.Z * axis.Z;
-            float wz = modelMatrix.Row2.X * axis.X + modelMatrix.Row2.Y * axis.Y + modelMatrix.Row2.Z * axis.Z;
-            float halfExtent = SPHERE_BASE_RADIUS * MathF.Sqrt(wx * wx + wy * wy + wz * wz);
-            float projection = Vector3.Dot(center + offset, axis);
-            min = projection - halfExtent;
-            max = projection + halfExtent;
-        }
-
-        private static Intersection TestIntersectionWithSphere(GameObjectHitbox caller, GameObjectHitbox collider, Vector3 offset, bool callerIsSphere, bool colliderIsSphere)
-        {
-            float mtvDistance = float.MaxValue;
-            float mtvDirection = 1;
-            float mtvDistanceUp = float.MaxValue;
-            float mtvDirectionUp = 1;
-            Vector3 MTVTemp = Vector3.Zero;
-            Vector3 MTVTempUp = Vector3.Zero;
-            int collisionNormalIndex = 0;
-            bool collisionNormalIndexFlip = false;
-            bool collisionNormalFromCaller = false;
-            bool useNormalizedMTV = false;
-
-            if (callerIsSphere && colliderIsSphere)
-            {
-                Vector3 axis = caller._center + offset - collider._center;
-                float axisLen = axis.LengthFast;
-                if (axisLen < 0.0001f) return null;
-                axis /= axisLen;
-                EllipsoidSatTest(ref axis, caller._center, ref caller._modelMatrixFinal, ref offset, out float s1Min, out float s1Max);
-                EllipsoidSatTest(ref axis, collider._center, ref collider._modelMatrixFinal, ref HelperVector.VectorZero, out float s2Min, out float s2Max);
-                if (!Overlaps(s1Min, s1Max, s2Min, s2Max)) return null;
-                CalculateOverlap(ref axis, ref s1Min, ref s1Max, ref s2Min, ref s2Max,
-                    ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp,
-                    ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, true, caller);
-                useNormalizedMTV = true;
-            }
-            else if (callerIsSphere)
-            {
-                for (int i = 0; i < collider._normals.Length; i++)
-                {
-                    EllipsoidSatTest(ref collider._normals[i], caller._center, ref caller._modelMatrixFinal, ref offset, out float shape1Min, out float shape1Max);
-                    SatTest(ref collider._normals[i], ref collider._vertices, out float shape2Min, out float shape2Max, ref HelperVector.VectorZero);
-                    if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max)) return null;
-                    OverlapResult m = CalculateOverlap(ref collider._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp,
-                        ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, false, collider);
-                    if (m.IsBetterResult) { collisionNormalIndex = i; collisionNormalIndexFlip = m.FlipNormal; collisionNormalFromCaller = false; }
-                }
-            }
-            else // colliderIsSphere
-            {
-                // The sphere needs a "voice": test the axis from sphere center to caller center.
-                // This is the sphere surface normal at the contact point and enables correct sliding.
-                Vector3 sphereAxis = caller._center + offset - collider._center;
-                float sphereAxisLen = sphereAxis.LengthFast;
-                if (sphereAxisLen < 0.0001f) return null;
-                sphereAxis /= sphereAxisLen;
-                SatTest(ref sphereAxis, ref caller._vertices, out float saMin1, out float saMax1, ref offset);
-                EllipsoidSatTest(ref sphereAxis, collider._center, ref collider._modelMatrixFinal, ref HelperVector.VectorZero, out float saMin2, out float saMax2);
-                if (!Overlaps(saMin1, saMax1, saMin2, saMax2)) return null;
-                OverlapResult msa = CalculateOverlap(ref sphereAxis, ref saMin1, ref saMax1, ref saMin2, ref saMax2,
-                    ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp,
-                    ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, true, caller);
-                if (msa.IsBetterResult)
-                    useNormalizedMTV = true;
-
-                for (int i = 0; i < caller._normals.Length; i++)
-                {
-                    SatTest(ref caller._normals[i], ref caller._vertices, out float shape1Min, out float shape1Max, ref offset);
-                    EllipsoidSatTest(ref caller._normals[i], collider._center, ref collider._modelMatrixFinal, ref HelperVector.VectorZero, out float shape2Min, out float shape2Max);
-                    if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max)) return null;
-                    OverlapResult m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
-                        ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp,
-                        ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, true, caller);
-                    if (m.IsBetterResult) { collisionNormalIndex = i; collisionNormalIndexFlip = m.FlipNormal; collisionNormalFromCaller = true; useNormalizedMTV = false; }
-                }
-            }
-
-            if (MTVTemp == Vector3.Zero) return null;
-
-            Vector3 collisionSurfaceNormal;
-            if (useNormalizedMTV)
-                collisionSurfaceNormal = Vector3.NormalizeFast(MTVTemp);
-            else if (collisionNormalFromCaller)
-                collisionSurfaceNormal = caller._normals[collisionNormalIndex] * (collisionNormalIndexFlip ? -1 : 1);
-            else
-                collisionSurfaceNormal = collider._normals[collisionNormalIndex] * (collisionNormalIndexFlip ? -1 : 1);
-
-            Vector3 cross = Vector3.NormalizeFast(Vector3.Cross(Vector3.Cross(MTVTemp, KWEngine.WorldUp), MTVTemp));
-            Vector3 MTVTempUpToTop = MTVTemp + cross * MTVTempUp.LengthFast;
-            if (Vector3.Dot(MTVTempUpToTop, KWEngine.WorldUp) < 0)
-                MTVTempUpToTop = -MTVTempUpToTop;
-
-            if (cross != Vector3.Zero && (Vector3.Dot(cross, KWEngine.WorldUp) < 0.999f))
-            {
-                float betaX = MTVTemp.X / cross.X;
-                float betaZ = MTVTemp.Z / cross.Z;
-                float betaXToTop = MTVTempUp.X / cross.X;
-                float betaZToTop = MTVTempUp.Z / cross.Z;
-                float beta = (float.IsNaN(betaX) || betaX == 0) ? betaZ : betaX;
-                float betaToTop = (float.IsNaN(betaXToTop) || betaXToTop == 0) ? betaZToTop : betaXToTop;
-                if (float.IsNaN(beta) == false && beta != 0 && float.IsInfinity(beta) == false)
-                {
-                    MTVTempUp = MTVTemp + new Vector3(-beta * cross.X, -beta * cross.Y, -beta * cross.Z);
-                    if (MTVTempUp.LengthFast > caller.Owner.Dimensions.Y)
-                        MTVTempUp = MTVTemp;
-                }
-                else
-                    MTVTempUp = MTVTemp + cross * MTVTemp.LengthFast;
-
-                if (float.IsNaN(betaToTop) == false && betaToTop != 0 && float.IsInfinity(betaToTop) == false)
-                {
-                    MTVTempUpToTop = MTVTempUp + new Vector3(-betaToTop * cross.X, -betaToTop * cross.Y, -betaToTop * cross.Z);
-                    if (MTVTempUpToTop.LengthFast > caller.Owner.Dimensions.Y)
-                        MTVTempUpToTop = MTVTemp;
-                }
-            }
-            else
-                MTVTempUp = MTVTemp + cross * MTVTemp.LengthFast;
-
-            return new Intersection(collider.Owner, caller, collider, MTVTemp, MTVTempUp, collider._mesh.Name, collisionSurfaceNormal, MTVTempUpToTop, collider._colliderType);
-        }
-
         internal static bool LinePlaneIntersection(out Vector3 contact, Vector3 ray, Vector3 rayOrigin,
                                             Vector3 normal, Vector3 coord)
         {

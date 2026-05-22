@@ -53,7 +53,7 @@ namespace KWEngine3TestProject.Classes.WorldCollisionTest
                 Console.WriteLine(intersection.ColliderSurfaceNormal);
             }
 
-            CurrentWorld.SetCameraPosition(Position + new Vector3(0, 5, 2.5f));
+            CurrentWorld.SetCameraPosition(Position + new Vector3(0, 15, 10));
             CurrentWorld.SetCameraTarget(Center);
         }
     }
