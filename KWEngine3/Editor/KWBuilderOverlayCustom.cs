@@ -416,6 +416,44 @@ namespace KWEngine3.Editor
                         SelectedGameObject.SetScale(sNew.X, sNew.Y, sNew.Z);
                     }
                 }
+
+                if(SelectedGameObject.IsCollisionObject)
+                {
+                    ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new System.Numerics.Vector4(0.5f, 0.5f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.SliderGrab, new System.Numerics.Vector4(0.5f, 0.25f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.SliderGrabActive, new System.Numerics.Vector4(1.00f, 0.25f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
+
+                    ImGui.Indent(16f);
+                    ImGui.TextColored(new System.Numerics.Vector4(1f, 1f, 0.25f, 1f), "Hitbox settings:");
+
+                    bool capsuleActive = SelectedGameObject._colliderModel._hitboxes.Count == 1 && SelectedGameObject._colliderModel._hitboxes[0]._isCapsule;
+
+                    if(ImGui.Checkbox("Set to Capsule?", ref capsuleActive))
+                    {
+                        if(capsuleActive)
+                        {
+                            SelectedGameObject.SetHitboxToCapsule(CapsuleHitboxType.Default);
+                        }
+                        else
+                        {
+                            SelectedGameObject.ResetColliderModel();
+                        }
+                    }
+
+                    Vector3 s = SelectedGameObject._stateCurrent._scaleHitboxMat.ExtractScale();
+                    System.Numerics.Vector3 hbScale = new() { X = s.X, Y = s.Y, Z = s.Z };
+                    if (ImGui.SliderFloat3("Hitbox scale", ref hbScale, 0.1f, 10, "%.2f", ImGuiSliderFlags.Logarithmic))
+                    {
+                        SelectedGameObject.SetHitboxScale(hbScale.X, hbScale.Y, hbScale.Z);
+                    }
+                    ImGui.Unindent();
+
+                    ImGui.PopStyleColor(6);
+                }
+
                 ImGui.Separator();
 
                 // Coloring:

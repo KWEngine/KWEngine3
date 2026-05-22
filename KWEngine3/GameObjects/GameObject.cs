@@ -1188,12 +1188,17 @@ namespace KWEngine3.GameObjects
 
             lock (CurrentWorld._gameObjectHitboxes)
             {
+                List<GameObjectHitbox> toBeRemoved = new();
                 foreach (GameObjectHitbox ghbInWorld in CurrentWorld._gameObjectHitboxes)
                 {
                     foreach (GameObjectHitbox ghbInCollider in _colliderModel._hitboxes)
                     {
-                        CurrentWorld._gameObjectHitboxes.Remove(ghbInCollider);
+                        toBeRemoved.Add(ghbInCollider);
                     }
+                }
+                foreach(GameObjectHitbox ghb in toBeRemoved)
+                {
+                    CurrentWorld._gameObjectHitboxes.Remove(ghb);
                 }
                 _colliderModel._hitboxes.Clear();
 
