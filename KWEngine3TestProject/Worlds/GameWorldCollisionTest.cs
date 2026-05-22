@@ -1,6 +1,7 @@
 ﻿using KWEngine3;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldCollisionTest;
+using SkiaSharp;
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -53,19 +54,20 @@ namespace KWEngine3TestProject.Worlds
             p1.IsCollisionObject = true;
             p1.SetColor(1, 1, 0);
             p1.SetPosition(0, 0.5f, 0);
+            p1.SetHitboxScale(0.25f, 1f, 1f);
             AddGameObject(p1);
 
             Immovable left = new Immovable();
             left.IsCollisionObject = true;
-            left.SetPosition(-5, 0.5f, 0);
+            left.SetPosition(-3, 1f, 0);
             left.SetColor(0, 1, 1);
-            left.SetHitboxToCapsule();
+            //left.SetHitboxToCapsule();
             AddGameObject(left);
 
             Immovable right = new Immovable();
             right.SetModel("FHBTEST");
             right.IsCollisionObject = true;
-            right.SetPosition(+5, 0, 0);
+            right.SetPosition(+3, 0.5f, 0);
             right.SetColor(1, 0, 1);
             AddGameObject(right);
 
