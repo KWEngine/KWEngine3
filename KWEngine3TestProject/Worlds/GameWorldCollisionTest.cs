@@ -48,6 +48,7 @@ namespace KWEngine3TestProject.Worlds
 
             Player p1 = new Player();
             p1.SetModel("Anim");
+            //p1.SetModel("KWSphere");
             p1.SetScale(0.01f);
             p1.Name = "Player #1";
             p1.IsCollisionObject = true;
@@ -60,6 +61,7 @@ namespace KWEngine3TestProject.Worlds
             left.SetModel("KWSphere");
             left.IsCollisionObject = true;
             left.SetPosition(-5, 0.5f, 0);
+            left.SetScale(2, 1, 1);
             left.SetColor(0, 1, 1);
             //left.SetHitboxToCapsule();
             AddGameObject(left);

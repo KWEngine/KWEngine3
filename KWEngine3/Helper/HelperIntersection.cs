@@ -2490,6 +2490,7 @@ namespace KWEngine3.Helper
             int collisionNormalIndex = 0;
             bool collisionNormalIndexFlip = false;
             bool collisionNormalFromCaller = false;
+            bool useNormalizedMTV = false;
 
             if (callerIsSphere && colliderIsSphere)
             {
@@ -2503,6 +2504,7 @@ namespace KWEngine3.Helper
                 CalculateOverlap(ref axis, ref s1Min, ref s1Max, ref s2Min, ref s2Max,
                     ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp,
                     ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, true, caller);
+                useNormalizedMTV = true;
             }
             else if (callerIsSphere)
             {
@@ -2519,6 +2521,21 @@ namespace KWEngine3.Helper
             }
             else // colliderIsSphere
             {
+                // The sphere needs a "voice": test the axis from sphere center to caller center.
+                // This is the sphere surface normal at the contact point and enables correct sliding.
+                Vector3 sphereAxis = caller._center + offset - collider._center;
+                float sphereAxisLen = sphereAxis.LengthFast;
+                if (sphereAxisLen < 0.0001f) return null;
+                sphereAxis /= sphereAxisLen;
+                SatTest(ref sphereAxis, ref caller._vertices, out float saMin1, out float saMax1, ref offset);
+                EllipsoidSatTest(ref sphereAxis, collider._center, ref collider._modelMatrixFinal, ref HelperVector.VectorZero, out float saMin2, out float saMax2);
+                if (!Overlaps(saMin1, saMax1, saMin2, saMax2)) return null;
+                OverlapResult msa = CalculateOverlap(ref sphereAxis, ref saMin1, ref saMax1, ref saMin2, ref saMax2,
+                    ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp,
+                    ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, true, caller);
+                if (msa.IsBetterResult)
+                    useNormalizedMTV = true;
+
                 for (int i = 0; i < caller._normals.Length; i++)
                 {
                     SatTest(ref caller._normals[i], ref caller._vertices, out float shape1Min, out float shape1Max, ref offset);
@@ -2527,14 +2544,14 @@ namespace KWEngine3.Helper
                     OverlapResult m = CalculateOverlap(ref caller._normals[i], ref shape1Min, ref shape1Max, ref shape2Min, ref shape2Max,
                         ref mtvDistance, ref mtvDistanceUp, ref MTVTemp, ref MTVTempUp,
                         ref mtvDirection, ref mtvDirectionUp, ref caller._center, ref collider._center, ref offset, true, caller);
-                    if (m.IsBetterResult) { collisionNormalIndex = i; collisionNormalIndexFlip = m.FlipNormal; collisionNormalFromCaller = true; }
+                    if (m.IsBetterResult) { collisionNormalIndex = i; collisionNormalIndexFlip = m.FlipNormal; collisionNormalFromCaller = true; useNormalizedMTV = false; }
                 }
             }
 
             if (MTVTemp == Vector3.Zero) return null;
 
             Vector3 collisionSurfaceNormal;
-            if (callerIsSphere && colliderIsSphere)
+            if (useNormalizedMTV)
                 collisionSurfaceNormal = Vector3.NormalizeFast(MTVTemp);
             else if (collisionNormalFromCaller)
                 collisionSurfaceNormal = caller._normals[collisionNormalIndex] * (collisionNormalIndexFlip ? -1 : 1);
