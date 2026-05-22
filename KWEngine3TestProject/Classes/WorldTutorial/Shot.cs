@@ -44,7 +44,7 @@ namespace KWEngine3TestProject.Classes.WorldTutorial
         private void CastExplosion()
         {
             ExplosionObject ex = new ExplosionObject(64, 0.5f, 0.5f, 1.0f, KWEngine3.ExplosionType.Star);
-            ex.SetColorEmissive(1, 0, 0, 5);
+            ex.SetColorEmissive(2, 0, 0);
             ex.SetPosition(this.Position - this.LookAtVector * 0.5f);
             CurrentWorld.AddExplosionObject(ex);
         }

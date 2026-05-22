@@ -37,7 +37,7 @@ namespace KWEngine3TestProject.Worlds
                 }
                 {
                     ExplosionObject e = new ExplosionObject(512, 0.5f, 10, 2.5f, ExplosionType.Heart);
-                    e.SetColorEmissive(1, 0, 1, 0.75f);
+                    e.SetColorEmissive(0.75f, 0, 0.75f);
                     e.SetPosition(5, 2, 0);
                     AddExplosionObject(e);
                 }

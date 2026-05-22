@@ -20,7 +20,7 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
             {
                 ExplosionObject ex = new ExplosionObject(8, 0.25f, 0.5f, 2f, ExplosionType.Cube);
                 ex.SetPosition(_lastPos != Vector3.Zero ? _lastPos : Position);
-                ex.SetColorEmissive(1, 1, 0, 2);
+                ex.SetColorEmissive(2, 2, 0);
                 CurrentWorld.AddExplosionObject(ex);
                 CurrentWorld.RemoveGameObject(this);
             }
