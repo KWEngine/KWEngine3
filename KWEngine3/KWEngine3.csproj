@@ -505,4 +505,27 @@
 		</None>
 	</ItemGroup>
 
+
+
+	<Target Name="CopyAfterBuild" AfterTargets="Build">
+
+		<PropertyGroup>
+			<TargetDirectory>$(NUGET_PATH)</TargetDirectory>
+		</PropertyGroup>
+
+		<MakeDir Directories="$(TargetDirectory)" Condition="!Exists('$(TargetDirectory)')" />
+
+		<ItemGroup>
+			<ZuKopieren Include="$(TargetDir)KWEngine3.dll" />
+			<ZuKopieren Include="$(TargetDir)KWEngine3.xml" />
+		</ItemGroup>
+
+		<Copy SourceFiles="@(ZuKopieren)"
+			  DestinationFolder="$(TargetDirectory)"
+			  SkipUnchangedFiles="true" />
+
+	</Target>
+
+
+
 </Project>
