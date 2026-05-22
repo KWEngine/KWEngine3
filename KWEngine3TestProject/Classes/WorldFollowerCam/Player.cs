@@ -16,21 +16,6 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
         private Vector3 _motionInput = Vector3.Zero;
         private Camera _cam;
         private float _speed = 0.01f;
-        Dictionary<Keys, bool> keyPressDict = new()
-        {
-            {
-                Keys.W, false
-            },
-            {
-                Keys.A, false
-            },
-            {
-                Keys.S, false
-            },
-            {
-                Keys.D, false
-            },
-        };
 
         public Player(Camera cam)
         {
@@ -53,10 +38,6 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
         {
             int move = 0;
             int strafe = 0;
-
-            UpdateDictionaryAndDirection();
-
-
 
             if (Keyboard.IsKeyDown(Keys.A))
             {
@@ -90,57 +71,6 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
         public Vector3 GetMotionInputVector()
         {
             return _motionInput;
-        }
-
-        private void UpdateDictionaryAndDirection()
-        {
-            Vector3 newDirection = Vector3.Zero;
-            if(Keyboard.IsKeyPressed(Keys.W))
-            {
-                keyPressDict[Keys.W] = true;
-                newDirection += CurrentWorld.CameraLookAtVectorXZ;
-            }
-            else
-            {
-                keyPressDict[Keys.W] = false;
-            }
-
-            if (Keyboard.IsKeyPressed(Keys.A))
-            {
-                keyPressDict[Keys.A] = true;
-                newDirection -= CurrentWorld.CameraLookAtVectorLocalRightXZ;
-            }
-            else
-            {
-                keyPressDict[Keys.A] = false;
-            }
-
-            if (Keyboard.IsKeyPressed(Keys.S))
-            {
-                keyPressDict[Keys.S] = true;
-                newDirection -= CurrentWorld.CameraLookAtVectorXZ;
-            }
-            else
-            {
-                keyPressDict[Keys.S] = false;
-            }
-
-            if (Keyboard.IsKeyPressed(Keys.D))
-            {
-                keyPressDict[Keys.D] = true;
-                newDirection += CurrentWorld.CameraLookAtVectorLocalRightXZ;
-            }
-            else
-            {
-                keyPressDict[Keys.D] = false;
-            }
-
-            if (newDirection.LengthSquared > 0.1f)
-            {
-                _motionInput = Vector3.NormalizeFast(newDirection);
-            }
-            else
-                _motionInput = Vector3.Zero;
         }
     }
 }
