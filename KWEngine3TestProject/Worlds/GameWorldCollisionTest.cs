@@ -60,8 +60,8 @@ namespace KWEngine3TestProject.Worlds
             Immovable left = new Immovable();
             left.SetModel("KWSphere");
             left.IsCollisionObject = true;
-            left.SetPosition(-5, 0.5f, 0);
-            left.SetScale(2, 1, 1);
+            left.SetPosition(-5, 1f, 0);
+            //left.SetScale(2, 1, 1);
             left.SetColor(0, 1, 1);
             //left.SetHitboxToCapsule();
             AddGameObject(left);
