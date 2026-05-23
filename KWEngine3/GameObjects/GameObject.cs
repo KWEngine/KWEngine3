@@ -1,10 +1,6 @@
-﻿using KWEngine3.EngineCamera;
-using KWEngine3.Helper;
+﻿using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
-using SkiaSharp;
-using System;
-using System.Collections.Specialized;
 
 namespace KWEngine3.GameObjects
 {

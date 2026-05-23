@@ -153,7 +153,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DdgQRbBNA6SJgPGc/AruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>DdoQRbBNA6SJgPGc/AruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -570,12 +570,14 @@
       <Field Name="_newlinePositions" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
       <Field Name="_text" Hidden="true" />
+      <Field Name="_uboGlyphInfo" Hidden="true" />
       <Field Name="_uvOffsets" Hidden="true" />
       <Field Name="_width" Hidden="true" />
       <Field Name="_widthNormalised" Hidden="true" />
       <Method Name="CreateBuffers" Hidden="true" />
       <Method Name="DeleteBuffers" Hidden="true" />
       <Method Name="FindPreviousDividerIndex" Hidden="true" />
+      <Method Name="UpdateBuffer" Hidden="true" />
       <Method Name="UpdateOffsetList" Hidden="true" />
     </Members>
     <TypeIdentifier>
@@ -624,6 +626,7 @@
       <Method Name="AddRotationYFromEditor" Hidden="true" />
       <Method Name="AddRotationZFromEditor" Hidden="true" />
       <Method Name="CheckPositionAndCenter" Hidden="true" />
+      <Method Name="FindAnimationIDFor" Hidden="true" />
       <Property Name="HasArmatureAndAnimations" Hidden="true" />
       <Property Name="HasEmissiveTexture" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />

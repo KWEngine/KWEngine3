@@ -1055,6 +1055,20 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Animationsnummer für das Objekt anhand des Animationsnamens.
+        /// </summary>
+        /// <param name="name">Name der Animation</param>
+        /// <param name="caseSensitive">Gibt an, ob Groß-/Kleinschreibung wichtig ist (Standard: false)</param>
+        public void SetAnimationID(string name, bool caseSensitive = false)
+        {
+            int id = FindAnimationIDFor(name, caseSensitive);
+            if(id >= 0)
+            {
+                SetAnimationID(id);
+            }
+        }
+
+        /// <summary>
         /// Setzt die Animationsnummer für einen bestimmten Layer (0 bis 3).
         /// Mit dem optionalen Parameter presetName kann ein Knochen-Preset angegeben werden,
         /// das zuvor über KWEngine.AddBonePresetToModel() und KWEngine.AddBoneToPreset() definiert wurde.
@@ -1085,6 +1099,23 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("[EngineObject] Bone preset '" + presetName + "' not found – layer bone mask unchanged");
             }
             _stateCurrent.SetAnimationLayer(layerIndex, layer);
+        }
+
+        /// <summary>
+        /// Setzt die Animationsnummer anhand des Animationsnamens für einen bestimmten Layer (0 bis 3).
+        /// Mit dem optionalen Parameter presetName kann ein Knochen-Preset angegeben werden,
+        /// das zuvor über KWEngine.AddBonePresetToModel() und KWEngine.AddBoneToPreset() definiert wurde.
+        /// Ist kein Preset angegeben, gilt die Animation für alle Knochen.
+        /// </summary>
+        /// <param name="name">Animationsname (null = Layer deaktivieren)</param>
+        /// <param name="caseSensitive"></param>
+        /// <param name="layerIndex">Layer-Index (0 bis 3)</param>
+        /// <param name="weight">Blending-Gewicht des Layers (0 bis 1, Standard: 1)</param>
+        /// <param name="presetName">Name des Knochen-Presets (null = alle Knochen)</param>
+        public void SetAnimationID(string name, bool caseSensitive, int layerIndex, float weight = 1f, string presetName = null)
+        {
+            int id = name == null ? -1 : FindAnimationIDFor(name, caseSensitive);
+            SetAnimationID(id, layerIndex, weight, presetName);
         }
 
         /// <summary>
@@ -1223,7 +1254,7 @@ namespace KWEngine3.GameObjects
             }
         }
 
-        #region internals
+        #region Internals
         internal bool _isShadowCaster = false;
         internal bool _isAffectedByLight = true;
         internal EngineObjectState _statePrevious;
@@ -1237,6 +1268,43 @@ namespace KWEngine3.GameObjects
         internal float _positionCenterDelta = 0f;
         internal bool _positionLowerThanCenter = true;
         internal float[] _hues;
+
+        internal int FindAnimationIDFor(string name, bool caseSensitive)
+        {
+            int id = -1;
+
+            if (name != null && HasAnimations)
+            {
+                string nameCopy = name;
+                
+                for (int i = 0; i < _model.ModelOriginal.Animations.Count; i++)
+                {
+                    string n = _model.ModelOriginal.Animations[i].Name;
+                    if (n != null)
+                    {
+                        if (!caseSensitive)
+                        {
+                            n = n.ToLower();
+                            nameCopy = name.ToLower();
+                        }
+                        if (n == nameCopy)
+                        {
+                            id = i;
+                            break;
+                        }
+                    }
+                }
+                if(id < 0)
+                {
+                    KWEngine.LogWriteLine("EngineObject] Selected model has no animation called '" + name + "'");
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("EngineObject] Selected model has no animations or animation name invalid");
+            }
+            return id;
+        }
 
         internal void CheckPositionAndCenter()
         {

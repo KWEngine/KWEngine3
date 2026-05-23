@@ -689,6 +689,38 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Erstellt eine Liste der im 3D-Modell verfügbaren Animationsnamen
+        /// </summary>
+        /// <param name="modelname">Name des Modells (muss zuvor importiert worden sein)</param>
+        /// <returns>Liste der Animationsnamen</returns>
+        public static List<string> GetModelAnimationNames(string modelname)
+        {
+            bool result = Models.TryGetValue(modelname, out GeoModel model);
+            List<string> resultList = new();
+            if (result)
+            {
+                if(model.Animations != null && model.Animations.Count > 0)
+                {
+                    foreach (GeoAnimation a in model.Animations)
+                    {
+                        resultList.Add(a.Name);
+                    }
+
+                }
+                else
+                {
+                    KWEngine.LogWriteLine("[Model] Model " + (modelname == null ? "" : modelname.Trim()) + " has no animations");
+                }
+                
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[Model] Model " + (modelname == null ? "" : modelname.Trim()) + " not found");
+            }
+            return resultList;
+        }
+
+        /// <summary>
         /// Legt ein neues leeres Knochen-Preset für das angegebene Modell an (falls noch nicht vorhanden).
         /// Knochennamen können danach über AddBoneToPreset() hinzugefügt werden.
         /// </summary>
