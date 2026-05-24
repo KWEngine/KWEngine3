@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="11.75" Width="2.75" />
+    <Position X="0.5" Y="12.25" Width="2.75" />
     <Members>
       <Field Name="_disposed" Hidden="true" />
       <Field Name="_frame" Hidden="true" />
@@ -95,6 +95,8 @@
       <Property Name="DeltaTimeCurrentNibbleSize" Hidden="true" />
       <Property Name="DeltaTimeFactorForOverlay" Hidden="true" />
       <Method Name="DeselectAll" Hidden="true" />
+      <Method Name="DisableKeyframesForAnimation" Hidden="true" />
+      <Method Name="DisableKeyFramesResetAll" Hidden="true" />
       <Field Name="FontDictionary" Hidden="true" />
       <Method Name="GetModel" Hidden="true" />
       <Field Name="Identity" Hidden="true" />
@@ -153,7 +155,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DdoQRbBNA6SJgPGc/AruAZARVCgCgmoSjHn2SP2KEIk=</HashCode>
+      <HashCode>DdoQRbBNA6SJgPGc/AruCZARVCgCgmoSjHn2SP2KEKk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -291,7 +293,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAGABGGIwqwiSEwIAOEABEJUYyA0EJwkADBA0CUIE=</HashCode>
+      <HashCode>jAiAGABGGIwqwiSEwIAOEAJEJUYyA0EJwkADBA0CUIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -502,7 +504,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="18.5" Width="2.75" />
+    <Position X="0.5" Y="19" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -626,7 +628,6 @@
       <Method Name="AddRotationYFromEditor" Hidden="true" />
       <Method Name="AddRotationZFromEditor" Hidden="true" />
       <Method Name="CheckPositionAndCenter" Hidden="true" />
-      <Method Name="FindAnimationIDFor" Hidden="true" />
       <Property Name="HasArmatureAndAnimations" Hidden="true" />
       <Property Name="HasEmissiveTexture" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
@@ -746,6 +747,7 @@
       <Method Name="ConvertByteArrayToVector3List" Hidden="true" />
       <Method Name="DecideBuildType" Hidden="true" />
       <Method Name="EqualizePathDividers" Hidden="true" />
+      <Method Name="FindAnimationIDFor" Hidden="true" />
       <Method Name="FlushAndFinish" Hidden="true" />
       <Method Name="GenerateWindowIconFromAssemblyIcon" Hidden="true" />
       <Method Name="Get3DMouseCoords" Hidden="true" />
@@ -769,7 +771,7 @@
       <Method Name="UnProject" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AQAAARABAIAIAAAAAA1SASFgggAEIAgBCkCIAgQAUAE=</HashCode>
+      <HashCode>AQAAARABAIAIAAAAAA1SISFgggAEIAgBCkCIAgQAUAE=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>
