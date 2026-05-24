@@ -1,4 +1,5 @@
-﻿using KWEngine3.Exceptions;
+﻿using KWEngine3;
+using KWEngine3.Exceptions;
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using OpenTK.Mathematics;
@@ -10,67 +11,91 @@ using System.Collections.Generic;
 
 namespace KWEngine3TestProject.Classes.WorldFollowerCam
 {
+    internal enum StateMovement
+    {
+        Idle = 0,                   // erstes bit
+        Moving = 1                  // erstes bit
+    }
+
+    internal enum StateLocation { 
+        OnGround = 2,
+        InAir = 3
+    }
+
     internal class Player : GameObject
     {
         private Vector3 _motion = Vector3.Zero;
-        private Vector3 _motionInput = Vector3.Zero;
-        private Camera _cam;
+        //private Camera _cam;
+        //private uint _state = 
         private float _speed = 0.01f;
 
-        public Player(Camera cam)
+        public Player()
         {
-            if (cam == null || !cam.IsInCurrentWorld)
-                throw new EngineException("Camera not in world yet. Cannot proceed.");
-            _cam = cam;
-
-            SetModel("Robot");
+            SetModel("Brute");
             IsCollisionObject = true;
             UpdateLast = true;
 
             SetPosition(0f, 0f, 0f);
             SetScale(1f);
-            SetHitboxScale(0.5f, 1f, 1f);
+            SetHitboxToCapsule(1, Vector3.Zero, CapsuleHitboxType.Default);
+            SetHitboxScale(1, 0.5f, 1f, 1f);
             SetRotation(0, 180, 0);
             SetAnimationID(0);
         }
 
         public override void Act()
         {
+
+
             int move = 0;
             int strafe = 0;
 
-            if (Keyboard.IsKeyDown(Keys.A))
+            Vector3 tmpLookAtVector = Vector3.Zero;
+            Vector3 camLookAtXZ = CurrentWorld.CameraLookAtVectorXZ;
+            Vector3 camLookAtRightXZ = CurrentWorld.CameraLookAtVectorLocalRightXZ;
+
+            if (KWEngine.Keyboard.IsKeyDown(Keys.W))
             {
-                strafe--;
-            }
-            if (Keyboard.IsKeyDown(Keys.D))
-            {
-                strafe++;
-            }
-            if (Keyboard.IsKeyDown(Keys.W))
-            {
-                move++;
-            }
-            if (Keyboard.IsKeyDown(Keys.S))
-            {
-                move--;
+                move += 1;
+                tmpLookAtVector += camLookAtXZ;
             }
 
-            _motion = MoveAndStrafeAlongCameraXZ(move, strafe, _speed);
-            if(_cam != null)
+            if (KWEngine.Keyboard.IsKeyDown(Keys.A))
             {
-                _cam.UpdateViewFor(this);
+                strafe -= 1;
+                tmpLookAtVector -= camLookAtRightXZ;
+            }
+
+            if (KWEngine.Keyboard.IsKeyDown(Keys.S))
+            {
+                move -= 1;
+                tmpLookAtVector -= camLookAtXZ;
+            }
+
+            if (KWEngine.Keyboard.IsKeyDown(Keys.D))
+            {
+                strafe += 1;
+                tmpLookAtVector += camLookAtRightXZ;
+            }
+            
+            if (tmpLookAtVector.LengthSquared > 0.1f)
+            {
+                
+                tmpLookAtVector.NormalizeFast();
+                TurnTowardsXZ(Center + tmpLookAtVector);
+            }
+
+            _motion = Vector3.Zero;
+            if (move != 0 || strafe != 0)
+            {
+                MoveAndStrafeAlongCameraXZ(move, strafe, _speed);
+                _motion = MoveAndStrafeAlongCameraXZ(move, strafe, _speed); 
             }
         }
 
         public Vector3 GetMotionVector()
         {
             return _motion;
-        }
-
-        public Vector3 GetMotionInputVector()
-        {
-            return _motionInput;
         }
     }
 }

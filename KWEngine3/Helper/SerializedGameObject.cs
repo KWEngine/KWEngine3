@@ -1,5 +1,6 @@
 ﻿using KWEngine3.GameObjects;
 using KWEngine3.Model;
+using OpenTK.Mathematics;
 
 namespace KWEngine3.Helper
 {
@@ -31,7 +32,7 @@ namespace KWEngine3.Helper
         public float[] ScaleOffset { get; set; }
         public int AttachedToID { get; set; }
         public string AttachedToParentBone { get; set; }
-        public float[] ScaleHitbox { get; set; }
+        public float[][] ScaleHitbox { get; set; }
 
         // COLOR
         public float[] Color { get; set; }
@@ -88,7 +89,12 @@ namespace KWEngine3.Helper
             sg.Position = new float[] { g._stateCurrent._position.X, g._stateCurrent._position.Y, g._stateCurrent._position.Z };
             sg.Rotation = new float[] { g._stateCurrent._rotation.X, g._stateCurrent._rotation.Y, g._stateCurrent._rotation.Z, g._stateCurrent._rotation.W };
             sg.Scale = new float[] { g._stateCurrent._scale.X, g._stateCurrent._scale.Y, g._stateCurrent._scale.Z };
-            sg.ScaleHitbox = new float[] { g._stateCurrent._scaleHitboxMat.M11, g._stateCurrent._scaleHitboxMat.M22, g._stateCurrent._scaleHitboxMat.M33, g._stateCurrent._scaleHitboxMat.M41, g._stateCurrent._scaleHitboxMat.M42, g._stateCurrent._scaleHitboxMat.M43 };
+            sg.ScaleHitbox = new float[g._colliderModel._hitboxes.Count][];
+            for (int j = 0; j < g._colliderModel._hitboxes.Count; j++)
+            {
+                Matrix4 m = g._colliderModel._hitboxes[j]._scaleHitboxMat;
+                sg.ScaleHitbox[j] = new float[] { m.M11, m.M22, m.M33, m.M41, m.M42, m.M43 };
+            }
 
             sg.Color = new float[] { g._stateCurrent._colorTint.X, g._stateCurrent._colorTint.Y, g._stateCurrent._colorTint.Z };
 

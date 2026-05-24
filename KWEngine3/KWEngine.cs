@@ -864,9 +864,186 @@ namespace KWEngine3
             return result;
         }
 
+
+        public static void DisableKeyframesForModelAnimation(string modelName, string animationName, bool caseSensitive, AnimationKeyframeType keyframetype, int frameStart)
+        {
+            if (animationName == null)
+                animationName = "";
+
+            if(KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                int id = HelperGeneral.FindAnimationIDFor(model, animationName, caseSensitive);
+                if(id >= 0)
+                {
+                    DisableKeyframesForAnimation(model, id, keyframetype, frameStart, -1);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Model '" + modelName + "' has no animation called '" + animationName + "'");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesForModelAnimation(string modelName, string animationName, bool caseSensitive, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
+        {
+            if (animationName == null)
+                animationName = "";
+
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                int id = HelperGeneral.FindAnimationIDFor(model, animationName, caseSensitive);
+                if (id >= 0)
+                {
+                    DisableKeyframesForAnimation(model, id, keyframetype, frameStart, frameEnd);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Model '" + modelName + "' has no animation called '" + animationName + "'");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesForModelAnimation(string modelName, int animationId, AnimationKeyframeType keyframetype, int frameStart)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                if (animationId >= 0)
+                {
+                    DisableKeyframesForAnimation(model, animationId, keyframetype, frameStart, -1);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Invalid animation id: " + animationId);
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesForModelAnimation(string modelName, int animationId, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                if (animationId >= 0)
+                {
+                    DisableKeyframesForAnimation(model, animationId, keyframetype, frameStart, frameEnd);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Invalid animation id: " + animationId);
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesResetAll(string modelName, string animationName, bool caseSensitive = false)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                int id = HelperGeneral.FindAnimationIDFor(model, animationName, caseSensitive);
+                if (id >= 0)
+                {
+                    DisableKeyFramesResetAll(model, id);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Model '" + modelName + "' has no animation called '" + animationName + "'");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesResetAll(string modelName, int animationId)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                DisableKeyFramesResetAll(model, animationId);
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
         #region Internals
         internal static float _octreeSafetyZone = 1f;
         internal static float _swpruneTolerance = 2.0f;
+
+        internal static void DisableKeyframesForAnimation(GeoModel model, int animationId, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
+        {
+            if (frameStart == -1)
+            {
+                DisableKeyFramesResetAll(model, animationId);
+                return;
+            }
+            if (frameEnd != -1 && frameEnd < frameStart)
+                return;
+            if (animationId < 0 || animationId >= model.Animations.Count)
+                return;
+
+            GeoAnimation anim = model.Animations[animationId];
+            int flags = (int)keyframetype;
+            bool hasTranslation = (flags & (int)AnimationKeyframeType.PositionAll) != 0;
+            bool hasRotation    = (flags & (int)AnimationKeyframeType.Rotation) != 0;
+            bool hasScale       = (flags & (int)AnimationKeyframeType.Scale) != 0;
+            int translationBits = flags & (int)AnimationKeyframeType.PositionAll;
+
+            foreach (GeoNodeAnimationChannel channel in anim.AnimationChannels.Values)
+            {
+                if (hasTranslation && channel.TranslationKeys != null && frameStart < channel.TranslationKeys.Count)
+                {
+                    if (channel.DisabledTranslationKeyAxes == null)
+                        channel.DisabledTranslationKeyAxes = new int[channel.TranslationKeys.Count];
+                    int endT = frameEnd == -1 ? channel.TranslationKeys.Count - 1 : Math.Min(frameEnd, channel.TranslationKeys.Count - 1);
+                    for (int i = frameStart; i <= endT; i++)
+                        channel.DisabledTranslationKeyAxes[i] |= translationBits;
+                }
+                if (hasRotation && channel.RotationKeys != null && frameStart < channel.RotationKeys.Count)
+                {
+                    if (channel.DisabledRotationKeyAxes == null)
+                        channel.DisabledRotationKeyAxes = new int[channel.RotationKeys.Count];
+                    int endR = frameEnd == -1 ? channel.RotationKeys.Count - 1 : Math.Min(frameEnd, channel.RotationKeys.Count - 1);
+                    for (int i = frameStart; i <= endR; i++)
+                        channel.DisabledRotationKeyAxes[i] = 1;
+                }
+                if (hasScale && channel.ScaleKeys != null && frameStart < channel.ScaleKeys.Count)
+                {
+                    if (channel.DisabledScaleKeyAxes == null)
+                        channel.DisabledScaleKeyAxes = new int[channel.ScaleKeys.Count];
+                    int endS = frameEnd == -1 ? channel.ScaleKeys.Count - 1 : Math.Min(frameEnd, channel.ScaleKeys.Count - 1);
+                    for (int i = frameStart; i <= endS; i++)
+                        channel.DisabledScaleKeyAxes[i] = 1;
+                }
+            }
+        }
+
+        internal static void DisableKeyFramesResetAll(GeoModel model, int animationId)
+        {
+            if (animationId < 0 || animationId >= model.Animations.Count)
+                return;
+            foreach (GeoNodeAnimationChannel channel in model.Animations[animationId].AnimationChannels.Values)
+            {
+                channel.DisabledTranslationKeyAxes = null;
+                channel.DisabledRotationKeyAxes    = null;
+                channel.DisabledScaleKeyAxes       = null;
+            }
+        }
 
         internal static ScreenInfo CollectScreenInfo()
         {

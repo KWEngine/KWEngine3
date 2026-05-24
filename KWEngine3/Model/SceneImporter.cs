@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using Assimp;
 using Assimp.Configs;
 using KWEngine3.Helper;
@@ -253,13 +254,29 @@ namespace KWEngine3.Model
             returnModel.TransformGlobalInverse = Matrix4.Invert(HelperMatrix.ConvertAssimpToOpenTKMatrix(scene.RootNode.Transform));
             returnModel.Textures = new Dictionary<string, GeoTexture>();
 
+            //Console.WriteLine(Environment.NewLine + $"Processing model '{returnModel.Name}':");
+
             GenerateNodeHierarchy(scene.RootNode, ref returnModel);
             bool result;
+            
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             result = ProcessBones(scene, ref returnModel);
+            long msBones = watch.ElapsedMilliseconds;
             if(result)
                 result = ProcessMeshes(scene, ref returnModel);
-            if(result)
+            long msMeshes = watch.ElapsedMilliseconds;
+            if (result)
                 ProcessAnimations(scene, ref returnModel);
+            long msAnimations = watch.ElapsedMilliseconds;
+
+            //Console.WriteLine($"\tBones:      {msBones}ms");
+            //Console.WriteLine($"\tMeshes:     {msMeshes - msBones}ms");
+            //Console.WriteLine($"\tAnimations: {msAnimations - msMeshes - msBones}ms");
+            //Console.WriteLine("-----------------------------------");
+            //Console.WriteLine($"Total time: {msAnimations}ms");
+
+            watch.Stop();
 
             returnModel.IsValid = result;
             return returnModel;
@@ -587,8 +604,19 @@ namespace KWEngine3.Model
             return "";
         }
 
-        private static void ProcessMaterialsForMesh(Scene scene, Mesh mesh, ref GeoModel model, ref GeoMesh geoMesh, bool isKWCube = false)
+        private static void ProcessMaterialsForMesh(Scene scene, Mesh mesh, ref GeoModel model, ref GeoMesh geoMesh, bool isKWCube = false, Dictionary<int, GeoMaterial> materialCache = null, Dictionary<string, (GeoTexture rough, GeoTexture metal, float roughVal, float metalVal)> fbxPBRCache = null)
         {
+            // Invisible meshes need a separate material instance (alpha = 0), so they bypass the cache.
+            bool isInvisible = (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                            || (geoMesh != null && geoMesh.Name.ToLower().Contains("_invisible"));
+
+            // Cache hit: reuse already-processed material (avoids repeated FBX file reads + parse).
+            if (!isInvisible && materialCache != null && materialCache.TryGetValue(mesh.MaterialIndex, out GeoMaterial cachedMaterial))
+            {
+                geoMesh.Material = cachedMaterial;
+                return;
+            }
+
             GeoMaterial geoMaterial = new GeoMaterial();
             geoMaterial.AttachedToMesh = mesh.Name;
             Material material = null;
@@ -778,8 +806,23 @@ namespace KWEngine3.Model
                 }
                 float rVal = 1.0f;
                 float mVal = 0.0f;
+                // Declare pbrInfo upfront so the compiler sees it as definitely assigned.
+                // For non-FBX formats fbxPBRCache is null, so hasPBRCacheHit is always false
+                // and the original ProcessTextureForAssimpPBRMaterial path runs unchanged.
+                (GeoTexture rough, GeoTexture metal, float roughVal, float metalVal) pbrInfo = default;
+                bool hasPBRCacheHit = fbxPBRCache != null && material != null
+                    && fbxPBRCache.TryGetValue(material.Name, out pbrInfo);
+                if (hasPBRCacheHit)
+                {
+                    rVal = pbrInfo.roughVal;
+                    mVal = pbrInfo.metalVal;
+                }
+
                 // Look for roughness texture:
-                tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Roughness, ref model, out rVal, out mVal);
+                if (hasPBRCacheHit)
+                    tex = pbrInfo.rough;
+                else
+                    tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Roughness, ref model, out rVal, out mVal);
                 if (tex.IsTextureSet)
                 {
                     geoMaterial.TextureRoughness = tex;
@@ -810,9 +853,11 @@ namespace KWEngine3.Model
                     geoMaterial.Roughness = rVal;
                 }
 
-
                 // Look for metallic texture:
-                tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Metallic, ref model, out rVal, out mVal);
+                if (hasPBRCacheHit)
+                    tex = pbrInfo.metal;
+                else
+                    tex = HelperTexture.ProcessTextureForAssimpPBRMaterial(material, TextureType.Metallic, ref model, out rVal, out mVal);
                 if (tex.IsTextureSet)
                 {
                     geoMaterial.TextureMetallic = tex;
@@ -826,6 +871,10 @@ namespace KWEngine3.Model
                     geoMaterial.Metallic = mVal;
                 }
             }
+            // Cache write: store for reuse by subsequent meshes with the same material index.
+            if (!isInvisible && materialCache != null && !materialCache.ContainsKey(mesh.MaterialIndex))
+                materialCache[mesh.MaterialIndex] = geoMaterial;
+
             geoMesh.Material = geoMaterial;
         }
 
@@ -866,6 +915,106 @@ namespace KWEngine3.Model
             return (max - min) * 0.5f;
         }
 
+        /// <summary>
+        /// Reads and parses file exactly once, then pre-loads all PBR roughness/metallic
+        /// textures for every material. This replaces the per-material (and previously per-mesh)
+        /// File.ReadAllBytes + full binary tree parse that GetFBXTextureFilenamesAndData performs.
+        /// </summary>
+        private static Dictionary<string, (GeoTexture rough, GeoTexture metal, float roughVal, float metalVal)> PreloadFBXPBRTextures(Scene scene, ref GeoModel model)
+        {
+            var cache = new Dictionary<string, (GeoTexture, GeoTexture, float, float)>();
+            try
+            {
+                byte[] filedata = File.ReadAllBytes(model.Filename);
+                if (HelperTexture.IsFBXASCII(filedata))
+                    return cache; // ASCII FBX: leave PBR lookup to the existing fallback path
+
+                uint version = BitConverter.ToUInt32(filedata, 23);
+                FBXNode root = version <= 7400
+                    ? HelperTexture.ReadFBXNodeStructureOld(filedata, 27)
+                    : HelperTexture.ReadFBXNodeStructure(filedata, 27);
+
+                foreach (Assimp.Material mat in scene.Materials)
+                {
+                    long materialId = HelperTexture.GetMaterialIdFor(mat.Name, root);
+                    if (materialId <= 0)
+                        continue;
+
+                    // One call to GetMetallicRoughnessForMaterialID gives us BOTH roughness and
+                    // metallic info — the original code called GetFBXTextureFilenamesAndData twice
+                    // (once per type), each of which repeated the full FBX read+parse.
+                    HelperTexture.GetMetallicRoughnessForMaterialID(materialId, root,
+                        out string roughFile, out byte[] roughData,
+                        out string metalFile, out byte[] metalData,
+                        out float roughness, out float metallic);
+
+                    GeoTexture roughTex = BuildPBRGeoTexture(roughFile, roughData, mat.Name, TextureType.Roughness, ref model);
+                    GeoTexture metalTex = BuildPBRGeoTexture(metalFile, metalData, mat.Name, TextureType.Metallic, ref model);
+                    cache[mat.Name] = (roughTex, metalTex, roughness, metallic);
+                }
+            }
+            catch (Exception ex)
+            {
+                KWEngine.LogWriteLine("[Import] FBX PBR pre-pass error for " + model.Name + ": " + ex.Message);
+            }
+            return cache;
+        }
+
+        /// <summary>
+        /// Loads a single PBR texture (roughness or metallic) from filename or embedded byte data,
+        /// reusing an already-uploaded OpenGL texture if the same file was loaded before.
+        /// Mirrors the texture-loading logic inside GetFBXTextureFilenamesAndData.
+        /// </summary>
+        private static GeoTexture BuildPBRGeoTexture(string filename, byte[] embeddedData, string materialName, TextureType type, ref GeoModel model)
+        {
+            GeoTexture tex = new GeoTexture();
+            if (string.IsNullOrEmpty(filename))
+                return tex;
+
+            tex.Type = type;
+            tex.UVTransform = new Vector4(1, 1, 0, 0);
+            tex.UVMapIndex = 0;
+            tex.IsEmbedded = embeddedData != null;
+
+            string tFilename = filename;
+            if (tex.IsEmbedded)
+            {
+                tFilename = model.Name + "_" + materialName + "_" + HelperTexture.GetTextureTypeString(type) + "-EMBEDDED_X." + HelperTexture.GetFileEnding(filename);
+                if (!HelperTexture.ConvertEmbeddedToTemporaryFile(embeddedData, tFilename, model.Path))
+                {
+                    KWEngine.LogWriteLine("[Import] Temporary image file " + filename + " could not be written to disk");
+                    return tex;
+                }
+            }
+            tex.Filename = tFilename;
+
+            if (model.Textures.ContainsKey(tFilename))
+            {
+                tex.OpenGLID = model.Textures[tFilename].OpenGLID;
+            }
+            else if (CheckIfOtherModelsShareTexture(tFilename, model.Path, out GeoTexture sharedTexture))
+            {
+                tex = sharedTexture;
+            }
+            else
+            {
+                string actualPath = FindTextureInSubs(StripPathFromFile(tFilename), model.Path);
+                tex.OpenGLID = HelperTexture.LoadTextureForModelExternal(actualPath, out int mipMaps);
+                tex.MipMaps = mipMaps;
+                if (tex.OpenGLID > 0)
+                {
+                    if (HelperTexture.GetTextureDimensions(tex.OpenGLID, out int width, out int height))
+                    {
+                        tex.Width = width;
+                        tex.Height = height;
+                    }
+                    if (!model.Textures.ContainsKey(tFilename))
+                        model.Textures.Add(tFilename, tex);
+                }
+            }
+            return tex;
+        }
+
         private static bool ProcessMeshes(Scene scene, ref GeoModel model)
         {
             model.MeshCollider.MeshHitboxes = new List<GeoMeshHitbox>();
@@ -882,8 +1031,16 @@ namespace KWEngine3.Model
             List<Vector3> uniqueVerticesForWholeMesh = new List<Vector3>();
             List<Vector3> uniqueNormalsForWholeMesh = new List<Vector3>();
             List<GeoMeshFaceHelper> faceHelpersForWholeMesh = new List<GeoMeshFaceHelper>();
+            Dictionary<int, GeoMaterial> materialCache = new Dictionary<int, GeoMaterial>();
+            // Pre-load all FBX PBR textures in one pass (one file read, one parse) instead of
+            // re-reading the FBX file inside GetFBXTextureFilenamesAndData for each material.
+            Dictionary<string, (GeoTexture rough, GeoTexture metal, float roughVal, float metalVal)> fbxPBRCache = null;
+            if (model.AssemblyMode == AssemblyMode.File && CheckFileEnding(model.Filename) == FileType.Filmbox)
+                fbxPBRCache = PreloadFBXPBRTextures(scene, ref model);
             for (int m = 0; m < scene.MeshCount; m++)
             {
+                Stopwatch swMeshes = new Stopwatch();
+                swMeshes.Start();
                 mesh = scene.Meshes[m];
                 Matrix4 parentTransform = Matrix4.Identity;
                 bool transformFound = FindTransformForMesh(scene, scene.RootNode, mesh, ref nodeTransform, out string nodeName, ref parentTransform);
@@ -1068,9 +1225,10 @@ namespace KWEngine3.Model
                 geoMesh.VBOGenerateTangents(mesh);
                 geoMesh.VBOGenerateTextureCoords1(mesh);
                 //geoMesh.VBOGenerateTextureCoords2(mesh);
-
-                ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh, model.Filename == "kwcube.obj" || model.Filename == "kwcube6.obj");
-
+                //Console.WriteLine($"\t\tProcessMeshes(0): {swMeshes.ElapsedMilliseconds}ms");
+                ProcessMaterialsForMesh(scene, mesh, ref model, ref geoMesh, model.Filename == "kwcube.obj" || model.Filename == "kwcube6.obj", materialCache, fbxPBRCache);
+                //Console.WriteLine($"\t\tProcessMeshes(1): {swMeshes.ElapsedMilliseconds}ms");
+                swMeshes.Stop();
                 geoMesh.VAOUnbind();
                 geoMesh.Vertices = null; // no longer needed, let GC get it
                 model.Meshes.Add(geoMesh.Name, geoMesh);

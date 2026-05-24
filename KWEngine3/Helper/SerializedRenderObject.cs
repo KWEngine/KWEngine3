@@ -22,8 +22,6 @@ namespace KWEngine3.Helper
         public float[] Position { get; set; }
         public float[] Rotation { get; set; }
         public float[] Scale { get; set; }
-        public float[] ScaleHitbox { get; set; }
-
         // COLOR
         public float[] Color { get; set; }
         public float[] ColorEmissive { get; set; }
@@ -59,8 +57,6 @@ namespace KWEngine3.Helper
             rg.Position = new float[] { r._stateCurrent._position.X, r._stateCurrent._position.Y, r._stateCurrent._position.Z };
             rg.Rotation = new float[] { r._stateCurrent._rotation.X, r._stateCurrent._rotation.Y, r._stateCurrent._rotation.Z, r._stateCurrent._rotation.W };
             rg.Scale = new float[] { r._stateCurrent._scale.X, r._stateCurrent._scale.Y, r._stateCurrent._scale.Z };
-            rg.ScaleHitbox = new float[] { r._stateCurrent._scaleHitboxMat.M11, r._stateCurrent._scaleHitboxMat.M22, r._stateCurrent._scaleHitboxMat.M33 };
-
             rg.Color = new float[] { r._stateCurrent._colorTint.X, r._stateCurrent._colorTint.Y, r._stateCurrent._colorTint.Z };
             rg.ColorEmissive = new float[r._model.Material.Length * 4];
             for (int m = 0; m < r._model.Material.Length; m++)

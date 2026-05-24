@@ -47,6 +47,43 @@ namespace KWEngine3.Helper
             return result;
         }
 
+        internal static int FindAnimationIDFor(GeoModel model, string name, bool caseSensitive)
+        {
+            int id = -1;
+
+            if (name != null && model != null && model.HasBones && model.Animations != null && model.Animations.Count > 0)
+            {
+                string nameCopy = name;
+
+                for (int i = 0; i < model.Animations.Count; i++)
+                {
+                    string n = model.Animations[i].Name;
+                    if (n != null)
+                    {
+                        if (!caseSensitive)
+                        {
+                            n = n.ToLower();
+                            nameCopy = name.ToLower();
+                        }
+                        if (n == nameCopy)
+                        {
+                            id = i;
+                            break;
+                        }
+                    }
+                }
+                if (id < 0)
+                {
+                    KWEngine.LogWriteLine("EngineObject] Selected model has no animation called '" + name + "'");
+                }
+            }
+            else
+            {
+                KWEngine.LogWriteLine("EngineObject] Selected model has no animations or animation name invalid");
+            }
+            return id;
+        }
+
         internal static WindowIcon GenerateWindowIconFromAssemblyIcon()
         {
             WindowIcon icon = null;

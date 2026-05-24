@@ -432,11 +432,20 @@ namespace KWEngine3.Model
             return "";
         }
 
-        private static void ProcessMaterialsForMesh(Gltf scene, Mesh mesh, MeshPrimitive currentPrimitive, ref GeoModel model, ref GeoMesh geoMesh, Dictionary<string, int> glbTextures)
+        private static void ProcessMaterialsForMesh(Gltf scene, Mesh mesh, MeshPrimitive currentPrimitive, ref GeoModel model, ref GeoMesh geoMesh, Dictionary<string, int> glbTextures, Dictionary<int, GeoMaterial> materialCache = null)
         {
             GeoMaterial geoMaterial = new GeoMaterial() { TextureAlbedo = new GeoTexture() };
             geoMaterial.AttachedToMesh = mesh.Name;
             int materialId = currentPrimitive.Material == null ? -1 : (int)currentPrimitive.Material;
+
+            // Invisible meshes need their own material instance (alpha = 0), so they bypass the cache.
+            bool isInvisible = (mesh.Name != null && mesh.Name.ToLower().Contains("_invisible"))
+                            || (geoMesh != null && geoMesh.Name.ToLower().Contains("_invisible"));
+            if (!isInvisible && materialCache != null && materialCache.TryGetValue(materialId, out GeoMaterial cached))
+            {
+                geoMesh.Material = cached;
+                return;
+            }
 
             if (materialId < 0)
             {
@@ -678,6 +687,8 @@ namespace KWEngine3.Model
                     }
                 }
             }
+            if (!isInvisible && materialCache != null && !materialCache.ContainsKey(materialId))
+                materialCache[materialId] = geoMaterial;
             geoMesh.Material = geoMaterial;
         }
 
@@ -1648,6 +1659,7 @@ namespace KWEngine3.Model
         {
             int glbOffset = -1;
             Dictionary<string, int> previouslyImportedGLBTextures = new Dictionary<string, int>();
+            Dictionary<int, GeoMaterial> materialCache = new Dictionary<int, GeoMaterial>();
 
             model.MeshCollider.MeshHitboxes = new List<GeoMeshHitbox>();
             string currentNodeName = null;
@@ -1762,7 +1774,7 @@ namespace KWEngine3.Model
                     geoMesh.VBOGenerateTangents(normals, tangents);
                     geoMesh.VBOGenerateTextureCoords1(uvs);
 
-                    ProcessMaterialsForMesh(scene, mesh, mprim, ref model, ref geoMesh, previouslyImportedGLBTextures);
+                    ProcessMaterialsForMesh(scene, mesh, mprim, ref model, ref geoMesh, previouslyImportedGLBTextures, materialCache);
 
                     geoMesh.VAOUnbind();
                     model.Meshes.Add(geoMesh.Name, geoMesh);
