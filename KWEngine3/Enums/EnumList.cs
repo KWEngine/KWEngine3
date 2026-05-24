@@ -1,6 +1,37 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Gibt für die Methode KWEngine.DisableKeyframesForModelAnimation() an, welche Arten von Keyframes eine Abschaltung vorgenommen werden soll
+    /// </summary>
+    public enum AnimationKeyframeType
+    {
+        /// <summary>
+        /// Positionskeyframes alles Achsen
+        /// </summary>
+        PositionAll     = 0b00000111,
+        /// <summary>
+        /// Positionskeyframes der x-Achse
+        /// </summary>
+        PositionX       = 0b00000001,
+        /// <summary>
+        /// Positionskeyframes der y-Achse
+        /// </summary>
+        PositionY = 0b00000010,
+        /// <summary>
+        /// Positionskeyframes der z-Achse
+        /// </summary>
+        PositionZ = 0b00000100,
+        /// <summary>
+        /// Rotationskeyframes
+        /// </summary>
+        Rotation = 0b00001000,
+        /// <summary>
+        /// Skalierungskeyframes
+        /// </summary>
+        Scale = 0b00010000
+    }
+
+    /// <summary>
     /// Bestimmt wie transparente Objekte für das Rendern sortiert werden (Standard: NearestEdge)
     /// </summary>
     public enum ZOrderMode

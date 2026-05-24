@@ -1061,7 +1061,7 @@ namespace KWEngine3.GameObjects
         /// <param name="caseSensitive">Gibt an, ob Groß-/Kleinschreibung wichtig ist (Standard: false)</param>
         public void SetAnimationID(string name, bool caseSensitive = false)
         {
-            int id = FindAnimationIDFor(name, caseSensitive);
+            int id = HelperGeneral.FindAnimationIDFor(_model.ModelOriginal, name, caseSensitive);
             if(id >= 0)
             {
                 SetAnimationID(id);
@@ -1114,7 +1114,7 @@ namespace KWEngine3.GameObjects
         /// <param name="presetName">Name des Knochen-Presets (null = alle Knochen)</param>
         public void SetAnimationID(string name, bool caseSensitive, int layerIndex, float weight = 1f, string presetName = null)
         {
-            int id = name == null ? -1 : FindAnimationIDFor(name, caseSensitive);
+            int id = name == null ? -1 : HelperGeneral.FindAnimationIDFor(_model.ModelOriginal, name, caseSensitive);
             SetAnimationID(id, layerIndex, weight, presetName);
         }
 
@@ -1268,43 +1268,6 @@ namespace KWEngine3.GameObjects
         internal float _positionCenterDelta = 0f;
         internal bool _positionLowerThanCenter = true;
         internal float[] _hues;
-
-        internal int FindAnimationIDFor(string name, bool caseSensitive)
-        {
-            int id = -1;
-
-            if (name != null && HasAnimations)
-            {
-                string nameCopy = name;
-                
-                for (int i = 0; i < _model.ModelOriginal.Animations.Count; i++)
-                {
-                    string n = _model.ModelOriginal.Animations[i].Name;
-                    if (n != null)
-                    {
-                        if (!caseSensitive)
-                        {
-                            n = n.ToLower();
-                            nameCopy = name.ToLower();
-                        }
-                        if (n == nameCopy)
-                        {
-                            id = i;
-                            break;
-                        }
-                    }
-                }
-                if(id < 0)
-                {
-                    KWEngine.LogWriteLine("EngineObject] Selected model has no animation called '" + name + "'");
-                }
-            }
-            else
-            {
-                KWEngine.LogWriteLine("EngineObject] Selected model has no animations or animation name invalid");
-            }
-            return id;
-        }
 
         internal void CheckPositionAndCenter()
         {

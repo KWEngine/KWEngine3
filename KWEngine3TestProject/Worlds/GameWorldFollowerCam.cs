@@ -20,18 +20,20 @@ namespace KWEngine3TestProject.Worlds
         {
             //KWEngine.DebugOverlayEnabled = true;
 
-            KWEngine.LoadModel("Robot", "./Models/GLTFTest/bot.gltf");
+            KWEngine.LoadModel("Brute", "./Models/Brute/brute_kar.fbx");
 
             SetCameraPosition(0.0f, 20.0f, 0.0f);
             SetCameraTarget(0.0f, 0.0f, 0.0f);
 
-            Camera c = new Camera();
-            AddGameObject(c);
+            KWEngine.DisableKeyframesForModelAnimation("Brute", 0, AnimationKeyframeType.PositionAll | AnimationKeyframeType.Rotation, 0);
 
-            Player p = new Player(c);
+            Player p = new Player();
             AddGameObject(p);
 
-            c.ResetViewFor(p);
+            Camera c = new Camera(p);
+            AddGameObject(c);
+
+            
 
             Floor f = new Floor();
             f.SetModel("KWPlatform");

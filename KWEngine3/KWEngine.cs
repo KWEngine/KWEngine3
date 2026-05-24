@@ -864,9 +864,146 @@ namespace KWEngine3
             return result;
         }
 
+
+        public static void DisableKeyframesForModelAnimation(string modelName, string animationName, bool caseSensitive, AnimationKeyframeType keyframetype, int frameStart)
+        {
+            if (animationName == null)
+                animationName = "";
+
+            if(KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                int id = HelperGeneral.FindAnimationIDFor(model, animationName, caseSensitive);
+                if(id >= 0)
+                {
+                    DisableKeyframesForAnimation(model, id, keyframetype, frameStart, -1);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Model '" + modelName + "' has no animation called '" + animationName + "'");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesForModelAnimation(string modelName, string animationName, bool caseSensitive, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
+        {
+            if (animationName == null)
+                animationName = "";
+
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                int id = HelperGeneral.FindAnimationIDFor(model, animationName, caseSensitive);
+                if (id >= 0)
+                {
+                    DisableKeyframesForAnimation(model, id, keyframetype, frameStart, frameEnd);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Model '" + modelName + "' has no animation called '" + animationName + "'");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesForModelAnimation(string modelName, int animationId, AnimationKeyframeType keyframetype, int frameStart)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                if (animationId >= 0)
+                {
+                    DisableKeyframesForAnimation(model, animationId, keyframetype, frameStart, -1);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Invalid animation id: " + animationId);
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesForModelAnimation(string modelName, int animationId, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                if (animationId >= 0)
+                {
+                    DisableKeyframesForAnimation(model, animationId, keyframetype, frameStart, frameEnd);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Invalid animation id: " + animationId);
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesResetAll(string modelName, string animationName, bool caseSensitive = false)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                int id = HelperGeneral.FindAnimationIDFor(model, animationName, caseSensitive);
+                if (id >= 0)
+                {
+                    DisableKeyFramesResetAll(model, id);
+                }
+                else
+                {
+                    LogWriteLine("[Model] Model '" + modelName + "' has no animation called '" + animationName + "'");
+                }
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
+        public static void DisableKeyframesResetAll(string modelName, int animationId)
+        {
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            {
+                DisableKeyFramesResetAll(model, animationId);
+            }
+            else
+            {
+                LogWriteLine("[Model] Model '" + modelName + "' not found");
+            }
+        }
+
         #region Internals
         internal static float _octreeSafetyZone = 1f;
         internal static float _swpruneTolerance = 2.0f;
+
+        internal static void DisableKeyframesForAnimation(GeoModel model, int animationId, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
+        {
+            // Hinweise:
+            // wenn frameStart -1 ist, dann alle Einschränkungen für die animationsId (index) des Models löschen
+            // wenn frameStart >= 0 ist:
+            //      -> wenn frameEnd -1 ist, dann sind alle keyframes ab index frameStart gemeint
+            //      -> sonst: wenn frameEnd != -1 && frameEnd >= frameStart ist, sind alle keyframes von frameStart bis frameEnd (inklusive) gemeint
+            //      -> sonst: wenn frameEnd < frameStart ist, ist dies ein ungültiger Aufruf und es wird nichts gemacht.
+
+
+            // TODO:
+            // - für die animation, die in model.Animations am Index animationId gespeichert ist:
+            //      Abhängig der gewählten Bitmask (keyframetype, siehe enum-Deklaration in EnumList.cs) die Keyframes von frameStart to frameEnd als disabled markieren
+        }
+
+        internal static void DisableKeyFramesResetAll(GeoModel model, int animationId)
+        {
+            // Alle Keyframe-Einschränkungen für die Animation am Index animationId des Modells löschen
+        }
 
         internal static ScreenInfo CollectScreenInfo()
         {
