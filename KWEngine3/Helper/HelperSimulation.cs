@@ -536,126 +536,201 @@ namespace KWEngine3.Helper
         private static Vector3 CalcInterpolatedScaling(float timestamp, ref GeoNodeAnimationChannel channel)
         {
             if (channel.ScaleKeys == null)
-            {
                 return new Vector3(1, 1, 1);
-            }
 
-            GeoAnimationKeyframe firstKey = channel.ScaleKeys[0];
+            List<GeoAnimationKeyframe> keys = channel.ScaleKeys;
+            int[] disabled = channel.DisabledScaleKeyAxes;
+
+            GeoAnimationKeyframe firstKey = keys[0];
             if (timestamp < firstKey.Time)
             {
-                GeoAnimationKeyframe lastKey = channel.ScaleKeys[channel.ScaleKeys.Count - 1];
-                float deltaTime = firstKey.Time;
-                float factor = timestamp / deltaTime;
-                Vector3 scalingStart = lastKey.Scale;
-                Vector3 scalingEnd = firstKey.Scale;
-                Vector3.Lerp(scalingStart, scalingEnd, factor, out Vector3 scaling);
-                return scaling;
+                float factor = timestamp / firstKey.Time;
+                if (disabled == null)
+                {
+                    Vector3.Lerp(keys[keys.Count - 1].Scale, firstKey.Scale, factor, out Vector3 s);
+                    return s;
+                }
+                Vector3 loS = GetEffectiveScale(keys, disabled, keys.Count - 1);
+                Vector3 hiS = GetEffectiveScale(keys, disabled, 0);
+                Vector3.Lerp(loS, hiS, factor, out Vector3 sDisabled);
+                return sDisabled;
             }
-            if(timestamp > channel.ScaleKeys[channel.ScaleKeys.Count - 1].Time)
+            if (timestamp > keys[keys.Count - 1].Time)
             {
-                return channel.ScaleKeys[channel.ScaleKeys.Count - 1].Scale;
+                if (disabled == null)
+                    return keys[keys.Count - 1].Scale;
+                return GetEffectiveScale(keys, disabled, keys.Count - 1);
             }
 
-            int lo = 0, hi = channel.ScaleKeys.Count - 2;
+            int lo = 0, hi = keys.Count - 2;
             while (lo < hi)
             {
                 int mid = (lo + hi + 1) / 2;
-                if (channel.ScaleKeys[mid].Time <= timestamp)
+                if (keys[mid].Time <= timestamp)
                     lo = mid;
                 else
                     hi = mid - 1;
             }
             {
-                GeoAnimationKeyframe key = channel.ScaleKeys[lo];
-                GeoAnimationKeyframe key2 = channel.ScaleKeys[lo + 1];
-                float deltaTime = (key2.Time - key.Time);
-                float factor = (timestamp - key.Time) / deltaTime;
-                Vector3.Lerp(key.Scale, key2.Scale, factor, out Vector3 scaling);
-                return scaling;
+                GeoAnimationKeyframe key  = keys[lo];
+                GeoAnimationKeyframe key2 = keys[lo + 1];
+                float factor = (timestamp - key.Time) / (key2.Time - key.Time);
+                if (disabled == null)
+                {
+                    Vector3.Lerp(key.Scale, key2.Scale, factor, out Vector3 scaling);
+                    return scaling;
+                }
+                Vector3 loScale = GetEffectiveScale(keys, disabled, lo);
+                Vector3 hiScale = GetEffectiveScale(keys, disabled, lo + 1);
+                Vector3.Lerp(loScale, hiScale, factor, out Vector3 scalingDisabled);
+                return scalingDisabled;
             }
         }
 
         private static Vector3 CalcInterpolatedTranslation(float timestamp, ref GeoNodeAnimationChannel channel)
         {
             if (channel.TranslationKeys == null)
-            {
-                return new Vector3(0, 0, 0);
-            }
+                return Vector3.Zero;
 
-            GeoAnimationKeyframe firstKey = channel.TranslationKeys[0];
+            List<GeoAnimationKeyframe> keys = channel.TranslationKeys;
+            int[] disabled = channel.DisabledTranslationKeyAxes;
+
+            GeoAnimationKeyframe firstKey = keys[0];
             if (timestamp < firstKey.Time)
             {
-                GeoAnimationKeyframe lastKey = channel.TranslationKeys[channel.TranslationKeys.Count - 1];
-                float deltaTime = firstKey.Time;
-                float factor = timestamp / deltaTime;
-                Vector3 transStart = lastKey.Translation;
-                Vector3 transEnd = firstKey.Translation;
-                Vector3.Lerp(transStart, transEnd, factor, out Vector3 translation);
-                return translation;
+                float factor = timestamp / firstKey.Time;
+                if (disabled == null)
+                {
+                    Vector3.Lerp(keys[keys.Count - 1].Translation, firstKey.Translation, factor, out Vector3 t);
+                    return t;
+                }
+                Vector3 loT = GetEffectiveTranslation(keys, disabled, keys.Count - 1);
+                Vector3 hiT = GetEffectiveTranslation(keys, disabled, 0);
+                Vector3.Lerp(loT, hiT, factor, out Vector3 tDisabled);
+                return tDisabled;
             }
-            if (timestamp > channel.TranslationKeys[channel.TranslationKeys.Count - 1].Time)
+            if (timestamp > keys[keys.Count - 1].Time)
             {
-                return channel.TranslationKeys[channel.TranslationKeys.Count - 1].Translation;
+                if (disabled == null)
+                    return keys[keys.Count - 1].Translation;
+                return GetEffectiveTranslation(keys, disabled, keys.Count - 1);
             }
 
-            int lo = 0, hi = channel.TranslationKeys.Count - 2;
+            int lo = 0, hi = keys.Count - 2;
             while (lo < hi)
             {
                 int mid = (lo + hi + 1) / 2;
-                if (channel.TranslationKeys[mid].Time <= timestamp)
+                if (keys[mid].Time <= timestamp)
                     lo = mid;
                 else
                     hi = mid - 1;
             }
             {
-                GeoAnimationKeyframe key = channel.TranslationKeys[lo];
-                GeoAnimationKeyframe key2 = channel.TranslationKeys[lo + 1];
-                float deltaTime = (key2.Time - key.Time);
-                float factor = (timestamp - key.Time) / deltaTime;
-                Vector3.Lerp(key.Translation, key2.Translation, factor, out Vector3 trans);
-                return trans;
+                GeoAnimationKeyframe key  = keys[lo];
+                GeoAnimationKeyframe key2 = keys[lo + 1];
+                float factor = (timestamp - key.Time) / (key2.Time - key.Time);
+                if (disabled == null)
+                {
+                    Vector3.Lerp(key.Translation, key2.Translation, factor, out Vector3 trans);
+                    return trans;
+                }
+                Vector3 loTrans = GetEffectiveTranslation(keys, disabled, lo);
+                Vector3 hiTrans = GetEffectiveTranslation(keys, disabled, lo + 1);
+                Vector3.Lerp(loTrans, hiTrans, factor, out Vector3 transDisabled);
+                return transDisabled;
             }
         }
 
         private static Quaternion CalcInterpolatedRotation(float timestamp, ref GeoNodeAnimationChannel channel)
         {
             if (channel.RotationKeys == null)
-            {
                 return Quaternion.Identity;
-            }
 
-            GeoAnimationKeyframe firstKey = channel.RotationKeys[0];
+            List<GeoAnimationKeyframe> keys = channel.RotationKeys;
+            int[] disabled = channel.DisabledRotationKeyAxes;
+
+            GeoAnimationKeyframe firstKey = keys[0];
             if (timestamp < firstKey.Time)
             {
-                GeoAnimationKeyframe lastKey = channel.RotationKeys[channel.RotationKeys.Count - 1];
-                float deltaTime = firstKey.Time;
-                float factor = timestamp / deltaTime;
-                Quaternion transStart = lastKey.Rotation;
-                Quaternion transEnd = firstKey.Rotation;
-                return Quaternion.Slerp(transStart, transEnd, factor);
+                float factor = timestamp / firstKey.Time;
+                if (disabled == null)
+                    return Quaternion.Slerp(keys[keys.Count - 1].Rotation, firstKey.Rotation, factor);
+                Quaternion loR = GetEffectiveRotation(keys, disabled, keys.Count - 1);
+                Quaternion hiR = GetEffectiveRotation(keys, disabled, 0);
+                return Quaternion.Slerp(loR, hiR, factor);
             }
-
-            if (timestamp > channel.RotationKeys[channel.RotationKeys.Count - 1].Time)
+            if (timestamp > keys[keys.Count - 1].Time)
             {
-                return channel.RotationKeys[channel.RotationKeys.Count - 1].Rotation;
+                if (disabled == null)
+                    return keys[keys.Count - 1].Rotation;
+                return GetEffectiveRotation(keys, disabled, keys.Count - 1);
             }
 
-            int lo = 0, hi = channel.RotationKeys.Count - 2;
+            int lo = 0, hi = keys.Count - 2;
             while (lo < hi)
             {
                 int mid = (lo + hi + 1) / 2;
-                if (channel.RotationKeys[mid].Time <= timestamp)
+                if (keys[mid].Time <= timestamp)
                     lo = mid;
                 else
                     hi = mid - 1;
             }
             {
-                GeoAnimationKeyframe key = channel.RotationKeys[lo];
-                GeoAnimationKeyframe key2 = channel.RotationKeys[lo + 1];
-                float deltaTime = key2.Time - key.Time;
-                float factor = (timestamp - key.Time) / deltaTime;
-                return Quaternion.Slerp(key.Rotation, key2.Rotation, factor);
+                GeoAnimationKeyframe key  = keys[lo];
+                GeoAnimationKeyframe key2 = keys[lo + 1];
+                float factor = (timestamp - key.Time) / (key2.Time - key.Time);
+                if (disabled == null)
+                    return Quaternion.Slerp(key.Rotation, key2.Rotation, factor);
+                Quaternion loRot = GetEffectiveRotation(keys, disabled, lo);
+                Quaternion hiRot = GetEffectiveRotation(keys, disabled, lo + 1);
+                return Quaternion.Slerp(loRot, hiRot, factor);
             }
+        }
+
+        // Gibt für jeden Translation-Kanal die effektive Komponente zurück:
+        // Für jede Achse (X/Y/Z) wird rückwärts ab 'index' der letzte nicht-disabled Keyframe gesucht.
+        // Fallback wenn keiner gefunden: 0f.
+        private static Vector3 GetEffectiveTranslation(List<GeoAnimationKeyframe> keys, int[] disabled, int index)
+        {
+            const int maskX = (int)AnimationKeyframeType.PositionX;
+            const int maskY = (int)AnimationKeyframeType.PositionY;
+            const int maskZ = (int)AnimationKeyframeType.PositionZ;
+
+            float x = 0f, y = 0f, z = 0f;
+            bool foundX = false, foundY = false, foundZ = false;
+
+            for (int i = index; i >= 0 && !(foundX && foundY && foundZ); i--)
+            {
+                int d = disabled[i];
+                if (!foundX && (d & maskX) == 0) { x = keys[i].Translation.X; foundX = true; }
+                if (!foundY && (d & maskY) == 0) { y = keys[i].Translation.Y; foundY = true; }
+                if (!foundZ && (d & maskZ) == 0) { z = keys[i].Translation.Z; foundZ = true; }
+            }
+            return new Vector3(x, y, z);
+        }
+
+        // Rückwärts ab 'index' den letzten nicht-disabled Scale-Keyframe suchen.
+        // Fallback: Vector3.One.
+        private static Vector3 GetEffectiveScale(List<GeoAnimationKeyframe> keys, int[] disabled, int index)
+        {
+            for (int i = index; i >= 0; i--)
+            {
+                if (disabled[i] == 0)
+                    return keys[i].Scale;
+            }
+            return Vector3.One;
+        }
+
+        // Rückwärts ab 'index' den letzten nicht-disabled Rotation-Keyframe suchen.
+        // Fallback: Quaternion.Identity.
+        private static Quaternion GetEffectiveRotation(List<GeoAnimationKeyframe> keys, int[] disabled, int index)
+        {
+            for (int i = index; i >= 0; i--)
+            {
+                if (disabled[i] == 0)
+                    return keys[i].Rotation;
+            }
+            return Quaternion.Identity;
         }
     }
 }

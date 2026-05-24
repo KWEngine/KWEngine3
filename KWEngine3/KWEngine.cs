@@ -987,22 +987,62 @@ namespace KWEngine3
 
         internal static void DisableKeyframesForAnimation(GeoModel model, int animationId, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
         {
-            // Hinweise:
-            // wenn frameStart -1 ist, dann alle Einschränkungen für die animationsId (index) des Models löschen
-            // wenn frameStart >= 0 ist:
-            //      -> wenn frameEnd -1 ist, dann sind alle keyframes ab index frameStart gemeint
-            //      -> sonst: wenn frameEnd != -1 && frameEnd >= frameStart ist, sind alle keyframes von frameStart bis frameEnd (inklusive) gemeint
-            //      -> sonst: wenn frameEnd < frameStart ist, ist dies ein ungültiger Aufruf und es wird nichts gemacht.
+            if (frameStart == -1)
+            {
+                DisableKeyFramesResetAll(model, animationId);
+                return;
+            }
+            if (frameEnd != -1 && frameEnd < frameStart)
+                return;
+            if (animationId < 0 || animationId >= model.Animations.Count)
+                return;
 
+            GeoAnimation anim = model.Animations[animationId];
+            int flags = (int)keyframetype;
+            bool hasTranslation = (flags & (int)AnimationKeyframeType.PositionAll) != 0;
+            bool hasRotation    = (flags & (int)AnimationKeyframeType.Rotation) != 0;
+            bool hasScale       = (flags & (int)AnimationKeyframeType.Scale) != 0;
+            int translationBits = flags & (int)AnimationKeyframeType.PositionAll;
 
-            // TODO:
-            // - für die animation, die in model.Animations am Index animationId gespeichert ist:
-            //      Abhängig der gewählten Bitmask (keyframetype, siehe enum-Deklaration in EnumList.cs) die Keyframes von frameStart to frameEnd als disabled markieren
+            foreach (GeoNodeAnimationChannel channel in anim.AnimationChannels.Values)
+            {
+                if (hasTranslation && channel.TranslationKeys != null && frameStart < channel.TranslationKeys.Count)
+                {
+                    if (channel.DisabledTranslationKeyAxes == null)
+                        channel.DisabledTranslationKeyAxes = new int[channel.TranslationKeys.Count];
+                    int endT = frameEnd == -1 ? channel.TranslationKeys.Count - 1 : Math.Min(frameEnd, channel.TranslationKeys.Count - 1);
+                    for (int i = frameStart; i <= endT; i++)
+                        channel.DisabledTranslationKeyAxes[i] |= translationBits;
+                }
+                if (hasRotation && channel.RotationKeys != null && frameStart < channel.RotationKeys.Count)
+                {
+                    if (channel.DisabledRotationKeyAxes == null)
+                        channel.DisabledRotationKeyAxes = new int[channel.RotationKeys.Count];
+                    int endR = frameEnd == -1 ? channel.RotationKeys.Count - 1 : Math.Min(frameEnd, channel.RotationKeys.Count - 1);
+                    for (int i = frameStart; i <= endR; i++)
+                        channel.DisabledRotationKeyAxes[i] = 1;
+                }
+                if (hasScale && channel.ScaleKeys != null && frameStart < channel.ScaleKeys.Count)
+                {
+                    if (channel.DisabledScaleKeyAxes == null)
+                        channel.DisabledScaleKeyAxes = new int[channel.ScaleKeys.Count];
+                    int endS = frameEnd == -1 ? channel.ScaleKeys.Count - 1 : Math.Min(frameEnd, channel.ScaleKeys.Count - 1);
+                    for (int i = frameStart; i <= endS; i++)
+                        channel.DisabledScaleKeyAxes[i] = 1;
+                }
+            }
         }
 
         internal static void DisableKeyFramesResetAll(GeoModel model, int animationId)
         {
-            // Alle Keyframe-Einschränkungen für die Animation am Index animationId des Modells löschen
+            if (animationId < 0 || animationId >= model.Animations.Count)
+                return;
+            foreach (GeoNodeAnimationChannel channel in model.Animations[animationId].AnimationChannels.Values)
+            {
+                channel.DisabledTranslationKeyAxes = null;
+                channel.DisabledRotationKeyAxes    = null;
+                channel.DisabledScaleKeyAxes       = null;
+            }
         }
 
         internal static ScreenInfo CollectScreenInfo()
