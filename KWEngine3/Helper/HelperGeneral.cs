@@ -686,7 +686,7 @@ namespace KWEngine3.Helper
         {
             GL.Flush();
             GL.Finish();
-            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, false, false);
             GCSettings.LatencyMode = GCLatencyMode.Interactive;
         }
 

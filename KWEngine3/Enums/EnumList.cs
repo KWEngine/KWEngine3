@@ -32,6 +32,25 @@
     }
 
     /// <summary>
+    /// Gibt an, ob beim Import von Keyframes ggf. welche übersprungen werden sollen, weil die Engine Keyframes eh linear interpoliert
+    /// </summary>
+    public enum ImportAnimationKeyframeFactor
+    {
+        /// <summary>
+        /// Keine Keyframes überspringen
+        /// </summary>
+        UseEverySingleFrame = 1,
+        /// <summary>
+        /// Immer nur jeden zweiten Keyframe verwenden
+        /// </summary>
+        UseEverySecondFrame = 2,
+        /// <summary>
+        /// Immer nur jeden vierten Keyframe verwenden
+        /// </summary>
+        UseEveryFourthFrame = 4
+    }
+
+    /// <summary>
     /// Bestimmt wie transparente Objekte für das Rendern sortiert werden (Standard: NearestEdge)
     /// </summary>
     public enum ZOrderMode

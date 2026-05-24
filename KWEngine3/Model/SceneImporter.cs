@@ -82,7 +82,7 @@ namespace KWEngine3.Model
             }
         }
 
-        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal)
+        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
         {
             if (filename == null)
                 filename = "";
@@ -91,7 +91,7 @@ namespace KWEngine3.Model
             FileType type = CheckFileEnding(filename);
             if(type == FileType.GLTF)
             {
-                GeoModel model = SceneImporterGLTF.LoadModel(filename, flipTextureCoordinates);
+                GeoModel model = SceneImporterGLTF.LoadModel(filename, flipTextureCoordinates, factor);
                 return model;
             }
             else
@@ -204,7 +204,7 @@ namespace KWEngine3.Model
                     return null;
                 }
 
-                GeoModel model = ProcessScene(scene, filename, am);
+                GeoModel model = ProcessScene(scene, filename, am, factor);
                 scene.Clear();
                 importer.Dispose();
 
@@ -212,7 +212,7 @@ namespace KWEngine3.Model
             }
         }
 
-        private static GeoModel ProcessScene(Scene scene, string filename, AssemblyMode am)
+        private static GeoModel ProcessScene(Scene scene, string filename, AssemblyMode am, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
         {
             GeoModel returnModel = new GeoModel();
             if (filename.Contains("kwcube6.obj"))
@@ -260,7 +260,7 @@ namespace KWEngine3.Model
             if(result)
                 result = ProcessMeshes(scene, ref returnModel);
             if(result)
-                ProcessAnimations(scene, ref returnModel);
+                ProcessAnimations(scene, ref returnModel, factor);
 
             returnModel.IsValid = result;
             return returnModel;
@@ -1121,11 +1121,26 @@ namespace KWEngine3.Model
             return true;
         }
 
-        private static void ProcessAnimations(Scene scene, ref GeoModel model)
+        private static List<GeoAnimationKeyframe> FilterKeyframes(List<GeoAnimationKeyframe> keyframes, int factor)
+        {
+            if (factor <= 1 || keyframes.Count <= 24)
+                return keyframes;
+            List<GeoAnimationKeyframe> filtered = new List<GeoAnimationKeyframe>();
+            int lastIndex = keyframes.Count - 1;
+            for (int i = 0; i <= lastIndex; i++)
+            {
+                if (i == 0 || i == lastIndex || i % factor == 0)
+                    filtered.Add(keyframes[i]);
+            }
+            return filtered;
+        }
+
+        private static void ProcessAnimations(Scene scene, ref GeoModel model, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
         {
             if (scene.HasAnimations)
             {
                 int count = scene.Animations.Count;
+                int factorInt = (int)factor;
                 GeoAnimation[] animArray = new GeoAnimation[count];
                 Parallel.For(0, count, i =>
                 {
@@ -1141,37 +1156,40 @@ namespace KWEngine3.Model
                         GeoNodeAnimationChannel ganc = new GeoNodeAnimationChannel();
 
                         // Rotation:
-                        ganc.RotationKeys = new List<GeoAnimationKeyframe>(nac.RotationKeys.Count);
+                        List<GeoAnimationKeyframe> rotKeys = new List<GeoAnimationKeyframe>(nac.RotationKeys.Count);
                         foreach (QuaternionKey key in nac.RotationKeys)
                         {
                             GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
                             akf.Time     = (float)key.Time;
                             akf.Rotation = new OpenTK.Mathematics.Quaternion(key.Value.X, key.Value.Y, key.Value.Z, key.Value.W);
                             akf.Type     = GeoKeyframeType.Rotation;
-                            ganc.RotationKeys.Add(akf);
+                            rotKeys.Add(akf);
                         }
+                        ganc.RotationKeys = FilterKeyframes(rotKeys, factorInt);
 
                         // Scale:
-                        ganc.ScaleKeys = new List<GeoAnimationKeyframe>(nac.ScalingKeys.Count);
+                        List<GeoAnimationKeyframe> scaleKeys = new List<GeoAnimationKeyframe>(nac.ScalingKeys.Count);
                         foreach (VectorKey key in nac.ScalingKeys)
                         {
                             GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
                             akf.Time  = (float)key.Time;
                             akf.Scale = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
                             akf.Type  = GeoKeyframeType.Scale;
-                            ganc.ScaleKeys.Add(akf);
+                            scaleKeys.Add(akf);
                         }
+                        ganc.ScaleKeys = FilterKeyframes(scaleKeys, factorInt);
 
                         // Translation:
-                        ganc.TranslationKeys = new List<GeoAnimationKeyframe>(nac.PositionKeys.Count);
+                        List<GeoAnimationKeyframe> translKeys = new List<GeoAnimationKeyframe>(nac.PositionKeys.Count);
                         foreach (VectorKey key in nac.PositionKeys)
                         {
                             GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
                             akf.Time        = (float)key.Time;
                             akf.Translation = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
                             akf.Type        = GeoKeyframeType.Translation;
-                            ganc.TranslationKeys.Add(akf);
+                            translKeys.Add(akf);
                         }
+                        ganc.TranslationKeys = FilterKeyframes(translKeys, factorInt);
 
                         ga.AnimationChannels.Add(nodename, ganc);
                     }
