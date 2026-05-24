@@ -916,9 +916,9 @@ namespace KWEngine3.Model
         }
 
         /// <summary>
-        /// Reads and parses the FBX file exactly once, then pre-loads all PBR roughness/metallic
+        /// Reads and parses file exactly once, then pre-loads all PBR roughness/metallic
         /// textures for every material. This replaces the per-material (and previously per-mesh)
-        /// File.ReadAllBytes + full FBX binary tree parse that GetFBXTextureFilenamesAndData performs.
+        /// File.ReadAllBytes + full binary tree parse that GetFBXTextureFilenamesAndData performs.
         /// </summary>
         private static Dictionary<string, (GeoTexture rough, GeoTexture metal, float roughVal, float metalVal)> PreloadFBXPBRTextures(Scene scene, ref GeoModel model)
         {
