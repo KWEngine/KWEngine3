@@ -443,7 +443,8 @@ namespace KWEngine3.Editor
                         }
                     }
 
-                    Vector3 s = SelectedGameObject._stateCurrent._scaleHitboxMat.ExtractScale();
+                    GameObjectHitbox firstHitbox = SelectedGameObject._colliderModel._hitboxes.Count > 0 ? SelectedGameObject._colliderModel._hitboxes[0] : null;
+                    Vector3 s = firstHitbox != null ? firstHitbox._scaleHitboxMat.ExtractScale() : Vector3.One;
                     System.Numerics.Vector3 hbScale = new() { X = s.X, Y = s.Y, Z = s.Z };
                     if (ImGui.SliderFloat3("Hitbox scale", ref hbScale, 0.1f, 10, "%.2f", ImGuiSliderFlags.Logarithmic))
                     {

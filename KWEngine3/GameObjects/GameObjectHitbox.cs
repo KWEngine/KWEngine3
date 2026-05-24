@@ -23,6 +23,7 @@ namespace KWEngine3.GameObjects
 
         public Matrix4 _modelMatrixFinal = Matrix4.Identity;
         public Matrix4 _modelMatrixFinalInv = Matrix4.Identity;
+        internal Matrix4 _scaleHitboxMat = Matrix4.Identity;
 
         internal GameObject Owner { get; private set; }
         internal GeoMeshHitbox _mesh;
@@ -87,7 +88,7 @@ namespace KWEngine3.GameObjects
                 _meshPreTransform = this._mesh.Transform;
             }
 
-            Matrix4.Mult(_meshPreTransform, Owner._stateCurrent._scaleHitboxMat, out Matrix4 tempMatrix);
+            Matrix4.Mult(_meshPreTransform, _scaleHitboxMat, out Matrix4 tempMatrix);
             Matrix4.Mult(tempMatrix, Owner._stateCurrent._modelMatrix, out _modelMatrixFinal);
             _modelMatrixFinalInv = Matrix4.Invert(_modelMatrixFinal);
 

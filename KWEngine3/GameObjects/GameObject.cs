@@ -816,49 +816,78 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
+        /// Setzt die Größenskalierung aller Hitboxen gleichmäßig (muss > 0 sein)
         /// </summary>
-        /// <param name="s">Skalierung</param>
+        /// <param name="s">Einheitliche Skalierung für alle Achsen</param>
         public void SetHitboxScale(float s)
         {
             SetHitboxScale(s, s, s);
         }
 
         /// <summary>
-        /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
+        /// Setzt die Größenskalierung aller Hitboxen (muss > 0 sein)
         /// </summary>
         /// <param name="s">Skalierung in lokaler x-/y-z-Richtung</param>
-        /// <param name="offsetX">Optionale x-Verschiebung der Hitbox</param>
-        /// <param name="offsetY">Optionale y-Verschiebung der Hitbox</param>
-        /// <param name="offsetZ">Optionale z-Verschiebung der Hitbox</param>
+        /// <param name="offsetX">Optionale x-Verschiebung der Hitboxen</param>
+        /// <param name="offsetY">Optionale y-Verschiebung der Hitboxen</param>
+        /// <param name="offsetZ">Optionale z-Verschiebung der Hitboxen</param>
         public void SetHitboxScale(Vector3 s, float offsetX = 0f, float offsetY = 0f, float offsetZ = 0f)
         {
             SetHitboxScale(s.X, s.Y, s.Z, offsetX, offsetY, offsetZ);
         }
 
         /// <summary>
-        /// Setzt die Größenskalierung der Objekt-Hitbox (muss > 0 sein)
+        /// Setzt die Größenskalierung aller Hitboxen (muss > 0 sein)
         /// </summary>
+        /// <param name="x">Skalierung in lokale x-Richtung</param>
+        /// <param name="y">Skalierung in lokale y-Richtung</param>
+        /// <param name="z">Skalierung in lokale z-Richtung</param>
+        /// <param name="offsetX">Optionale x-Verschiebung der Hitboxen</param>
+        /// <param name="offsetY">Optionale y-Verschiebung der Hitboxen</param>
+        /// <param name="offsetZ">Optionale z-Verschiebung der Hitboxen</param>
+        public void SetHitboxScale(float x, float y, float z, float offsetX = 0f, float offsetY = 0f, float offsetZ = 0f)
+        {
+            foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
+            {
+                ApplyHitboxScaleToHitbox(hb, x, y, z, offsetX, offsetY, offsetZ);
+            }
+            UpdateModelMatrixAndHitboxes();
+        }
+
+        /// <summary>
+        /// Setzt die Größenskalierung einer einzelnen Hitbox per Index (muss > 0 sein)
+        /// </summary>
+        /// <param name="hitboxIndex">Index der Hitbox (0-basiert)</param>
         /// <param name="x">Skalierung in lokale x-Richtung</param>
         /// <param name="y">Skalierung in lokale y-Richtung</param>
         /// <param name="z">Skalierung in lokale z-Richtung</param>
         /// <param name="offsetX">Optionale x-Verschiebung der Hitbox</param>
         /// <param name="offsetY">Optionale y-Verschiebung der Hitbox</param>
         /// <param name="offsetZ">Optionale z-Verschiebung der Hitbox</param>
-        public void SetHitboxScale(float x, float y, float z, float offsetX = 0f, float offsetY = 0f, float offsetZ = 0f)
+        public void SetHitboxScale(int hitboxIndex, float x, float y, float z, float offsetX = 0f, float offsetY = 0f, float offsetZ = 0f)
+        {
+            if (hitboxIndex < 0 || hitboxIndex >= _colliderModel._hitboxes.Count)
+            {
+                KWEngine.LogWriteLine("[GameObject] SetHitboxScale: hitboxIndex " + hitboxIndex + " ist ungültig.");
+                return;
+            }
+            ApplyHitboxScaleToHitbox(_colliderModel._hitboxes[hitboxIndex], x, y, z, offsetX, offsetY, offsetZ);
+            UpdateModelMatrixAndHitboxes();
+        }
+
+        private static void ApplyHitboxScaleToHitbox(GameObjectHitbox hb, float x, float y, float z, float offsetX, float offsetY, float offsetZ)
         {
             if (x > float.Epsilon && y > float.Epsilon && z > float.Epsilon)
             {
-                _stateCurrent._scaleHitboxMat = Matrix4.CreateScale(new Vector3(x, y, z));
+                hb._scaleHitboxMat = Matrix4.CreateScale(new Vector3(x, y, z));
             }
             else
             {
-                _stateCurrent._scaleHitboxMat = Matrix4.Identity;
+                hb._scaleHitboxMat = Matrix4.Identity;
             }
-            _stateCurrent._scaleHitboxMat.M41 = offsetX;
-            _stateCurrent._scaleHitboxMat.M42 = offsetY;
-            _stateCurrent._scaleHitboxMat.M43 = offsetZ;
-            UpdateModelMatrixAndHitboxes();
+            hb._scaleHitboxMat.M41 = offsetX;
+            hb._scaleHitboxMat.M42 = offsetY;
+            hb._scaleHitboxMat.M43 = offsetZ;
         }
 
         /// <summary>
@@ -1122,7 +1151,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
+        /// Ersetzt alle Hitboxen mit der für Spielfiguren gängigen Kapselform
         /// </summary>
         /// <remarks>Achtung: Setzt die Skalierung der Instanz zurück!</remarks>
         /// <param name="type">Variation der Kapsel (CapsuleHitboxType.Default oder CapsuleHitboxType.Sloped)</param>
@@ -1132,14 +1161,16 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Ersetzt die eigentliche Hitbox-Form mit der für Spielfiguren gängigen Kapselform
+        /// Ersetzt alle Hitboxen mit der für Spielfiguren gängigen Kapselform
         /// </summary>
         /// <remarks>Achtung: Setzt die Skalierung der Instanz zurück!</remarks>
         /// <param name="offset">Verschiebt die Kapsel-Hitbox bei Bedarf. Hier sollte als Standardwert zunächst Vector3.Zero probiert werden.</param>
         /// <param name="type">Variation der Kapsel (CapsuleHitboxType.Default oder CapsuleHitboxType.Sloped)</param>
         public void SetHitboxToCapsule(Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
         {
-            Vector3 shb = new Vector3(_stateCurrent._scaleHitboxMat.M11, _stateCurrent._scaleHitboxMat.M22, _stateCurrent._scaleHitboxMat.M33);
+            Vector3 shb = _colliderModel._hitboxes.Count > 0
+                ? new Vector3(_colliderModel._hitboxes[0]._scaleHitboxMat.M11, _colliderModel._hitboxes[0]._scaleHitboxMat.M22, _colliderModel._hitboxes[0]._scaleHitboxMat.M33)
+                : Vector3.One;
             Vector3 s = _stateCurrent._scale;
             Vector3 p = _stateCurrent._position;
 
@@ -1159,6 +1190,54 @@ namespace KWEngine3.GameObjects
             SetScale(s);
             SetHitboxScale(shb);
             SetPosition(p);
+        }
+
+        /// <summary>
+        /// Ersetzt eine einzelne Hitbox per Index mit der für Spielfiguren gängigen Kapselform
+        /// </summary>
+        /// <param name="hitboxIndex">Index der zu ersetzenden Hitbox (0-basiert)</param>
+        /// <param name="offset">Verschiebt die Kapsel-Hitbox bei Bedarf. Hier sollte als Standardwert zunächst Vector3.Zero probiert werden.</param>
+        /// <param name="type">Variation der Kapsel (CapsuleHitboxType.Default oder CapsuleHitboxType.Sloped)</param>
+        public void SetHitboxToCapsule(int hitboxIndex, Vector3 offset, CapsuleHitboxType type = CapsuleHitboxType.Default)
+        {
+            if (hitboxIndex < 0 || hitboxIndex >= _colliderModel._hitboxes.Count)
+            {
+                KWEngine.LogWriteLine("[GameObject] SetHitboxToCapsule: hitboxIndex " + hitboxIndex + " ist ungültig.");
+                return;
+            }
+
+            Vector3 shb = new Vector3(_colliderModel._hitboxes[hitboxIndex]._scaleHitboxMat.M11, _colliderModel._hitboxes[hitboxIndex]._scaleHitboxMat.M22, _colliderModel._hitboxes[hitboxIndex]._scaleHitboxMat.M33);
+            Vector3 s = _stateCurrent._scale;
+            Vector3 p = _stateCurrent._position;
+
+            SetScale(1f);
+            SetHitboxScale(hitboxIndex, 1f, 1f, 1f);
+            SetPosition(0, 0, 0);
+
+            float width = AABBRight - AABBLeft;
+            float height = AABBHigh - AABBLow;
+            float depth = AABBFront - AABBBack;
+            Vector3 center = this.Center;
+
+            Vector3 frontbottomleft = new Vector3(center.X - width * 0.5f, center.Y - height * 0.5f, center.Z + depth * 0.5f);
+            Vector3 backtopright = new Vector3(center.X + width * 0.5f, center.Y + height * 0.5f, center.Z - depth * 0.5f);
+
+            GameObjectHitbox capsule = type == CapsuleHitboxType.Default
+                ? new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], offset, center, frontbottomleft, backtopright)
+                : new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshHitboxes[0], offset, center, frontbottomleft, backtopright);
+
+            lock (CurrentWorld._gameObjectHitboxes)
+            {
+                GameObjectHitbox old = _colliderModel._hitboxes[hitboxIndex];
+                CurrentWorld._gameObjectHitboxes.Remove(old);
+                _colliderModel._hitboxes[hitboxIndex] = capsule;
+                CurrentWorld._gameObjectHitboxes.Add(capsule);
+            }
+
+            SetScale(s);
+            SetHitboxScale(hitboxIndex, shb.X, shb.Y, shb.Z);
+            SetPosition(p);
+            UpdateModelMatrixAndHitboxes();
         }
 
         /// <summary>

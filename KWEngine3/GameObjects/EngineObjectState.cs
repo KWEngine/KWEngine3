@@ -59,7 +59,6 @@ namespace KWEngine3.GameObjects
             set => _animationLayer0.Percentage = value;
         }
 
-        internal Matrix4 _scaleHitboxMat;
         internal Vector3 _position;
         internal Quaternion _rotation;
         internal Vector3 _scale;
@@ -71,7 +70,6 @@ namespace KWEngine3.GameObjects
         {
             _rotation = Quaternion.Identity;
             _scale = Vector3.One;
-            _scaleHitboxMat = Matrix4.Identity;
             _position = Vector3.Zero;
         }
 
@@ -87,7 +85,6 @@ namespace KWEngine3.GameObjects
             _rotationPre = new();
             _rotation = Quaternion.Identity;
             _scale = Vector3.One;
-            _scaleHitboxMat = Matrix4.Identity;
             _position = Vector3.Zero;
         }
     }

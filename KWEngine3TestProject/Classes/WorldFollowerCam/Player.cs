@@ -37,7 +37,8 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
 
             SetPosition(0f, 0f, 0f);
             SetScale(1f);
-            SetHitboxScale(0.5f, 1f, 1f);
+            SetHitboxToCapsule(1, Vector3.Zero, CapsuleHitboxType.Default);
+            SetHitboxScale(1, 0.5f, 1f, 1f);
             SetRotation(0, 180, 0);
             SetAnimationID(0);
         }
