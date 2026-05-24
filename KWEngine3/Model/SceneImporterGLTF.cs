@@ -1335,12 +1335,12 @@ namespace KWEngine3.Model
             Vector3 weight = new Vector3(w0, w1, w2);
             boneIds = new List<int>();
 
-            vertex.BoneIDs[0] = b0;
-            vertex.Weights[0] = weight.X;
-            vertex.BoneIDs[1] = b1;
-            vertex.Weights[1] = weight.Y;
-            vertex.BoneIDs[2] = b2;
-            vertex.Weights[2] = weight.Z;
+            vertex.BoneID0 = b0;
+            vertex.Weight0 = weight.X;
+            vertex.BoneID1 = b1;
+            vertex.Weight1 = weight.Y;
+            vertex.BoneID2 = b2;
+            vertex.Weight2 = weight.Z;
             if (weight.X > 0)
             {
                 vertex.WeightSet++;

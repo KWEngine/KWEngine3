@@ -987,6 +987,8 @@ namespace KWEngine3
 
         internal static void DisableKeyframesForAnimation(GeoModel model, int animationId, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
         {
+            if (model == null || model.Animations == null)
+                return;
             if (frameStart == -1)
             {
                 DisableKeyFramesResetAll(model, animationId);
