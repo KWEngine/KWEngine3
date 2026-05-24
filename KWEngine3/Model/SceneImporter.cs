@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Threading.Tasks;
 using Assimp;
 using Assimp.Configs;
 using KWEngine3.Helper;
@@ -82,7 +81,7 @@ namespace KWEngine3.Model
             }
         }
 
-        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
+        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, AssemblyMode am = AssemblyMode.Internal)
         {
             if (filename == null)
                 filename = "";
@@ -91,7 +90,7 @@ namespace KWEngine3.Model
             FileType type = CheckFileEnding(filename);
             if(type == FileType.GLTF)
             {
-                GeoModel model = SceneImporterGLTF.LoadModel(filename, flipTextureCoordinates, factor);
+                GeoModel model = SceneImporterGLTF.LoadModel(filename, flipTextureCoordinates);
                 return model;
             }
             else
@@ -204,7 +203,7 @@ namespace KWEngine3.Model
                     return null;
                 }
 
-                GeoModel model = ProcessScene(scene, filename, am, factor);
+                GeoModel model = ProcessScene(scene, filename, am);
                 scene.Clear();
                 importer.Dispose();
 
@@ -212,7 +211,7 @@ namespace KWEngine3.Model
             }
         }
 
-        private static GeoModel ProcessScene(Scene scene, string filename, AssemblyMode am, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
+        private static GeoModel ProcessScene(Scene scene, string filename, AssemblyMode am)
         {
             GeoModel returnModel = new GeoModel();
             if (filename.Contains("kwcube6.obj"))
@@ -260,7 +259,7 @@ namespace KWEngine3.Model
             if(result)
                 result = ProcessMeshes(scene, ref returnModel);
             if(result)
-                ProcessAnimations(scene, ref returnModel, factor);
+                ProcessAnimations(scene, ref returnModel);
 
             returnModel.IsValid = result;
             return returnModel;
@@ -382,7 +381,6 @@ namespace KWEngine3.Model
             }
 
             model.BoneNames = new List<string>();
-            HashSet<string> boneNamesSet = new HashSet<string>();
             foreach (Mesh mesh in scene.Meshes)
             {
                 if (!model.BoneDictionary.ContainsKey(mesh.Name))
@@ -393,7 +391,7 @@ namespace KWEngine3.Model
                 int boneIndexLocal = 0;
                 foreach (Bone bone in mesh.Bones)
                 {
-                    if (boneNamesSet.Add(bone.Name))
+                    if(model.BoneNames.Contains(bone.Name) == false)
                     {
                         model.BoneNames.Add(bone.Name);
                     }
@@ -884,8 +882,6 @@ namespace KWEngine3.Model
             List<Vector3> uniqueVerticesForWholeMesh = new List<Vector3>();
             List<Vector3> uniqueNormalsForWholeMesh = new List<Vector3>();
             List<GeoMeshFaceHelper> faceHelpersForWholeMesh = new List<GeoMeshFaceHelper>();
-            bool isFullHitboxNode = false;
-            bool isNoHitboxNode   = false;
             for (int m = 0; m < scene.MeshCount; m++)
             {
                 mesh = scene.Meshes[m];
@@ -903,7 +899,7 @@ namespace KWEngine3.Model
                     if (currentMeshName != null)
                     {
                         List<GeoMeshFace> facesForHitbox = null;
-                        if (isFullHitboxNode)
+                        if (currentNodeName.ToLower().Contains("_fullhitbox"))
                         {
                             facesForHitbox = new List<GeoMeshFace>();
                             List<Vector3> faceNormals = new List<Vector3>();
@@ -926,7 +922,7 @@ namespace KWEngine3.Model
                         meshHitBox.Name = currentNodeName;
                         meshHitBox.Transform = currentNodeTransform;
                         meshHitBox.TransformInverse = Matrix4.Invert(currentNodeTransform);
-                        if (!isNoHitboxNode)
+                        if(!currentNodeName.ToLower().Contains("_nohitbox"))
                             model.MeshCollider.MeshHitboxes.Add(meshHitBox);
 
                         faceHelpersForWholeMesh.Clear();
@@ -977,9 +973,6 @@ namespace KWEngine3.Model
                 }
                 geoMesh.Name = affix + mesh.Name + " #" + m.ToString().PadLeft(4, '0') + " (Node: " + nodeName + ")";
                 currentNodeName = nodeName;
-                string currentNodeNameLower = nodeName != null ? nodeName.ToLower() : "";
-                isFullHitboxNode = currentNodeNameLower.Contains("_fullhitbox");
-                isNoHitboxNode   = currentNodeNameLower.Contains("_nohitbox");
                 currentMesh = mesh;
                 currentNodeTransform = nodeTransform;
                 geoMesh.NameOrg = mesh.Name;
@@ -1005,7 +998,7 @@ namespace KWEngine3.Model
 
                     GeoVertex geoVertex = new GeoVertex(i, vertex.X, vertex.Y, vertex.Z);
                     Vector3 gv3 = new Vector3(vertex.X, vertex.Y, vertex.Z);
-                    if (isFullHitboxNode && !uniqueVerticesForWholeMesh.Contains(gv3))
+                    if (currentNodeName.ToLower().Contains("_fullhitbox") && !uniqueVerticesForWholeMesh.Contains(gv3))
                     {
                         uniqueVerticesForWholeMesh.Add(gv3);
                     }
@@ -1034,17 +1027,15 @@ namespace KWEngine3.Model
 
                         foreach (VertexWeight vw in bone.VertexWeights)
                         {
-                            ref GeoVertex vtx = ref geoMesh.Vertices[vw.VertexID];
-                            int weightIndexToBeSet = vtx.WeightSet;
+                            int weightIndexToBeSet = geoMesh.Vertices[vw.VertexID].WeightSet;
                             if (weightIndexToBeSet >= KWEngine.MAX_BONE_WEIGHTS)
                             {
                                 return false;
                             }
 
-                            if (weightIndexToBeSet == 0) { vtx.Weight0 = vw.Weight; vtx.BoneID0 = (uint)i; }
-                            else if (weightIndexToBeSet == 1) { vtx.Weight1 = vw.Weight; vtx.BoneID1 = (uint)i; }
-                            else { vtx.Weight2 = vw.Weight; vtx.BoneID2 = (uint)i; }
-                            vtx.WeightSet++;
+                            geoMesh.Vertices[vw.VertexID].Weights[weightIndexToBeSet] = vw.Weight;
+                            geoMesh.Vertices[vw.VertexID].BoneIDs[weightIndexToBeSet] = (uint)i;
+                            geoMesh.Vertices[vw.VertexID].WeightSet++;
                         }
 
                     }
@@ -1053,7 +1044,7 @@ namespace KWEngine3.Model
                 geoMesh.VBOGenerateIndices(indices);
                 geoMesh.VBOGenerateVerticesAndBones(model.HasBones);
                 List<Vector3> currentMeshNormals = geoMesh.VBOGenerateNormals(mesh);
-                if (isFullHitboxNode)
+                if (currentNodeName.ToLower().Contains("_fullhitbox"))
                 {
                     foreach (Vector3 n in currentMeshNormals)
                     {
@@ -1089,7 +1080,7 @@ namespace KWEngine3.Model
             if (currentMeshName != null)
             {
                 List<GeoMeshFace> facesForHitbox = null;
-                if (isFullHitboxNode)
+                if (currentNodeName.ToLower().Contains("_fullhitbox"))
                 {
                     facesForHitbox = new List<GeoMeshFace>();
                     foreach (GeoMeshFaceHelper face in faceHelpersForWholeMesh)
@@ -1111,7 +1102,7 @@ namespace KWEngine3.Model
                 meshHitBox.Name = currentNodeName;
                 meshHitBox.Transform = nodeTransform;
                 meshHitBox.TransformInverse = Matrix4.Invert(nodeTransform);
-                if (!isNoHitboxNode)
+                if(!currentNodeName.ToLower().Contains("_nohitbox"))
                     model.MeshCollider.MeshHitboxes.Add(meshHitBox);
 
                 faceHelpersForWholeMesh.Clear();
@@ -1121,81 +1112,74 @@ namespace KWEngine3.Model
             return true;
         }
 
-        private static List<GeoAnimationKeyframe> FilterKeyframes(List<GeoAnimationKeyframe> keyframes, int factor)
-        {
-            if (factor <= 1 || keyframes.Count <= 24)
-                return keyframes;
-            List<GeoAnimationKeyframe> filtered = new List<GeoAnimationKeyframe>();
-            int lastIndex = keyframes.Count - 1;
-            for (int i = 0; i <= lastIndex; i++)
-            {
-                if (i == 0 || i == lastIndex || i % factor == 0)
-                    filtered.Add(keyframes[i]);
-            }
-            return filtered;
-        }
-
-        private static void ProcessAnimations(Scene scene, ref GeoModel model, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
+        private static void ProcessAnimations(Scene scene, ref GeoModel model)
         {
             if (scene.HasAnimations)
             {
-                int count = scene.Animations.Count;
-                int factorInt = (int)factor;
-                GeoAnimation[] animArray = new GeoAnimation[count];
-                Parallel.For(0, count, i =>
+                model.Animations = new List<GeoAnimation>();
+                foreach (Animation a in scene.Animations)
                 {
-                    Animation a = scene.Animations[i];
                     GeoAnimation ga = new GeoAnimation();
                     ga.DurationInTicks = (float)a.DurationInTicks;
                     ga.TicksPerSecond = (float)a.TicksPerSecond;
                     ga.Name = a.Name;
-                    ga.AnimationChannels = new Dictionary<string, GeoNodeAnimationChannel>(a.NodeAnimationChannels.Count);
+                    ga.AnimationChannels = new Dictionary<string, GeoNodeAnimationChannel>();
                     foreach (NodeAnimationChannel nac in a.NodeAnimationChannels)
                     {
+                        GeoNodeAnimationChannel ganc;
                         string nodename = nac.NodeName;
-                        GeoNodeAnimationChannel ganc = new GeoNodeAnimationChannel();
+                        if(ga.AnimationChannels.ContainsKey(nodename))
+                        {
+                            ganc = ga.AnimationChannels[nodename];
+                        }
+                        else
+                        {
+                            ganc = new GeoNodeAnimationChannel();
+                        }
 
                         // Rotation:
-                        List<GeoAnimationKeyframe> rotKeys = new List<GeoAnimationKeyframe>(nac.RotationKeys.Count);
+                        ganc.RotationKeys = new List<GeoAnimationKeyframe>();
                         foreach (QuaternionKey key in nac.RotationKeys)
                         {
                             GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
-                            akf.Time     = (float)key.Time;
+                            akf.Time = (float)key.Time;
                             akf.Rotation = new OpenTK.Mathematics.Quaternion(key.Value.X, key.Value.Y, key.Value.Z, key.Value.W);
-                            akf.Type     = GeoKeyframeType.Rotation;
-                            rotKeys.Add(akf);
+                            akf.Translation = new Vector3(0, 0, 0);
+                            akf.Scale = new Vector3(1, 1, 1);
+                            akf.Type = GeoKeyframeType.Rotation;
+                            ganc.RotationKeys.Add(akf);
                         }
-                        ganc.RotationKeys = FilterKeyframes(rotKeys, factorInt);
 
                         // Scale:
-                        List<GeoAnimationKeyframe> scaleKeys = new List<GeoAnimationKeyframe>(nac.ScalingKeys.Count);
+                        ganc.ScaleKeys = new List<GeoAnimationKeyframe>();
                         foreach (VectorKey key in nac.ScalingKeys)
                         {
                             GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
-                            akf.Time  = (float)key.Time;
+                            akf.Time = (float)key.Time;
+                            akf.Rotation = new OpenTK.Mathematics.Quaternion(0, 0, 0, 1);
+                            akf.Translation = new Vector3(0, 0, 0);
                             akf.Scale = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
-                            akf.Type  = GeoKeyframeType.Scale;
-                            scaleKeys.Add(akf);
+                            akf.Type = GeoKeyframeType.Scale;
+                            ganc.ScaleKeys.Add(akf);
                         }
-                        ganc.ScaleKeys = FilterKeyframes(scaleKeys, factorInt);
 
                         // Translation:
-                        List<GeoAnimationKeyframe> translKeys = new List<GeoAnimationKeyframe>(nac.PositionKeys.Count);
+                        ganc.TranslationKeys = new List<GeoAnimationKeyframe>();
                         foreach (VectorKey key in nac.PositionKeys)
                         {
                             GeoAnimationKeyframe akf = new GeoAnimationKeyframe();
-                            akf.Time        = (float)key.Time;
+                            akf.Time = (float)key.Time;
+                            akf.Rotation = new OpenTK.Mathematics.Quaternion(0, 0, 0, 1);
                             akf.Translation = new Vector3(key.Value.X, key.Value.Y, key.Value.Z);
-                            akf.Type        = GeoKeyframeType.Translation;
-                            translKeys.Add(akf);
+                            akf.Scale = new Vector3(1, 1, 1);
+                            akf.Type = GeoKeyframeType.Translation;
+                            ganc.TranslationKeys.Add(akf);
                         }
-                        ganc.TranslationKeys = FilterKeyframes(translKeys, factorInt);
 
                         ga.AnimationChannels.Add(nodename, ganc);
                     }
-                    animArray[i] = ga;
-                });
-                model.Animations = new List<GeoAnimation>(animArray);
+                    model.Animations.Add(ga);
+                }
             }
         }
 

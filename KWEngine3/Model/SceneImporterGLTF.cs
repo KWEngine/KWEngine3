@@ -33,7 +33,7 @@ namespace KWEngine3.Model
             return animations;
         }
 
-        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
+        internal static GeoModel LoadModel(string filename, bool flipTextureCoordinates = false)
         {
             filename = HelperGeneral.EqualizePathDividers(filename.Trim());
             Gltf scene;
@@ -58,11 +58,11 @@ namespace KWEngine3.Model
                 return null;
             }
 
-            GeoModel model = ProcessScene(scene, filename, factor);
+            GeoModel model = ProcessScene(scene, filename);
             return model;
         }
 
-        private static GeoModel ProcessScene(Gltf scene, string filename, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
+        private static GeoModel ProcessScene(Gltf scene, string filename)
         {
             GeoModel returnModel = new GeoModel();
             returnModel.Filename = filename;
@@ -94,7 +94,7 @@ namespace KWEngine3.Model
             bool result = ProcessBones(scene, ref returnModel);
             if(result)
                 result = ProcessMeshes(scene, ref returnModel);
-            ProcessAnimations(scene, ref returnModel, factor);
+            ProcessAnimations(scene, ref returnModel);
 
             returnModel.IsValid = result;
             return returnModel;
@@ -1335,12 +1335,12 @@ namespace KWEngine3.Model
             Vector3 weight = new Vector3(w0, w1, w2);
             boneIds = new List<int>();
 
-            vertex.BoneID0 = b0;
-            vertex.Weight0 = weight.X;
-            vertex.BoneID1 = b1;
-            vertex.Weight1 = weight.Y;
-            vertex.BoneID2 = b2;
-            vertex.Weight2 = weight.Z;
+            vertex.BoneIDs[0] = b0;
+            vertex.Weights[0] = weight.X;
+            vertex.BoneIDs[1] = b1;
+            vertex.Weights[1] = weight.Y;
+            vertex.BoneIDs[2] = b2;
+            vertex.Weights[2] = weight.Z;
             if (weight.X > 0)
             {
                 vertex.WeightSet++;
@@ -1908,25 +1908,10 @@ namespace KWEngine3.Model
             return values;
         }
 
-        private static List<GeoAnimationKeyframe> FilterKeyframes(List<GeoAnimationKeyframe> keyframes, int factor)
-        {
-            if (factor <= 1 || keyframes.Count <= 24)
-                return keyframes;
-            List<GeoAnimationKeyframe> filtered = new List<GeoAnimationKeyframe>();
-            int lastIndex = keyframes.Count - 1;
-            for (int i = 0; i <= lastIndex; i++)
-            {
-                if (i == 0 || i == lastIndex || i % factor == 0)
-                    filtered.Add(keyframes[i]);
-            }
-            return filtered;
-        }
-
-        private static void ProcessAnimations(Gltf scene, ref GeoModel model, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
+        private static void ProcessAnimations(Gltf scene, ref GeoModel model)
         {
             if (scene.Animations != null)
             {
-                int factorInt = (int)factor;
                 model.Animations = new List<GeoAnimation>();
 
                 foreach (Animation a in scene.Animations)
@@ -1937,6 +1922,9 @@ namespace KWEngine3.Model
                     if (a.Channels != null)
                     {
                         Dictionary<string, GeoNodeAnimationChannel> channels = new Dictionary<string, GeoNodeAnimationChannel>();
+                        List<GeoAnimationKeyframe> rotationKeys = new List<GeoAnimationKeyframe>();
+                        List<GeoAnimationKeyframe> scaleKeys = new List<GeoAnimationKeyframe>();
+                        List<GeoAnimationKeyframe> translationKeys = new List<GeoAnimationKeyframe>();
 
                         foreach (AnimationChannel nac in a.Channels)
                         {
@@ -1970,7 +1958,7 @@ namespace KWEngine3.Model
                                     gnac.NodeName = targetBoneName;
                                     channels.Add(targetBoneName, gnac);
                                 }
-                                gnac.TranslationKeys = FilterKeyframes(kframes, factorInt);
+                                gnac.TranslationKeys = kframes;
 
                             }
 
@@ -2002,7 +1990,7 @@ namespace KWEngine3.Model
                                     gnac.NodeName = targetBoneName;
                                     channels.Add(targetBoneName, gnac);
                                 }
-                                gnac.RotationKeys = FilterKeyframes(kframes, factorInt);
+                                gnac.RotationKeys = kframes;
                             }
 
                             // Scale:
@@ -2033,7 +2021,7 @@ namespace KWEngine3.Model
                                     gnac.NodeName = targetBoneName;
                                     channels.Add(targetBoneName, gnac);
                                 }
-                                gnac.ScaleKeys = FilterKeyframes(kframes, factorInt);
+                                gnac.ScaleKeys = kframes;
                             }
                         }
                         foreach (GeoNodeAnimationChannel channel in channels.Values)

@@ -20,12 +20,12 @@ namespace KWEngine3TestProject.Worlds
         {
             //KWEngine.DebugOverlayEnabled = true;
 
-            KWEngine.LoadModel("Brute", "./Models/Brute/brute_kar.fbx"); //, ImportAnimationKeyframeFactor.UseEveryFourthFrame);
+            KWEngine.LoadModel("Brute", "./Models/Brute/brute_kar.fbx");
 
             SetCameraPosition(0.0f, 20.0f, 0.0f);
             SetCameraTarget(0.0f, 0.0f, 0.0f);
 
-            //KWEngine.DisableKeyframesForModelAnimation("Brute", 42, AnimationKeyframeType.PositionZ, 1);
+            KWEngine.DisableKeyframesForModelAnimation("Brute", 42, AnimationKeyframeType.PositionZ, 1);
 
             Player p = new Player();
             AddGameObject(p);

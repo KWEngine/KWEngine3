@@ -73,13 +73,13 @@ namespace KWEngine3.Model
 
                 if (hasBones)
                 {
-                    boneIds[arrayIndex] = Vertices[i].BoneID0;
-                    boneIds[arrayIndex + 1] = Vertices[i].BoneID1;
-                    boneIds[arrayIndex + 2] = Vertices[i].BoneID2;
+                    boneIds[arrayIndex] = Vertices[i].BoneIDs[0];
+                    boneIds[arrayIndex + 1] = Vertices[i].BoneIDs[1];
+                    boneIds[arrayIndex + 2] = Vertices[i].BoneIDs[2];
 
-                    boneWeights[arrayIndex] = Vertices[i].Weight0;
-                    boneWeights[arrayIndex + 1] = Vertices[i].Weight1;
-                    boneWeights[arrayIndex + 2] = Vertices[i].Weight2;
+                    boneWeights[arrayIndex] = Vertices[i].Weights[0];
+                    boneWeights[arrayIndex + 1] = Vertices[i].Weights[1];
+                    boneWeights[arrayIndex + 2] = Vertices[i].Weights[2];
                 }
             }
             VBOPosition = GL.GenBuffer();

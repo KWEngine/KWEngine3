@@ -623,8 +623,7 @@ namespace KWEngine3
         /// </summary>
         /// <param name="name">Name des Modells</param>
         /// <param name="filename">Datei des Modells</param>
-        /// <param name="factor">Gibt an, ob ggf. Keyframes beim Import übersprungen werden sollen (Standard: jeder Keyframe wird eingelesen)</param>
-        public static bool LoadModel(string name, string filename, ImportAnimationKeyframeFactor factor = ImportAnimationKeyframeFactor.UseEverySingleFrame)
+        public static bool LoadModel(string name, string filename)
         {
             MethodBase caller = new StackTrace().GetFrame(1).GetMethod();
             string callerName = caller.Name;
@@ -649,7 +648,7 @@ namespace KWEngine3
             }
             else
             {
-                m = SceneImporter.LoadModel(filename, true, SceneImporter.AssemblyMode.File, factor);
+                m = SceneImporter.LoadModel(filename, true, SceneImporter.AssemblyMode.File);
                 if (m != null)
                 {
                     name = name.Trim();
@@ -988,8 +987,6 @@ namespace KWEngine3
 
         internal static void DisableKeyframesForAnimation(GeoModel model, int animationId, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
         {
-            if (model == null || model.Animations == null)
-                return;
             if (frameStart == -1)
             {
                 DisableKeyFramesResetAll(model, animationId);
