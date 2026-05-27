@@ -43,6 +43,8 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             SetHitboxScale(1, 0.5f, 1f, 1f);
             SetRotation(0, 180, 0);
             SetAnimationID(0);
+
+            HandleTerrain();
         }
 
         public override void Act()
@@ -94,14 +96,18 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
                 _motionLocal = Vector3.NormalizeFast(move * -Vector3.UnitZ + strafe * Vector3.UnitX) * _speed;
             }
 
+            HandleTerrain();
+            UpdateSun();
+            HandleAnimations();
+        }
+
+        private void HandleTerrain()
+        {
             RayTerrainIntersection rti = RaytraceTerrainBelowPosition(Position);
-            if(rti.IsValid)
+            if (rti.IsValid)
             {
                 SetPositionY(rti.IntersectionPoint.Y);
             }
-
-            UpdateSun();
-            HandleAnimations();
         }
 
         private void UpdateSun()

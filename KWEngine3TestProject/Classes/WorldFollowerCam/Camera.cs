@@ -23,10 +23,11 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
         private const float FOLLOW_OFFSET_Y_NEAR = 1f;
         private const float FOLLOW_OFFSET_Y_FAR = 2f;
 
-        private const float STRAFE_THRESHOLD = 0.5f;
+        private const float STRAFE_THRESHOLD = 0.8f;
 
-        private float _yawFollowStrength = 8f;      // Positionsglättung
-        private float _pitchFollowStrength = 2f;    // Verzögerung bei Höhenänderungen
+        private float _yawFollowStrength = 0.5f;    // Positionsglättung für die Anpassung der Kamera hinter die Spielfigur wenn sie sich nach vorne bewegt
+        private float _distanceFollowStrength = 0.1f;
+        private float _heightFollowStrength = 2f;
         private float _mouseRotationStrength = 10f; // Nur für die Positionsannäherung bei aktiver Maus
 
         private float _yTarget = 0f;
@@ -60,12 +61,14 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             _currentDistance = FOLLOW_DISTANCE;
             _yTarget = FOLLOW_OFFSET_Y_NEAR;
 
-            Vector3 pivot = _parent.Center + new Vector3(0f, _yTarget, 0f);
+            Vector3 pivot = _parent.Center + new Vector3(0f, FOLLOW_OFFSET_Y_NEAR, 0f);
+            Vector3 positionInit = pivot - Vector3.UnitZ * FOLLOW_DISTANCE + new Vector3(0f, FOLLOW_OFFSET_Y_FAR, 0f);
+            _yTarget = pivot.Y;
 
-            Vector3 directionToPlayer = HelperVector.GetDirectionFromVectorToVector(Position, pivot);
+            Vector3 directionToPlayer = HelperVector.GetDirectionFromVectorToVector(positionInit, pivot);
             Vector3 directionToPlayerXZ = new Vector3(directionToPlayer.X, 0f, directionToPlayer.Z);
 
-            Vector3 newPosition = pivot - directionToPlayerXZ * FOLLOW_DISTANCE + new Vector3(0f, FOLLOW_OFFSET_Y_FAR, 0f);
+            Vector3 newPosition = pivot + directionToPlayerXZ * FOLLOW_DISTANCE + new Vector3(0f, FOLLOW_OFFSET_Y_FAR, 0f);
 
             SetPosition(newPosition);
             TurnTowardsXYZ(pivot);
@@ -85,52 +88,88 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
 
         private void UpdatePositionForThirdPersonView()
         {
-            Console.WriteLine("------------------");
             if (!IsInCurrentWorld || _parent == null || !_parent.IsInCurrentWorld)
                 return;
 
-            
-
-            Vector3 pivotRaw = _parent.Center + new Vector3(0f, FOLLOW_OFFSET_Y_NEAR, 0f);
-
-            float tVertical = 1f - MathF.Exp(-_pitchFollowStrength * SIMULATION_FRAME_TIME);
-            _yTarget += (pivotRaw.Y - _yTarget) * tVertical;
-
-            Vector3 newTarget = new Vector3(pivotRaw.X, _yTarget, pivotRaw.Z);
-
-            // Movement:
+            // Get the player's motion indicators (and normalize a copy of each):
             Vector3 pMotion = _parent.GetMotionVector();
-            Vector3 pMotionNormalized = Vector3.NormalizeFast(pMotion);
+            Vector3 pMotionN = Vector3.NormalizeFast(pMotion);
             Vector3 pMotionLocal = _parent.GetMotionVectorLocal();
-            bool mouseIsMoving = CurrentWorld.MouseMovement.LengthSquared > MOUSE_MOVEMENT_MINUMUM;
-            float playerLocalForwardFactor = Vector3.Dot(-Vector3.UnitZ, pMotionLocal);
-            Console.WriteLine("dot local forward: " + playerLocalForwardFactor);
+            Vector3 pMotionLocalN = Vector3.NormalizeFast(pMotionLocal);
 
-            Vector3 directionToPlayerXZ = HelperVector.GetDirectionFromVectorToVectorXZ(Position, newTarget);
-            if (directionToPlayerXZ.LengthSquared <= PLAYER_MOVEMENT_MINIMUM)
-                directionToPlayerXZ = -Vector3.UnitZ;
+            // Recalculate current target coordinates:
+            // (this smoothes the target height a little)
+            Vector3 pivotRaw = _parent.Center + new Vector3(0f, FOLLOW_OFFSET_Y_NEAR, 0f);
+            float tVertical = 1f - MathF.Exp(-_heightFollowStrength * SIMULATION_FRAME_TIME);
+            _yTarget += (pivotRaw.Y - _yTarget) * tVertical;
+            Vector3 tmpTarget = new Vector3(pivotRaw.X, _yTarget, pivotRaw.Z);
 
-            Vector3 newPosition = newTarget + Vector3.UnitZ * _currentDistance + new Vector3(0f, FOLLOW_OFFSET_Y_FAR, 0f);
+            // Update cam distance value:
+            // (smooth it if it deviates from FOLLOW_DISTANCE)
+            float tFollow = 1f - MathF.Exp(-_distanceFollowStrength * SIMULATION_FRAME_TIME);
+            _currentDistance += (FOLLOW_DISTANCE - _currentDistance) * tFollow;
 
-            CurrentWorld.SetCameraPosition(newPosition);
-            CurrentWorld.SetCameraTarget(newTarget);
+            Vector3 tmpPosition = Position;
+            if(CurrentWorld.MouseMovement.LengthSquared > MOUSE_MOVEMENT_MINUMUM)
+            {
+                // Mouse is being moved:
+                _currentRotation.X += CurrentWorld.MouseMovement.X;
+                _currentRotation.Y += CurrentWorld.MouseMovement.Y;
+                if (_currentRotation.Y < ARCBALL_LIMIT_Y_DOWN)
+                {
+                    _currentRotation.Y = ARCBALL_LIMIT_Y_DOWN;
+                }
+                if (_currentRotation.Y > ARCBALL_LIMIT_Y_UP)
+                {
+                    _currentRotation.Y = ARCBALL_LIMIT_Y_UP;
+                }
+            }
+            else
+            {
+                // Mouse is not being moved. But if the player is moving forward (locally),
+                // then let the camera move behind him slowly:
+                // (currently inactive because the player turns with the camera)
+                float pMotionDotProduct = Math.Max(0f, Vector3.Dot(-Vector3.UnitZ, pMotionLocalN));
+                if (pMotionDotProduct > STRAFE_THRESHOLD)
+                {
+                    _currentDistance = Math.Clamp(_currentDistance * 1.001f, FOLLOW_DISTANCE, FOLLOW_DISTANCE * 1.5f);
 
-            ArcballRotation rot = HelperRotation.GetArcballRotation(newPosition, newTarget, false, false);
-            _currentRotation.X = rot.XAngle;
-            _currentRotation.Y = rot.YAngle;
+                    float tAngle = 1f - MathF.Exp(-_yawFollowStrength * SIMULATION_FRAME_TIME);
+                    ArcballRotation arc = HelperRotation.GetArcballRotation(tmpTarget - pMotionN * _currentDistance, tmpTarget, false, false);
+                    float deltaAngle = NormalizeAngle180(arc.XAngle - _currentRotation.X);
+                    _currentRotation.X += deltaAngle * tAngle;
+                    _currentRotation.X = NormalizeAngle180(_currentRotation.X);
+                    
+                }
+            }
+
+            // calculate new cam position:
+            tmpPosition = HelperRotation.CalculateRotationForArcBallCamera(
+                tmpTarget,
+                _currentDistance,
+                _currentRotation.X,
+                _currentRotation.Y,
+                false,
+                false
+            );
+
+
+            CurrentWorld.SetCameraPosition(tmpPosition);
+            CurrentWorld.SetCameraTarget(tmpTarget);
         }
 
-        private static float LerpAngleDegrees(float current, float target, float t)
+
+        private float NormalizeAngle180(float angle)
         {
-            float delta = target - current;
+            angle %= 360f;
 
-            while (delta > 180f)
-                delta -= 360f;
+            if (angle >= 180f)
+                angle -= 360f;
+            else if (angle < -180f)
+                angle += 360f;
 
-            while (delta < -180f)
-                delta += 360f;
-
-            return current + delta * t;
+            return angle;
         }
+
     }
 }
