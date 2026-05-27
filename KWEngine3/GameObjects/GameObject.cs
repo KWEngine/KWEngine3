@@ -928,10 +928,8 @@ namespace KWEngine3.GameObjects
             strafe = strafe > 0 ? 1 : strafe < 0 ? -1 : 0;
             units = Math.Abs(units);
 
-            Vector3 lav = CurrentWorld._cameraGame._stateCurrent.LookAtVector;
-            lav.Y = 0;
-            Vector3 lavStrafe = Vector3.NormalizeFast(Vector3.Cross(lav, KWEngine.WorldUp)) * strafe;
-            Vector3 lavForward = Vector3.NormalizeFast(lav) * move;
+            Vector3 lavStrafe = CurrentWorld.CameraLookAtVectorLocalRightXZ * strafe;
+            Vector3 lavForward = CurrentWorld.CameraLookAtVectorXZ * move;
             Vector3 movement = Vector3.NormalizeFast(lavForward + lavStrafe);
             MoveOffset(movement * units);
 

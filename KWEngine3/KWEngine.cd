@@ -281,6 +281,7 @@
       <Field Name="_rotationOffsetForAttachment" Hidden="true" />
       <Field Name="_rotationOffsetForAttachmentEuler" Hidden="true" />
       <Field Name="_scaleOffsetForAttachment" Hidden="true" />
+      <Method Name="ApplyHitboxScaleToHitbox" Hidden="true" />
       <Method Name="GetBoneNameForAttachedGameObject" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Property Name="IsAttachedToGameObject" Hidden="true" />
@@ -955,7 +956,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ExplosionObject">
-    <Position X="9.5" Y="18.25" Width="2.75" />
+    <Position X="9.5" Y="18.5" Width="2.75" />
     <Members>
       <Field Name="_algorithm" Hidden="true" />
       <Field Name="_amount" Hidden="true" />
