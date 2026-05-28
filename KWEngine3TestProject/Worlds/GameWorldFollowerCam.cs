@@ -1,6 +1,8 @@
 ﻿using KWEngine3;
 using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 using KWEngine3TestProject.Classes.WorldFollowerCam;
+using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +38,22 @@ namespace KWEngine3TestProject.Worlds
             t.SetTexture("./Textures/sand_normal.dds", TextureType.Normal);
             t.SetTextureRepeat(2, 2);
             AddTerrainObject(t);
+
+            Immovable i = new Immovable();
+            i.Name = "Obstacle";
+            RayTerrainIntersection rti = HelperIntersection.RaytraceTerrainBelowPosition(new Vector3(0, 10, 10));
+            if(rti.IsValid)
+            {
+                i.SetRotationToMatchSurfaceNormal(rti.SurfaceNormal);
+                i.SetPosition(rti.IntersectionPoint + rti.SurfaceNormal * i.Scale.Y * 0.5f);
+            }
+            else
+            {
+                i.SetPosition(0, 2.25f, 10);
+            }
+            i.IsCollisionObject = true;
+            i.SetColor(1, 1, 0);
+            AddGameObject(i);
 
             Player p = new Player();
             p.SetPositionZ(30f);

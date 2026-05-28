@@ -1950,14 +1950,14 @@ namespace KWEngine3.Editor
                 ImGui.TableHeadersRow();
 
 
-                foreach (FieldInfo field in fields)
+                foreach (MemberInfo m in fields)
                 {
                     // Prüfen, ob das Attribut vorhanden ist
-                    KWDebugAttribute attr = field.GetCustomAttribute<KWDebugAttribute>();
+                    KWDebugAttribute attr = m.GetCustomAttribute<KWDebugAttribute>();
                     if (attr != null)
                     {
-                        object value = field.GetValue(SelectedGameObject);
-                        string label = attr.Label ?? field.Name;
+                        object value = m is PropertyInfo ? (m as PropertyInfo).GetValue(SelectedGameObject) : (m as FieldInfo).GetValue(SelectedGameObject);
+                        string label = attr.Label ?? m.Name;
                         ImGui.TableNextRow();
                         ImGui.TableSetColumnIndex(0);
                         ImGui.Text(label + ":");

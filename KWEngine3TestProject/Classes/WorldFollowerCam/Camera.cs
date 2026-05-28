@@ -12,26 +12,27 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
     {
         private Player _parent;
 
+        private const bool ENABLE_ELEVATION_CHECK = true;
+
         private const float SIMULATION_FRAME_TIME = 1f / 240f;
         private const float MOUSE_MOVEMENT_MINUMUM = 0.00001f;
-        private const float PLAYER_MOVEMENT_MINIMUM = 0.00001f;
 
-        private const float ARCBALL_LIMIT_Y_UP = -5f;
+        private const float ARCBALL_LIMIT_Y_UP = 10f;
         private const float ARCBALL_LIMIT_Y_DOWN = -50f;
 
         private const float FOLLOW_DISTANCE = 4f;
         private const float FOLLOW_OFFSET_Y_NEAR = 1f;
         private const float FOLLOW_OFFSET_Y_FAR = 2f;
+        private const float FOLLOW_OFFSET_Y_COLLISION_SAFETY = 1f;
 
-        private const float STRAFE_THRESHOLD = 0.8f;
+        private const float STRAFE_THRESHOLD = 0.25f;
 
         private float _yawFollowStrength = 0.5f;    // Positionsglättung für die Anpassung der Kamera hinter die Spielfigur wenn sie sich nach vorne bewegt
         private float _distanceFollowStrength = 0.1f;
         private float _heightFollowStrength = 2f;
-        private float _mouseRotationStrength = 10f; // Nur für die Positionsannäherung bei aktiver Maus
+        private float _positionFollowStrength = 1000f;
 
         private float _yTarget = 0f;
-
         private Vector2 _currentRotation = Vector2.Zero; // X = yaw, Y = pitch
         private float _currentDistance = FOLLOW_DISTANCE;
 
@@ -40,10 +41,8 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             if (player.IsInCurrentWorld)
             {
                 _parent = player;
-
-                SetModel("KWSphere");
-                SetScale(0.25f);
-
+                SetScale(1f);
+                IsCollisionObject = true;
                 ResetView();
 
                 SkipRender = true;
@@ -135,11 +134,14 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
                     _currentDistance = Math.Clamp(_currentDistance * 1.001f, FOLLOW_DISTANCE, FOLLOW_DISTANCE * 1.5f);
 
                     float tAngle = 1f - MathF.Exp(-_yawFollowStrength * SIMULATION_FRAME_TIME);
-                    ArcballRotation arc = HelperRotation.GetArcballRotation(tmpTarget - pMotionN * _currentDistance, tmpTarget, false, false);
+
+                    Vector3 translationA = pMotionN * _currentDistance;
+                    Vector3 translationB = CurrentWorld.CameraLookAtVectorXZ * _currentDistance;
+                    Vector3 translation = Vector3.Lerp(translationA, translationB, 1f - pMotionDotProduct);
+                    ArcballRotation arc = HelperRotation.GetArcballRotation(tmpTarget - translation, tmpTarget, false, false);
                     float deltaAngle = NormalizeAngle180(arc.XAngle - _currentRotation.X);
                     _currentRotation.X += deltaAngle * tAngle;
                     _currentRotation.X = NormalizeAngle180(_currentRotation.X);
-                    
                 }
             }
 
@@ -153,9 +155,35 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
                 false
             );
 
+            // Smooth camera height if it gets below terrain or clips into another object:
+            if (ENABLE_ELEVATION_CHECK)
+            {
+                float elevationMin = tmpPosition.Y;
+                RayTerrainIntersection rti = RaytraceTerrainBelowPosition(tmpPosition + new Vector3(0, 100, 0));
+                if (rti.IsValid && tmpPosition.Y - rti.IntersectionPoint.Y < FOLLOW_OFFSET_Y_COLLISION_SAFETY)
+                {
+                    elevationMin = Math.Max(elevationMin, rti.IntersectionPoint.Y + FOLLOW_OFFSET_Y_COLLISION_SAFETY);
+                }
+
+
+                List<Intersection> intersections = GetIntersections(IntersectionTestMode.CheckConvexHullsOnly);
+                foreach (Intersection i in intersections)
+                {
+                    if(i.Object.AABBHigh > elevationMin)
+                    {
+                        elevationMin = i.Object.AABBHigh;
+                    }
+                }
+
+                float tY = 1f - MathF.Exp(-_positionFollowStrength * SIMULATION_FRAME_TIME);
+                tmpPosition.Y = tmpPosition.Y + (elevationMin - tmpPosition.Y) * tY;
+            }
 
             CurrentWorld.SetCameraPosition(tmpPosition);
             CurrentWorld.SetCameraTarget(tmpTarget);
+
+            SetPosition(tmpPosition);
+            TurnTowardsXYZ(tmpTarget);
         }
 
 

@@ -1,0 +1,15 @@
+﻿using KWEngine3;
+using KWEngine3.GameObjects;
+using KWEngine3.Audio;
+using KWEngine3.Helper;
+
+namespace KWEngine3TestProject.Classes.WorldFollowerCam
+{
+    public class Immovable : GameObject
+    {
+        public override void Act()
+        {
+
+        }
+    }
+}
