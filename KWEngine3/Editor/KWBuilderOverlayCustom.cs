@@ -323,9 +323,10 @@ namespace KWEngine3.Editor
                 // 2026-05: Check if instance is an attachment to another gameobject:
                 if (SelectedGameObject.IsAttachedToGameObject)
                 {
-                    float oX = SelectedGameObject._positionOffsetForAttachment.X;
-                    float oY = SelectedGameObject._positionOffsetForAttachment.Y;
-                    float oZ = SelectedGameObject._positionOffsetForAttachment.Z;
+                    //float oX = SelectedGameObject._positionOffsetForAttachment.X;
+                    //float oY = SelectedGameObject._positionOffsetForAttachment.Y;
+                    //float oZ = SelectedGameObject._positionOffsetForAttachment.Z;
+                    System.Numerics.Vector3 pNew = new(SelectedGameObject._positionOffsetForAttachment.X, SelectedGameObject._positionOffsetForAttachment.Y, SelectedGameObject._positionOffsetForAttachment.Z);
                     System.Numerics.Vector3 sNew = new(SelectedGameObject._scaleOffsetForAttachment.X, SelectedGameObject._scaleOffsetForAttachment.Y, SelectedGameObject._scaleOffsetForAttachment.Z);
                     System.Numerics.Vector3 rNew = new(SelectedGameObject._rotationOffsetForAttachmentEuler.X, SelectedGameObject._rotationOffsetForAttachmentEuler.Y, SelectedGameObject._rotationOffsetForAttachmentEuler.Z);
 
@@ -338,14 +339,17 @@ namespace KWEngine3.Editor
                     ImGui.PushStyleColor(ImGuiCol.SliderGrabActive, new System.Numerics.Vector4(1.00f, 0.25f, 0f, 1f));
                     ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
 
-                    if (ImGui.SliderFloat3("Scale (X,Y,Z)", ref sNew, 0.01f, 100f, "%.2f"))
+                    //if (ImGui.SliderFloat3("Scale (X,Y,Z)", ref sNew, 0.01f, 100f, "%.2f"))
+                    if (ImGui.InputFloat3("Scale (X,Y,Z)", ref sNew, "%.3f", ImGuiInputTextFlags.None))
                     {
+                        sNew = new System.Numerics.Vector3(Math.Max(0.001f, sNew.X), Math.Max(0.001f, sNew.Y), Math.Max(0.001f, sNew.Z));
                         HelperGameObjectAttachment.SetScaleForAttachment(SelectedGameObject, sNew.X, sNew.Y, sNew.Z);
                     }
 
                     ImGui.Separator();
 
-                    if (ImGui.SliderFloat3("Rotation (X,Y,Z)", ref rNew, 0f, 359.9999f, "%.1f"))
+                    //if (ImGui.SliderFloat3("Rotation (X,Y,Z)", ref rNew, 0f, 359.9999f, "%.1f"))
+                    if(ImGui.InputFloat3("Rotation (X,Y,Z)", ref rNew, "%.1f", ImGuiInputTextFlags.None))
                     {
                         HelperGameObjectAttachment.SetRotationForAttachment(SelectedGameObject, rNew.X, rNew.Y, rNew.Z);
                     }
@@ -356,12 +360,14 @@ namespace KWEngine3.Editor
 
                     ImGui.Separator();
 
-                    bool x = ImGui.SliderFloat("X offset", ref oX, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
-                    bool y = ImGui.SliderFloat("Y offset", ref oY, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
-                    bool z = ImGui.SliderFloat("Z offset", ref oZ, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
-                    if (x || y || z)
+                    //bool x = ImGui.SliderFloat("X offset", ref oX, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                    //bool y = ImGui.SliderFloat("Y offset", ref oY, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                    //bool z = ImGui.SliderFloat("Z offset", ref oZ, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
+                    //if (x || y || z)
+                    
+                    if (ImGui.InputFloat3("Offset (X,Y,Z)", ref pNew, "%.3f", ImGuiInputTextFlags.None))
                     {
-                        HelperGameObjectAttachment.SetPositionOffsetForAttachment(SelectedGameObject, oX, oY, oZ);
+                        HelperGameObjectAttachment.SetPositionOffsetForAttachment(SelectedGameObject, pNew.X, pNew.Y, pNew.Z);
                     }
                     ImGui.PopStyleColor(6);
                 }
