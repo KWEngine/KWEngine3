@@ -451,10 +451,17 @@ namespace KWEngine3.Editor
 
                     GameObjectHitbox firstHitbox = SelectedGameObject._colliderModel._hitboxes.Count > 0 ? SelectedGameObject._colliderModel._hitboxes[0] : null;
                     Vector3 s = firstHitbox != null ? firstHitbox._scaleHitboxMat.ExtractScale() : Vector3.One;
+                    Vector3 o = firstHitbox != null ? firstHitbox._scaleHitboxMat.ExtractTranslation() : Vector3.Zero;
                     System.Numerics.Vector3 hbScale = new() { X = s.X, Y = s.Y, Z = s.Z };
-                    if (ImGui.SliderFloat3("Hitbox scale", ref hbScale, 0.1f, 10, "%.2f", ImGuiSliderFlags.Logarithmic))
+                    System.Numerics.Vector3 hbOffset = new() { X = o.X, Y = o.Y, Z = o.Z };
+                    if (ImGui.InputFloat3("Hitbox scale", ref hbScale, "%.2f"))
                     {
-                        SelectedGameObject.SetHitboxScale(hbScale.X, hbScale.Y, hbScale.Z);
+                        hbScale = new System.Numerics.Vector3(Math.Max(0.01f, hbScale.X), Math.Max(0.01f, hbScale.Y), Math.Max(0.01f, hbScale.Z));
+                        SelectedGameObject.SetHitboxScale(hbScale.X, hbScale.Y, hbScale.Z, hbOffset.X, hbOffset.Y, hbOffset.Z);
+                    }
+                    if (ImGui.InputFloat3("Hitbox offset (X, Y, Z)", ref hbOffset, "%.2f"))
+                    {
+                        SelectedGameObject.SetHitboxScale(hbScale.X, hbScale.Y, hbScale.Z, hbOffset.X, hbOffset.Y, hbOffset.Z);
                     }
                     ImGui.Unindent();
 
