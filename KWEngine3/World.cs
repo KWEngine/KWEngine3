@@ -1969,6 +1969,40 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Erstellt eine Liste aller aktuellen HUDObjectText-Instanzen
+        /// </summary>
+        /// <returns>Liste der Objekte</returns>
+        public List<HUDObjectText> GetHUDObjectsText()
+        {
+            List<HUDObjectText> list = new();
+            foreach (HUDObject h in _hudObjects)
+            {
+                if (h is HUDObjectText)
+                {
+                    list.Add(h as HUDObjectText);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Erstellt eine Liste aller aktuellen HUDObjectImage-Instanzen
+        /// </summary>
+        /// <returns>Liste der Objekte</returns>
+        public List<HUDObjectImage> GetHUDObjectsImage()
+        {
+            List<HUDObjectImage> list = new();
+            foreach (HUDObject h in _hudObjects)
+            {
+                if (h is HUDObjectImage)
+                {
+                    list.Add(h as HUDObjectImage);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
         /// Durchsucht die Liste der HUDObject-Instanzen nach einem Bildobjekt mit dem gegebenen Namen
         /// </summary>
         /// <param name="name">Name des gesuchten Objekts</param>

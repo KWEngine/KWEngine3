@@ -51,9 +51,6 @@
       <Method Name="UpdateDeltaTime" Hidden="true" />
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
-    <Compartments>
-      <Compartment Name="Nested Types" Collapsed="false" />
-    </Compartments>
     <NestedTypes>
       <Enum Name="KWEngine3.GLWindow.DisposeStatus" Collapsed="true">
         <TypeIdentifier>
@@ -505,7 +502,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="19" Width="2.75" />
+    <Position X="0.5" Y="18.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
