@@ -491,6 +491,7 @@ namespace KWEngine3.Audio
             }
             AL.SourceStop(mSource);
             State = PlaybackState.Stopped;
+            _currentSpectrum.IsValid = false;
             return;
         }
 
@@ -502,13 +503,16 @@ namespace KWEngine3.Audio
                 {
                     _cts?.Cancel();
                     _currentSpectrum.IsValid = false;
+                    try
+                    {
+                        _playbackTask?.Wait(500);
+                    }
+                    catch (AggregateException) { }
                 }
                 catch(ObjectDisposedException)
                 {
                     // :-)
                 }
-                //AL.SourceStop(mSource);
-                //State = PlaybackState.Stopped;
                 _currentSpectrum.IsValid = false;
             }
 
@@ -517,7 +521,6 @@ namespace KWEngine3.Audio
             EraseBuffers();
             
             mReadPosition = 0;
-            //_cts?.Dispose();
         }
 
         public void Pause()
@@ -552,26 +555,29 @@ namespace KWEngine3.Audio
                     if (_cts != null && _cts.Token.CanBeCanceled)
                     {
                         _cts.Cancel();
-
                         try
                         {
                             _playbackTask?.Wait(); // wait for cancellation
                         }
                         catch (AggregateException) 
-                        { 
+                        {
                             // this exception here is to be expected some times :-)
                         }
                         catch (ObjectDisposedException) 
-                        { 
+                        {
                             // not sure if this can happen here...
                         }
-
                         _cts.Dispose();
                     }
 
 
-                    _playbackTask.Dispose();
-                    _playbackTask = null;
+                    try
+                    {
+                        _playbackTask.Dispose();
+                    }
+                    catch(InvalidOperationException)
+                    {
+                    }
                 }
                 catch(ObjectDisposedException)
                 {
@@ -582,7 +588,6 @@ namespace KWEngine3.Audio
                     // :)
                 }
             }
-            
             DeleteBuffers();
             AL.DeleteSource(mSource);
         }
@@ -590,8 +595,15 @@ namespace KWEngine3.Audio
         private void DeleteBuffers()
         {
             AL.SourceStop(mSource);
+            while(((ALSourceState)AL.GetSource(mSource, ALGetSourcei.SourceState)) == ALSourceState.Playing || ((ALSourceState)AL.GetSource(mSource, ALGetSourcei.SourceState)) == ALSourceState.Paused)
+            {
+                Thread.Sleep(10);
+            }
             UnqueueBuffers();
-
+            while (AL.GetSource(mSource, ALGetSourcei.BuffersQueued) > 0)
+            {
+                Thread.Sleep(10);
+            }
 
             foreach (int buffer in mBuffers)
             {
@@ -610,7 +622,6 @@ namespace KWEngine3.Audio
                     AL.SourceUnqueueBuffer(mSource);
                 }
             }
-            
         }
     }
 }

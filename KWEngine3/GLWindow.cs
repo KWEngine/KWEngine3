@@ -23,7 +23,7 @@ namespace KWEngine3
     /// </summary>
     public abstract class GLWindow : GameWindow
     {
-        internal enum DisposeStatus { None, Marked, Ready, Done };
+        internal enum DisposeStatus { None, Marked, Done };
         internal DisposeStatus _disposed = DisposeStatus.None;
 
         // input related:
@@ -323,8 +323,13 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnClosing(CancelEventArgs e)
         {
-            base.OnClosing(e);
-            if (_disposed == DisposeStatus.None) _disposed = DisposeStatus.Marked;
+            if (_disposed == DisposeStatus.Done)
+                return;
+            else
+            {
+                e.Cancel = true;
+                if (_disposed == DisposeStatus.None) _disposed = DisposeStatus.Marked;
+            }
         }
 
         /// <summary>
@@ -403,33 +408,25 @@ namespace KWEngine3
         /// <param name="e">Parameter</param>
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4))
+            if (_disposed == DisposeStatus.Done)
+                return;
+
+            if (Keyboard.IsKeyDown(Keys.LeftAlt) && Keyboard.IsKeyDown(Keys.F4) && _disposed == DisposeStatus.None)
             {
                 Close();
             }
 
-            if (_disposed > DisposeStatus.None)
+            if (_disposed == DisposeStatus.Marked)
             {
                 GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
                 GL.ClearColor(0, 0, 0, 1f);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
                 SwapBuffers();
 
-                if(_disposed == DisposeStatus.Marked)
-                {
-                    if(KWEngine.CurrentWorld != null)
-                    {
-                        DisposeInternal();
-                    }
-                    else
-                    {
-                        _disposed = DisposeStatus.Ready;
-                    }
-                }
-                else if(_disposed == DisposeStatus.Ready)
-                {
-                    base.Close();
-                }
+                DisposeInternal();
+                _disposed = DisposeStatus.Done;
+                base.Close();
+                
                 return;
             }
 
@@ -471,6 +468,13 @@ namespace KWEngine3
                 
                 RenderManager.FramebufferDeferred.Bind();
 
+                // Render terrain objects to G-Buffer:
+                if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
+                {
+                    RendererTerrainGBufferNew.Bind();
+                    RendererTerrainGBufferNew.RenderScene();
+                }
+
                 // Render GameObject instances to G-Buffer:
                 RendererGBuffer.Bind();
                 gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene(stencilObjects));
@@ -480,13 +484,6 @@ namespace KWEngine3
                 {
                     RendererGBufferInstanced.Bind();
                     renderObjectsForForwardRendering.AddRange(RendererGBufferInstanced.RenderScene());
-                }
-
-                // Render terrain objects to G-Buffer:
-                if (KWEngine.CurrentWorld._terrainObjects.Count > 0)
-                {
-                    RendererTerrainGBufferNew.Bind();
-                    RendererTerrainGBufferNew.RenderScene();
                 }
 
                 if (KWEngine.CurrentWorld._foliageObjects.Count > 0)
@@ -1042,11 +1039,10 @@ namespace KWEngine3
 
             if (KWEngine.CurrentWorld != null)
             {
-
                 KWEngine.CurrentWorld.Dispose();
             }
             GLAudioEngine.Dispose();
-            _disposed = DisposeStatus.Ready;
+            _disposed = DisposeStatus.Done;
         }
 
         /// <summary>

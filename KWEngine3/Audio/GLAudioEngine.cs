@@ -126,14 +126,14 @@ namespace KWEngine3.Audio
         public static void SoundChangeGain(string audiofile, float gain)
         {
             int channelIndex = FindChannelIndexThatIsPlayingAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
-            if(channelIndex != 1)
+            if(channelIndex != -1)
             {
                 SoundChangeGain(channelIndex, gain);
             }
             else
             {
                 channelIndex = FindChannelIndexThatIsPausedOnAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
-                if (channelIndex != 1)
+                if (channelIndex != -1)
                 {
                     SoundChangeGain(channelIndex, gain);
                 }
@@ -359,6 +359,7 @@ namespace KWEngine3.Audio
         /// </summary>
         public static void Dispose()
         {
+            mAudioInitThread?.Join();
             if (mAudioOn)
             {
                 foreach (GLAudioSource s in mSources)
