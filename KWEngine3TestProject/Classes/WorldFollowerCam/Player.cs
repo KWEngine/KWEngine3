@@ -91,7 +91,6 @@ namespace KWEngine3TestProject.Classes.WorldFollowerCam
             _motionLocal = Vector3.Zero;
             if (move != 0 || strafe != 0)
             {
-                MoveAndStrafeAlongCameraXZ(move, strafe, _speed);
                 _motion = MoveAndStrafeAlongCameraXZ(move, strafe, _speed);
                 _motionLocal = Vector3.NormalizeFast(move * -Vector3.UnitZ + strafe * Vector3.UnitX) * _speed;
             }

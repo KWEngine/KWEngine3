@@ -1089,6 +1089,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraPosition(KWEngine.DefaultCameraPosition);
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.WorldTime = 0;
+            KWEngine.CurrentWorld.SetBackgroundFillColor(0f, 0f, 0f);
             KWEngine.CurrentWorld.Prepare();
             KWEngine.CurrentWorld.IsPrepared = true;
             _mouseDeltaToUse = Vector2.Zero;
