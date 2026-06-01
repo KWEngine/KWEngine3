@@ -1949,7 +1949,7 @@ namespace KWEngine3.Editor
             if (SelectedGameObject != null && HelperDebug.HasDebugFields(SelectedGameObject))
             {
                 Type type = SelectedGameObject.GetType();
-                List<MemberInfo> fields = HelperDebug.GetKWDebugFields(SelectedGameObject);
+                List<MemberInfo> fields = HelperDebug.GetKWDebugMembers(SelectedGameObject);
 
                 ImGui.Begin("Instance's debug properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
                 float size = KWEngine.Window.ClientSize.X - WindowLeftWidth - WindowRightWidth - 8;
@@ -1958,8 +1958,8 @@ namespace KWEngine3.Editor
 
                 ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
 
-                ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.6f);
-                ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.4f);
+                ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.5f);
+                ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.5f);
                 ImGui.TableHeadersRow();
 
 
@@ -1975,7 +1975,32 @@ namespace KWEngine3.Editor
                         ImGui.TableSetColumnIndex(0);
                         ImGui.Text(label + ":");
                         ImGui.TableSetColumnIndex(1);
-                        ImGui.Text(value == null ? "null" : value.ToString());
+
+                        string val;
+                        if (value == null)
+                        {
+                            val = "null";
+                        }
+                        else if (value is float || value is double)
+                        {
+                            val = Convert.ToDouble(value).ToString("F5");
+                        }
+                        else if (value is Vector3)
+                        {
+                            Vector3 v = (Vector3)value;
+                            val = "(" + v.X.ToString("F3") + "|" + v.Y.ToString("F4") + "|" + v.Z.ToString("F4") + ")";
+                        }
+                        else if (value is Vector4)
+                        {
+                            Vector4 v = (Vector4)value;
+                            val = "(" + v.X.ToString("F3") + "|" + v.Y.ToString("F4") + "|" + v.Z.ToString("F4") + "|" + v.W.ToString("F4") + ")";
+                        }
+                        else
+                        {
+                            val = value.ToString();
+                        }
+
+                        ImGui.Text(val);
                     }
                 }
 
@@ -1988,32 +2013,60 @@ namespace KWEngine3.Editor
         {
             if (KWEngine.CurrentWorld == null || KWEngine.DebugOverlayEnabled == false) return;
 
-            ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(1f, 1f, 1f, 0.2f));
-            ImGui.Begin("Debug Overlay", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
-            ImGui.PopStyleColor();
-            float size = KWEngine.Window.ClientSize.X * 0.214f;
-            ImGui.SetWindowSize(new System.Numerics.Vector2(size, 256));
-            ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - size * 1.25f, 0 + KWEngine.Window.ClientSize.Y * 0.01f), ImGuiCond.Always);
+            PopulateDebugPropertiesAndFields();
+            if (_debugPropertiesAndFields.Count > 0)
+            {
+                ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(1f, 1f, 1f, 0.2f));
+                ImGui.Begin("Debug Overlay", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
+                ImGui.PopStyleColor();
+                float size = KWEngine.Window.ClientSize.X * 0.4f;
+                ImGui.SetWindowSize(new System.Numerics.Vector2(size, 256));
+                ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - size * 1.25f, 0 + KWEngine.Window.ClientSize.Y * 0.01f), ImGuiCond.Always);
 
-            ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
+                
 
-            ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.6f);
-            ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.4f);
+                foreach(KeyValuePair<string, List<string[]>> pair in _debugPropertiesAndFields)
+                {
+                    ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(1f, 1f, 0f, 1f));
+                    ImGui.Text(pair.Key);
+                    ImGui.PopStyleColor();
+
+                    ImGui.BeginTable("Fields", 2, ImGuiTableFlags.None);
+                    ImGui.TableSetupColumn("Field/Property", ImGuiTableColumnFlags.WidthFixed, size * 0.4f);
+                    ImGui.TableSetupColumn("Current Value", ImGuiTableColumnFlags.WidthFixed, size * 0.6f);
+
+                    foreach (string[] member in pair.Value)
+                    {
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        ImGui.Text(member[0]);
+                        ImGui.TableSetColumnIndex(1);
+                        ImGui.Text(member[1]);
+                    }
+                    ImGui.EndTable();
+                    ImGui.NewLine();
+                }
+                ImGui.End();
+            }
+            
+        }
+
+        private static Dictionary<string, List<string[]>> _debugPropertiesAndFields = new();
+
+        private static void PopulateDebugPropertiesAndFields()
+        {
+            _debugPropertiesAndFields.Clear();
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
                 Type type = g.GetType();
                 if (HelperDebug.HasDebugFields(g))
                 {
-                    List<MemberInfo> fields = HelperDebug.GetKWDebugFields(g);
+                    string key = "#" + g.ID + " " + g.GetType().Name + (g.Name == "(no name)" ? ":" : " (" + g.Name + "):");
+                    _debugPropertiesAndFields.Add(key, new List<string[]>());
+                    List<MemberInfo> fields = HelperDebug.GetKWDebugMembers(g);
 
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(1f, 1f, 0f, 1f));
-                    ImGui.Text(g.Name + " (#" + g.ID + ")");
-                    ImGui.TableSetColumnIndex(1);
-                    ImGui.Text("(" + g.GetType().Name + ")");
-                    ImGui.PopStyleColor();
+                    
 
                     foreach (MemberInfo m in fields)
                     {
@@ -2021,22 +2074,48 @@ namespace KWEngine3.Editor
                         KWDebugAttribute attr = m.GetCustomAttribute<KWDebugAttribute>();
                         if (attr != null)
                         {
-                            object value = m is PropertyInfo ? (m as PropertyInfo).GetValue(g) : (m as FieldInfo).GetValue(g);
                             string label = attr.Label ?? m.Name;
-                            ImGui.TableNextRow();
-                            ImGui.TableSetColumnIndex(0);
-                            ImGui.Text("  " + label + ":");
-                            ImGui.TableSetColumnIndex(1);
-                            ImGui.Text(value == null ? "null" : value.ToString());
+                            if(label != null && label.Length > 24)
+                            {
+                                label = label.Substring(0, 24).Trim() + "...";
+                            }
+                            object value = m is PropertyInfo ? (m as PropertyInfo).GetValue(g) : (m as FieldInfo).GetValue(g);
+                            string[] labelValue = new string[2];
+
+                            string val;
+                            if (value == null)
+                            {
+                                val = "null";
+                            } 
+                            else if(value is float || value is double)
+                            {
+                                val = Convert.ToDouble(value).ToString("F5");
+                            }
+                            else if(value is Vector3)
+                            {
+                                Vector3 v = (Vector3)value;
+                                val = "(" + v.X.ToString("F4") + "|" + v.Y.ToString("F4") + "|" + v.Z.ToString("F4") + ")";
+                            }
+                            else if(value is Vector4)
+                            {
+                                Vector4 v = (Vector4)value;
+                                val = "(" + v.X.ToString("F4") + "|" + v.Y.ToString("F4") + "|" + v.Z.ToString("F4") + "|" + v.W.ToString("F4") + ")";
+                            }
+                            else
+                            {
+                                val = value.ToString();
+                            }
+                            labelValue[0] = "  " + label + ":";
+                            labelValue[1] = val;
+
+
+
+                           
+                            _debugPropertiesAndFields[key].Add(labelValue);
                         }
                     }
-                    
-                    ImGui.TableNextRow();
                 }
             }
-            ImGui.EndTable();
-            ImGui.End();
-            
         }
     }
 }

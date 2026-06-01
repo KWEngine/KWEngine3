@@ -20,7 +20,7 @@ namespace KWEngine3.Helper
             return g != null && TypesWithDebugAttribute.ContainsKey(g.GetType());
         }
 
-        internal static List<MemberInfo> GetKWDebugFields(GameObject g)
+        internal static List<MemberInfo> GetKWDebugMembers(GameObject g)
         {
             return TypesWithDebugAttribute[g.GetType()];
         }

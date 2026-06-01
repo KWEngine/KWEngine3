@@ -18,6 +18,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            KWEngine.DebugOverlayEnabled = true;
             KWEngine.LoadModel("FPS_ARMS", "./Models/FirstPersonView/arms.gltf");
 
             KWEngine.LoadModel("Bot", "./Models/GLTFTest/bot.gltf");
@@ -54,6 +55,7 @@ namespace KWEngine3TestProject.Worlds
 
 
             Attachment a = new Attachment();
+            a.Name = "Super attachment";
             a.SetColor(0, 1, 0);
             a.SetOpacity(0.5f);
             test.AttachGameObjectToBone(a, "mixamorig:RightHand");
