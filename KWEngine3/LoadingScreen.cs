@@ -232,6 +232,98 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Setzt den Typ des Fortschrittsanzeigers
+        /// </summary>
+        /// <param name="type">Bar, FilledCircle oder UnfilledCircle</param>
+        public void SetProgressIndicatorType(ProgressIndicatorType type)
+        {
+            _progressType = type;
+        }
+
+        /// <summary>
+        /// Setzt den aktuellen Fortschrittswert
+        /// </summary>
+        /// <param name="value">Wert zwischen 0f (leer) und 1f (voll)</param>
+        public void SetProgressValue(float value)
+        {
+            _progressValue = Math.Clamp(value, 0f, 1f);
+        }
+
+        /// <summary>
+        /// Setzt die Position des Fortschrittsanzeigers in Pixeln
+        /// </summary>
+        /// <param name="x">Horizontale Position</param>
+        /// <param name="y">Vertikale Position</param>
+        public void SetProgressPosition(int x, int y)
+        {
+            _progressPosition = new Vector2i(x, y);
+            UpdateProgressModelMatrix();
+        }
+
+        /// <summary>
+        /// Zentriert den Fortschrittsanzeiger im Fenster
+        /// </summary>
+        public void SetProgressPositionToWindowCenter()
+        {
+            _progressPosition = new Vector2i(
+                KWEngine.Window.ClientRectangle.HalfSize.X,
+                KWEngine.Window.ClientRectangle.HalfSize.Y
+            );
+            UpdateProgressModelMatrix();
+        }
+
+        /// <summary>
+        /// Setzt die Größe des Fortschrittsanzeigers in Pixeln
+        /// </summary>
+        /// <remarks>Für Kreis-Typen wird width als Durchmesser für beide Achsen verwendet</remarks>
+        /// <param name="width">Breite in Pixeln</param>
+        /// <param name="height">Höhe in Pixeln</param>
+        public void SetProgressSize(int width, int height)
+        {
+            _progressSize = new Vector2i(Math.Max(1, width), Math.Max(1, height));
+            UpdateProgressModelMatrix();
+        }
+
+        /// <summary>
+        /// Setzt die Füllfarbe des Fortschrittsanzeigers
+        /// </summary>
+        /// <param name="r">Rotanteil (0f bis 2f)</param>
+        /// <param name="g">Grünanteil (0f bis 2f)</param>
+        /// <param name="b">Blauanteil (0f bis 2f)</param>
+        /// <param name="alpha">Deckkraft (0f bis 1f)</param>
+        public void SetProgressColor(float r, float g, float b, float alpha = 1f)
+        {
+            _progressColor = new Vector4(
+                Math.Clamp(r, 0f, 2f),
+                Math.Clamp(g, 0f, 2f),
+                Math.Clamp(b, 0f, 2f),
+                Math.Clamp(alpha, 0f, 1f));
+        }
+
+        /// <summary>
+        /// Setzt die Dicke des äußeren Rands (und für UnfilledCircle: die Ringbreite)
+        /// </summary>
+        /// <remarks>
+        /// Für Bar: Rand in Pixeln, berechnet als Anteil der kürzeren Seite.
+        /// Für Kreise: Anteil des Radius (0.0f = kein Rand, 1.0f = halber Radius).
+        /// Wert 0.0 deaktiviert den Rand komplett.
+        /// </remarks>
+        /// <param name="thickness">Dicke (0f bis 1f)</param>
+        public void SetProgressBorderThickness(float thickness)
+        {
+            _progressBorderThickness = Math.Clamp(thickness * 0.5f, 0f, 0.49f);
+        }
+
+        /// <summary>
+        /// Setzt die Sichtbarkeit des Fortschrittsanzeigers
+        /// </summary>
+        /// <param name="visible">Sichtbar oder nicht</param>
+        public void SetProgressVisible(bool visible)
+        {
+            _progressVisible = visible;
+        }
+
+        /// <summary>
         /// Zeichnet eine neue Version des Loading Screen auf dem Bildschirm
         /// </summary>
         public void Update()
@@ -248,11 +340,33 @@ namespace KWEngine3
         internal HUDObjectImage _icon = null;
         internal HUDObjectText _text = null;
 
+        internal float _progressValue = 0f;
+        internal ProgressIndicatorType _progressType = ProgressIndicatorType.Bar;
+        internal Vector2i _progressPosition = Vector2i.Zero;
+        internal Vector2i _progressSize = new Vector2i(200, 20);
+        internal Vector4 _progressColor = new Vector4(1f, 1f, 1f, 1f);
+        internal float _progressBorderThickness = 0.1f;
+        internal bool _progressVisible = true;
+        internal Matrix4 _progressModelMatrix = Matrix4.Identity;
+
+        internal void UpdateProgressModelMatrix()
+        {
+            Vector3 scale = new Vector3(_progressSize.X, _progressSize.Y, 1f);
+            Vector3 pos = new Vector3(_progressPosition.X, _progressPosition.Y, 0f);
+            _progressModelMatrix = HelperMatrix.CreateModelMatrixForHUD(ref scale, ref pos);
+        }
+
         internal List<string> _textureKeys;
 
         internal void Init()
         {
             _textureKeys = new List<string>();
+
+            _progressPosition = new Vector2i(
+                KWEngine.Window.ClientRectangle.HalfSize.X,
+                KWEngine.Window.ClientRectangle.HalfSize.Y
+            );
+            UpdateProgressModelMatrix();
 
             if (_bgFill == null)
             {

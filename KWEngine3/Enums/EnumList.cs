@@ -1,6 +1,19 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Art des Fortschrittsanzeigers im Ladebildschirm
+    /// </summary>
+    public enum ProgressIndicatorType
+    {
+        /// <summary>Rechteckiger Ladebalken mit äußerem Rand und innerem Füllbalken</summary>
+        Bar = 0,
+        /// <summary>Kreisförmiger Pie-Fill (von oben im Uhrzeigersinn)</summary>
+        FilledCircle = 1,
+        /// <summary>Ringförmiger Arc (von oben im Uhrzeigersinn)</summary>
+        UnfilledCircle = 2
+    }
+
+    /// <summary>
     /// Gibt für die Methode KWEngine.DisableKeyframesForModelAnimation() an, welche Arten von Keyframes eine Abschaltung vorgenommen werden soll
     /// </summary>
     public enum AnimationKeyframeType

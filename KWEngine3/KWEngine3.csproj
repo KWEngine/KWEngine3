@@ -144,6 +144,8 @@
 		<None Remove="Shaders\shader.grid.vert" />
 		<None Remove="Shaders\shader.hud.frag" />
 		<None Remove="Shaders\shader.hud.vert" />
+		<None Remove="Shaders\shader.loadingprogress.frag" />
+		<None Remove="Shaders\shader.loadingprogress.vert" />
 		<None Remove="Shaders\shader.lighting.forward.frag" />
 		<None Remove="Shaders\shader.lighting.forward.vert" />
 		<None Remove="Shaders\shader.lighting.forwardinstanced.frag" />
@@ -416,6 +418,8 @@
 		<EmbeddedResource Include="Shaders\shader.msm16terrain_csm.vert" />
 		<EmbeddedResource Include="Shaders\shader.hud.frag" />
 		<EmbeddedResource Include="Shaders\shader.hud.vert" />
+		<EmbeddedResource Include="Shaders\shader.loadingprogress.frag" />
+		<EmbeddedResource Include="Shaders\shader.loadingprogress.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.blur.frag" />
 		<EmbeddedResource Include="Shaders\shader.msm16.blur.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16.cube.geom" />

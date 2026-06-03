@@ -1630,9 +1630,9 @@ namespace KWEngine3
                 GL.Disable(EnableCap.DepthTest);
                 GL.Enable(EnableCap.Blend);
                 GL.Disable(EnableCap.CullFace);
+                GL.BindVertexArray(KWQuad2D_05.VAO);
 
                 // render background fill and image:
-                GL.BindVertexArray(KWQuad2D_05.VAO);
                 RendererHUD.Draw(KWEngine.CurrentWorld.LoadingScreen._bgFill);
                 RendererHUD.Draw(KWEngine.CurrentWorld.LoadingScreen._bg);
 
@@ -1640,6 +1640,10 @@ namespace KWEngine3
                 float offsetX = (float)KWEngine.CurrentWorld.LoadingScreen._textureIconSpriteSheetIndices.X / KWEngine.CurrentWorld.LoadingScreen._textureIconSpriteSheetDimensions.X;
                 float offsetY = (float)KWEngine.CurrentWorld.LoadingScreen._textureIconSpriteSheetIndices.Y / KWEngine.CurrentWorld.LoadingScreen._textureIconSpriteSheetDimensions.Y;
                 RendererHUD.Draw(KWEngine.CurrentWorld.LoadingScreen._icon, offsetX, offsetY);
+
+                // render progress indicator:
+                RendererLoadingScreenProgress.Bind();
+                RendererLoadingScreenProgress.Draw(KWEngine.CurrentWorld.LoadingScreen);
 
                 // render text:
                 RendererHUDText.Bind();
@@ -1653,6 +1657,7 @@ namespace KWEngine3
                 RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0], Vector4.One);
 
                 GL.BindVertexArray(0);
+                GL.UseProgram(0);
                 SwapBuffers();
             }
         }

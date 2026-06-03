@@ -155,6 +155,7 @@ namespace KWEngine3.Renderer
             RendererBloomUpsample.Init();
             RendererHUD.Init();
             RendererHUDText.Init();
+            RendererLoadingScreenProgress.Init();
 
             // Renderers that are dependent on RenderQuality enum:
             if(KWEngine.Window._renderQuality == RenderQualityLevel.Low)
