@@ -42,6 +42,7 @@
       <Method Name="OnTextInput" Hidden="true" />
       <Property Name="Overlay" Hidden="true" />
       <Method Name="ProcessKeysForHUDObjectTextInput" Hidden="true" />
+      <Method Name="RenderLoadingScreen" Hidden="true" />
       <Method Name="RenderOverlay" Hidden="true" />
       <Method Name="ResetMouseDeltas" Hidden="true" />
       <Method Name="SetGLViewportToClientSize" Hidden="true" />
@@ -59,7 +60,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QDyEBAAAxUAEAQ6Q0BEBgEASkhoEBCQAaAEE2EWuogA=</HashCode>
+      <HashCode>QD6EBAAAxUAEAQ6Q0BEBgEASkhoEBCQAaAEE2EWuogA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -241,7 +242,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQt1OI6AJHRKdBVdzpGipb1iTK5ZD6YcUeGSH/EeR/0=</HashCode>
+      <HashCode>SQt1OI6AJHRKdBXdzpGipb1iTK5ZD6YcUeGSH/EeR/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -552,7 +553,7 @@
       <Method Name="SetTextureForMap" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QAAAAAAQAAAABAQAAAIAAAAAACAAQAAAAAEAAwAAAAU=</HashCode>
+      <HashCode>QAAAAAgQAAAABAQAAAIAAAACACAAQAAAAAEAAwAAAAU=</HashCode>
       <FileName>GameObjects\HUDObjectImage.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -909,7 +910,7 @@
       <Method Name="SaveTextureToBitmapR8" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ASggAbCAhEGICQAAQ6QxCEUAAAAIkgQFpkFBLAJwkUA=</HashCode>
+      <HashCode>ASggAbCAhEGICQAAQ6QxCEUAAAAIkgwFpkFBLAJwkUA=</HashCode>
       <FileName>Helper\HelperTexture.cs</FileName>
     </TypeIdentifier>
   </Class>
