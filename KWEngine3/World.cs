@@ -2304,5 +2304,7 @@ namespace KWEngine3
         {
             get { return _hudObjectInputWithFocus != null; }
         }
+
+        public LoadingScreen LoadingScreen { get; internal set; } = null;
     }
 }

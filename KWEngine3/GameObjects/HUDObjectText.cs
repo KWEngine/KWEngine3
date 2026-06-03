@@ -100,7 +100,7 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                KWEngine.LogWriteLine("[HUDObjectText] Font unknown or invalid");
+                KWEngine.LogWriteLine("[Text] Font unknown or invalid");
             }
         }
 

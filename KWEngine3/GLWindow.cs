@@ -1,8 +1,4 @@
-﻿using System.Buffers;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.InteropServices;
+﻿using KWEngine3.Assets;
 using KWEngine3.Audio;
 using KWEngine3.Editor;
 using KWEngine3.Framebuffers;
@@ -15,6 +11,11 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Buffers;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace KWEngine3
 {
@@ -1086,14 +1087,16 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.WorldTime = 0;
             KWEngine.CurrentWorld.SetBackgroundFillColor(0f, 0f, 0f);
+            
+            KWEngine.CurrentWorld.LoadingScreen = new LoadingScreen();
             KWEngine.CurrentWorld.Prepare();
+            KWEngine.CurrentWorld.LoadingScreen.Dispose();
+            KWEngine.CurrentWorld.LoadingScreen = null;
             KWEngine.CurrentWorld.IsPrepared = true;
+
             _mouseDeltaToUse = Vector2.Zero;
-
             _frame = 0;
-
             HelperGeneral.FlushAndFinish(); 
-
             HelperSweepAndPrune.StartThread();
             HelperFlowField.StartThread();
             _worldNew = null;  
@@ -1615,6 +1618,43 @@ namespace KWEngine3
                 }
             }
             return Monitors.GetPrimaryMonitor().Handle;
+        }
+
+        internal void RenderLoadingScreen()
+        {
+            if(KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld.IsPrepared && KWEngine.CurrentWorld.LoadingScreen != null)
+            {
+                RenderManager.FramebufferLightingPass.Bind(true, false);
+                RendererHUD.Bind();
+                
+                GL.Disable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.Blend);
+                GL.Disable(EnableCap.CullFace);
+
+                // render background fill and image:
+                GL.BindVertexArray(KWQuad2D_05.VAO);
+                RendererHUD.Draw(KWEngine.CurrentWorld.LoadingScreen._bgFill);
+                RendererHUD.Draw(KWEngine.CurrentWorld.LoadingScreen._bg);
+
+                // render icon:
+                float offsetX = (float)KWEngine.CurrentWorld.LoadingScreen._textureIconSpriteSheetIndices.X / KWEngine.CurrentWorld.LoadingScreen._textureIconSpriteSheetDimensions.X;
+                float offsetY = (float)KWEngine.CurrentWorld.LoadingScreen._textureIconSpriteSheetIndices.Y / KWEngine.CurrentWorld.LoadingScreen._textureIconSpriteSheetDimensions.Y;
+                RendererHUD.Draw(KWEngine.CurrentWorld.LoadingScreen._icon, offsetX, offsetY);
+
+                // render text:
+                RendererHUDText.Bind();
+                RendererHUDText.SetGlobals();
+                RendererHUDText.Draw(KWEngine.CurrentWorld.LoadingScreen._text);
+
+                RenderManager.DoBloomPass();
+
+                RenderManager.BindScreen(true, true);
+                RendererCopy.Bind();
+                RendererCopy.Draw(RenderManager.FramebufferLightingPass, RenderManager.FramebuffersBloomTemp[0], Vector4.One);
+
+                GL.BindVertexArray(0);
+                SwapBuffers();
+            }
         }
     }
 }

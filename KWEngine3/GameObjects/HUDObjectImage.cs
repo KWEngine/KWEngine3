@@ -130,6 +130,11 @@ namespace KWEngine3.GameObjects
             return false;
         }
 
+        internal void SetInvisible()
+        {
+            _textureId = KWEngine.TextureAlpha;
+        }
+
         internal void Reset()
         {
             SetTextureForMap(null);
@@ -165,6 +170,7 @@ namespace KWEngine3.GameObjects
             {
                 KWEngine.LogWriteLine("[Map] Texture file not found");
                 _textureId = KWEngine.TextureWhite;
+                _textureName = "";
             }
         }
 
@@ -205,11 +211,35 @@ namespace KWEngine3.GameObjects
                     _textureName = filename;
                     SetScale(width, height);
                 }
+                else
+                {
+                    _textureName = "";
+                }
             }
             else
             {
                 KWEngine.LogWriteLine("[HUDObject] Texture file not found");
                 _textureId = KWEngine.TextureAlpha;
+                _textureName = "";
+            }
+        }
+
+        internal void DisposeForLoadingScreen()
+        {
+            if(_textureId != KWEngine.TextureAlpha && _textureId != KWEngine.TextureWhite)
+            {
+                if (KWEngine.CurrentWorld._customTextures.TryGetValue(_textureName, out KWTexture texture))
+                {
+                    HelperTexture.DeleteTexture(texture.ID);
+                    KWEngine.CurrentWorld._customTextures.Remove(_textureName);
+                }
+                else
+                {
+                    HelperTexture.DeleteTexture(_textureId);
+                }
+
+                _textureId = KWEngine.TextureAlpha;
+                _textureName = "";
             }
         }
     }

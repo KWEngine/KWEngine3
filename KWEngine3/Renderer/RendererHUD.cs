@@ -1,6 +1,5 @@
 ﻿using KWEngine3.Assets;
 using KWEngine3.GameObjects;
-using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -20,6 +19,7 @@ namespace KWEngine3.Renderer
         public static int UMode { get; private set; } = -1;
         public static int UId { get; private set; } = -1;
         public static int UTextureRepeat { get; private set; } = -1;
+        public static int UTextureOffset { get; private set; } = -1;
         public static int UOptions { get; private set; } = -1;
 
         public static void Init()
@@ -46,19 +46,16 @@ namespace KWEngine3.Renderer
 
                 GL.LinkProgram(ProgramID);
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
-                //UCharacterDistance = GL.GetUniformLocation(ProgramID, "uCharacterDistance");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
+                
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UColorGlow = GL.GetUniformLocation(ProgramID, "uColorGlow");
-                //UOffsets = GL.GetUniformLocation(ProgramID, "uOffsets");
-                //UOffsetCount = GL.GetUniformLocation(ProgramID, "uOffsetCount");
-                //UCharacterWidth = GL.GetUniformLocation(ProgramID, "uCharacterWidth");
                 UTextAlign = GL.GetUniformLocation(ProgramID, "uTextAlign");
                 UMode = GL.GetUniformLocation(ProgramID, "uMode"); // 0 = text, 1 = image, 2 = textInput, etc.
                 UTextureRepeat = GL.GetUniformLocation(ProgramID, "uTextureRepeat");
+                UTextureOffset = GL.GetUniformLocation(ProgramID, "uTextureOffset");
                 UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
-                //UCursorInfo = GL.GetUniformLocation(ProgramID, "uCursorInfo");
             }
         }
 
@@ -175,6 +172,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._color);
             GL.Uniform4(UColorGlow, ho._colorE);
             GL.Uniform2(UTextureRepeat, ho._textureRepeat);
+            GL.Uniform2(UTextureOffset, 0f, 0f);
             GL.Uniform1(UMode, 2);
             GL.Uniform1(UOptions, KWEngine.CurrentWorld.Map._drawAsCircle ? 1 : 0);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
@@ -201,6 +199,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._color);
             GL.Uniform4(UColorGlow, ho._colorE);
             GL.Uniform2(UTextureRepeat, ho._textureRepeat);
+            GL.Uniform2(UTextureOffset, 0f, 0f);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
@@ -229,6 +228,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._color);
             GL.Uniform4(UColorGlow, ho._colorE);
             GL.Uniform2(UTextureRepeat, ho._textureRepeat);
+            GL.Uniform2(UTextureOffset, 0f, 0f);
             GL.Uniform1(UMode, 2);
             GL.Uniform1(UOptions, KWEngine.CurrentWorld.Map._drawAsCircle ? 1 : 0);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
@@ -247,7 +247,7 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
         }
 
-        public static void Draw(HUDObject ho)
+        public static void Draw(HUDObject ho, float offsetX = 0f, float offsetY = 0f)
         {
             if (ho == null || !ho.IsVisible || !ho.IsInsideScreenSpace())
                 return;
@@ -257,6 +257,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UColorTint, ho._tint);
             GL.Uniform4(UColorGlow, ho._glow);
             GL.Uniform2(UTextureRepeat, txR);
+            GL.Uniform2(UTextureOffset, offsetX, offsetY);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
             
@@ -269,7 +270,6 @@ namespace KWEngine3.Renderer
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, ho._textureId);
             GL.Uniform1(UTexture, 0);
-
             GL.Uniform1(UOptions, 0);
             GL.Uniform1(UMode, 0);
             GL.DrawArrays(PrimitiveType.Triangles, 0, 6);

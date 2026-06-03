@@ -62,7 +62,6 @@ namespace KWEngine3.Renderer
         {
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[0].ID);
-            //GL.BindTexture(TextureTarget.Texture2D, KWEngine.TestFont.Texture);
             GL.Uniform1(UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
@@ -74,7 +73,7 @@ namespace KWEngine3.Renderer
             {
                 GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
             }
-            GL.Uniform1(UTextureAlbedo, 1);
+            GL.Uniform1(UTextureBloom, 1);
 
             GL.Uniform4(UFadeColor, ref fadeColor);
 

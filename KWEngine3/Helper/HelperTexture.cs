@@ -2458,6 +2458,60 @@ namespace KWEngine3.Helper
             return texID;
         }
 
+        internal static int LoadTextureForLoadingScreenExternal(string filename, out int width, out int height)
+        {
+            if (!File.Exists(filename))
+            {
+                width = 0;
+                height = 0;
+                return -1;
+            }
+            int texID = -1;
+            width = 0;
+            height = 0;
+            if (filename.ToLower().EndsWith(".dds"))
+            {
+                if(!HelperDDS2.TryLoadDDS(filename, false, out texID, out width, out height, true))
+                {
+                    width = 0;
+                    height = 0;
+                    return -1;
+                }
+                return texID;
+            }
+
+            try
+            {
+                SKBitmap image = SKBitmap.Decode(filename);
+                if (image == null)
+                {
+                    throw new Exception("File " + filename + " is not a valid image file.");
+                }
+
+                width = image.Width;
+                height = image.Height;
+
+                texID = GL.GenTexture();
+                GL.BindTexture(TextureTarget.Texture2D, texID);
+                GL.TexImage2D(TextureTarget.Texture2D, 0, GetPixelInternalFormatForSKColorType(image.ColorType), image.Width, image.Height, 0,
+                    GetPixelFormatForSKColorType(image.ColorType), PixelType.UnsignedByte, image.Bytes);
+
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+
+                image.Dispose();
+                GL.BindTexture(TextureTarget.Texture2D, 0);
+
+            }
+            catch (Exception)
+            {
+                return -1;
+            }
+            return texID;
+        }
+
         internal static int LoadTextureSkyboxEquirectangular(string filename, out int mipMapLevels, out int w, out int h)
         {
             if (!File.Exists(filename))

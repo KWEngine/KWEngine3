@@ -10,13 +10,14 @@ uniform mat4 uModelMatrix;
 uniform mat4 uViewProjectionMatrix;
 uniform int uTextAlign; // 0 = left, 1 = center, 2 = right
 uniform vec2 uTextureRepeat;
+uniform vec2 uTextureOffset;
 uniform int uMode;
  
 void main()
 {
 	vec4 pos = vec4(aPosition, 1.0);
-	vTexture.x = aTexture.x * uTextureRepeat.x;
-	vTexture.y = (uMode == 2 ? (1.0 - aTexture.y) : aTexture.y) * uTextureRepeat.y;
+	vTexture.x = aTexture.x * uTextureRepeat.x + uTextureOffset.x;
+	vTexture.y = (uMode == 2 ? (1.0 - aTexture.y) : aTexture.y) * uTextureRepeat.y + uTextureOffset.y;
 	vNDC = uViewProjectionMatrix * uModelMatrix * pos;
 	gl_Position = vNDC.xyww;	
 }
