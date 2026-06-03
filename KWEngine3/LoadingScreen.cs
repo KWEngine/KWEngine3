@@ -1,5 +1,6 @@
 ﻿using KWEngine3.GameObjects;
 using KWEngine3.Helper;
+using KWEngine3.Model;
 using OpenTK.Mathematics;
 
 namespace KWEngine3
@@ -402,19 +403,110 @@ namespace KWEngine3
 
         internal void Dispose()
         {
-            // dispose all custom textures:
-            foreach(KeyValuePair<string, KWTexture> pair in KWEngine.CurrentWorld._customTextures)
+            if (_textureKeys == null || _textureKeys.Count == 0)
+                return;
+
+            // Collect all OpenGL texture IDs currently in use by the world,
+            // so we only delete loading screen textures that no other consumer references.
+            HashSet<int> activeIds = CollectActiveTextureIds();
+
+            foreach (string key in _textureKeys)
             {
-                if(_textureKeys != null && _textureKeys.Contains(pair.Key))
+                if (KWEngine.CurrentWorld._customTextures.TryGetValue(key, out KWTexture tex))
                 {
-                    HelperTexture.DeleteTexture(pair.Value.ID);
+                    if (!activeIds.Contains(tex.ID))
+                    {
+                        HelperTexture.DeleteTexture(tex.ID);
+                    }
+                    KWEngine.CurrentWorld._customTextures.Remove(key);
                 }
             }
-            foreach(string key in _textureKeys)
-            {
-                KWEngine.CurrentWorld._customTextures.Remove(key);
-            }
             _textureKeys.Clear();
+        }
+
+        internal HashSet<int> CollectActiveTextureIds()
+        {
+            HashSet<int> ids = new HashSet<int>();
+            World w = KWEngine.CurrentWorld;
+
+            // GameObjects (and TerrainObjects which extend EngineObject)
+            foreach (GameObject go in w._gameObjects)
+            {
+                if (go._model?.Material == null) continue;
+                foreach (GeoMaterial mat in go._model.Material)
+                {
+                    if (mat.TextureAlbedo.IsTextureSet)   ids.Add(mat.TextureAlbedo.OpenGLID);
+                    if (mat.TextureNormal.IsTextureSet)   ids.Add(mat.TextureNormal.OpenGLID);
+                    if (mat.TextureEmissive.IsTextureSet) ids.Add(mat.TextureEmissive.OpenGLID);
+                    if (mat.TextureMetallic.IsTextureSet) ids.Add(mat.TextureMetallic.OpenGLID);
+                    if (mat.TextureRoughness.IsTextureSet) ids.Add(mat.TextureRoughness.OpenGLID);
+                }
+            }
+
+            // TerrainObjects
+            foreach (TerrainObject t in w._terrainObjects)
+            {
+                if (t._heightmap > 0) ids.Add(t._heightmap);
+                if (t._gModel?.Material != null)
+                {
+                    foreach (GeoMaterial mat in t._gModel.Material)
+                    {
+                        if (mat.TextureAlbedo.IsTextureSet)    ids.Add(mat.TextureAlbedo.OpenGLID);
+                        if (mat.TextureNormal.IsTextureSet)    ids.Add(mat.TextureNormal.OpenGLID);
+                        if (mat.TextureEmissive.IsTextureSet)  ids.Add(mat.TextureEmissive.OpenGLID);
+                        if (mat.TextureMetallic.IsTextureSet)  ids.Add(mat.TextureMetallic.OpenGLID);
+                        if (mat.TextureRoughness.IsTextureSet) ids.Add(mat.TextureRoughness.OpenGLID);
+                    }
+                }
+            }
+
+            // FoliageObjects
+            foreach (FoliageBase f in w._foliageObjects)
+            {
+                if (f is FoliageObjectCustom fc && fc._textureId > 0)
+                    ids.Add(fc._textureId);
+            }
+
+            // HUD objects
+            foreach (HUDObject h in w._hudObjects)
+            {
+                if (h is HUDObjectImage hi && hi._textureId > 0
+                    && hi._textureId != KWEngine.TextureWhite
+                    && hi._textureId != KWEngine.TextureAlpha)
+                    ids.Add(hi._textureId);
+            }
+
+            // World background
+            if (w._background._standardId > 0) ids.Add(w._background._standardId);
+            if (w._background._skyboxId > 0)   ids.Add(w._background._skyboxId);
+
+            // RenderObjects (separate list, not in _gameObjects)
+            foreach (RenderObject ro in w._renderObjects)
+            {
+                if (ro._model?.Material == null) continue;
+                foreach (GeoMaterial mat in ro._model.Material)
+                {
+                    if (mat.TextureAlbedo.IsTextureSet)    ids.Add(mat.TextureAlbedo.OpenGLID);
+                    if (mat.TextureNormal.IsTextureSet)    ids.Add(mat.TextureNormal.OpenGLID);
+                    if (mat.TextureEmissive.IsTextureSet)  ids.Add(mat.TextureEmissive.OpenGLID);
+                    if (mat.TextureMetallic.IsTextureSet)  ids.Add(mat.TextureMetallic.OpenGLID);
+                    if (mat.TextureRoughness.IsTextureSet) ids.Add(mat.TextureRoughness.OpenGLID);
+                }
+            }
+
+            // All loaded models (including those not yet assigned to any GameObject)
+            foreach (GeoModel model in KWEngine.Models.Values)
+            {
+                if (model.Textures != null)
+                {
+                    foreach (GeoTexture t in model.Textures.Values)
+                    {
+                        if (t.IsTextureSet) ids.Add(t.OpenGLID);
+                    }
+                }
+            }
+
+            return ids;
         }
 
         internal LoadingScreen()
