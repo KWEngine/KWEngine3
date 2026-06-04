@@ -194,6 +194,17 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Setzt die Ausrichtung des Texts (Standard: linksbündig)
+        /// </summary>
+        /// <param name="mode">Art der Ausrichtung</param>
+        public void SetTextAlignment(TextAlignMode mode)
+        {
+            if (_text == null) return;
+
+            _text.SetTextAlignment(mode);
+        }
+
+        /// <summary>
         /// Setzt die Textfarbe
         /// </summary>
         /// <param name="r">Rotanteil (0f bis 1f)</param>
@@ -332,6 +343,22 @@ namespace KWEngine3
             KWEngine.Window.RenderLoadingScreen();
         }
 
+        /// <summary>
+        /// Erfragt die aktuelle Textgröße in Pixeln
+        /// </summary>
+        public float TextScale
+        {
+            get { return _text == null ? 0f : _text.Scale.X; }
+        }
+
+        /// <summary>
+        /// Erfragt den aktuell gesetzten Text
+        /// </summary>
+        public string Text
+        {
+            get { return _text == null ? "" : _text.Text; }
+        }
+
         #region Internals
         internal Vector2i _textureIconSpriteSheetDimensions = Vector2i.One;
         internal Vector2i _textureIconSpriteSheetIndices = Vector2i.Zero;
@@ -373,6 +400,7 @@ namespace KWEngine3
             {
                 _bgFill = new HUDObjectImage();
                 _bgFill.SetScale(KWEngine.Window.Width, KWEngine.Window.Height);
+                _bgFill.SetColor(0f, 0f, 0f);
                 _bgFill.CenterOnScreen();
             }
 
