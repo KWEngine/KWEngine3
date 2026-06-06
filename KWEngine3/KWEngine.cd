@@ -549,7 +549,9 @@
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
       <Field Name="_textureRepeat" Hidden="true" />
+      <Method Name="DisposeForLoadingScreen" Hidden="true" />
       <Method Name="Reset" Hidden="true" />
+      <Method Name="SetInvisible" Hidden="true" />
       <Method Name="SetTextureForMap" Hidden="true" />
     </Members>
     <TypeIdentifier>
@@ -703,6 +705,7 @@
     <Position X="18.5" Y="8.75" Width="2.75" />
     <Members>
       <Field Name="_allowedDirections" Hidden="true" />
+      <Field Name="_cellDetectionScale" Hidden="true" />
       <Field Name="_cellDiametre" Hidden="true" />
       <Field Name="_ffback" Hidden="true" />
       <Field Name="_ffbottom" Hidden="true" />
@@ -731,7 +734,7 @@
       <Method Name="UpdateGridAndTarget" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQEAhCAEMIEFBQIAgMAigQARAgIDhgWSQAAAEAYABI=</HashCode>
+      <HashCode>AUQFAhDAENIEFBQIAgMAigQARAgIDhgWSQAAAEAYABI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -806,7 +809,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.FlowFieldCell">
-    <Position X="18.5" Y="14.5" Width="2.75" />
+    <Position X="18.5" Y="15" Width="2.75" />
     <Members>
       <Field Name="_bestCost" Hidden="true" />
       <Field Name="_cost" Hidden="true" />
@@ -886,6 +889,7 @@
       <Method Name="LoadTextureCompressedWithMipMaps" Hidden="true" />
       <Method Name="LoadTextureForBackgroundExternal" Hidden="true" />
       <Method Name="LoadTextureForHeightMap" Hidden="true" />
+      <Method Name="LoadTextureForLoadingScreenExternal" Hidden="true" />
       <Method Name="LoadTextureForModelExternal" Hidden="true" />
       <Method Name="LoadTextureForModelGLB" Hidden="true" />
       <Method Name="LoadTextureForModelInternal" Hidden="true" />

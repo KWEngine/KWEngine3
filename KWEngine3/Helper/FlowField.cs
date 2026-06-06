@@ -1,4 +1,5 @@
 ﻿using KWEngine3.GameObjects;
+using Newtonsoft.Json.Linq;
 using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
@@ -119,6 +120,7 @@ namespace KWEngine3.Helper
 
             CellRadius = Math.Max(Math.Abs(cellRadius), 0.1f);
             _cellDiametre = CellRadius * 2;
+            _cellDetectionScale = 1.0f;
 
             _types = new Type[types.Length];
             for(int i = 0; i < types.Length; i++)
@@ -387,6 +389,28 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Erfragt die aktuelle Skalierung der FlowField-Zellgröße für Kollisionsabfragen
+        /// </summary>
+        /// <remarks>Hat nur dann eine Wirkung, denn der FlowField-Modus "Box" statt "Simple" ist</remarks>
+        public float CellHitboxScale
+        {
+            get
+            {
+                return _cellDetectionScale;
+            }
+        }
+
+        /// <summary>
+        /// Erhöht oder verringert die FlowField-Zellgröße für Kollisionsabfragen
+        /// </summary>
+        /// <remarks>Hat nur dann eine Wirkung, denn der FlowField-Modus "Box" statt "Simple" ist</remarks>
+        /// <param name="s">Skalierungsfaktor (Werte zwischen 0.1f und 1.9f sind erlaubt)</param>
+        public void SetCellHitboxScale(float s)
+        {
+            _cellDetectionScale = Math.Clamp(s, 0.1f, 1.9f);
+        }
+
+        /// <summary>
         /// Löscht ein aktuell festgesetztes Ziel im FlowField
         /// </summary>
         public void UnsetTarget()
@@ -546,29 +570,39 @@ namespace KWEngine3.Helper
 
         internal bool OverlapsXZ(FlowFieldHitbox cell, float left, float right, float back, float front)
         {
+            float centerX = (cell._left + cell._right) * 0.5f;
+            float halfX = (cell._right - cell._left) * 0.5f * _cellDetectionScale;
+            float scaledLeft = centerX - halfX;
+            float scaledRight = centerX + halfX;
+
+            float centerZ = (cell._back + cell._front) * 0.5f;
+            float halfZ = (cell._front - cell._back) * 0.5f * _cellDetectionScale;
+            float scaledBack = centerZ - halfZ;
+            float scaledFront = centerZ + halfZ;
+
             if (AllowPartialNesting)
             {
-                bool overlapX = (cell._left <= left && cell._right >= left) || (cell._left <= right && cell._right >= right) || (cell._left <= left && cell._right >= right) || (cell._left >= left && cell._right <= right);
+                bool overlapX = (scaledLeft <= left && scaledRight >= left) || (scaledLeft <= right && scaledRight >= right) || (scaledLeft <= left && scaledRight >= right) || (scaledLeft >= left && scaledRight <= right);
                 if (overlapX)
                 {
-                    bool overlapZ = (cell._back <= back && cell._front >= back) || (cell._front >= front && cell._back <= front) || (cell._front >= front && cell._back <= back) || (cell._front <= front && cell._back >= back);
+                    bool overlapZ = (scaledBack <= back && scaledFront >= back) || (scaledFront >= front && scaledBack <= front) || (scaledFront >= front && scaledBack <= back) || (scaledFront <= front && scaledBack >= back);
                     return overlapZ;
                 }
             }
             else
             {
-                bool overlapX = 
-                    (cell._left < left && cell._right > left)   || 
-                    (cell._left < right && cell._right > right) || 
-                    (cell._left <= left && cell._right >= right)|| 
-                    (cell._left >= left && cell._right <= right);
+                bool overlapX =
+                    (scaledLeft < left && scaledRight > left)    ||
+                    (scaledLeft < right && scaledRight > right)  ||
+                    (scaledLeft <= left && scaledRight >= right) ||
+                    (scaledLeft >= left && scaledRight <= right);
                 if (overlapX)
                 {
-                    bool overlapZ = 
-                        (cell._front > back && cell._back < back)    || 
-                        (cell._front > front && cell._back < front)  || 
-                        (cell._front >= front && cell._back <= back) || 
-                        (cell._front <= front && cell._back >= back);
+                    bool overlapZ =
+                        (scaledFront > back && scaledBack < back)     ||
+                        (scaledFront > front && scaledBack < front)   ||
+                        (scaledFront >= front && scaledBack <= back)  ||
+                        (scaledFront <= front && scaledBack >= back);
                     return overlapZ;
                 }
             }
@@ -577,7 +611,11 @@ namespace KWEngine3.Helper
 
         internal bool OverlapsY(FlowFieldHitbox cell, float bottom, float top)
         {
-            bool overlapY = ((cell._high >= top && cell._low <= top) || (cell._high >= bottom && cell._low <= bottom) || (cell._high >= top && cell._low <= bottom) || (cell._high <= top && cell._low >= bottom));
+            float centerY = (cell._high + cell._low) * 0.5f;
+            float halfY = (cell._high - cell._low) * 0.5f * _cellDetectionScale;
+            float scaledHigh = centerY + halfY;
+            float scaledLow = centerY - halfY;
+            bool overlapY = ((scaledHigh >= top && scaledLow <= top) || (scaledHigh >= bottom && scaledLow <= bottom) || (scaledHigh >= top && scaledLow <= bottom) || (scaledHigh <= top && scaledLow >= bottom));
             return overlapY;
         }
 
@@ -706,6 +744,7 @@ namespace KWEngine3.Helper
         internal float _fffront; 
         internal float _fftop;   
         internal float _ffbottom;
+        internal float _cellDetectionScale;
         internal FlowFieldDirections _allowedDirections = FlowFieldDirections.CardinalAndIntercardinalDirections;
         #endregion
     }
