@@ -13,6 +13,7 @@ namespace KWEngine3.Renderer
         public static int UViewProjectionMatrix { get; private set; } = -1;
         public static int URotationMatrix { get; private set; } = -1;
         public static int UCenter { get; private set; } = -1;
+        public static int UScale { get; private set; } = -1;
         public static int UColor { get; private set; } = -1;
         public static int UTexture { get; private set; } = -1;
 
@@ -59,6 +60,7 @@ namespace KWEngine3.Renderer
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 URotationMatrix = GL.GetUniformLocation(ProgramID, "uRotationMatrix");
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
+                UScale = GL.GetUniformLocation(ProgramID, "uScale");
             }
         }
 
@@ -78,11 +80,7 @@ namespace KWEngine3.Renderer
                 GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix);
             }
 
-            GL.BindVertexArray(KWQuad2D_05.VAO); // KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.VAO);
-            //GL.BindBuffer(BufferTarget.ElementArrayBuffer, KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.VBOIndex);
-            //_indexCount = KWEngine.Models["KWQuad"].Meshes.ElementAt(0).Value.IndexCount;
-
-           
+            GL.BindVertexArray(KWQuad2D_05.VAO);
         }
 
         public static void UnsetGlobals()
@@ -97,7 +95,10 @@ namespace KWEngine3.Renderer
             {
                 for (int z = 0; z < f.Grid.GetLength(1); z++)
                 {
-                    GL.Uniform3(UCenter, f.Grid[x, z].Position);
+                    Vector3 tmp = f.Grid[x, z].Position;
+                    tmp.Y = f.Center.Y - (f._fftop - f._ffbottom) * 0.5f;
+                    GL.Uniform3(UCenter, tmp);
+                    GL.Uniform1(UScale, f._cellDiametre);
 
                     Matrix4 rm = Matrix4.CreateRotationX(-(MathF.PI / 2f));
                     GL.ActiveTexture(TextureUnit.Texture0);
@@ -123,7 +124,6 @@ namespace KWEngine3.Renderer
 
                     GL.UniformMatrix4(URotationMatrix, false, ref rm);
                     GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
-                    //GL.DrawElements(PrimitiveType.Triangles, _indexCount, DrawElementsType.UnsignedInt, 0);
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                 }
             }

@@ -46,12 +46,39 @@ namespace KWEngine3TestProject.Worlds
             {
                 KWEngine.SSAO_KernelSize = 64;
             }
+
+            if(Keyboard.IsKeyPressed(Keys.F5))
+            {
+                KWEngine.EnableDebugHitboxes = HitboxDebugMode.DepthAll;
+                KWEngine.LogWriteLine("D-ALL");
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F6))
+            {
+                KWEngine.EnableDebugHitboxes = HitboxDebugMode.DepthNone;
+                KWEngine.LogWriteLine("D-NONE");
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F7))
+            {
+                KWEngine.EnableDebugHitboxes = HitboxDebugMode.DepthPlanesOnly;
+                KWEngine.LogWriteLine("D-PLANES");
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F8))
+            {
+                KWEngine.EnableDebugHitboxes = HitboxDebugMode.DepthConvexOnly;
+                KWEngine.LogWriteLine("D-CONV");
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F9))
+            {
+                KWEngine.EnableDebugHitboxes = HitboxDebugMode.Disabled;
+                KWEngine.LogWriteLine("DISABLED");
+            }
         }
 
         public override void Prepare()
         {
             base.Prepare();
-            
+
+            KWEngine.EnableDebugHitboxes = HitboxDebugMode.Disabled;
             SetCameraPosition(0, 10, 10);
             SetColorAmbient(0.5f, 0.5f, 0.5f);
             SetBackgroundSkybox("./Textures/skybox_planecollisiontest.dds", 180f, SkyboxType.Equirectangular);
@@ -77,6 +104,7 @@ namespace KWEngine3TestProject.Worlds
             beachPlanes.Name = "Beach Collider Planes";
             beachPlanes.IsCollisionObject = true;
             beachPlanes.SetOpacity(0);
+            beachPlanes.ShowHitboxes = true;
             AddGameObject(beachPlanes);
 
             
@@ -85,25 +113,20 @@ namespace KWEngine3TestProject.Worlds
             beachHitboxes.Name = "Beach Hitboxes";
             beachHitboxes.IsCollisionObject = true;
             beachHitboxes.SetOpacity(0);
+            beachHitboxes.ShowHitboxes = true;
             AddGameObject(beachHitboxes);
             
 
             _player = new Player();
             _player.SetModel("Toon");
-            
+            _player.ShowHitboxes = true;
             _player.Name = "Player #1";
             _player.SetPosition(Player.PLAYERSTART.X, Player.PLAYERSTART.Y, Player.PLAYERSTART.Z, PositionMode.BottomOfAABBHitbox);
             _player.SetScale(0.25f);
             _player.IsCollisionObject = true;
-            
             _player.SetHitboxScale(0.5f, 0.75f, 1f);
             _player.SetHitboxToCapsule();
             _player.IsShadowCaster = true;
-
-            //_player.SetColorHighlight(1, 1, 0, 1);
-            //_player.SetColorHighlightMode(HighlightMode.WhenOccluded);
-
-            //_player.SetOpacity(0.5f);
             AddGameObject(_player);
 
             LightObjectSun sun = new LightObjectSun(ShadowQuality.Medium, SunShadowType.CascadedShadowMap);
@@ -134,6 +157,7 @@ namespace KWEngine3TestProject.Worlds
             rock01.IsCollisionObject = true;
             rock01.FlowFieldCost = 255;
             rock01.IsShadowCaster = true;
+            rock01.ShowHitboxes = true;
             AddGameObject(rock01);
 
             Immovable rock02 = new Immovable();

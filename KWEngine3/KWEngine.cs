@@ -115,6 +115,14 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Gibt an, ob zu Debug-Zwecken die aktiven Hitboxen von GameObject-Instanzen gerendert werden sollen (Standard: HitboxDebugMode.Disabled)
+        /// </summary>
+        /// <remarks>
+        /// Die GameObject-Instanzen müssen jeweils die Eigenschaft 'ShowHitboxes' aktiviert haben
+        /// </remarks>
+        public static HitboxDebugMode EnableDebugHitboxes { get; set; } = HitboxDebugMode.Disabled;
+
+        /// <summary>
         /// Gibt die für das Berechnen der Frame-Informationen benötigte CPU-Zeit in Millisekunden zurück
         /// </summary>
         /// <remarks>Sollte KWEngine.DebugPerformanceEnabled nicht 'true' sein, wird stets der Wert 0 zurückgegeben</remarks>

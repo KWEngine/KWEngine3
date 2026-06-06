@@ -754,6 +754,24 @@ namespace KWEngine3
             GL.Enable(EnableCap.Blend);
             GL.Disable(EnableCap.CullFace);
 
+            // Render hitboxes of GameObjects
+            if(KWEngine.Mode == EngineMode.Play && KWEngine.EnableDebugHitboxes > HitboxDebugMode.Disabled)
+            {
+                RendererEditorHitboxes.Bind();
+                RendererEditorHitboxes.SetGlobals();
+                lock (KWEngine.CurrentWorld._gameObjects)
+                {
+                    foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
+                    {
+                        if (g.IsCollisionObject && g.ShowHitboxes)
+                        {
+                            RendererEditorHitboxes.Draw(g);
+                        }
+                    }
+                }
+                GL.Disable(EnableCap.DepthTest);
+            }
+
             // HUD objects:
             HelperDebug.StartTimeQuery(RenderType.HUD);
             RendererHUD.Bind();

@@ -1,6 +1,33 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Legt für die Anzeige von Hitboxen während des Spiels fest, ob diese überhaupt gezeichnet werden und wenn, ob sie den Tiefentest durchführen oder nicht
+    /// </summary>
+    public enum HitboxDebugMode
+    {
+        /// <summary>
+        /// Es werden während des Spiels keine Hitboxen gezeichnet (Standard)
+        /// </summary>
+        Disabled = 0,
+        /// <summary>
+        /// Alle Hitboxen prüfen den Tiefenpuffer und werden ggf. nicht gezeichnet, wenn ein Objekt sie verdeckt
+        /// </summary>
+        DepthAll = 1,
+        /// <summary>
+        /// Alle Hitboxen ignorieren den Tiefenpuffer und werden immer gezeichnet
+        /// </summary>
+        DepthNone = 2,
+        /// <summary>
+        /// Alle Hitboxen des Typs 'Convex Hull' prüfen den Tiefenpuffer und werden ggf. nicht gezeichnet, wenn ein Objekt sie verdeckt. Planes ignorieren den Tiefenpuffer
+        /// </summary>
+        DepthConvexOnly = 3,
+        /// <summary>
+        /// Alle Hitboxen des Typs 'Plane' prüfen den Tiefenpuffer und werden ggf. nicht gezeichnet, wenn ein Objekt sie verdeckt. 'Convex Hull' Collider ignorieren den Tiefenpuffer
+        /// </summary>
+        DepthPlanesOnly = 4
+    }
+
+    /// <summary>
     /// Art des Fortschrittsanzeigers im Ladebildschirm
     /// </summary>
     public enum ProgressIndicatorType

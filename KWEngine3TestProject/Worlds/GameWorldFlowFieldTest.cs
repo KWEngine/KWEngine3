@@ -175,7 +175,7 @@ namespace KWEngine3TestProject.Worlds
             f1.IsVisible = true;
             f1.AllowPartialNesting = false;
             f1.SetAllowedDirections(FlowFieldDirections.CardinalDirections);
-            f1.SetCellHitboxScale(1.9f);
+            f1.SetCellHitboxScale(0.95f);
             AddFlowField(f1);
 
             /*FlowField f2 = new FlowField(5f, 0, 0, 20, 20, 0.25f, 1, FlowFieldMode.Simple, typeof(Impassable));

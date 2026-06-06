@@ -7,6 +7,7 @@ uniform vec3 uCenter;
 uniform float uRadiansY;
 uniform mat4 uViewProjectionMatrix;
 uniform mat4 uRotationMatrix;
+uniform float uScale;
 
 out vec2 vTexture;
 
@@ -15,5 +16,5 @@ void main()
 	vTexture = aTexture;
 	vec4 posTmp = uRotationMatrix * vec4(aPosition, 1.0);
 
-	gl_Position = uViewProjectionMatrix * vec4(posTmp.x + uCenter.x, posTmp.y + uCenter.y, posTmp.z + uCenter.z, posTmp.w);
+	gl_Position = uViewProjectionMatrix * vec4(posTmp.x * uScale + uCenter.x, posTmp.y * uScale + uCenter.y, posTmp.z * uScale + uCenter.z, posTmp.w);
 }

@@ -93,7 +93,7 @@ namespace KWEngine3.Renderer
             {
                 for (int z = 0; z < f.Grid.GetLength(1); z++)
                 {
-                    GL.Uniform3(UColor, new Vector3(f.Grid[x,z].Cost / 255f, 0f, 1 - f.Grid[x, z].Cost / 255f));
+                    GL.Uniform3(UColor, new Vector3(f.Grid[x,z].Cost / 255f, 0.75f, 1 - f.Grid[x, z].Cost / 255f));
                     GL.Uniform3(UCenter, f.Grid[x, z].Position); 
                     GL.DrawArrays(PrimitiveType.Points, 0, 1); 
                 }

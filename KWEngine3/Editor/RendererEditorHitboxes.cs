@@ -61,9 +61,20 @@ namespace KWEngine3.Editor
 
         public static void SetGlobals()
         {
-            Matrix4 vp = KWEngine.CurrentWorld._cameraEditor._stateCurrent.ViewProjectionMatrix;
+            Matrix4 vp;
+            if(KWEngine.Mode == EngineMode.Play)
+            {
+                vp = KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrix;
+                GL.Uniform3(UColor, 0.9f, 0.1f, 0.9f);
+            }
+            else
+            {
+                vp = KWEngine.CurrentWorld._cameraEditor._stateCurrent.ViewProjectionMatrix;
+                GL.Uniform3(UColor, 0.5f, 1f, 0.25f);
+            }
+            
             GL.UniformMatrix4(UModelViewProjectionMatrix, false, ref vp);
-            GL.Uniform3(UColor, 0.5f, 1f, 0.25f);
+            
         }
 
         public static void Draw(GameObject g)
@@ -72,6 +83,33 @@ namespace KWEngine3.Editor
             
             foreach(GameObjectHitbox hb in g._colliderModel._hitboxes)
             {
+                if(KWEngine.EnableDebugHitboxes == HitboxDebugMode.DepthNone)
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                }
+                else if(KWEngine.EnableDebugHitboxes == HitboxDebugMode.DepthAll)
+                {
+                    GL.Enable(EnableCap.DepthTest);
+                }
+                else if (hb._colliderType == ColliderType.PlaneCollider)
+                {
+                    if (KWEngine.EnableDebugHitboxes < HitboxDebugMode.DepthPlanesOnly)
+                        GL.Disable(EnableCap.DepthTest);
+                    else
+                        GL.Enable(EnableCap.DepthTest);
+                }
+                else if (hb._colliderType == ColliderType.ConvexHull)
+                {
+                    if (KWEngine.EnableDebugHitboxes == HitboxDebugMode.DepthConvexOnly)
+                        GL.Enable(EnableCap.DepthTest);
+                    else
+                        GL.Disable(EnableCap.DepthTest);
+                }
+                else
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                }
+
                 for (int j = 0; j < hb._mesh.Faces.Length; j++)
                 {
                     Span<Vector3> vertices = stackalloc Vector3[hb._mesh.Faces[j].VertexCount];
@@ -89,7 +127,6 @@ namespace KWEngine3.Editor
                 }
             }
 
-            
             GL.BindVertexArray(0);
         }
     }

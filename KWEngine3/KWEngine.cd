@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="12.25" Width="2.75" />
+    <Position X="0.5" Y="12.5" Width="2.75" />
     <Members>
       <Field Name="_disposed" Hidden="true" />
       <Field Name="_frame" Hidden="true" />
@@ -153,7 +153,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DdoQRbBNA6SJgPGc/AruCZARVCgCgmoSjHn2SP2KEKk=</HashCode>
+      <HashCode>DfoQRbBNA6SJgPGc/AruCZARVCgCgmoSjHn2SP2KEKk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -292,7 +292,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAGABGGIwqwiSEwIAOEAJEJUYyA0EJwkADBA0CUIE=</HashCode>
+      <HashCode>jAiAGABGGIwqwiSEwIAOEAJGJUYyA0EJwkADBA0CUIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -342,7 +342,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="15.25" Width="2.75" />
+    <Position X="9.5" Y="15.5" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_colorIntensity" Hidden="true" />
@@ -503,7 +503,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="18.25" Width="2.75" />
+    <Position X="0.5" Y="18.5" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -647,7 +647,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="11.5" Width="2.75" />
+    <Position X="9.5" Y="11.75" Width="2.75" />
     <Members>
       <Field Name="_instancePositions" Hidden="true" />
       <Field Name="_instanceRotations" Hidden="true" />
@@ -958,7 +958,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ExplosionObject">
-    <Position X="9.5" Y="18.5" Width="2.75" />
+    <Position X="9.5" Y="18.75" Width="2.75" />
     <Members>
       <Field Name="_algorithm" Hidden="true" />
       <Field Name="_amount" Hidden="true" />

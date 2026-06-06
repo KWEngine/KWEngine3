@@ -105,6 +105,11 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Legt fest, ob die Hitboxen der Instanz gerendert werden, wenn der Schalter KWEngine.EnableDebugHitboxes aktiv ist
+        /// </summary>
+        public bool ShowHitboxes { get; set; } = false;
+
+        /// <summary>
         /// Löscht ein ggf. verwendetes benutzerdefiniertes Collider-Modell für die aktuelle Instanz
         /// </summary>
         public void ResetColliderModel()
