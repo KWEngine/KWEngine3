@@ -444,7 +444,7 @@ namespace KWEngine3.Helper
 
                     foreach (GameObject g in checkObjects)
                     {
-                        _hitbox.Update(cell.Position.X, cell.Position.Y, cell.Position.Z);
+                        _hitbox.Update(cell.Position.X, cell.Position.Y, cell.Position.Z, _updateCostField == 1 ? 1.0f : _cellDetectionScale);
                         if (_updateCostField == 1)
                         {
                             foreach (GameObjectHitbox ghb in g._colliderModel._hitboxes)
@@ -582,31 +582,12 @@ namespace KWEngine3.Helper
 
             if (AllowPartialNesting)
             {
-                bool overlapX = (scaledLeft <= left && scaledRight >= left) || (scaledLeft <= right && scaledRight >= right) || (scaledLeft <= left && scaledRight >= right) || (scaledLeft >= left && scaledRight <= right);
-                if (overlapX)
-                {
-                    bool overlapZ = (scaledBack <= back && scaledFront >= back) || (scaledFront >= front && scaledBack <= front) || (scaledFront >= front && scaledBack <= back) || (scaledFront <= front && scaledBack >= back);
-                    return overlapZ;
-                }
+                return scaledRight >= left && scaledLeft <= right && scaledFront >= back && scaledBack <= front;
             }
             else
             {
-                bool overlapX =
-                    (scaledLeft < left && scaledRight > left)    ||
-                    (scaledLeft < right && scaledRight > right)  ||
-                    (scaledLeft <= left && scaledRight >= right) ||
-                    (scaledLeft >= left && scaledRight <= right);
-                if (overlapX)
-                {
-                    bool overlapZ =
-                        (scaledFront > back && scaledBack < back)     ||
-                        (scaledFront > front && scaledBack < front)   ||
-                        (scaledFront >= front && scaledBack <= back)  ||
-                        (scaledFront <= front && scaledBack >= back);
-                    return overlapZ;
-                }
+                return scaledRight > left && scaledLeft < right && scaledFront > back && scaledBack < front;
             }
-            return false;
         }
 
         internal bool OverlapsY(FlowFieldHitbox cell, float bottom, float top)
@@ -615,8 +596,7 @@ namespace KWEngine3.Helper
             float halfY = (cell._high - cell._low) * 0.5f * _cellDetectionScale;
             float scaledHigh = centerY + halfY;
             float scaledLow = centerY - halfY;
-            bool overlapY = ((scaledHigh >= top && scaledLow <= top) || (scaledHigh >= bottom && scaledLow <= bottom) || (scaledHigh >= top && scaledLow <= bottom) || (scaledHigh <= top && scaledLow >= bottom));
-            return overlapY;
+            return scaledHigh >= bottom && scaledLow <= top;
         }
 
         internal void CreateFlowField()

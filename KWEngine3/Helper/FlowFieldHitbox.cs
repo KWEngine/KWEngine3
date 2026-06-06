@@ -31,7 +31,7 @@ namespace KWEngine3.Helper
             _normals[2] = new Vector3(0f, 0f, 1f);
         }
 
-        internal void Update(float offsetX, float offsetY, float offsetZ)
+        internal void Update(float offsetX, float offsetY, float offsetZ, float scale = 1.0f)
         {
             _left = float.MaxValue;
             _right = float.MinValue;
@@ -42,7 +42,7 @@ namespace KWEngine3.Helper
 
             for (int i = 0; i < _vertices.Length; i++)
             {
-                _vertices[i] = _verticesOrg[i] + new Vector3(offsetX, offsetY, offsetZ);
+                _vertices[i] = _verticesOrg[i] * scale + new Vector3(offsetX, offsetY, offsetZ);
 
                 if (_left > _vertices[i].X)
                     _left = _vertices[i].X;
