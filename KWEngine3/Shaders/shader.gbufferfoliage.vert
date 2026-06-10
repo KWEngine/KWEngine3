@@ -22,6 +22,7 @@ uniform int uMode;
 uniform vec4 uPosScaleUV1[256];
 uniform vec4 uPosScaleUV2[256];
 
+out vec3 vImposterCenter;
 out vec4 vPosition;
 out vec2 vTexture;
 out vec3 vNormal;
@@ -87,6 +88,8 @@ float getHeightFromTexture(vec3 vertexPos)
 
 void main()
 {
+	vImposterCenter = vec3(0.0);
+
 	if(uMode == 0)
 	{
 		float randomFromTextureOrg = texture(uNoiseMap, vec2(gl_InstanceID % 512 / 512.0, gl_InstanceID % 512 / 512.0)).r;
@@ -117,6 +120,7 @@ void main()
 		vec3 totalTangent = (uNormalMatrix * mat4(rotMat) * vec4(aTangent, 0.0)).xyz;
 		vec3 totalBiTangent = (uNormalMatrix * mat4(rotMat) * vec4(aBiTangent, 0.0)).xyz;
 
+		vPosition = totalLocalPos;
 		gl_Position = uViewProjectionMatrix * totalLocalPos;
 		vTexture = vec2(aTexture.x, 1.0 - aTexture.y);
 		vNormal = normalize(totalNormal);
@@ -139,7 +143,10 @@ void main()
 		float heightFromTerrain = getHeightFromTexture(vPosition.xyz);
 		vPosition.y += heightFromTerrain;
 
-		vNormal = normalize(aPosition);//aNormal;
+		vImposterCenter = positionFromUBO;
+		vImposterCenter.y = heightFromTerrain + scaleFromUBO.y * 0.5;
+
+		vNormal = aNormal;
 		vec3 vTangent = aTangent;
 		vec3 vBiTangent = aBiTangent;
 		vTBN = mat3(vTangent, vBiTangent, vNormal);

@@ -28,12 +28,12 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            
+            KWEngine.MouseSensitivity = 0.075f;
             KWEngine.BuildTerrainModel("T1", "./Textures/heightmap.png", 3);
             TerrainObject t = new TerrainObject("T1");
             t.Name = "TestTerrain";
             t.SetPosition(0, 0, 0);
-            //t.SetTexture("./Textures/grass_albedo.png");
+            t.SetTexture("./Textures/grass_albedo.png");
             AddTerrainObject(t);
             
             /*
@@ -53,6 +53,7 @@ namespace KWEngine3TestProject.Worlds
             tf2.SetPatchSize(20, 40);
             tf2.SetScale(3f, 0.75f, 3f);
             tf2.SetSwayFactor(0.1f);
+            tf2.SetColor(0.5f, 0.5f, 0.5f);
             tf2.AttachToTerrain(t);
             tf2.IsShadowReceiver = true;
             tf2.IsSizeReducedAtCorners = true;
@@ -76,7 +77,7 @@ namespace KWEngine3TestProject.Worlds
 
             PlayerFoliageTest player = new PlayerFoliageTest();
             player.SetRotation(0, 180, 0);
-            player.SetPosition(0, 2f, 16f);
+            player.SetPosition(0, 2f, 4f);
             player.SetOpacity(0);
             SetCameraToFirstPersonGameObject(player, 0f);
             MouseCursorGrab();
@@ -111,7 +112,7 @@ namespace KWEngine3TestProject.Worlds
             sun.SetPosition(100, 100, 100);
             sun.SetNearFar(20, 400);
             sun.SetFOV(100);
-            sun.SetColor(1, 0.75f, 0.5f, 2.5f);
+            sun.SetColor(1, 0.75f, 0.5f, 7.5f);
             AddLightObject(sun);
 
             /*
