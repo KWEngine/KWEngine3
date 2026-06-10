@@ -20,7 +20,6 @@ namespace KWEngine3.Renderer
         public static int UTextureNoise { get; private set; } = -1;
         public static int UTextureAlbedo { get; private set; } = -1;
         public static int UPatchSizeTime { get; private set; } = -1;
-        //public static int UInstanceCount { get; private set; } = -1;
         public static int UNXNZ { get; private set; } = -1;
         public static int UDXDZSwayRound { get; private set; } = -1;
         public static int UNoise { get; private set; } = -1;
@@ -33,6 +32,7 @@ namespace KWEngine3.Renderer
         public static int UMode { get; private set; } = -1;
         public static int UPosScaleUV1 { get; private set; } = -1;
         public static int UPosScaleUV2 { get; private set; } = -1;
+        public static int UCamPosition { get; private set; } = -1;
 
         public static void Init()
         {
@@ -77,6 +77,7 @@ namespace KWEngine3.Renderer
                 //UInstanceCount = GL.GetUniformLocation(ProgramID, "uInstanceCount");
                 UNXNZ = GL.GetUniformLocation(ProgramID, "uNXNZ");
                 UDXDZSwayRound = GL.GetUniformLocation(ProgramID, "uDXDZSwayRound");
+                UCamPosition = GL.GetUniformLocation(ProgramID, "uCameraPosition");
 
                 UNoise = GL.GetUniformLocation(ProgramID, "uNoise");
                 ULightConfig = GL.GetUniformLocation(ProgramID, "uLightConfig");
@@ -102,7 +103,7 @@ namespace KWEngine3.Renderer
         {
             Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
-            
+            GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
         }
 
         public static void RenderScene()

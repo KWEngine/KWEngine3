@@ -12,7 +12,6 @@ uniform mat4 uNormalMatrix;
 uniform vec3 uPatchSizeTime;
 uniform ivec2 uNXNZ;
 uniform vec4 uDXDZSwayRound;
-//uniform int uInstanceCount;
 uniform vec2 uNoise[256];
 uniform vec3 uTerrainScale;
 uniform vec3 uTerrainPosition;
@@ -21,6 +20,7 @@ uniform sampler2D uNoiseMap;
 uniform int uMode;
 uniform vec4 uPosScaleUV1[256];
 uniform vec4 uPosScaleUV2[256];
+uniform vec3 uCameraPosition;
 
 out vec3 vImposterCenter;
 out vec4 vPosition;
@@ -39,121 +39,205 @@ float rand(vec2 co)
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-float noise(vec2 n) 
+float noise(vec2 n)
 {
-	const vec2 d = vec2(0.0, 1.0);
-	vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
-	return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
+    const vec2 d = vec2(0.0, 1.0);
+    vec2 b = floor(n), f = smoothstep(vec2(0.0), vec2(1.0), fract(n));
+    return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
 }
 
-mat3 rotationMatrix(vec3 axis, float angle) 
+mat3 rotationMatrix(vec3 axis, float angle)
 {
     float s = sin(angle);
     float c = cos(angle);
     float oc = 1.0 - c;
-    
-    return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
-                oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
-                oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c        
-                );
+
+    return mat3(
+        oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,
+        oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,
+        oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c
+    );
 }
 
 mat4 scaleMatrix(float scaleFactor)
 {
-	return mat4(
-		scaleFactor, 0, 0, 0,
-		0, scaleFactor, 0, 0,
-		0, 0, scaleFactor, 0,
-		0, 0, 0, 1
-		);
+    return mat4(
+        scaleFactor, 0, 0, 0,
+        0, scaleFactor, 0, 0,
+        0, 0, scaleFactor, 0,
+        0, 0, 0, 1
+    );
 }
 
 float getHeightFromTexture(vec3 vertexPos)
 {
-	float height;
-	if(uTerrainScale.x == 0.0)
-	{
-		height = 0.0;
-	}
-	else
-	{
-		float uvX = clamp((vertexPos.x - uTerrainPosition.x + (uTerrainScale.x + 1.0) * 0.5) / (uTerrainScale.x + 1.0), 0.0, 1.0);
-		float uvZ = clamp((vertexPos.z - uTerrainPosition.z + (uTerrainScale.z + 1.0) * 0.5) / (uTerrainScale.z + 1.0), 0.0, 1.0);
+    float height;
+    if(uTerrainScale.x == 0.0)
+    {
+        height = 0.0;
+    }
+    else
+    {
+        float uvX = clamp((vertexPos.x - uTerrainPosition.x + (uTerrainScale.x + 1.0) * 0.5) / (uTerrainScale.x + 1.0), 0.0, 1.0);
+        float uvZ = clamp((vertexPos.z - uTerrainPosition.z + (uTerrainScale.z + 1.0) * 0.5) / (uTerrainScale.z + 1.0), 0.0, 1.0);
 
-		vec4 texColor = texture(uTerrainHeightMap, vec2(uvX, uvZ));
-		height = ((texColor.r + texColor.g + texColor.b) / 3.0) * uTerrainScale.y + uTerrainPosition.y;
-	}
-	return height;
+        vec4 texColor = texture(uTerrainHeightMap, vec2(uvX, uvZ));
+        height = ((texColor.r + texColor.g + texColor.b) / 3.0) * uTerrainScale.y + uTerrainPosition.y;
+    }
+    return height;
+}
+
+vec3 computeImposterBackBend(vec3 imposterCenterWorld, float height01, float plantHeight)
+{
+    vec3 toCamera = normalize(uCameraPosition - imposterCenterWorld);
+
+    vec3 bendDir = vec3(-toCamera.x, 0.0, -toCamera.z);
+    float bendLen = length(bendDir);
+
+    if (bendLen > 0.0001)
+        bendDir /= bendLen;
+    else
+        bendDir = vec3(0.0, 0.0, 0.0);
+
+    float topMask = clamp(height01, 0.0, 1.0);
+    topMask = topMask * topMask;        
+    topMask = topMask * topMask;         
+
+    float cameraAboveFactor = smoothstep(0.15, 0.85, max(toCamera.y, 0.0));
+
+    float strength = 0.33;
+    float bendAmount = strength * plantHeight * topMask * cameraAboveFactor;
+
+    return bendDir * bendAmount;
 }
 
 void main()
 {
-	vImposterCenter = vec3(0.0);
+    if (uMode == 0)
+    {
+        float randomFromTextureOrg = texture(
+            uNoiseMap,
+            vec2((gl_InstanceID % 512) / 512.0, (gl_InstanceID % 512) / 512.0)
+        ).r;
 
-	if(uMode == 0)
-	{
-		float randomFromTextureOrg = texture(uNoiseMap, vec2(gl_InstanceID % 512 / 512.0, gl_InstanceID % 512 / 512.0)).r;
-		float randomFromTexture = (randomFromTextureOrg - 0.5) * 2.0;
-		vec3 noiseNormalized = normalize(vec3(uNoise[gl_InstanceID % 256].x, 0.01, uNoise[gl_InstanceID % 256].y));
-	
-		vec3 axis = normalize(vec3(randomFromTexture * noiseNormalized.x, 0.001, randomFromTexture * noiseNormalized.z));
-		float swayFactor = (sin((uPatchSizeTime.z + gl_InstanceID) * randomFromTexture * noiseNormalized.x * noiseNormalized.z) + 1) * 0.5;
-		float heightFactor2 = sqrt(sin(rand(noiseNormalized.xz) * noiseNormalized.x - noiseNormalized.y) + 1.5) * 0.6667;
-	
-		int n = int((randomFromTexture + 1.0) * 77);
-		int n2 = int((randomFromTexture + 1.0) * 79);
-		vec3 offsetXZ = vec3(	uDXDZSwayRound.x * (gl_InstanceID % uNXNZ.x) + uNoise[(gl_InstanceID + n) % 256].x * randomFromTexture,
-								0.0, 
-								uDXDZSwayRound.y * (gl_InstanceID / uNXNZ.x) + uNoise[(gl_InstanceID + n2)% 256].x * randomFromTexture);
+        float randomFromTexture = (randomFromTextureOrg - 0.5) * 2.0;
+        vec3 noiseNormalized = normalize(vec3(uNoise[gl_InstanceID % 256].x, 0.01, uNoise[gl_InstanceID % 256].y));
 
-		vec3 center = vec3(-uDXDZSwayRound.x * (uNXNZ.x - 1) / 2.0, 0.0, -uDXDZSwayRound.y * (uNXNZ.y - 1) / 2.0);
-		float heightFactor = clamp(sqrt(1.0 - (length(offsetXZ + center) / length(-center - vec3((uPatchSizeTime.x + uPatchSizeTime.y) * 0.5, 0.0, (uPatchSizeTime.x + uPatchSizeTime.y) * 0.5)))), 0.0, 1.0);
-		mat4 sMatrix = scaleMatrix(max(heightFactor, uDXDZSwayRound.w) * heightFactor2);
+        vec3 axis = normalize(vec3(randomFromTexture * noiseNormalized.x, 0.001, randomFromTexture * noiseNormalized.z));
+        float swayFactor = (sin((uPatchSizeTime.z + gl_InstanceID) * randomFromTexture * noiseNormalized.x * noiseNormalized.z) + 1) * 0.5;
+        float heightFactor2 = sqrt(sin(rand(noiseNormalized.xz) * noiseNormalized.x - noiseNormalized.y) + 1.5) * 0.6667;
 
-		mat3 rotMat = rotationMatrix(vec3(0, 1, 0), randomFromTextureOrg * (M_PI * 2)) * rotationMatrix(axis, swayFactor * ((aPosition.y * M_PIHALF * uDXDZSwayRound.z)));
-		vec3 positionRandomized = (uModelMatrix * mat4(rotMat) * sMatrix * vec4(aPosition, 1.0)).xyz;
-		vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
-		float heightFromTerrain = getHeightFromTexture(totalLocalPos.xyz);
-		totalLocalPos.y += heightFromTerrain;
+        int n = int((randomFromTexture + 1.0) * 77);
+        int n2 = int((randomFromTexture + 1.0) * 79);
 
-		vec3 totalNormal = (uNormalMatrix * mat4(rotMat) * vec4(aNormal, 0.0)).xyz;
-		vec3 totalTangent = (uNormalMatrix * mat4(rotMat) * vec4(aTangent, 0.0)).xyz;
-		vec3 totalBiTangent = (uNormalMatrix * mat4(rotMat) * vec4(aBiTangent, 0.0)).xyz;
+        vec3 offsetXZ = vec3(
+            uDXDZSwayRound.x * (gl_InstanceID % uNXNZ.x) + uNoise[(gl_InstanceID + n) % 256].x * randomFromTexture,
+            0.0,
+            uDXDZSwayRound.y * (gl_InstanceID / uNXNZ.x) + uNoise[(gl_InstanceID + n2) % 256].x * randomFromTexture
+        );
 
-		vPosition = totalLocalPos;
-		gl_Position = uViewProjectionMatrix * totalLocalPos;
-		vTexture = vec2(aTexture.x, 1.0 - aTexture.y);
-		vNormal = normalize(totalNormal);
-		vec3 vTangent = normalize(totalTangent);
-		vec3 vBiTangent = normalize(totalBiTangent);
-		vTBN = mat3(vTangent, vBiTangent, vNormal);
-		vColor = min((pow(1.0 - aPosition.y, 3.0) * (-1.0) + 1.6) * vec3(1.0), vec3(1.0));
-	}
-	else
-	{
-		vec3 positionFromUBO = vec3(uPosScaleUV1[gl_InstanceID].x, uPosScaleUV1[gl_InstanceID].y, uPosScaleUV1[gl_InstanceID].z);
-		vec3 scaleFromUBO = vec3(uPosScaleUV1[gl_InstanceID].w, uPosScaleUV2[gl_InstanceID].x, uPosScaleUV2[gl_InstanceID].y);
-		vec2 uvFromUBO = vec2(uPosScaleUV2[gl_InstanceID].z, uPosScaleUV2[gl_InstanceID].w);
+        vec3 center = vec3(
+            -uDXDZSwayRound.x * (uNXNZ.x - 1) / 2.0,
+            0.0,
+            -uDXDZSwayRound.y * (uNXNZ.y - 1) / 2.0
+        );
 
-		vec3 noiseNormalized = normalize(vec3(uNoise[gl_InstanceID % 256].x, 0.01, uNoise[gl_InstanceID % 256].y));
-		float swayFactor = (sin((uPatchSizeTime.z + (gl_InstanceID % 256) * noiseNormalized.x) * noiseNormalized.x * noiseNormalized.z) + 1) * 0.02;
-		vec3 aPosition2 = vec3(aPosition.x  + aPosition.x * sin(uPatchSizeTime.z + (gl_InstanceID * 0.33) * noiseNormalized.x) * swayFactor * aPosition.y, aPosition.y, aPosition.z + aPosition.z * sin(uPatchSizeTime.z + (gl_InstanceID * 0.33) * noiseNormalized.x) * swayFactor * aPosition.y);
-		vPosition = vec4(aPosition2 * scaleFromUBO + positionFromUBO, 1.0);
+        float radial = 1.0 - (
+            length(offsetXZ + center) /
+            length(-center - vec3((uPatchSizeTime.x + uPatchSizeTime.y) * 0.5, 0.0, (uPatchSizeTime.x + uPatchSizeTime.y) * 0.5))
+        );
+        float heightFactor = sqrt(clamp(radial, 0.0, 1.0));
 
-		float heightFromTerrain = getHeightFromTexture(vPosition.xyz);
-		vPosition.y += heightFromTerrain;
+        mat4 sMatrix = scaleMatrix(max(heightFactor, uDXDZSwayRound.w) * heightFactor2);
 
-		vImposterCenter = positionFromUBO;
-		vImposterCenter.y = heightFromTerrain + scaleFromUBO.y * 0.5;
+        mat3 rotMat =
+            rotationMatrix(vec3(0, 1, 0), randomFromTextureOrg * (M_PI * 2.0)) *
+            rotationMatrix(axis, swayFactor * (aPosition.y * M_PIHALF * uDXDZSwayRound.z));
 
-		vNormal = aNormal;
-		vec3 vTangent = aTangent;
-		vec3 vBiTangent = aBiTangent;
-		vTBN = mat3(vTangent, vBiTangent, vNormal);
+        vec3 positionRandomized = (uModelMatrix * mat4(rotMat) * sMatrix * vec4(aPosition, 1.0)).xyz;
+        vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
 
-		vTexture = vec2(aTexture.x, aTexture.y);
-		vColor = min((pow(1.0 - aPosition.y, 3.0) * (-1.0) + 1.6) * vec3(1.0), vec3(1.0));
+        float heightFromTerrain = getHeightFromTexture(totalLocalPos.xyz);
+        totalLocalPos.y += heightFromTerrain;
 
-		gl_Position = uViewProjectionMatrix * vPosition;
-	}
+        vec3 totalNormal = (uNormalMatrix * mat4(rotMat) * vec4(aNormal, 0.0)).xyz;
+        vec3 totalTangent = (uNormalMatrix * mat4(rotMat) * vec4(aTangent, 0.0)).xyz;
+        vec3 totalBiTangent = (uNormalMatrix * mat4(rotMat) * vec4(aBiTangent, 0.0)).xyz;
+
+        vPosition = totalLocalPos;
+        gl_Position = uViewProjectionMatrix * totalLocalPos;
+
+        vTexture = vec2(aTexture.x, 1.0 - aTexture.y);
+        vNormal = normalize(totalNormal);
+
+        vec3 vTangentLocal = normalize(totalTangent);
+        vec3 vBiTangentLocal = normalize(totalBiTangent);
+        vTBN = mat3(vTangentLocal, vBiTangentLocal, vNormal);
+
+        vColor = min((pow(1.0 - aPosition.y, 3.0) * (-1.0) + 1.6) * vec3(1.0), vec3(1.0));
+
+        vImposterCenter = totalLocalPos.xyz;
+    }
+    else
+    {
+        vec3 positionFromUBO = vec3(
+            uPosScaleUV1[gl_InstanceID].x,
+            uPosScaleUV1[gl_InstanceID].y,
+            uPosScaleUV1[gl_InstanceID].z
+        );
+
+        vec3 scaleFromUBO = vec3(
+            uPosScaleUV1[gl_InstanceID].w,
+            uPosScaleUV2[gl_InstanceID].x,
+            uPosScaleUV2[gl_InstanceID].y
+        );
+
+        vec2 uvFromUBO = vec2(
+            uPosScaleUV2[gl_InstanceID].z,
+            uPosScaleUV2[gl_InstanceID].w
+        );
+
+        vec3 noiseNormalized = normalize(vec3(
+            uNoise[gl_InstanceID % 256].x,
+            0.01,
+            uNoise[gl_InstanceID % 256].y
+        ));
+
+        float swayFactor =
+            (sin((uPatchSizeTime.z + (gl_InstanceID % 256) * noiseNormalized.x) *
+            noiseNormalized.x * noiseNormalized.z) + 1.0) * 0.02;
+
+        vec3 aPosition2 = vec3(
+            aPosition.x + aPosition.x * sin(uPatchSizeTime.z + (gl_InstanceID * 0.33) * noiseNormalized.x) * swayFactor * aPosition.y,
+            aPosition.y,
+            aPosition.z + aPosition.z * sin(uPatchSizeTime.z + (gl_InstanceID * 0.33) * noiseNormalized.x) * swayFactor * aPosition.y
+        );
+
+        vec3 localPos = aPosition2 * scaleFromUBO;
+
+        vec3 imposterBaseCenter = positionFromUBO;
+        float heightFromTerrain = getHeightFromTexture(imposterBaseCenter);
+        imposterBaseCenter.y += heightFromTerrain;
+
+        float height01 = clamp(aPosition.y, 0.0, 1.0);
+
+        vec3 backBendOffset = computeImposterBackBend(imposterBaseCenter, height01, scaleFromUBO.y);
+
+        vec3 worldPos = localPos + positionFromUBO;
+        worldPos.y += heightFromTerrain;
+        worldPos += backBendOffset;
+
+        vPosition = vec4(worldPos, 1.0);
+        vImposterCenter = imposterBaseCenter + vec3(0.0, scaleFromUBO.y * 0.35, 0.0);
+
+        vNormal = normalize(aNormal);
+        vec3 vTangentLocal = normalize(aTangent);
+        vec3 vBiTangentLocal = normalize(aBiTangent);
+        vTBN = mat3(vTangentLocal, vBiTangentLocal, vNormal);
+
+        vTexture = vec2(aTexture.x, aTexture.y);
+        vColor = min((pow(1.0 - aPosition.y, 3.0) * (-1.0) + 1.6) * vec3(1.0), vec3(1.0));
+
+        gl_Position = uViewProjectionMatrix * vPosition;
+    }
 }

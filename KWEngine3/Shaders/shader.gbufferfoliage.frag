@@ -122,10 +122,10 @@ void main()
     }
     else
     {
-
-        vec3 delta = normalize(vPosition.xyz - vImposterCenter);
-        delta.y = 3.5;
-        vec3 fakeNormal = normalize(delta);
+        
+        vec3 delta = vPosition.xyz - vImposterCenter;
+        delta.y *= 0.25;
+        vec3 fakeNormal = normalize(delta + vec3(0.0, 0.75, 0.0));
 
         normal = encodeNormalToRG16F(fakeNormal);
     }
