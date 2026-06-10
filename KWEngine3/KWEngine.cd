@@ -87,6 +87,7 @@
       <Field Name="BLOOMWIDTH" Hidden="true" />
       <Method Name="CollectScreenInfo" Hidden="true" />
       <Property Name="CustomColliders" Hidden="true" />
+      <Property Name="DebugOverlayEnabled" Hidden="true" />
       <Field Name="DefaultCameraPosition" Hidden="true" />
       <Method Name="DeleteCustomModelsFontsAndTexturesFromCurrentWorld" Hidden="true" />
       <Property Name="DeltaTimeAccumulator" Hidden="true" />
