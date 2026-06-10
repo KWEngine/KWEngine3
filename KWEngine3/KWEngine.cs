@@ -89,7 +89,23 @@ namespace KWEngine3
         /// Gibt an, ob im Debug-Modus stets ein Overlay angezeigt wird, in dem markierte Felder inkl. deren aktuellen Werten angezeigt werden (Standard: false)
         /// </summary>
         /// <remarks>Achtung: Kann Mausradeingaben ggf. abfangen oder doppeln</remarks>
-        public static bool DebugOverlayEnabled { get; set; } = false;
+        [Obsolete("This property will soon be removed. Please use DebugOverlayMode instead.")]
+        public static bool DebugOverlayEnabled { 
+            get
+            {
+                return DebugOverlayMode > DebugOverlayMode.Disabled;
+            }
+            set
+            {
+                DebugOverlayMode = value ? DebugOverlayMode.MembersOnly : DebugOverlayMode.Disabled;
+            }
+        }
+
+        /// <summary>
+        /// Gibt an, ob im Debug-Modus stets ein Overlay angezeigt wird, in dem markierte Felder inkl. deren aktuellen Werten angezeigt werden (Standard: Disabled)
+        /// </summary>
+        /// <remarks>Achtung: Kann Mausradeingaben ggf. abfangen oder doppeln</remarks>
+        public static DebugOverlayMode DebugOverlayMode { get; set; } = DebugOverlayMode.Disabled;
 
         /// <summary>
         /// Gibt die für das Rendern eines bestimmten Passes benötigte Zeit in Millisekunden zurück

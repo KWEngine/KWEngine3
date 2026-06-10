@@ -28,6 +28,25 @@
     }
 
     /// <summary>
+    /// Gibt den Modus des Schaltes KWEngine.EnableDebugOverlay an
+    /// </summary>
+    public enum DebugOverlayMode
+    {
+        /// <summary>
+        /// Deaktiiert (Standard)
+        /// </summary>
+        Disabled,
+        /// <summary>
+        /// Zeigt mit [KWDebug] markierte Felder im Overlay an
+        /// </summary>
+        MembersOnly,
+        /// <summary>
+        /// Zeigt mit [KWDebug] markierte Felder im Overlay und Konsoleninhalte an
+        /// </summary>
+        MembersAndConsole
+    }
+
+    /// <summary>
     /// Art des Fortschrittsanzeigers im Ladebildschirm
     /// </summary>
     public enum ProgressIndicatorType

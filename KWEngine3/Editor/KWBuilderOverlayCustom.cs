@@ -339,7 +339,6 @@ namespace KWEngine3.Editor
                     ImGui.PushStyleColor(ImGuiCol.SliderGrabActive, new System.Numerics.Vector4(1.00f, 0.25f, 0f, 1f));
                     ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
 
-                    //if (ImGui.SliderFloat3("Scale (X,Y,Z)", ref sNew, 0.01f, 100f, "%.2f"))
                     if (ImGui.InputFloat3("Scale (X,Y,Z)", ref sNew, "%.3f", ImGuiInputTextFlags.None))
                     {
                         sNew = new System.Numerics.Vector3(Math.Max(0.001f, sNew.X), Math.Max(0.001f, sNew.Y), Math.Max(0.001f, sNew.Z));
@@ -348,7 +347,6 @@ namespace KWEngine3.Editor
 
                     ImGui.Separator();
 
-                    //if (ImGui.SliderFloat3("Rotation (X,Y,Z)", ref rNew, 0f, 359.9999f, "%.1f"))
                     if(ImGui.InputFloat3("Rotation (X,Y,Z)", ref rNew, "%.1f", ImGuiInputTextFlags.None))
                     {
                         HelperGameObjectAttachment.SetRotationForAttachment(SelectedGameObject, rNew.X, rNew.Y, rNew.Z);
@@ -360,11 +358,6 @@ namespace KWEngine3.Editor
 
                     ImGui.Separator();
 
-                    //bool x = ImGui.SliderFloat("X offset", ref oX, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
-                    //bool y = ImGui.SliderFloat("Y offset", ref oY, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
-                    //bool z = ImGui.SliderFloat("Z offset", ref oZ, -10, 10, "%.2f", ImGuiSliderFlags.Logarithmic);
-                    //if (x || y || z)
-                    
                     if (ImGui.InputFloat3("Offset (X,Y,Z)", ref pNew, "%.3f", ImGuiInputTextFlags.None))
                     {
                         HelperGameObjectAttachment.SetPositionOffsetForAttachment(SelectedGameObject, pNew.X, pNew.Y, pNew.Z);
@@ -2011,7 +2004,7 @@ namespace KWEngine3.Editor
 
         private static void DrawObjectDebugOverlay()
         {
-            if (KWEngine.CurrentWorld == null || KWEngine.DebugOverlayEnabled == false) return;
+            if (KWEngine.CurrentWorld == null || KWEngine.DebugOverlayMode == DebugOverlayMode.Disabled) return;
 
             PopulateDebugPropertiesAndFields();
             if (_debugPropertiesAndFields.Count > 0)
@@ -2022,8 +2015,6 @@ namespace KWEngine3.Editor
                 float size = KWEngine.Window.ClientSize.X * 0.4f;
                 ImGui.SetWindowSize(new System.Numerics.Vector2(size, 256));
                 ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - size * 1.25f, 0 + KWEngine.Window.ClientSize.Y * 0.01f), ImGuiCond.Always);
-
-                
 
                 foreach(KeyValuePair<string, List<string[]>> pair in _debugPropertiesAndFields)
                 {
@@ -2046,6 +2037,29 @@ namespace KWEngine3.Editor
                     ImGui.EndTable();
                     ImGui.NewLine();
                 }
+                ImGui.End();
+            }
+
+            if(KWEngine.DebugOverlayMode == DebugOverlayMode.MembersAndConsole)
+            {
+                ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(1f, 1f, 1f, 0.2f));
+                ImGui.Begin("Debug Console", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
+                ImGui.PopStyleColor();
+                float size = KWEngine.Window.ClientSize.X * 0.4f;
+                ImGui.SetWindowSize(new System.Numerics.Vector2(size, 696));
+                ImGui.SetWindowPos(new System.Numerics.Vector2(8, 0 + KWEngine.Window.ClientSize.Y * 0.01f), ImGuiCond.Always);
+
+                ImGui.BeginChild("Console", new System.Numerics.Vector2(size, 696), false, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar);
+                ImGui.TextColored(new System.Numerics.Vector4(1, 1, 0, 1), "Debug output:");
+                foreach (string logMessage in EngineLog._messages.ToArray())
+                {
+                    ImGui.TextUnformatted(logMessage);
+                }
+                ImGui.TextUnformatted("");
+                ImGui.SetScrollHereY(1f);
+
+                ImGui.EndChild();
+
                 ImGui.End();
             }
             

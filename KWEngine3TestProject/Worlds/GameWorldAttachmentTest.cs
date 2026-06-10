@@ -13,12 +13,12 @@ namespace KWEngine3TestProject.Worlds
     {
         public override void Act()
         {
-           
+            KWEngine.LogWriteLine("Dies ist ein Test für eine lange Nachricht: " + WorldTime);
         }
 
         public override void Prepare()
         {
-            KWEngine.DebugOverlayEnabled = true;
+            KWEngine.DebugOverlayMode = DebugOverlayMode.MembersAndConsole;
             KWEngine.LoadModel("FPS_ARMS", "./Models/FirstPersonView/arms.gltf");
 
             KWEngine.LoadModel("Bot", "./Models/GLTFTest/bot.gltf");
@@ -82,6 +82,7 @@ namespace KWEngine3TestProject.Worlds
             VSG vsg = new VSG();
             SetViewSpaceGameObject(vsg);
 
+            //KWEngine.LogWriteLine("Dies ist ein Test für eine lange Nachricht: " + WorldTime);
         }
     }
 }
