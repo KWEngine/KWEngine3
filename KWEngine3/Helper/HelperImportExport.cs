@@ -91,6 +91,7 @@ namespace KWEngine3.Helper
             else if(sw.BackgroundSkyBox.Length != 0)
             {
                 w.SetBackgroundSkybox(sw.BackgroundSkyBox, sw.BackgroundSkyboxRotation);
+                w.SetBackgroundSkyboxFOV(sw.BackgroundSkyBoxFOV);
             }
             w.SetBackgroundFillColor(sw.BackgroundFillColor[0], sw.BackgroundFillColor[1], sw.BackgroundFillColor[2]);
 

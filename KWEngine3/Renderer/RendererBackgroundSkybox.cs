@@ -63,12 +63,8 @@ namespace KWEngine3.Renderer
         public static void Draw()
         {
             Matrix4 viewMatrix = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewMatrix.ClearTranslation() : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewMatrix.ClearTranslation();
-            Matrix4 projectionMatrix = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ProjectionMatrix;
-            if (projectionMatrix == Matrix4.Identity)
-                return;
-
             viewMatrix = new Matrix4(KWEngine.CurrentWorld._background._rotation) * viewMatrix;
-            Matrix4 viewProjectionMatrix = viewMatrix * projectionMatrix;
+            Matrix4 viewProjectionMatrix = viewMatrix * KWEngine.CurrentWorld._background._projectionMatrix;
             GL.FrontFace(FrontFaceDirection.Cw);
             GL.DepthFunc(DepthFunction.Lequal);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref viewProjectionMatrix);

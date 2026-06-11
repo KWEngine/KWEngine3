@@ -24,6 +24,7 @@ namespace KWEngine3.Helper
         public float[] Background2DOffset { get; set; }
         public float[] Background2DClip { get; set; }
         public float[] BackgroundFillColor { get; set; }
+        public float BackgroundSkyBoxFOV { get; set; }
 
 
         // GAMEOBJECTS
@@ -53,6 +54,7 @@ namespace KWEngine3.Helper
             wj.ColorAmbient = new float[] { w._colorAmbient.X, w._colorAmbient.Y, w._colorAmbient.Z };
             wj.ColorBackgroundBoost = w._background._brightnessMultiplier;
             wj.BackgroundSkyBox = w._background.Type == BackgroundType.Skybox ? w._background._filename : "";
+            wj.BackgroundSkyBoxFOV = w._background.Type == BackgroundType.Skybox ? w._background._fov : 90;
             wj.BackgroundSkyboxRotation = w._background.Type == BackgroundType.Skybox ? MathHelper.RadiansToDegrees(r.Y) : 0f;
             wj.BackgroundFillColor = new float[] { w._backgroundFillColor.X, w._backgroundFillColor.Y, w._backgroundFillColor.Z };
 

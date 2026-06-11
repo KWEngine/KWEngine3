@@ -593,7 +593,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Erfragt die aktuellen Werte für die Texturwiederholung
+        /// Erfragt die aktuellen Werte für die Texturwiederholung (global für alle Meshes einer Instanz)
         /// </summary>
         public Vector2 TextureRepeat
         {
@@ -604,13 +604,51 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Erfragt die aktuellen Werte für die Texturverschiebung
+        /// Erfragt die aktuellen Werte für die Texturverschiebung (global für alle Meshes einer Instanz)
         /// </summary>
         public Vector2 TextureOffset
         {
             get
             {
                 return this._stateCurrent._uvTransform.Zw;
+            }
+        }
+
+        /// <summary>
+        /// Erfragt die aktuelle Texturverschiebungsfaktoren für den angegebenen Index
+        /// </summary>
+        /// <param name="meshIndex">Nullbasierter Index</param>
+        /// <returns>Texturverschiebungsfaktor (x,y)</returns>
+        public Vector2 GetTextureOffset(int meshIndex)
+        {
+            if (_model.Material.Length > meshIndex && _model.Material[meshIndex].TextureAlbedo.IsTextureSet)
+            {
+                return _model.Material[meshIndex].TextureAlbedo.UVTransform.Zw;
+            }
+            else
+            {
+                if (_model.Material.Length <= meshIndex)
+                    KWEngine.LogWriteLine("[EngineObject] Texture repeat: invalid index");
+                return TextureOffset;
+            }
+        }
+
+        /// <summary>
+        /// Erfragt die aktuelle Texturwiederholungsfaktoren für den angegebenen Index
+        /// </summary>
+        /// <param name="meshIndex">Nullbasierter Index</param>
+        /// <returns>Texturwiederholungsfaktor (x,y)</returns>
+        public Vector2 GetTextureRepeat(int meshIndex)
+        {
+            if (_model.Material.Length > meshIndex && _model.Material[meshIndex].TextureAlbedo.IsTextureSet)
+            {
+                return _model.Material[meshIndex].TextureAlbedo.UVTransform.Xy;
+            }
+            else
+            {
+                if (_model.Material.Length <= meshIndex)
+                    KWEngine.LogWriteLine("[EngineObject] Texture repeat: invalid index");
+                return TextureRepeat;
             }
         }
 

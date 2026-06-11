@@ -955,6 +955,15 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fov"></param>
+        public void SetBackgroundSkyboxFOV(float fov)
+        {
+            _background.SetFOV(fov);
+        }
+
+        /// <summary>
         /// Setzt den Helligkeitsverstärker für einen Hintergrund
         /// </summary>
         /// <param name="m">Verstärkerwert (muss >= 0 sein)</param>

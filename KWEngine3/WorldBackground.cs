@@ -9,6 +9,8 @@ namespace KWEngine3
         internal int _skyboxId = -1;
         internal int _standardId = -1;
         internal int _mipMapLevels = -1;
+        internal float _fov = 90;
+        internal Matrix4 _projectionMatrix = Matrix4.Identity;
 
         internal WorldBackgroundState _stateCurrent = new WorldBackgroundState();
         internal WorldBackgroundState _statePrevious = new WorldBackgroundState();
@@ -20,6 +22,12 @@ namespace KWEngine3
         public float _brightnessMultiplier = 1f;
         public string _filename = "";
         public SkyboxType SkyBoxType { get; set; } = SkyboxType.CubeMap;
+
+        public void SetFOV(float fov)
+        {
+            _fov = Math.Clamp(fov, 10, 179);
+            UpdateProjectionMatrix();
+        }
 
         public void SetSkybox(string filename, float rotation = 0f, SkyboxType type = SkyboxType.CubeMap)
         {
@@ -46,7 +54,6 @@ namespace KWEngine3
                     _rotation = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation));
                 else
                 {
-                    //_rotation = Matrix3.CreateRotationX(-(float)Math.PI / 2f) * Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation + 180));
                     _rotation = Matrix3.CreateRotationX(0) * Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation + 180));
                     _rotationReflection = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation - 135));
                 }
@@ -54,12 +61,20 @@ namespace KWEngine3
                 DeleteStandard();
                 Type = BackgroundType.Skybox;
                 _filename = filename;
+
+                UpdateProjectionMatrix();
             }
             else
             {
                 _filename = "";
             }
 
+        }
+
+        public void UpdateProjectionMatrix()
+        {
+            Vector2i windowSize = KWEngine.Window.GetWindowFramebufferSize();
+            _projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(KWEngine.CurrentWorld._background._fov / 2f), (float)windowSize.X / (float)windowSize.Y, 0.1f, 1000f);
         }
 
         public void SetBrightnessMultiplier(float m)

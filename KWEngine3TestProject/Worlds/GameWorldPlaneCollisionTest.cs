@@ -72,6 +72,15 @@ namespace KWEngine3TestProject.Worlds
                 KWEngine.EnableDebugHitboxes = HitboxDebugMode.Disabled;
                 KWEngine.LogWriteLine("DISABLED");
             }
+
+            if(Keyboard.IsKeyPressed(Keys.O))
+            {
+                SetBackgroundSkyboxFOV(20);
+            }
+            else if (Keyboard.IsKeyPressed(Keys.P))
+            {
+                SetBackgroundSkyboxFOV(120);
+            }
         }
 
         public override void Prepare()
