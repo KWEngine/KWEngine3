@@ -123,11 +123,11 @@ void main()
 	if(uUseTexturesAlbedoNormalEmissive.z > 0)
 	{
 		vec4 tmp = texture(uTextureEmissive, vTexture2);
-		emissive = tmp.xyz * uColorEmissive.w * tmp.w * 0.5;
+		emissive = hueShift(tmp.xyz, uColorTint.w) * uColorEmissive.w * tmp.w * 0.5;
 	}
 	else
 	{
-		emissive = uColorEmissive.xyz * uColorEmissive.w * 0.5;
+		emissive = hueShift(uColorEmissive.xyz, uColorTint.w) * uColorEmissive.w * 0.5;
 	}
 
 	// Albedo color:

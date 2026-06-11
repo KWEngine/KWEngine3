@@ -297,7 +297,7 @@ vec3 getEmissive()
     }
     else
     {
-        return uColorEmissive.xyz * uColorEmissive.w;
+        return hueShift(uColorEmissive.xyz, uMetallicRoughness.z) * uColorEmissive.w;
     }
 }
 
