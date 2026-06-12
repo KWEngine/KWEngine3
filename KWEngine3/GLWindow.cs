@@ -448,10 +448,6 @@ namespace KWEngine3
             _renderFrameGameObjectsForward.Clear();
             _renderFrameRenderObjectsForward.Clear();
             _renderFrameStencilObjects.Clear();
-            List<LightObject> pointLights = _renderFramePointLights;
-            List<GameObject> gameObjectsForForwardRendering = _renderFrameGameObjectsForward;
-            List<RenderObject> renderObjectsForForwardRendering = _renderFrameRenderObjectsForward;
-            List<GameObject> stencilObjects = _renderFrameStencilObjects;
 
             KWEngine.LastFrameTime = (float)e.Time * 1000;
 
@@ -478,13 +474,13 @@ namespace KWEngine3
 
                 // Render GameObject instances to G-Buffer:
                 RendererGBuffer.Bind();
-                gameObjectsForForwardRendering.AddRange(RendererGBuffer.RenderScene(stencilObjects));
+                _renderFrameGameObjectsForward.AddRange(RendererGBuffer.RenderScene(_renderFrameStencilObjects));
 
                 // Render RenderObject instances to G-Buffer:
                 if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                 {
                     RendererGBufferInstanced.Bind();
-                    renderObjectsForForwardRendering.AddRange(RendererGBufferInstanced.RenderScene());
+                    RendererGBufferInstanced.RenderScene(_renderFrameRenderObjectsForward);
                 }
 
                 if (KWEngine.CurrentWorld._foliageObjects.Count > 0)
@@ -550,7 +546,7 @@ namespace KWEngine3
                             l._fbShadowMap.Bind(true);
                             if (l.Type == LightType.Point)
                             {
-                                pointLights.Add(l);
+                                _renderFramePointLights.Add(l);
                                 continue;
                             }
 
@@ -594,10 +590,10 @@ namespace KWEngine3
                         }
                     }
 
-                    if (pointLights.Count > 0)
+                    if (_renderFramePointLights.Count > 0)
                     {
                         RenderManager.IRendererShadowMapCube.Bind();
-                        foreach (LightObject l in pointLights)
+                        foreach (LightObject l in _renderFramePointLights)
                         {
                             l._fbShadowMap.Bind(true); // was false before?? why?!
                             RenderManager.IRendererShadowMapCube.RenderSceneForLight(l); // Renders GameObject and VSGO instances only
@@ -606,7 +602,7 @@ namespace KWEngine3
                         if (KWEngine.CurrentWorld._renderObjects.Count > 0)
                         {
                             RenderManager.IRendererShadowMapCubeInstanced.Bind(); // Renders RenderObject instances only
-                            foreach (LightObject l in pointLights)
+                            foreach (LightObject l in _renderFramePointLights)
                             {
                                 l._fbShadowMap.Bind(false);
                                 RenderManager.IRendererShadowMapCubeInstanced.RenderSceneForLight(l);
@@ -680,12 +676,12 @@ namespace KWEngine3
                 // Forward rendering pass:
                 #region [FORWARD PASS]
                 HelperDebug.StartTimeQuery(RenderType.Forward);
-                if (gameObjectsForForwardRendering.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
+                if (_renderFrameGameObjectsForward.Count > 0 || KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                 {
                     RenderManager.IRendererForward.Bind();
                     RenderManager.IRendererForward.SetGlobals();
-                    if (gameObjectsForForwardRendering.Count > 0)
-                        RenderManager.IRendererForward.RenderScene(gameObjectsForForwardRendering, stencilObjects);
+                    if (_renderFrameGameObjectsForward.Count > 0)
+                        RenderManager.IRendererForward.RenderScene(_renderFrameGameObjectsForward, _renderFrameStencilObjects);
                     if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
                     {
                         if (KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled == false)
@@ -700,11 +696,11 @@ namespace KWEngine3
                     }
                 }
 
-                if (renderObjectsForForwardRendering.Count > 0)
+                if (_renderFrameRenderObjectsForward.Count > 0)
                 {
                     RenderManager.IRendererForwardInstanced.Bind();
                     RenderManager.IRendererForwardInstanced.SetGlobals();
-                    RenderManager.IRendererForwardInstanced.RenderScene(renderObjectsForForwardRendering);
+                    RenderManager.IRendererForwardInstanced.RenderScene(_renderFrameRenderObjectsForward);
                 }
 
                 if (KWEngine.CurrentWorld._textObjects.Count > 0)
@@ -734,7 +730,7 @@ namespace KWEngine3
             }
 
             // STENCIL HIGHLIGHT PASS
-            if(stencilObjects.Count > 0)
+            if(_renderFrameStencilObjects.Count > 0)
             {
                 GL.Enable(EnableCap.Blend);
                 GL.Enable(EnableCap.StencilTest);
@@ -742,7 +738,7 @@ namespace KWEngine3
 
                 RendererForwardSimple.Bind();
                 RendererForwardSimple.SetGlobals();
-                RendererForwardSimple.RenderScene(stencilObjects);
+                RendererForwardSimple.RenderScene(_renderFrameStencilObjects);
 
                 GL.DepthFunc(DepthFunction.Less);
                 GL.CullFace(TriangleFace.Back);

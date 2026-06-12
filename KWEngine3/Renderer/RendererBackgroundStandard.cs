@@ -82,6 +82,7 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
 
             GL.DepthFunc(DepthFunction.Less);
+            GL.FrontFace(FrontFaceDirection.Ccw);
             GL.BindTexture(TextureTarget.Texture2D, 0);
             GL.UseProgram(0);
         }

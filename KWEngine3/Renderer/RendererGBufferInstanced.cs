@@ -103,9 +103,8 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
         }
 
-        public static List<RenderObject> RenderScene()
+        public static void RenderScene(List<RenderObject> forwardObjects)
         {
-            List<RenderObject> forwardObjects = new();
             if (KWEngine.CurrentWorld != null)
             {
                 SetGlobals();
@@ -127,7 +126,6 @@ namespace KWEngine3.Renderer
                     Draw(r);
                 }
             }
-            return forwardObjects;
         }
 
         public static void Draw(RenderObject r)

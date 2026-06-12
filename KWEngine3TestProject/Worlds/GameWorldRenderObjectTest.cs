@@ -52,6 +52,7 @@ namespace KWEngine3TestProject.Worlds
             r1.Name = "Würfelpack +3X";
             r1.SetPosition(7.5f, 2.5f, 0);
             r1.IsShadowCaster = true;
+            r1.SetOpacity(0.75f);
             r1.SetAdditionalInstanceCount(2);
             r1.SetPositionRotationScaleForInstance(1, new Vector3(10, 5, 0), Quaternion.Identity, Vector3.One);
             r1.SetPositionRotationScaleForInstance(2, new Vector3(5, 5, 0), Quaternion.Identity, Vector3.One);

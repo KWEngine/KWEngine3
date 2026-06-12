@@ -340,14 +340,12 @@ namespace KWEngine3.Renderer
                     // depth pre-pass:
                     GL.ColorMask(false, false, false, false);
                     GL.DepthFunc(DepthFunction.Lequal);
-                    GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
                     GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, r.InstanceCount);
 
                     // blend pass:
                     GL.ColorMask(true, true, true, true);
                     GL.DepthMask(false);
                     GL.DepthFunc(DepthFunction.Equal);
-                    GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
                     GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, r.InstanceCount);
 
                     GL.DepthMask(true);
@@ -356,11 +354,10 @@ namespace KWEngine3.Renderer
                 else
                 {
                     // usual behaviour (one-pass-solution):
-                    GL.DrawElements(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, 0);
                     GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, r.InstanceCount);
                 }
-
                 
+
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
 

@@ -378,11 +378,12 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 
 void main()
 {
+    vec3 viewDir = normalize(vTangentView - vTangentPosition);
+	vTexture2 = ParallaxMapping(vTexture, viewDir);
+
     vec4 albedo = getAlbedo();
     if(albedo.w <= 0) discard;
 
-    vec3 viewDir = normalize(vTangentView - vTangentPosition);
-	vTexture2 = ParallaxMapping(vTexture, viewDir);
     vec4 normalId = getNormalId();
 
     // actual shading:

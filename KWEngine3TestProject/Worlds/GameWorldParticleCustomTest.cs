@@ -26,7 +26,7 @@ namespace KWEngine3TestProject.Worlds
                     8);
                 q.SetSpriteSheetLooping(false);
                 q.SetSpriteSheetEmissiveLevel(0.5f);
-                q.SetSpriteSheetSpeed(SpritesheetQuad.Speed.FPS120);
+                q.SetSpriteSheetSpeed(SpritesheetQuad.Speed.FPS060);
                 q.SetScale(4);
                 q.SetPosition(0, 2f, 0);
                 AddRenderObject(q);
@@ -40,13 +40,12 @@ namespace KWEngine3TestProject.Worlds
             SetCameraPosition(0, 1, 10);
             SetColorAmbient(0.25f, 0.25f, 0.25f);
             SetBackgroundBrightnessMultiplier(2);
-
+            /*
             LightObjectSun sun = new LightObjectSun(ShadowQuality.NoShadow, SunShadowType.Default);
             sun.SetPosition(50, 50, 50);
             sun.SetColor(1, 1, 1, 3);
             AddLightObject(sun);
 
-            SetBackgroundSkybox("./Textures/skybox_planecollisiontest.dds", 0, SkyboxType.Equirectangular);
 
             Immovable floor = new Immovable();
             floor.SetPosition(0, -0.5f, 0);
@@ -56,13 +55,16 @@ namespace KWEngine3TestProject.Worlds
             floor.SetTexture("./Textures/grass_roughness.png", TextureType.Roughness);
             floor.SetTextureRepeat(5, 5);
             AddGameObject(floor);
-            
+            */
             
             /*SpritesheetQuad q = new SpritesheetQuad("F:/EmberGen_Export/candle_01_12x12_loop.png", 12, 12, true);
             q.SetScale(1f, 4f, 1f);
             q.SetPosition(0f, 0f, 0);
             AddGameObject(q);*/
-            
+
+
+            SetBackgroundSkybox("./Textures/skybox_planecollisiontest.dds", 0, SkyboxType.Equirectangular);
+
         }
     }
 }
