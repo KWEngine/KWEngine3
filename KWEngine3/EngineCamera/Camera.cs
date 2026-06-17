@@ -155,7 +155,7 @@ namespace KWEngine3.EngineCamera
             _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
         }
 
-        public void SetNearFarBound(float zNear, float zFar)
+        internal void SetNearFarBound(float zNear, float zFar)
         {
             _zNear = MathHelper.Clamp(zNear, 0.01f, 1000f);
             _zFar = MathHelper.Clamp(zFar, _zNear, 100000f);

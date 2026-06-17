@@ -1398,6 +1398,7 @@ namespace KWEngine3
                     _geometryMemUsed = MathF.Round(HelperGeneral.GetGeometryStorageSize() / 1000000f, 2);
                     CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
                     CurrentWorld._cameraEditor.UpdatePitchYaw(true);
+                    CurrentWorld._cameraEditor.SetNearFarBound(0.1f, 10000f);
                     _stateCameraGameBeforeToggle = Window.CursorState;
                     CurrentWorld.MouseCursorReset();
                 }

@@ -8,7 +8,7 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2026-06-12)</Product>
+		<Product>KWEngine3 (updated: 2026-06-17)</Product>
 		<PackageId>KWEngine3</PackageId>
 		<Version>3.0.7</Version>
 		<AssemblyVersion>3.0.7</AssemblyVersion>
@@ -326,6 +326,9 @@
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.frag" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.geom" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16_csmLQ.vert" />
+		<EmbeddedResource Include="Shaders\shader.editor.frustum.frag" />
+		<EmbeddedResource Include="Shaders\shader.editor.frustum.geom" />
+		<EmbeddedResource Include="Shaders\shader.editor.frustum.vert" />
 		<EmbeddedResource Include="Shaders\shader.debugArray.frag" />
 		<EmbeddedResource Include="Shaders\shader.lighting.forward_simple.frag" />
 		<EmbeddedResource Include="Shaders\shader.lighting.forward_simple.vert" />
@@ -524,8 +527,8 @@
 			<ZuKopieren Include="$(TargetDir)KWEngine3.xml" />
 		</ItemGroup>
 
-		<Copy SourceFiles="@(ZuKopieren)"
-			  DestinationFolder="$(TargetDirectory)"
+		<Copy SourceFiles="@(ZuKopieren)" 
+			  DestinationFolder="$(TargetDirectory)" 
 			  SkipUnchangedFiles="true" />
 
 	</Target>

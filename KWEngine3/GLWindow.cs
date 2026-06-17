@@ -768,6 +768,13 @@ namespace KWEngine3
                 GL.Disable(EnableCap.DepthTest);
             }
 
+            if (KWEngine.Mode == EngineMode.Edit)
+            {
+                RendererFrustum.Bind();
+                RendererFrustum.SetGlobals();
+                RendererFrustum.Draw();
+            }
+
             // HUD objects:
             HelperDebug.StartTimeQuery(RenderType.HUD);
             RendererHUD.Bind();

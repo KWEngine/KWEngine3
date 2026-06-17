@@ -1294,7 +1294,9 @@ namespace KWEngine3.Editor
                 }
                 if(ImGui.MenuItem("Apply current view to game camera"))
                 {
+                    float far = KWEngine.CurrentWorld._cameraGame._zFar;
                     KWEngine.CurrentWorld._cameraGame = KWEngine.CurrentWorld._cameraEditor;
+                    KWEngine.CurrentWorld.SetCameraRenderDistance(far);
                     KWEngine.CurrentWorld._cameraGame._statePrevious = KWEngine.CurrentWorld._cameraGame._stateCurrent;
                 }
                 ImGui.EndMenu();
