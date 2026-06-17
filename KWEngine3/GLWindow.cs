@@ -768,7 +768,7 @@ namespace KWEngine3
                 GL.Disable(EnableCap.DepthTest);
             }
 
-            if (KWEngine.Mode == EngineMode.Edit)
+            if (KWEngine.Mode == EngineMode.Edit && KWEngine.DebugShowCameraFrustumInEditor)
             {
                 RendererFrustum.Bind();
                 RendererFrustum.SetGlobals();

@@ -108,6 +108,15 @@ namespace KWEngine3
         public static DebugOverlayMode DebugOverlayMode { get; set; } = DebugOverlayMode.Disabled;
 
         /// <summary>
+        /// Gibt an, ob der Sichtbereich der In-Game-Kamera im Editormodus angezeigt wird oder nicht.
+        /// </summary>
+        /// <remarks>
+        /// Die Kamerasichtweite ist im Standard mit 500 Längeneinheiten sehr weit gewählt. Das bedeutet, dass der gezeichnete Sichtbereich 
+        /// ebenfalls dementsprechend groß visualisiert wird.
+        /// </remarks>
+        public static bool DebugShowCameraFrustumInEditor { get; set; } = false;
+
+        /// <summary>
         /// Gibt die für das Rendern eines bestimmten Passes benötigte Zeit in Millisekunden zurück
         /// </summary>
         /// <remarks>Sollte KWEngine.DebugPerformanceEnabled nicht 'true' sein, wird stets der Wert 0 zurückgegeben</remarks>
