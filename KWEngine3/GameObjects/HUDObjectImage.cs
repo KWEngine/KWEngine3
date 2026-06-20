@@ -13,6 +13,7 @@ namespace KWEngine3.GameObjects
         internal int _textureId = KWEngine.TextureWhite;
         internal string _textureName = "";
         internal Vector2 _textureRepeat = new Vector2(1f, 1f);
+        internal Vector2 _textureDimsOriginal = new Vector2(1f, 1f);
         #endregion
 
         /// <summary>
@@ -44,6 +45,17 @@ namespace KWEngine3.GameObjects
             top = Position.Y - _scale.Y * 0.5f;
             bottom = Position.Y + _scale.Y * 0.5f;
             return !(right < 0 || left > KWEngine.Window.Width || bottom < 0 || top > KWEngine.Window.Height);
+        }
+
+        /// <summary>
+        /// Gibt die Originalauflösung der geladenen Textur dieser Instanz zurück
+        /// </summary>
+        public Vector2 TextureDimensions
+        {
+            get
+            {
+                return _textureDimsOriginal;
+            }
         }
 
         /// <summary>
@@ -210,6 +222,8 @@ namespace KWEngine3.GameObjects
                 {
                     _textureName = filename;
                     SetScale(width, height);
+                    _textureDimsOriginal.X = width;
+                    _textureDimsOriginal.Y = height;
                 }
                 else
                 {
