@@ -80,8 +80,19 @@ namespace KWEngine3.Audio
         /// <param name="audiofile">Audiodatei</param>
         public static void PreloadSound(string audiofile)
         {
+            PreloadSound(audiofile, 0f, -1f);
+        }
+
+        /// <summary>
+        /// Lädt eine Audiodatei in den Arbeitsspeicher
+        /// </summary>
+        /// <param name="audiofile">Audiodatei</param>
+        /// <param name="timestampLoopStart">Zeitpunkt des Loop-Startpunkts (in Sekunden)</param>
+        /// <param name="timestampLoopEnd">Zeitpunkt des Loop-Endes (in Sekunden)</param>
+        public static void PreloadSound(string audiofile, float timestampLoopStart, float timestampLoopEnd = -1f)
+        {
             audiofile = HelperGeneral.EqualizePathDividers(audiofile);
-            GLAudioEngine.SoundPreload(audiofile);
+            GLAudioEngine.SoundPreload(audiofile, timestampLoopStart, timestampLoopEnd);
         }
 
         /// <summary>
