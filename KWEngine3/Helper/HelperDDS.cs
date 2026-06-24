@@ -1871,7 +1871,9 @@ namespace KWEngine3.Helper
             public uint[] reserved;//[11];
 
             [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+#pragma warning disable CS8981 // Der Typname enthält nur ASCII-Zeichen in Kleinbuchstaben. Solche Namen können möglicherweise für die Sprache reserviert werden.
             public struct pixelformatstruct
+#pragma warning restore CS8981 // Der Typname enthält nur ASCII-Zeichen in Kleinbuchstaben. Solche Namen können möglicherweise für die Sprache reserviert werden.
             {
                 public uint size;	// equals size of struct (which is part of the data file!)
                 public uint flags;
@@ -1885,7 +1887,9 @@ namespace KWEngine3.Helper
             public pixelformatstruct pixelformat;
 
             [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+#pragma warning disable CS8981 // Der Typname enthält nur ASCII-Zeichen in Kleinbuchstaben. Solche Namen können möglicherweise für die Sprache reserviert werden.
             public struct ddscapsstruct
+#pragma warning restore CS8981 // Der Typname enthält nur ASCII-Zeichen in Kleinbuchstaben. Solche Namen können möglicherweise für die Sprache reserviert werden.
             {
                 public uint caps1;
                 public uint caps2;

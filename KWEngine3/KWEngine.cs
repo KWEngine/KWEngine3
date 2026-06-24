@@ -897,7 +897,14 @@ namespace KWEngine3
             return result;
         }
 
-
+        /// <summary>
+        /// Deaktiviert Keyframes eines bestimmten Typs für die Animation eines Modells (ab einem Startindex)
+        /// </summary>
+        /// <param name="modelName">Modellname</param>
+        /// <param name="animationName">Animationsname</param>
+        /// <param name="caseSensitive">Spielt Groß-/Kleinschreibung beim Animationsnamen eine Rolle?</param>
+        /// <param name="keyframetype">Art der Keyframes</param>
+        /// <param name="frameStart">Startindex der Keyframes</param>
         public static void DisableKeyframesForModelAnimation(string modelName, string animationName, bool caseSensitive, AnimationKeyframeType keyframetype, int frameStart)
         {
             if (animationName == null)
@@ -921,6 +928,15 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Deaktiviert Keyframes eines bestimmten Typs für die Animation eines Modells (für einen gewählten Zeitraum)
+        /// </summary>
+        /// <param name="modelName">Modellname</param>
+        /// <param name="animationName">Animationsname</param>
+        /// <param name="caseSensitive">Spielt Groß-/Kleinschreibung beim Animationsnamen eine Rolle?</param>
+        /// <param name="keyframetype">Art der Keyframes</param>
+        /// <param name="frameStart">Startindex der Keyframes</param>
+        /// <param name="frameEnd">Endindex der Keyframes</param>
         public static void DisableKeyframesForModelAnimation(string modelName, string animationName, bool caseSensitive, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
         {
             if (animationName == null)
@@ -944,6 +960,13 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Deaktiviert Keyframes eines bestimmten Typs für die Animation eines Modells (ab einem gewählten Zeitpunkt (Index))
+        /// </summary>
+        /// <param name="modelName">Modellname</param>
+        /// <param name="animationId">ID der Animation</param>
+        /// <param name="keyframetype">Art der Keyframes</param>
+        /// <param name="frameStart">Startindex der Keyframes</param>
         public static void DisableKeyframesForModelAnimation(string modelName, int animationId, AnimationKeyframeType keyframetype, int frameStart)
         {
             if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
@@ -963,6 +986,14 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Deaktiviert Keyframes eines bestimmten Typs für die Animation eines Modells (für einen gewählten Zeitraum)
+        /// </summary>
+        /// <param name="modelName">Modellname</param>
+        /// <param name="animationId">ID der Animation</param>
+        /// <param name="keyframetype">Art der Keyframes</param>
+        /// <param name="frameStart">Startindex der Keyframes</param>
+        /// <param name="frameEnd">Endindex der Keyframes</param>
         public static void DisableKeyframesForModelAnimation(string modelName, int animationId, AnimationKeyframeType keyframetype, int frameStart, int frameEnd)
         {
             if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
@@ -982,6 +1013,12 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Setzt alle Keyframe-Anpassungen für die gewählte Animation zurück
+        /// </summary>
+        /// <param name="modelName">Modellname</param>
+        /// <param name="animationName">Animationsname</param>
+        /// <param name="caseSensitive">Spielt Groß-/Kleinschreibung eine Rolle beim Animationsnamen?</param>
         public static void DisableKeyframesResetAll(string modelName, string animationName, bool caseSensitive = false)
         {
             if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
@@ -1002,6 +1039,11 @@ namespace KWEngine3
             }
         }
 
+        /// <summary>
+        /// Setzt alle Keyframe-Anpassungen für die gewählte Animation zurück
+        /// </summary>
+        /// <param name="modelName">Modellname</param>
+        /// <param name="animationId">Animations-ID</param>
         public static void DisableKeyframesResetAll(string modelName, int animationId)
         {
             if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))

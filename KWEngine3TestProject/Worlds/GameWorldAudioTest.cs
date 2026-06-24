@@ -12,7 +12,7 @@ namespace KWEngine3TestProject.Worlds
         private int _loopId = -1;
         private float _cdOneShot = 0.25f;
         private float _lastOneShot = 0.0f;
-        private float _lastP = 0f;
+        //private float _lastP = 0f;
 
         public override void Act()
         {

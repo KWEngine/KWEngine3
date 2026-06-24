@@ -11,13 +11,15 @@ namespace KWEngine3TestProject
 {
     public class GameWorldHUDTextMultilineTest : World
     {
+        /*
         HUDObjectTextInput _t16;
         HUDObjectText _t24;
         HUDObjectTextInput _t64;
         HUDObjectTextInput _t128;
-
+        */
         public override void Act()
         {
+            /*
             if (_t16?.IsMouseCursorOnMe() == true)
                 _t16?.SetColorOutline(1, 1, 0, 0.75f);
             else
@@ -37,6 +39,7 @@ namespace KWEngine3TestProject
                 _t128?.SetColorOutline(1, 1, 0, 0.75f);
             else
                 _t128?.SetColorOutline(0, 0, 0, 0);
+            */
         }
 
         private FontFace _face = FontFace.Anonymous;
@@ -61,7 +64,7 @@ namespace KWEngine3TestProject
             img.SetScale(240, 500);
             img.SetPosition(8 + 120, Window.Height / 2);
             AddHUDObject(img);
-
+            /*
             //_t24 = new HUDObjectText("DiesisteinTestgeländefür mehrere Zeilen Text, die einfach nicht enden wollen möchten. Oder siehst Du hier ein Ende?");
             _t24 = new HUDObjectText("Diesistein");
             _t24.SetFont(_face);
@@ -74,7 +77,7 @@ namespace KWEngine3TestProject
             _t24.SetCharacterDistanceFactor(1f);
             //_t24.GetFocus();
             AddHUDObject(_t24);
-            /*
+            
             _t64 = new HUDObjectTextInput("SensititÄV");
             _t64.SetFont("Playwrite");
             _t64.Name = "T64";
@@ -93,6 +96,7 @@ namespace KWEngine3TestProject
             _t128.SetPosition(Window.Width -8, Window.Height / 2 + 64);
             _t128.SetTextAlignment(TextAlignMode.Right);
             AddHUDObject(_t128);
+            */
 
             Immovable i = new Immovable();
             i.Name = "Debug test object";
@@ -125,7 +129,7 @@ namespace KWEngine3TestProject
             t2.SetTextAlignment(TextAlignMode.Center);
             t2.SetOpacity(0.5f);
             AddTextObject(t2);
-            */
+            
 
         }
     }

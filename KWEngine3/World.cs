@@ -2314,6 +2314,9 @@ namespace KWEngine3
             get { return _hudObjectInputWithFocus != null; }
         }
 
+        /// <summary>
+        /// Referenz auf den Ladebildschirm der Welt
+        /// </summary>
         public LoadingScreen LoadingScreen { get; internal set; } = null;
     }
 }

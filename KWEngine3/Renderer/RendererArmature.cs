@@ -24,7 +24,7 @@ namespace KWEngine3.Renderer
             var boneSet = new HashSet<string>(model.BoneNames);
             // key   = GeoNode des Knochens
             // value = (Weltposition, Elternknoten oder null)
-            var nodes = new Dictionary<GeoNode, (Vector3 pos, GeoNode? parent)>();
+            var nodes = new Dictionary<GeoNode, (Vector3 pos, GeoNode parent)>();
             CollectBoneNodes(model.Armature, Matrix4.Identity, null, boneSet, nodes);
 
             if (nodes.Count == 0)
@@ -57,7 +57,7 @@ namespace KWEngine3.Renderer
 
             // Projektion: Weltkoordinate → Canvas-Pixel
             // Y wird gespiegelt (Welt-Y nach oben = Canvas-Y nach oben)
-            SKPoint Project(Vector3 p) => new SKPoint(
+            SKPoint Project(Vector3 p) => new(
                 offX + (p.X - minX) * scale,
                 (TEX_HEIGHT - offY) - (p.Y - minY) * scale
             );
@@ -79,19 +79,17 @@ namespace KWEngine3.Renderer
                 IsAntialias = true,
                 Style       = SKPaintStyle.Fill
             };
+            using var labelFont = new SKFont(SKTypeface.Default, 11f);
             using var labelPaint = new SKPaint
             {
                 Color       = new SKColor(230, 230, 230),
-                TextSize    = 11f,
-                IsAntialias = true,
-                Typeface    = SKTypeface.Default
+                IsAntialias = true
             };
+            using var labelShadowFont = new SKFont(SKTypeface.Default, 11f);
             using var labelShadowPaint = new SKPaint
             {
                 Color       = new SKColor(0, 0, 0, 180),
-                TextSize    = 11f,
-                IsAntialias = true,
-                Typeface    = SKTypeface.Default
+                IsAntialias = true
             };
             using var leaderLinePaint = new SKPaint
             {
@@ -144,8 +142,8 @@ namespace KWEngine3.Renderer
                     continue;
                 }
 
-                float textW = labelPaint.MeasureText(label);
-                float textH = 11f;   // entspricht TextSize
+                float textW = labelFont.MeasureText(label);
+                float textH = 12f;   // Schriftgröße 11f
                 float lineH = textH + 3f; // Rechteckhöhe inkl. kleiner Puffer
 
                 // Kandidaten: zentriert über/unter dem Dot, gestapelt in aufsteigendem Abstand.
@@ -204,8 +202,8 @@ namespace KWEngine3.Renderer
                     }
 
                     // Text mit Schatten
-                    canvas.DrawText(label, tx + 1f, ty + 1f, labelShadowPaint);
-                    canvas.DrawText(label, tx,       ty,      labelPaint);
+                    canvas.DrawText(label, tx + 1f, ty + 1f, labelShadowFont, labelShadowPaint);
+                    canvas.DrawText(label, tx,       ty,      labelFont, labelPaint);
                     placedRects.Add(rect);
                     break;
                 }
@@ -254,9 +252,9 @@ namespace KWEngine3.Renderer
         private static void CollectBoneNodes(
             GeoNode node,
             Matrix4 parentWorld,
-            GeoNode? parentBone,
+            GeoNode parentBone,
             HashSet<string> boneSet,
-            Dictionary<GeoNode, (Vector3, GeoNode?)> result)
+            Dictionary<GeoNode, (Vector3, GeoNode)> result)
         {
             // Weltmatrix dieses Knotens (OpenTK: Zeilen-Vektor-Konvention)
             Matrix4 world = node.Transform * parentWorld;
@@ -265,7 +263,7 @@ namespace KWEngine3.Renderer
                        || (node.NameWithoutFBXSuffix != null
                            && boneSet.Contains(node.NameWithoutFBXSuffix));
 
-            GeoNode? nextParent = parentBone;
+            GeoNode nextParent = parentBone;
             if (isBone)
             {
                 Vector3 pos = world.Row3.Xyz; // Translationsanteil

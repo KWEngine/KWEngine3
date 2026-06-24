@@ -195,7 +195,7 @@ namespace KWEngine3TestProject.Worlds
             const float XSIZE = 0.125f * 0.6f;
             const float YSIZE = 0.05f * 0.25f;
 
-            const float ZPOSROD = 0.055f;
+            //const float ZPOSROD = 0.055f;
 
             int counter = 0;
             // columns:
