@@ -253,7 +253,7 @@
       <Field Name="_bufferSizeMs" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>gAIIACCAIAAAAAAAEAAAAEgAAAAIAAAAIDAAAAOgoEA=</HashCode>
+      <HashCode>gAIIACCAIAAAAAAAEAAAAEgAAAAIAAAAIDCAAAOgoEA=</HashCode>
       <FileName>Audio\Audio.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -456,7 +456,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="24.5" Y="18.75" Width="2.75" />
+    <Position X="24.5" Y="19" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -740,7 +740,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
-    <Position X="24.5" Y="14.25" Width="2.75" />
+    <Position X="24.5" Y="14.5" Width="2.75" />
     <Members>
       <Field Name="_isDebugBuild" Hidden="true" />
       <Method Name="CheckGLErrors" Hidden="true" />
@@ -851,7 +851,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperTexture">
-    <Position X="24.5" Y="17" Width="2.75" />
+    <Position X="24.5" Y="17.25" Width="2.75" />
     <Members>
       <Method Name="CheckFBXNestedList" Hidden="true" />
       <Method Name="CheckFBXNestedListNew" Hidden="true" />

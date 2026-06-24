@@ -23,6 +23,8 @@ namespace KWEngine3.Audio
 
         internal const int MAX_CHANNELS = 32;
 
+
+
         private static void TryInitAudio()
         {
             int tries = 0;
@@ -256,6 +258,18 @@ namespace KWEngine3.Audio
             else
             {
                 KWEngine.LogWriteLine("[Audio] source " + channel + " already paused or stopped");
+            }
+        }
+
+        public static float GetPlaybackTime(int channel)
+        {
+            if (mSources[channel].IsPlayingOrPaused)
+            {
+                return mSources[channel].GetPlaybackTimeInSeconds();
+            }
+            else
+            {
+                return 0f;
             }
         }
 

@@ -66,6 +66,9 @@ namespace KWEngine3TestProject.Worlds
                     _lastOneShot = WorldTime;
                 }
             }
+
+            if(_loopId >= 0)
+                Console.WriteLine("playback time: " + Audio.GetPlaybackTime(_loopId));
         }
 
         public override void Prepare()

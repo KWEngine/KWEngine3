@@ -390,6 +390,13 @@ namespace KWEngine3.Audio
             return mSound.GetFilename();
         }
 
+        public float GetPlaybackTimeInSeconds()
+        {
+            if (mSound == null) return 0f;
+            int bytesPerSecond = mSound.WaveFormat.SampleRate * mSound.WaveFormat.Channels * (mSound.WaveFormat.BitsPerSample / 8);
+            return bytesPerSecond > 0 ? (float)mReadPosition / bytesPerSecond : 0f;
+        }
+
         public bool IsAvailable
         {
             get

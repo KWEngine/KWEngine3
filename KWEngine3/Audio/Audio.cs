@@ -130,6 +130,38 @@ namespace KWEngine3.Audio
         }
 
         /// <summary>
+        /// Erfragt für den angegebenen Kanal, wie viele Sekunden des Sounds bereits abgespielt wurden
+        /// </summary>
+        /// <param name="channel">Kanalnummer</param>
+        /// <returns>Bereits erfolgte Abspielzeit in Sekunden</returns>
+        public static float GetPlaybackTime(int channel)
+        {
+            if (channel < 0 || channel >= GLAudioEngine.MAX_CHANNELS)
+            {
+                KWEngine.LogWriteLine("[Audio] invalid channel id");
+                return 0f;
+            }
+            return GLAudioEngine.GetPlaybackTime(channel);
+        }
+
+        /// <summary>
+        /// Erfragt für die angegebene Audiodatei, wie viele Sekunden des Sounds bereits abgespielt wurden
+        /// </summary>
+        /// <param name="audiofile">Name der Audiodatei</param>
+        /// <returns>Bereits erfolgte Abspielzeit in Sekunden</returns>
+        public static float GetPlaybackTime(string audiofile)
+        {
+            int channelIndex = GLAudioEngine.FindChannelIndexThatIsPausedOnAudioFile(HelperGeneral.EqualizePathDividers(audiofile));
+            if(channelIndex < 0)
+            {
+                KWEngine.LogWriteLine("[Audio] GetPlaybackTime(): audio file not playing");
+                return 0f;
+            }
+
+            return GetPlaybackTime(channelIndex);
+        }
+
+        /// <summary>
         /// Erfragt, ob der angegebene Audiokanal gerade etwas abspielt
         /// </summary>
         /// <param name="channel">Kanalnummer</param>
