@@ -16,6 +16,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
+            /*
             if(WorldTime - _lastP >= 2f)
             {
                 ParticleObject po = new ParticleObject(3, ParticleType.BurstFire2);
@@ -30,6 +31,7 @@ namespace KWEngine3TestProject.Worlds
 
                 _lastP = WorldTime;
             }
+            */
 
             if (Keyboard.IsKeyPressed(Keys.F1))
             {
@@ -58,6 +60,16 @@ namespace KWEngine3TestProject.Worlds
             {
                 Audio.PauseSound(_loopId);
             }
+
+            else if (Keyboard.IsKeyPressed(Keys.F4))
+            {
+                Audio.StopAllSound();
+                Audio.PlaySound("./SFX/loopmarkertest.ogg", true, 1.0f);
+            }
+            else if (Keyboard.IsKeyPressed(Keys.F5))
+            {
+                Audio.StopAllSound();
+            }
             else if(Keyboard.IsKeyDown(Keys.Space))
             {
                 if (WorldTime - _lastOneShot > _cdOneShot)
@@ -73,7 +85,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-
+            Audio.PreloadSound("./SFX/loopmarkertest.ogg", 23.615f);
         }
     }
 }

@@ -21,6 +21,8 @@ namespace KWEngine3.Audio
         private readonly ALFormat mFormat;
         private readonly string mName;
         private readonly string mFilename;
+        private readonly int mLoopStartOffsetInBytes = 0;
+        private readonly int mLoopEndOffsetInBytes = -1;
 
         /// <summary>
         /// Audiodaten
@@ -35,7 +37,9 @@ namespace KWEngine3.Audio
         /// Konstruktor für das Erzeugen eines gecacheten Tons
         /// </summary>
         /// <param name="audioFileName">Dateiname</param>
-        public CachedSound(string audioFileName) 
+        /// <param name="loopStart">Start des Loops (in Sekunden)</param>
+        /// <param name="loopEnd">Ende des Loops (in Sekunden) oder -1 (falls Dateiende das Loop-Ende ist)</param>
+        public CachedSound(string audioFileName, float loopStart, float loopEnd) 
         {
             int numChannels;
             int bitsPerSample;
@@ -101,6 +105,26 @@ namespace KWEngine3.Audio
 
             mFilename = audioFileName;
             mName = audioFileName.Substring(audioFileName.LastIndexOf('/') + 1);
+
+            int bytesPerSampleFrame = numChannels * (bitsPerSample / 8);
+            int loopStartOffset = (int)(loopStart * sampleRate * bytesPerSampleFrame);
+            mLoopStartOffsetInBytes = Math.Clamp(loopStartOffset, 0, AudioData.Length);
+            mLoopStartOffsetInBytes -= mLoopStartOffsetInBytes % bytesPerSampleFrame;
+
+            if (loopEnd < 0 || loopEnd <= loopStart)
+            {
+                mLoopEndOffsetInBytes = AudioData.Length;
+            }
+            else
+            {
+                int loopEndOffset = (int)(loopEnd * sampleRate * bytesPerSampleFrame);
+                mLoopEndOffsetInBytes = Math.Clamp(loopEndOffset, mLoopStartOffsetInBytes, AudioData.Length);
+                mLoopEndOffsetInBytes -= mLoopEndOffsetInBytes % bytesPerSampleFrame;
+                if (mLoopEndOffsetInBytes < mLoopStartOffsetInBytes)
+                {
+                    mLoopEndOffsetInBytes = mLoopStartOffsetInBytes;
+                }
+            }
         }
 
         private static byte[] ReadOggFile(string filename, out int numChannels, out int sampleRate, out int bitsPerSample)
@@ -222,6 +246,16 @@ namespace KWEngine3.Audio
         public ALFormat GetFormat()
         {
             return mFormat;
+        }
+
+        public int GetLoopStartOffsetInBytes()
+        {
+            return mLoopStartOffsetInBytes;
+        }
+
+        public int GetLoopEndOffsetInBytes()
+        {
+            return mLoopEndOffsetInBytes;
         }
     }
 }

@@ -183,20 +183,14 @@ namespace KWEngine3.Audio
         private bool StreamIntoBuffer(int buffer)
         {
             int bytesReadTotal = 0;
-            int bytesRead = SafeCopyBytes(mSound.AudioData, mReadPosition, mTempBuffer, 0, mBytesPerBuffer);
-            bytesReadTotal += bytesRead;
-            if (bytesRead < mBytesPerBuffer)
+
+            if (!IsLooping)
             {
-                if (IsLooping)
+                int bytesRead = SafeCopyBytes(mSound.AudioData, mReadPosition, mTempBuffer, 0, mBytesPerBuffer);
+                bytesReadTotal += bytesRead;
+                mReadPosition += bytesRead;
+                if (bytesRead < mBytesPerBuffer)
                 {
-                    int delta = mBytesPerBuffer - bytesRead;
-                    bytesRead = SafeCopyBytes(mSound.AudioData, 0, mTempBuffer, bytesRead, delta);
-                    mReadPosition = delta;
-                    bytesReadTotal += delta;
-                }
-                else
-                {
-                    mReadPosition += bytesRead;
                     byte value = mSound.WaveFormat.BitsPerSample == 16 ? (byte)0 : (byte)128;
                     Span<byte> span = mTempBuffer;
                     span.Slice(bytesRead).Fill(value);
@@ -205,9 +199,27 @@ namespace KWEngine3.Audio
             }
             else
             {
-                mReadPosition += bytesRead;
+                int loopStart = mSound.GetLoopStartOffsetInBytes();
+                int loopEnd = mSound.GetLoopEndOffsetInBytes();
+                int destOffset = 0;
+                int remaining = mBytesPerBuffer;
+
+                while (remaining > 0)
+                {
+                    if (mReadPosition >= loopEnd)
+                        mReadPosition = loopStart;
+
+                    int canRead = Math.Min(remaining, loopEnd - mReadPosition);
+                    int bytesRead = SafeCopyBytes(mSound.AudioData, mReadPosition, mTempBuffer, destOffset, canRead);
+                    if (bytesRead == 0)
+                        break;
+
+                    mReadPosition += bytesRead;
+                    destOffset += bytesRead;
+                    bytesReadTotal += bytesRead;
+                    remaining -= bytesRead;
+                }
             }
-                
 
             lock (mTempBuffer)
             {
@@ -221,19 +233,7 @@ namespace KWEngine3.Audio
                 AnalyseData();
             }
 
-            if (!IsLooping)
-            {
-                if (mReadPosition == mBytesTotal)
-                {
-                    return false;
-                }
-                else
-                    return true;
-            }
-            else
-            {
-                return true;
-            }
+            return IsLooping || mReadPosition < mBytesTotal;
         }
 
         private double Window(int i, double sample, int length)

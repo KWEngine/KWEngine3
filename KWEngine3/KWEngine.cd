@@ -547,6 +547,7 @@
   <Class Name="KWEngine3.GameObjects.HUDObjectImage">
     <Position X="15.5" Y="15.25" Width="2.75" />
     <Members>
+      <Field Name="_textureDimsOriginal" Hidden="true" />
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
       <Field Name="_textureRepeat" Hidden="true" />
@@ -556,7 +557,7 @@
       <Method Name="SetTextureForMap" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QAAAAAgQAAAABAQAAAIAAAACACAAQAAAAAEAAwAAAAU=</HashCode>
+      <HashCode>QABAAAgQAAAABAQAAEIAAAACACAAQAAAAAEAAwAAAAU=</HashCode>
       <FileName>GameObjects\HUDObjectImage.cs</FileName>
     </TypeIdentifier>
   </Class>

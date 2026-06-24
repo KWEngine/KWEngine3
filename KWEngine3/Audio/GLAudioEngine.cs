@@ -314,7 +314,7 @@ namespace KWEngine3.Audio
             }
             else
             {
-                soundToPlay = new CachedSound(sound);
+                soundToPlay = new CachedSound(sound, 0f, -1f);
                 if (soundToPlay.AudioData != null)
                 {
                     CachedSounds.Add(sound, soundToPlay);
@@ -357,13 +357,13 @@ namespace KWEngine3.Audio
 
 
 
-        public static void SoundPreload(string sound)
+        public static void SoundPreload(string sound, float loopStart = 0, float loopEnd = -1)
         {
-            if (mAudioOn)
+            if (mAudioOn || IsInitializing)
             {
                 if (!CachedSounds.ContainsKey(sound))
                 {
-                    CachedSounds.Add(sound, new CachedSound(sound));
+                    CachedSounds.Add(sound, new CachedSound(sound, loopStart, loopEnd));
                 }
             }
         }
