@@ -445,7 +445,7 @@ namespace KWEngine3.GameObjects
 
         internal void UpdateOffsetList()
         {
-            KWFontGlyph space = _font.GetGlyphForCodepoint(' ');
+            KWFontGlyph space = _font.GetGlyphForCodepoint('_');
             for (int i = 0, j = 0; i < _text.Length; i++, j += 4)
             {
                 KWFontGlyph glyph = _font.GetGlyphForCodepoint(_text[i]);
@@ -471,7 +471,7 @@ namespace KWEngine3.GameObjects
 
             if (_text.Length > 0)
             {
-                _widthNormalised = _advances[_text.Length - 1];
+                _widthNormalised = _advances[_text.Length - 1] + (_font.GetGlyphForCodepoint(_text[_text.Length - 1]).Right - _font.GetGlyphForCodepoint(_text[_text.Length - 1]).Left);
                 _stateCurrent._width = _widthNormalised * _stateCurrent._scale.X;
             }
             else

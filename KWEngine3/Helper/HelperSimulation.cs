@@ -108,7 +108,7 @@ namespace KWEngine3.Helper
             t._stateRender._colorEmissive = Vector4.Lerp(t._statePrevious._colorEmissive, t._stateCurrent._colorEmissive, alpha);
             t._stateRender._scale = Vector3.Lerp(t._statePrevious._scale, t._stateCurrent._scale, alpha);
             t._stateRender._rotation = Quaternion.Slerp(t._statePrevious._rotation, t._stateCurrent._rotation, alpha);
-            t._stateRender._spreadFactor = t._statePrevious._spreadFactor * (1f - alpha) + t._stateCurrent._spreadFactor * alpha;
+            t._stateRender._spreadFactor = t._statePrevious._spreadFactor * (alpha) + t._stateCurrent._spreadFactor * (1f - alpha);
         }
 
         public static void BlendTerrainObjectStates(TerrainObject t, float alpha)
