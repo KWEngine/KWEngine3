@@ -460,6 +460,39 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
+        /// Ermittelt den 3D Weltpunkt anhand der aktuellen Kameraausrichtung 
+        /// </summary>
+        /// <param name="screenPosX">Zum Fenster relative Bildschirmkoordinate entlang der X-Achse</param>
+        /// <param name="screenPosY">Zum Fenster relative Bildschirmkoordinate entlang der Y-Achse</param>
+        /// <param name="depth">Absolute Tiefe der Messebene (entlang der Kamerablickrichtung)</param>
+        /// <returns>Weltposition (Vector3.Zero im Fehlerfall)</returns>
+        public static Vector3 GetIntersectionPointOnCameraPlane(float screenPosX, float screenPosY, float depth)
+        {
+            Vector2 mc = new Vector2(screenPosX, screenPosY);
+            Vector3 worldRay = HelperGeneral.Get3DMouseCoords(mc);
+            Vector3 normal;
+
+            if (KWEngine.CurrentWorld != null)
+            {
+                normal = -KWEngine.CurrentWorld._cameraGame._stateCurrent.LookAtVector;
+            }
+            else
+            {
+                normal = new Vector3(0, 1, 0.000001f);
+            }
+            
+            bool contact;
+            Vector3 intersection;
+            contact = LinePlaneIntersection(out intersection, worldRay, KWEngine.CurrentWorld._cameraGame._stateCurrent._position, normal, normal * depth);
+            if (contact)
+            {
+                return intersection;
+            }
+            else
+                return Vector3.Zero;
+        }
+
+        /// <summary>
         /// Berechnet die Richtung von der Kameraposition zum Mauszeiger in 3D
         /// </summary>
         /// <returns>Blickrichtung der Kamera in Richtung des Mauszeigers</returns>
