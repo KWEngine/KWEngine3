@@ -29,7 +29,7 @@ namespace KWEngine3.Editor
             { MouseButton.Right, new KWMouseButtonState() },
             { MouseButton.Middle, new KWMouseButtonState() },
             };
-        private static readonly string[] SSAO_KernelSizes = { "16", "32", "64"};
+        private static readonly string[] SSAO_KernelSizes = { "16", "32", "64" };
         private static bool _isSkybox = false;
         private static bool _showArmatureWindow = false;
         private static double _lastUpdateCycleTime = 0;
@@ -95,7 +95,7 @@ namespace KWEngine3.Editor
                 RendererEditorHitboxes.SetGlobals();
                 RendererEditorHitboxes.Draw(SelectedGameObject);
             }
-            else if(SelectedTerrainObject != null)
+            else if (SelectedTerrainObject != null)
             {
                 RendererEditor.Bind();
                 RendererEditor.SetGlobals();
@@ -111,7 +111,7 @@ namespace KWEngine3.Editor
 
         public static bool IsCursorOnAnyControl()
         {
-            ImGuiIOPtr ptr =  ImGui.GetIO();
+            ImGuiIOPtr ptr = ImGui.GetIO();
             return ptr.WantCaptureMouse;
         }
 
@@ -139,7 +139,7 @@ namespace KWEngine3.Editor
 
         private static void DrawObjectDetails()
         {
-            if(SelectedVSG != null)
+            if (SelectedVSG != null)
             {
                 ImGui.Begin("View-space object properties", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoMove);
                 ImGui.SetWindowSize(new System.Numerics.Vector2(WindowRightWidth, KWEngine.Window.ClientSize.X - 32), ImGuiCond.Once);
@@ -200,7 +200,7 @@ namespace KWEngine3.Editor
                     foreach (string attachedBoneName in SelectedVSG.GetBoneNamesForAttachedGameObject())
                     {
                         GameObject att = SelectedVSG.GetAttachedGameObjectForBone(attachedBoneName);
-                        if(att != null)
+                        if (att != null)
                         {
                             float oX = att._positionOffsetForAttachment.X;
                             float oY = att._positionOffsetForAttachment.Y;
@@ -215,7 +215,7 @@ namespace KWEngine3.Editor
                                 HelperGameObjectAttachment.SetScaleForAttachment(att, sNew.X, sNew.Y, sNew.Z);
                             }
 
-                            
+
 
                             if (ImGui.SliderFloat3("Rotation (X,Y,Z)", ref rNew, 0f, 359.9999f, "%.1f"))
                             {
@@ -243,7 +243,7 @@ namespace KWEngine3.Editor
             }
             else if (SelectedGameObject != null)
             {
-                
+
                 System.Numerics.Vector3 colorTintNew = new(SelectedGameObject._stateCurrent._colorTint.X, SelectedGameObject._stateCurrent._colorTint.Y, SelectedGameObject._stateCurrent._colorTint.Z);
                 System.Numerics.Vector3 colorEmissiveNew = new(SelectedGameObject._model.Material[0].ColorEmissive.X, SelectedGameObject._model.Material[0].ColorEmissive.Y, SelectedGameObject._model.Material[0].ColorEmissive.Z);
                 float colorEmissiveIntensityNew = SelectedGameObject._model.Material[0].ColorEmissive.W;
@@ -310,10 +310,10 @@ namespace KWEngine3.Editor
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Misc. properties:");
 
-                
+
                 ImGui.Checkbox("Affected by light?", ref SelectedGameObject._isAffectedByLight);
                 ImGui.SameLine();
-                if(SelectedGameObject._isAffectedByLight)
+                if (SelectedGameObject._isAffectedByLight)
                 {
                     ImGui.Checkbox("Shadow caster/receiver?", ref SelectedGameObject._isShadowCaster);
                 }
@@ -347,7 +347,7 @@ namespace KWEngine3.Editor
 
                     ImGui.Separator();
 
-                    if(ImGui.InputFloat3("Rotation (X,Y,Z)", ref rNew, "%.1f", ImGuiInputTextFlags.None))
+                    if (ImGui.InputFloat3("Rotation (X,Y,Z)", ref rNew, "%.1f", ImGuiInputTextFlags.None))
                     {
                         HelperGameObjectAttachment.SetRotationForAttachment(SelectedGameObject, rNew.X, rNew.Y, rNew.Z);
                     }
@@ -416,7 +416,7 @@ namespace KWEngine3.Editor
                     }
                 }
 
-                if(SelectedGameObject.IsCollisionObject)
+                if (SelectedGameObject.IsCollisionObject)
                 {
                     ImGui.PushStyleColor(ImGuiCol.FrameBg, new System.Numerics.Vector4(0.11f, 0.5f, 0f, 1f));
                     ImGui.PushStyleColor(ImGuiCol.FrameBgActive, new System.Numerics.Vector4(0.5f, 0.5f, 0f, 1f));
@@ -430,9 +430,9 @@ namespace KWEngine3.Editor
 
                     bool capsuleActive = SelectedGameObject._colliderModel._hitboxes.Count == 1 && SelectedGameObject._colliderModel._hitboxes[0]._isCapsule;
 
-                    if(ImGui.Checkbox("Set to Capsule?", ref capsuleActive))
+                    if (ImGui.Checkbox("Set to Capsule?", ref capsuleActive))
                     {
-                        if(capsuleActive)
+                        if (capsuleActive)
                         {
                             SelectedGameObject.SetHitboxToCapsule(CapsuleHitboxType.Default);
                         }
@@ -470,7 +470,7 @@ namespace KWEngine3.Editor
                     SelectedGameObject.SetColor(colorTintNew.X, colorTintNew.Y, colorTintNew.Z);
                 }
                 float hue = MathHelper.RadiansToDegrees(SelectedGameObject._hues[0]);
-                if(ImGui.SliderFloat("Color hue", ref hue, 0f, 359.99999f))
+                if (ImGui.SliderFloat("Color hue", ref hue, 0f, 359.99999f))
                 {
                     SelectedGameObject.SetHue(hue);
                 }
@@ -618,7 +618,7 @@ namespace KWEngine3.Editor
                         }
                     }
                 }
-                else if(SelectedGameObject._modelNameInDB == "KWPlatform")
+                else if (SelectedGameObject._modelNameInDB == "KWPlatform")
                 {
                     float[] roughness = new float[SelectedGameObject._model.Material.Length];
                     float[] metallic = new float[SelectedGameObject._model.Material.Length];
@@ -628,7 +628,7 @@ namespace KWEngine3.Editor
                     {
                         if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
                             continue;
-                        if(i > 0)
+                        if (i > 0)
                             ImGui.SameLine();
                         roughness[i] = SelectedGameObject._model.Material[i].Roughness;
                         if (SelectedGameObject._model.Material[i].TextureRoughness.IsTextureSet == false)
@@ -637,21 +637,21 @@ namespace KWEngine3.Editor
                             {
                                 SelectedGameObject.SetRoughness(roughness[i], i);
                             }
-                            
+
                         }
                         else
                         {
                             // TODO
                             ImGui.TextColored(new System.Numerics.Vector4(0, 0, 0, 1), "-------------------");
                         }
-                        
+
                     }
-                    
+
                     for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
                         if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
                             continue;
-                        if (i > 0 )
+                        if (i > 0)
                             ImGui.SameLine();
                         metallic[i] = SelectedGameObject._model.Material[i].Metallic;
 
@@ -691,7 +691,7 @@ namespace KWEngine3.Editor
                         if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
                             continue;
 
-                        if(i > 0)
+                        if (i > 0)
                             ImGui.Separator();
 
                         albedo_t[i] = SelectedGameObject._model.Material[i].TextureAlbedo.IsTextureSet ? SelectedGameObject._model.Material[i].TextureAlbedo.Filename : "";
@@ -700,7 +700,7 @@ namespace KWEngine3.Editor
                         roughness_t[i] = SelectedGameObject._model.Material[i].TextureRoughness.IsTextureSet ? SelectedGameObject._model.Material[i].TextureRoughness.Filename : "";
                         emissive_t[i] = SelectedGameObject._model.Material[i].TextureEmissive.IsTextureSet ? SelectedGameObject._model.Material[i].TextureEmissive.Filename : "";
 
-                        
+
 
                         if (ImGui.InputText("Albedo " + i, ref albedo_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                         {
@@ -708,7 +708,7 @@ namespace KWEngine3.Editor
                                 SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Albedo, i);
                             else if (File.Exists(albedo_t[i]))
                                 SelectedGameObject.SetTexture(albedo_t[i].Trim(), TextureType.Albedo, i);
-                            
+
 
                         }
                         ImGui.SameLine();
@@ -720,7 +720,7 @@ namespace KWEngine3.Editor
                                 SelectedGameObject.SetTexture(normal_t[i].Trim(), TextureType.Normal, i);
 
                         }
-                        
+
                         if (ImGui.InputText("Roughn." + i, ref roughness_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
                         {
                             if (FileNameEmpty(roughness_t[i]))
@@ -739,7 +739,7 @@ namespace KWEngine3.Editor
                                 SelectedGameObject.SetTexture(metallic_t[i].Trim(), TextureType.Metallic, i);
 
                         }
-                        
+
                     }
                     ImGui.PopItemWidth();
 
@@ -748,7 +748,7 @@ namespace KWEngine3.Editor
                     ImGui.PushItemWidth((int)(WindowRightWidth * 0.21f));
                     for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
-                        if(SelectedGameObject._model.Material[i].TextureAlbedo.IsTextureSet)
+                        if (SelectedGameObject._model.Material[i].TextureAlbedo.IsTextureSet)
                         {
                             System.Numerics.Vector2 uvTransform = new(SelectedGameObject._model.Material[i].TextureAlbedo.UVTransform.X, SelectedGameObject._model.Material[i].TextureAlbedo.UVTransform.Y);
                             if (ImGui.InputFloat2("XY #" + i, ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
@@ -762,17 +762,17 @@ namespace KWEngine3.Editor
 
                     ImGui.PopItemWidth();
                 }
-                else if(SelectedGameObject.HasArmatureAndAnimations)
+                else if (SelectedGameObject.HasArmatureAndAnimations)
                 {
                     string[] animations = new string[SelectedGameObject._model.ModelOriginal.Animations.Count + 1];
                     int selectedId = SelectedGameObject._stateCurrent.AnimationIDDefault + 1;
                     animations[0] = "no animation";
-                    for(int i = 0; i < SelectedGameObject._model.ModelOriginal.Animations.Count; i++)
+                    for (int i = 0; i < SelectedGameObject._model.ModelOriginal.Animations.Count; i++)
                     {
                         animations[i + 1] = "#" + i.ToString().PadLeft(3, '0');
                     }
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Animation:");
-                    if(ImGui.Combo("Animation ID", ref selectedId, animations, animations.Length))
+                    if (ImGui.Combo("Animation ID", ref selectedId, animations, animations.Length))
                     {
                         int tmpId = selectedId - 1;
                         SelectedGameObject.SetAnimationID(tmpId);
@@ -782,7 +782,7 @@ namespace KWEngine3.Editor
                     if (ImGui.SliderFloat("Animation %", ref goAnimPct, 0f, 1f))
                         SelectedGameObject.SetAnimationPercentage(goAnimPct);
                 }
-                
+
                 ImGui.End();
             }
             else if (SelectedLightObject != null)
@@ -885,15 +885,15 @@ namespace KWEngine3.Editor
 
                 if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                 {
-                    ImGui.SliderFloat("Shadow bias", ref SelectedLightObject._shadowBias, 0.0f, 0.0001f, "%.6f");   
+                    ImGui.SliderFloat("Shadow bias", ref SelectedLightObject._shadowBias, 0.0f, 0.0001f, "%.6f");
                 }
                 if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                 {
-                    if(KWEngine.Window._renderQuality > RenderQualityLevel.Low)
+                    if (KWEngine.Window._renderQuality > RenderQualityLevel.Low)
                         ImGui.SliderFloat("Shadow offset", ref SelectedLightObject._shadowOffset, 0.0f, 0.05f, "%.4f");
                 }
             }
-            else if(SelectedTerrainObject != null)
+            else if (SelectedTerrainObject != null)
             {
                 System.Numerics.Vector3 pNew = new(SelectedTerrainObject._stateCurrent._position.X, SelectedTerrainObject._stateCurrent._position.Y, SelectedTerrainObject._stateCurrent._position.Z);
                 System.Numerics.Vector3 colorTintNew = new(SelectedTerrainObject._stateCurrent._colorTint.X, SelectedTerrainObject._stateCurrent._colorTint.Y, SelectedTerrainObject._stateCurrent._colorTint.Z);
@@ -1153,7 +1153,7 @@ namespace KWEngine3.Editor
                         SelectedLightObject = null;
 
                     }
-                    else if(SelectedTerrainObject != null)
+                    else if (SelectedTerrainObject != null)
                     {
                         KWEngine.CurrentWorld.RemoveTerrainObject(SelectedTerrainObject);
                         SelectedTerrainObject = null;
@@ -1182,18 +1182,18 @@ namespace KWEngine3.Editor
             {
                 if (ImGui.MenuItem("Settings"))
                     _worldMenuActive = true;
-                if(ImGui.MenuItem("Export world & objects to JSON"))
+                if (ImGui.MenuItem("Export world & objects to JSON"))
                 {
                     World.Export();
                 }
                 ImGui.EndMenu();
             }
-            if(_worldMenuActive)
+            if (_worldMenuActive)
             {
                 System.Numerics.Vector3 colorAmbientNew = new(KWEngine.CurrentWorld._colorAmbient.X, KWEngine.CurrentWorld._colorAmbient.Y, KWEngine.CurrentWorld._colorAmbient.Z);
                 string bgTexture = GetBackgroundTextureName();
                 float fov = (float)Math.Round(KWEngine.CurrentWorld._cameraEditor._stateCurrent._fov * 2);
-                
+
                 int worldW = (int)Math.Max(640, KWEngine.Window.ClientSize.X * 0.333f);
                 int worldH = (int)Math.Max(256, KWEngine.Window.ClientSize.Y * 0.20f);
                 ImGui.Begin("World settings", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
@@ -1205,7 +1205,7 @@ namespace KWEngine3.Editor
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Background:");
                 ImGui.Checkbox("Skybox", ref _isSkybox);
                 ImGui.SameLine();
-                if(ImGui.InputText("Texture", ref bgTexture, 128, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll))
+                if (ImGui.InputText("Texture", ref bgTexture, 128, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll))
                 {
                     if (bgTexture == null || !File.Exists(bgTexture))
                     {
@@ -1228,9 +1228,9 @@ namespace KWEngine3.Editor
                     KWEngine.CurrentWorld.SetColorAmbient(colorAmbientNew.X, colorAmbientNew.Y, colorAmbientNew.Z);
                 }
                 ImGui.SliderFloat("Background brightness", ref KWEngine.CurrentWorld._background._brightnessMultiplier, 0f, 10f);
-                
+
                 ImGui.Separator();
-                
+
                 /*ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Collision detection debugging:");
                 ImGui.Checkbox("Octree", ref KWEngine._octreeVisible);
                 ImGui.SameLine();
@@ -1272,7 +1272,7 @@ namespace KWEngine3.Editor
                 ImGui.PopItemWidth();
 
                 ImGui.NewLine();
-                if(ImGui.Button("Export world & objects"))
+                if (ImGui.Button("Export world & objects"))
                 {
                     World.Export();
                 }
@@ -1292,7 +1292,7 @@ namespace KWEngine3.Editor
                     KWEngine.CurrentWorld._cameraEditor = KWEngine.CurrentWorld._cameraGame;
                     KWEngine.CurrentWorld._cameraEditor.UpdatePitchYaw(true);
                 }
-                if(ImGui.MenuItem("Apply current view to game camera"))
+                if (ImGui.MenuItem("Apply current view to game camera"))
                 {
                     float far = KWEngine.CurrentWorld._cameraGame._zFar;
                     KWEngine.CurrentWorld._cameraGame = KWEngine.CurrentWorld._cameraEditor;
@@ -1373,8 +1373,8 @@ namespace KWEngine3.Editor
                         KWEngine.DebugMode = DebugMode.DepthBufferShadowMap2;
                     }
                 }
-                if (maps.Count >= 3) 
-                { 
+                if (maps.Count >= 3)
+                {
                     if (ImGui.MenuItem("Shadow map #3", "", KWEngine.DebugMode == DebugMode.DepthBufferShadowMap3))
                     {
                         KWEngine.DebugMode = DebugMode.DepthBufferShadowMap3;
@@ -1392,7 +1392,7 @@ namespace KWEngine3.Editor
                 && SelectedGameObject._model.ModelOriginal.ArmatureTextureID > 0)
             {
                 const float IMG_SIZE = 512f;
-                const float WIN_PAD  = 16f;
+                const float WIN_PAD = 16f;
                 float winW = IMG_SIZE + WIN_PAD;
                 float winH = IMG_SIZE + 40f; // 40px für Titelzeile + unterer Rand
 
@@ -1469,8 +1469,8 @@ namespace KWEngine3.Editor
                         {
                             SelectedGameObject = null;
                             SelectedLightObject = KWEngine.CurrentWorld.BuildAndAddDefaultLightObjectForEditor(
-                                _lightTypes[_lightTypeIndex], 
-                                _newLightShadowCasterQuality, 
+                                _lightTypes[_lightTypeIndex],
+                                _newLightShadowCasterQuality,
                                 _csmEnabled ? SunShadowType.CascadedShadowMap : SunShadowType.Default,
                                _csmFactor == 0 ? CSMFactor.Two : _csmFactor == 1 ? CSMFactor.Four : CSMFactor.Eight);
                             _addMenuActive = EditorAddObjectType.None;
@@ -1483,7 +1483,7 @@ namespace KWEngine3.Editor
                 }
                 ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine(); ImGui.NewLine();
                 ImGui.Indent(addW - 64);
-                if(ImGui.Button("Close"))
+                if (ImGui.Button("Close"))
                 {
                     _addMenuActive = EditorAddObjectType.None;
                 }
@@ -1521,12 +1521,12 @@ namespace KWEngine3.Editor
 
             // Object list:
             int y = KWEngine.Window.ClientSize.Y - 96 - 176 - 96;
-            ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(leftInner, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);            
+            ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(leftInner, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
             if (ImGui.TreeNodeEx("GameObject instances", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.CollapsingHeader | ImGuiTreeNodeFlags.DefaultOpen))
             {
                 foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjectsSortedByType())
                 {
-                    if(g == SelectedGameObject)
+                    if (g == SelectedGameObject)
                     {
                         ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.25f, 0.5f, 1f, 0.5f));
                         ImGui.PushStyleColor(ImGuiCol.ButtonActive, new System.Numerics.Vector4(0.25f, 0.5f, 1f, 0.5f));
@@ -1538,7 +1538,7 @@ namespace KWEngine3.Editor
                         ImGui.PushStyleColor(ImGuiCol.ButtonActive, new System.Numerics.Vector4(0, 0, 0, 0));
                         ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new System.Numerics.Vector4(0.25f, 0.5f, 1.0f, 0.25f));
                     }
-                    
+
                     if (ImGui.SmallButton("[" + g.GetType().Name + "] " + g.ID + ": " + g.Name))
                     {
                         DeselectAll();
@@ -1571,7 +1571,7 @@ namespace KWEngine3.Editor
                 }
             }
 
-           
+
 
             ImGui.PopStyleColor();
 
@@ -1592,7 +1592,7 @@ namespace KWEngine3.Editor
                 ImGui.Indent((leftInner - vsgBtnW) / 2);
                 if (ImGui.Button("Show view-space game object", new System.Numerics.Vector2(vsgBtnW, 16)))
                 {
-                    
+
                     DeselectAll();
                     SelectedVSG = vsg;
                 }
@@ -1615,10 +1615,10 @@ namespace KWEngine3.Editor
 
         public static void HandleKeyboardNavigation()
         {
-            
+
             if (KWEngine.Mode == EngineMode.Edit && DiscardKeyboardNavigation() == false)
             {
-                float rate = KWEngine.LastFrameTime / (1f/60f * 1000f);
+                float rate = KWEngine.LastFrameTime / (1f / 60f * 1000f);
 
                 float step = 0.25f;
                 if (SelectedVSG != null)
@@ -1635,11 +1635,11 @@ namespace KWEngine3.Editor
                 {
                     KWEngine.CurrentWorld._cameraEditor.Strafe(step * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.A) ? -1 : 1));
                 }
-                if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.W) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.S))
+                if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.W) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.S))
                 {
                     KWEngine.CurrentWorld._cameraEditor.Move(step * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.S) ? -1 : 1));
                 }
-                if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.E) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q))
+                if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.E) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q))
                 {
                     KWEngine.CurrentWorld._cameraEditor.MoveUpDown(step * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q) ? -1 : 1));
                 }
@@ -1684,7 +1684,7 @@ namespace KWEngine3.Editor
                     }
                     else if (SelectedLightObject != null)
                     {
-                        if(KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl))
+                        if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl))
                         {
                             // TARGETS:
                             if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.PageUp))
@@ -1780,7 +1780,7 @@ namespace KWEngine3.Editor
             int id = HelperIntersection.FramebufferPicking(mousePosition);
             if (id != 0)
             {
-                if(id >= 32768)
+                if (id >= 32768)
                 {
                     // LightObject
                     SelectedGameObject = null;
@@ -2011,14 +2011,14 @@ namespace KWEngine3.Editor
             PopulateDebugPropertiesAndFields();
             if (_debugPropertiesAndFields.Count > 0)
             {
-                ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(1f, 1f, 1f, 0.2f));
+                ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.4f, 0.4f, 0.4f, 0.4f));
                 ImGui.Begin("Debug Overlay", ImGuiWindowFlags.AlwaysVerticalScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
                 ImGui.PopStyleColor();
                 float size = KWEngine.Window.ClientSize.X * 0.4f;
                 ImGui.SetWindowSize(new System.Numerics.Vector2(size, 256));
                 ImGui.SetWindowPos(new System.Numerics.Vector2(KWEngine.Window.ClientSize.X - size * 1.25f, 0 + KWEngine.Window.ClientSize.Y * 0.01f), ImGuiCond.Always);
 
-                foreach(KeyValuePair<string, List<string[]>> pair in _debugPropertiesAndFields)
+                foreach (KeyValuePair<string, List<string[]>> pair in _debugPropertiesAndFields)
                 {
                     ImGui.PushStyleColor(ImGuiCol.Text, new System.Numerics.Vector4(1f, 1f, 0f, 1f));
                     ImGui.Text(pair.Key);
@@ -2042,9 +2042,9 @@ namespace KWEngine3.Editor
                 ImGui.End();
             }
 
-            if(KWEngine.DebugOverlayMode == DebugOverlayMode.MembersAndConsole)
+            if (KWEngine.DebugOverlayMode == DebugOverlayMode.MembersAndConsole)
             {
-                ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(1f, 1f, 1f, 0.2f));
+                ImGui.PushStyleColor(ImGuiCol.WindowBg, new System.Numerics.Vector4(0.4f, 0.4f, 0.4f, 0.4f));
                 ImGui.Begin("Debug Console", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoCollapse);
                 ImGui.PopStyleColor();
                 float size = KWEngine.Window.ClientSize.X * 0.4f;
@@ -2064,7 +2064,7 @@ namespace KWEngine3.Editor
 
                 ImGui.End();
             }
-            
+
         }
 
         private static Dictionary<string, List<string[]>> _debugPropertiesAndFields = new();
@@ -2082,7 +2082,7 @@ namespace KWEngine3.Editor
                     _debugPropertiesAndFields.Add(key, new List<string[]>());
                     List<MemberInfo> fields = HelperDebug.GetKWDebugMembers(g);
 
-                    
+
 
                     foreach (MemberInfo m in fields)
                     {
@@ -2091,7 +2091,7 @@ namespace KWEngine3.Editor
                         if (attr != null)
                         {
                             string label = attr.Label ?? m.Name;
-                            if(label != null && label.Length > 24)
+                            if (label != null && label.Length > 24)
                             {
                                 label = label.Substring(0, 24).Trim() + "...";
                             }
@@ -2102,17 +2102,17 @@ namespace KWEngine3.Editor
                             if (value == null)
                             {
                                 val = "null";
-                            } 
-                            else if(value is float || value is double)
+                            }
+                            else if (value is float || value is double)
                             {
                                 val = Convert.ToDouble(value).ToString("F5");
                             }
-                            else if(value is Vector3)
+                            else if (value is Vector3)
                             {
                                 Vector3 v = (Vector3)value;
                                 val = "(" + v.X.ToString("F4") + "|" + v.Y.ToString("F4") + "|" + v.Z.ToString("F4") + ")";
                             }
-                            else if(value is Vector4)
+                            else if (value is Vector4)
                             {
                                 Vector4 v = (Vector4)value;
                                 val = "(" + v.X.ToString("F4") + "|" + v.Y.ToString("F4") + "|" + v.Z.ToString("F4") + "|" + v.W.ToString("F4") + ")";
@@ -2126,7 +2126,7 @@ namespace KWEngine3.Editor
 
 
 
-                           
+
                             _debugPropertiesAndFields[key].Add(labelValue);
                         }
                     }

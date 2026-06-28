@@ -23,11 +23,11 @@ namespace KWEngine3.Helper
         {
             Vector3 lav = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector;
 
-            if(MathF.Abs(lav.X) >= MathF.Abs(lav.Y) && MathF.Abs(lav.X) >= MathF.Abs(lav.Z))
+            if (MathF.Abs(lav.X) >= MathF.Abs(lav.Y) && MathF.Abs(lav.X) >= MathF.Abs(lav.Z))
             {
                 return lav.X > 0 ? MainCamDirection.PlusX : MainCamDirection.MinusX;
             }
-            else if(MathF.Abs(lav.Y) >= MathF.Abs(lav.X) && MathF.Abs(lav.Y) >= MathF.Abs(lav.Z))
+            else if (MathF.Abs(lav.Y) >= MathF.Abs(lav.X) && MathF.Abs(lav.Y) >= MathF.Abs(lav.Z))
             {
                 return lav.Y > 0 ? MainCamDirection.PlusY : MainCamDirection.MinusY;
             }
@@ -39,7 +39,7 @@ namespace KWEngine3.Helper
 
         public static float GetProjZForCameraMainPlane(EngineObject e, MainCamDirection camDir, ref Vector3 camPos)
         {
-            switch(camDir)
+            switch (camDir)
             {
                 case MainCamDirection.MinusX:
                     return MathF.Abs(camPos.X - e.AABBRight);
@@ -73,6 +73,7 @@ namespace KWEngine3.Helper
             else
             {
                 Matrix4 m = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix;
+                //Vector3 lookat = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector;
                 foreach (RenderObject g in transparentObjects)
                 {
                     g._projZ = HelperMatrix.FindCenterZOfAABB(g, ref m);
@@ -96,6 +97,7 @@ namespace KWEngine3.Helper
             else
             {
                 Matrix4 m = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix;
+                //Vector3 lookat = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender.LookAtVector : KWEngine.CurrentWorld._cameraGame._stateRender.LookAtVector;
                 foreach (GameObject g in transparentObjects)
                 {
                     if (g._fullDiameter > KWEngine.ZOrderModeThreshold)
@@ -131,7 +133,7 @@ namespace KWEngine3.Helper
             aabbpoints[7] = new Vector3(e.AABBRight, e.AABBHigh, e.AABBFront);
 
             float closest = float.MaxValue;
-            foreach(Vector3 v in aabbpoints)
+            foreach (Vector3 v in aabbpoints)
             {
                 Vector4 projected = new Vector4(v, 1.0f) * matrix;
                 float z = (projected.Xyz / projected.W).Z;
@@ -355,7 +357,7 @@ namespace KWEngine3.Helper
         internal static float[] Matrix4ToArray(Matrix4[] matrices)
         {
             float[] data = new float[16 * matrices.Length];
-            for(int h = 0, i = 0; i < matrices.Length; i++, h += 16)
+            for (int h = 0, i = 0; i < matrices.Length; i++, h += 16)
             {
                 data[h + 00] = matrices[i].Row0.X;
                 data[h + 01] = matrices[i].Row0.Y;
@@ -377,7 +379,7 @@ namespace KWEngine3.Helper
                 data[h + 14] = matrices[i].Row3.Z;
                 data[h + 15] = matrices[i].Row3.W;
             }
-            
+
             return data;
         }
     }

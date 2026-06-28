@@ -110,16 +110,12 @@ namespace KWEngine3.Renderer
                 SetGlobals();
                 foreach (RenderObject r in KWEngine.CurrentWorld._renderObjects)
                 {
-                    if (KWEngine.Mode != EngineMode.Edit && (r.SkipRender || !r.IsInsideScreenSpaceForRenderPass))
+                    if (KWEngine.Mode != EngineMode.Edit && (r.SkipRender || r._stateRender._opacity <= 0f || !r.IsInsideScreenSpaceForRenderPass))
                         continue;
 
                     if (r.IsTransparent || r.IsDepthTesting == false)
                     {
                         forwardObjects.Add(r);
-                        continue;
-                    }
-                    else if(r._stateRender._opacity == 0f)
-                    {
                         continue;
                     }
 
@@ -194,10 +190,10 @@ namespace KWEngine3.Renderer
                     );
                 GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
                 GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
-                
+
                 UploadTextures(ref material, r);
 
-                if(material.RenderBackFace && r.DisableBackfaceCulling)
+                if (material.RenderBackFace && r.DisableBackfaceCulling)
                 {
                     GL.Disable(EnableCap.CullFace);
                 }
@@ -240,7 +236,7 @@ namespace KWEngine3.Renderer
 
             // Metallic/Roughness
             GL.Uniform1(UTextureMetallicRoughnessCombined, material.TextureRoughnessInMetallic ? 1 : 0);
-            if(material.TextureRoughnessInMetallic)
+            if (material.TextureRoughnessInMetallic)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);

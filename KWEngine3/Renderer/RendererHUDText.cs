@@ -90,7 +90,7 @@ namespace KWEngine3.Renderer
 
         public static void Draw(HUDObjectText ho)
         {
-            if (ho == null || !ho.IsVisible || !ho.IsInsideScreenSpace())
+            if (ho == null || !ho.IsVisible || ho.Opacity <= 0f || !ho.IsInsideScreenSpace())
                 return;
 
             GL.Uniform4(UColorTint, ho._tint);
@@ -134,11 +134,11 @@ namespace KWEngine3.Renderer
                     0);
                 GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, ho._text.Length);
             }
-            
-            if(ho is HUDObjectTextInput)
+
+            if (ho is HUDObjectTextInput)
             {
                 HUDObjectTextInput i = (HUDObjectTextInput)ho;
-                if(i.HasFocus)
+                if (i.HasFocus)
                 {
                     Vector4 details = GetUOffsetForGlyph(i, out Vector4 bounds);
                     _dummyCursorBounds[0] = bounds.X;
@@ -156,7 +156,7 @@ namespace KWEngine3.Renderer
                     GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, 6, 1);
                 }
             }
-            
+
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
