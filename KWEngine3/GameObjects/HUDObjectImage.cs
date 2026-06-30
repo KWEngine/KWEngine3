@@ -13,6 +13,7 @@ namespace KWEngine3.GameObjects
         internal int _textureId = KWEngine.TextureWhite;
         internal string _textureName = "";
         internal Vector2 _textureRepeat = new Vector2(1f, 1f);
+        internal Vector2 _textureOffset = new Vector2(0f, 0f);
         internal Vector2 _textureDimsOriginal = new Vector2(1f, 1f);
         #endregion
 
@@ -78,6 +79,28 @@ namespace KWEngine3.GameObjects
         {
             _textureRepeat.X = x;
             _textureRepeat.Y = y;
+        }
+
+        /// <summary>
+        /// Gibt den aktuellen Texturverschiebungsfaktor an
+        /// </summary>
+        public Vector2 TextureOffset
+        {
+            get
+            {
+                return _textureOffset;
+            }
+        }
+
+        /// <summary>
+        /// Gibt an, wie viel Verschiebung der Textur stattfinden soll
+        /// </summary>
+        /// <param name="x">Verschiebungsfaktor in x-Richtung (zwischen 0 und 1)</param>
+        /// <param name="y">Wiederholungsfaktor in y-Richtung (zwischen 0 und 1)</param>
+        public void SetTextureOffset(float x, float y)
+        {
+            _textureOffset.X = x;
+            _textureOffset.Y = y;
         }
 
         /// <summary>
@@ -202,7 +225,7 @@ namespace KWEngine3.GameObjects
             filename = filename.Trim();
             if (File.Exists(filename))
             {
-                if(KWEngine.CurrentWorld == null)
+                if (KWEngine.CurrentWorld == null)
                 {
                     KWEngine.LogWriteLine("[HUDObject] No current world found, cannot load texture");
                     _textureId = KWEngine.TextureAlpha;
@@ -240,7 +263,7 @@ namespace KWEngine3.GameObjects
 
         internal void DisposeForLoadingScreen()
         {
-            if(_textureId != KWEngine.TextureAlpha && _textureId != KWEngine.TextureWhite)
+            if (_textureId != KWEngine.TextureAlpha && _textureId != KWEngine.TextureWhite)
             {
                 if (KWEngine.CurrentWorld._customTextures.TryGetValue(_textureName, out KWTexture texture))
                 {

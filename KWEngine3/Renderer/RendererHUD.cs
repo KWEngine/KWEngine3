@@ -48,7 +48,7 @@ namespace KWEngine3.Renderer
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
-                
+
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UColorGlow = GL.GetUniformLocation(ProgramID, "uColorGlow");
                 UTextAlign = GL.GetUniformLocation(ProgramID, "uTextAlign");
@@ -93,9 +93,9 @@ namespace KWEngine3.Renderer
                     {
                         Bind();
                         SetGlobals();
-                        Draw(h);
+                        Draw(h as HUDObjectImage);
                     }
-                        
+
                     index++;
                 }
                 GL.BindVertexArray(0);
@@ -141,7 +141,7 @@ namespace KWEngine3.Renderer
             // Render map entries:
             GeoMesh meshMap = KWEngine.CurrentWorld.Map._direction == ProjectionDirection.NegativeY ? KWEngine.KWMapItemXZ.Meshes.Values.ElementAt(0) : KWEngine.KWMapItemXY.Meshes.Values.ElementAt(0);
             Array.Sort(KWEngine.CurrentWorld.Map._items);
-            if(KWEngine.CurrentWorld.Map._background != null)
+            if (KWEngine.CurrentWorld.Map._background != null)
             {
                 DrawMapBackground(KWEngine.CurrentWorld.Map._background, meshMap);
             }
@@ -152,16 +152,12 @@ namespace KWEngine3.Renderer
                 if (KWEngine.CurrentWorld.Map._items[i]._go != null)
                 {
                     DrawMapModel(KWEngine.CurrentWorld.Map._items[i]);
-                    //Console.WriteLine("model");
                 }
                 else
                 {
                     DrawMapItem(KWEngine.CurrentWorld.Map._items[i], meshMap);
-                    //Console.WriteLine("item");
                 }
             }
-
-            //Console.WriteLine("- RENDER END-");
         }
 
         public static void DrawMapItem(HUDObjectMap ho, GeoMesh mesh)
@@ -247,20 +243,37 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
         }
 
+        // regular HUDObjectImage instances and loading screen elements as well:
         public static void Draw(HUDObject ho, float offsetX = 0f, float offsetY = 0f)
         {
-            if (ho == null || !ho.IsVisible || !ho.IsInsideScreenSpace())
+            if (ho == null || !ho.IsVisible || ho.Opacity <= 0f || !ho.IsInsideScreenSpace())
                 return;
 
             Vector2 txR = (ho is HUDObjectImage) ? (ho as HUDObjectImage)._textureRepeat : Vector2.One;
 
-            GL.Uniform4(UColorTint, ho._tint);
-            GL.Uniform4(UColorGlow, ho._glow);
-            GL.Uniform2(UTextureRepeat, txR);
+            GL.Uniform4(UColorTint, ref ho._tint);
+            GL.Uniform4(UColorGlow, ref ho._glow);
+            GL.Uniform2(UTextureRepeat, ref txR);
             GL.Uniform2(UTextureOffset, offsetX, offsetY);
             GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
-            
+
+            DrawImage(ho as HUDObjectImage);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+        }
+
+        public static void Draw(HUDObjectImage ho)
+        {
+            if (ho == null || !ho.IsVisible || ho.Opacity <= 0f || !ho.IsInsideScreenSpace())
+                return;
+
+            GL.Uniform4(UColorTint, ref ho._tint);
+            GL.Uniform4(UColorGlow, ref ho._glow);
+            GL.Uniform2(UTextureRepeat, ref ho._textureRepeat);
+            GL.Uniform2(UTextureOffset, ref ho._textureOffset);
+            GL.UniformMatrix4(UModelMatrix, false, ref ho._modelMatrix);
+            GL.UniformMatrix4(UViewProjectionMatrix, false, ref KWEngine.Window._viewProjectionMatrixHUD);
+
             DrawImage(ho as HUDObjectImage);
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }

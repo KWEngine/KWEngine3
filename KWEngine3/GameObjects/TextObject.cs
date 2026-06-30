@@ -13,14 +13,15 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Name der Instanz
         /// </summary>
-        public string Name { 
-            get 
-            { 
-                return _name; 
-            } 
+        public string Name
+        {
+            get
+            {
+                return _name;
+            }
             set
             {
-                if(value != null && value.Trim().Length > 0)
+                if (value != null && value.Trim().Length > 0)
                 {
                     _name = value.Trim();
                 }
@@ -275,7 +276,7 @@ namespace KWEngine3.GameObjects
                 return;
             }
 
-            if(KWEngine.FontDictionary.TryGetValue(font, out KWFont f))
+            if (KWEngine.FontDictionary.TryGetValue(font, out KWFont f))
             {
                 _font = f;
                 _fontname = font;
@@ -390,6 +391,7 @@ namespace KWEngine3.GameObjects
         public int CompareTo(TextObject other)
         {
             Vector3 camPos = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateCurrent._position : KWEngine.CurrentWorld.CameraPosition;
+            Vector3 camLookAtVector = KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateCurrent.LookAtVector : KWEngine.CurrentWorld.CameraLookAtVector;
 
             float distanceToCameraThis = (this._stateCurrent._position - camPos).LengthSquared;
             float distanceToCameraOther = (other._stateCurrent._position - camPos).LengthSquared;

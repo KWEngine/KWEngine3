@@ -33,7 +33,7 @@ namespace KWEngine3.Renderer
         public static int UIdShadowCaster { get; private set; } = -1;
         public static int UCameraPosition { get; private set; } = -1;
 
-        private const int TEXTUREOFFSET = 0;        
+        private const int TEXTUREOFFSET = 0;
 
         public static void Init()
         {
@@ -100,15 +100,17 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
         }
 
+        private static List<GameObject> forwardObjects = new();
+
         public static List<GameObject> RenderScene(List<GameObject> stencilObjects)
         {
-            List<GameObject> forwardObjects = new();
+            forwardObjects.Clear();
 
             SetGlobals();
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || !g.IsInsideScreenSpaceForRenderPass))
+                if (KWEngine.Mode != EngineMode.Edit && (g.SkipRender || g._stateRender._opacity <= 0f || !g.IsInsideScreenSpaceForRenderPass))
                     continue;
 
                 if (g._colorHighlightMode != HighlightMode.Disabled && g._colorHighlight.W > 0f)
@@ -157,7 +159,7 @@ namespace KWEngine3.Renderer
                 {
                     GL.Uniform1(UUseAnimations, 1);
                     int boneMatrixCount = g._stateRender._boneTranslationMatrices[mesh.Name].Length;
-                    
+
                     for (int j = 0; j < boneMatrixCount; j++)
                     {
                         Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
@@ -194,10 +196,10 @@ namespace KWEngine3.Renderer
                     );
                 GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
                 GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
-                
+
                 UploadTextures(ref material, g);
 
-                if(material.RenderBackFace && g.DisableBackfaceCulling)
+                if (material.RenderBackFace && g.DisableBackfaceCulling)
                 {
                     GL.Disable(EnableCap.CullFace);
                 }
@@ -239,7 +241,7 @@ namespace KWEngine3.Renderer
 
             // Metallic/Roughness
             GL.Uniform1(UTextureMetallicRoughnessCombined, material.TextureRoughnessInMetallic ? 1 : 0);
-            if(material.TextureRoughnessInMetallic)
+            if (material.TextureRoughnessInMetallic)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 3);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);
