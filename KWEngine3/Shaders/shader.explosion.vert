@@ -146,6 +146,9 @@ void main()
         modelMatrix[3][2] = uSpreadSizeLength.x * lookAt.z * axis.w - lookAt.z * 0.5 * uTime;
 
         modelMatrix = uDirectionMatrix * modelMatrix;
+        modelMatrix[3][0] += uPosition.x;
+        modelMatrix[3][1] += uPosition.y;
+        modelMatrix[3][2] += uPosition.z;
     }
     else // spark
     {
