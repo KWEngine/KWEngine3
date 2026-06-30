@@ -9,18 +9,18 @@ namespace KWEngine3TestProject.Worlds
     internal class GameWorldExplosionTest : World
     {
         private float[] _timestamps = new float[5];
-        
+
         public override void Act()
         {
-            for(int i = 0; i < _timestamps.Length; i++)
+            for (int i = 0; i < 1; i++)
             {
-                if(WorldTime - _timestamps[i] >= 1f)
+                if (WorldTime - _timestamps[i] >= 0.5f)
                 {
                     ExplosionObject ex = new ExplosionObject(8, 1f, 1, 0.95f, ExplosionType.Cube);
-                        
+
                     ex.SetPosition((i - 2) * 3f, 4f, 0f);
-                    ex.SetColor(1, 0, 0);
-                    //ex.SetColorEmissive(0.55f, 0.0f, 0.55f);
+                    ex.SetColor(1, 1, 1);
+                    ex.SetColorEmissive(2, 2, 2);
                     ex.SetDirection(4, 0, 0);
                     ex.SetAlgorithm(ExplosionAnimation.Spark);
 
@@ -37,7 +37,7 @@ namespace KWEngine3TestProject.Worlds
 
             SetBackgroundSkybox("./Textures/skybox_planecollisiontest.dds", 0f, SkyboxType.Equirectangular);
             SetBackgroundBrightnessMultiplier(2);
-            SetColorAmbient(0.5f, 0.5f, 0.5f);
+            SetColorAmbient(0.1f, 0.1f, 0.1f);
 
             Immovable floor = new Immovable();
             floor.Name = "Floor";

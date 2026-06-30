@@ -39,5 +39,5 @@ void main()
 	normal = vec2(0.0);
 	idShadowCaster = vec3(1.0, 1.0, 1.0 / 255.0); 
 	metallicRoughnessMetallicType = vec3(0.0, 1.0, 0.0);
-    emissive = hueShift(uColorEmissive.xyz, m * factor) * 0.5;
+    emissive = hueShift(uColorEmissive.xyz, m * factor);
 }

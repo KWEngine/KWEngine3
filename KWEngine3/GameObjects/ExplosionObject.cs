@@ -21,9 +21,9 @@ namespace KWEngine3.GameObjects
             }
             internal set
             {
-                _colorEmissive.X = HelperGeneral.Clamp(value.X, 0f, 1f);
-                _colorEmissive.Y = HelperGeneral.Clamp(value.Y, 0f, 1f);
-                _colorEmissive.Z = HelperGeneral.Clamp(value.Z, 0f, 1f);
+                _colorEmissive.X = HelperGeneral.Clamp(value.X, 0f, 3f);
+                _colorEmissive.Y = HelperGeneral.Clamp(value.Y, 0f, 3f);
+                _colorEmissive.Z = HelperGeneral.Clamp(value.Z, 0f, 3f);
             }
         }
 
@@ -50,7 +50,7 @@ namespace KWEngine3.GameObjects
         /// <param name="red">Rot (0 bis 1)</param>
         /// <param name="green">Grün (0 bis 1)</param>
         /// <param name="blue">Blau (0 bis 1)</param>
-        /// <param name="intensity">Helligkeit (0 bis 2)</param>
+        /// <param name="intensity">Helligkeit (0 bis 3)</param>
         [Obsolete("Seit KWEngine 3.0.6 wird die Farb- und Leuchtstärke anders berechnet. Bitte verwenden Sie die SetColorEmissive(float, float, float)")]
         public void SetColorEmissive(float red, float green, float blue, float intensity)
         {
@@ -60,9 +60,9 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Glühfarbe der Explosionspartikel
         /// </summary>
-        /// <param name="red">Rot (0 bis 2)</param>
-        /// <param name="green">Grün (0 bis 2)</param>
-        /// <param name="blue">Blau (0 bis 2)</param>
+        /// <param name="red">Rot (0 bis 3)</param>
+        /// <param name="green">Grün (0 bis 3)</param>
+        /// <param name="blue">Blau (0 bis 3)</param>
         public void SetColorEmissive(float red, float green, float blue)
         {
             ColorEmissive = new Vector3(red, green, blue);
@@ -293,11 +293,11 @@ namespace KWEngine3.GameObjects
 
         internal override void Act()
         {
-            if(_starttime >= 0)
+            if (_starttime >= 0)
             {
                 float currentTime = KWEngine.WorldTime;
                 _secondsAlive = currentTime - _starttime;
-                if(_secondsAlive > _duration)
+                if (_secondsAlive > _duration)
                 {
                     Finished = true;
                 }
