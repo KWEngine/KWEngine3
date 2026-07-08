@@ -18,7 +18,7 @@ namespace KWEngine3.Renderer
         public static int USpreadSizeLength { get; private set; } = -1;
         public static int UDirection { get; private set; } = -1;
         public static int UPosition { get; private set; } = -1;
-        public static int UAxes { get; private set; } = -1;
+        public static int USeed { get; private set; } = -1;
         public static int UAlgorithm { get; private set; } = -1;
         public static int UTowardsIndex { get; private set; } = -1;
         public static int UColorEmissive { get; private set; } = -1;
@@ -60,7 +60,7 @@ namespace KWEngine3.Renderer
                 UNumber = GL.GetUniformLocation(ProgramID, "uNumber");
                 USpreadSizeLength = GL.GetUniformLocation(ProgramID, "uSpreadSizeLength");
                 UPosition = GL.GetUniformLocation(ProgramID, "uPosition");
-                UAxes = GL.GetUniformLocation(ProgramID, "uAxes");
+                USeed = GL.GetUniformLocation(ProgramID, "uSeed");
                 UAlgorithm = GL.GetUniformLocation(ProgramID, "uAlgorithm");
                 UTowardsIndex = GL.GetUniformLocation(ProgramID, "uTowardsIndex");
                 UColor = GL.GetUniformLocation(ProgramID, "uColor");
@@ -114,10 +114,10 @@ namespace KWEngine3.Renderer
                 GL.Uniform1(UTowardsIndex, 1);
             else
                 GL.Uniform1(UTowardsIndex, 2);
-            GL.Uniform2(UAxes, e._amount, e._directions);
+            GL.Uniform1(USeed, e._seed);
 
-            
-            GeoMesh mesh = e._model.Meshes.ElementAt(0).Value;
+
+            GeoMesh mesh = e._model.MeshesArray[0];
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);
             GL.DrawElementsInstanced(mesh.Primitive, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, e._amount);

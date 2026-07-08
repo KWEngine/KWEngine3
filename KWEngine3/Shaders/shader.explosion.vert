@@ -3,6 +3,7 @@
 #define M_PIHALF 3.141592 / 2.0
 #define M_PI 3.141592
 #define M_PIE 3.141592 * 2.0
+#define AXES_COUNT 22
 
 layout(location = 0) in vec3 aPosition;
 layout(location = 1) in vec3 aNormal;
@@ -17,7 +18,7 @@ uniform float uNumber;
 uniform vec3 uPosition;
 uniform int uAlgorithm;
 uniform int uTowardsIndex;
-uniform vec2 uAxes[512];
+uniform float uSeed;
 uniform vec3 uDirection;
 uniform mat4 uDirectionMatrix;
 
@@ -80,10 +81,38 @@ vec3 rotateVectorY(vec3 v, float angle)
     return vec3(cos(angle) * v.x - sin(angle) * v.z, v.y, sin(angle) * v.x + cos(angle) *v.z);
 }
 
+// cheap per-instance pseudo random number generator (replaces CPU-side array upload):
+float hash11(float p)
+{
+    p = fract(p * 0.1031);
+    p *= p + 33.33;
+    p *= p + p;
+    return fract(p);
+}
+
 void main()
 {
     float instancePercent = gl_InstanceID / (uNumber + 1);
-    vec4 axis = vec4(AXES[int(uAxes[gl_InstanceID].x)], uAxes[gl_InstanceID].y);
+
+    float hAxis = hash11(float(gl_InstanceID) * 12.9898 + uSeed);
+    float hSize = hash11(float(gl_InstanceID) * 78.233 + uSeed * 3.7 + 17.0);
+
+    int axisIndex;
+    if(uTowardsIndex == 1) // ring explosion around Y axis: axis is fixed, not random
+    {
+        axisIndex = 1;
+    }
+    else if(uTowardsIndex == 2) // ring explosion around Z axis: axis is fixed, not random
+    {
+        axisIndex = 2;
+    }
+    else // regular explosion: pick pseudo random axis out of AXES[] per instance
+    {
+        axisIndex = min(int(hAxis * float(AXES_COUNT)), AXES_COUNT - 1);
+    }
+    float sizeRand = hSize * 0.9 + 0.1;
+
+    vec4 axis = vec4(AXES[axisIndex], sizeRand);
     mat4 rotation = rotationMatrix(axis.xyz, instancePercent * (1.95 * M_PI));
     vec3 lookAt = normalize(vec3(rotation[0][0], rotation[1][0], rotation[2][0]));
 	mat4 modelMatrix = mat4(1.0);

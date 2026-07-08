@@ -1,7 +1,6 @@
 ﻿using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
-using System.Buffers;
 
 namespace KWEngine3.GameObjects
 {
@@ -189,19 +188,7 @@ namespace KWEngine3.GameObjects
             _spread = explosionRadius > 0 ? explosionRadius : 10;
             _duration = durationInSeconds > 0 ? durationInSeconds : 2;
             _particleSize = particleSize > 0 ? particleSize : 1f;
-            _directions = ArrayPool<float>.Shared.Rent(_amount * 2);
-
-            for (int i = 0, arrayindex = 0; i < _amount; i++, arrayindex += 2)
-            {
-                if ((int)type < 100)
-                    _directions[arrayindex] = HelperRandom.GetRandomNumber(0f, AxesCount - 1);
-                else if ((int)type < 1000)
-                    _directions[arrayindex] = 1;
-                else
-                    _directions[arrayindex] = 2;
-
-                _directions[arrayindex + 1] = HelperRandom.GetRandomNumber(0.1f, 1.0f);
-            }
+            _seed = HelperRandom.GetRandomNumber(0f, 1000f);
         }
 
         /// <summary>
@@ -255,36 +242,9 @@ namespace KWEngine3.GameObjects
         internal Matrix4 _directionMatrix = Matrix4.Identity;
         internal float _directionLength = 1.0f;
         internal Vector3 _direction = Vector3.One;
-        internal float[] _directions; // = new float[MAX_PARTICLES * 2];
+        internal float _seed = 0f;
         internal ExplosionAnimation _algorithm = 0;
         internal ExplosionType _type = ExplosionType.Cube;
-        internal static readonly Vector3[] Axes = new Vector3[] {
-            Vector3.UnitX,
-            Vector3.UnitY,
-            Vector3.UnitZ,
-            -Vector3.UnitX,
-            -Vector3.UnitY,
-            -Vector3.UnitZ,
-
-            new Vector3(0.707107f,0.707107f,0),   // right       up
-            new Vector3(0.577351f,0.577351f,0.577351f),   // right front up
-            new Vector3(0,0.707107f,0.707107f),   // front       up
-            new Vector3(-0.577351f,0.577351f,0.577351f),  // left front  up
-            new Vector3(-0.707107f,0.707107f,0),  // left        up
-            new Vector3(-0.577351f,0.577351f,-0.577351f), // left back   up
-            new Vector3(0,0.707107f,-0.707107f),  // back        up
-            new Vector3(0.577351f,0.577351f,-0.577351f),  // right back  up
-
-            new Vector3(0.707107f,-0.707107f,0),   // right       down
-            new Vector3(0.707107f,-0.707107f,0.707107f),   // right front down
-            new Vector3(0,-0.707107f,0.707107f),   // front       down
-            new Vector3(-0.577351f,-0.577351f,0.577351f),  // left front  down
-            new Vector3(-0.707107f,-0.707107f,0),  // left        down
-            new Vector3(-0.577351f,-0.577351f,-0.577351f), // left back   down
-            new Vector3(0,-0.707107f,-0.707107f),  // back        down
-            new Vector3(0.577351f,-0.577351f,-0.577351f),  // right back  down
-        };
-        internal static int AxesCount = Axes.Length;
         internal const int MAX_PARTICLES = 512;
 
         internal GeoModel _model;

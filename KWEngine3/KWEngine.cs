@@ -1345,11 +1345,6 @@ namespace KWEngine3
             KWFoliageImposter = SceneImporter.LoadModel("kwgrass_imposter.obj", true, SceneImporter.AssemblyMode.Internal);
 
             KWFoliageGrass.Init();
-
-            for (int i = 0; i < ExplosionObject.Axes.Length; i++)
-            {
-                ExplosionObject.Axes[i] = Vector3.Normalize(ExplosionObject.Axes[i]);
-            }
         }
 
         internal static Dictionary<ParticleType, ParticleInfo> ParticleDictionary = new();
