@@ -17,7 +17,7 @@ namespace KWEngine3TestProject.Worlds
                 _timestamp = WorldTime;
                 ExplosionObject ex = new ExplosionObject(128, 0.2f, 2f, 1.5f, ExplosionType.Cube);
                 ex.SetPosition(0, 3, 0);
-                ex.SetAlgorithm(ExplosionAnimation.WhirlwindUp);
+                ex.SetAlgorithm(ExplosionAnimation.Spread);
                 ex.SetDirection(3, 3, 3);
                 ex.SetColor(1f, 1f, 1f);
                 ex.SetColorEmissive(0.5f, 0.5f, 0.5f);

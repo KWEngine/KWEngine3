@@ -140,33 +140,43 @@ void main()
 
     if(uAlgorithm == 0) // spread
     {
-        modelMatrix[3][0] = uPosition.x + uSpreadSizeLength.x * uTime * lookAt.x * axis.w;
-        modelMatrix[3][1] = uPosition.y + uSpreadSizeLength.x * uTime * lookAt.y * axis.w;
-        modelMatrix[3][2] = uPosition.z + uSpreadSizeLength.x * uTime * lookAt.z * axis.w;
+        modelMatrix[3][0] = uSpreadSizeLength.x * uTime * lookAt.x * axis.w;
+        modelMatrix[3][1] = uSpreadSizeLength.x * uTime * lookAt.y * axis.w;
+        modelMatrix[3][2] = uSpreadSizeLength.x * uTime * lookAt.z * axis.w;
+
+        modelMatrix = uDirectionMatrix * modelMatrix;
+        modelMatrix[3][0] += uPosition.x;
+        modelMatrix[3][1] += uPosition.y;
+        modelMatrix[3][2] += uPosition.z;
     }
     else if(uAlgorithm == 1) // wind up
     {
-      
-        modelMatrix[3][0] = uPosition.x + uSpreadSizeLength.x * uTime * lookAt.x * axis.w + lookAt.x * sin(uTime * 1.5 * M_PI);
-        modelMatrix[3][1] = uPosition.y + uSpreadSizeLength.x * uTime * abs(lookAt.y) * axis.w + uSpreadSizeLength.z * uTime;
-        modelMatrix[3][2] = uPosition.z + uSpreadSizeLength.x * uTime * lookAt.z * axis.w + lookAt.z * sin(uTime * 1.5 * M_PI);
+        modelMatrix[3][0] = uSpreadSizeLength.x * uTime * lookAt.x * axis.w + lookAt.x * sin(uTime * 1.5 * M_PI);
+        modelMatrix[3][1] = uSpreadSizeLength.x * uTime * abs(lookAt.y) * axis.w + uSpreadSizeLength.z * uTime;
+        modelMatrix[3][2] = uSpreadSizeLength.x * uTime * lookAt.z * axis.w + lookAt.z * sin(uTime * 1.5 * M_PI);
 
         modelMatrix = uDirectionMatrix * modelMatrix;
+        modelMatrix[3][0] += uPosition.x;
+        modelMatrix[3][1] += uPosition.y;
+        modelMatrix[3][2] += uPosition.z;
     }
     else if(uAlgorithm == 2) // whirlwind up
     {
         modelMatrix[3][0] = 0.5 * uSpreadSizeLength.x * sin(uTime * M_PI) * (1.0 - lookAt.x) * axis.w;
-        modelMatrix[3][1] = uPosition.y + uSpreadSizeLength.x * uTime * abs(lookAt.y) * axis.w + uSpreadSizeLength.z * uTime;
+        modelMatrix[3][1] = uSpreadSizeLength.x * uTime * abs(lookAt.y) * axis.w + uSpreadSizeLength.z * uTime;
         modelMatrix[3][2] = 0.5 * uSpreadSizeLength.x * sin(uTime * M_PI) *(1.0 - lookAt.z) * axis.w;
 
         vec3 tmp = vec3(modelMatrix[3][0], modelMatrix[3][1], modelMatrix[3][2]);
         tmp = rotateVectorY(tmp, instancePercent * uTime * M_PIE * 2.0);
 
-        modelMatrix[3][0] = uPosition.x + tmp.x;
-        modelMatrix[3][1] = uPosition.y + tmp.y;
-        modelMatrix[3][2] = uPosition.z + tmp.z;
+        modelMatrix[3][0] = tmp.x;
+        modelMatrix[3][1] = tmp.y;
+        modelMatrix[3][2] = tmp.z;
 
         modelMatrix = uDirectionMatrix * modelMatrix;
+        modelMatrix[3][0] += uPosition.x;
+        modelMatrix[3][1] += uPosition.y;
+        modelMatrix[3][2] += uPosition.z;
     }
     else if(uAlgorithm == 3) // exhaust
     {
