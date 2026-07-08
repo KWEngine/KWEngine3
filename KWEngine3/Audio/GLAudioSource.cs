@@ -45,9 +45,8 @@ namespace KWEngine3.Audio
         private double[] mAnalyzeBuffer;
         internal volatile LomontFFT _fft;
         internal AudioBufferSpectrum _currentSpectrum;
-        //private Thread _playbackThread;
-        internal Task _playbackTask;
-        internal CancellationTokenSource _cts;
+        private readonly object mAlLock = new object();
+        private volatile bool mIsDraining = false;
 
         private double[] _magnitudesPerBin = new double[20];
         private int[] _magnitudesAddedPerBin = new int[20];
@@ -401,9 +400,6 @@ namespace KWEngine3.Audio
         {
             get
             {
-                //if (_playbackThread == null) return true;
-                //else if (_playbackThread.IsAlive) return false;
-                //else return true;
                 return !IsPlayingOrPaused;
             }
         }
@@ -436,35 +432,61 @@ namespace KWEngine3.Audio
         {
             Stop();
 
-            UnqueueBuffers();
-
-            int buffersFilled = 0;
-            foreach (int buffer in mBuffers)
+            lock (mAlLock)
             {
-                buffersFilled++;
-                if (!StreamIntoBuffer(buffer))
+                UnqueueBuffers();
+
+                mIsDraining = false;
+                foreach (int buffer in mBuffers)
                 {
-                    break;
+                    if (!StreamIntoBuffer(buffer))
+                    {
+                        mIsDraining = true;
+                        break;
+                    }
                 }
+
+                foreach (int buffer in mBuffers)
+                    AL.SourceQueueBuffer(mSource, buffer);
+
+                State = PlaybackState.Playing;
+                AL.SourcePlay(mSource);
             }
-
-            foreach (int buffer in mBuffers)
-                AL.SourceQueueBuffer(mSource, buffer);
-
-            State = PlaybackState.Playing;
-            AL.SourcePlay(mSource);
-
-            _cts = new CancellationTokenSource();
-            _playbackTask = Task.Run(() => StartAndStreamAudio(_cts.Token), _cts.Token);
         }
 
-        private void StartAndStreamAudio(CancellationToken token)
+        internal void StreamStep()
         {
-            while (IsPlayingOrPaused && !token.IsCancellationRequested)
+            if (!IsPlayingOrPaused)
+                return;
+
+            if (KWEngine.Window._disposed > GLWindow.DisposeStatus.None)
             {
-                if(KWEngine.Window._disposed > GLWindow.DisposeStatus.None)
+                lock (mAlLock)
                 {
-                    break;
+                    AL.SourceStop(mSource);
+                    State = PlaybackState.Stopped;
+                    _currentSpectrum.IsValid = false;
+                    mIsDraining = false;
+                }
+                return;
+            }
+
+            lock (mAlLock)
+            {
+                if (mIsDraining)
+                {
+                    if (State == PlaybackState.Playing)
+                    {
+                        AL.GetSource(mSource, ALGetSourcei.SourceState, out int sStateDraining);
+                        if (sStateDraining != (int)ALSourceState.Playing)
+                        {
+                            AL.SourceStop(mSource);
+                            State = PlaybackState.Stopped;
+                            _currentSpectrum.IsValid = false;
+                            mIsDraining = false;
+                        }
+                    }
+                    return;
                 }
 
                 int processed;
@@ -480,71 +502,50 @@ namespace KWEngine3.Audio
                     }
                     else
                     {
-                        if (IsPlaying)
-                        {
-                            AL.GetSource(mSource, ALGetSourcei.SourceState, out int sState);
-                            while (sState == (int)ALSourceState.Playing)
-                            {
-                                Thread.Sleep(1);
-                                AL.GetSource(mSource, ALGetSourcei.SourceState, out sState);
-                            }
-                            AL.SourceStop(mSource);
-                            State = PlaybackState.Stopped;
-                        }
-                        return;
+                        mIsDraining = true;
+                        break;
                     }
                 }
-                Thread.Sleep(Audio.BufferSizeMs / 2);
             }
-            AL.SourceStop(mSource);
-            State = PlaybackState.Stopped;
-            _currentSpectrum.IsValid = false;
-            return;
         }
 
         public void Stop()
         {
-            if (IsPlayingOrPaused)
+            lock (mAlLock)
             {
-                try
-                {
-                    _cts?.Cancel();
-                    _currentSpectrum.IsValid = false;
-                    try
-                    {
-                        _playbackTask?.Wait(500);
-                    }
-                    catch (AggregateException) { }
-                }
-                catch(ObjectDisposedException)
-                {
-                    // :-)
-                }
                 _currentSpectrum.IsValid = false;
+                mIsDraining = false;
+                State = PlaybackState.Stopped;
+
+                AL.SourceStop(mSource);
+
+                EraseBuffers();
             }
 
-            AL.SourceStop(mSource);
-
-            EraseBuffers();
-            
             mReadPosition = 0;
         }
 
         public void Pause()
         {
-            if (IsPlaying)
+            lock (mAlLock)
             {
-                State = PlaybackState.Paused;
-                AL.SourcePause(mSource);
+                if (IsPlaying)
+                {
+                    State = PlaybackState.Paused;
+                    AL.SourcePause(mSource);
+                }
             }
         }
 
         public void Continue()
         {
-            if (IsPaused)
+            lock (mAlLock)
             {
-                State = PlaybackState.Playing;
-                AL.SourcePlay(mSource);
+                if (IsPaused)
+                {
+                    State = PlaybackState.Playing;
+                    AL.SourcePlay(mSource);
+                }
             }
         }
 
@@ -555,48 +556,12 @@ namespace KWEngine3.Audio
 
         public void Clear()
         {
-            if(_playbackTask != null)
+            lock (mAlLock)
             {
-                try
-                {
-                    if (_cts != null && _cts.Token.CanBeCanceled)
-                    {
-                        _cts.Cancel();
-                        try
-                        {
-                            _playbackTask?.Wait(); // wait for cancellation
-                        }
-                        catch (AggregateException) 
-                        {
-                            // this exception here is to be expected some times :-)
-                        }
-                        catch (ObjectDisposedException) 
-                        {
-                            // not sure if this can happen here...
-                        }
-                        _cts.Dispose();
-                    }
-
-
-                    try
-                    {
-                        _playbackTask.Dispose();
-                    }
-                    catch(InvalidOperationException)
-                    {
-                    }
-                }
-                catch(ObjectDisposedException)
-                {
-                    // :)
-                }
-                catch(InvalidOperationException)
-                {
-                    // :)
-                }
+                mIsDraining = false;
+                DeleteBuffers();
+                AL.DeleteSource(mSource);
             }
-            DeleteBuffers();
-            AL.DeleteSource(mSource);
         }
 
         private void DeleteBuffers()

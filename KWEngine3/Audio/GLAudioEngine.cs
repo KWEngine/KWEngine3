@@ -21,6 +21,9 @@ namespace KWEngine3.Audio
         private static bool mAudioOn = false;
         private static List<GLAudioSource> mSources = new List<GLAudioSource>();
 
+        private static Thread mAudioStreamingThread;
+        private static volatile bool mDoRunStreamingThread = false;
+
         internal const int MAX_CHANNELS = 32;
 
 
@@ -66,6 +69,10 @@ namespace KWEngine3.Audio
                     GLAudioSource s = new GLAudioSource();
                     mSources.Add(s);
                 }
+
+                mDoRunStreamingThread = true;
+                mAudioStreamingThread = new Thread(new ThreadStart(AudioStreamingThreadMethod));
+                mAudioStreamingThread.Start();
             }
             else
             {
@@ -73,8 +80,33 @@ namespace KWEngine3.Audio
             }
         }
 
+        private static void AudioStreamingThreadMethod()
+        {
+            while (mDoRunStreamingThread)
+            {
+                if (KWEngine.Window._disposed > GLWindow.DisposeStatus.None)
+                {
+                    mDoRunStreamingThread = false;
+                    break;
+                }
+
+                for (int i = 0; i < mSources.Count; i++)
+                {
+                    mSources[i]?.StreamStep();
+                }
+
+                Thread.Sleep(Math.Max(1, Audio.BufferSizeMs / 2));
+            }
+        }
+
         public static void InitAudioEngine()
         {
+            mDoRunStreamingThread = false;
+            if (mAudioStreamingThread != null && mAudioStreamingThread.IsAlive)
+            {
+                mAudioStreamingThread.Join();
+            }
+
             foreach (GLAudioSource s in mSources)
             {
                 s.Clear();
@@ -374,6 +406,13 @@ namespace KWEngine3.Audio
         public static void Dispose()
         {
             mAudioInitThread?.Join();
+
+            mDoRunStreamingThread = false;
+            if (mAudioStreamingThread != null && mAudioStreamingThread.IsAlive)
+            {
+                mAudioStreamingThread.Join();
+            }
+
             if (mAudioOn)
             {
                 foreach (GLAudioSource s in mSources)

@@ -80,7 +80,7 @@ namespace KWEngine3.GameObjects
                 return;
             }
 
-            if (Material.Length > meshId)
+            if (Material.Length > meshId && meshId >= 0)
             {
                 int textureId;
                 if (KWEngine.CurrentWorld._customTextures.ContainsKey(filename))
