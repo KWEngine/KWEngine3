@@ -98,9 +98,10 @@ namespace KWEngine3.GameObjects
                 {
                     _modelNameInDB = modelname;
                     _model = new EngineObjectModel(model);
+                    GeoMesh[] modelMeshesArray = model.MeshesArray;
                     for (int i = 0; i < _model.Material.Length; i++)
                     {
-                        _model.Material[i] = model.Meshes.Values.ToArray()[i].Material;
+                        _model.Material[i] = modelMeshesArray[i].Material;
                     }
                     _hues = new float[model.Meshes.Count];
                     InitHitboxes();
@@ -199,10 +200,6 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref scale, ref rotation, ref position);
-                if (Mode == InstanceMode.Absolute)
-                    tmp = _stateCurrent._modelMatrixInverse * tmp;
-
                 _instancePositions[instanceIndex] = position;
                 _instanceScales[instanceIndex] = scale;
                 _instanceRotations[instanceIndex] = rotation;
@@ -267,137 +264,101 @@ namespace KWEngine3.GameObjects
             {
                 GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
 
+                Matrix4 tmp;
                 if (i == 0)
                 {
-                    Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _stateCurrent._scale, ref _stateCurrent._rotation, ref _stateCurrent._position);
-                    if (Mode == InstanceMode.Absolute)
-                        tmp = _stateCurrent._modelMatrixInverse * tmp;
-
-                    // MODEL MATRIX
-                    _uboTempData[00] = tmp.M11;
-                    _uboTempData[01] = tmp.M12;
-                    _uboTempData[02] = tmp.M13;
-                    _uboTempData[03] = tmp.M14;
-
-                    _uboTempData[04] = tmp.M21;
-                    _uboTempData[05] = tmp.M22;
-                    _uboTempData[06] = tmp.M23;
-                    _uboTempData[07] = tmp.M24;
-
-                    _uboTempData[08] = tmp.M31;
-                    _uboTempData[09] = tmp.M32;
-                    _uboTempData[10] = tmp.M33;
-                    _uboTempData[11] = tmp.M34;
-
-                    _uboTempData[12] = tmp.M41;
-                    _uboTempData[13] = tmp.M42;
-                    _uboTempData[14] = tmp.M43;
-                    _uboTempData[15] = tmp.M44;
-
-                    GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
+                    // _stateCurrent._modelMatrix is already up to date at this point
+                    // (base class setters call UpdateModelMatrixAndHitboxes() before this method runs),
+                    // so recomputing it here would be redundant. In Absolute mode, _modelMatrixInverse * _modelMatrix
+                    // is mathematically Identity, so the multiplication can be skipped entirely.
+                    tmp = Mode == InstanceMode.Absolute ? Matrix4.Identity : _stateCurrent._modelMatrix;
                 }
                 else
                 {
-                    Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
+                    tmp = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
                     if (Mode == InstanceMode.Absolute)
                         tmp = _stateCurrent._modelMatrixInverse * tmp;
-
-                    // MODEL MATRIX
-                    _uboTempData[00] = tmp.M11;
-                    _uboTempData[01] = tmp.M12;
-                    _uboTempData[02] = tmp.M13;
-                    _uboTempData[03] = tmp.M14;
-
-                    _uboTempData[04] = tmp.M21;
-                    _uboTempData[05] = tmp.M22;
-                    _uboTempData[06] = tmp.M23;
-                    _uboTempData[07] = tmp.M24;
-
-                    _uboTempData[08] = tmp.M31;
-                    _uboTempData[09] = tmp.M32;
-                    _uboTempData[10] = tmp.M33;
-                    _uboTempData[11] = tmp.M34;
-
-                    _uboTempData[12] = tmp.M41;
-                    _uboTempData[13] = tmp.M42;
-                    _uboTempData[14] = tmp.M43;
-                    _uboTempData[15] = tmp.M44;
-
-                    GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
                 }
 
-                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+                // MODEL MATRIX
+                _uboTempData[00] = tmp.M11;
+                _uboTempData[01] = tmp.M12;
+                _uboTempData[02] = tmp.M13;
+                _uboTempData[03] = tmp.M14;
+
+                _uboTempData[04] = tmp.M21;
+                _uboTempData[05] = tmp.M22;
+                _uboTempData[06] = tmp.M23;
+                _uboTempData[07] = tmp.M24;
+
+                _uboTempData[08] = tmp.M31;
+                _uboTempData[09] = tmp.M32;
+                _uboTempData[10] = tmp.M33;
+                _uboTempData[11] = tmp.M34;
+
+                _uboTempData[12] = tmp.M41;
+                _uboTempData[13] = tmp.M42;
+                _uboTempData[14] = tmp.M43;
+                _uboTempData[15] = tmp.M44;
+
+                GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
             }
         }
 
         internal void WriteAllDataToUBO()
         {
-            GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
-            GL.BufferData(BufferTarget.UniformBuffer, InstanceCount * BYTESPERINSTANCE, IntPtr.Zero, BufferUsageHint.DynamicDraw);
+            int floatsPerInstance = BYTESPERINSTANCE / 4;
+            int totalFloats = InstanceCount * floatsPerInstance;
+            if (_uboTempData == null || _uboTempData.Length < totalFloats)
+            {
+                _uboTempData = new float[totalFloats];
+            }
 
             for (int i = 0; i < InstanceCount; i++)
             {
-                if(i == 0)
+                Matrix4 tmp;
+                if (i == 0)
                 {
-                    
-                    Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _stateCurrent._scale, ref _stateCurrent._rotation, ref _stateCurrent._position);
-                    if (Mode == InstanceMode.Absolute)
-                        tmp = _stateCurrent._modelMatrixInverse * tmp;
-
-                    // MODEL MATRIX
-                    _uboTempData[00] = tmp.M11;
-                    _uboTempData[01] = tmp.M12;
-                    _uboTempData[02] = tmp.M13;
-                    _uboTempData[03] = tmp.M14;
-
-                    _uboTempData[04] = tmp.M21;
-                    _uboTempData[05] = tmp.M22;
-                    _uboTempData[06] = tmp.M23;
-                    _uboTempData[07] = tmp.M24;
-
-                    _uboTempData[08] = tmp.M31;
-                    _uboTempData[09] = tmp.M32;
-                    _uboTempData[10] = tmp.M33;
-                    _uboTempData[11] = tmp.M34;
-
-                    _uboTempData[12] = tmp.M41;
-                    _uboTempData[13] = tmp.M42;
-                    _uboTempData[14] = tmp.M43;
-                    _uboTempData[15] = tmp.M44;
-
-                    GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
+                    // _stateCurrent._modelMatrix is already up to date at this point,
+                    // so recomputing it here would be redundant. In Absolute mode, _modelMatrixInverse * _modelMatrix
+                    // is mathematically Identity, so the multiplication can be skipped entirely.
+                    tmp = Mode == InstanceMode.Absolute ? Matrix4.Identity : _stateCurrent._modelMatrix;
                 }
                 else
                 {
-                    Matrix4 tmp = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
+                    tmp = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
                     if (Mode == InstanceMode.Absolute)
                         tmp = _stateCurrent._modelMatrixInverse * tmp;
-
-                    // MODEL MATRIX
-                    _uboTempData[00] = tmp.M11;
-                    _uboTempData[01] = tmp.M12;
-                    _uboTempData[02] = tmp.M13;
-                    _uboTempData[03] = tmp.M14;
-
-                    _uboTempData[04] = tmp.M21;
-                    _uboTempData[05] = tmp.M22;
-                    _uboTempData[06] = tmp.M23;
-                    _uboTempData[07] = tmp.M24;
-
-                    _uboTempData[08] = tmp.M31;
-                    _uboTempData[09] = tmp.M32;
-                    _uboTempData[10] = tmp.M33;
-                    _uboTempData[11] = tmp.M34;
-
-                    _uboTempData[12] = tmp.M41;
-                    _uboTempData[13] = tmp.M42;
-                    _uboTempData[14] = tmp.M43;
-                    _uboTempData[15] = tmp.M44;
-
-                    GL.BufferSubData(BufferTarget.UniformBuffer, (IntPtr)(i * BYTESPERINSTANCE), BYTESPERINSTANCE, _uboTempData);
                 }
+
+                int offset = i * floatsPerInstance;
+
+                // MODEL MATRIX
+                _uboTempData[offset + 00] = tmp.M11;
+                _uboTempData[offset + 01] = tmp.M12;
+                _uboTempData[offset + 02] = tmp.M13;
+                _uboTempData[offset + 03] = tmp.M14;
+
+                _uboTempData[offset + 04] = tmp.M21;
+                _uboTempData[offset + 05] = tmp.M22;
+                _uboTempData[offset + 06] = tmp.M23;
+                _uboTempData[offset + 07] = tmp.M24;
+
+                _uboTempData[offset + 08] = tmp.M31;
+                _uboTempData[offset + 09] = tmp.M32;
+                _uboTempData[offset + 10] = tmp.M33;
+                _uboTempData[offset + 11] = tmp.M34;
+
+                _uboTempData[offset + 12] = tmp.M41;
+                _uboTempData[offset + 13] = tmp.M42;
+                _uboTempData[offset + 14] = tmp.M43;
+                _uboTempData[offset + 15] = tmp.M44;
             }
 
+            // Single BufferData call: orphans the previous store (avoids a GPU sync/stall on objects
+            // still in flight) and uploads all instance matrices in one driver call instead of InstanceCount calls.
+            GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
+            GL.BufferData(BufferTarget.UniformBuffer, totalFloats * 4, _uboTempData, BufferUsageHint.DynamicDraw);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
         }
 
