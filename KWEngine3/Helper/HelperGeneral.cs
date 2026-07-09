@@ -687,7 +687,8 @@ namespace KWEngine3.Helper
             GL.Flush();
             GL.Finish();
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
-            GCSettings.LatencyMode = GCLatencyMode.Interactive;
+            GC.WaitForPendingFinalizers();
+            GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
         }
 
         internal static void SwitchToBufferAndClear(int id, ClearColorMode mode = ClearColorMode.ZeroZeroZeroOne)

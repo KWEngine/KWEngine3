@@ -14,6 +14,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime;
 using System.Runtime.InteropServices;
 
 namespace KWEngine3
@@ -1077,6 +1078,8 @@ namespace KWEngine3
         internal World _worldNew = null;
         internal void SetWorldInternal(World w)
         {
+            GCSettings.LatencyMode = GCLatencyMode.Batch;
+
             foreach (MouseButton b in _mouse._buttonsPressed.Keys)
             {
                 if (_mouse._buttonsPressed.ContainsKey(b))

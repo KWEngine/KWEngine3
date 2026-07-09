@@ -550,6 +550,7 @@
       <Field Name="_textureDimsOriginal" Hidden="true" />
       <Field Name="_textureId" Hidden="true" />
       <Field Name="_textureName" Hidden="true" />
+      <Field Name="_textureOffset" Hidden="true" />
       <Field Name="_textureRepeat" Hidden="true" />
       <Method Name="DisposeForLoadingScreen" Hidden="true" />
       <Method Name="Reset" Hidden="true" />
@@ -557,7 +558,7 @@
       <Method Name="SetTextureForMap" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QABAAAgQAAAABAQAAEIAAAACACAAQAAAAAEAAwAAAAU=</HashCode>
+      <HashCode>QABAAAoQCAAABAQAAEIAIAACACAAQAAAAAEAAwAAAAU=</HashCode>
       <FileName>GameObjects\HUDObjectImage.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -969,21 +970,19 @@
       <Field Name="_direction" Hidden="true" />
       <Field Name="_directionLength" Hidden="true" />
       <Field Name="_directionMatrix" Hidden="true" />
-      <Field Name="_directions" Hidden="true" />
       <Field Name="_duration" Hidden="true" />
       <Field Name="_model" Hidden="true" />
       <Field Name="_particleSize" Hidden="true" />
       <Field Name="_secondsAlive" Hidden="true" />
+      <Field Name="_seed" Hidden="true" />
       <Field Name="_spread" Hidden="true" />
       <Field Name="_starttime" Hidden="true" />
       <Field Name="_type" Hidden="true" />
       <Method Name="Act" Hidden="true" />
-      <Field Name="Axes" Hidden="true" />
-      <Field Name="AxesCount" Hidden="true" />
       <Field Name="MAX_PARTICLES" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEBgAACAAQAIAQQEApQAAQgAAAAAQgAAAAjIgADRIEA=</HashCode>
+      <HashCode>AEBgAACAAQAIAAQEApQAAAgAAAAAAgAAAAjIggDRIEA=</HashCode>
       <FileName>GameObjects\ExplosionObject.cs</FileName>
     </TypeIdentifier>
   </Class>
