@@ -437,17 +437,24 @@ namespace KWEngine3.Audio
                 UnqueueBuffers();
 
                 mIsDraining = false;
+                int buffersToQueue = 0;
                 foreach (int buffer in mBuffers)
                 {
-                    if (!StreamIntoBuffer(buffer))
+                    bool hasMore = StreamIntoBuffer(buffer);
+                    buffersToQueue++;
+                    if (!hasMore)
                     {
                         mIsDraining = true;
                         break;
                     }
                 }
 
+                int queued = 0;
                 foreach (int buffer in mBuffers)
+                {
+                    if (queued++ >= buffersToQueue) break;
                     AL.SourceQueueBuffer(mSource, buffer);
+                }
 
                 State = PlaybackState.Playing;
                 AL.SourcePlay(mSource);
