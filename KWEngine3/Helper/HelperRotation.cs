@@ -19,6 +19,106 @@ namespace KWEngine3.Helper
         private static Vector3 zeroVector = Vector3.Zero;
 
 
+        internal static Quaternion ExtractRotationRobust(Matrix3 matrix)
+        {
+            Vector3 r0 = matrix.Row0;
+            Vector3 r1 = matrix.Row1;
+            Vector3 r2 = matrix.Row2;
+
+            r0.NormalizeFast();
+            r1.NormalizeFast();
+            r2.NormalizeFast();
+
+            float trace = r0.X + r1.Y + r2.Z;
+            Quaternion q = new Quaternion();
+
+            if (trace > 0.0f)
+            {
+                float s = (float)Math.Sqrt(trace + 1.0f) * 2.0f; // s = 4 * q.W
+                q.W = 0.25f * s;
+                q.X = (r1.Z - r2.Y) / s;
+                q.Y = (r2.X - r0.Z) / s;
+                q.Z = (r0.Y - r1.X) / s;
+            }
+            else if ((r0.X > r1.Y) && (r0.X > r2.Z))
+            {
+                float s = (float)Math.Sqrt(1.0f + r0.X - r1.Y - r2.Z) * 2.0f; // s = 4 * q.X
+                q.W = (r1.Z - r2.Y) / s;
+                q.X = 0.25f * s;
+                q.Y = (r0.Y + r1.X) / s;
+                q.Z = (r2.X + r0.Z) / s;
+            }
+            else if (r1.Y > r2.Z)
+            {
+                float s = (float)Math.Sqrt(1.0f + r1.Y - r0.X - r2.Z) * 2.0f; // s = 4 * q.Y
+                q.W = (r2.X - r0.Z) / s;
+                q.X = (r0.Y + r1.X) / s;
+                q.Y = 0.25f * s;
+                q.Z = (r1.Z + r2.Y) / s;
+            }
+            else
+            {
+                float s = (float)Math.Sqrt(1.0f + r2.Z - r0.X - r1.Y) * 2.0f; // s = 4 * q.Z
+                q.W = (r0.Y - r1.X) / s;
+                q.X = (r2.X + r0.Z) / s;
+                q.Y = (r1.Z + r2.Y) / s;
+                q.Z = 0.25f * s;
+            }
+
+            q.Normalize();
+            return q;
+        }
+
+        internal static Quaternion ExtractRotationRobust(Matrix4 matrix)
+        {
+            Vector3 r0 = new Vector3(matrix.M11, matrix.M12, matrix.M13);
+            Vector3 r1 = new Vector3(matrix.M21, matrix.M22, matrix.M23);
+            Vector3 r2 = new Vector3(matrix.M31, matrix.M32, matrix.M33);
+
+            r0.NormalizeFast();
+            r1.NormalizeFast();
+            r2.NormalizeFast();
+
+            float trace = r0.X + r1.Y + r2.Z;
+            Quaternion q = new Quaternion();
+
+            if (trace > 0.0f)
+            {
+                float s = (float)Math.Sqrt(trace + 1.0f) * 2.0f; // s = 4 * q.W
+                q.W = 0.25f * s;
+                q.X = (r1.Z - r2.Y) / s;
+                q.Y = (r2.X - r0.Z) / s;
+                q.Z = (r0.Y - r1.X) / s;
+            }
+            else if ((r0.X > r1.Y) && (r0.X > r2.Z))
+            {
+                float s = (float)Math.Sqrt(1.0f + r0.X - r1.Y - r2.Z) * 2.0f; // s = 4 * q.X
+                q.W = (r1.Z - r2.Y) / s;
+                q.X = 0.25f * s;
+                q.Y = (r0.Y + r1.X) / s;
+                q.Z = (r2.X + r0.Z) / s;
+            }
+            else if (r1.Y > r2.Z)
+            {
+                float s = (float)Math.Sqrt(1.0f + r1.Y - r0.X - r2.Z) * 2.0f; // s = 4 * q.Y
+                q.W = (r2.X - r0.Z) / s;
+                q.X = (r0.Y + r1.X) / s;
+                q.Y = 0.25f * s;
+                q.Z = (r1.Z + r2.Y) / s;
+            }
+            else
+            {
+                float s = (float)Math.Sqrt(1.0f + r2.Z - r0.X - r1.Y) * 2.0f; // s = 4 * q.Z
+                q.W = (r0.Y - r1.X) / s;
+                q.X = (r2.X + r0.Z) / s;
+                q.Y = (r1.Z + r2.Y) / s;
+                q.Z = 0.25f * s;
+            }
+
+            q.Normalize();
+            return q;
+        }
+
         /// <summary>
         /// Berechnet das Skalarprodukt zweier Quaternionen.
         /// Wird intern verwendet, um festzustellen ob zwei Quaternionen in derselben Halbkugel liegen

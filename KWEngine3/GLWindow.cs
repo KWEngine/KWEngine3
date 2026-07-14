@@ -1211,10 +1211,10 @@ namespace KWEngine3
 
             if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
             {
-                HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha, true);
+                HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha);
                 foreach (GameObject att in postponedViewSpaceAttachments)
                 {
-                    HelperSimulation.BlendGameObjectStates(att, 1f, true);
+                    HelperSimulation.BlendGameObjectStates(att, 1f);
                 }
             }
 
@@ -1278,8 +1278,6 @@ namespace KWEngine3
                     KWEngine.CurrentWorld.ResetWorldDimensions();
                     _updatePostponedObjects.Clear();
                     _updatePostponedObjectsAttachments.Clear();
-                    List<GameObject> postponedObjects = _updatePostponedObjects;
-                    List<GameObject> postponedObjectsAttachments = _updatePostponedObjectsAttachments;
 
                     KWEngine.CurrentWorld.AddRemoveGameObjects();
                     KWEngine.CurrentWorld.AddRemoveRenderObjects();
@@ -1341,7 +1339,7 @@ namespace KWEngine3
 
                             if (g.UpdateLast)
                             {
-                                postponedObjects.Add(g);
+                                _updatePostponedObjects.Add(g);
                                 continue;
                             }
                             else if (g.IsAttachedToGameObject)
@@ -1354,7 +1352,7 @@ namespace KWEngine3
                                 }
                                 else
                                 {
-                                    postponedObjectsAttachments.Add(g);
+                                    _updatePostponedObjectsAttachments.Add(g);
                                     continue;
                                 }
                             }
@@ -1364,19 +1362,17 @@ namespace KWEngine3
                         }
                     }
 
-                    foreach (GameObject g in postponedObjects)
+                    foreach (GameObject g in _updatePostponedObjects)
                     {
                         g.Act();
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                     }
 
-                    foreach (GameObject g in postponedObjectsAttachments)
+                    foreach (GameObject g in _updatePostponedObjectsAttachments)
                     {
-                        if (!KWEngine.EditModeActive)
-                        {
-                            g.Act();
-                        }
+                        g.Act();
+                        
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                     }

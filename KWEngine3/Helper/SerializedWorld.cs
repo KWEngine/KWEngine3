@@ -40,7 +40,7 @@ namespace KWEngine3.Helper
         public static SerializedWorld GenerateWorldExportFor(World w)
         {
             // Prerequisites:
-            Quaternion.ToEulerAngles(w._background._rotation.ExtractRotation(true), out Vector3 r);
+            Quaternion.ToEulerAngles(HelperRotation.ExtractRotationRobust(w._background._rotation), out Vector3 r);
 
             SerializedWorld wj = new SerializedWorld();
             wj.Type = w.GetType().FullName;

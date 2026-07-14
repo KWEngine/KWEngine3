@@ -1065,7 +1065,7 @@ namespace KWEngine3.GameObjects
                         _gameObjectsAttached.Remove(node);
 
                         Vector3 position = attachment._stateCurrent._modelMatrix.ExtractTranslation();
-                        Quaternion rotation = attachment._stateCurrent._modelMatrix.ExtractRotation();
+                        Quaternion rotation = HelperRotation.ExtractRotationRobust(attachment._stateCurrent._modelMatrix);
                         Vector3 scale = attachment._stateCurrent._modelMatrix.ExtractScale();
                         attachment.SetPosition(position);
                         attachment.SetRotation(rotation);
@@ -1892,7 +1892,7 @@ namespace KWEngine3.GameObjects
             {
                 return;
             }
-            _stateCurrent._modelMatrix = HelperMatrix.CreateModelMatrix(_stateCurrent);
+            _stateCurrent._modelMatrix = HelperMatrix.CreateModelMatrix(ref _stateCurrent);
             _stateCurrent._modelMatrixInverse = Matrix4.Invert(_stateCurrent._modelMatrix);
             _stateCurrent._lookAtVector = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitZ, _stateCurrent._modelMatrixInverse));
             _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitX, _stateCurrent._modelMatrixInverse));
@@ -1939,17 +1939,13 @@ namespace KWEngine3.GameObjects
         internal List<GameObjectHitbox> _collisionCandidates = new();
         internal List<TerrainSector> _collisionCandidatesTerrain = new();
 
-        internal void SetScaleRotationAndTranslation(Vector3 s, Quaternion r, Vector3 t, bool interpolate = true)
+        internal void SetScaleRotationAndTranslation(Vector3 s, Quaternion r, Vector3 t)
         {
 
             _stateCurrent._rotation = r;
             _stateCurrent._scale = s;
             _stateCurrent._position = t;
 
-            if(interpolate == false)
-            {
-                _statePrevious = _stateCurrent;
-            }
 
             UpdateModelMatrixAndHitboxes();
         }

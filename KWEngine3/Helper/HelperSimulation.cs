@@ -124,12 +124,12 @@ namespace KWEngine3.Helper
             t._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(t._stateRender._modelMatrix));
         }
 
-        public static void BlendGameObjectStates(GameObject g, float alpha, bool isVSG = false)
+        public static void BlendGameObjectStates(GameObject g, float alpha)
         {
             g._stateRender._scale = Vector3.Lerp(g._statePrevious._scale, g._stateCurrent._scale, alpha);
             g._stateRender._position = Vector3.Lerp(g._statePrevious._position, g._stateCurrent._position, alpha);
             g._stateRender._rotation = Quaternion.Slerp(g._statePrevious._rotation, g._stateCurrent._rotation, alpha);
-            g._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(g._stateRender);
+            g._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref g._stateRender);
             g._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrix));
             g._stateRender._lookAtVector = Vector3.Lerp(g._statePrevious._lookAtVector, g._stateCurrent._lookAtVector, alpha);
 
@@ -144,7 +144,6 @@ namespace KWEngine3.Helper
             }
             g._stateRender._opacity = g._statePrevious._opacity* alpha +g._stateCurrent._opacity * (1f - alpha);
             g._stateRender._colorTint = Vector3.Lerp(g._statePrevious._colorTint, g._stateCurrent._colorTint, alpha);
-            //g._stateRender._colorEmissive = Vector4.Lerp(g._statePrevious._colorEmissive, g._stateCurrent._colorEmissive, alpha);
             if(g.BlendTextureStates)
                 g._stateRender._uvTransform = Vector4.Lerp(g._statePrevious._uvTransform, g._stateCurrent._uvTransform, alpha);
             else
@@ -179,7 +178,7 @@ namespace KWEngine3.Helper
             r._stateRender._scale = Vector3.Lerp(r._statePrevious._scale, r._stateCurrent._scale, alpha);
             r._stateRender._position = Vector3.Lerp(r._statePrevious._position, r._stateCurrent._position, alpha);
             r._stateRender._rotation = Quaternion.Slerp(r._statePrevious._rotation, r._stateCurrent._rotation, alpha);
-            r._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(r._stateRender);
+            r._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref r._stateRender);
             r._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(r._stateRender._modelMatrix));
             r._stateRender._lookAtVector = Vector3.Lerp(r._statePrevious._lookAtVector, r._stateCurrent._lookAtVector, alpha);
 
@@ -282,7 +281,7 @@ namespace KWEngine3.Helper
                     vsg._gameObject._attachBoneNodes.Add(boneNode);
                 }
                 // Layer aus _stateCurrent nehmen (VSG nutzt den Simulations-Zustand)
-                BlendAndApplyAnimationLayers(vsg._gameObject, ref vsg._gameObject._stateCurrent, vsg._gameObject._attachBoneNodes, isVSG: true);
+                BlendAndApplyAnimationLayers(vsg._gameObject, ref vsg._gameObject._stateCurrent, vsg._gameObject._attachBoneNodes);
             }
         }
 
@@ -298,11 +297,11 @@ namespace KWEngine3.Helper
                         go._attachBoneNodes.Add(go._gameObjectsAttached.Keys.ElementAt(i));
                     attachBones = go._attachBoneNodes;
                 }
-                BlendAndApplyAnimationLayers(g, ref g._stateRender, attachBones, isVSG: false);
+                BlendAndApplyAnimationLayers(g, ref g._stateRender, attachBones);
             }
         }
 
-        private static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectState state, List<GeoNode> attachBones, bool isVSG)
+        private static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectState state, List<GeoNode> attachBones)
         {
             int activeCount = 0;
             for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
@@ -319,10 +318,10 @@ namespace KWEngine3.Helper
             if (activeCount == 0) return;
             Matrix4 identity = Matrix4.Identity;
             ReadNodeHierarchyBlended(g, _activeAnims, _activeTimestamps, _activeWeights, _activeMasks, activeCount,
-                                     g._model.ModelOriginal.Root, ref identity, attachBones, isVSG);
+                                     g._model.ModelOriginal.Root, ref identity, attachBones);
         }
 
-        internal static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectRenderState state, List<GeoNode> attachBones, bool isVSG)
+        internal static void BlendAndApplyAnimationLayers(EngineObject g, ref EngineObjectRenderState state, List<GeoNode> attachBones)
         {
             int activeCount = 0;
             for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
@@ -339,7 +338,7 @@ namespace KWEngine3.Helper
             if (activeCount == 0) return;
             Matrix4 identity = Matrix4.Identity;
             ReadNodeHierarchyBlended(g, _activeAnims, _activeTimestamps, _activeWeights, _activeMasks, activeCount,
-                                     g._model.ModelOriginal.Root, ref identity, attachBones, isVSG);
+                                     g._model.ModelOriginal.Root, ref identity, attachBones);
         }
 
         /// <summary>
@@ -357,8 +356,7 @@ namespace KWEngine3.Helper
             int count,
             GeoNode node,
             ref Matrix4 parentTransform,
-            List<GeoNode> attachBones,
-            bool isVSG)
+            List<GeoNode> attachBones)
         {
             // Mix TRS from all layers:
             Vector3    blendedS = Vector3.Zero;
@@ -375,7 +373,7 @@ namespace KWEngine3.Helper
                 if (channel != null)
                 {
                     Vector3    s = channel.ScaleKeys       == null ? nodeTransformation.ExtractScale()         : CalcInterpolatedScaling(timestamps[0], ref channel);
-                    Quaternion r = channel.RotationKeys    == null ? nodeTransformation.ExtractRotation(false) : CalcInterpolatedRotation(timestamps[0], ref channel);
+                    Quaternion r = channel.RotationKeys    == null ? HelperRotation.ExtractRotationRobust(nodeTransformation) : CalcInterpolatedRotation(timestamps[0], ref channel);
                     Vector3    t = channel.TranslationKeys == null ? nodeTransformation.ExtractTranslation()   : CalcInterpolatedTranslation(timestamps[0], ref channel);
                     nodeTransformation = HelperMatrix.CreateModelMatrix(ref s, ref r, ref t);
                 }
@@ -396,24 +394,24 @@ namespace KWEngine3.Helper
                             GameObject attachedObject = goSingle._gameObjectsAttached[node];
                             if (attachedObject != null)
                             {
-                                Matrix4 attachmentMatrix = isVSG
-                                    ? mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix
-                                    : mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                                Matrix4 attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
                                 Vector3 tmpUp      = attachedObject.LookAtVectorLocalUp    * attachedObject._positionOffsetForAttachment.Y;
                                 Vector3 tmpRight   = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
                                 Vector3 tmpForward = attachedObject.LookAtVector           * attachedObject._positionOffsetForAttachment.Z;
+                                attachedObject._statePrevious = attachedObject._stateCurrent;
                                 attachedObject.SetScaleRotationAndTranslation(
                                     attachmentMatrix.ExtractScale()        * attachedObject._scaleOffsetForAttachment,
-                                    attachmentMatrix.ExtractRotation(true) * attachedObject._rotationOffsetForAttachment,
-                                    attachmentMatrix.ExtractTranslation()  + tmpUp + tmpRight + tmpForward,
-                                    false);
+                                    HelperRotation.ExtractRotationRobust(attachmentMatrix) * attachedObject._rotationOffsetForAttachment,
+                                    attachmentMatrix.ExtractTranslation()  + tmpUp + tmpRight + tmpForward
+                                    );
+                                BlendGameObjectStates(attachedObject, 1f);
                             }
                         }
                     }
                 }
                 for (int i = 0; i < node.Children.Count; i++)
                     ReadNodeHierarchyBlended(g, anims, timestamps, weights, masks, count,
-                                             node.Children[i], ref globalTransformSingle, attachBones, isVSG);
+                                             node.Children[i], ref globalTransformSingle, attachBones);
                 return;
             }
 
@@ -438,13 +436,13 @@ namespace KWEngine3.Helper
                 if (channelMulti != null)
                 {
                     s = channelMulti.ScaleKeys       == null ? nodeTransformation.ExtractScale()         : CalcInterpolatedScaling(timestamps[li], ref channelMulti);
-                    r = channelMulti.RotationKeys    == null ? nodeTransformation.ExtractRotation(false) : CalcInterpolatedRotation(timestamps[li], ref channelMulti);
+                    r = channelMulti.RotationKeys    == null ? HelperRotation.ExtractRotationRobust(nodeTransformation) : CalcInterpolatedRotation(timestamps[li], ref channelMulti);
                     t = channelMulti.TranslationKeys == null ? nodeTransformation.ExtractTranslation()   : CalcInterpolatedTranslation(timestamps[li], ref channelMulti);
                 }
                 else
                 {
                     s = nodeTransformation.ExtractScale();
-                    r = nodeTransformation.ExtractRotation(false);
+                    r = HelperRotation.ExtractRotationRobust(nodeTransformation);
                     t = nodeTransformation.ExtractTranslation();
                 }
 
@@ -508,20 +506,18 @@ namespace KWEngine3.Helper
                         GameObject attachedObject = go2._gameObjectsAttached[node];
                         if (attachedObject != null)
                         {
-                            Matrix4 attachmentMatrix;
-                            if (isVSG)
-                                attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateCurrent._modelMatrix;
-                            else
-                                attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
+                            Matrix4 attachmentMatrix = mesh.BoneOffsetInverse[index] * boneMatrix * g._stateRender._modelMatrix;
 
                             Vector3 tmpUp      = attachedObject.LookAtVectorLocalUp    * attachedObject._positionOffsetForAttachment.Y;
                             Vector3 tmpRight   = attachedObject.LookAtVectorLocalRight * attachedObject._positionOffsetForAttachment.X;
                             Vector3 tmpForward = attachedObject.LookAtVector           * attachedObject._positionOffsetForAttachment.Z;
+                            attachedObject._statePrevious = attachedObject._stateCurrent;
                             attachedObject.SetScaleRotationAndTranslation(
                                 attachmentMatrix.ExtractScale()        * attachedObject._scaleOffsetForAttachment,
-                                attachmentMatrix.ExtractRotation(true) * attachedObject._rotationOffsetForAttachment,
-                                attachmentMatrix.ExtractTranslation()  + tmpUp + tmpRight + tmpForward,
-                                false);
+                                HelperRotation.ExtractRotationRobust(attachmentMatrix) * attachedObject._rotationOffsetForAttachment,
+                                attachmentMatrix.ExtractTranslation()  + tmpUp + tmpRight + tmpForward
+                                );
+                            BlendGameObjectStates(attachedObject, 1f);
                         }
                     }
                 }
@@ -530,7 +526,7 @@ namespace KWEngine3.Helper
             // Kindknoten rekursiv verarbeiten:
             for (int i = 0; i < node.Children.Count; i++)
                 ReadNodeHierarchyBlended(g, anims, timestamps, weights, masks, count,
-                                         node.Children[i], ref globalTransform, attachBones, isVSG);
+                                         node.Children[i], ref globalTransform, attachBones);
         }
 
         private static Vector3 CalcInterpolatedScaling(float timestamp, ref GeoNodeAnimationChannel channel)

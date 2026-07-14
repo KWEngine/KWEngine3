@@ -388,7 +388,7 @@ namespace KWEngine3.GameObjects
                 return;
             }
 
-            _stateCurrent._modelMatrix = HelperMatrix.CreateModelMatrix(_stateCurrent);
+            _stateCurrent._modelMatrix = HelperMatrix.CreateModelMatrix(ref _stateCurrent);
             _stateCurrent._modelMatrixInverse = Matrix4.Invert(_stateCurrent._modelMatrix);
             _stateCurrent._lookAtVector = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitZ, _stateCurrent._modelMatrixInverse));
             _stateCurrent._lookAtVectorRight = Vector3.NormalizeFast(Vector3.TransformNormalInverse(Vector3.UnitX, _stateCurrent._modelMatrixInverse));

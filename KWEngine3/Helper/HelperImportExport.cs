@@ -584,7 +584,7 @@ namespace KWEngine3.Helper
                     sr.InstanceMatrices[i + 15]
                     );
 
-                Quaternion rotation = modelMatrix.ExtractRotation();
+                Quaternion rotation = HelperRotation.ExtractRotationRobust(modelMatrix);
                 Vector3 position = modelMatrix.ExtractTranslation();
                 Vector3 scale = modelMatrix.ExtractScale();
 

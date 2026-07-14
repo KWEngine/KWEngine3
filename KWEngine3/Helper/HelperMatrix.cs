@@ -251,7 +251,7 @@ namespace KWEngine3.Helper
             return Matrix4.CreateTranslation(s);
         }
 
-        public static Matrix4 CreateModelMatrix(EngineObjectState state)
+        public static Matrix4 CreateModelMatrix(ref EngineObjectState state)
         {
             Matrix4 m = Matrix4.CreateFromQuaternion(state._rotation);
 
@@ -267,7 +267,7 @@ namespace KWEngine3.Helper
             return m;
         }
 
-        public static Matrix4 CreateModelMatrix(EngineObjectRenderState state)
+        public static Matrix4 CreateModelMatrix(ref EngineObjectRenderState state)
         {
             Matrix4 m = Matrix4.CreateFromQuaternion(state._rotation);
 
