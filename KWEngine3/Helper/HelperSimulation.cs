@@ -570,6 +570,10 @@ namespace KWEngine3.Helper
                     hi = mid - 1;
             }
             {
+                if(keys.Count == 1)
+                {
+                    return keys[lo].Scale;
+                }
                 GeoAnimationKeyframe key  = keys[lo];
                 GeoAnimationKeyframe key2 = keys[lo + 1];
                 float factor = (timestamp - key.Time) / (key2.Time - key.Time);
@@ -624,6 +628,10 @@ namespace KWEngine3.Helper
                     hi = mid - 1;
             }
             {
+                if (keys.Count == 1)
+                {
+                    return keys[lo].Translation;
+                }
                 GeoAnimationKeyframe key  = keys[lo];
                 GeoAnimationKeyframe key2 = keys[lo + 1];
                 float factor = (timestamp - key.Time) / (key2.Time - key.Time);
@@ -674,6 +682,10 @@ namespace KWEngine3.Helper
                     hi = mid - 1;
             }
             {
+                if (keys.Count == 1)
+                {
+                    return keys[lo].Rotation;
+                }
                 GeoAnimationKeyframe key  = keys[lo];
                 GeoAnimationKeyframe key2 = keys[lo + 1];
                 float factor = (timestamp - key.Time) / (key2.Time - key.Time);

@@ -57,7 +57,7 @@ void main()
 	vec4 totalTangent = vec4(0.0);
 	vec4 totalBiTangent = vec4(0.0);
 	
-	if(uUseAnimationsExpansionFactor > 0)
+	if(uUseAnimationsExpansionFactor.x > 0)
 	{	
 		for(int i = 0; i < 3; i++)
 		{

@@ -182,7 +182,8 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt den Expansionsfaktor der Instanz in horizontaler Richtung
         /// </summary>
-        /// <param name="e">Expansionsfaktor (Standardwert: 0f)</param>
+        /// <remarks>Die Expansion wird VOR der Skalierung/Rotation/Verschiebung des Objekts angewandt</remarks>
+        /// <param name="e">Expansionsfaktor (Standardwert: 0f für keine Expansion)</param>
         public void SetExpansionFactorXZ(float e)
         {
             _stateCurrent._expansionFactorXZ = e;
