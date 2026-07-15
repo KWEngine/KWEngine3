@@ -64,6 +64,7 @@ namespace KWEngine3.GameObjects
         internal Vector3 _position;
         internal Quaternion _rotation;
         internal Vector3 _scale;
+        internal float _expansionFactorXZ;
         internal Dictionary<int, Quaternion> _rotationPre;
 
         internal Dictionary<string, Matrix4[]> _boneTranslationMatrices;
@@ -84,6 +85,7 @@ namespace KWEngine3.GameObjects
             _animationLayer1 = AnimationLayer.CreateDefault();
             _animationLayer2 = AnimationLayer.CreateDefault();
             _animationLayer3 = AnimationLayer.CreateDefault();
+            _expansionFactorXZ = 0f;
             _boneTranslationMatrices = new Dictionary<string, Matrix4[]>();
             _modelMatrices = new Matrix4[engineObject._model.ModelOriginal.Meshes.Values.Count];
             _normalMatrices = new Matrix4[engineObject._model.ModelOriginal.Meshes.Values.Count];

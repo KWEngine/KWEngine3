@@ -169,6 +169,27 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Gibt den aktuellen Expansionsfaktor des Modells in horizontaler Richtung an (Standard: 0f)
+        /// </summary>
+        public float ExpansionFactorXZ
+        {
+            get
+            {
+                return _stateCurrent._expansionFactorXZ;
+            }
+        }
+
+        /// <summary>
+        /// Setzt den Expansionsfaktor der Instanz in horizontaler Richtung
+        /// </summary>
+        /// <param name="e">Expansionsfaktor (Standardwert: 0f)</param>
+        public void SetExpansionFactorXZ(float e)
+        {
+            _stateCurrent._expansionFactorXZ = e;
+            UpdateModelMatrixAndHitboxes();
+        }
+
+        /// <summary>
         /// Setzt ein benutzerdefiniertes Collider-Modell für die GameObject-Instanz (muss zuvor via KWEngine.LoadModelCollider() importiert worden sein)
         /// </summary>
         /// <param name="colliderModelName">Name des Collider-Modells</param>
@@ -1905,7 +1926,7 @@ namespace KWEngine3.GameObjects
 
             foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
             {
-                hb.Update(ref _stateCurrent._center);
+                hb.Update(ref _stateCurrent._center, _stateCurrent._expansionFactorXZ);
                 
                 if (hb._left < dimMin.X) dimMin.X = hb._left;
                 if (hb._low < dimMin.Y) dimMin.Y = hb._low;

@@ -293,7 +293,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAGABGGIwqwiSEwIAOEAJGJUYyA0EJwkADBA0CUIE=</HashCode>
+      <HashCode>jAiAGABGGIwqwiSEwIAOEAJGJUYyA0EJwkAHBA0CUIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -343,7 +343,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ParticleObject">
-    <Position X="9.5" Y="15.5" Width="2.75" />
+    <Position X="9.5" Y="15.75" Width="2.75" />
     <Members>
       <Field Name="_aliveInMS" Hidden="true" />
       <Field Name="_colorIntensity" Hidden="true" />
@@ -472,6 +472,7 @@
       <Method Name="CalculateDegreesFromRadians" Hidden="true" />
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
       <Method Name="Dot" Hidden="true" />
+      <Method Name="ExtractRotationRobust" Hidden="true" />
       <Field Name="finalTranslationPoint" Hidden="true" />
       <Method Name="GetRotationTowardsCamera" Hidden="true" />
       <Field Name="rotationMatrix" Hidden="true" />
@@ -482,7 +483,7 @@
       <Field Name="zeroVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEEAAQgAIAAgAAAAEAAAAQFLCIDAAg0AAAAASAACggA=</HashCode>
+      <HashCode>AEEAAQgAIAAgAAAAEAEAAQFLCIDAAg0AAAAASAACggA=</HashCode>
       <FileName>Helper\HelperRotation.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -650,7 +651,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.RenderObject">
-    <Position X="9.5" Y="11.75" Width="2.75" />
+    <Position X="9.5" Y="12" Width="2.75" />
     <Members>
       <Field Name="_instancePositions" Hidden="true" />
       <Field Name="_instanceRotations" Hidden="true" />

@@ -9,16 +9,30 @@ uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform vec4 uTextureTransform;
 uniform vec2 uTextureClip;
-uniform int uUseAnimations;
+uniform vec2 uUseAnimationsExpansionFactor;
 uniform mat4 uBoneTransforms[128];
 
 out vec2 vTexture;
+
+vec4 expand(vec4 v, float offset)
+{
+	vec2 horizontalDirection = v.xz;
+	vec2 horizontalDirectionN = normalize(horizontalDirection);
+	if(length(horizontalDirection) > 0.0001) 
+	{
+        vec3 shift = vec3(horizontalDirectionN.x * offset, 0.0, horizontalDirectionN.y * offset);
+                          
+        v.x += shift.x;
+		v.z += shift.z;
+    }
+	return v;
+}
 
 void main()
 {
 	vec4 totalLocalPos = vec4(0.0);
 	
-	if(uUseAnimations > 0)
+	if(uUseAnimationsExpansionFactor.x > 0)
 	{	
 		for(int i = 0; i < 3; i++)
 		{
@@ -29,6 +43,7 @@ void main()
 	{
 		totalLocalPos = vec4(aPosition, 1.0);
 	}
+	totalLocalPos = expand(totalLocalPos, uUseAnimationsExpansionFactor.y);
 
 	gl_Position = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
 	vTexture = (vec2(uTextureTransform.x < 0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransform.y < 0 ? 1.0 - aTexture.y : aTexture.y) + uTextureTransform.zw) * abs(uTextureTransform.xy);

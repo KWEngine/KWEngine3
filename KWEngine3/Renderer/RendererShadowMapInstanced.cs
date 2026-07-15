@@ -13,7 +13,7 @@ namespace KWEngine3.Renderer
         public int ProgramID { get; private set; } = -1;
         public int UViewProjectionMatrix { get; private set; } = -1;
         public int UModelMatrix { get; private set; } = -1;
-        public int UUseAnimations { get; private set; } = -1;
+        public int UUseAnimationsExpansionFactor { get; private set; } = -1;
         public int UBoneTransforms { get; private set; } = -1;
         public int UNearFarSun { get; private set; } = -1;
         public int UTextureTransformOpacity { get; private set; } = -1;
@@ -62,7 +62,7 @@ namespace KWEngine3.Renderer
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
-                UUseAnimations = GL.GetUniformLocation(ProgramID, "uUseAnimations");
+                UUseAnimationsExpansionFactor = GL.GetUniformLocation(ProgramID, "uUseAnimationsExpansionFactor");
                 UBoneTransforms = GL.GetUniformLocation(ProgramID, "uBoneTransforms");
                 UNearFarSun = GL.GetUniformLocation(ProgramID, "uNearFarSun");
                 UTextureTransformOpacity = GL.GetUniformLocation(ProgramID, "uTextureTransformOpacity");
@@ -122,7 +122,7 @@ namespace KWEngine3.Renderer
 
                 if (r.IsAnimated)
                 {
-                    GL.Uniform1(UUseAnimations, 1);
+                    GL.Uniform2(UUseAnimationsExpansionFactor, 1f, r._stateRender._expansionFactorXZ);
                     for (int j = 0; j < r._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
                     {
                         Matrix4 tmp = r._stateRender._boneTranslationMatrices[mesh.Name][j];
@@ -131,7 +131,7 @@ namespace KWEngine3.Renderer
                 }
                 else
                 {
-                    GL.Uniform1(UUseAnimations, 0);
+                    GL.Uniform2(UUseAnimationsExpansionFactor, 0f, r._stateRender._expansionFactorXZ);
                 }
 
                 GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
@@ -161,7 +161,7 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
-                GL.Uniform1(UUseAnimations, 0);
+                GL.Uniform2(UUseAnimationsExpansionFactor, 0f, 1f);
 
                 GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X, material.TextureAlbedo.UVTransform.Y, material.ColorAlbedo.W));

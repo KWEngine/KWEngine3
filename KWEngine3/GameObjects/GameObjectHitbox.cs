@@ -77,7 +77,7 @@ namespace KWEngine3.GameObjects
             indexLeftRightMostVertex = _mesh.indexLeftRightMostVertex;
         }
 
-        internal void Update(ref Vector3 gCenter)
+        internal void Update(ref Vector3 gCenter, float expansionFactor)
         {
             if (_isCapsule)
             {
@@ -106,7 +106,21 @@ namespace KWEngine3.GameObjects
                     Vector3.TransformNormal(_mesh.Normals[i], _modelMatrixFinal, out _normals[i]);
                     _normals[i].Normalize();
                 }
-                Vector3.TransformPosition(_mesh.Vertices[i], _modelMatrixFinal, out _vertices[i]);
+
+                Vector3 localVertex = _mesh.Vertices[i];
+                if (Math.Abs(expansionFactor) > 0.0001f)
+                {
+                    Vector2 horizontalDirection = new Vector2(localVertex.X, localVertex.Z);
+                    float len = horizontalDirection.LengthFast;
+                    if (len > 0.0001f)
+                    {
+                        Vector2 horizontalDirectionN = horizontalDirection / len;
+                        localVertex.X += horizontalDirectionN.X * expansionFactor;
+                        localVertex.Z += horizontalDirectionN.Y * expansionFactor;
+                    }
+                }
+
+                Vector3.TransformPosition(localVertex, _modelMatrixFinal, out _vertices[i]);
 
                 if (_vertices[i].X > maxX)
                     maxX = _vertices[i].X;
@@ -121,7 +135,22 @@ namespace KWEngine3.GameObjects
                 if (_vertices[i].Z < minZ)
                     minZ = _vertices[i].Z;
             }
-            Vector3.TransformPosition(_mesh.Center, _modelMatrixFinal, out _center);
+
+            Vector3 localCenter = _mesh.Center;
+            if (Math.Abs(expansionFactor) > 0.0001f)
+            {
+                Vector2 horizontalDirection = new Vector2(localCenter.X, localCenter.Z);
+                float len = horizontalDirection.LengthFast;
+                if (len > 0.0001f)
+                {
+                    Vector2 horizontalDirectionN = horizontalDirection / len;
+                    localCenter.X += horizontalDirectionN.X * expansionFactor;
+                    localCenter.Z += horizontalDirectionN.Y * expansionFactor;
+                }
+            }
+
+
+            Vector3.TransformPosition(localCenter, _modelMatrixFinal, out _center);
             gCenter += _center;
 
             float xWidth = maxX - minX;

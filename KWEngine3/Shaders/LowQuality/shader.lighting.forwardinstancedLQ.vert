@@ -13,7 +13,7 @@ uniform mat4 uModelMatrix;
 uniform mat4 uNormalMatrix;
 uniform vec4 uTextureTransform;
 uniform vec2 uTextureClip;
-uniform int uUseAnimations;
+uniform vec2 uUseAnimationsExpansionFactor;
 uniform mat4 uBoneTransforms[128];
 uniform mat4 uViewProjectionMatrixShadowMap[3];
 uniform mat4 uViewProjectionMatrixShadowMapOuter[3];
@@ -33,6 +33,20 @@ out mat3 vTBN;
 out vec4 vShadowCoord[3];
 out vec4 vShadowCoordOuter[3];
 
+vec4 expand(vec4 v, float offset)
+{
+	vec2 horizontalDirection = v.xz;
+	vec2 horizontalDirectionN = normalize(horizontalDirection);
+	if(length(horizontalDirection) > 0.0001) 
+	{
+        vec3 shift = vec3(horizontalDirectionN.x * offset, 0.0, horizontalDirectionN.y * offset);
+                          
+        v.x += shift.x;
+		v.z += shift.z;
+    }
+	return v;
+}
+
 void main()
 {
 	vec4 totalLocalPos = vec4(0.0);
@@ -40,7 +54,7 @@ void main()
 	vec4 totalTangent = vec4(0.0);
 	vec4 totalBiTangent = vec4(0.0);
 	
-	if(uUseAnimations > 0)
+	if(uUseAnimationsExpansionFactor.x > 0)
 	{	
 		for(int i = 0; i < 3; i++)
 		{
@@ -57,6 +71,8 @@ void main()
 		totalTangent = vec4(aTangent, 0.0);
 		totalBiTangent = vec4(aBiTangent, 0.0);
 	}
+
+	totalLocalPos = expand(totalLocalPos, uUseAnimationsExpansionFactor.y);
 
 	mat4 instanceNormalMatrix = inverse(transpose(instanceModelMatrix[gl_InstanceID]));
 

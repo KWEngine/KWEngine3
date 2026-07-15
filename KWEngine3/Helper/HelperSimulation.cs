@@ -132,6 +132,7 @@ namespace KWEngine3.Helper
             g._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref g._stateRender);
             g._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(g._stateRender._modelMatrix));
             g._stateRender._lookAtVector = Vector3.Lerp(g._statePrevious._lookAtVector, g._stateCurrent._lookAtVector, alpha);
+            g._stateRender._expansionFactorXZ = g._statePrevious._expansionFactorXZ * alpha + g._stateCurrent._expansionFactorXZ * (1f - alpha);
 
             // Animations-Layer von _stateCurrent in _stateRender übernehmen und Percentage interpolieren
             for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)
@@ -181,6 +182,7 @@ namespace KWEngine3.Helper
             r._stateRender._modelMatrix = HelperMatrix.CreateModelMatrix(ref r._stateRender);
             r._stateRender._normalMatrix = Matrix4.Transpose(Matrix4.Invert(r._stateRender._modelMatrix));
             r._stateRender._lookAtVector = Vector3.Lerp(r._statePrevious._lookAtVector, r._stateCurrent._lookAtVector, alpha);
+            r._stateRender._expansionFactorXZ = r._statePrevious._expansionFactorXZ * alpha + r._stateCurrent._expansionFactorXZ * (1f - alpha);
 
             // Animations-Layer von _stateCurrent in _stateRender übernehmen und Percentage interpolieren
             for (int li = 0; li < EngineObjectState.MAX_ANIMATION_LAYERS; li++)

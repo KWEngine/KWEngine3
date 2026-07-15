@@ -16,6 +16,7 @@ namespace KWEngine3.GameObjects
         internal Vector3 _lookAtVectorRight = Vector3.UnitX;
         internal Vector4 _uvTransform = new(1, 1, 0, 0); //zw = offset.xy
         internal Vector2 _uvClip = new Vector2(0, 0);
+        internal float _expansionFactorXZ = 0f;
 
         // Animation: bis zu 4 gleichzeitige Layer als einzelne Struct-Felder,
         // damit Struct-Kopien (z.B. _statePrevious = _stateCurrent) vollständige Wert-Kopien erzeugen.
@@ -82,6 +83,7 @@ namespace KWEngine3.GameObjects
             _animationLayer2 = AnimationLayer.CreateDefault();
             _animationLayer3 = AnimationLayer.CreateDefault();
 
+            _expansionFactorXZ = 0f;
             _rotationPre = new();
             _rotation = Quaternion.Identity;
             _scale = Vector3.One;

@@ -9,7 +9,7 @@ out		float vZ;
 out		float vW;
 out		vec2  vTexture;
 
-uniform int uUseAnimations;
+uniform vec2 uUseAnimationsExpansionFactor;
 uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform mat4 uBoneTransforms[128];
@@ -17,11 +17,24 @@ uniform vec3 uTextureTransformOpacity;
 uniform vec2 uTextureOffset;
 uniform vec2 uTextureClip;
 
+vec4 expand(vec4 v, float offset)
+{
+	vec2 horizontalDirection = v.xz;
+	vec2 horizontalDirectionN = normalize(horizontalDirection);
+	if(length(horizontalDirection) > 0.0001) 
+	{
+        vec3 shift = vec3(horizontalDirectionN.x * offset, 0.0, horizontalDirectionN.y * offset);
+                          
+        v.x += shift.x;
+		v.z += shift.z;
+    }
+	return v;
+}
 
 void main()
 {
 	vec4 totalLocalPos = vec4(0.0);
-	if(uUseAnimations > 0)
+	if(uUseAnimationsExpansionFactor.x > 0)
 	{	
 		totalLocalPos += (aBoneWeights[0] * uBoneTransforms[aBoneIds[0]] * vec4(aPosition, 1.0));
 		totalLocalPos += (aBoneWeights[1] * uBoneTransforms[aBoneIds[1]] * vec4(aPosition, 1.0));
@@ -31,7 +44,7 @@ void main()
 	{
 		totalLocalPos = vec4(aPosition, 1.0);
 	}
-	//totalLocalPos.w = 1.0;
+	totalLocalPos = expand(totalLocalPos, uUseAnimationsExpansionFactor.y);
 
 	vec4 transformedPosition = uViewProjectionMatrix * uModelMatrix * totalLocalPos;
 	vZ = transformedPosition.z;

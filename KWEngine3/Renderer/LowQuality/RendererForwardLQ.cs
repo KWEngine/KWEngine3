@@ -28,7 +28,7 @@ namespace KWEngine3.Renderer.LowQuality
         public int UTextureEmissive { get; private set; } = -1;
         public int UTextureTransparency { get; private set; } = -1;
         public int UTextureTransform { get; private set; } = -1;
-        public int UUseAnimations { get; private set; } = -1;
+        public int UUseAnimationsExpansionFactor { get; private set; } = -1;
         public int UBoneTransforms { get; private set; } = -1;
         public int UShadowMap { get; private set; } = -1;
         public int UShadowMapCube { get; private set; } = -1;
@@ -103,7 +103,7 @@ namespace KWEngine3.Renderer.LowQuality
                 UTextureTransparency = GL.GetUniformLocation(ProgramID, "uTextureTransparency");
                 UTextureMetallicRoughnessCombined = GL.GetUniformLocation(ProgramID, "uTextureIsMetallicRoughnessCombined");
                 UMetallicType = GL.GetUniformLocation(ProgramID, "uMetallicType");
-                UUseAnimations = GL.GetUniformLocation(ProgramID, "uUseAnimations");
+                UUseAnimationsExpansionFactor = GL.GetUniformLocation(ProgramID, "uUseAnimationsExpansionFactor");
                 UBoneTransforms = GL.GetUniformLocation(ProgramID, "uBoneTransforms");
 
                 UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
@@ -298,7 +298,7 @@ namespace KWEngine3.Renderer.LowQuality
 
                 if (g.IsAnimated)
                 {
-                    GL.Uniform1(UUseAnimations, 1);
+                    GL.Uniform2(UUseAnimationsExpansionFactor, 1f, g._stateRender._expansionFactorXZ);
                     for (int j = 0; j < g._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
                     {
                         Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
@@ -307,7 +307,7 @@ namespace KWEngine3.Renderer.LowQuality
                 }
                 else
                 {
-                    GL.Uniform1(UUseAnimations, 0);
+                    GL.Uniform2(UUseAnimationsExpansionFactor, 0f, g._stateRender._expansionFactorXZ);
                 }
 
                 GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);

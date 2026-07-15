@@ -13,7 +13,7 @@ namespace KWEngine3.Renderer
         public int ProgramID { get; private set; } = -1;
         public int UViewProjectionMatrix { get; private set; } = -1;
         public int UModelMatrix { get; private set; } = -1;
-        public int UUseAnimations { get; private set; } = -1;
+        public int UUseAnimationsExpansionFactor { get; private set; } = -1;
         public int UBoneTransforms { get; private set; } = -1;
         public int UNearFar { get; private set; } = -1;
         public int ULightPosition { get; private set; } = -1;
@@ -60,7 +60,7 @@ namespace KWEngine3.Renderer
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
-                UUseAnimations = GL.GetUniformLocation(ProgramID, "uUseAnimations");
+                UUseAnimationsExpansionFactor = GL.GetUniformLocation(ProgramID, "uUseAnimationsExpansionFactor");
                 UBoneTransforms = GL.GetUniformLocation(ProgramID, "uBoneTransforms");
                 UNearFar = GL.GetUniformLocation(ProgramID, "uNearFar");
                 ULightPosition = GL.GetUniformLocation(ProgramID, "uLightPosition");
@@ -116,7 +116,7 @@ namespace KWEngine3.Renderer
 
                 if (g.IsAnimated)
                 {
-                    GL.Uniform1(UUseAnimations, 1);
+                    GL.Uniform2(UUseAnimationsExpansionFactor, 1f, g._stateRender._expansionFactorXZ);
                     for (int j = 0; j < g._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
                     {
                         Matrix4 tmp = g._stateRender._boneTranslationMatrices[mesh.Name][j];
@@ -125,7 +125,7 @@ namespace KWEngine3.Renderer
                 }
                 else
                 {
-                    GL.Uniform1(UUseAnimations, 0);
+                    GL.Uniform2(UUseAnimationsExpansionFactor, 0f, g._stateRender._expansionFactorXZ);
                 }
 
                 GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);
@@ -156,7 +156,7 @@ namespace KWEngine3.Renderer
 
                 if (vsgo._gameObject.IsAnimated)
                 {
-                    GL.Uniform1(UUseAnimations, 1);
+                    GL.Uniform2(UUseAnimationsExpansionFactor, 1f, vsgo._gameObject._stateRender._expansionFactorXZ);
                     for (int j = 0; j < vsgo._gameObject._stateRender._boneTranslationMatrices[mesh.Name].Length; j++)
                     {
                         Matrix4 tmp = vsgo._gameObject._stateRender._boneTranslationMatrices[mesh.Name][j];
@@ -165,7 +165,7 @@ namespace KWEngine3.Renderer
                 }
                 else
                 {
-                    GL.Uniform1(UUseAnimations, 0);
+                    GL.Uniform2(UUseAnimationsExpansionFactor, 0f, vsgo._gameObject._stateRender._expansionFactorXZ);
                 }
 
                 GL.UniformMatrix4(UModelMatrix, false, ref vsgo._gameObject._stateRender._modelMatrices[i]);
@@ -194,7 +194,7 @@ namespace KWEngine3.Renderer
                 if (material.ColorAlbedo.W == 0)
                     continue;
 
-                GL.Uniform1(UUseAnimations, 0);
+                GL.Uniform2(UUseAnimationsExpansionFactor, 0f, 1f);
 
                 GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X, material.TextureAlbedo.UVTransform.Y, material.ColorAlbedo.W));
