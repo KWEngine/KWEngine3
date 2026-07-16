@@ -66,7 +66,8 @@ namespace KWEngine3.Renderer
                 if (tbo is ParticleObject)
                 {
                     ParticleObject po = (ParticleObject)tbo;
-                    Draw(po);
+                    if(!po.Finished)
+                        Draw(po);
                 }
             }
             GL.Disable(EnableCap.Blend);
