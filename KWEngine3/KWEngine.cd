@@ -456,7 +456,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="24.5" Y="19" Width="2.75" />
+    <Position X="24.5" Y="19.25" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -864,6 +864,7 @@
       <Method Name="CreateEmptyDepthTexture" Hidden="true" />
       <Method Name="DeleteTemporaryFile" Hidden="true" />
       <Method Name="DeleteTexture" Hidden="true" />
+      <Field Name="dummyArray" Hidden="true" />
       <Method Name="FlipVertical" Hidden="true" />
       <Method Name="GetAssimpTextureType" Hidden="true" />
       <Method Name="GetDefaultTexture" Hidden="true" />
@@ -918,7 +919,7 @@
       <Method Name="SaveTextureToBitmapR8" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>ASggAbCAhEGICQAAQ6QxCEUAAAAIkgwFpkFBLAJwkUA=</HashCode>
+      <HashCode>AWggAbCAhEGICQAAQ6QxCEUAAAAIkgwFpkFBLBJxkUA=</HashCode>
       <FileName>Helper\HelperTexture.cs</FileName>
     </TypeIdentifier>
   </Class>
