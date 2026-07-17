@@ -316,7 +316,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="6.5" Y="18.25" Width="2.75" />
+    <Position X="6.5" Y="18.5" Width="2.75" />
     <Members>
       <Field Name="_behindCamera" Hidden="true" />
       <Field Name="_fbShadowMap" Hidden="true" />
@@ -345,28 +345,10 @@
   <Class Name="KWEngine3.GameObjects.ParticleObject">
     <Position X="9.5" Y="15.75" Width="2.75" />
     <Members>
-      <Field Name="_aliveInMS" Hidden="true" />
-      <Field Name="_colorIntensity" Hidden="true" />
-      <Field Name="_durationInMS" Hidden="true" />
-      <Field Name="_frame" Hidden="true" />
-      <Field Name="_hue" Hidden="true" />
-      <Field Name="_info" Hidden="true" />
-      <Field Name="_lastUpdate" Hidden="true" />
-      <Field Name="_model" Hidden="true" />
-      <Field Name="_modelMatrix" Hidden="true" />
-      <Field Name="_position" Hidden="true" />
-      <Field Name="_rotation" Hidden="true" />
-      <Field Name="_scale" Hidden="true" />
-      <Field Name="_scaleCurrent" Hidden="true" />
-      <Field Name="_scaleFactor" Hidden="true" />
-      <Field Name="_starttime" Hidden="true" />
-      <Field Name="_tint" Hidden="true" />
-      <Field Name="_type" Hidden="true" />
-      <Method Name="Act" Hidden="true" />
-      <Method Name="GetViewMatrixTowardsCamera" Hidden="true" />
+      <Field Name="_q" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>IAAgAAAAAAABAAQQggAABAgoAAKAAgAAACgogAEAAXA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAlAAAAAgAAAIAAggAAAgIgAAAAAA=</HashCode>
       <FileName>GameObjects\ParticleObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -646,7 +628,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QyNDJ1oOGJ6gUIRuwgqBoUYBACTJyxgJIImMnkBYRVU=</HashCode>
+      <HashCode>QzNDJ1oOGJ6gUIRuwgqBoUYBACTJyxgJIImMnkBYRVU=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -963,7 +945,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.ExplosionObject">
-    <Position X="9.5" Y="18.75" Width="2.75" />
+    <Position X="9.5" Y="19" Width="2.75" />
     <Members>
       <Field Name="_algorithm" Hidden="true" />
       <Field Name="_amount" Hidden="true" />
