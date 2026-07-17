@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2026-07-16)</Product>
+		<Product>KWEngine3 (updated: 2026-07-17)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.7.2</Version>
-		<AssemblyVersion>3.0.7.2</AssemblyVersion>
-		<FileVersion>3.0.7.2</FileVersion>
-		<ProductVersion>3.0.7.2</ProductVersion>
+		<Version>3.0.7.3</Version>
+		<AssemblyVersion>3.0.7.3</AssemblyVersion>
+		<FileVersion>3.0.7.3</FileVersion>
+		<ProductVersion>3.0.7.3</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -131,8 +131,6 @@
 		<None Remove="Shaders\shader.flowfield.vert" />
 		<None Remove="Shaders\shader.flowfielddirection.frag" />
 		<None Remove="Shaders\shader.flowfielddirection.vert" />
-		<None Remove="Shaders\shader.forward.particle.frag" />
-		<None Remove="Shaders\shader.forward.particle.vert" />
 		<None Remove="Shaders\shader.gbuffer.frag" />
 		<None Remove="Shaders\shader.gbuffer.vert" />
 		<None Remove="Shaders\shader.gbufferfoliage.frag" />
@@ -409,8 +407,6 @@
 		<EmbeddedResource Include="Shaders\shader.lighting.forwardtext.frag">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
-		<EmbeddedResource Include="Shaders\shader.forward.particle.frag" />
-		<EmbeddedResource Include="Shaders\shader.forward.particle.vert" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.frag" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.tesc" />
 		<EmbeddedResource Include="Shaders\shader.msm16terrain.cube.tese" />
@@ -527,9 +523,7 @@
 			<ZuKopieren Include="$(TargetDir)KWEngine3.xml" />
 		</ItemGroup>
 
-		<Copy SourceFiles="@(ZuKopieren)" 
-			  DestinationFolder="$(TargetDirectory)" 
-			  SkipUnchangedFiles="true" />
+		<Copy SourceFiles="@(ZuKopieren)" DestinationFolder="$(TargetDirectory)" SkipUnchangedFiles="true" />
 
 	</Target>
 

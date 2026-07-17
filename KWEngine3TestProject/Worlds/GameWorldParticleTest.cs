@@ -8,23 +8,31 @@ namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldParticleTest : World
     {
-        private List<ParticleObject> _objects;
+        //private List<ParticleObject> _objects;
 
         private float _time = 0f;
+        private int _counter = 1;
         public override void Act()
         {
-            if(_time == 0f || WorldTime - _time > 3f)
+            if(_time == 0f || WorldTime - _time > 3.5f)
+            //if (_time == 0f)
             {
-
+                string name = "OBJECT #" + _counter;
+                _counter++;
+                Console.WriteLine("-------------");
+                Console.WriteLine("SPAAAAAAAAAAWN: " + name);
                 {
+                    Console.WriteLine("-------------");
                     ParticleObject p = new ParticleObject(2, ParticleType.LoopSmoke2);
+                    //p.Name = name;
                     p.SetPosition(0, 3, 5);
                     p.SetHue(200);
                     p.SetDuration(3);
                     p.SetColor(0, 1, 1, 1.0f);
                     AddParticleObject(p);
-                    _objects.Add(p);
+                    //_objects.Add(p);
                 }
+                /*
                 {
                     
                     ParticleObject p = new ParticleObject(2, ParticleType.LoopSmoke1);
@@ -35,16 +43,18 @@ namespace KWEngine3TestProject.Worlds
                     _objects.Add(p);
                     
                 }
+                
                 {
                     ExplosionObject e = new ExplosionObject(512, 0.5f, 10, 2.5f, ExplosionType.Heart);
                     e.SetColorEmissive(0.75f, 0, 0.75f);
                     e.SetPosition(5, 2, 0);
                     AddExplosionObject(e);
                 }
+                */
 
                 _time = WorldTime;
             }
-
+            /*
             if(Keyboard.IsKeyPressed(Keys.Q))
             {
                 foreach(ParticleObject p in _objects)
@@ -53,11 +63,12 @@ namespace KWEngine3TestProject.Worlds
                 }
                 _objects.Clear();
             }
+            */
         }
 
         public override void Prepare()
         {
-            _objects = new List<ParticleObject>();
+            //_objects = new List<ParticleObject>();
 
             SetCameraFOV(10);
             SetCameraPosition(0, 2, 50);

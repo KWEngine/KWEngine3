@@ -11,12 +11,14 @@ namespace KWEngine3.Helper
         public int Texture;
         public int Images;
         public int Samples;
+        public string File;
 
-        public ParticleInfo(int texId, int imageCount, int samples)
+        public ParticleInfo(int texId, int imageCount, int samples, string file)
         {
             Texture = texId;
             Images = imageCount;
             Samples = samples;
+            File = file;
         }
     }
 }

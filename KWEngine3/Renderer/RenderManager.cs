@@ -133,7 +133,6 @@ namespace KWEngine3.Renderer
             RendererBackgroundSkybox.Init();
             RendererBackgroundStandard.Init();
             RendererExplosion.Init();
-            RendererParticle.Init();
             
             RendererEditorHitboxes.Init();
             RendererTerrainCollision.Init();

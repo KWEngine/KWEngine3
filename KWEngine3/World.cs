@@ -1144,13 +1144,13 @@ namespace KWEngine3
         /// <param name="po">Objekt</param>
         public void AddParticleObject(ParticleObject po)
         {
-            if (po == null)
+            if (po._q == null)
                 return;
 
-            if (!_particleAndExplosionObjects.Contains(po))
+            if (!_renderObjectsToBeAdded.Contains(po._q) && !_renderObjects.Contains(po._q))
             {
-                po._starttime = WorldTime;
-                _particleAndExplosionObjects.Add(po);
+                _renderObjectsToBeAdded.Add(po._q);
+                po._q.Start();
             }
         }
 
@@ -1322,11 +1322,14 @@ namespace KWEngine3
         /// <param name="p">zu entfernendes Partikelobjekt</param>
         public void RemoveParticleObject(ParticleObject p)
         {
-            int index = _particleAndExplosionObjects.IndexOf(p);
+            int index = _renderObjects.IndexOf(p._q);
             if(index >= 0)
             {
-                (_particleAndExplosionObjects[index] as ParticleObject).SetDuration(0.000001f);
-                _particleAndExplosionObjects[index].Finished = true;
+                if (_renderObjects[index] is FXQuad)
+                {
+                    (_renderObjects[index] as FXQuad).SetDuration(0.000001f);
+                    (_renderObjects[index] as FXQuad).SkipRender = true;
+                }
             }
         }
 

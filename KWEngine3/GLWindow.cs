@@ -709,11 +709,7 @@ namespace KWEngine3
                     RenderManager.IRendererForwardText.SetGlobals();
                     RenderManager.IRendererForwardText.RenderScene();
                 }
-                if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
-                {
-                    RendererParticle.Bind();
-                    RendererParticle.RenderParticles(KWEngine.CurrentWorld._particleAndExplosionObjects);
-                }
+
                 HelperDebug.StopTimeQuery(RenderType.Forward);
             }
             #endregion

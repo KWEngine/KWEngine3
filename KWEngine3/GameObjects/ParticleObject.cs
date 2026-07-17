@@ -1,31 +1,58 @@
-﻿using KWEngine3.Helper;
+﻿using KWEngine3.Audio.CSVorbis;
+using KWEngine3.Helper;
 using KWEngine3.Model;
 using OpenTK.Mathematics;
+using System.Data.Common;
 
 namespace KWEngine3.GameObjects
 {
     /// <summary>
     /// Partikelklasse
     /// </summary>
-    public sealed class ParticleObject : TimeBasedObject
+    public class ParticleObject
     {
-        internal GeoModel _model = KWEngine.GetModel("KWQuad");
-        internal Vector3 _position = new Vector3(0, 0, 0);      
-        private Vector3 _scale = new Vector3(1, 1, 1);
-        private Vector3 _scaleCurrent = new Vector3(1, 1, 1);
-        internal Matrix4 _rotation = Matrix4.Identity;
-        internal Matrix4 _modelMatrix = Matrix4.Identity;
-        internal Vector4 _tint = new Vector4(1f, 1f, 1f, 1f);
-        internal float _colorIntensity = 1f;
-        internal ParticleType _type = ParticleType.BurstFire1;
-        internal float _starttime = -1;
-        internal float _lastUpdate = -1;
-        internal long _durationInMS = 5000;
-        internal int _frame = 0;
-        internal float _aliveInMS = 0;
-        internal float _scaleFactor = 1;
-        internal ParticleInfo _info;
-        internal float _hue = 0;
+        /// <summary>
+        ///  Konstruktormethode für Partikel mit benutzerdefininiertem Partikel-Spritesheet
+        /// </summary>
+        /// <param name="scale">Skalierung</param>
+        /// <param name="texture">zu verwendende Spritesheet-Textur</param>
+        /// <param name="columns">Anzahl der Spalten im Spritesheet</param>
+        /// <param name="rows">Anzahl der Zeilen im Spritesheet</param>
+        /// <param name="isLooping">Ankerposition der Partikelanimation</param>
+        /// <param name="speed">Geschwindigkeit der Partikelanimation</param>
+        /// /// <param name="anchor">Ankerposition der Partikelanimation</param>
+        public ParticleObject(float scale, string texture, int columns, int rows, bool isLooping, ParticleObjectSpeed speed = ParticleObjectSpeed.FPS060, ParticleObjectAnchor anchor = ParticleObjectAnchor.Center)
+        {
+            _q = new FXQuad(texture, columns, rows, anchor);
+            _q.SetSpriteSheetLooping(isLooping);
+            _q.SetSpriteSheetSpeed(speed);
+            _q.SetScale(scale);
+        }
+
+        /// <summary>
+        /// Konstruktormethode für Partikel und engine-interner Partikelanimation
+        /// </summary>
+        /// <param name="scale">Skalierung</param>
+        /// <param name="type">Art der Partikelanimation</param>
+        /// <param name="speed">Geschwindigkeit der Partikelanimation</param>
+        /// <param name="anchor">Ankerposition der Partikelanimation</param>
+        public ParticleObject(float scale, ParticleType type, ParticleObjectSpeed speed = ParticleObjectSpeed.FPS060, ParticleObjectAnchor anchor = ParticleObjectAnchor.Center)
+        {
+            _q = new FXQuad(type, ParticleObjectAnchor.Center);
+            _q.SetSpriteSheetSpeed(speed);
+            _q.SetScale(scale);
+        }
+
+        /// <summary>
+        /// Gibt an, ob die Instanz aktuell noch wiedergegeben wird
+        /// </summary>
+        public bool IsActive
+        {
+            get
+            {
+                return _q != null && !_q.SkipRender;
+            }
+        }
 
         /// <summary>
         /// Setzt die Dauer der Loop-Partikel
@@ -33,21 +60,16 @@ namespace KWEngine3.GameObjects
         /// <param name="durationInSeconds">Dauer (in Sekunden)</param>
         public void SetDuration(float durationInSeconds)
         {
-            if (_type == ParticleType.LoopSmoke1 || _type == ParticleType.LoopSmoke2 || _type == ParticleType.LoopSmoke3)
-                _durationInMS = durationInSeconds > 0 ? (int)(durationInSeconds * 1000) : 5000;
-            else
-            {
-                KWEngine.LogWriteLine("Cannot set duration on this ParticleObject.");
-            }
+            _q.SetDuration(durationInSeconds);
         }
 
         /// <summary>
         /// Setzt, wie stark die Pixelfarben des Partikeleffekts verstärkt werden
         /// </summary>
-        /// <param name="intensity">Verstärkungswert (zwischen 0 und 100; Standardwert: 1f)</param>
+        /// <param name="intensity">Verstärkungswert (zwischen 0 und 10; Standardwert: 0f)</param>
         public void SetColorIntensity(float intensity)
         {
-            _colorIntensity = Math.Clamp(intensity, 0f, 100f);
+            _q.SetColorEmissive(0f, 0f, 0f, intensity);
         }
 
         /// <summary>
@@ -56,7 +78,7 @@ namespace KWEngine3.GameObjects
         /// <param name="hue">Farbverschiebung (in Grad)</param>
         public void SetHue(float hue)
         {
-            _hue = MathHelper.DegreesToRadians(hue % 360f);
+            _q.SetHue(hue);
         }
 
         /// <summary>
@@ -65,7 +87,7 @@ namespace KWEngine3.GameObjects
         /// <returns>Aktuelle Farbverschiebung (in Grad)</returns>
         public float GetHue()
         {
-            return MathHelper.RadiansToDegrees(_hue);
+            return MathHelper.RadiansToDegrees(_q._hues[0]);
         }
 
         /// <summary>
@@ -74,7 +96,7 @@ namespace KWEngine3.GameObjects
         /// <param name="pos">Positionsdaten</param>
         public void SetPosition(Vector3 pos)
         {
-            Position = pos;
+            _q.SetPosition(pos);
         }
 
         /// <summary>
@@ -85,99 +107,42 @@ namespace KWEngine3.GameObjects
         /// <param name="z">z</param>
         public void SetPosition(float x, float y, float z)
         {
-            SetPosition(new Vector3(x, y, z));
+            _q.SetPosition(new Vector3(x, y, z));
         }
 
         /// <summary>
         /// Setzt die Partikelfärbung
         /// </summary>
-        /// <param name="red">Rot</param>
-        /// <param name="green">Grün</param>
-        /// <param name="blue">Blau</param>
+        /// <param name="red">Rot (0 bis 1)</param>
+        /// <param name="green">Grün (0 bis 1)</param>
+        /// <param name="blue">Blau (0 bis 1)</param>
         /// <param name="alpha">Transparenz (0 bis 1)</param>
         public void SetColor(float red, float green, float blue, float alpha)
         {
-            _tint.X = HelperGeneral.Clamp(red, 0, 1);
-            _tint.Y = HelperGeneral.Clamp(green, 0, 1);
-            _tint.Z = HelperGeneral.Clamp(blue, 0, 1);
-            _tint.W = HelperGeneral.Clamp(alpha, 0, 1);
+            _q.SetColor(red, green, blue);
+            _q.SetOpacity(alpha);
+           
+        }
+
+        /// <summary>
+        /// Setzt die Rotation der Instanz um die Kamerasichtachse
+        /// </summary>
+        /// <param name="angle">Rotationswinkel (in Grad)</param>
+        public void SetRotation(float angle)
+        {
+            _q.SetRotationAfterTurn(angle);
         }
 
         /// <summary>
         /// Erfragt die aktuelle Färbung des Partikelobjekts
         /// </summary>
-        public Vector4 Color
+        public Vector3 Color
         {
-            get { return _tint; }
+            get { return _q.Color; }
         }
 
-
-        /// <summary>
-        /// Konstruktormethode für Partikel
-        /// </summary>
-        /// <param name="scale">Skalierung</param>
-        /// <param name="type">Art der Partikelanimation</param>
-        public ParticleObject(float scale, ParticleType type)
-        {
-            _scale.X = HelperGeneral.Clamp(scale, 0.0001f, float.MaxValue);
-            _scale.Y = HelperGeneral.Clamp(scale, 0.0001f, float.MaxValue);
-            _scale.Z = HelperGeneral.Clamp(scale, 0.0001f, float.MaxValue);
-            _scaleCurrent.X = HelperGeneral.Clamp(scale, 0.0001f, float.MaxValue);
-            _scaleCurrent.Y = HelperGeneral.Clamp(scale, 0.0001f, float.MaxValue);
-            _scaleCurrent.Z = HelperGeneral.Clamp(scale, 0.0001f, float.MaxValue);
-
-            _type = type;
-
-            _info = KWEngine.ParticleDictionary[_type];
-            _modelMatrix = Matrix4.CreateScale(_scaleCurrent) * _rotation * Matrix4.CreateTranslation(Position);
-        }
-
-        internal Matrix4 GetViewMatrixTowardsCamera()
-        {
-            Matrix3 currentViewMatrix = new Matrix3(KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewMatrix);
-            currentViewMatrix.Invert();
-            return new Matrix4(currentViewMatrix);
-        }
-
-        internal override void Act()
-        {
-            float now = KWEngine.WorldTime;      
-            float diff = _lastUpdate < 0 ? 0 : now - _lastUpdate;
-            _aliveInMS += diff * 1000;
-            _frame = (int)(_aliveInMS / 32);
-            int frameloop = _frame % _info.Samples;
-
-            if (_type == ParticleType.LoopSmoke1 || _type == ParticleType.LoopSmoke2 || _type == ParticleType.LoopSmoke3)
-            {
-                _frame = frameloop;
-                // f(x) = -64000(x - 0.5)¹⁶ + 1
-                _scaleFactor = -64000f * (float)Math.Pow(_aliveInMS / _durationInMS - 0.5f, 16) + 1;
-                _scaleCurrent.X = _scale.X * _scaleFactor;
-                _scaleCurrent.Y = _scale.Y * _scaleFactor;
-                _scaleCurrent.Z = _scale.Z * _scaleFactor;
-
-                if (_aliveInMS > _durationInMS)
-                {
-                    Finished = true;
-                }
-            }
-            else
-            {
-                if (_frame > _info.Samples - 1)
-                {
-                    Finished = true;
-                }
-            }
-
-            _modelMatrix = GetViewMatrixTowardsCamera();
-            _modelMatrix.Row0 *= _scaleCurrent.X;
-            _modelMatrix.Row1 *= _scaleCurrent.Y;
-            _modelMatrix.Row2 *= _scaleCurrent.Z;
-            _modelMatrix.M41 = Position.X;
-            _modelMatrix.M42 = Position.Y;
-            _modelMatrix.M43 = Position.Z;
-            _modelMatrix.M44 = 1;
-            _lastUpdate = now;
-        }
+        #region Internals
+        internal FXQuad _q;
+        #endregion
     }
 }

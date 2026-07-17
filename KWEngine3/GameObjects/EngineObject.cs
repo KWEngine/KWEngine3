@@ -256,6 +256,24 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Erfragt den aktuell gesetzten Sichtbarkeitswert der Instanz
+        /// </summary>
+        /// <param name="materialId">[optional] Index des Materials (Standard: 0)</param>
+        /// <returns>Sichtbarkeitswert</returns>
+        public float GetOpacity(int materialId = 0)
+        {
+            if (materialId >= 0 && materialId < _model.Material.Length)
+            {
+                return _model.Material[materialId].ColorAlbedo.W;
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] Cannot determine opacity for '" + Name + "' -> returning 1f");
+                return 1f;
+            }
+        }
+
+        /// <summary>
         /// Setzt die Sichtbarkeit des Objekts (Standardwert: 1)
         /// </summary>
         /// <remarks>Ist der optionale zweite Parameter leer bzw. behält er seinen Standardwert, wird die Transparenz für das gesamte Objekt gesetzt (Standard)</remarks>
@@ -1306,6 +1324,12 @@ namespace KWEngine3.GameObjects
         internal float _positionCenterDelta = 0f;
         internal bool _positionLowerThanCenter = true;
         internal float[] _hues;
+
+
+        internal void SetTexture(int textureId, string filename, TextureType type, int meshId)
+        {
+            _model.SetTexture(textureId, filename, type, meshId);
+        }
 
         internal void CheckPositionAndCenter()
         {

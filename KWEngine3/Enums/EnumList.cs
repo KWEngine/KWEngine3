@@ -1,6 +1,40 @@
 ﻿namespace KWEngine3
 {
     /// <summary>
+    /// Bestimmt die Geschwindigkeit mit der ein Partikeleffekt abgespielt wird
+    /// </summary>
+    public enum ParticleObjectSpeed
+    {
+        /// <summary>
+        /// Spielt die Partikel-Spritesheet-Animation mit 120 Bildern pro Sekudne ab
+        /// </summary>
+        FPS120,
+        /// <summary>
+        /// Spielt die Partikel-Spritesheet-Animation mit 60 Bildern pro Sekudne ab
+        /// </summary>
+        FPS060,
+        /// <summary>
+        /// Spielt die Partikel-Spritesheet-Animation mit 30 Bildern pro Sekudne ab
+        /// </summary>
+        FPS030
+    }
+
+    /// <summary>
+    /// Gibt den Ankerpunkt der ParticleObject-Instanz an (Standard: Center)
+    /// </summary>
+    public enum ParticleObjectAnchor
+    {
+        /// <summary>
+        /// Die Positionsangabe bezieht sich auf die Mitte des Partikelobjekts
+        /// </summary>
+        Center,
+        /// <summary>
+        /// Die Positionsangabe bezieht sich auf den Boden des Partikelobjekts
+        /// </summary>
+        Bottom
+    }
+
+    /// <summary>
     /// Legt für die Anzeige von Hitboxen während des Spiels fest, ob diese überhaupt gezeichnet werden und wenn, ob sie den Tiefentest durchführen oder nicht
     /// </summary>
     public enum HitboxDebugMode

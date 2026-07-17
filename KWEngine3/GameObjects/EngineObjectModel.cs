@@ -71,6 +71,23 @@ namespace KWEngine3.GameObjects
             Center = new ((DimensionsMax.Xyz + DimensionsMin.Xyz) / 2f, 1f);
         }
     
+        public void SetTexture(int textureId, string filename, TextureType type, int meshId)
+        {
+            if (KWEngine.CurrentWorld == null)
+            {
+                KWEngine.LogWriteLine("[EngineObject] No current world found, cannot load texture");
+                return;
+            }
+
+            if (Material.Length > meshId && meshId >= 0 && textureId >= 0)
+            {
+                Material[meshId].SetTexture(filename, type, textureId);
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] Invalid texture id");
+            }
+        }
 
         public void SetTexture(string filename, TextureType type, int meshId)
         {

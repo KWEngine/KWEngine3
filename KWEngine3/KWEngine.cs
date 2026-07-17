@@ -1354,56 +1354,56 @@ namespace KWEngine3
 
             // Bursts:
             tex = HelperTexture.LoadTextureCompressedNoMipMap("fire01.dds");
-            ParticleDictionary.Add(ParticleType.BurstFire1, new ParticleInfo(tex, 8, 64));
+            ParticleDictionary.Add(ParticleType.BurstFire1, new ParticleInfo(tex, 8, 64, "fire01.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("fire02.dds");
-            ParticleDictionary.Add(ParticleType.BurstFire2, new ParticleInfo(tex, 7, 49));
+            ParticleDictionary.Add(ParticleType.BurstFire2, new ParticleInfo(tex, 7, 49, "fire02.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("fire03.dds");
-            ParticleDictionary.Add(ParticleType.BurstFire3, new ParticleInfo(tex, 9, 81));
+            ParticleDictionary.Add(ParticleType.BurstFire3, new ParticleInfo(tex, 9, 81, "fire03.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("fire04.dds");
-            ParticleDictionary.Add(ParticleType.BurstElectricity, new ParticleInfo(tex, 4, 16));
+            ParticleDictionary.Add(ParticleType.BurstElectricity, new ParticleInfo(tex, 4, 16, "fire04.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_bubbles.dds");
-            ParticleDictionary.Add(ParticleType.BurstBubblesColored, new ParticleInfo(tex, 6, 36));
+            ParticleDictionary.Add(ParticleType.BurstBubblesColored, new ParticleInfo(tex, 6, 36, "particleburst_bubbles.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_bubbles_unicolor.dds");
-            ParticleDictionary.Add(ParticleType.BurstBubblesMonochrome, new ParticleInfo(tex, 6, 36));
+            ParticleDictionary.Add(ParticleType.BurstBubblesMonochrome, new ParticleInfo(tex, 6, 36, "particleburst_bubbles_unicolor.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_explosioncolored.dds");
-            ParticleDictionary.Add(ParticleType.BurstFirework1, new ParticleInfo(tex, 7, 49));
+            ParticleDictionary.Add(ParticleType.BurstFirework1, new ParticleInfo(tex, 7, 49, "particleburst_explosioncolored.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_firework.dds");
-            ParticleDictionary.Add(ParticleType.BurstFirework2, new ParticleInfo(tex, 7, 49));
+            ParticleDictionary.Add(ParticleType.BurstFirework2, new ParticleInfo(tex, 7, 49, "particleburst_firework.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_hearts.dds");
-            ParticleDictionary.Add(ParticleType.BurstHearts, new ParticleInfo(tex, 7, 49));
+            ParticleDictionary.Add(ParticleType.BurstHearts, new ParticleInfo(tex, 7, 49, "particleburst_hearts.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_plusplusplus.dds");
-            ParticleDictionary.Add(ParticleType.BurstOneUps, new ParticleInfo(tex, 6, 36));
+            ParticleDictionary.Add(ParticleType.BurstOneUps, new ParticleInfo(tex, 6, 36, "particleburst_plusplusplus.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_shield.dds");
-            ParticleDictionary.Add(ParticleType.BurstShield, new ParticleInfo(tex, 6, 36));
+            ParticleDictionary.Add(ParticleType.BurstShield, new ParticleInfo(tex, 6, 36, "particleburst_shield.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport1.dds");
-            ParticleDictionary.Add(ParticleType.BurstTeleport1, new ParticleInfo(tex, 4, 16));
+            ParticleDictionary.Add(ParticleType.BurstTeleport1, new ParticleInfo(tex, 4, 16, "particleburst_teleport1.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport2.dds");
-            ParticleDictionary.Add(ParticleType.BurstTeleport2, new ParticleInfo(tex, 4, 16));
+            ParticleDictionary.Add(ParticleType.BurstTeleport2, new ParticleInfo(tex, 4, 16, "particleburst_teleport2.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("particleburst_teleport3.dds");
-            ParticleDictionary.Add(ParticleType.BurstTeleport3, new ParticleInfo(tex, 4, 16));
+            ParticleDictionary.Add(ParticleType.BurstTeleport3, new ParticleInfo(tex, 4, 16, "particleburst_teleport3.dds"));
 
             // Loops:
             tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke01.dds");
-            ParticleDictionary.Add(ParticleType.LoopSmoke1, new ParticleInfo(tex, 4, 16));
+            ParticleDictionary.Add(ParticleType.LoopSmoke1, new ParticleInfo(tex, 4, 16, "smoke01.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke02.dds");
-            ParticleDictionary.Add(ParticleType.LoopSmoke2, new ParticleInfo(tex, 7, 46));
+            ParticleDictionary.Add(ParticleType.LoopSmoke2, new ParticleInfo(tex, 7, 46, "smoke02.dds"));
 
             tex = HelperTexture.LoadTextureCompressedNoMipMap("smoke03.dds");
-            ParticleDictionary.Add(ParticleType.LoopSmoke3, new ParticleInfo(tex, 6, 32));
+            ParticleDictionary.Add(ParticleType.LoopSmoke3, new ParticleInfo(tex, 6, 32, "smoke03.dds"));
 
         }
 
