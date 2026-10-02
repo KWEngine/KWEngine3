@@ -79,6 +79,7 @@ namespace KWEngine3.Renderer
                 }
 
                 GL.LinkProgram(ProgramID);
+                RendererFog.BindFogBlockToProgram(ProgramID); // fog
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");
@@ -356,7 +357,7 @@ namespace KWEngine3.Renderer
                     // usual behaviour (one-pass-solution):
                     GL.DrawElementsInstanced(PrimitiveType.Triangles, mesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, r.InstanceCount);
                 }
-                
+
 
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
@@ -402,7 +403,7 @@ namespace KWEngine3.Renderer
 
             // Metallic/Roughness
             GL.Uniform1(UTextureMetallicRoughnessCombined, material.TextureRoughnessInMetallic ? 1 : 0);
-            if(material.TextureRoughnessInMetallic)
+            if (material.TextureRoughnessInMetallic)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);

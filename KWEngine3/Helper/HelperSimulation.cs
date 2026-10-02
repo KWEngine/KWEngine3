@@ -263,6 +263,7 @@ namespace KWEngine3.Helper
 
             camGame._stateRender.UpdateViewMatrixAndLookAtVectorRenderPass();
             camGame._stateRender.UpdateViewProjectionMatrix(camGame._zNear, camGame._zFar, true);
+            camGame._stateRender.UpdateViewProjectionMatrixInverse();
 
             camEditor._stateRender._fov = camEditor._statePrevious._fov * alpha + camEditor._stateCurrent._fov * (1f - alpha);
             camEditor._stateRender._position = Vector3.Lerp(camEditor._statePrevious._position, camEditor._stateCurrent._position, alpha);
@@ -270,6 +271,7 @@ namespace KWEngine3.Helper
             camEditor._stateRender._rotation = Quaternion.Slerp(camEditor._statePrevious._rotation, camEditor._stateCurrent._rotation, alpha);
             camEditor._stateRender.UpdateViewMatrixAndLookAtVector();
             camEditor._stateRender.UpdateViewProjectionMatrix(camEditor._zNear, camEditor._zFar);
+            camEditor._stateRender.UpdateViewProjectionMatrixInverse();
         }
 
         internal static void UpdateBoneTransformsForViewSpaceGameObject(ViewSpaceGameObject vsg)

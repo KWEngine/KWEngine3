@@ -69,11 +69,11 @@ namespace KWEngine3.Renderer
             int attachmentID = -1;
             int mode = (int)KWEngine.DebugMode;
 
-            if((int)KWEngine.DebugMode >= 7 && (int)KWEngine.DebugMode <= 9)
+            if ((int)KWEngine.DebugMode >= 7 && (int)KWEngine.DebugMode <= 9)
             {
                 if (KWEngine.DebugMode == DebugMode.DepthBufferShadowMap1)
                 {
-                    if(maps.Count >= 1)
+                    if (maps.Count >= 1)
                     {
                         attachmentID = maps[0].Attachments[0].ID;
                     }
@@ -98,25 +98,24 @@ namespace KWEngine3.Renderer
                 return;
             }
 
-            if(attachmentID < 0)
+            if (attachmentID < 0)
             {
                 return;
             }
-           
+
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.TextureCubeMap, attachmentID);
             GL.Uniform1(UTexture, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, RenderManager.FramebufferDeferred.Attachments[4].ID);
+            GL.BindTexture(TextureTarget.Texture2D, RenderManager.FramebufferDeferred.Attachments[5].ID);
             GL.Uniform1(UTextureDepth, 1);
 
-            Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-            vp.Invert();
-            GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vp);
+            Matrix4 vpInv = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrixInverse : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrixInverse;
+            GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vpInv);
 
             GL.Uniform3(UCameraPosition, KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._stateRender._position : KWEngine.CurrentWorld._cameraGame._stateRender._position);
-            
+
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
             GL.BindVertexArray(0);

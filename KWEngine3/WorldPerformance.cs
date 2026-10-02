@@ -15,6 +15,7 @@ namespace KWEngine3
         internal HUDObjectText _performancePostProcessing;
         internal HUDObjectText _performanceForward;
         internal HUDObjectText _performanceLighting;
+        internal HUDObjectText _performanceFog;
         internal HUDObjectText _performanceCPU;
         internal HUDObjectText _performanceFPS;
         internal List<int> fps = new();
@@ -34,6 +35,7 @@ namespace KWEngine3
                 _performanceLighting.SetText("Lighting:" + KWEngine.GetRenderTime(RenderType.Lighting) + "ms");
                 _performanceShadowMapping.SetText("Shadows: " + KWEngine.GetRenderTime(RenderType.ShadowMapping) + "ms");
                 _performanceSSAO.SetText("SSAO:    " + KWEngine.GetRenderTime(RenderType.SSAO) + "ms");
+                _performanceFog.SetText("Fog:     " + KWEngine.GetRenderTime(RenderType.Fog) + "ms");
 
                 _performanceForward.SetText("Forward: " + KWEngine.GetRenderTime(RenderType.Forward) + "ms");
                 _performanceHUD.SetText("HUD:     " + KWEngine.GetRenderTime(RenderType.HUD) + "ms");
@@ -110,6 +112,13 @@ namespace KWEngine3
             _performanceFPS.SetScale(32);
             _performanceFPS.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceFPS);
+
+            _performanceFog = new HUDObjectText("0");
+            _performanceFog.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceFog.ForceMonospace = true;
+            _performanceFog.SetScale(32);
+            _performanceFog.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
+            AddHUDObject(_performanceFog);
         }
 
         /// <summary>

@@ -376,6 +376,8 @@ vec2 ParallaxMapping(vec2 texCoords, vec3 viewDir)
 	return finalTexCoords;
 } 
 
+#include "fog.glsl"
+
 void main()
 {
     vec3 viewDir = normalize(vTangentView - vTangentPosition);
@@ -534,6 +536,9 @@ void main()
         colorTemp = ambient + Lo;
         color = vec4(colorTemp + emissive, albedo.w);
     }
+
+    // fog:
+    color.xyz = applyFog(color.xyz, fragPositionDepth.xyz, uCameraPosition.xyz);
 
     float bloomR = max(0.0, color.x - 1.0);
     float bloomG = max(0.0, color.y - 1.0);

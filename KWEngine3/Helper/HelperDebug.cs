@@ -105,6 +105,7 @@ namespace KWEngine3.Helper
             _renderTimesIDDict[RenderType.Forward] = GL.GenQuery();
             _renderTimesIDDict[RenderType.HUD] = GL.GenQuery();
             _renderTimesIDDict[RenderType.PostProcessing] = GL.GenQuery();
+            _renderTimesIDDict[RenderType.Fog] = GL.GenQuery();
 
             _renderTimesDict[RenderType.Deferred] = new List<long>();
             _renderTimesDict[RenderType.Lighting] = new List<long>();
@@ -113,6 +114,7 @@ namespace KWEngine3.Helper
             _renderTimesDict[RenderType.Forward] = new List<long>();
             _renderTimesDict[RenderType.HUD] = new List<long>();
             _renderTimesDict[RenderType.PostProcessing] = new List<long>();
+            _renderTimesDict[RenderType.Fog] = new List<long>();
 
             _renderTimesAvgDict[RenderType.Deferred] = 0;
             _renderTimesAvgDict[RenderType.Lighting] = 0;
@@ -121,6 +123,7 @@ namespace KWEngine3.Helper
             _renderTimesAvgDict[RenderType.Forward] = 0;
             _renderTimesAvgDict[RenderType.HUD] = 0;
             _renderTimesAvgDict[RenderType.PostProcessing] = 0;
+            _renderTimesAvgDict[RenderType.Fog] = 0;
 
             InitDebugRegistry();
         }

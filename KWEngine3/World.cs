@@ -78,6 +78,11 @@ namespace KWEngine3
 
         internal Vector3 _colorAmbient = new(0.75f, 0.75f, 0.75f);
         internal Vector3 _backgroundFillColor = new(0.0f, 0.0f, 0.0f);
+
+        internal Vector3 _fogColor = new(0.75f, 0.8f, 0.85f);
+        internal float _fogDensity = 0f;          // 0 = no fog (completely ignores fog pass)
+        internal float _fogHeight = 0f;           // base height of fog
+        internal float _fogHeightFalloff = 0f;    // 0 = fog is the same at every height
         internal WorldBackground _background = new();
 
         internal WorldFadeState _fadeStateCurrent = new WorldFadeState();
@@ -202,7 +207,7 @@ namespace KWEngine3
 
         internal static void Export()
         {
-            if(KWEngine.CurrentWorld != null)
+            if (KWEngine.CurrentWorld != null)
             {
                 HelperImportExport.ExportWorld(KWEngine.CurrentWorld);
             }
@@ -267,19 +272,19 @@ namespace KWEngine3
         {
             foreach (HUDObject h in _hudObjectsToBeRemoved)
             {
-                if(h is HUDObjectText)
+                if (h is HUDObjectText)
                 {
                     (h as HUDObjectText).DeleteBuffers();
                 }
 
-                if(h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
+                if (h is HUDObjectTextInput && (h as HUDObjectTextInput).HasFocus)
                 {
                     _hudObjectInputWithFocus = null;
-                    
+
                 }
                 h._currentWorld = null;
                 _hudObjects.Remove(h);
-                
+
             }
             _hudObjectsToBeRemoved.Clear();
 
@@ -327,20 +332,20 @@ namespace KWEngine3
             foreach (FoliageBase f in _foliageObjectsToBeRemoved)
             {
                 _foliageObjects.Remove(f);
-                if(f is FoliageObjectCustom)
+                if (f is FoliageObjectCustom)
                 {
                     (f as FoliageObjectCustom)._isInWorld = null;
                 }
             }
             _foliageObjectsToBeRemoved.Clear();
 
-            for(int i = 0; i < _foliageObjectsToBeAdded.Count; i++)
+            for (int i = 0; i < _foliageObjectsToBeAdded.Count; i++)
             {
                 if (_foliageObjectsToBeAdded[i] is FoliageObject)
                 {
                     _foliageObjects.Add(_foliageObjectsToBeAdded[i]);
                 }
-                else if(_foliageObjectsToBeAdded[i] is FoliageObjectCustom)
+                else if (_foliageObjectsToBeAdded[i] is FoliageObjectCustom)
                 {
                     _foliageObjects.Add(_foliageObjectsToBeAdded[i]);
                     (_foliageObjectsToBeAdded[i] as FoliageObjectCustom)._isInWorld = this;
@@ -380,7 +385,7 @@ namespace KWEngine3
 
         internal void AddRemoveGameObjects()
         {
-            for(int i = _gameObjectsToBeRemoved.Count - 1; i>= 0; i--)
+            for (int i = _gameObjectsToBeRemoved.Count - 1; i >= 0; i--)
             {
                 if (_gameObjectsToBeAdded.Contains(_gameObjectsToBeRemoved[i]))
                 {
@@ -410,7 +415,7 @@ namespace KWEngine3
                             _gameObjectHitboxes.Remove(hb);
                         }
                     }
-                    else if(g._mode == AddRemoveHitboxMode.AddCustomRemoveDefault)
+                    else if (g._mode == AddRemoveHitboxMode.AddCustomRemoveDefault)
                     {
                         foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
@@ -431,7 +436,7 @@ namespace KWEngine3
                         g._objectToChange._colliderModel._customColliderFilename = g._customColliderFilename;
                         g._objectToChange.UpdateModelMatrixAndHitboxes();
                     }
-                    else if(g._mode == AddRemoveHitboxMode.AddDefaultRemoveCustom)
+                    else if (g._mode == AddRemoveHitboxMode.AddDefaultRemoveCustom)
                     {
                         foreach (GameObjectHitbox hb in g._objectToChange._colliderModel._hitboxes)
                         {
@@ -466,7 +471,7 @@ namespace KWEngine3
                     HelperGameObjectAttachment.CleanAttachments(g);
 
                     _gameObjects.Remove(g);
-                    foreach(GameObjectHitbox hb in g._colliderModel._hitboxes)
+                    foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
                         _gameObjectHitboxes.Remove(hb);
                     }
@@ -512,7 +517,7 @@ namespace KWEngine3
             AddRemoveLightObjects();
             Framebuffer._fbShadowMapCounter = 0;
 
-            foreach(GameObject g in _gameObjects)
+            foreach (GameObject g in _gameObjects)
             {
                 RemoveGameObject(g);
             }
@@ -520,7 +525,7 @@ namespace KWEngine3
 
             foreach (FoliageBase f in _foliageObjects)
             {
-                if(f is FoliageObject)
+                if (f is FoliageObject)
                     RemoveFoliageObject(f as FoliageObject);
                 else
                     RemoveFoliageObject(f as FoliageObjectCustom);
@@ -604,15 +609,15 @@ namespace KWEngine3
             }
         }
 
-        internal bool IsLightBehindCamera(ref Vector3 lightPos, ref float lightRadius, ref Vector3 cameraDir, ref Vector3 cameraPos) 
+        internal bool IsLightBehindCamera(ref Vector3 lightPos, ref float lightRadius, ref Vector3 cameraDir, ref Vector3 cameraPos)
         {
             Vector3 cameraToLight = lightPos - cameraPos;
             float projection = Vector3.Dot(cameraToLight, cameraDir);
-            if (projection < 0 && - projection > lightRadius * 2) 
+            if (projection < 0 && -projection > lightRadius * 2)
             {
                 return true;
-            } 
-            else 
+            }
+            else
             {
                 return false;
             }
@@ -626,7 +631,7 @@ namespace KWEngine3
                 int lightIndex = 0;
                 foreach (LightObject l in _lightObjects)
                 {
-                    if(l.Type == LightType.Sun)
+                    if (l.Type == LightType.Sun)
                     {
                         // always fill!
                         tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
@@ -635,7 +640,7 @@ namespace KWEngine3
                     else if (l.Type == LightType.Point)
                     {
                         float distance = (tile._ndcCenter - l._ndcPosition.Xy).LengthFast;
-                        if(l._behindCamera == false && distance <= l._ndcRadius * 2f + tile._ndcRadius)
+                        if (l._behindCamera == false && distance <= l._ndcRadius * 2f + tile._ndcRadius)
                         {
                             tile._preparedLightsIndices[tile._preparedLightsIndicesCount] = lightIndex;
                             tile._preparedLightsIndicesCount++;
@@ -732,7 +737,7 @@ namespace KWEngine3
                 if (l.Type == LightType.Sun)
                     _hasSun = null;
                 _lightObjects.Remove(l);
-                
+
             }
             _lightObjectsToBeRemoved.Clear();
 
@@ -749,12 +754,13 @@ namespace KWEngine3
         /// <summary>
         /// Gibt die Referenz auf die (optionale) Karte zurück
         /// </summary>
-        public WorldMap Map { get { return _map;} }
+        public WorldMap Map { get { return _map; } }
 
         /// <summary>
         /// Gibt die globale Mischfarbe an, mit der der Bildschirminhalt gemischt wird, wenn FadeFactor kleiner als 1.0 ist
         /// </summary>
-        public Vector3 FadeColor { 
+        public Vector3 FadeColor
+        {
             get
             {
                 return _fadeStateCurrent.Color;
@@ -808,7 +814,7 @@ namespace KWEngine3
         /// <summary>
         /// Gibt Auskunft über das aktuell gewählte Umgebungslicht
         /// </summary>
-        public Vector3 ColorAmbient { get { return  _colorAmbient; } }
+        public Vector3 ColorAmbient { get { return _colorAmbient; } }
 
         /// <summary>
         /// Gibt Auskunft über die aktuell gewählte Hintergrundfarbe
@@ -840,6 +846,79 @@ namespace KWEngine3
         }
 
         /// <summary>
+        /// Gibt an, ob in der Welt Nebel aktiv ist (Nebeldichte größer als 0)
+        /// </summary>
+        public bool IsFogEnabled { get { return _fogDensity > 0f; } }
+
+        /// <summary>
+        /// Gibt Auskunft über die aktuelle Nebelfarbe
+        /// </summary>
+        public Vector3 FogColor { get { return _fogColor; } }
+
+        /// <summary>
+        /// Gibt Auskunft über die aktuelle Nebeldichte (0 = kein Nebel)
+        /// </summary>
+        public float FogDensity { get { return _fogDensity; } }
+
+        /// <summary>
+        /// Gibt Auskunft über die Basishöhe des Nebels (auf dieser Höhe gilt genau die eingestellte Nebeldichte)
+        /// </summary>
+        public float FogHeight { get { return _fogHeight; } }
+
+        /// <summary>
+        /// Gibt Auskunft darüber, wie schnell der Nebel oberhalb der Basishöhe dünner wird (0 = überall gleich dicht)
+        /// </summary>
+        public float FogHeightFalloff { get { return _fogHeightFalloff; } }
+
+        /// <summary>
+        /// Setzt die Farbe des Nebels
+        /// </summary>
+        /// <param name="r">Rotanteil (0 bis 1)</param>
+        /// <param name="g">Grünanteil (0 bis 1)</param>
+        /// <param name="b">Blauanteil (0 bis 1)</param>
+        public void SetFogColor(float r, float g, float b)
+        {
+            SetFogColor(new Vector3(r, g, b));
+        }
+
+        /// <summary>
+        /// Setzt die Farbe des Nebels
+        /// </summary>
+        /// <param name="color">Rot-/Grün-/Blauanteil (jeweils 0 bis 1)</param>
+        public void SetFogColor(Vector3 color)
+        {
+            _fogColor = new Vector3(
+                    MathHelper.Clamp(color.X, 0f, 1f),
+                    MathHelper.Clamp(color.Y, 0f, 1f),
+                    MathHelper.Clamp(color.Z, 0f, 1f)
+                );
+        }
+
+        /// <summary>
+        /// Setzt die Dichte des Nebels (0 = kein Nebel)
+        /// </summary>
+        /// <remarks>Die Dichte gibt an, wie viel Sicht pro Welteinheit verloren geht, und muss daher zur Größe der Szene passen.
+        /// Faustregel: Nach etwa 3 / Dichte Welteinheiten ist die Szene zu 95% vernebelt
+        /// (Dichte 0.3 -> 10 Einheiten, Dichte 0.03 -> 100 Einheiten, Dichte 0.005 -> 600 Einheiten).
+        /// Pixel ohne Objekt (Hintergrund) liegen auf der Far-Plane der Kamera und werden daher meist deutlich stärker vernebelt.</remarks>
+        /// <param name="density">Nebeldichte (0 bis 1)</param>
+        public void SetFogDensity(float density)
+        {
+            _fogDensity = MathHelper.Clamp(density, 0f, 1f);
+        }
+
+        /// <summary>
+        /// Legt fest, dass der Nebel mit zunehmender Höhe dünner wird (Höhennebel)
+        /// </summary>
+        /// <param name="baseHeight">Höhe (Y-Achse), auf der genau die eingestellte Nebeldichte gilt - darunter wird der Nebel dichter, darüber dünner</param>
+        /// <param name="falloff">Wie schnell der Nebel nach oben hin dünner wird (0 = überall gleich dicht, 0.1 = sanfter Übergang, 1 = flache Bodenschicht)</param>
+        public void SetFogHeight(float baseHeight, float falloff)
+        {
+            _fogHeight = baseHeight;
+            _fogHeightFalloff = MathHelper.Clamp(falloff, 0f, 10f);
+        }
+
+        /// <summary>
         /// Gibt an, ob aktuell ein ViewSpaceGameObject verwendet wird
         /// </summary>
         public bool IsViewSpaceGameObjectAttached { get { return _viewSpaceGameObject != null && _viewSpaceGameObject.IsValid; } }
@@ -850,7 +929,7 @@ namespace KWEngine3
         /// <param name="vsg">Anzuheftende Instanz</param>
         public void SetViewSpaceGameObject(ViewSpaceGameObject vsg)
         {
-            if(vsg == null || !vsg.IsValid)
+            if (vsg == null || !vsg.IsValid)
             {
                 KWEngine.LogWriteLine("[World] view space game object now unset");
             }
@@ -882,7 +961,7 @@ namespace KWEngine3
         /// <returns>Position (aber falls kein Objekt angeheftet ist: (0|0|0))</returns>
         public Vector3 GetViewSpaceGameObjectPosition()
         {
-            if(IsViewSpaceGameObjectAttached)
+            if (IsViewSpaceGameObjectAttached)
             {
                 return _viewSpaceGameObject._gameObject.Center;
             }
@@ -919,9 +998,9 @@ namespace KWEngine3
         /// <remarks>Wenn kein Hintergrundbild festgelegt wurde, wird der Nullvektor (0|0) zurückgegeben</remarks>
         public Vector2 GetBackgroundImageSize()
         {
-            if(_background.Type != BackgroundType.None)
+            if (_background.Type != BackgroundType.None)
             {
-                if(_background.Type == BackgroundType.Standard)
+                if (_background.Type == BackgroundType.Standard)
                 {
                     HelperTexture.GetTextureDimensions(_background._standardId, out int width, out int height);
                     return new Vector2(width, height);
@@ -1024,7 +1103,7 @@ namespace KWEngine3
         /// <returns>Wiederholungswerte</returns>
         public Vector2 GetBackground2DRepeat()
         {
-            if(_background != null && _background.Type == BackgroundType.Standard)
+            if (_background != null && _background.Type == BackgroundType.Standard)
             {
                 return _background._stateCurrent.Scale;
             }
@@ -1277,7 +1356,7 @@ namespace KWEngine3
             if (g == null)
                 return;
 
-            if(IsPrepared == false)
+            if (IsPrepared == false)
             {
                 if (!_gameObjects.Contains(g))
                 {
@@ -1323,7 +1402,7 @@ namespace KWEngine3
         public void RemoveParticleObject(ParticleObject p)
         {
             int index = _renderObjects.IndexOf(p._q);
-            if(index >= 0)
+            if (index >= 0)
             {
                 if (_renderObjects[index] is FXQuad)
                 {
@@ -1342,9 +1421,9 @@ namespace KWEngine3
             if (g == null)
                 return;
 
-            if(IsPrepared == false)
+            if (IsPrepared == false)
             {
-                if(_gameObjects.Remove(g))
+                if (_gameObjects.Remove(g))
                 {
                     _availableGameObjectIDs.Enqueue((ushort)g.ID);
                     g.ID = 0;
@@ -1372,9 +1451,9 @@ namespace KWEngine3
         /// <param name="includeSubtypes">wenn true, werden auch Unterklassen des angegebenen Typs berücksichtigt (Standard: true)</param>
         public void RemoveGameObjectsOfType<T>(bool includeSubtypes = true)
         {
-            foreach(GameObject g in _gameObjects)
+            foreach (GameObject g in _gameObjects)
             {
-                if(includeSubtypes)
+                if (includeSubtypes)
                 {
                     if (HelperGeneral.IsObjectClassOrSubclassOfType<T>(g))
                     {
@@ -1383,7 +1462,7 @@ namespace KWEngine3
                 }
                 else
                 {
-                    if(HelperGeneral.IsObjectClassOfType<T>(g))
+                    if (HelperGeneral.IsObjectClassOfType<T>(g))
                     {
                         RemoveGameObject(g);
                     }
@@ -1468,7 +1547,7 @@ namespace KWEngine3
             {
                 if (!_lightObjects.Contains(l) && !_lightObjectsToBeAdded.Contains(l))
                 {
-                    if(l.Type == LightType.Sun)
+                    if (l.Type == LightType.Sun)
                     {
                         if (_hasSun == null)
                         {
@@ -1553,9 +1632,9 @@ namespace KWEngine3
             if (IsPrepared == false)
             {
                 _terrainObjects.Remove(t);
-                foreach(FoliageObject f in _foliageObjects)
+                foreach (FoliageObject f in _foliageObjects)
                 {
-                    if(f._terrainObject == t)
+                    if (f._terrainObject == t)
                     {
                         f.DetachFromTerrain();
                     }
@@ -1604,7 +1683,7 @@ namespace KWEngine3
         /// <param name="t">Objekt</param>
         public void RemoveTextObject(TextObject t)
         {
-            if(t != null && !_textObjectsToBeRemoved.Contains(t))
+            if (t != null && !_textObjectsToBeRemoved.Contains(t))
                 _textObjectsToBeRemoved.Add(t);
         }
 
@@ -1617,7 +1696,7 @@ namespace KWEngine3
             if (renderDistance <= 0.1f)
             {
                 KWEngine.LogWriteLine("[World] Camera render distance adjusted to be at least 1f.");
-                renderDistance  = 1f;
+                renderDistance = 1f;
             }
             _cameraGame.SetNearFarBound(0.1f, Math.Clamp(renderDistance, 1, 10000));
         }
@@ -1664,7 +1743,7 @@ namespace KWEngine3
             if (mode == ShakeMode.Additive)
             {
                 _cameraGame._stateCurrent._shakeOffset = new Vector3(
-                    Math.Max(_cameraGame._stateCurrent._shakeOffset.X ,shakeX),
+                    Math.Max(_cameraGame._stateCurrent._shakeOffset.X, shakeX),
                     Math.Max(_cameraGame._stateCurrent._shakeOffset.Y, shakeY),
                     Math.Max(_cameraGame._stateCurrent._shakeOffset.Z, shakeZ));
                 _cameraGame._stateCurrent._shakeDuration = Math.Max(_cameraGame._stateCurrent._shakeDuration, duration);
@@ -1940,9 +2019,9 @@ namespace KWEngine3
         public List<HUDObject> GetHUDObjectsByName(string name)
         {
             List<HUDObject> list = new();
-            foreach(HUDObject h in _hudObjects)
+            foreach (HUDObject h in _hudObjects)
             {
-                if(h.Name != null && h.Name.Contains(name))
+                if (h.Name != null && h.Name.Contains(name))
                 {
                     list.Add(h);
                 }
@@ -2106,7 +2185,7 @@ namespace KWEngine3
         /// <summary>
         /// FOV-Wert der Kamera
         /// </summary>
-        public float CameraFOV {  get { return _cameraGame._stateCurrent._fov * 2f; } }
+        public float CameraFOV { get { return _cameraGame._stateCurrent._fov * 2f; } }
         /// <summary>
         /// Blickrichtung der Kamera
         /// </summary>
@@ -2217,7 +2296,7 @@ namespace KWEngine3
         public List<GameObject> GetGameObjects()
         {
             List<GameObject> gos = new();
-            lock(_gameObjects)
+            lock (_gameObjects)
             {
                 foreach (GameObject gameObject in _gameObjects)
                 {
@@ -2297,7 +2376,7 @@ namespace KWEngine3
         /// <param name="e">Hinzufügendes Ereignisobjekt</param>
         public void AddWorldEvent(WorldEvent e)
         {
-            if(e != null && e.Timestamp >= 0f)
+            if (e != null && e.Timestamp >= 0f)
             {
                 e.Owner = this;
                 _eventQueue.Add(e);

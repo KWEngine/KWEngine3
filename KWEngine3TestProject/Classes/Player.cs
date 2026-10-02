@@ -8,13 +8,13 @@ namespace KWEngine3TestProject.Classes
 {
     public class Player : GameObject
     {
-        private float _speed = 0.05f;
+        private float _speed = 0.02f;
 
         public bool IsFirstPersonObject { get; set; } = true; // don't change yet!
         public bool LetCamFollowMe { get; set; } = false;
         public override void Act()
         {
-            if(IsFirstPersonObject)
+            if (IsFirstPersonObject)
             {
                 CurrentWorld.AddCameraRotationFromMouseDelta();
 
@@ -37,7 +37,7 @@ namespace KWEngine3TestProject.Classes
                     move--;
                 }
                 MoveAndStrafeAlongCamera(move, strafe, _speed);
-                if(Keyboard.IsKeyDown(Keys.Q))
+                if (Keyboard.IsKeyDown(Keys.Q))
                 {
                     MoveAlongVector(CurrentWorld.CameraLookAtVectorLocalUp, -_speed);
                 }
@@ -46,7 +46,7 @@ namespace KWEngine3TestProject.Classes
                     MoveAlongVector(CurrentWorld.CameraLookAtVectorLocalUp, +_speed);
                 }
 
-                CurrentWorld.UpdateCameraPositionForFirstPersonView(this.Center,0f);
+                CurrentWorld.UpdateCameraPositionForFirstPersonView(this.Center, 0f);
                 TurnTowardsXZ(CurrentWorld.CameraPosition + CurrentWorld.CameraLookAtVector);
             }
             else
@@ -88,7 +88,7 @@ namespace KWEngine3TestProject.Classes
             }
             */
 
-            if(!IsFirstPersonObject && LetCamFollowMe)
+            if (!IsFirstPersonObject && LetCamFollowMe)
             {
                 CurrentWorld.SetCameraPosition(Center + new Vector3(0, 5, 5));
                 CurrentWorld.SetCameraTarget(Center);

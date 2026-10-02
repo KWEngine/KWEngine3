@@ -78,7 +78,7 @@ namespace KWEngine3.Renderer
             Kernel = new float[KWEngine._ssaoKernelSize * 3];
 
             // generate sample kernel:
-            for (uint i = 0; i < Kernel.Length; i+=3)
+            for (uint i = 0; i < Kernel.Length; i += 3)
             {
                 Vector3 kernelTmp = Vector3.Normalize(new Vector3(Random.Shared.NextSingle() * 2.0f - 1.0f, Random.Shared.NextSingle() * 2.0f - 1.0f, Random.Shared.NextSingle()));
                 kernelTmp *= Random.Shared.NextSingle();
@@ -112,7 +112,7 @@ namespace KWEngine3.Renderer
             GL.TexParameterI(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, new int[] { (int)TextureWrapMode.Repeat });
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
-    
+
 
         public static void Draw(Framebuffer fbSource)
         {
@@ -124,7 +124,7 @@ namespace KWEngine3.Renderer
 
             // depth tex:
             GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[4].ID);
+            GL.BindTexture(TextureTarget.Texture2D, fbSource.Attachments[5].ID);
             GL.Uniform1(UTextureDepth, 0);
 
             // albedo:
