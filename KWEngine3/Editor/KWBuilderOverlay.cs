@@ -229,6 +229,7 @@ namespace KWEngine3.Editor
         }
 
         readonly List<char> PressedChars = new List<char>();
+        private static readonly Keys[] _allKeys = Enum.GetValues<Keys>(); // cached: Enum.GetValues per frame allocates and boxes every value
 
         private void UpdateImGuiInput(GameWindow wnd)
         {
@@ -245,7 +246,7 @@ namespace KWEngine3.Editor
             var point = screenPoint;//wnd.PointToClient(screenPoint);
             io.MousePos = new System.Numerics.Vector2(point.X, point.Y);
 
-            foreach (Keys key in Enum.GetValues(typeof(Keys)))
+            foreach (Keys key in _allKeys)
             {
                 if (key == Keys.Unknown)
                 {

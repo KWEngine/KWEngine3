@@ -424,15 +424,18 @@ namespace KWEngine3.Helper
         {
             if (_updateCostField > 0)
             {
-                IReadOnlyCollection<GameObject> gameobjects = KWEngine.CurrentWorld.GetGameObjects();
-                List<GameObject> checkObjects = new List<GameObject>();
-                foreach (GameObject g in gameobjects)
+                _costCheckObjects.Clear();
+                List<GameObject> gameObjects = KWEngine.CurrentWorld._gameObjects;
+                lock (gameObjects)
                 {
-                    if (HelperGeneral.IsObjectClassOrSubclassOfTypes(_types, g))
+                    foreach (GameObject g in gameObjects)
                     {
-                        if (g.FlowFieldCost > 1 && Contains(g))
+                        if (HelperGeneral.IsObjectClassOrSubclassOfTypes(_types, g))
                         {
-                            checkObjects.Add(g);
+                            if (g.FlowFieldCost > 1 && Contains(g))
+                            {
+                                _costCheckObjects.Add(g);
+                            }
                         }
                     }
                 }
@@ -442,7 +445,7 @@ namespace KWEngine3.Helper
                     cell.Cost = 1;
                     cell.BestCost = uint.MaxValue;
 
-                    foreach (GameObject g in checkObjects)
+                    foreach (GameObject g in _costCheckObjects)
                     {
                         _hitbox.Update(cell.Position.X, cell.Position.Y, cell.Position.Z, _updateCostField == 1 ? 1.0f : _cellDetectionScale);
                         if (_updateCostField == 1)
@@ -477,6 +480,7 @@ namespace KWEngine3.Helper
                         }
                     }
                 }
+                _costCheckObjects.Clear(); // do not keep removed objects alive
                 _updateCostField = 0;
             }
         }
@@ -603,9 +607,9 @@ namespace KWEngine3.Helper
         {
             foreach (FlowFieldCell currentCell in Grid)
             {
-                List<FlowFieldCell> currentNeighbours = GetNeighbourCells(currentCell._gridIndex, _allowedDirections == FlowFieldDirections.CardinalAndIntercardinalDirections ? FlowFieldCellDirection.CardinalIntercardinalDirections : FlowFieldCellDirection.CardinalDirections);
+                GetNeighbourCells(currentCell._gridIndex, _allowedDirections == FlowFieldDirections.CardinalAndIntercardinalDirections ? FlowFieldCellDirection.CardinalIntercardinalDirections : FlowFieldCellDirection.CardinalDirections, _neighbourBuffer);
                 uint bestCost = currentCell.BestCost;
-                foreach (FlowFieldCell currentNeighbour in currentNeighbours)
+                foreach (FlowFieldCell currentNeighbour in _neighbourBuffer)
                 {
                     if (currentNeighbour.BestCost < bestCost)
                     {
@@ -617,9 +621,9 @@ namespace KWEngine3.Helper
             }
         }
 
-        internal List<FlowFieldCell> GetNeighbourCells(Vector2i gridIndex, List<FlowFieldCellDirection> directions)
+        internal void GetNeighbourCells(Vector2i gridIndex, List<FlowFieldCellDirection> directions, List<FlowFieldCell> neighbourCells)
         {
-            List<FlowFieldCell> neighbourCells = new List<FlowFieldCell>();
+            neighbourCells.Clear();
             foreach (Vector2i currentDirection in directions)
             {
                 FlowFieldCell newNeighbour = GetCellAtRelativePos(gridIndex, currentDirection);
@@ -628,7 +632,6 @@ namespace KWEngine3.Helper
                     neighbourCells.Add(newNeighbour);
                 }
             }
-            return neighbourCells;
         }
 
         internal void UpdateFlowField()
@@ -672,20 +675,20 @@ namespace KWEngine3.Helper
                     cell.BestCost = uint.MaxValue;
                 }
 
-                Queue<FlowFieldCell> cellsToCheck = new Queue<FlowFieldCell>();
-                cellsToCheck.Enqueue(dest);
+                _cellsToCheck.Clear();
+                _cellsToCheck.Enqueue(dest);
 
-                while (cellsToCheck.Count > 0)
+                while (_cellsToCheck.Count > 0)
                 {
-                    FlowFieldCell currentCell = cellsToCheck.Dequeue();
-                    List<FlowFieldCell> currentNeighbours = GetNeighbourCells(currentCell._gridIndex, FlowFieldCellDirection.CardinalDirections);
-                    foreach (FlowFieldCell currentNeighbour in currentNeighbours)
+                    FlowFieldCell currentCell = _cellsToCheck.Dequeue();
+                    GetNeighbourCells(currentCell._gridIndex, FlowFieldCellDirection.CardinalDirections, _neighbourBuffer);
+                    foreach (FlowFieldCell currentNeighbour in _neighbourBuffer)
                     {
                         if (currentNeighbour.Cost == byte.MaxValue) { continue; }
                         if (currentNeighbour.Cost + currentCell.BestCost < currentNeighbour.BestCost)
                         {
                             currentNeighbour.BestCost = currentNeighbour.Cost + currentCell.BestCost;
-                            cellsToCheck.Enqueue(currentNeighbour);
+                            _cellsToCheck.Enqueue(currentNeighbour);
                         }
                     }
                 }
@@ -711,6 +714,10 @@ namespace KWEngine3.Helper
         }
 
         internal FlowFieldHitbox _hitbox;
+        // reused buffers (updates run under lock in HelperFlowField, never in parallel)
+        private readonly List<FlowFieldCell> _neighbourBuffer = new(8);
+        private readonly Queue<FlowFieldCell> _cellsToCheck = new();
+        private readonly List<GameObject> _costCheckObjects = new();
         internal FlowFieldCell[,] Grid { get; private set; }
         internal FlowFieldCell Destination { get; private set; }
         internal Vector4 _target = Vector4.Zero;

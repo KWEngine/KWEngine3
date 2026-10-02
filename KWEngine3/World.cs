@@ -140,15 +140,12 @@ namespace KWEngine3
 
         internal T GetGameObjectByID<T>(int id) where T : GameObject
         {
-            int index = _gameObjects.FindIndex(g => g.ID == id && g is T);
-            if (index >= 0)
+            foreach (GameObject item in _gameObjects)
             {
-                return _gameObjects[index] as T;
+                if (item.ID == id && item is T t)
+                    return t;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         internal void ResetWorldDimensions()
@@ -1058,7 +1055,12 @@ namespace KWEngine3
             if (name == null)
                 return null;
             name = name.Trim();
-            return _fogVolumes.FirstOrDefault(v => v.Name == name);
+            foreach (FogVolume item in _fogVolumes)
+            {
+                if (item.Name == name)
+                    return item;
+            }
+            return null;
         }
 
         /// <summary>
@@ -1359,7 +1361,12 @@ namespace KWEngine3
         /// <returns>gefundene FlowField-Instanz (null, falls keine Instanz mit dem angegebenen Namen gefunden werden kann)</returns>
         public FlowField GetFlowFieldByName(string name)
         {
-            return _flowFields.Find(ff => ff.Name == name);
+            foreach (FlowField item in _flowFields)
+            {
+                if (item.Name == name)
+                    return item;
+            }
+            return null;
         }
 
         /// <summary>
@@ -2023,8 +2030,12 @@ namespace KWEngine3
         /// <returns>gefundenes Objekt (oder null)</returns>
         public TerrainObject GetTerrainObjectByName(string name)
         {
-            TerrainObject t = _terrainObjects.Find(to => to.Name == name);
-            return t;
+            foreach (TerrainObject item in _terrainObjects)
+            {
+                if (item.Name == name)
+                    return item;
+            }
+            return null;
         }
 
         /// <summary>
@@ -2035,8 +2046,12 @@ namespace KWEngine3
         public TextObject GetTextObjectByName(string name)
         {
             name = name.Trim();
-            TextObject t = _textObjects.Find(to => to.Name == name);
-            return t;
+            foreach (TextObject item in _textObjects)
+            {
+                if (item.Name == name)
+                    return item;
+            }
+            return null;
         }
 
         /// <summary>
@@ -2096,15 +2111,12 @@ namespace KWEngine3
         public T GetGameObjectByName<T>(string name) where T : class
         {
             name = name.Trim();
-            GameObject g = _gameObjects.FirstOrDefault(go => go is T && go.Name == name);
-            if (g != null)
+            foreach (GameObject item in _gameObjects)
             {
-                return (T)(object)g;
+                if (item.Name == name && item is T t)
+                    return t;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         /// <summary>
@@ -2116,15 +2128,12 @@ namespace KWEngine3
         public T GetRenderObjectByName<T>(string name) where T : class
         {
             name = name.Trim();
-            RenderObject g = _renderObjects.FirstOrDefault(go => go is T && go.Name == name);
-            if (g != null)
+            foreach (RenderObject item in _renderObjects)
             {
-                return (T)(object)g;
+                if (item.Name == name && item is T t)
+                    return t;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         /// <summary>
@@ -2144,8 +2153,12 @@ namespace KWEngine3
         public GameObject GetGameObjectByName(string name)
         {
             name = name.Trim();
-            GameObject g = _gameObjects.FirstOrDefault(go => go.Name == name);
-            return g;
+            foreach (GameObject item in _gameObjects)
+            {
+                if (item.Name == name)
+                    return item;
+            }
+            return null;
         }
 
         /// <summary>
@@ -2156,8 +2169,12 @@ namespace KWEngine3
         public LightObject GetLightObjectByName(string name)
         {
             name = name.Trim();
-            LightObject l = _lightObjects.FirstOrDefault(lo => lo.Name == name);
-            return l;
+            foreach (LightObject item in _lightObjects)
+            {
+                if (item.Name == name)
+                    return item;
+            }
+            return null;
         }
 
         /// <summary>
@@ -2168,8 +2185,12 @@ namespace KWEngine3
         public HUDObject GetHUDObjectByName(string name)
         {
             name = name.Trim();
-            HUDObject h = _hudObjects.FirstOrDefault(ho => ho.Name == name);
-            return h;
+            foreach (HUDObject item in _hudObjects)
+            {
+                if (item.Name == name)
+                    return item;
+            }
+            return null;
         }
 
         /// <summary>
@@ -2198,8 +2219,12 @@ namespace KWEngine3
         public HUDObjectText GetHUDObjectTextByName(string name)
         {
             name = name.Trim();
-            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectText && ho.Name == name);
-            return h as HUDObjectText;
+            foreach (HUDObject item in _hudObjects)
+            {
+                if (item.Name == name && item is HUDObjectText t)
+                    return t;
+            }
+            return null;
         }
 
         /// <summary>
@@ -2262,8 +2287,12 @@ namespace KWEngine3
         public HUDObjectImage GetHUDObjectImageByName(string name)
         {
             name = name.Trim();
-            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectImage && ho.Name == name);
-            return h as HUDObjectImage;
+            foreach (HUDObject item in _hudObjects)
+            {
+                if (item.Name == name && item is HUDObjectImage t)
+                    return t;
+            }
+            return null;
         }
 
         /// <summary>
@@ -2306,8 +2335,12 @@ namespace KWEngine3
         public HUDObjectTextInput GetHUDObjectTextInputByName(string name)
         {
             name = name.Trim();
-            HUDObject h = _hudObjects.FirstOrDefault(ho => ho is HUDObjectTextInput && ho.Name == name);
-            return h as HUDObjectTextInput;
+            foreach (HUDObject item in _hudObjects)
+            {
+                if (item.Name == name && item is HUDObjectTextInput t)
+                    return t;
+            }
+            return null;
         }
 
         /// <summary>

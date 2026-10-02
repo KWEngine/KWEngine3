@@ -1,5 +1,6 @@
 ﻿
 using KWEngine3.GameObjects;
+using KWEngine3.Helper;
 
 namespace KWEngine3
 {
@@ -19,6 +20,7 @@ namespace KWEngine3
         internal HUDObjectText _performanceCPU;
         internal HUDObjectText _performanceFPS;
         internal List<int> fps = new();
+        private float _lastTextUpdate = -1f;
 
         /// <summary>
         /// Erweitert die Act()-Methode um das Aktualisieren der gemessenen Performance-Werte und stellt diese Werte dar
@@ -31,6 +33,11 @@ namespace KWEngine3
                     fps.RemoveAt(0);
                 fps.Add(KWEngine.FPS);
 
+                // averages change once per second only, so the texts (string allocations) are rebuilt only then
+                if (HelperDebug._glQueryTimestampLastReset == _lastTextUpdate)
+                    return;
+                _lastTextUpdate = HelperDebug._glQueryTimestampLastReset;
+
                 _performanceDeferred.SetText("Deferred:" + KWEngine.GetRenderTime(RenderType.Deferred) + "ms");
                 _performanceLighting.SetText("Lighting:" + KWEngine.GetRenderTime(RenderType.Lighting) + "ms");
                 _performanceShadowMapping.SetText("Shadows: " + KWEngine.GetRenderTime(RenderType.ShadowMapping) + "ms");
@@ -41,7 +48,7 @@ namespace KWEngine3
                 _performanceHUD.SetText("HUD:     " + KWEngine.GetRenderTime(RenderType.HUD) + "ms");
                 _performancePostProcessing.SetText("PostP.:  " + KWEngine.GetRenderTime(RenderType.PostProcessing) + "ms");
 
-                _performanceCPU.SetText("CPU:     " + KWEngine.GetRenderTime(RenderType.PostProcessing) + "ms");
+                _performanceCPU.SetText("CPU:     " + KWEngine.GetCPUTime() + "ms");
 
                 if (fps.Count == 240)
                     _performanceFPS.SetText("FPS:     " + Math.Round(fps.Average(), 0));

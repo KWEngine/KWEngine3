@@ -109,7 +109,7 @@ namespace KWEngine3.Helper
                     continue;
                 }
 
-                GeoTerrain terrain = to._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                GeoTerrain terrain = to._gModel.ModelOriginal.MeshesArray[0].Terrain;
                 foreach (Vector3 ray in rayOrigins)
                 {
                     Vector3 untranslatedPosition = ray - new Vector3(to._hitboxes[0]._center.X, to._stateCurrent._position.Y, to._hitboxes[0]._center.Z);
@@ -135,7 +135,7 @@ namespace KWEngine3.Helper
                     }
                     else
                     {
-                        if (to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+                        if (to._gModel.ModelOriginal.MeshesArray[0].Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                         {
                             GeoTerrainTriangle tris = s.GetTriangle(untranslatedPosition);
                             if (tris != null)
@@ -300,7 +300,7 @@ namespace KWEngine3.Helper
                     position.Z >= t._stateCurrent._position.Z - t.Depth * 0.5f &&
                     position.Z <= t._stateCurrent._position.Z + t.Depth * 0.5f)
                 {
-                    GeoTerrain terrain = t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                    GeoTerrain terrain = t._gModel.ModelOriginal.MeshesArray[0].Terrain;
                     Vector3 untranslatedPosition = position - t._hitboxes[0]._center;// new Vector3(t._hitboxes[0]._center.X, 0, t._hitboxes[0]._center.Z);
                     bool result = GetHeightUnderneathUntranslatedPosition(
                             untranslatedPosition,
@@ -1184,13 +1184,15 @@ namespace KWEngine3.Helper
 
         internal static bool RaytraceHitbox(GameObjectHitbox hb, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal)
         {
+            Span<Vector3> vertexBuffer = stackalloc Vector3[MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
             intersectionPoint = Vector3.Zero;
             faceNormal = Vector3.Zero;
             for (int j = 0; j < hb._mesh.Faces.Length; j++)
             { 
                 //if (hb.IsExtended)
                 //{
-                    Span<Vector3> faceVertices = stackalloc Vector3[hb._mesh.Faces[j].VertexCount];
+                    int faceVertexCount = hb._mesh.Faces[j].VertexCount;
+                    Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                     if(hb.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace currentFace))
                     {
                         bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
@@ -1248,6 +1250,7 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Strahl das GameObject getroffen hat</returns>
         public static bool RaytraceObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal, out string hitboxname, bool includeNonCollisionObjects = true)
         {
+            Span<Vector3> vertexBuffer = stackalloc Vector3[MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
             faceNormal = KWEngine.WorldUp;
             intersectionPoint = new Vector3();
             hitboxname = "";
@@ -1266,7 +1269,8 @@ namespace KWEngine3.Helper
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
                     GeoMeshFace face = currentHitbox._mesh.Faces[j];
-                    Span<Vector3> faceVertices = stackalloc Vector3[face.Vertices.Length];
+                    int faceVertexCount = face.Vertices.Length;
+                    Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                     currentHitbox.GetVerticesFromFace(j, ref faceVertices, out Vector3 currentFaceNormal);
                     float dot = Vector3.Dot(rayDirection, currentFaceNormal);
                     if (dot < 0)
@@ -1304,6 +1308,7 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Strahl das GameObject getroffen hat</returns>
         public static bool RaytraceObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 intersectionPoint, out Vector3 faceNormal, out string hitboxname, out float distance, bool includeNonCollisionObjects = true)
         {
+            Span<Vector3> vertexBuffer = stackalloc Vector3[MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
             faceNormal = KWEngine.WorldUp;
             intersectionPoint = new Vector3();
             hitboxname = "";
@@ -1322,7 +1327,8 @@ namespace KWEngine3.Helper
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
                     GeoMeshFace face = currentHitbox._mesh.Faces[j];
-                    Span<Vector3> faceVertices = stackalloc Vector3[face.Vertices.Length];
+                    int faceVertexCount = face.Vertices.Length;
+                    Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                     currentHitbox.GetVerticesFromFace(j, ref faceVertices, out Vector3 currentFaceNormal);
                     float dot = Vector3.Dot(rayDirection, currentFaceNormal);
                     if (dot < 0)
@@ -1552,6 +1558,7 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Mauszeiger auf dem Objekt liegt</returns>
         public static bool IsMouseCursorInsideHitbox(GameObject g, bool includeNonCollisionObjects = true)
         {
+            Span<Vector3> vertexBuffer = stackalloc Vector3[MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
             if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
             {
                 return false;
@@ -1566,7 +1573,8 @@ namespace KWEngine3.Helper
 
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
-                    Span<Vector3> faceVertices = stackalloc Vector3[currentHitbox._mesh.Faces[j].VertexCount];
+                    int faceVertexCount = currentHitbox._mesh.Faces[j].VertexCount;
+                    Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                     if (currentHitbox.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace currentFace))
                     {
                         bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
@@ -1624,7 +1632,7 @@ namespace KWEngine3.Helper
                 ray.Z <= +to.Depth / 2f
                 )
             {
-                GeoTerrain t = to._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                GeoTerrain t = to._gModel.ModelOriginal.MeshesArray[0].Terrain;
 
                 float rayXOffset = ray.X + to.Width / 2f;
                 float rayZOffset = ray.Z + to.Depth / 2f;
@@ -1722,6 +1730,7 @@ namespace KWEngine3.Helper
 
         internal static bool IsMouseCursorOnGameObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, bool includeNonCollisionObjects)
         {
+            Span<Vector3> vertexBuffer = stackalloc Vector3[MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
             if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
             {
                 return false;
@@ -1738,7 +1747,8 @@ namespace KWEngine3.Helper
 
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
                 {
-                    Span<Vector3> faceVertices = stackalloc Vector3[currentHitbox._mesh.Faces[j].VertexCount];
+                    int faceVertexCount = currentHitbox._mesh.Faces[j].VertexCount;
+                    Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                     if (currentHitbox.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace currentFace))
                     {
                         bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
@@ -1785,7 +1795,7 @@ namespace KWEngine3.Helper
             else
             {
 
-                foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
+                foreach (GeoMesh mesh in g._model.ModelOriginal.MeshesArray)
                 {
                     int index = mesh.BoneNames.IndexOf(node.Name);
                     if (index >= 0)
@@ -2016,7 +2026,7 @@ namespace KWEngine3.Helper
             GeoModel model = t._gModel.ModelOriginal;
             Vector3 untranslatedPosition = rayOrigin - new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
 
-            if (model.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+            if (model.MeshesArray[0].Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
             {
                 GeoTerrainTriangle tris = s.GetTriangle(untranslatedPosition);
                 if(tris != null)
@@ -2045,7 +2055,7 @@ namespace KWEngine3.Helper
             contactPoint = Vector3.Zero;
             surfaceNormal = Vector3.UnitY;
             GeoModel model = t._gModel.ModelOriginal;
-            GeoTerrain terrain = t._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+            GeoTerrain terrain = t._gModel.ModelOriginal.MeshesArray[0].Terrain;
             Vector3 untranslatedPosition = rayOrigin - new Vector3(t._hitboxes[0]._center.X, t._stateCurrent._position.Y, t._hitboxes[0]._center.Z);
             bool result = GetHeightUnderneathUntranslatedPosition(
                     untranslatedPosition,
@@ -2088,13 +2098,18 @@ namespace KWEngine3.Helper
             return true;
         }
 
-        internal static Vector3[] _planeVertices = new Vector3[3];
+        internal static Vector3[] _planeVertices = new Vector3[3];                 // terrain triangles only
+        internal static Vector3[][] _planeFaceVertices = new Vector3[17][];         // plane collider faces: reusable buffer per vertex count
+        internal const int MAX_STACK_FACE_VERTICES = 64;                            // stack buffer size for face vertices (larger faces fall back to a heap array)
         internal static Vector3[] _planeNormals = new Vector3[1];
         internal const float ONETHIRD = 1f / 3f;
         internal static Intersection TestIntersectionForPlaneFace(GameObjectHitbox caller, Span<Vector3> vertices, Vector3 n, Vector3 center, Vector3 offset, GameObjectHitbox collider)
         {
             _planeNormals[0] = n;
-            _planeVertices = vertices.ToArray();
+            if (vertices.Length >= _planeFaceVertices.Length)
+                Array.Resize(ref _planeFaceVertices, vertices.Length + 1);
+            Vector3[] faceVertices = _planeFaceVertices[vertices.Length] ??= new Vector3[vertices.Length];
+            vertices.CopyTo(faceVertices);
 
             float mtvDistance = float.MaxValue;
             float mtvDirection = 1;
@@ -2111,7 +2126,7 @@ namespace KWEngine3.Helper
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
                 SatTest(ref caller._normals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                SatTest(ref caller._normals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                SatTest(ref caller._normals[i], ref faceVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
                     return null;
@@ -2133,7 +2148,7 @@ namespace KWEngine3.Helper
             {
                 float shape1Min, shape1Max, shape2Min, shape2Max;
                 SatTest(ref _planeNormals[i], ref caller._vertices, out shape1Min, out shape1Max, ref offset);
-                SatTest(ref _planeNormals[i], ref _planeVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
+                SatTest(ref _planeNormals[i], ref faceVertices, out shape2Min, out shape2Max, ref HelperVector.VectorZero);
                 if (!Overlaps(shape1Min, shape1Max, shape2Min, shape2Max))
                 {
                     return null;
@@ -2226,11 +2241,13 @@ namespace KWEngine3.Helper
 
         internal static List<Intersection> TestIntersectionsWithPlaneCollider(GameObjectHitbox hbcaller, GameObjectHitbox hbother, Vector3 offset)
         {
+            Span<Vector3> vertexBuffer = stackalloc Vector3[MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
             List<Intersection> intersections = new();
             foreach (GeoMeshFace face in hbother._mesh.Faces)
             {
                 Vector3 n = hbother._normals[face.Normal] * (face.Flip ? -1f : 1f);
-                Span<Vector3> faceVertices = stackalloc Vector3[face.VertexCount];
+                int faceVertexCount = face.VertexCount;
+                Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                 Vector3 centerTemp = Vector3.Zero;
                 int index = 0;
                 foreach (int fvi in face.Vertices)

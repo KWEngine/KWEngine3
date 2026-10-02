@@ -184,7 +184,7 @@ namespace KWEngine3.Renderer
 
             if (f._terrainObject != null && f._terrainObject.ID != 0)
             {
-                GeoTerrain t = f._terrainObject._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                GeoTerrain t = f._terrainObject._gModel.ModelOriginal.MeshesArray[0].Terrain;
                 GL.Uniform3(UTerrainScale, (float)t.GetWidth(), (float)t.GetHeight(), (float)t.GetDepth());
                 GL.Uniform3(UTerrainPosition, f._terrainObject._stateRender._position);
                 GL.ActiveTexture(TextureUnit.Texture3);
@@ -200,7 +200,7 @@ namespace KWEngine3.Renderer
                 GL.Uniform1(UTerrainHeightMap, 3);
             }
 
-            GeoMesh m = KWEngine.KWFoliageImposter.Meshes.ElementAt(0).Value;
+            GeoMesh m = KWEngine.KWFoliageImposter.MeshesArray[0];
             GL.BindVertexArray(m.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
             GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
@@ -247,7 +247,7 @@ namespace KWEngine3.Renderer
 
             if (f._terrainObject != null && f._terrainObject.ID != 0)
             {
-                GeoTerrain m = f._terrainObject._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                GeoTerrain m = f._terrainObject._gModel.ModelOriginal.MeshesArray[0].Terrain;
                 GL.Uniform3(UTerrainScale, (float)m.GetWidth(), (float)m.GetHeight(), (float)m.GetDepth());
                 GL.Uniform3(UTerrainPosition, f._terrainObject._stateRender._position);
                 GL.ActiveTexture(TextureUnit.Texture3);
@@ -266,7 +266,7 @@ namespace KWEngine3.Renderer
             // Draw calls...
             if(f.Type == FoliageType.GrassMinecraft)
             {
-                GeoMesh m = KWEngine.KWFoliageMinecraft.Meshes.ElementAt(0).Value;
+                GeoMesh m = KWEngine.KWFoliageMinecraft.MeshesArray[0];
                 GL.BindVertexArray(m.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
                 GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
@@ -275,7 +275,7 @@ namespace KWEngine3.Renderer
             }
             else if(f.Type == FoliageType.Fern)
             {
-                GeoMesh m = KWEngine.KWFoliageFern.Meshes.ElementAt(0).Value;
+                GeoMesh m = KWEngine.KWFoliageFern.MeshesArray[0];
                 GL.BindVertexArray(m.VAO);
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
                 GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);

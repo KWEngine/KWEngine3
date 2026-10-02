@@ -91,11 +91,11 @@ namespace KWEngine3.Renderer
             GeoMesh mesh;
             if (KWEngine.CurrentWorld._background.SkyBoxType == SkyboxType.CubeMap)
             {
-                mesh = KWEngine.Models["KWCube"].Meshes.Values.ElementAt(0);
+                mesh = KWEngine.Models["KWCube"].MeshesArray[0];
             }
             else
             {
-                mesh = KWEngine.Models["KWSphere"].Meshes.Values.ElementAt(0);
+                mesh = KWEngine.Models["KWSphere"].MeshesArray[0];
             }
             GL.BindVertexArray(mesh.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, mesh.VBOIndex);

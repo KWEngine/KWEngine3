@@ -77,8 +77,12 @@ namespace KWEngine3.Editor
             
         }
 
+        private const int MAX_SHADER_VERTICES = 128; // size of uVertexPositions in shader.editorTriangles.geom
+        private static readonly float[] _vertexPositions = new float[MAX_SHADER_VERTICES * 3];
+
         public static void Draw(GameObject g)
         {
+            Span<Vector3> vertexBuffer = stackalloc Vector3[HelperIntersection.MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
             GL.BindVertexArray(PrimitivePoint.VAO);
             
             foreach(GameObjectHitbox hb in g._colliderModel._hitboxes)
@@ -112,17 +116,18 @@ namespace KWEngine3.Editor
 
                 for (int j = 0; j < hb._mesh.Faces.Length; j++)
                 {
-                    Span<Vector3> vertices = stackalloc Vector3[hb._mesh.Faces[j].VertexCount];
+                    int faceVertexCount = hb._mesh.Faces[j].VertexCount;
+                    Span<Vector3> vertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                     hb.GetVerticesFromFace(j, ref vertices, out Vector3 currentFaceNormal);
-                    float[] pos = new float[vertices.Length * 3];
-                    for(int i = 0, floatIndex = 0; i < vertices.Length; i++, floatIndex += 3)
+                    int count = Math.Min(vertices.Length, MAX_SHADER_VERTICES);
+                    for(int i = 0, floatIndex = 0; i < count; i++, floatIndex += 3)
                     {
-                        pos[floatIndex + 0] = vertices[i].X;
-                        pos[floatIndex + 1] = vertices[i].Y;
-                        pos[floatIndex + 2] = vertices[i].Z;
+                        _vertexPositions[floatIndex + 0] = vertices[i].X;
+                        _vertexPositions[floatIndex + 1] = vertices[i].Y;
+                        _vertexPositions[floatIndex + 2] = vertices[i].Z;
                     }
-                    GL.Uniform3(UVertexPositions, pos.Length / 3, pos);
-                    GL.Uniform1(UVertexCount, pos.Length / 3);
+                    GL.Uniform3(UVertexPositions, count, _vertexPositions);
+                    GL.Uniform1(UVertexCount, count);
                     GL.DrawArrays(PrimitiveType.Points, 0, 1);
                 }
             }

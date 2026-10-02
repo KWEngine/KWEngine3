@@ -7,7 +7,11 @@ namespace KWEngine3.Helper
     internal static class HelperDebug
     {
         internal static readonly Dictionary<Type, List<MemberInfo>> TypesWithDebugAttribute = new();
-        internal static Dictionary<RenderType, int> _renderTimesIDDict = new();
+        // timer queries as a ring over QUERY_FRAMES frames: a result is read QUERY_FRAMES - 1 frames later, so the CPU never waits for the GPU
+        internal const int QUERY_FRAMES = 4;
+        internal static Dictionary<RenderType, int[]> _renderTimesIDDict = new();
+        internal static Dictionary<RenderType, bool[]> _renderTimesIssuedDict = new();
+        internal static int _queryFrame = 0; // current ring slot (0 .. QUERY_FRAMES - 1)
         internal static Dictionary<RenderType, List<long>> _renderTimesDict = new();
         internal static Dictionary<RenderType, double> _renderTimesAvgDict = new();
         internal static float _glQueryTimestampLastReset = 0;
@@ -98,14 +102,14 @@ namespace KWEngine3.Helper
 
         internal static void Init()
         {
-            _renderTimesIDDict[RenderType.Deferred] = GL.GenQuery();
-            _renderTimesIDDict[RenderType.Lighting] = GL.GenQuery();
-            _renderTimesIDDict[RenderType.ShadowMapping] = GL.GenQuery();
-            _renderTimesIDDict[RenderType.SSAO] = GL.GenQuery();
-            _renderTimesIDDict[RenderType.Forward] = GL.GenQuery();
-            _renderTimesIDDict[RenderType.HUD] = GL.GenQuery();
-            _renderTimesIDDict[RenderType.PostProcessing] = GL.GenQuery();
-            _renderTimesIDDict[RenderType.Fog] = GL.GenQuery();
+            InitQueries(RenderType.Deferred);
+            InitQueries(RenderType.Lighting);
+            InitQueries(RenderType.ShadowMapping);
+            InitQueries(RenderType.SSAO);
+            InitQueries(RenderType.Forward);
+            InitQueries(RenderType.HUD);
+            InitQueries(RenderType.PostProcessing);
+            InitQueries(RenderType.Fog);
 
             _renderTimesDict[RenderType.Deferred] = new List<long>();
             _renderTimesDict[RenderType.Lighting] = new List<long>();
@@ -128,6 +132,14 @@ namespace KWEngine3.Helper
             InitDebugRegistry();
         }
 
+        private static void InitQueries(RenderType type)
+        {
+            int[] ids = new int[QUERY_FRAMES];
+            GL.GenQueries(QUERY_FRAMES, ids);
+            _renderTimesIDDict[type] = ids;
+            _renderTimesIssuedDict[type] = new bool[QUERY_FRAMES];
+        }
+
         internal static void ClearTimeDicts()
         {
             if(KWEngine.DebugPerformanceEnabled)
@@ -148,7 +160,7 @@ namespace KWEngine3.Helper
         internal static void StartTimeQuery(RenderType type)
         {
             if(KWEngine.DebugPerformanceEnabled)
-                GL.BeginQuery(QueryTarget.TimeElapsed, _renderTimesIDDict[type]);
+                GL.BeginQuery(QueryTarget.TimeElapsed, _renderTimesIDDict[type][_queryFrame]);
         }
 
         internal static void StopTimeQuery(RenderType type)
@@ -156,22 +168,34 @@ namespace KWEngine3.Helper
             if (KWEngine.DebugPerformanceEnabled)
             {
                 GL.EndQuery(QueryTarget.TimeElapsed);
-                GL.GetQueryObject(_renderTimesIDDict[type], GetQueryObjectParam.QueryResult, out long drawcalltime);
-                _renderTimesDict[type].Add(drawcalltime);
+                int slot = _queryFrame;
+                bool[] issued = _renderTimesIssuedDict[type];
+                issued[slot] = true;
+
+                // read the oldest query (it gets reused next frame); it ended QUERY_FRAMES - 1 frames ago, so its result is ready
+                int oldest = (slot + 1) % QUERY_FRAMES;
+                if (issued[oldest])
+                {
+                    GL.GetQueryObject(_renderTimesIDDict[type][oldest], GetQueryObjectParam.QueryResult, out long drawcalltime);
+                    _renderTimesDict[type].Add(drawcalltime);
+                    issued[oldest] = false;
+                }
             }
         }
 
         internal static void UpdateTimesAVG()
         {
+            _queryFrame = (_queryFrame + 1) % QUERY_FRAMES;
             if (KWEngine.DebugPerformanceEnabled && KWEngine.ApplicationTime - _glQueryTimestampLastReset > 1)
             {
                 _glQueryTimestampLastReset = KWEngine.ApplicationTime;
                 foreach(var kvpair in _renderTimesDict)
                 {
-                    _renderTimesAvgDict[kvpair.Key] = _renderTimesDict[kvpair.Key].Average();
-                    _renderTimesDict[kvpair.Key].Clear();
+                    List<long> times = kvpair.Value;
+                    _renderTimesAvgDict[kvpair.Key] = times.Count > 0 ? times.Average() : 0.0; // no samples yet in the first frames
+                    times.Clear();
                 }
-                _cpuTimeAvg = _cpuTimes.Average();
+                _cpuTimeAvg = _cpuTimes.Count > 0 ? _cpuTimes.Average() : 0f;
             }
         }
     }

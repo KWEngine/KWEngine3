@@ -12,21 +12,20 @@ using System.Threading.Tasks;
 
 namespace KWEngine3TestProject.Worlds
 {
-    internal class GameWorldPlaneCollisionTest : World//WorldPerformance
+    internal class GameWorldPlaneCollisionTest : WorldPerformance
     {
         private Player _player;
 
         public override void Act()
         {
-            //base.Act();
+            base.Act();
 
             FlowField f = GetFlowField();
             if (f != null)
             {
                 if (f.ContainsXZ(_player))
                 {
-                    f.SetTarget(_player.Center);
-                    f.Update();
+                    f.SetTarget(_player.Center); // obstacles are static, so no f.Update() (cost field rescan) per frame
                 }
                 else
                 {
@@ -85,7 +84,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            //base.Prepare();
+            base.Prepare();
 
             KWEngine.EnableDebugHitboxes = HitboxDebugMode.Disabled;
             SetCameraPosition(0, 10, 10);

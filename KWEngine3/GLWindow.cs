@@ -41,6 +41,7 @@ namespace KWEngine3
         internal readonly List<LightObject> _renderFramePointLights = new();
         internal readonly List<GameObject> _renderFrameGameObjectsForward = new();
         internal readonly List<RenderObject> _renderFrameRenderObjectsForward = new();
+        internal readonly List<GameObject> _postponedViewSpaceAttachments = new();
         internal readonly List<GameObject> _renderFrameStencilObjects = new();
 
         // update loop reusable lists (avoid per-tick allocations):
@@ -1064,9 +1065,9 @@ namespace KWEngine3
 
         internal void DisposeInternal()
         {
-            foreach (var item in HelperDebug._renderTimesIDDict.Keys)
+            foreach (int[] queries in HelperDebug._renderTimesIDDict.Values)
             {
-                GL.DeleteQuery(HelperDebug._renderTimesIDDict[item]);
+                GL.DeleteQueries(queries.Length, queries);
             }
             HelperSweepAndPrune.StopThread();
             HelperFlowField.StopThread();
@@ -1162,7 +1163,7 @@ namespace KWEngine3
 
         internal float UpdateScene(out int cycleCount)
         {
-            List<GameObject> postponedViewSpaceAttachments = new();
+            _postponedViewSpaceAttachments.Clear();
             if (KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
             {
                 KWEngine.CurrentWorld._startingFrameActive = false;
@@ -1195,7 +1196,7 @@ namespace KWEngine3
                 }
                 else
                 {
-                    postponedViewSpaceAttachments.Add(g);
+                    _postponedViewSpaceAttachments.Add(g);
                 }
             }
 
@@ -1224,7 +1225,7 @@ namespace KWEngine3
             if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
             {
                 HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha);
-                foreach (GameObject att in postponedViewSpaceAttachments)
+                foreach (GameObject att in _postponedViewSpaceAttachments)
                 {
                     HelperSimulation.BlendGameObjectStates(att, 1f);
                 }
