@@ -12,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace KWEngine3TestProject.Worlds
 {
-    internal class GameWorldPlaneCollisionTest : WorldPerformance
+    internal class GameWorldPlaneCollisionTest : World//WorldPerformance
     {
         private Player _player;
 
         public override void Act()
         {
-            base.Act();
+            //base.Act();
 
             FlowField f = GetFlowField();
             if (f != null)
@@ -85,7 +85,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            base.Prepare();
+            //base.Prepare();
 
             KWEngine.EnableDebugHitboxes = HitboxDebugMode.Disabled;
             SetCameraPosition(0, 10, 10);
@@ -242,8 +242,20 @@ namespace KWEngine3TestProject.Worlds
             MouseCursorGrab();
 
             SetFogColor(0.6f, 0.8f, 1);
-            SetFogDensity(0.25f);
+            SetFogDensity(0.15f);
             SetFogHeight(0f, 0.8f);
+            SetFogNoiseHeight(1);
+            SetFogNoise(0.5f, 20);
+            SetFogWind(1, 1, 1, 2);
+
+            FogVolume fv = new FogVolume();
+            fv.SetPosition(3, 0, -4.5f);
+            fv.SetHeightFalloff(0.75f);
+            fv.SetScale(5, 1, 2);
+            fv.SetEdgeSoftness(5);
+            fv.SetDensity(0.5f);
+            fv.SetColor(0, 1, 0);
+            AddFogVolume(fv);
         }
     }
 }

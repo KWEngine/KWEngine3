@@ -106,19 +106,19 @@ namespace KWEngine3
             _performanceCPU.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceCPU);
 
-            _performanceFPS = new HUDObjectText("FPS:     0");
-            _performanceFPS.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
-            _performanceFPS.ForceMonospace = true;
-            _performanceFPS.SetScale(32);
-            _performanceFPS.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
-            AddHUDObject(_performanceFPS);
-
             _performanceFog = new HUDObjectText("0");
-            _performanceFog.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceFog.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
             _performanceFog.ForceMonospace = true;
             _performanceFog.SetScale(32);
             _performanceFog.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceFog);
+
+            _performanceFPS = new HUDObjectText("FPS:     0");
+            _performanceFPS.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceFPS.ForceMonospace = true;
+            _performanceFPS.SetScale(32);
+            _performanceFPS.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
+            AddHUDObject(_performanceFPS);
         }
 
         /// <summary>

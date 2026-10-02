@@ -88,6 +88,7 @@ namespace KWEngine3
         internal float _fogHeightNoise = 0f;      // amplitude of the wavy fog top in world units (0 = flat)
         internal Vector3 _fogWindDirection = Vector3.UnitX; // normalized, applies to all fog (also later fog volumes)
         internal float _fogWindSpeed = 0f;        // world units per second
+        internal List<FogVolume> _fogVolumes = new();
         internal WorldBackground _background = new();
 
         internal WorldFadeState _fadeStateCurrent = new WorldFadeState();
@@ -851,9 +852,9 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Gibt an, ob in der Welt Nebel aktiv ist (Nebeldichte größer als 0)
+        /// Gibt an, ob in der Welt Nebel aktiv ist (globale Nebeldichte größer als 0 oder mindestens eine Nebel-Box)
         /// </summary>
-        public bool IsFogEnabled { get { return _fogDensity > 0f; } }
+        public bool IsFogEnabled { get { return _fogDensity > 0f || _fogVolumes.Count > 0; } }
 
         /// <summary>
         /// Gibt Auskunft über die aktuelle Nebelfarbe
@@ -961,11 +962,11 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Lässt die Oberkante des Höhennebels wabern (wirkt nur zusammen mit SetFogHeight und einem Falloff größer 0)
+        /// Lässt die Oberkante des Höhennebels wabern (wirkt nur zusammen mit einem Falloff größer 0, also SetFogHeight bzw. FogVolume.SetHeightFalloff)
         /// </summary>
         /// <remarks>Die Größe der Wellen richtet sich nach dem Parameter size von SetFogNoise.</remarks>
         /// <param name="amplitude">Wie weit sich die Oberkante nach oben und unten verschiebt (in Welteinheiten, 0 = flach)</param>
-        public void SetFogHeightNoise(float amplitude)
+        public void SetFogNoiseHeight(float amplitude)
         {
             _fogHeightNoise = Math.Max(0f, amplitude);
         }
@@ -993,6 +994,89 @@ namespace KWEngine3
         public void SetFogWind(float x, float y, float z, float speed)
         {
             SetFogWind(new Vector3(x, y, z), speed);
+        }
+
+        /// <summary>
+        /// Fügt eine Nebel-Box hinzu
+        /// </summary>
+        /// <remarks>Pro Welt sind höchstens 16 Nebel-Boxen erlaubt. Weitere Boxen werden nicht hinzugefügt (Hinweis im Log).</remarks>
+        /// <param name="v">hinzuzufügende Nebel-Box</param>
+        public void AddFogVolume(FogVolume v)
+        {
+            if (v == null)
+                return;
+            if (_fogVolumes.Contains(v))
+            {
+                KWEngine.LogWriteLine("[FogVolume] " + v.Name + " already in world.");
+                return;
+            }
+            if (_fogVolumes.Count >= RendererFog.FOG_MAX_VOLUMES)
+            {
+                KWEngine.LogWriteLine("[FogVolume] Max. amount of 16 simultaneous Volumes reached. Cannot add more.");
+                return;
+            }
+
+            _fogVolumes.Add(v);
+        }
+
+        /// <summary>
+        /// Entfernt eine Nebel-Box aus der Welt
+        /// </summary>
+        /// <param name="v">zu entfernende Nebel-Box</param>
+        public void RemoveFogVolume(FogVolume v)
+        {
+            if (v == null)
+                return;
+            _fogVolumes.Remove(v);
+        }
+
+        /// <summary>
+        /// Erfragt die Liste der aktuellen Nebel-Boxen der Welt
+        /// </summary>
+        /// <returns>Kopie der Liste der Nebel-Boxen</returns>
+        public List<FogVolume> GetFogVolumes()
+        {
+            return new List<FogVolume>(_fogVolumes);
+        }
+
+        /// <summary>
+        /// Erfragt die aktuelle Anzahl der Nebel-Boxen in der Welt
+        /// </summary>
+        /// <returns>Anzahl der Nebel-Boxen (höchstens 16)</returns>
+        public int GetFogVolumeCount()
+        {
+            return _fogVolumes.Count;
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der Nebel-Boxen nach einer Box mit dem gegebenen Namen
+        /// </summary>
+        /// <param name="name">Name der gesuchten Nebel-Box</param>
+        /// <returns>Erste Nebel-Box mit diesem Namen oder null (falls nicht gefunden)</returns>
+        public FogVolume GetFogVolumeByName(string name)
+        {
+            if (name == null)
+                return null;
+            name = name.Trim();
+            return _fogVolumes.FirstOrDefault(v => v.Name == name);
+        }
+
+        /// <summary>
+        /// Durchsucht die Liste der Nebel-Boxen nach Boxen, deren Name die angegebene Zeichenkette enthält
+        /// </summary>
+        /// <param name="name">Zu suchende Zeichenkette</param>
+        /// <returns>Liste der gefundenen Nebel-Boxen (leer, falls keine gefunden)</returns>
+        public List<FogVolume> GetFogVolumesByName(string name)
+        {
+            List<FogVolume> list = new();
+            if (name == null)
+                return list;
+            foreach (FogVolume v in _fogVolumes)
+            {
+                if (v.Name != null && v.Name.Contains(name))
+                    list.Add(v);
+            }
+            return list;
         }
 
         /// <summary>

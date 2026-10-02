@@ -21,8 +21,10 @@ vec3 getWorldPosition()
 
 void main()
 {
-    float a = fogAmount(uCameraPos, getWorldPosition());
+    vec4 fog = fogIntegrate(uCameraPos, getWorldPosition());
+    float a = 1.0 - fog.w;
 
-    color = vec4(uFogColorDensity.xyz, a);
+    // blending: fog.xyz + scene * transmittance
+    color = vec4(a > 0.00001 ? fog.xyz / a : vec3(0.0), a);
     bloom = vec4(0.0, 0.0, 0.0, a);
 }

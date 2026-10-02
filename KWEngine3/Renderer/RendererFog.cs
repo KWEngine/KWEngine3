@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Framebuffers;
+using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
@@ -18,7 +19,9 @@ namespace KWEngine3.Renderer
         public const int UBO_BINDINGPOINT = 11;
         private const string UBO_BLOCKNAME = "uBlockFog";
         public static int UBO { get; private set; } = -1;
-        private static readonly float[] _uboData = new float[20]; // std140: 5x vec4 (see uBlockFog in fog.glsl)
+        public const int FOG_MAX_VOLUMES = 16;            // must match FOG_MAX_VOLUMES in fog.glsl
+        private const int UBO_HEADERFLOATS = 24;          // 6x vec4 before the volume array
+        private static readonly float[] _uboData = new float[UBO_HEADERFLOATS + FOG_MAX_VOLUMES * FogVolume.UBO_FLOATS]; // std140, see uBlockFog in fog.glsl
 
         // tileable 3D noise for fog patches and the wavy fog top (generated once at startup)
         public const int NOISE_TEXTUREUNIT = 15;          // only unit that is still free in the forward shaders (GL 4.0 guarantees 16)
@@ -30,6 +33,7 @@ namespace KWEngine3.Renderer
         private const double NOISE_EVOLUTIONRATE = 0.01;  // slow change of the pattern (noise tiles per second), independent of wind
         private const float NOISE_FEATURETEXELS = 16f;    // approx. size of one noise feature in texels (64 texels / 4 base cells)
         public static int TextureNoise3D { get; private set; } = -1;
+        public static int ActiveVolumeCount { get; private set; } = 0; // fog volumes inside the view frustum (this frame)
 
         public static void Init()
         {
@@ -153,8 +157,27 @@ namespace KWEngine3.Renderer
             _uboData[18] = 0f;
             _uboData[19] = 0f;
 
+            // only volumes inside the view frustum (view rays never leave it)
+            Frustum frustum = KWEngine.Mode == EngineMode.Play ? w._cameraGame._frustum : w._cameraEditor._frustum;
+            int volumeCount = 0;
+            foreach (FogVolume v in w._fogVolumes)
+            {
+                if (volumeCount == FOG_MAX_VOLUMES)
+                    break;
+                if (v._density <= 0f || !frustum.VolumeVsFrustum(v._aabbCenter, v._aabbHalfExtent.X + 1f, v._aabbHalfExtent.Y + 1f, v._aabbHalfExtent.Z + 1f))
+                    continue;
+                Array.Copy(v._uboData, 0, _uboData, UBO_HEADERFLOATS + volumeCount * FogVolume.UBO_FLOATS, FogVolume.UBO_FLOATS);
+                volumeCount++;
+            }
+            ActiveVolumeCount = volumeCount;
+            _uboData[20] = volumeCount;
+            _uboData[21] = 0f;
+            _uboData[22] = 0f;
+            _uboData[23] = 0f;
+
+            int uploadFloats = UBO_HEADERFLOATS + volumeCount * FogVolume.UBO_FLOATS;
             GL.BindBuffer(BufferTarget.UniformBuffer, UBO);
-            GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, _uboData.Length * sizeof(float), _uboData);
+            GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, uploadFloats * sizeof(float), _uboData);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBO_BINDINGPOINT, UBO);
 

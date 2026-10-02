@@ -676,7 +676,7 @@ namespace KWEngine3
                 // - mixes fog via alpha blending to color and bloom attachment
                 RendererFog.UpdateFogBlock();
                 HelperDebug.StartTimeQuery(RenderType.Fog);
-                if (KWEngine.CurrentWorld.IsFogEnabled)
+                if (KWEngine.CurrentWorld._fogDensity > 0f || RendererFog.ActiveVolumeCount > 0)
                 {
                     GL.Disable(EnableCap.DepthTest);
                     GL.Enable(EnableCap.Blend);
