@@ -1,4 +1,5 @@
 ﻿using KWEngine3.Framebuffers;
+using KWEngine3.Helper;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -17,7 +18,18 @@ namespace KWEngine3.Renderer
         public const int UBO_BINDINGPOINT = 11;
         private const string UBO_BLOCKNAME = "uBlockFog";
         public static int UBO { get; private set; } = -1;
-        private static readonly float[] _uboData = new float[8]; // std140: 2x vec4
+        private static readonly float[] _uboData = new float[20]; // std140: 5x vec4 (see uBlockFog in fog.glsl)
+
+        // tileable 3D noise for fog patches and the wavy fog top (generated once at startup)
+        public const int NOISE_TEXTUREUNIT = 15;          // only unit that is still free in the forward shaders (GL 4.0 guarantees 16)
+        private const string NOISE_SAMPLERNAME = "uTextureFogNoise";
+        private const int NOISE_SIZE = 64;                // 64^3 texels, R8 = 256 KB (+ mipmaps)
+        private const int NOISE_BASECELLS = 4;            // noise cells per tile in the coarsest octave
+        private const int NOISE_OCTAVES = 3;
+        private const int NOISE_SEED = 1337;
+        private const double NOISE_EVOLUTIONRATE = 0.01;  // slow change of the pattern (noise tiles per second), independent of wind
+        private const float NOISE_FEATURETEXELS = 16f;    // approx. size of one noise feature in texels (64 texels / 4 base cells)
+        public static int TextureNoise3D { get; private set; } = -1;
 
         public static void Init()
         {
@@ -54,26 +66,54 @@ namespace KWEngine3.Renderer
                 GL.BindBuffer(BufferTarget.UniformBuffer, 0);
                 GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBO_BINDINGPOINT, UBO);
 
-                BindFogBlockToProgram(ProgramID);
+                CreateNoiseTexture();
+                BindFogResourcesToProgram(ProgramID);
             }
         }
 
+        private static void CreateNoiseTexture()
+        {
+            byte[] data = HelperPerlinNoise.GenerateTileableNoise3D(NOISE_SIZE, NOISE_BASECELLS, NOISE_OCTAVES, NOISE_SEED);
+
+            // rows are 64 bytes long -> default unpack alignment (4) fits, no PixelStore change needed
+            TextureNoise3D = GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture3D, TextureNoise3D);
+            GL.TexImage3D(TextureTarget.Texture3D, 0, PixelInternalFormat.R8, NOISE_SIZE, NOISE_SIZE, NOISE_SIZE, 0, PixelFormat.Red, PixelType.UnsignedByte, data);
+            GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture3D, TextureParameterName.TextureWrapR, (int)TextureWrapMode.Repeat);
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture3D);
+            GL.BindTexture(TextureTarget.Texture3D, 0);
+        }
+
         /// <summary>
-        /// Verknüpft den Uniform-Block uBlockFog eines Shader-Programms mit dem Nebel-UBO.
-        /// Muss einmalig nach dem Linken aufgerufen werden (Programme ohne Block werden ignoriert).
+        /// Connects the uniform block uBlockFog and the sampler of the fog noise texture (unit 15) of a shader program.
+        /// Call once after linking (programs without block/sampler are ignored).
         /// </summary>
-        /// <param name="programId">ID des gelinkten Shader-Programms</param>
-        internal static void BindFogBlockToProgram(int programId)
+        /// <param name="programId">id of the linked shader program</param>
+        internal static void BindFogResourcesToProgram(int programId)
         {
             int blockIndex = GL.GetUniformBlockIndex(programId, UBO_BLOCKNAME);
             if (blockIndex >= 0)
             {
                 GL.UniformBlockBinding(programId, blockIndex, UBO_BINDINGPOINT);
             }
+
+            // sampler uniforms are program state: set once after linking (GL 4.0 has no layout(binding = ...))
+            int samplerLocation = GL.GetUniformLocation(programId, NOISE_SAMPLERNAME);
+            if (samplerLocation >= 0)
+            {
+                int previousProgram = GL.GetInteger(GetPName.CurrentProgram);
+                GL.UseProgram(programId);
+                GL.Uniform1(samplerLocation, NOISE_TEXTUREUNIT);
+                GL.UseProgram(previousProgram);
+            }
         }
 
         /// <summary>
-        /// Schreibt die Nebel-Parameter der aktuellen Welt in den UBO (1x pro Frame, vor Fog- und Forward-Pass)
+        /// Writes the fog parameters of the current world to the UBO (once per frame, before fog and forward pass)
         /// </summary>
         internal static void UpdateFogBlock()
         {
@@ -87,10 +127,46 @@ namespace KWEngine3.Renderer
             _uboData[6] = 0f;
             _uboData[7] = 0f;
 
+            // noise parameters
+            float frequency = 1f / w._fogNoiseSize;
+            _uboData[8] = w._fogNoiseStrength;
+            _uboData[9] = frequency;
+            _uboData[10] = w._fogHeightNoise;
+            _uboData[11] = KWEngine.Window._renderQuality == RenderQualityLevel.Low ? 0f : 1f; // Low: wavy top only, no patches
+
+            // wind: shift the noise against the wind direction so that the pattern travels with the wind
+            // (computed in double precision and wrapped to one noise tile -> no precision loss after hours)
+            double worldTime = KWEngine.WorldTime;
+            double travel = worldTime * w._fogWindSpeed * frequency;
+            _uboData[12] = WrapToTile(-w._fogWindDirection.X * travel);
+            _uboData[13] = WrapToTile(-w._fogWindDirection.Y * travel);
+            _uboData[14] = WrapToTile(-w._fogWindDirection.Z * travel);
+            _uboData[15] = WrapToTile(worldTime * NOISE_EVOLUTIONRATE);
+
+            // mip selection: noise texels covered by one pixel per world unit of distance
+            // (uses the already computed projection matrix: M22 = 1 / tan(fovY / 2))
+            Matrix4 projection = KWEngine.Mode == EngineMode.Play ? w._cameraGame._stateRender.ProjectionMatrix : w._cameraEditor._stateRender.ProjectionMatrix;
+            float viewportHeight = Math.Max(1, KWEngine.Window.ClientRectangle.Size.Y);
+            _uboData[16] = 2f / (Math.Max(projection.M22, 0.0001f) * viewportHeight) * frequency * NOISE_SIZE;
+            // averaging along long rays: noise features per world unit of ray path
+            _uboData[17] = frequency * NOISE_SIZE / NOISE_FEATURETEXELS;
+            _uboData[18] = 0f;
+            _uboData[19] = 0f;
+
             GL.BindBuffer(BufferTarget.UniformBuffer, UBO);
             GL.BufferSubData(BufferTarget.UniformBuffer, IntPtr.Zero, _uboData.Length * sizeof(float), _uboData);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBO_BINDINGPOINT, UBO);
+
+            // noise texture stays on its own unit for the fog pass and all forward shaders of this frame
+            GL.ActiveTexture(TextureUnit.Texture0 + NOISE_TEXTUREUNIT);
+            GL.BindTexture(TextureTarget.Texture3D, TextureNoise3D);
+            GL.ActiveTexture(TextureUnit.Texture0);
+        }
+
+        private static float WrapToTile(double value)
+        {
+            return (float)(value - Math.Floor(value));
         }
 
         public static void Bind()

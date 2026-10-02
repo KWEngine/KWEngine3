@@ -21,9 +21,9 @@ namespace KWEngine3TestProject.Worlds
             base.Act();
 
             FlowField f = GetFlowField();
-            if(f != null)
+            if (f != null)
             {
-                if(f.ContainsXZ(_player))
+                if (f.ContainsXZ(_player))
                 {
                     f.SetTarget(_player.Center);
                     f.Update();
@@ -34,7 +34,7 @@ namespace KWEngine3TestProject.Worlds
                 }
             }
 
-            if(Keyboard.IsKeyPressed(Keys.F1))
+            if (Keyboard.IsKeyPressed(Keys.F1))
             {
                 KWEngine.SSAO_KernelSize = 16;
             }
@@ -47,7 +47,7 @@ namespace KWEngine3TestProject.Worlds
                 KWEngine.SSAO_KernelSize = 64;
             }
 
-            if(Keyboard.IsKeyPressed(Keys.F5))
+            if (Keyboard.IsKeyPressed(Keys.F5))
             {
                 KWEngine.EnableDebugHitboxes = HitboxDebugMode.DepthAll;
                 KWEngine.LogWriteLine("D-ALL");
@@ -73,7 +73,7 @@ namespace KWEngine3TestProject.Worlds
                 KWEngine.LogWriteLine("DISABLED");
             }
 
-            if(Keyboard.IsKeyPressed(Keys.O))
+            if (Keyboard.IsKeyPressed(Keys.O))
             {
                 SetBackgroundSkyboxFOV(20);
             }
@@ -116,7 +116,7 @@ namespace KWEngine3TestProject.Worlds
             beachPlanes.ShowHitboxes = true;
             AddGameObject(beachPlanes);
 
-            
+
             Immovable beachHitboxes = new Immovable();
             beachHitboxes.SetColliderModel("Beach_Hitboxes");
             beachHitboxes.Name = "Beach Hitboxes";
@@ -124,7 +124,7 @@ namespace KWEngine3TestProject.Worlds
             beachHitboxes.SetOpacity(0);
             beachHitboxes.ShowHitboxes = true;
             AddGameObject(beachHitboxes);
-            
+
 
             _player = new Player();
             _player.SetModel("Toon");
@@ -146,7 +146,7 @@ namespace KWEngine3TestProject.Worlds
             sun.SetFOV(15);
             sun.SetNearFar(20, 80);
             AddLightObject(sun);
-            
+
             Enemy e1 = new Enemy();
             e1.Name = "Enemy #1";
             e1.IsCollisionObject = true;
@@ -240,6 +240,10 @@ namespace KWEngine3TestProject.Worlds
             */
 
             MouseCursorGrab();
+
+            SetFogColor(0.6f, 0.8f, 1);
+            SetFogDensity(0.25f);
+            SetFogHeight(0f, 0.8f);
         }
     }
 }

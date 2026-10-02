@@ -79,7 +79,7 @@ namespace KWEngine3.Renderer
                 }
 
                 GL.LinkProgram(ProgramID);
-                RendererFog.BindFogBlockToProgram(ProgramID); // fog
+                RendererFog.BindFogResourcesToProgram(ProgramID); // fog
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");

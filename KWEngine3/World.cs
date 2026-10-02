@@ -83,6 +83,11 @@ namespace KWEngine3
         internal float _fogDensity = 0f;          // 0 = no fog (completely ignores fog pass)
         internal float _fogHeight = 0f;           // base height of fog
         internal float _fogHeightFalloff = 0f;    // 0 = fog is the same at every height
+        internal float _fogNoiseStrength = 0f;    // 0 = no patches (uniform fog)
+        internal float _fogNoiseSize = 20f;       // world size of one (tileable) noise tile
+        internal float _fogHeightNoise = 0f;      // amplitude of the wavy fog top in world units (0 = flat)
+        internal Vector3 _fogWindDirection = Vector3.UnitX; // normalized, applies to all fog (also later fog volumes)
+        internal float _fogWindSpeed = 0f;        // world units per second
         internal WorldBackground _background = new();
 
         internal WorldFadeState _fadeStateCurrent = new WorldFadeState();
@@ -916,6 +921,78 @@ namespace KWEngine3
         {
             _fogHeight = baseHeight;
             _fogHeightFalloff = MathHelper.Clamp(falloff, 0f, 10f);
+        }
+
+        /// <summary>
+        /// Gibt Auskunft über die Stärke der Nebelschwaden (0 = gleichmäßiger Nebel, 1 = sehr ungleichmäßig)
+        /// </summary>
+        public float FogNoiseStrength { get { return _fogNoiseStrength; } }
+
+        /// <summary>
+        /// Gibt Auskunft über die Größe des Schwaden-Musters (Welteinheiten, bevor sich das Muster wiederholt)
+        /// </summary>
+        public float FogNoiseSize { get { return _fogNoiseSize; } }
+
+        /// <summary>
+        /// Gibt Auskunft darüber, wie weit die Oberkante des Höhennebels nach oben und unten wabert (in Welteinheiten)
+        /// </summary>
+        public float FogHeightNoise { get { return _fogHeightNoise; } }
+
+        /// <summary>
+        /// Gibt Auskunft über die (normalisierte) Windrichtung, in die der Nebel treibt
+        /// </summary>
+        public Vector3 FogWindDirection { get { return _fogWindDirection; } }
+
+        /// <summary>
+        /// Gibt Auskunft über die Windgeschwindigkeit des Nebels (Welteinheiten pro Sekunde)
+        /// </summary>
+        public float FogWindSpeed { get { return _fogWindSpeed; } }
+
+        /// <summary>
+        /// Lässt den Nebel ungleichmäßig in Schwaden erscheinen (dichtere und dünnere Stellen)
+        /// </summary>
+        /// <remarks>Die Schwaden verändern sich auch ohne Wind langsam. In der Qualitätsstufe Low werden keine Schwaden berechnet (die wabernde Oberkante aus SetFogHeightNoise bleibt erhalten).</remarks>
+        /// <param name="strength">Stärke der Schwaden (0 = gleichmäßig, 1 = stellenweise fast nebelfrei bzw. doppelt so dicht)</param>
+        /// <param name="size">Größe des Musters in Welteinheiten, bevor es sich wiederholt (Standard: 20); einzelne Schwaden sind etwa ein Viertel davon groß</param>
+        public void SetFogNoise(float strength, float size = 20f)
+        {
+            _fogNoiseStrength = MathHelper.Clamp(strength, 0f, 1f);
+            _fogNoiseSize = MathHelper.Clamp(size, 0.1f, 100000f);
+        }
+
+        /// <summary>
+        /// Lässt die Oberkante des Höhennebels wabern (wirkt nur zusammen mit SetFogHeight und einem Falloff größer 0)
+        /// </summary>
+        /// <remarks>Die Größe der Wellen richtet sich nach dem Parameter size von SetFogNoise.</remarks>
+        /// <param name="amplitude">Wie weit sich die Oberkante nach oben und unten verschiebt (in Welteinheiten, 0 = flach)</param>
+        public void SetFogHeightNoise(float amplitude)
+        {
+            _fogHeightNoise = Math.Max(0f, amplitude);
+        }
+
+        /// <summary>
+        /// Legt fest, in welche Richtung und wie schnell der Wind die Nebelschwaden treibt (gilt für den gesamten Nebel)
+        /// </summary>
+        /// <remarks>Die Bewegung richtet sich nach der Weltzeit und steht daher im Editor-Modus still.</remarks>
+        /// <param name="direction">Windrichtung (wird normalisiert)</param>
+        /// <param name="speed">Geschwindigkeit in Welteinheiten pro Sekunde (0 = kein Wind)</param>
+        public void SetFogWind(Vector3 direction, float speed)
+        {
+            _fogWindDirection = direction.LengthSquared > 0f ? Vector3.Normalize(direction) : Vector3.UnitX;
+            _fogWindSpeed = Math.Max(0f, speed);
+        }
+
+        /// <summary>
+        /// Legt fest, in welche Richtung und wie schnell der Wind die Nebelschwaden treibt (gilt für den gesamten Nebel)
+        /// </summary>
+        /// <remarks>Die Bewegung richtet sich nach der Weltzeit und steht daher im Editor-Modus still.</remarks>
+        /// <param name="x">Windrichtung X</param>
+        /// <param name="y">Windrichtung Y</param>
+        /// <param name="z">Windrichtung Z</param>
+        /// <param name="speed">Geschwindigkeit in Welteinheiten pro Sekunde (0 = kein Wind)</param>
+        public void SetFogWind(float x, float y, float z, float speed)
+        {
+            SetFogWind(new Vector3(x, y, z), speed);
         }
 
         /// <summary>

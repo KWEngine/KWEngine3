@@ -78,7 +78,7 @@ namespace KWEngine3.Renderer.LowQuality
                 }
 
                 GL.LinkProgram(ProgramID);
-                RendererFog.BindFogBlockToProgram(ProgramID); // fog feature
+                RendererFog.BindFogResourcesToProgram(ProgramID); // fog feature
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");

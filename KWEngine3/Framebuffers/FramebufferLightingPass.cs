@@ -5,7 +5,7 @@ namespace KWEngine3.Framebuffers
     internal class FramebufferLighting : Framebuffer
     {
         public FramebufferLighting(int width, int height)
-            :base(width, height, false, LightType.Point)
+            : base(width, height, false, LightType.Point)
         {
 
         }
@@ -23,11 +23,11 @@ namespace KWEngine3.Framebuffers
                 width * height * 1 * sizeof(float);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
-            for(int i = 0; i < Attachments.Count - 1; i++)
+            for (int i = 0; i < Attachments.Count - 1; i++)
             {
                 dbe[i] = DrawBuffersEnum.ColorAttachment0 + i;
             }
-            GL.DrawBuffers(Attachments.Count, dbe);
+            GL.DrawBuffers(dbe.Length, dbe);
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
             ClearColorValues.Add(0, new float[] { 0, 0, 0 });
@@ -42,7 +42,7 @@ namespace KWEngine3.Framebuffers
 
         public override void Clear(bool keepDepth = false)
         {
-            for(int i = 0; i < ClearColorValues.Count; i++)
+            for (int i = 0; i < ClearColorValues.Count; i++)
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);
             }

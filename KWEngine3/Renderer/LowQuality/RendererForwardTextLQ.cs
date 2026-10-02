@@ -63,7 +63,7 @@ namespace KWEngine3.Renderer.LowQuality
                 }
 
                 GL.LinkProgram(ProgramID);
-                RendererFog.BindFogBlockToProgram(ProgramID); // fog
+                RendererFog.BindFogResourcesToProgram(ProgramID); // fog
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
 
