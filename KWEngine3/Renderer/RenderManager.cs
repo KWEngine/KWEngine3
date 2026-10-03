@@ -7,6 +7,8 @@ using KWEngine3.Renderer.LowQuality;
 using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace KWEngine3.Renderer
 {
@@ -27,11 +29,45 @@ namespace KWEngine3.Renderer
             int address = GL.CreateShader(type);
             using (StreamReader sr = new StreamReader(stream))
             {
-                GL.ShaderSource(address, sr.ReadToEnd());
+                GL.ShaderSource(address, ResolveShaderIncludes(sr.ReadToEnd()));
             }
             GL.CompileShader(address);
             GL.AttachShader(program, address);
             return address;
+        }
+
+        private const string SHADER_INCLUDE_RESOURCEPREFIX = "KWEngine3.Shaders.Include.";
+        private const int SHADER_INCLUDE_MAXDEPTH = 8;
+        private static readonly Regex _shaderIncludeRegex = new Regex(@"^[ \t]*#include[ \t]+""([^""]+)""[ \t]*(?://[^\r\n]*)?\r?$", RegexOptions.Multiline | RegexOptions.Compiled);
+
+        internal static string ResolveShaderIncludes(string source, int depth = 0)
+        {
+            if (!source.Contains("#include"))
+                return source;
+
+            if (depth >= SHADER_INCLUDE_MAXDEPTH)
+            {
+                KWEngine.LogWriteLine("[Shader] #include: maximum depth reached (circular include?)");
+                return source;
+            }
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            return _shaderIncludeRegex.Replace(source, match =>
+            {
+                string includeName = match.Groups[1].Value;
+                using (Stream s = assembly.GetManifestResourceStream(SHADER_INCLUDE_RESOURCEPREFIX + includeName))
+                {
+                    if (s == null)
+                    {
+                        KWEngine.LogWriteLine("[Shader] #include: resource '" + includeName + "' not found");
+                        return "// #include \"" + includeName + "\" not found";
+                    }
+                    using (StreamReader sr = new StreamReader(s))
+                    {
+                        return ResolveShaderIncludes(sr.ReadToEnd(), depth + 1);
+                    }
+                }
+            });
         }
 
 
@@ -48,7 +84,7 @@ namespace KWEngine3.Renderer
 
         public static void BindScreen(bool clear = true, bool scaled = false)
         {
-            if(!scaled)
+            if (!scaled)
                 KWEngine.Window.SetGLViewportToClientSize();
             else
                 KWEngine.Window.SetGLViewportToScaledClientSize();
@@ -56,7 +92,7 @@ namespace KWEngine3.Renderer
             if (clear)
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         }
-        
+
         public static void InitializeFramebuffers()
         {
             Vector2i fbSize = KWEngine.Window.GetWindowFramebufferSize();
@@ -86,7 +122,7 @@ namespace KWEngine3.Renderer
                     FramebuffersBloomTemp[i] = new FramebufferBloom(bloomSize.X, bloomSize.Y);
                 }
             }
-            
+
         }
 
         public static void InitializeClearColor()
@@ -94,12 +130,18 @@ namespace KWEngine3.Renderer
             GL.ClearColor(0, 0, 0, 0);
         }
 
-        public static void UnbindUBOFromShader(int program, int index, int ubo)
+        // uniform buffer binding points (always bind to these, never to a block index: block indices are assigned by the driver)
+        internal const int UBO_BINDINGPOINT_INSTANCES = 0;   // uInstanceBlock (all instanced renderers)
+        internal const int UBO_BINDINGPOINT_LIGHTING1 = 0;   // uBlockIndex1 (lighting pass)
+        internal const int UBO_BINDINGPOINT_LIGHTING2 = 1;   // uBlockIndex2 (lighting pass)
+        internal const int UBO_BINDINGPOINT_LIGHTING3 = 2;   // uBlockIndex3 (lighting pass)
+
+        public static void UnbindUBOFromShader(int program, int bindingPoint, int ubo)
         {
             if (GL.IsBuffer(ubo))
             {
                 GL.UseProgram(program);
-                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, index, 0);
+                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, bindingPoint, 0);
                 GL.UseProgram(0);
             }
         }
@@ -107,7 +149,7 @@ namespace KWEngine3.Renderer
         public static void UnbindUBOFromAllInstanceShaders(int ubo)
         {
             RendererGBufferInstanced.Bind();
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RendererGBufferInstanced.UBlockIndex, 0);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBO_BINDINGPOINT_INSTANCES, 0);
 
             // general shaders:
             IRendererForwardInstanced.UnbindUBO(ubo);
@@ -130,10 +172,11 @@ namespace KWEngine3.Renderer
 
 
             RendererCopy.Init();
+            RendererFog.Init();
             RendererBackgroundSkybox.Init();
             RendererBackgroundStandard.Init();
             RendererExplosion.Init();
-            
+
             RendererEditorHitboxes.Init();
             RendererTerrainCollision.Init();
             RendererSSAO.Init();
@@ -143,7 +186,7 @@ namespace KWEngine3.Renderer
 
             RendererFlowField.Init();
             RendererFlowFieldDirection.Init();
-            
+
 
             RendererEditor.Init();
             RendererGrid.Init();
@@ -159,7 +202,7 @@ namespace KWEngine3.Renderer
             RendererFrustum.Init();
 
             // Renderers that are dependent on RenderQuality enum:
-            if(KWEngine.Window._renderQuality == RenderQualityLevel.Low)
+            if (KWEngine.Window._renderQuality == RenderQualityLevel.Low)
             {
                 IRendererLightingPass = new RendererLightingPassLQ(); IRendererLightingPass.Init();
                 IRendererLightingPassMultiDraw = new RendererLightingPassMultiDrawLQ(); IRendererLightingPassMultiDraw.Init();
@@ -203,7 +246,7 @@ namespace KWEngine3.Renderer
         public static IRenderer IRendererShadowMap;
         public static IRenderer IRendererShadowMapCSM;
         public static IRenderer IRendererShadowMapInstanced;
-        public static IRenderer IRendererShadowMapInstancedCSM; 
+        public static IRenderer IRendererShadowMapInstancedCSM;
         public static IRenderer IRendererShadowMapCube;
         public static IRenderer IRendererShadowMapCubeInstanced;
         public static IRenderer IRendererShadowMapTerrain;
@@ -213,10 +256,10 @@ namespace KWEngine3.Renderer
         public static void CheckShaderStatus(int programId, int vertexShaderId, int fragmentShaderId, int geometryShaderId = -1, int tessControlShaderId = -1, int tessEvalShaderId = -1)
         {
             GL.GetProgram(programId, GetProgramParameterName.LinkStatus, out int linkStatus);
-            if(linkStatus != 1)
+            if (linkStatus != 1)
             {
                 GL.GetProgram(programId, GetProgramParameterName.InfoLogLength, out int logLength);
-                if(logLength > 0)
+                if (logLength > 0)
                 {
                     string msg = GL.GetProgramInfoLog(programId);
                     KWEngine.LogWriteLine("[ProgramLog] " + msg);
@@ -230,23 +273,23 @@ namespace KWEngine3.Renderer
             GL.GetShader(fragmentShaderId, ShaderParameter.CompileStatus, out int fragmentStatus);
             if (vertexStatus == 0 || fragmentStatus == 0)
             {
-                if(vertexStatus == 0)
+                if (vertexStatus == 0)
                 {
                     vMsg = GL.GetShaderInfoLog(vertexShaderId);
                     KWEngine.LogWriteLine("[ShaderVertex] " + vMsg);
                 }
-                if(fragmentStatus == 0)
+                if (fragmentStatus == 0)
                 {
                     fMsg = GL.GetShaderInfoLog(fragmentShaderId);
                     KWEngine.LogWriteLine("[ShaderFragment] " + fMsg);
                 }
             }
 
-            if(geometryShaderId > 0)
+            if (geometryShaderId > 0)
             {
                 string gMsg = "";
                 GL.GetShader(geometryShaderId, ShaderParameter.CompileStatus, out int geometryStatus);
-                if(geometryStatus == 0)
+                if (geometryStatus == 0)
                 {
                     gMsg = GL.GetShaderInfoLog(geometryShaderId);
                     KWEngine.LogWriteLine("[ShaderGeometry] " + gMsg);
@@ -281,7 +324,7 @@ namespace KWEngine3.Renderer
             GL.Disable(EnableCap.DepthTest);
             RendererBloomDownsample.Bind();
 
-            if(KWEngine.Window._renderQuality == RenderQualityLevel.High) // high only
+            if (KWEngine.Window._renderQuality == RenderQualityLevel.High) // high only
             {
                 for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
                 {
@@ -315,7 +358,7 @@ namespace KWEngine3.Renderer
                     Vector2i bloomSize = GetBloomSize(i, false);
                     GL.Viewport(0, 0, bloomSize.X, bloomSize.Y);
                     FramebuffersBloomTemp[i - 1].Bind(true);
-                    if(i == KWEngine.MAX_BLOOM_BUFFERS / 2 - 1)
+                    if (i == KWEngine.MAX_BLOOM_BUFFERS / 2 - 1)
                     {
                         RendererBloomUpsample.Draw(FramebuffersBloom[i], FramebuffersBloom[i - 1]);
                     }
@@ -324,7 +367,7 @@ namespace KWEngine3.Renderer
                         RendererBloomUpsample.Draw(FramebuffersBloomTemp[i], FramebuffersBloom[i - 1]);
                     }
 
-                    
+
                 }
             }
         }

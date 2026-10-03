@@ -11,6 +11,7 @@
       <Field Name="_mouseDeltaToUse" Hidden="true" />
       <Field Name="_mouseScrollDelta" Hidden="true" />
       <Field Name="_mouseScrollPosition" Hidden="true" />
+      <Field Name="_postponedViewSpaceAttachments" Hidden="true" />
       <Field Name="_projectionMatrixHUD" Hidden="true" />
       <Field Name="_renderFrameGameObjectsForward" Hidden="true" />
       <Field Name="_renderFramePointLights" Hidden="true" />
@@ -174,6 +175,16 @@
       <Field Name="_fadeStateCurrent" Hidden="true" />
       <Field Name="_fadeStatePrevious" Hidden="true" />
       <Field Name="_flowFields" Hidden="true" />
+      <Field Name="_fogColor" Hidden="true" />
+      <Field Name="_fogDensity" Hidden="true" />
+      <Field Name="_fogHeight" Hidden="true" />
+      <Field Name="_fogHeightFalloff" Hidden="true" />
+      <Field Name="_fogHeightNoise" Hidden="true" />
+      <Field Name="_fogNoiseSize" Hidden="true" />
+      <Field Name="_fogNoiseStrength" Hidden="true" />
+      <Field Name="_fogVolumes" Hidden="true" />
+      <Field Name="_fogWindDirection" Hidden="true" />
+      <Field Name="_fogWindSpeed" Hidden="true" />
       <Field Name="_foliageObjects" Hidden="true" />
       <Field Name="_foliageObjectsToBeAdded" Hidden="true" />
       <Field Name="_foliageObjectsToBeRemoved" Hidden="true" />
@@ -243,7 +254,7 @@
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SQt1OI6AJHRKdBXdzpGipb1iTK5ZD6YcUeGSH/EeR/0=</HashCode>
+      <HashCode>SW91OI6AJXZKfBXdztmitf1ibK9bL6YcVeGSH/keR/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -277,6 +288,7 @@
       <Field Name="_rayOrigins2" Hidden="true" />
       <Field Name="_rayOrigins4" Hidden="true" />
       <Field Name="_rayOrigins5" Hidden="true" />
+      <Field Name="_raySelectedFaces" Hidden="true" />
       <Field Name="_rotationOffsetForAttachment" Hidden="true" />
       <Field Name="_rotationOffsetForAttachmentEuler" Hidden="true" />
       <Field Name="_scaleOffsetForAttachment" Hidden="true" />
@@ -387,6 +399,7 @@
   <Class Name="KWEngine3.Helper.HelperIntersection">
     <Position X="21.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_planeFaceVertices" Hidden="true" />
       <Field Name="_planeNormals" Hidden="true" />
       <Field Name="_planeVertices" Hidden="true" />
       <Field Name="bounds" Hidden="true" />
@@ -413,6 +426,7 @@
       <Method Name="LineIntersectsLine" Hidden="true" />
       <Method Name="LinePlaneIntersection" Hidden="true" />
       <Method Name="Max" Hidden="true" />
+      <Field Name="MAX_STACK_FACE_VERTICES" Hidden="true" />
       <Method Name="Min" Hidden="true" />
       <Field Name="ONETHIRD" Hidden="true" />
       <Method Name="Overlaps" Hidden="true" />
@@ -433,7 +447,7 @@
       <Method Name="TestIntersectionWithTerrainFace" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DQCQAhQAAbWigKUAsEQAWEKEQQCgBLhGALGDAJ4LZJg=</HashCode>
+      <HashCode>DQCQAhQAAbWigKUAsEQAWEKEQQSgBLhGALGDAJ4LZJg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -693,6 +707,8 @@
       <Field Name="_allowedDirections" Hidden="true" />
       <Field Name="_cellDetectionScale" Hidden="true" />
       <Field Name="_cellDiametre" Hidden="true" />
+      <Field Name="_cellsToCheck" Hidden="true" />
+      <Field Name="_costCheckObjects" Hidden="true" />
       <Field Name="_ffback" Hidden="true" />
       <Field Name="_ffbottom" Hidden="true" />
       <Field Name="_fffront" Hidden="true" />
@@ -700,6 +716,7 @@
       <Field Name="_ffright" Hidden="true" />
       <Field Name="_fftop" Hidden="true" />
       <Field Name="_hitbox" Hidden="true" />
+      <Field Name="_neighbourBuffer" Hidden="true" />
       <Field Name="_target" Hidden="true" />
       <Field Name="_targetIsUpdated" Hidden="true" />
       <Field Name="_types" Hidden="true" />
@@ -720,13 +737,14 @@
       <Method Name="UpdateGridAndTarget" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AUQFAhDAENIEFBQIAgMAigQARAgIDhgWSQAAAEAYABI=</HashCode>
+      <HashCode>AUQFBlDAENIEFBQIAgMAigQARAgIDhgWSQAAAEAYABI=</HashCode>
       <FileName>Helper\FlowField.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperGeneral">
     <Position X="24.5" Y="14.5" Width="2.75" />
     <Members>
+      <Field Name="_allKeys" Hidden="true" />
       <Field Name="_isDebugBuild" Hidden="true" />
       <Method Name="CheckGLErrors" Hidden="true" />
       <Method Name="CheckIfDebugBuild" Hidden="true" />
@@ -759,7 +777,7 @@
       <Method Name="UnProject" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AQAAARABAIAIAAAAAA1SISFgggAEIAgBCkCIAgQAUAE=</HashCode>
+      <HashCode>AQAAARABAIAIAAAAAA1SISFgggAEIAgBCkCIAgQAUAk=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>

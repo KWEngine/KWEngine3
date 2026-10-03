@@ -41,13 +41,14 @@ namespace KWEngine3
         internal readonly List<LightObject> _renderFramePointLights = new();
         internal readonly List<GameObject> _renderFrameGameObjectsForward = new();
         internal readonly List<RenderObject> _renderFrameRenderObjectsForward = new();
+        internal readonly List<GameObject> _postponedViewSpaceAttachments = new();
         internal readonly List<GameObject> _renderFrameStencilObjects = new();
 
         // update loop reusable lists (avoid per-tick allocations):
         internal readonly List<GameObject> _updatePostponedObjects = new();
         internal readonly List<GameObject> _updatePostponedObjectsAttachments = new();
         internal static ulong _frame = 0;
-        
+
         internal void ResetMouseDeltas()
         {
             _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
@@ -97,7 +98,7 @@ namespace KWEngine3
         {
             HelperGeneral.DecideBuildType();
             Vector2i scaledClientSize = GetWindowFramebufferSize();
-            if(HelperGeneral.IsDebugBuild)
+            if (HelperGeneral.IsDebugBuild)
                 Overlay = new KWBuilderOverlay(scaledClientSize.X, scaledClientSize.Y);
             ClientSize = scaledClientSize;
             CenterWindow();
@@ -114,7 +115,7 @@ namespace KWEngine3
         /// <param name="quality">Qualität der Render-Pipeline (Standard: ausbalancierte Qualität)</param>
         /// <param name="icon">Fenstersymbol</param>
         public GLWindow(
-            bool vSync = true, 
+            bool vSync = true,
             RenderQualityLevel quality = RenderQualityLevel.Default,
             WindowIcon icon = null)
             : this(
@@ -125,7 +126,7 @@ namespace KWEngine3
                      APIVersion = Version.Parse("4.0"),
                      Flags = ContextFlags.ForwardCompatible,
                      WindowState = WindowState.Fullscreen,
-                     WindowBorder = WindowBorder.Hidden, 
+                     WindowBorder = WindowBorder.Hidden,
                      ClientSize = new Vector2i(KWEngine.ScreenInformation.PrimaryScreenWidth, KWEngine.ScreenInformation.PrimaryScreenHeight),
                      Vsync = vSync ? VSyncMode.On : VSyncMode.Off,
                      Title = "",
@@ -300,7 +301,7 @@ namespace KWEngine3
                 GLFW.GetCursorPos(this.WindowPtr, out var xPos, out var yPos);
                 Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
             }
-            
+
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
             RenderManager.InitializeClearColor();
@@ -427,7 +428,7 @@ namespace KWEngine3
                 DisposeInternal();
                 _disposed = DisposeStatus.Done;
                 base.Close();
-                
+
                 return;
             }
 
@@ -439,7 +440,7 @@ namespace KWEngine3
 
             UpdateDeltaTime(e.Time);
             _mouseDeltaToUse = GatherWeightedMovingAvg(MouseState.Delta, (float)(e.Time * 1000.0));
-           
+
             if (KWEngine.CurrentWorld._mouseCursorJustGrabbed)
                 KWEngine.CurrentWorld._mouseCursorJustGrabbed = false;
 
@@ -462,7 +463,7 @@ namespace KWEngine3
 
                 HelperDebug.StartTimeQuery(RenderType.Deferred);
                 #region [DEFERRED PASS]
-                
+
                 RenderManager.FramebufferDeferred.Bind();
 
                 // Render terrain objects to G-Buffer:
@@ -639,7 +640,7 @@ namespace KWEngine3
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
 
                 // if uniformoffsetmultiplier does not equal 1, we are on macOS and need to use the multi-draw shader
-                if(KWEngine.GBufferLighting == GBufferLightingMode.Default && KWEngine._uniformOffsetMultiplier == 1)
+                if (KWEngine.GBufferLighting == GBufferLightingMode.Default && KWEngine._uniformOffsetMultiplier == 1)
                 {
                     RenderManager.IRendererLightingPass.Bind();
                     RenderManager.IRendererLightingPass.SetGlobals();
@@ -670,6 +671,22 @@ namespace KWEngine3
                         RendererBackgroundStandard.Draw();
                     }
                 }
+
+                // Fog pass:
+                // - reads depth from G-Buffer
+                // - mixes fog via alpha blending to color and bloom attachment
+                RendererFog.UpdateFogBlock();
+                HelperDebug.StartTimeQuery(RenderType.Fog);
+                if (KWEngine.CurrentWorld._fogDensity > 0f || RendererFog.ActiveVolumeCount > 0)
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                    GL.Enable(EnableCap.Blend);
+                    RendererFog.Bind();
+                    RendererFog.SetGlobals();
+                    RendererFog.Draw(RenderManager.FramebufferDeferred);
+                    GL.Enable(EnableCap.DepthTest);
+                }
+                HelperDebug.StopTimeQuery(RenderType.Fog);
 
                 GL.Enable(EnableCap.Blend);
 
@@ -726,7 +743,7 @@ namespace KWEngine3
             }
 
             // STENCIL HIGHLIGHT PASS
-            if(_renderFrameStencilObjects.Count > 0)
+            if (_renderFrameStencilObjects.Count > 0)
             {
                 GL.Enable(EnableCap.Blend);
                 GL.Enable(EnableCap.StencilTest);
@@ -741,13 +758,13 @@ namespace KWEngine3
                 GL.StencilMask(0x00);
                 GL.Disable(EnableCap.StencilTest);
             }
-            
+
             GL.Disable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             GL.Disable(EnableCap.CullFace);
 
             // Render hitboxes of GameObjects
-            if(KWEngine.Mode == EngineMode.Play && KWEngine.EnableDebugHitboxes > HitboxDebugMode.Disabled)
+            if (KWEngine.Mode == EngineMode.Play && KWEngine.EnableDebugHitboxes > HitboxDebugMode.Disabled)
             {
                 RendererEditorHitboxes.Bind();
                 RendererEditorHitboxes.SetGlobals();
@@ -855,14 +872,14 @@ namespace KWEngine3
                         }
                     }
                 }
-                if(isCubeMap)
+                if (isCubeMap)
                 {
                     RendererDebugCube.Bind();
                     RendererDebugCube.Draw(maps);
                 }
                 else
                 {
-                    if(KWEngine.DebugMode < DebugMode.DepthBufferShadowMap1)
+                    if (KWEngine.DebugMode < DebugMode.DepthBufferShadowMap1)
                     {
                         RendererDebug.Bind();
                     }
@@ -961,7 +978,7 @@ namespace KWEngine3
 
             if (KWEngine.Mode == EngineMode.Edit &&
                 KWBuilderOverlay.IsButtonActive(MouseButton.Middle) &&
-                !KWBuilderOverlay.IsCursorOnAnyControl() && 
+                !KWBuilderOverlay.IsCursorOnAnyControl() &&
                 !shadowMapDebugMode)
             {
                 float step = 2f;
@@ -989,7 +1006,7 @@ namespace KWEngine3
                         if (!RenderManager.IsCurrentDebugMapACubeMap())
                             return;
                     }
-                    if(KWBuilderOverlay.SelectedVSG != null)
+                    if (KWBuilderOverlay.SelectedVSG != null)
                     {
                         KWEngine.CurrentWorld._cameraEditor.ArcBallEditor(e.Delta * KWEngine.MouseSensitivity * 20f, KWBuilderOverlay.SelectedVSG);
                     }
@@ -997,7 +1014,7 @@ namespace KWEngine3
                     {
                         KWEngine.CurrentWorld._cameraEditor.ArcBallEditor(e.Delta * KWEngine.MouseSensitivity * 20f, KWBuilderOverlay.SelectedGameObject);
                     }
-                        
+
                 }
             }
         }
@@ -1028,7 +1045,7 @@ namespace KWEngine3
         {
             bool shadowMapDebugMode = (int)KWEngine.DebugMode >= 7 && (int)KWEngine.DebugMode <= 9;
             base.OnMouseWheel(e);
-            if (KWEngine.Mode == EngineMode.Edit && 
+            if (KWEngine.Mode == EngineMode.Edit &&
                 !KWBuilderOverlay.IsCursorOnAnyControl() &&
                 shadowMapDebugMode == false)
             {
@@ -1048,9 +1065,9 @@ namespace KWEngine3
 
         internal void DisposeInternal()
         {
-            foreach (var item in HelperDebug._renderTimesIDDict.Keys)
+            foreach (int[] queries in HelperDebug._renderTimesIDDict.Values)
             {
-                GL.DeleteQuery(HelperDebug._renderTimesIDDict[item]);
+                GL.DeleteQueries(queries.Length, queries);
             }
             HelperSweepAndPrune.StopThread();
             HelperFlowField.StopThread();
@@ -1106,7 +1123,7 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetCameraTarget(Vector3.Zero);
             KWEngine.WorldTime = 0;
             KWEngine.CurrentWorld.SetBackgroundFillColor(0f, 0f, 0f);
-            
+
             KWEngine.CurrentWorld.LoadingScreen = new LoadingScreen();
             KWEngine.CurrentWorld.Prepare();
             KWEngine.CurrentWorld.LoadingScreen.Dispose();
@@ -1115,10 +1132,10 @@ namespace KWEngine3
 
             _mouseDeltaToUse = Vector2.Zero;
             _frame = 0;
-            HelperGeneral.FlushAndFinish(); 
+            HelperGeneral.FlushAndFinish();
             HelperSweepAndPrune.StartThread();
             HelperFlowField.StartThread();
-            _worldNew = null;  
+            _worldNew = null;
 
             HelperDebug.ClearTimeDicts();
         }
@@ -1146,7 +1163,7 @@ namespace KWEngine3
 
         internal float UpdateScene(out int cycleCount)
         {
-            List<GameObject> postponedViewSpaceAttachments = new();
+            _postponedViewSpaceAttachments.Clear();
             if (KWEngine.CurrentWorld._startingFrameActive && MouseState.Delta.LengthSquared == 0)
             {
                 KWEngine.CurrentWorld._startingFrameActive = false;
@@ -1179,7 +1196,7 @@ namespace KWEngine3
                 }
                 else
                 {
-                    postponedViewSpaceAttachments.Add(g);
+                    _postponedViewSpaceAttachments.Add(g);
                 }
             }
 
@@ -1208,7 +1225,7 @@ namespace KWEngine3
             if (KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached)
             {
                 HelperSimulation.BlendGameObjectStates(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, alpha);
-                foreach (GameObject att in postponedViewSpaceAttachments)
+                foreach (GameObject att in _postponedViewSpaceAttachments)
                 {
                     HelperSimulation.BlendGameObjectStates(att, 1f);
                 }
@@ -1322,7 +1339,7 @@ namespace KWEngine3
                                 }
                             }
 
-                            lock(HelperSweepAndPrune.OwnersDictTerrainSector)
+                            lock (HelperSweepAndPrune.OwnersDictTerrainSector)
                             {
                                 g._collisionCandidatesTerrain.Clear();
 
@@ -1368,7 +1385,7 @@ namespace KWEngine3
                     foreach (GameObject g in _updatePostponedObjectsAttachments)
                     {
                         g.Act();
-                        
+
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
                         KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
                     }
@@ -1452,7 +1469,7 @@ namespace KWEngine3
                         }
                     }
 
-                    
+
                     double elapsedTimeForIterationInSeconds = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency;
                     KWEngine.DeltaTimeAccumulator -= KWEngine.DeltaTimeCurrentNibbleSize;
                     elapsedUpdateTimeForCallInMS += elapsedTimeForIterationInSeconds * 1000.0;
@@ -1484,10 +1501,10 @@ namespace KWEngine3
 
         internal void ProcessKeysForHUDObjectTextInput(HUDObjectTextInput h)
         {
-            if(h != null && h.HasFocus)
+            if (h != null && h.HasFocus)
             {
                 string result = HelperGeneral.ProcessInputs(out Keys specialKey);
-                if(specialKey == Keys.Enter)
+                if (specialKey == Keys.Enter)
                 {
                     h.ConfirmAndRaiseWorldEvent();
                 }
@@ -1527,7 +1544,7 @@ namespace KWEngine3
                 }
                 else
                 {
-                    if(result.Length > 0)
+                    if (result.Length > 0)
                         h.AddCharacters(result);
                 }
             }
@@ -1603,7 +1620,7 @@ namespace KWEngine3
         /// <returns>WindowIcon-Instanz</returns>
         public static WindowIcon CreateWindowIconFromFile(string iconFile)
         {
-            if(HelperTexture.LoadBitmapForWindowIcon(iconFile, out int width, out int height, out byte[] data))
+            if (HelperTexture.LoadBitmapForWindowIcon(iconFile, out int width, out int height, out byte[] data))
             {
                 return new WindowIcon(new OpenTK.Windowing.Common.Input.Image(width, height, data));
             }
@@ -1632,11 +1649,11 @@ namespace KWEngine3
 
         internal void RenderLoadingScreen()
         {
-            if(KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld.IsPrepared && KWEngine.CurrentWorld.LoadingScreen != null)
+            if (KWEngine.CurrentWorld != null && !KWEngine.CurrentWorld.IsPrepared && KWEngine.CurrentWorld.LoadingScreen != null)
             {
                 RenderManager.FramebufferLightingPass.Bind(true, false);
                 RendererHUD.Bind();
-                
+
                 GL.Disable(EnableCap.DepthTest);
                 GL.Enable(EnableCap.Blend);
                 GL.Disable(EnableCap.CullFace);

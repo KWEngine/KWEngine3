@@ -58,7 +58,7 @@ namespace KWEngine3.Renderer.LowQuality
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex, 0);
+                GL.UniformBlockBinding(ProgramID, UBlockIndex, RenderManager.UBO_BINDINGPOINT_INSTANCES);
 
                 UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
@@ -74,7 +74,7 @@ namespace KWEngine3.Renderer.LowQuality
 
         public void UnbindUBO(int ubo)
         {
-            RenderManager.UnbindUBOFromShader(ProgramID, UBlockIndex, ubo);
+            RenderManager.UnbindUBOFromShader(ProgramID, RenderManager.UBO_BINDINGPOINT_INSTANCES, ubo);
         }
         public void Bind()
         {
@@ -115,7 +115,7 @@ namespace KWEngine3.Renderer.LowQuality
 
         public void Draw(RenderObject r)
         {
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_INSTANCES, r._ubo);
 
             GeoMesh[] meshes = r._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
@@ -153,7 +153,7 @@ namespace KWEngine3.Renderer.LowQuality
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
                 GL.BindVertexArray(0);
             }
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_INSTANCES, 0);
         }
 
         public void Draw(TerrainObject t)

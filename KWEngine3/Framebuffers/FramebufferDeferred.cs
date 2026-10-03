@@ -21,21 +21,21 @@ namespace KWEngine3.Framebuffers
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.RGB8, width, height, 4, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));     // Emissive
             Attachments.Add(new FramebufferTexture(FramebufferTextureMode.DEPTH24STENCIL8, width, height, 5, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge)); // Depth
             SizeInBytes =
-                width * height * 4 * sizeof(byte)  +
+                width * height * 4 * sizeof(byte) +
                 width * height * 2 * sizeof(short) +
-                width * height * 3 * sizeof(byte)  +
-                width * height * 3 * sizeof(byte)  +
-                width * height * 3 * sizeof(byte)  +
+                width * height * 3 * sizeof(byte) +
+                width * height * 3 * sizeof(byte) +
+                width * height * 3 * sizeof(byte) +
                 width * height * 1 * sizeof(float);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count - 1];
-            for(int i = 0; i < Attachments.Count - 1; i++)
+            for (int i = 0; i < Attachments.Count - 1; i++)
             {
                 dbe[i] = DrawBuffersEnum.ColorAttachment0 + i;
             }
-            GL.DrawBuffers(Attachments.Count, dbe);
+            GL.DrawBuffers(dbe.Length, dbe);
             GL.BindTexture(TextureTarget.Texture2D, 0);
-            
+
             ClearColorValues.Add(0, new float[] { 0, 0, 0 });
             ClearColorValues.Add(1, new float[] { 0, 0, 0 });
             ClearColorValues.Add(2, new float[] { 0, 1, 0 });
@@ -45,11 +45,11 @@ namespace KWEngine3.Framebuffers
 
         public override void Clear(bool keepDepth = false)
         {
-            for(int i = 0; i < ClearColorValues.Count; i++)
+            for (int i = 0; i < ClearColorValues.Count; i++)
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);
             }
-            if(keepDepth == false)
+            if (keepDepth == false)
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.StencilBufferBit);
         }
     }

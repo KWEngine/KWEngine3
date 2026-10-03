@@ -439,7 +439,7 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("[RenderObject] WARNING: using slow volume determination for " + this.Name);
 
                 // otherwise, scan through all the vertices of the vbo and determine the dimensions (slow!)
-                foreach (GeoMesh mesh in _model.ModelOriginal.Meshes.Values)
+                foreach (GeoMesh mesh in _model.ModelOriginal.MeshesArray)
                 {
                     GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VBOPosition);
                     GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int sizeInBytes);
@@ -523,7 +523,7 @@ namespace KWEngine3.GameObjects
                 Vector4 meshMin = new Vector4(float.MaxValue, float.MaxValue, float.MaxValue, 1);
                 Vector4 meshMax = new Vector4(float.MinValue, float.MinValue, float.MinValue, 1);
 
-                foreach (GeoMesh mesh in _model.ModelOriginal.Meshes.Values)
+                foreach (GeoMesh mesh in _model.ModelOriginal.MeshesArray)
                 {
                     GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VBOPosition);
                     GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int sizeInBytes);

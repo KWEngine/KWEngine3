@@ -234,7 +234,8 @@ namespace KWEngine3.GameObjects
             {
                 Normal = n,
                 NormalFlip = face.Flip,
-                Vertices = vertices.ToArray()
+                FaceIndex = faceIndex,
+                Owner = this
             };
             return true;
         }

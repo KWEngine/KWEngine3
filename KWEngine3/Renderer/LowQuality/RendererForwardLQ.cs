@@ -44,13 +44,14 @@ namespace KWEngine3.Renderer.LowQuality
         public int UUseTextureReflection { get; private set; } = -1;
         public int UTextureSkyboxRotation { get; private set; } = -1;
         public int UShadowCaster { get; private set; } = -1;
+        public int UFogDisabled { get; private set; } = -1;
         public int UTextureClip { get; private set; } = -1;
 
         private const int TEXTUREOFFSET = 0;
 
         public void UnbindUBO(int ubo)
         {
-            
+
         }
 
         public void Init()
@@ -76,6 +77,7 @@ namespace KWEngine3.Renderer.LowQuality
                 }
 
                 GL.LinkProgram(ProgramID);
+                RendererFog.BindFogResourcesToProgram(ProgramID); // fog
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
 
@@ -118,6 +120,7 @@ namespace KWEngine3.Renderer.LowQuality
                 UTextureSkyboxRotation = GL.GetUniformLocation(ProgramID, "uTextureSkyboxRotation");
 
                 UShadowCaster = GL.GetUniformLocation(ProgramID, "uShadowCaster");
+                UFogDisabled = GL.GetUniformLocation(ProgramID, "uFogDisabled");
                 UTextureClip = GL.GetUniformLocation(ProgramID, "uTextureClip");
             }
         }
@@ -204,7 +207,7 @@ namespace KWEngine3.Renderer.LowQuality
             {
                 GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
             }
-            else if(KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.None)
+            else if (KWEngine.CurrentWorld.BackgroundTextureType == BackgroundType.None)
             {
                 GL.BindTexture(TextureTarget.TextureCubeMap, KWEngine.TextureCubemapEmpty);
             }
@@ -255,7 +258,7 @@ namespace KWEngine3.Renderer.LowQuality
 
         public void Draw(GameObject g, bool isVSG = false)
         {
-            if(isVSG)
+            if (isVSG)
             {
                 Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrixNoShake : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
                 GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
@@ -282,6 +285,7 @@ namespace KWEngine3.Renderer.LowQuality
             int val = g.IsShadowCaster ? 1 : -1;
             val *= g.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);
+            GL.Uniform1(UFogDisabled, isVSG ? 1 : 0); // ViewSpaceGameObject not affected by fog
 
             GeoMesh[] meshes = g._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
@@ -333,7 +337,7 @@ namespace KWEngine3.Renderer.LowQuality
                     );
                 GL.Uniform3(UUseTexturesAlbedoNormalEmissive, useTexturesAlbedoNormalEmissive);
                 GL.Uniform3(UUseTexturesMetallicRoughness, useTexturesMetallicRoughness);
-                
+
                 UploadTextures(ref material, g);
 
                 if (material.RenderBackFace && g.DisableBackfaceCulling)
@@ -417,7 +421,7 @@ namespace KWEngine3.Renderer.LowQuality
 
             // Metallic/Roughness
             GL.Uniform1(UTextureMetallicRoughnessCombined, material.TextureRoughnessInMetallic ? 1 : 0);
-            if(material.TextureRoughnessInMetallic)
+            if (material.TextureRoughnessInMetallic)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + TEXTUREOFFSET + 4);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureMetallic.IsTextureSet ? material.TextureMetallic.OpenGLID : KWEngine.TextureBlack);

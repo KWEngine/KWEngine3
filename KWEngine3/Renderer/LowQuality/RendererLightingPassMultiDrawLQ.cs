@@ -266,9 +266,8 @@ namespace KWEngine3.Renderer.LowQuality
             {
                 GL.UniformMatrix3(UTextureSkyboxRotation, false, ref KWEngine.CurrentWorld._background._rotation);
             }
-            Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-            vp.Invert();
-            GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vp);
+            Matrix4 vpInv = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrixInverse : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrixInverse;
+            GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vpInv);
         }
 
         public void Draw(Framebuffer fbSource)

@@ -302,6 +302,8 @@ vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
     return vec2(1.0 - fade, sampleLayer);
 }
 
+#include "fog.glsl"
+
 void main()
 {
     vec4 normalId = getNormalId();
@@ -440,6 +442,9 @@ void main()
         colorTemp = ambient + Lo;
         color = vec4(colorTemp + emissive, albedo.w);
     }
+
+    // fog feature
+    color.xyz = applyFog(color.xyz, fragPositionDepth.xyz, uCameraPos);
 
     float bloomR = max(0.0, color.x - 1.0);
     float bloomG = max(0.0, color.y - 1.0);

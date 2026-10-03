@@ -38,7 +38,7 @@ namespace KWEngine3.Renderer
 
         public void UnbindUBO(int ubo)
         {
-            
+
         }
 
         public void Init()
@@ -64,6 +64,7 @@ namespace KWEngine3.Renderer
                 }
 
                 GL.LinkProgram(ProgramID);
+                RendererFog.BindFogResourcesToProgram(ProgramID); // fog
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
 
@@ -85,7 +86,7 @@ namespace KWEngine3.Renderer
                 UShadowCaster = GL.GetUniformLocation(ProgramID, "uShadowCaster");
                 UShadowMap = GL.GetUniformLocation(ProgramID, "uShadowMap");
                 UShadowMapCube = GL.GetUniformLocation(ProgramID, "uShadowMapCube");
-                
+
                 UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
 
                 UPositionAndOffset = GL.GetUniformLocation(ProgramID, "uPositionAndOffset");
@@ -190,7 +191,7 @@ namespace KWEngine3.Renderer
             GL.Uniform4(UPositionAndOffset, new Vector4(t._stateRender._position,
                 t._textAlignMode == TextAlignMode.Left ? 0f :
                 t._textAlignMode == TextAlignMode.Right ? -t._widthNormalised : -t._widthNormalised * 0.5f));
-            
+
             int val = t.IsShadowReceiver ? 1 : -1;
             val *= t.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);

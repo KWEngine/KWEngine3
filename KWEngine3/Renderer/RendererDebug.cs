@@ -44,7 +44,7 @@ namespace KWEngine3.Renderer
                 UTexture = GL.GetUniformLocation(ProgramID, "uTexture");
                 UOptions = GL.GetUniformLocation(ProgramID, "uOptions");
             }
-            if(ProgramIDArray < 0)
+            if (ProgramIDArray < 0)
             {
                 ProgramIDArray = GL.CreateProgram();
 
@@ -101,25 +101,25 @@ namespace KWEngine3.Renderer
 
             if (mode == 1)
             {
-                attachmentID = RenderManager.FramebufferDeferred.Attachments[4].ID;
+                attachmentID = RenderManager.FramebufferDeferred.Attachments[5].ID;
             }
-            else if(mode == 2)
+            else if (mode == 2)
             {
                 attachmentID = RenderManager.FramebufferDeferred.Attachments[0].ID;
             }
-            else if(mode == 3)
+            else if (mode == 3)
             {
                 attachmentID = RenderManager.FramebufferDeferred.Attachments[1].ID;
             }
-            else if(mode == 4)
+            else if (mode == 4)
             {
                 attachmentID = KWEngine.SSAO_Enabled ? RenderManager.FramebufferSSAOBlur.Attachments[0].ID : KWEngine.TextureWhite;
             }
-            else if(mode == 5)
+            else if (mode == 5)
             {
                 attachmentID = RenderManager.FramebuffersBloomTemp[0].Attachments[0].ID;
             }
-            else if(mode == 6)
+            else if (mode == 6)
             {
                 attachmentID = RenderManager.FramebufferDeferred.Attachments[2].ID;
             }
@@ -156,9 +156,9 @@ namespace KWEngine3.Renderer
             {
                 return;
             }
-            GL.Uniform4(UOptions, 
-                (int)KWEngine.DebugMode, 
-                val, 
+            GL.Uniform4(UOptions,
+                (int)KWEngine.DebugMode,
+                val,
                 (int)(KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._zNear * 100 : KWEngine.CurrentWorld._cameraGame._zNear * 100),
                 (int)(KWEngine.EditModeActive ? KWEngine.CurrentWorld._cameraEditor._zFar * 100 : KWEngine.CurrentWorld._cameraGame._zFar * 100));
 
@@ -186,8 +186,8 @@ namespace KWEngine3.Renderer
             {
                 GL.BindTexture(TextureTarget.Texture2D, 0);
             }
-            
-            
+
+
         }
 
     }

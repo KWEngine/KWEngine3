@@ -66,7 +66,7 @@ namespace KWEngine3.Editor
 
         public static void Draw(List<LightObject> lights)
         {
-            GeoMesh m = KWEngine.KWLightBulb.Meshes.Values.ElementAt(0);
+            GeoMesh m = KWEngine.KWLightBulb.MeshesArray[0];
             GL.BindVertexArray(m.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
             

@@ -449,7 +449,7 @@ namespace KWEngine3.GameObjects
                     continue;
                 }
 
-                GeoTerrain terrain = to._gModel.ModelOriginal.Meshes.ElementAt(0).Value.Terrain;
+                GeoTerrain terrain = to._gModel.ModelOriginal.MeshesArray[0].Terrain;
                 foreach (Vector3 ray in rayOrigins)
                 {
                     Vector3 untranslatedPosition = ray - new Vector3(to._hitboxes[0]._center.X, to._stateCurrent._position.Y, to._hitboxes[0]._center.Z);
@@ -483,7 +483,7 @@ namespace KWEngine3.GameObjects
                     }
                     else 
                     {
-                        if (to._gModel.ModelOriginal.Meshes.Values.ElementAt(0).Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+                        if (to._gModel.ModelOriginal.MeshesArray[0].Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                         {
                             GeoTerrainTriangle tris = s.GetTriangle(untranslatedPosition);
                             if (tris != null)
@@ -1435,7 +1435,9 @@ namespace KWEngine3.GameObjects
                 typelist = new Type[] { typeof(GameObject) };
             }
             
-            List<HitboxFace> selectedFaces = new List<HitboxFace>();
+            List<HitboxFace> selectedFaces = _raySelectedFaces; // reused (engine API runs on the main thread)
+            selectedFaces.Clear();
+            Span<Vector3> vertexBuffer = stackalloc Vector3[HelperIntersection.MAX_STACK_FACE_VERTICES];
             bool facesFound = false;
             foreach (GameObjectHitbox hb in _collisionCandidates)
             {
@@ -1443,13 +1445,10 @@ namespace KWEngine3.GameObjects
                 {
                     for (int j = 0; j < hb._mesh.Faces.Length; j++)
                     {
-                        GeoMeshFace f = hb._mesh.Faces[j];
-                        Span<Vector3> faceVertices = stackalloc Vector3[f.Vertices.Length];
-                        hb.GetVerticesFromFace(j, ref faceVertices, out Vector3 currentFaceNormal);
-
+                        int faceVertexCount = hb._mesh.Faces[j].VertexCount;
+                        Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                         if (hb.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace face))
                         {
-                            face.Owner = hb;
                             selectedFaces.Add(face);
                             facesFound = true;
                         }
@@ -1517,9 +1516,12 @@ namespace KWEngine3.GameObjects
                 bool centerInfoFound = false;
                 foreach (HitboxFace face in selectedFaces)
                 {
+                    int faceVertexCount = face.Owner._mesh.Faces[face.FaceIndex].VertexCount;
+                    Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
+                    face.Owner.GetVerticesFromFace(face.FaceIndex, ref faceVertices, out _);
                     for(int i = 0; i < rayOrigins.Length; i++)
                     {
-                        bool hit = HelperIntersection.RayNGonIntersection(rayOrigins[i], rayDirection, face.Normal, face.Vertices, out Vector3 currentContact);
+                        bool hit = HelperIntersection.RayNGonIntersection(rayOrigins[i], rayDirection, face.Normal, ref faceVertices, out Vector3 currentContact);
                         if (hit)
                         {
                             Vector3 delta = rayOrigins[i] + (2 * offset) - currentContact;
@@ -1574,6 +1576,7 @@ namespace KWEngine3.GameObjects
                     grp.SurfaceNormalCenter = grp.SurfaceNormalAvg;
                 }
             }
+            selectedFaces.Clear(); // do not keep hitboxes alive
             return grp;
         }
 
@@ -2066,6 +2069,7 @@ namespace KWEngine3.GameObjects
         internal float _fullDiameter = 1f;
         internal Vector3 _obbRadii = new Vector3(0.5f);
 
+        internal static readonly List<HitboxFace> _raySelectedFaces = new();
         internal static Vector3[] _rayOrigins1 = new Vector3[1];
         internal static Vector3[] _rayOrigins2 = new Vector3[2];
         internal static Vector3[] _rayOrigins4 = new Vector3[4];

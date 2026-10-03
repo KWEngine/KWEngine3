@@ -115,13 +115,14 @@ namespace KWEngine3.Helper
             return icon;
         }
 
+        private static readonly Keys[] _allKeys = Enum.GetValues<Keys>();
         internal static void GetStringForCurrentlyPressedKeys(out string result, out Keys specialKey)
         {
             result = "";
             specialKey = Keys.Unknown;
             bool shift = KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftShift) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightShift);
 
-            foreach (Keys key in Enum.GetValues<Keys>())
+            foreach (Keys key in _allKeys)
             {
                 if((key == Keys.Enter || key == Keys.KeyPadEnter) && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {

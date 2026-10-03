@@ -10,6 +10,7 @@ namespace KWEngine3.EngineCamera
         public Matrix4 ViewMatrixNoShake = Matrix4.Identity;
         public Matrix4 ViewProjectionMatrix = Matrix4.Identity;
         public Matrix4 ViewProjectionMatrixNoShake = Matrix4.Identity;
+        public Matrix4 ViewProjectionMatrixInverse = Matrix4.Identity; // only maintained for the render state (once per frame in HelperSimulation.BlendCameraStates)
         public Vector3 LookAtVector = -Vector3.UnitZ;
         public Vector3 LookAtVectorLocalUp = Vector3.UnitY;
         public Vector3 LookAtVectorLocalRight = Vector3.UnitX;
@@ -50,7 +51,7 @@ namespace KWEngine3.EngineCamera
             LookAtVectorLocalRight = Vector3.NormalizeFast(Vector3.Cross(LookAtVector, KWEngine.WorldUp));
             LookAtVectorLocalUp = Vector3.NormalizeFast(Vector3.Cross(LookAtVectorLocalRight, LookAtVector));
 
-            
+
 
             ViewMatrix = Matrix4.LookAt(
                 _position + noiseOffset,
@@ -78,6 +79,11 @@ namespace KWEngine3.EngineCamera
             SetProjectionMatrix(zNear, zFar);
             ViewProjectionMatrix = ViewMatrix * ProjectionMatrix;
             ViewProjectionMatrixNoShake = ViewMatrixNoShake * ProjectionMatrix;
+        }
+
+        internal void UpdateViewProjectionMatrixInverse()
+        {
+            ViewProjectionMatrixInverse = Matrix4.Invert(ViewProjectionMatrix);
         }
 
         internal void SetProjectionMatrix(float zNear, float zFar)

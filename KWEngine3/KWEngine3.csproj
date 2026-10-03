@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2026-07-17)</Product>
+		<Product>KWEngine3 (updated: 2026-10-03)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.7.3</Version>
-		<AssemblyVersion>3.0.7.3</AssemblyVersion>
-		<FileVersion>3.0.7.3</FileVersion>
-		<ProductVersion>3.0.7.3</ProductVersion>
+		<Version>3.0.7.4</Version>
+		<AssemblyVersion>3.0.7.4</AssemblyVersion>
+		<FileVersion>3.0.7.4</FileVersion>
+		<ProductVersion>3.0.7.4</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -108,6 +108,8 @@
 		<None Remove="Shaders\shader.bloom.upsample.frag" />
 		<None Remove="Shaders\shader.bloom.vert" />
 		<None Remove="Shaders\shader.copy.frag" />
+		<None Remove="Shaders\shader.fog.frag" />
+		<None Remove="Shaders\Include\fog.glsl" />
 		<None Remove="Shaders\shader.copy.vert" />
 		<None Remove="Shaders\shader.debug.frag" />
 		<None Remove="Shaders\shader.debug.vert" />
@@ -454,6 +456,8 @@
 		<EmbeddedResource Include="Shaders\shader.editor.lightbulb.gbuffer.vert">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
+		<EmbeddedResource Include="Shaders\shader.fog.frag" />
+		<EmbeddedResource Include="Shaders\Include\fog.glsl" />
 		<EmbeddedResource Include="Shaders\shader.copy.frag">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

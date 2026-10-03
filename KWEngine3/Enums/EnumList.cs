@@ -186,7 +186,11 @@
         /// <summary>
         /// Screen-Space Ambient Occlusion
         /// </summary>
-        SSAO = 6
+        SSAO = 6,
+        /// <summary>
+        /// Nebel (Fullscreen-Pass nach dem Lighting-Pass)
+        /// </summary>
+        Fog = 7
     }
 
     /// <summary>

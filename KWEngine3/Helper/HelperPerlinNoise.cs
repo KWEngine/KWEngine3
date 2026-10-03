@@ -16,7 +16,7 @@ namespace KWEngine3.Helper
 
             ix += Const.Offset;
             iy += Const.Offset;
-            ix += Const.SeedPrime * seed; 
+            ix += Const.SeedPrime * seed;
             int p1 = ix * Const.XPrime1 + iy * Const.YPrime1;
             int p2 = ix * Const.XPrime2 + iy * Const.YPrime2;
             int llHash = p1 * p2;
@@ -313,6 +313,115 @@ namespace KWEngine3.Helper
             float lowerBlend = llGrad + (lrGrad - llGrad) * sx;
             float upperBlend = ulGrad + (urGrad - ulGrad) * sx;
             return lowerBlend + (upperBlend - lowerBlend) * sy;
+        }
+
+        internal static float GradientNoisePeriodic3D(float x, float y, float z, int period, int seed = 0)
+        {
+            int x0 = (int)MathF.Floor(x);
+            int y0 = (int)MathF.Floor(y);
+            int z0 = (int)MathF.Floor(z);
+            float fx = x - x0;
+            float fy = y - y0;
+            float fz = z - z0;
+
+            int xi0 = PositiveModulo(x0, period), xi1 = PositiveModulo(x0 + 1, period);
+            int yi0 = PositiveModulo(y0, period), yi1 = PositiveModulo(y0 + 1, period);
+            int zi0 = PositiveModulo(z0, period), zi1 = PositiveModulo(z0 + 1, period);
+
+            float u = Fade(fx);
+            float v = Fade(fy);
+            float w = Fade(fz);
+
+            float x00 = Lerp(Grad3D(Hash3D(xi0, yi0, zi0, seed), fx, fy, fz), Grad3D(Hash3D(xi1, yi0, zi0, seed), fx - 1f, fy, fz), u);
+            float x10 = Lerp(Grad3D(Hash3D(xi0, yi1, zi0, seed), fx, fy - 1f, fz), Grad3D(Hash3D(xi1, yi1, zi0, seed), fx - 1f, fy - 1f, fz), u);
+            float x01 = Lerp(Grad3D(Hash3D(xi0, yi0, zi1, seed), fx, fy, fz - 1f), Grad3D(Hash3D(xi1, yi0, zi1, seed), fx - 1f, fy, fz - 1f), u);
+            float x11 = Lerp(Grad3D(Hash3D(xi0, yi1, zi1, seed), fx, fy - 1f, fz - 1f), Grad3D(Hash3D(xi1, yi1, zi1, seed), fx - 1f, fy - 1f, fz - 1f), u);
+            return Lerp(Lerp(x00, x10, v), Lerp(x01, x11, v), w);
+        }
+
+        internal static byte[] GenerateTileableNoise3D(int size, int baseCells, int octaves, int seed = 0)
+        {
+            float[] values = new float[size * size * size];
+            Parallel.For(0, size, z =>
+            {
+                for (int y = 0; y < size; y++)
+                {
+                    for (int x = 0; x < size; x++)
+                    {
+                        float sum = 0f;
+                        float amplitude = 1f;
+                        float amplitudeSum = 0f;
+                        for (int o = 0; o < octaves; o++)
+                        {
+                            int cells = baseCells << o;
+                            float scale = cells / (float)size;
+                            sum += amplitude * GradientNoisePeriodic3D(x * scale, y * scale, z * scale, cells, seed + o);
+                            amplitudeSum += amplitude;
+                            amplitude *= 0.5f;
+                        }
+                        values[(z * size + y) * size + x] = sum / amplitudeSum;
+                    }
+                }
+            });
+
+            // mean and standard deviation -> normalize to 0..255 (mean 127.5, +-2.5 sigma)
+            double mean = 0.0;
+            for (int i = 0; i < values.Length; i++)
+                mean += values[i];
+            mean /= values.Length;
+            double variance = 0.0;
+            for (int i = 0; i < values.Length; i++)
+                variance += (values[i] - mean) * (values[i] - mean);
+            double sigma = Math.Sqrt(variance / values.Length);
+            if (sigma < 1e-9)
+                sigma = 1.0;
+
+            byte[] result = new byte[values.Length];
+            for (int i = 0; i < values.Length; i++)
+            {
+                double n = 0.5 + 0.5 * (values[i] - mean) / (2.5 * sigma);
+                n = Math.Clamp(n, 0.0, 1.0);
+                result[i] = (byte)(n * 255.0 + 0.5);
+            }
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int PositiveModulo(int a, int period)
+        {
+            int m = a % period;
+            return m < 0 ? m + period : m;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float Fade(float t)
+        {
+            return t * t * t * (t * (t * 6f - 15f) + 10f);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int Hash3D(int x, int y, int z, int seed)
+        {
+            unchecked
+            {
+                uint h = (uint)seed * 0x9E3779B9u;
+                h ^= (uint)x * 0x85EBCA6Bu; h = (h << 13) | (h >> 19);
+                h ^= (uint)y * 0xC2B2AE35u; h = (h << 13) | (h >> 19);
+                h ^= (uint)z * 0x27D4EB2Fu;
+                h ^= h >> 16; h *= 0x7FEB352Du;
+                h ^= h >> 15; h *= 0x846CA68Bu;
+                h ^= h >> 16;
+                return (int)(h & 15u);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static float Grad3D(int h, float x, float y, float z)
+        {
+            // 12 edge directions of a cube (+4 repeats), as in Ken Perlin's "Improved Noise"
+            float u = h < 8 ? x : y;
+            float v = h < 4 ? y : (h == 12 || h == 14 ? x : z);
+            return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
     }
 }

@@ -229,9 +229,10 @@ namespace KWEngine3.Helper
 
         private static void UpdateModelMatricesForRenderPass(EngineObject g)
         {
-            for (int index = 0; index < g._model.ModelOriginal.Meshes.Count; index++)
+            GeoMesh[] meshes = g._model.ModelOriginal.MeshesArray; // array instead of SortedDictionary.ElementAt (allocation free)
+            for (int index = 0; index < meshes.Length; index++)
             {
-                GeoMesh mesh = g._model.ModelOriginal.Meshes.Values.ElementAt(index);
+                GeoMesh mesh = meshes[index];
                 bool useMeshTransform = mesh.BoneNames.Count == 0 || !(g._stateRender._animationID >= 0 && g._model.ModelOriginal.Animations != null && g._model.ModelOriginal.Animations.Count > 0);
                 if (useMeshTransform)
                 {
@@ -263,6 +264,7 @@ namespace KWEngine3.Helper
 
             camGame._stateRender.UpdateViewMatrixAndLookAtVectorRenderPass();
             camGame._stateRender.UpdateViewProjectionMatrix(camGame._zNear, camGame._zFar, true);
+            camGame._stateRender.UpdateViewProjectionMatrixInverse();
 
             camEditor._stateRender._fov = camEditor._statePrevious._fov * alpha + camEditor._stateCurrent._fov * (1f - alpha);
             camEditor._stateRender._position = Vector3.Lerp(camEditor._statePrevious._position, camEditor._stateCurrent._position, alpha);
@@ -270,6 +272,7 @@ namespace KWEngine3.Helper
             camEditor._stateRender._rotation = Quaternion.Slerp(camEditor._statePrevious._rotation, camEditor._stateCurrent._rotation, alpha);
             camEditor._stateRender.UpdateViewMatrixAndLookAtVector();
             camEditor._stateRender.UpdateViewProjectionMatrix(camEditor._zNear, camEditor._zFar);
+            camEditor._stateRender.UpdateViewProjectionMatrixInverse();
         }
 
         internal static void UpdateBoneTransformsForViewSpaceGameObject(ViewSpaceGameObject vsg)
@@ -277,9 +280,8 @@ namespace KWEngine3.Helper
             if (vsg._gameObject.IsAnimated)
             {
                 vsg._gameObject._attachBoneNodes.Clear();
-                for (int i = 0; i < vsg._gameObject._gameObjectsAttached.Keys.Count; i++)
+                foreach (GeoNode boneNode in vsg._gameObject._gameObjectsAttached.Keys)
                 {
-                    GeoNode boneNode = vsg._gameObject._gameObjectsAttached.Keys.ElementAt(i);
                     vsg._gameObject._attachBoneNodes.Add(boneNode);
                 }
                 // Layer aus _stateCurrent nehmen (VSG nutzt den Simulations-Zustand)
@@ -295,8 +297,8 @@ namespace KWEngine3.Helper
                 if (g is GameObject go)
                 {
                     go._attachBoneNodes.Clear();
-                    for (int i = 0; i < go._gameObjectsAttached.Keys.Count; i++)
-                        go._attachBoneNodes.Add(go._gameObjectsAttached.Keys.ElementAt(i));
+                    foreach (GeoNode boneNode in go._gameObjectsAttached.Keys)
+                        go._attachBoneNodes.Add(boneNode);
                     attachBones = go._attachBoneNodes;
                 }
                 BlendAndApplyAnimationLayers(g, ref g._stateRender, attachBones);
@@ -382,7 +384,7 @@ namespace KWEngine3.Helper
                 Matrix4 globalTransformSingle = nodeTransformation * parentTransform;
 
                 string boneLookupSingle = node.NameWithoutFBXSuffix;
-                foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
+                foreach (GeoMesh mesh in g._model.ModelOriginal.MeshesArray)
                 {
                     int index = mesh.BoneNames.IndexOf(boneLookupSingle);
                     if (index >= 0)
@@ -494,7 +496,7 @@ namespace KWEngine3.Helper
 
             // Bone-Matrix berechnen und speichern (wie vor dem Blending)
             string boneLookup = node.NameWithoutFBXSuffix;
-            foreach (GeoMesh mesh in g._model.ModelOriginal.Meshes.Values)
+            foreach (GeoMesh mesh in g._model.ModelOriginal.MeshesArray)
             {
                 int index = mesh.BoneNames.IndexOf(boneLookup);
                 if (index >= 0)

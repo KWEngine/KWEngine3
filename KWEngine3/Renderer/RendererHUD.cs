@@ -139,7 +139,7 @@ namespace KWEngine3.Renderer
                 );
 
             // Render map entries:
-            GeoMesh meshMap = KWEngine.CurrentWorld.Map._direction == ProjectionDirection.NegativeY ? KWEngine.KWMapItemXZ.Meshes.Values.ElementAt(0) : KWEngine.KWMapItemXY.Meshes.Values.ElementAt(0);
+            GeoMesh meshMap = KWEngine.CurrentWorld.Map._direction == ProjectionDirection.NegativeY ? KWEngine.KWMapItemXZ.MeshesArray[0] : KWEngine.KWMapItemXY.MeshesArray[0];
             Array.Sort(KWEngine.CurrentWorld.Map._items);
             if (KWEngine.CurrentWorld.Map._background != null)
             {

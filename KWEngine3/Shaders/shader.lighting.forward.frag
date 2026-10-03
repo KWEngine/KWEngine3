@@ -42,6 +42,7 @@ uniform vec4 uColorMaterial;
 uniform vec4 uColorTint;
 uniform int uMetallicType;
 uniform int uShadowCaster;
+uniform int uFogDisabled; // 1 = no fog (ViewSpaceGameObject + attachments)
 
 const float PI = 3.141593;
 const float PI2 = 0.5 / PI;
@@ -396,6 +397,8 @@ vec2 getShadowMapVisiblity(vec3 texCoordInner, vec3 texCoordOuter)
     return vec2(1.0 - fade, sampleLayer);
 }
 
+#include "fog.glsl"
+
 void main()
 {
     vec3 viewDir = normalize(vTangentView - vTangentPosition);
@@ -555,6 +558,10 @@ void main()
         colorTemp = ambient + Lo;
         color = vec4(colorTemp + emissive, albedo.w);
     }
+
+    // fog:
+    if(uFogDisabled == 0)
+        color.xyz = applyFog(color.xyz, fragPositionDepth.xyz, uCameraPosition.xyz);
 
     float bloomR = max(0.0, color.x - 1.0);
     float bloomG = max(0.0, color.y - 1.0);

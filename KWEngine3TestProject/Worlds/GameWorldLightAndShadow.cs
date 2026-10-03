@@ -111,6 +111,13 @@ namespace KWEngine3TestProject.Worlds
             i02.IsShadowCaster = true;                                                // does the object cast and receive shadows? (default: false)
             i02.SetAnimationID(0);                                                    // set the object's animation id (for animated models)
             AddGameObject(i02);
+
+            SetFogColor(1, 0.5f, 0);
+            SetFogDensity(0.1f);
+            SetFogNoise(0.1f, 20);
+            SetFogNoiseHeight(0.1f);
+            SetFogHeight(0f, 0.2f);
+            SetFogWind(1, 0, -1, 0.1f);
         }
     }
 }
