@@ -37,6 +37,10 @@ namespace KWEngine3.Helper
         public List<SerializedFoliageObject> FoliageObjects { get; set; }
         public SerializedViewSpaceGameObject ViewSpaceGameObject { get; set; }
 
+        // FOG (null in files exported before fog existed)
+        public SerializedFog Fog { get; set; }
+        public List<SerializedFogVolume> FogVolumes { get; set; }
+
         public static SerializedWorld GenerateWorldExportFor(World w)
         {
             // Prerequisites:
@@ -72,6 +76,10 @@ namespace KWEngine3.Helper
             wj.TextObjects = GenerateTextObjects(w);
             if(w.IsViewSpaceGameObjectAttached)
                 wj.ViewSpaceGameObject = GenerateViewSpaceGameObject(w);
+
+            // FOG
+            wj.Fog = SerializedFog.GenerateSerializedFog(w);
+            wj.FogVolumes = GenerateFogVolumes(w);
 
             return wj;
         }
@@ -150,6 +158,16 @@ namespace KWEngine3.Helper
 
             return lightObjects;
         }
+        public static List<SerializedFogVolume> GenerateFogVolumes(World w)
+        {
+            List<SerializedFogVolume> fogVolumes = new List<SerializedFogVolume>();
+            foreach (FogVolume v in w._fogVolumes)
+            {
+                fogVolumes.Add(SerializedFogVolume.GenerateSerializedFogVolume(v));
+            }
+            return fogVolumes;
+        }
+
         public static List<SerializedTerrainObject> GenerateTerrainObjects(World w)
         {
             List<SerializedTerrainObject> terrainObjects = new List<SerializedTerrainObject>();

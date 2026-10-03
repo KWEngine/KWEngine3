@@ -95,6 +95,10 @@ namespace KWEngine3.Helper
             }
             w.SetBackgroundFillColor(sw.BackgroundFillColor[0], sw.BackgroundFillColor[1], sw.BackgroundFillColor[2]);
 
+            // Fog settings (missing in files exported before fog existed):
+            if (sw.Fog != null)
+                ApplyFog(w, sw.Fog);
+
             // Build and add game object instances:
             List<string[]> attachmentList = new List<string[]>();
             foreach(SerializedGameObject sg in sw.GameObjects)
@@ -214,6 +218,15 @@ namespace KWEngine3.Helper
             foreach (SerializedTextObject st in sw.TextObjects)
             {
                 w.AddTextObject(BuildTextObject(st));
+            }
+
+            // Build and add fog volumes:
+            if (sw.FogVolumes != null)
+            {
+                foreach (SerializedFogVolume sv in sw.FogVolumes)
+                {
+                    w.AddFogVolume(BuildFogVolume(sv));
+                }
             }
 
 
@@ -375,6 +388,55 @@ namespace KWEngine3.Helper
             }
 
             return t;
+        }
+
+        private static void ApplyFog(World w, SerializedFog sf)
+        {
+            if (sf.Color != null && sf.Color.Length >= 3)
+                w.SetFogColor(sf.Color[0], sf.Color[1], sf.Color[2]);
+            w.SetFogDensity(sf.Density);
+            w.SetFogHeight(sf.Height, sf.HeightFalloff);
+            w.SetFogNoise(sf.NoiseStrength, sf.NoiseSize > 0f ? sf.NoiseSize : 20f);
+            w.SetFogNoiseHeight(sf.NoiseHeight);
+            if (sf.WindDirection != null && sf.WindDirection.Length >= 3)
+                w.SetFogWind(sf.WindDirection[0], sf.WindDirection[1], sf.WindDirection[2], sf.WindSpeed);
+            else
+                w.SetFogWind(w._fogWindDirection, sf.WindSpeed);
+        }
+
+        private static FogVolume BuildFogVolume(SerializedFogVolume sv)
+        {
+            FogVolume v = null;
+            if (sv.Type != null && sv.Type != typeof(FogVolume).FullName)
+            {
+                // subclass of FogVolume in the game project
+                try
+                {
+                    v = Assembly.GetEntryAssembly()?.CreateInstance(sv.Type) as FogVolume;
+                }
+                catch (Exception)
+                {
+                    v = null;
+                }
+                if (v == null)
+                    KWEngine.LogWriteLine("[Import] Cannot create fog volume of type " + sv.Type + ", using FogVolume instead");
+            }
+            v ??= new FogVolume();
+
+            if (sv.Name != null)
+                v.Name = sv.Name;
+            if (sv.Position != null && sv.Position.Length >= 3)
+                v.SetPosition(sv.Position[0], sv.Position[1], sv.Position[2]);
+            if (sv.Scale != null && sv.Scale.Length >= 3)
+                v.SetScale(sv.Scale[0], sv.Scale[1], sv.Scale[2]);
+            if (sv.Rotation != null && sv.Rotation.Length >= 4)
+                v.SetRotation(new Quaternion(sv.Rotation[0], sv.Rotation[1], sv.Rotation[2], sv.Rotation[3]));
+            if (sv.Color != null && sv.Color.Length >= 3)
+                v.SetColor(sv.Color[0], sv.Color[1], sv.Color[2]);
+            v.SetDensity(sv.Density);
+            v.SetHeightFalloff(sv.HeightFalloff);
+            v.SetEdgeSoftness(sv.EdgeSoftness);
+            return v;
         }
 
         private static LightObject BuildLightObject(SerializedLightObject sl)
