@@ -23,6 +23,8 @@ float fogAmountFromOpticalDepth(float opticalDepth)
 }
 
 #define FOG_MAX_VOLUMES 16
+#define FOG_PATCH_CONTRAST 4.0
+#define FOG_PATCH_FADE 0.7
 
 struct FogVolume
 {
@@ -76,6 +78,12 @@ float fogBaseHeightAt(vec2 worldXZ, float lod)
     return uFogHeightFalloff.x + (n * 2.0 - 1.0) * uFogNoiseParams.z;
 }
 
+// density factor of the patches (mean 1): noise contrast boosted so that strength 1 reaches clear gaps and double density
+float fogPatchFactor(float n, float lod)
+{
+    return 1.0 + uFogNoiseParams.x * clamp((n - 0.5) * FOG_PATCH_CONTRAST, -1.0, 1.0) * exp2(-FOG_PATCH_FADE * lod);
+}
+
 vec3 fogVolumeToLocal(int i, vec3 p)
 {
     vec4 p4 = vec4(p, 1.0);
@@ -104,7 +112,7 @@ vec4 fogDensity(vec3 worldPosition, float distanceToCamera)
     float lod = fogNoiseLod(distanceToCamera);
     bool patches = uFogNoiseParams.x > 0.0 && uFogNoiseParams.w > 0.5;
     float n = (patches || uFogNoiseParams.z > 0.0) ? fogNoiseAt(worldPosition, lod) : 0.5;
-    float factor = patches ? 1.0 + uFogNoiseParams.x * (2.0 * n - 1.0) : 1.0;
+    float factor = patches ? fogPatchFactor(n, lod) : 1.0;
     vec4 result = vec4(0.0);
     if (uFogColorDensity.w > 0.0)
     {
@@ -131,10 +139,10 @@ vec4 fogDensity(vec3 worldPosition, float distanceToCamera)
 }
 
 // global fog along one ray: base height of the wavy top and the averaged patch factor
-void fogGlobalSetup(vec3 cameraPosition, vec3 rayDir, float dist, vec3 worldPosition, out float baseHeight, out float noiseFactor)
+void fogGlobalSetup(vec3 cameraPosition, vec3 rayDir, float dist, vec3 worldPosition, out float baseHeight, out vec3 noiseFactors)
 {
     baseHeight = uFogHeightFalloff.x;
-    noiseFactor = 1.0;
+    noiseFactors = vec3(1.0);
     if (uFogColorDensity.w <= 0.0)
         return;
 
@@ -156,14 +164,14 @@ void fogGlobalSetup(vec3 cameraPosition, vec3 rayDir, float dist, vec3 worldPosi
 
     if (uFogNoiseParams.x > 0.0 && uFogNoiseParams.w > 0.5)
     {
-        float n = 0.0;
+        // one factor per third of the ray (not averaged: averaging over the whole ray flattened the patches)
         float segmentLod = fogPathLod(dist / 3.0);
         for (int i = 0; i < 3; i++)
         {
             float t = dist * (float(i) + 0.5) / 3.0;
-            n += fogNoiseAt(cameraPosition + rayDir * t, max(fogNoiseLod(t), segmentLod));
+            float lod = max(fogNoiseLod(t), segmentLod);
+            noiseFactors[i] = fogPatchFactor(fogNoiseAt(cameraPosition + rayDir * t, lod), lod);
         }
-        noiseFactor = 1.0 + uFogNoiseParams.x * (2.0 * (n / 3.0) - 1.0);
     }
 }
 
@@ -212,6 +220,20 @@ float fogSegmentDepth(vec3 cameraPosition, vec3 rayDir, float t0, float t1, floa
     return t1 > t0 ? fogOpticalDepthHeight(cameraPosition + rayDir * t0, rayDir, t1 - t0, density, baseHeight, falloff) : 0.0;
 }
 
+// global fog between t0 and t1, each third of the ray with its own patch factor
+float fogGlobalDepth(vec3 cameraPosition, vec3 rayDir, float t0, float t1, float dist, float baseHeight, vec3 noiseFactors)
+{
+    float third = dist / 3.0;
+    float tau = 0.0;
+    for (int k = 0; k < 3; k++)
+    {
+        float a = max(t0, third * float(k));
+        float b = min(t1, third * float(k + 1));
+        tau += fogSegmentDepth(cameraPosition, rayDir, a, b, uFogColorDensity.w, baseHeight, uFogHeightFalloff.y) * noiseFactors[k];
+    }
+    return tau;
+}
+
 // optical depth of volume i along the ray: x = depth (0 = missed), yz = ray segment inside the box
 vec3 fogVolumeDepth(int i, vec3 cameraPosition, vec3 rayDir, float dist)
 {
@@ -230,11 +252,12 @@ vec3 fogVolumeDepth(int i, vec3 cameraPosition, vec3 rayDir, float dist)
     float factor = 1.0;
     if (wave || patches)
     {
-        float n = fogNoiseAt(cameraPosition + rayDir * tMid, max(fogNoiseLod(tMid), fogPathLod(outer.y - outer.x)));
+        float noiseLod = max(fogNoiseLod(tMid), fogPathLod(outer.y - outer.x));
+        float n = fogNoiseAt(cameraPosition + rayDir * tMid, noiseLod);
         if (wave)
             baseHeight += (n * 2.0 - 1.0) * uFogNoiseParams.z;
         if (patches)
-            factor = 1.0 + uFogNoiseParams.x * (2.0 * n - 1.0);
+            factor = fogPatchFactor(n, noiseLod);
     }
 
     float tau;
@@ -272,8 +295,8 @@ vec4 fogIntegrate(vec3 cameraPosition, vec3 worldPosition)
     vec3 rayDir = cameraToFragment / max(dist, 0.0001);
 
     float baseHeight;
-    float noiseFactor;
-    fogGlobalSetup(cameraPosition, rayDir, dist, worldPosition, baseHeight, noiseFactor);
+    vec3 noiseFactors;
+    fogGlobalSetup(cameraPosition, rayDir, dist, worldPosition, baseHeight, noiseFactors);
 
     // volumes hit by the ray (optical depth spread evenly over the segment)
     vec2 hitSegment[FOG_MAX_VOLUMES];
@@ -309,7 +332,7 @@ vec4 fogIntegrate(vec3 cameraPosition, vec3 worldPosition)
         vec4 medium = vec4(0.0); // xyz = color weighted by optical depth, w = optical depth
         if (uFogColorDensity.w > 0.0)
         {
-            float tauGlobal = fogSegmentDepth(cameraPosition, rayDir, t, tNext, uFogColorDensity.w, baseHeight, uFogHeightFalloff.y) * noiseFactor;
+            float tauGlobal = fogGlobalDepth(cameraPosition, rayDir, t, tNext, dist, baseHeight, noiseFactors);
             medium += vec4(uFogColorDensity.xyz * tauGlobal, tauGlobal);
         }
         float tCenter = 0.5 * (t + tNext);

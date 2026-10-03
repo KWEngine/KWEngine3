@@ -130,12 +130,18 @@ namespace KWEngine3.Renderer
             GL.ClearColor(0, 0, 0, 0);
         }
 
-        public static void UnbindUBOFromShader(int program, int index, int ubo)
+        // uniform buffer binding points (always bind to these, never to a block index: block indices are assigned by the driver)
+        internal const int UBO_BINDINGPOINT_INSTANCES = 0;   // uInstanceBlock (all instanced renderers)
+        internal const int UBO_BINDINGPOINT_LIGHTING1 = 0;   // uBlockIndex1 (lighting pass)
+        internal const int UBO_BINDINGPOINT_LIGHTING2 = 1;   // uBlockIndex2 (lighting pass)
+        internal const int UBO_BINDINGPOINT_LIGHTING3 = 2;   // uBlockIndex3 (lighting pass)
+
+        public static void UnbindUBOFromShader(int program, int bindingPoint, int ubo)
         {
             if (GL.IsBuffer(ubo))
             {
                 GL.UseProgram(program);
-                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, index, 0);
+                GL.BindBufferBase(BufferRangeTarget.UniformBuffer, bindingPoint, 0);
                 GL.UseProgram(0);
             }
         }
@@ -143,7 +149,7 @@ namespace KWEngine3.Renderer
         public static void UnbindUBOFromAllInstanceShaders(int ubo)
         {
             RendererGBufferInstanced.Bind();
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RendererGBufferInstanced.UBlockIndex, 0);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBO_BINDINGPOINT_INSTANCES, 0);
 
             // general shaders:
             IRendererForwardInstanced.UnbindUBO(ubo);

@@ -16,13 +16,13 @@ namespace KWEngine3TestProject.Worlds
         private float _t = 0f;
 
         public override void Act()
-        { 
-            
+        {
+
             if (WorldTime - _t > 1.5f)
             {
                 SpritesheetQuad q = new SpritesheetQuad(
-                    "C:/Users/lutzk/OneDrive - Eugen-Reintjes-Schule/Modelspack_Release3/Textures/Spritesheets/VisualEffects/explosion_09_8x8.dds", 
-                    8, 
+                    "F:\\OneDrive - Eugen-Reintjes-Schule\\Modelspack_Release3\\Textures\\Spritesheets\\VisualEffects\\explosion_09_8x8.dds",
+                    8,
                     8);
                 q.SetSpriteSheetLooping(false);
                 q.SetSpriteSheetEmissiveLevel(0.5f);
@@ -32,7 +32,7 @@ namespace KWEngine3TestProject.Worlds
                 AddRenderObject(q);
                 _t = WorldTime;
             }
-            
+
         }
 
         public override void Prepare()
@@ -56,7 +56,7 @@ namespace KWEngine3TestProject.Worlds
             floor.SetTextureRepeat(5, 5);
             AddGameObject(floor);
             */
-            
+
             /*SpritesheetQuad q = new SpritesheetQuad("F:/EmberGen_Export/candle_01_12x12_loop.png", 12, 12, true);
             q.SetScale(1f, 4f, 1f);
             q.SetPosition(0f, 0f, 0);

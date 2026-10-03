@@ -165,11 +165,11 @@ namespace KWEngine3.Renderer
                 
                 InitUBOs();
                 UBlockIndex1 = GL.GetUniformBlockIndex(ProgramID, "uBlockIndex1");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex1, 0);
+                GL.UniformBlockBinding(ProgramID, UBlockIndex1, RenderManager.UBO_BINDINGPOINT_LIGHTING1);
                 UBlockIndex2 = GL.GetUniformBlockIndex(ProgramID, "uBlockIndex2");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex2, 1);
+                GL.UniformBlockBinding(ProgramID, UBlockIndex2, RenderManager.UBO_BINDINGPOINT_LIGHTING2);
                 UBlockIndex3 = GL.GetUniformBlockIndex(ProgramID, "uBlockIndex3");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex3, 2);
+                GL.UniformBlockBinding(ProgramID, UBlockIndex3, RenderManager.UBO_BINDINGPOINT_LIGHTING3);
                 
             }
         }
@@ -346,10 +346,10 @@ namespace KWEngine3.Renderer
             
             
             // UBO bindings:
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex1, UBO);
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex2, UBO2);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_LIGHTING1, UBO);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_LIGHTING2, UBO2);
             UpdateUBO3();
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex3, UBO3);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_LIGHTING3, UBO3);
             GL.Uniform1(ULightIndicesCounts, _indexCounts.Length, _indexCounts);
             
             // render that damn quad already:

@@ -53,7 +53,7 @@ namespace KWEngine3.Renderer
 
         public void UnbindUBO(int ubo)
         {
-            RenderManager.UnbindUBOFromShader(ProgramID, UBlockIndex, ubo);
+            RenderManager.UnbindUBOFromShader(ProgramID, RenderManager.UBO_BINDINGPOINT_INSTANCES, ubo);
         }
 
         public void Init()
@@ -83,7 +83,7 @@ namespace KWEngine3.Renderer
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex, 0);
+                GL.UniformBlockBinding(ProgramID, UBlockIndex, RenderManager.UBO_BINDINGPOINT_INSTANCES);
 
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UColorMaterial = GL.GetUniformLocation(ProgramID, "uColorMaterial");
@@ -258,7 +258,7 @@ namespace KWEngine3.Renderer
             if (r._stateRender._opacity == 0)
                 return;
 
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_INSTANCES, r._ubo);
 
             GL.Uniform4(UColorTint, new Vector4(r._stateRender._colorTint, r._stateRender._opacity));
             GL.Uniform1(UMetallicType, (int)r._model._metallicType);
@@ -371,7 +371,7 @@ namespace KWEngine3.Renderer
                     GL.Enable(EnableCap.DepthTest);
                 }
             }
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_INSTANCES, 0);
         }
 
         private void UploadTextures(ref GeoMaterial material, EngineObject g)

@@ -62,7 +62,7 @@ namespace KWEngine3.Renderer
                 RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
 
                 UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");
-                GL.UniformBlockBinding(ProgramID, UBlockIndex, 0);
+                GL.UniformBlockBinding(ProgramID, UBlockIndex, RenderManager.UBO_BINDINGPOINT_INSTANCES);
 
                 UColorTint = GL.GetUniformLocation(ProgramID, "uColorTint");
                 UColorMaterial = GL.GetUniformLocation(ProgramID, "uColorMaterial");
@@ -126,7 +126,7 @@ namespace KWEngine3.Renderer
 
         public static void Draw(RenderObject r)
         {
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, r._ubo);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_INSTANCES, r._ubo);
 
             int val = r.IsShadowCaster ? 1 : -1;
             val *= r.IsAffectedByLight ? 1 : 10;
@@ -209,7 +209,7 @@ namespace KWEngine3.Renderer
                     GL.Enable(EnableCap.CullFace);
                 }
             }
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, UBlockIndex, 0);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_INSTANCES, 0);
         }
 
         private static void UploadTextures(ref GeoMaterial material, RenderObject g)

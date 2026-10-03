@@ -1111,6 +1111,19 @@ namespace KWEngine3.Editor
             DrawObjectDebugOverlay();
         }
 
+        // fog section of the world settings (3-column grid)
+        private static readonly string[] _fogGridLabels = { "Density", "Height", "Falloff", "Patches", "Patch size", "Wavy top", "Wind (x, y, z)", "Wind speed" };
+        private static System.Numerics.Vector3 _fogWindEdit = new(1f, 0f, 0f); // unnormalized wind vector as typed in the editor
+
+        private static void FogGridColumn(int column, float rowX, float columnWidth, float itemWidth)
+        {
+            if (column > 0)
+            {
+                ImGui.SameLine(rowX + column * columnWidth);
+            }
+            ImGui.SetNextItemWidth(itemWidth);
+        }
+
         public static void Draw()
         {
             DrawGridAndBoundingBox();
@@ -1195,10 +1208,12 @@ namespace KWEngine3.Editor
                 float fov = (float)Math.Round(KWEngine.CurrentWorld._cameraEditor._stateCurrent._fov * 2);
 
                 int worldW = (int)Math.Max(640, KWEngine.Window.ClientSize.X * 0.333f);
-                int worldH = (int)Math.Max(256, KWEngine.Window.ClientSize.Y * 0.20f);
-                ImGui.Begin("World settings", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
-                ImGui.SetWindowSize(new System.Numerics.Vector2(worldW, worldH));
-                ImGui.SetWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y - worldH), ImGuiCond.Once);
+                float worldMaxH = Math.Max(128f, KWEngine.Window.ClientSize.Y - ImGui.GetFrameHeight()); // stay below the main menu bar
+                // anchored bottom left (pivot 0/1), fixed width, height follows the content (grows upwards)
+                ImGui.SetNextWindowPos(new System.Numerics.Vector2(0, KWEngine.Window.ClientSize.Y), ImGuiCond.Always, new System.Numerics.Vector2(0f, 1f));
+                ImGui.SetNextWindowSizeConstraints(new System.Numerics.Vector2(worldW, 0f), new System.Numerics.Vector2(worldW, worldMaxH));
+                ImGui.Begin("World settings", ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+                ImGui.PushItemWidth(worldW * 0.65f); // auto-resize windows default to 16 x font size, restore the usual 65 % of the window width
 
                 ImGui.LabelText(KWEngine.CurrentWorld._gameObjects.Count.ToString() + " / " + KWEngine.CurrentWorld._lightObjects.Count.ToString(), "GameObject/LightObject instances:");
                 ImGui.Separator();
@@ -1237,6 +1252,7 @@ namespace KWEngine3.Editor
                 ImGui.SliderFloat("Safety Zone", ref KWEngine._octreeSafetyZone, 0f, 10f);
                 ImGui.Separator();
                 */
+                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Camera:");
                 ImGui.PushItemWidth((int)(worldW * 0.15f));
                 if (ImGui.SliderFloat("Camera FOV", ref fov, 20f, 180f))
                 {
@@ -1252,6 +1268,7 @@ namespace KWEngine3.Editor
                 ImGui.SliderFloat("Glow #2", ref KWEngine._glowUpsampleF2, 0.01f, 1f);
 
                 //SSAO
+                ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Screen-Space Ambient Occlusion (SSAO):");
                 ImGui.Checkbox("Enabled?", ref KWEngine._ssaoEnabled);
                 if (KWEngine._ssaoEnabled)
@@ -1271,6 +1288,110 @@ namespace KWEngine3.Editor
                 }
                 ImGui.PopItemWidth();
 
+                // Fog (ImGui uses System.Numerics, the engine OpenTK: values are only copied via temporary variables)
+                World world = KWEngine.CurrentWorld;
+                ImGui.Separator();
+                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Fog:");
+                System.Numerics.Vector3 fogColor = new(world._fogColor.X, world._fogColor.Y, world._fogColor.Z);
+                if (ImGui.ColorEdit3("Fog color", ref fogColor, ImGuiColorEditFlags.Float))
+                {
+                    world.SetFogColor(fogColor.X, fogColor.Y, fogColor.Z);
+                }
+
+                // 3-column grid: every slider starts at the same x position, labels get the width of the longest label
+                float fogRowX = ImGui.GetCursorPosX();
+                float fogColumnW = ImGui.GetContentRegionAvail().X / 3f;
+                float fogLabelW = 0f;
+                foreach (string label in _fogGridLabels)
+                {
+                    fogLabelW = Math.Max(fogLabelW, ImGui.CalcTextSize(label).X);
+                }
+                float fogSliderW = Math.Max(50f, fogColumnW - fogLabelW - ImGui.GetStyle().ItemInnerSpacing.X - ImGui.GetStyle().ItemSpacing.X); // negative widths mean "right aligned" in ImGui
+
+                FogGridColumn(0, fogRowX, fogColumnW, fogSliderW);
+                float fogDensity = world._fogDensity;
+                if (ImGui.SliderFloat("Density##fog", ref fogDensity, 0f, 1f, "%.4f", ImGuiSliderFlags.Logarithmic))
+                {
+                    world.SetFogDensity(fogDensity);
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("0 = no fog. Visibility drops to about 5 percent after 3 / density world units."); // no percent sign: tooltip text is a format string
+                }
+                FogGridColumn(1, fogRowX, fogColumnW, fogSliderW);
+                float fogHeight = world._fogHeight;
+                if (ImGui.DragFloat("Height##fog", ref fogHeight, 0.05f))
+                {
+                    world.SetFogHeight(fogHeight, world._fogHeightFalloff);
+                }
+                FogGridColumn(2, fogRowX, fogColumnW, fogSliderW);
+                float fogFalloff = world._fogHeightFalloff;
+                if (ImGui.SliderFloat("Falloff##fog", ref fogFalloff, 0f, 10f, "%.2f"))
+                {
+                    world.SetFogHeight(world._fogHeight, fogFalloff);
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("0 = same density at every height, larger = thinner above the base height (ground fog).");
+                }
+
+                FogGridColumn(0, fogRowX, fogColumnW, fogSliderW);
+                float fogPatches = world._fogNoiseStrength;
+                if (ImGui.SliderFloat("Patches##fog", ref fogPatches, 0f, 1f, "%.2f"))
+                {
+                    world.SetFogNoise(fogPatches, world._fogNoiseSize);
+                }
+                FogGridColumn(1, fogRowX, fogColumnW, fogSliderW);
+                float fogPatchSize = world._fogNoiseSize;
+                if (ImGui.SliderFloat("Patch size##fog", ref fogPatchSize, 1f, 500f, "%.1f", ImGuiSliderFlags.Logarithmic))
+                {
+                    world.SetFogNoise(world._fogNoiseStrength, fogPatchSize);
+                }
+                FogGridColumn(2, fogRowX, fogColumnW, fogSliderW);
+                float fogWavyTop = world._fogHeightNoise;
+                if (ImGui.SliderFloat("Wavy top##fog", ref fogWavyTop, 0f, 5f, "%.2f"))
+                {
+                    world.SetFogNoiseHeight(fogWavyTop);
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Amplitude of the wavy fog top in world units (only with falloff > 0).");
+                }
+
+                // wind like SetFogWind(x, y, z, speed): the editor keeps the unnormalized vector, otherwise the sliders would jump
+                Vector3 windWorld = world._fogWindDirection;
+                float windEditLength = _fogWindEdit.Length();
+                if (windEditLength < 0.0001f
+                    || Math.Abs(_fogWindEdit.X / windEditLength - windWorld.X) > 0.001f
+                    || Math.Abs(_fogWindEdit.Y / windEditLength - windWorld.Y) > 0.001f
+                    || Math.Abs(_fogWindEdit.Z / windEditLength - windWorld.Z) > 0.001f)
+                {
+                    _fogWindEdit = new System.Numerics.Vector3(windWorld.X, windWorld.Y, windWorld.Z); // changed elsewhere (code or other world)
+                }
+                System.Numerics.Vector3 windEdit = _fogWindEdit;
+                float windSpeed = world._fogWindSpeed;
+                FogGridColumn(0, fogRowX, fogColumnW, fogColumnW + fogSliderW); // spans two columns, label lines up with column 2
+                bool windChanged = ImGui.SliderFloat3("Wind (x, y, z)##fog", ref windEdit, -1f, 1f, "%.2f");
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Wind direction like SetFogWind(x, y, z, speed), gets normalized.");
+                }
+                FogGridColumn(2, fogRowX, fogColumnW, fogSliderW);
+                windChanged |= ImGui.SliderFloat("Wind speed##fog", ref windSpeed, 0f, 20f, "%.2f");
+                if (windChanged)
+                {
+                    if (windEdit.LengthSquared() > 0.000001f)
+                    {
+                        _fogWindEdit = windEdit;
+                        world.SetFogWind(windEdit.X, windEdit.Y, windEdit.Z, windSpeed);
+                    }
+                    else
+                    {
+                        world.SetFogWind(windWorld, windSpeed); // zero vector: keep the current direction
+                    }
+                }
+                ImGui.Text("Fog volumes: " + world._fogVolumes.Count + " / " + RendererFog.FOG_MAX_VOLUMES + " (visible: " + RendererFog.ActiveVolumeCount + ")");
+
                 ImGui.NewLine();
                 if (ImGui.Button("Export world & objects"))
                 {
@@ -1282,6 +1403,7 @@ namespace KWEngine3.Editor
                 {
                     _worldMenuActive = false;
                 }
+                ImGui.PopItemWidth();
                 ImGui.End();
             }
 
