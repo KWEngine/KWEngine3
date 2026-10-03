@@ -11,7 +11,7 @@ namespace KWEngine3.Framebuffers
         public override void Init(int width, int height)
         {
             Bind(false);
-            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R8, width, height, 0, TextureMinFilter.Nearest, TextureMagFilter.Nearest, TextureWrapMode.ClampToEdge));   // SSAO
+            Attachments.Add(new FramebufferTexture(FramebufferTextureMode.R8, width, height, 0, TextureMinFilter.Linear, TextureMagFilter.Linear, TextureWrapMode.ClampToEdge));   // SSAO (linear for the 4-tap blur)
             SizeInBytes = width * height * 1 * sizeof(byte);
 
             DrawBuffersEnum[] dbe = new DrawBuffersEnum[Attachments.Count];

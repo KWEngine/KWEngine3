@@ -624,13 +624,15 @@ namespace KWEngine3
                 HelperDebug.StartTimeQuery(RenderType.SSAO);
                 if (KWEngine.SSAO_Enabled)
                 {
-                    RenderManager.FramebufferSSAO.Bind(true);
+                    GL.Viewport(0, 0, RenderManager.FramebufferSSAO.Width, RenderManager.FramebufferSSAO.Height);
+                    RenderManager.FramebufferSSAO.Bind(false);
                     RendererSSAO.Bind();
                     RendererSSAO.Draw(RenderManager.FramebufferDeferred);
 
-                    RenderManager.FramebufferSSAOBlur.Bind(true);
+                    RenderManager.FramebufferSSAOBlur.Bind(false);
                     RendererSSAOBlur.Bind();
                     RendererSSAOBlur.Draw(RenderManager.FramebufferSSAO);
+                    SetGLViewportToClientSize();
                 }
                 HelperDebug.StopTimeQuery(RenderType.SSAO);
 

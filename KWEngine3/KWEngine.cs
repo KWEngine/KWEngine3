@@ -1,17 +1,17 @@
-﻿using OpenTK.Mathematics;
-using KWEngine3.Helper;
-using System.Reflection;
-using OpenTK.Graphics.OpenGL4;
+﻿using KWEngine3.Assets;
 using KWEngine3.Editor;
-using KWEngine3.Model;
-using KWEngine3.GameObjects;
-using OpenTK.Windowing.Common;
-using KWEngine3.Assets;
-using System.Diagnostics;
-using OpenTK.Windowing.Desktop;
 using KWEngine3.FontGenerator;
-using SkiaSharp;
+using KWEngine3.GameObjects;
+using KWEngine3.Helper;
+using KWEngine3.Model;
 using KWEngine3.Renderer;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using SkiaSharp;
+using System.Diagnostics;
+using System.Reflection;
 
 
 namespace KWEngine3
@@ -31,7 +31,7 @@ namespace KWEngine3
             {
                 return _zOrderModeThreshold;
             }
-            set 
+            set
             {
                 _zOrderModeThreshold = MathF.Max(0f, value);
             }
@@ -90,7 +90,8 @@ namespace KWEngine3
         /// </summary>
         /// <remarks>Achtung: Kann Mausradeingaben ggf. abfangen oder doppeln</remarks>
         [Obsolete("This property will soon be removed. Please use DebugOverlayMode instead.")]
-        public static bool DebugOverlayEnabled { 
+        public static bool DebugOverlayEnabled
+        {
             get
             {
                 return DebugOverlayMode > DebugOverlayMode.Disabled;
@@ -176,7 +177,7 @@ namespace KWEngine3
                 _vsgShakeFactor = Math.Clamp(value, 0f, 1f);
             }
         }
-       
+
         /// <summary>
         /// Gibt die maximale Anzahl der Instanzen für RenderObjects an
         /// </summary>
@@ -197,7 +198,7 @@ namespace KWEngine3
         public static World CurrentWorld { get; internal set; } = null;
 
 
-        
+
 
         /// <summary>
         /// Gibt die Namen aller Hitboxen des angegebenen Modells auf der Editorkonsole aus
@@ -288,12 +289,12 @@ namespace KWEngine3
         public static bool SSAO_Enabled { get { return _ssaoEnabled; } set { _ssaoEnabled = value; } }
 
         /// <summary>
-        /// Weite des SSAO-Effekts (Standard: 0.05f, Bereich: 0.01f bis 1.0f)
+        /// Weite des SSAO-Effekts (Standard: 0.125f, Bereich: 0.01f bis 1.0f)
         /// </summary>
         public static float SSAO_Radius { get { return _ssaoRadius; } set { _ssaoRadius = Math.Clamp(value, 0.01f, 1.0f); } }
 
         /// <summary>
-        /// Intensität des SSAO-Effekts (Standard: 0.04f, Bereich: 0.00f bis 1.0f)
+        /// Intensität des SSAO-Effekts (Standard: 0.00128f, Bereich: 0.00f bis 1.0f)
         /// </summary>
         public static float SSAO_Bias { get { return _ssaoBias; } set { _ssaoBias = Math.Clamp(value, 0.0f, 1.0f); } }
 
@@ -366,9 +367,9 @@ namespace KWEngine3
         /// </summary>
         public const int MAX_SHADOWMAPS = 3;
 
-        
 
-        
+
+
 
         /// <summary>
         /// Steuert das Ausmaß des durch Überbelichtung erzeugten Glow-Effekts (von 0 bis 1, Standard: 0.75)
@@ -429,7 +430,7 @@ namespace KWEngine3
                 KWEngine.LogWriteLine("[KWEngine] Terrain height map file is invalid");
                 return;
             }
-            
+
             height = Math.Clamp(height, 0, 128);
 
             if (Models.ContainsKey(name))
@@ -454,14 +455,14 @@ namespace KWEngine3
                     return;
                 }
 
-                if(imageSliceWidth < 16 || imageSliceHeight < 16)
+                if (imageSliceWidth < 16 || imageSliceHeight < 16)
                 {
                     imageSliceWidth = image.Width;
                     imageSliceHeight = image.Height;
                     imageOffsetX = 0;
                     imageOffsetY = 0;
                 }
-                else if (imageSliceWidth % 16 != 0|| imageSliceHeight % 16 != 0 || imageOffsetX + imageSliceWidth >= image.Width || imageOffsetY + imageSliceHeight >= image.Height)
+                else if (imageSliceWidth % 16 != 0 || imageSliceHeight % 16 != 0 || imageOffsetX + imageSliceWidth >= image.Width || imageOffsetY + imageSliceHeight >= image.Height)
                 {
                     KWEngine.LogWriteLine("[KWEngine] Height map offset and/or slice size invalid; using whole image");
                     imageSliceWidth = image.Width;
@@ -471,7 +472,7 @@ namespace KWEngine3
                 }
 
                 SKRectI rect = new SKRectI(imageOffsetX, imageOffsetY, imageOffsetX + imageSliceWidth, imageOffsetY + imageSliceHeight);
-                
+
                 using (SKBitmap imageSliced = new SKBitmap(rect.Width, rect.Height))
                 {
                     using (SKCanvas cnvs = new SKCanvas(imageSliced))
@@ -480,7 +481,7 @@ namespace KWEngine3
                         cnvs.DrawBitmap(image, rect, targetRect);
                         cnvs.Flush();
                     }
-                        
+
                     terrainMesh = t.BuildTerrain(name, heightmap, imageSliced, height, out int width, out int depth);
                     if (terrainMesh != null)
                     {
@@ -502,7 +503,7 @@ namespace KWEngine3
                             Name = name
                         };
 
-                        terrainModel.MeshCollider.MeshHitboxes = new(){ meshHitBox };
+                        terrainModel.MeshCollider.MeshHitboxes = new() { meshHitBox };
                         KWEngine.Models.Add(name, terrainModel);
                     }
                 }
@@ -529,18 +530,18 @@ namespace KWEngine3
                 LogWriteLine("[Import] Model " + modelname + " not found in model database - please import it first");
                 return;
             }
-            if(!File.Exists(filename))
+            if (!File.Exists(filename))
             {
                 LogWriteLine("[Import] File " + filename + " not found");
                 return;
             }
             GeoModel model = Models[modelname];
-            if(!model.HasBones)
+            if (!model.HasBones)
             {
                 LogWriteLine("[Import] Model " + modelname + " has no bones - aborting import");
                 return;
             }
-            if(!HelperGeneral.IsModelFile(filename))
+            if (!HelperGeneral.IsModelFile(filename))
             {
                 LogWriteLine("[Import] File " + filename + " is not a valid model file - aborting import");
                 return;
@@ -557,7 +558,7 @@ namespace KWEngine3
 
             }
 
-            if(animations != null && animations.Count > 0)
+            if (animations != null && animations.Count > 0)
             {
                 if (model.Animations == null)
                     model.Animations = new List<GeoAnimation>();
@@ -732,7 +733,7 @@ namespace KWEngine3
             List<string> resultList = new();
             if (result)
             {
-                if(model.Animations != null && model.Animations.Count > 0)
+                if (model.Animations != null && model.Animations.Count > 0)
                 {
                     foreach (GeoAnimation a in model.Animations)
                     {
@@ -744,7 +745,7 @@ namespace KWEngine3
                 {
                     KWEngine.LogWriteLine("[Model] Model " + (modelname == null ? "" : modelname.Trim()) + " has no animations");
                 }
-                
+
             }
             else
             {
@@ -910,10 +911,10 @@ namespace KWEngine3
             if (animationName == null)
                 animationName = "";
 
-            if(KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
             {
                 int id = HelperGeneral.FindAnimationIDFor(model, animationName, caseSensitive);
-                if(id >= 0)
+                if (id >= 0)
                 {
                     DisableKeyframesForAnimation(model, id, keyframetype, frameStart, -1);
                 }
@@ -1075,8 +1076,8 @@ namespace KWEngine3
             GeoAnimation anim = model.Animations[animationId];
             int flags = (int)keyframetype;
             bool hasTranslation = (flags & (int)AnimationKeyframeType.PositionAll) != 0;
-            bool hasRotation    = (flags & (int)AnimationKeyframeType.Rotation) != 0;
-            bool hasScale       = (flags & (int)AnimationKeyframeType.Scale) != 0;
+            bool hasRotation = (flags & (int)AnimationKeyframeType.Rotation) != 0;
+            bool hasScale = (flags & (int)AnimationKeyframeType.Scale) != 0;
             int translationBits = flags & (int)AnimationKeyframeType.PositionAll;
 
             foreach (GeoNodeAnimationChannel channel in anim.AnimationChannels.Values)
@@ -1115,8 +1116,8 @@ namespace KWEngine3
             foreach (GeoNodeAnimationChannel channel in model.Animations[animationId].AnimationChannels.Values)
             {
                 channel.DisabledTranslationKeyAxes = null;
-                channel.DisabledRotationKeyAxes    = null;
-                channel.DisabledScaleKeyAxes       = null;
+                channel.DisabledRotationKeyAxes = null;
+                channel.DisabledScaleKeyAxes = null;
             }
         }
 
@@ -1255,11 +1256,11 @@ namespace KWEngine3
             {
                 throw new Exception("[OpenGL] Fatal error: Your graphics device does not support uniform buffers with at least " + twoPowerOf14 + " bytes of memory.");
             }
-            if(maxTextureSize < twoPowerOf14)
+            if (maxTextureSize < twoPowerOf14)
             {
                 throw new Exception("[OpenGL] Fatal error: Your graphics device does not support texture sizes with " + twoPowerOf14 + " bytes of memory.");
             }
-            if(maxUniformVertexVectors < twoPowerOf10 || maxUniformFragmentVectors < 1024)
+            if (maxUniformVertexVectors < twoPowerOf10 || maxUniformFragmentVectors < 1024)
             {
                 throw new Exception("[OpenGL] Fatal error: Your graphics device does not support at least " + twoPowerOf10 + " uniform vectors.");
             }
@@ -1277,7 +1278,7 @@ namespace KWEngine3
             FontDictionary.Add("NovaMono", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.NovaMono.png", "KWEngine3.Assets.Fonts.NovaMono.json", "NovaMono"));
             FontDictionary.Add("XanhMono", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.XanhMono.png", "KWEngine3.Assets.Fonts.XanhMono.json", "XanhMono"));
             FontDictionary.Add("OpenSans", HelperGlyph.LoadFontSDF_Internal("KWEngine3.Assets.Fonts.OpenSans.png", "KWEngine3.Assets.Fonts.OpenSans.json", "OpenSans"));
-            
+
             TextureDefault = HelperTexture.LoadTextureForModelInternalExecutingAssembly("default.dds", out mipMaps);
             TextureBlack = HelperTexture.LoadTextureInternal("black.png");
             TextureWhite = HelperTexture.LoadTextureInternal("white.png");
@@ -1424,8 +1425,8 @@ namespace KWEngine3
         }
 
         // SSAO settings
-        internal static float _ssaoRadius = 0.05f;
-        internal static float _ssaoBias = 0.04f;
+        internal static float _ssaoRadius = 0.125f;
+        internal static float _ssaoBias = 0.00128f;
         internal static bool _ssaoEnabled = false;
         internal static uint _ssaoKernelSize = 16;
 

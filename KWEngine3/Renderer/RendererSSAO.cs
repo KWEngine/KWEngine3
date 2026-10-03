@@ -15,16 +15,16 @@ namespace KWEngine3.Renderer
         public static int UTextureDepth { get; private set; } = -1;
         public static int UTextureNormal { get; private set; } = -1;
         //public static int UTextureAlbedo { get; private set; } = -1;
-        public static int UViewProjectionMatrixInverted { get; private set; } = -1;
-        public static int UProjectionMatrix { get; private set; } = -1;
+        public static int UViewMatrix3 { get; private set; } = -1;
+        public static int UProjectionParams { get; private set; } = -1;
         public static int UKernel { get; private set; } = -1;
         public static int UKernelSize { get; private set; } = -1;
         public static int UTextureNoise { get; private set; } = -1;
-        public static int UNoiseScale { get; private set; } = -1;
         public static int URadiusBias { get; private set; } = -1;
 
         public static float[] Kernel { get; private set; }
         public static int NoiseTexture { get; private set; } = -1;
+        private static bool _kernelDirty = true;
 
         public static void Bind()
         {
@@ -60,11 +60,10 @@ namespace KWEngine3.Renderer
                 //UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
                 UTextureDepth = GL.GetUniformLocation(ProgramID, "uTextureDepth");
                 UTextureNormal = GL.GetUniformLocation(ProgramID, "uTextureNormal");
-                UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
-                UProjectionMatrix = GL.GetUniformLocation(ProgramID, "uProjectionMatrix");
+                UViewMatrix3 = GL.GetUniformLocation(ProgramID, "uViewMatrix3");
+                UProjectionParams = GL.GetUniformLocation(ProgramID, "uProjectionParams");
                 UKernel = GL.GetUniformLocation(ProgramID, "uKernel");
                 UTextureNoise = GL.GetUniformLocation(ProgramID, "uTextureNoise");
-                UNoiseScale = GL.GetUniformLocation(ProgramID, "uNoiseScale");
                 URadiusBias = GL.GetUniformLocation(ProgramID, "uRadiusBias");
                 UKernelSize = GL.GetUniformLocation(ProgramID, "uKernelSize");
 
@@ -83,7 +82,7 @@ namespace KWEngine3.Renderer
                 Vector3 kernelTmp = Vector3.Normalize(new Vector3(Random.Shared.NextSingle() * 2.0f - 1.0f, Random.Shared.NextSingle() * 2.0f - 1.0f, Random.Shared.NextSingle()));
                 kernelTmp *= Random.Shared.NextSingle();
 
-                float scale = i / (float)KWEngine._ssaoKernelSize;
+                float scale = (i / 3) / (float)KWEngine._ssaoKernelSize; // i steps by 3 (xyz)
                 scale = MathHelper.Lerp(0.1f, 1.0f, scale * scale);
                 kernelTmp *= scale;
 
@@ -91,6 +90,7 @@ namespace KWEngine3.Renderer
                 Kernel[i + 1] = kernelTmp.Y;
                 Kernel[i + 2] = kernelTmp.Z;
             }
+            _kernelDirty = true;
         }
 
         public static void GenerateNoise()
@@ -99,8 +99,10 @@ namespace KWEngine3.Renderer
             float[] noise = new float[16 * 3];
             for (uint i = 0; i < noise.Length; i += 3)
             {
-                noise[i + 0] = Random.Shared.NextSingle() * 2.0f - 1.0f;
-                noise[i + 1] = Random.Shared.NextSingle() * 2.0f - 1.0f;
+                // unit length rotation vectors (xy plane)
+                float angle = Random.Shared.NextSingle() * MathF.PI * 2f;
+                noise[i + 0] = MathF.Cos(angle);
+                noise[i + 1] = MathF.Sin(angle);
                 noise[i + 2] = 0f;
             }
             NoiseTexture = GL.GenTexture();
@@ -116,11 +118,12 @@ namespace KWEngine3.Renderer
 
         public static void Draw(Framebuffer fbSource)
         {
-            Matrix4 vpInv = Matrix4.Invert(KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ProjectionMatrix);
-            GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vpInv);
+            // G-buffer normals are world space -> view rotation; projection reduced to 4 constants (symmetric perspective)
+            Matrix3 view3 = new Matrix3(KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewMatrix);
+            GL.UniformMatrix3(UViewMatrix3, false, ref view3);
 
             Matrix4 proj = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ProjectionMatrix;
-            GL.UniformMatrix4(UProjectionMatrix, false, ref proj);
+            GL.Uniform4(UProjectionParams, 0.5f * proj.M11, 0.5f * proj.M22, -0.5f * proj.M43, 0.5f * (proj.M33 - 1f));
 
             // depth tex:
             GL.ActiveTexture(TextureUnit.Texture0);
@@ -142,13 +145,14 @@ namespace KWEngine3.Renderer
             GL.BindTexture(TextureTarget.Texture2D, NoiseTexture);
             GL.Uniform1(UTextureNoise, 2);
 
-            // kernel samples:
-            GL.Uniform3(UKernel, Kernel.Length, Kernel);
-            GL.Uniform1(UKernelSize, KWEngine._ssaoKernelSize);
+            // kernel samples (count in vec3 units, only uploaded after a change):
+            if (_kernelDirty)
+            {
+                GL.Uniform3(UKernel, Kernel.Length / 3, Kernel);
+                GL.Uniform1(UKernelSize, (uint)(Kernel.Length / 3));
+                _kernelDirty = false;
+            }
             GL.Uniform2(URadiusBias, KWEngine._ssaoRadius, KWEngine._ssaoBias);
-
-            // scale:
-            GL.Uniform2(UNoiseScale, KWEngine.Window.ClientRectangle.Size.X / 4f, KWEngine.Window.ClientRectangle.Size.Y / 4f);
 
             GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());

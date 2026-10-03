@@ -239,7 +239,7 @@ namespace KWEngine3TestProject.Worlds
             */
 
             MouseCursorGrab();
-
+            /*
             SetFogColor(0.6f, 0.8f, 1);
             SetFogDensity(0.15f);
             SetFogHeight(0f, 0.8f);
@@ -255,6 +255,7 @@ namespace KWEngine3TestProject.Worlds
             fv.SetDensity(0.5f);
             fv.SetColor(0, 1, 0);
             AddFogVolume(fv);
+            */
         }
     }
 }

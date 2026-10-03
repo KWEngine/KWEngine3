@@ -7,69 +7,61 @@ layout(location = 0) out float shade;
 uniform sampler2D uTextureNormal;
 uniform sampler2D uTextureDepth;
 uniform sampler2D uTextureNoise;
-uniform mat4 uViewProjectionMatrixInverted;
-uniform mat4 uProjectionMatrix;
+uniform mat3 uViewMatrix3;      // world -> view rotation (G-buffer normals are world space)
+uniform vec4 uProjectionParams; // x = 0.5 * P00, y = 0.5 * P11, z = -0.5 * P32, w = 0.5 * (P22 - 1)
 uniform vec3 uKernel[64];
 uniform uint uKernelSize;
-uniform vec2 uNoiseScale;
 uniform vec2 uRadiusBias;
 
-vec3 decodeNormal(vec2 f)
+// Assumes a symmetric perspective projection (Matrix4.CreatePerspectiveFieldOfView).
+float getViewZ(float depth)
 {
-    f = f * 2.0 - 1.0;
-    vec3 n = vec3(f.x, f.y, 1.0 - abs(f.x) - abs(f.y));
-    float t = clamp(-n.z, 0.0, 1.0);
-    n.x += n.x >= 0.0 ? -t : t;
-    n.y += n.y >= 0.0 ? -t : t;
+    return uProjectionParams.z / (depth + uProjectionParams.w);
+}
+
+vec3 decodeNormalFromRG16F(vec2 enc)
+{
+    vec3 n = vec3(enc, 1.0 - abs(enc.x) - abs(enc.y));
+    if (n.z < 0.0)
+    {
+        n.xy = (1.0 - abs(n.yx)) * vec2(n.x >= 0.0 ? 1.0 : -1.0, n.y >= 0.0 ? 1.0 : -1.0);
+    }
     return normalize(n);
-}
-
-vec3 getFragmentPosition()
-{
-    float depth = texture(uTextureDepth, vTexture).r * 2.0 - 1.0;
-    vec4 clipSpaceCoordinate = vec4((vTexture) * 2.0 - 1.0, depth, 1.0);
-    vec4 worldSpaceCoordinate = uViewProjectionMatrixInverted * clipSpaceCoordinate;
-    worldSpaceCoordinate.xyz /= worldSpaceCoordinate.w;
-    return worldSpaceCoordinate.xyz;
-}
-
-vec3 getFragmentPositionOffset(vec2 offset)
-{
-    float depth = texture(uTextureDepth, offset).r * 2.0 - 1.0;
-    vec4 clipSpaceCoordinate = vec4((offset) * 2.0 - 1.0, depth, 1.0);
-    vec4 worldSpaceCoordinate = uViewProjectionMatrixInverted * clipSpaceCoordinate;
-    worldSpaceCoordinate.xyz /= worldSpaceCoordinate.w;
-    return worldSpaceCoordinate.xyz;
 }
 
 void main()
 {
-    vec3 fragmentPosWorldSpace = getFragmentPosition();
-    vec3 normal    = texture(uTextureNormal, vTexture).xyz;
-    vec3 randomVec = normalize(texture(uTextureNoise, vTexture * uNoiseScale).xyz);  
+    // The SSAO target may be smaller than the G-buffer: fetch one exact G-buffer texel
+    // and reconstruct the position for that texel's center.
+    vec2 gBufferSize = vec2(textureSize(uTextureDepth, 0));
+    ivec2 texel = ivec2(vTexture * gBufferSize);
+    float depth = texelFetch(uTextureDepth, texel, 0).r;
+    if (depth >= 1.0)
+    {
+        shade = 1.0; // sky
+        return;
+    }
 
-    vec3 tangent   = normalize(randomVec - normal * dot(randomVec, normal));
-    vec3 bitangent = cross(normal, tangent);
-    mat3 TBN       = mat3(tangent, bitangent, normal);  
+    vec2 uv = (vec2(texel) + 0.5) / gBufferSize;
+    float z = getViewZ(depth);
+    vec3 position = vec3((uv - 0.5) / uProjectionParams.xy * -z, z);
+    vec3 normal = normalize(uViewMatrix3 * decodeNormalFromRG16F(texelFetch(uTextureNormal, texel, 0).xy));
+    vec3 randomVec = texelFetch(uTextureNoise, ivec2(gl_FragCoord.xy) & 3, 0).xyz;
+
+    vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));
+    mat3 TBN = mat3(tangent, cross(normal, tangent), normal) * uRadiusBias.x;
 
     float occlusion = 0.0;
-    for(int i = 0; i < uKernelSize; i++)
+    int kernelSize = int(uKernelSize);
+    for (int i = 0; i < kernelSize; i++)
     {
-        // get sample position
-        vec3 samplePos = TBN * uKernel[i]; // from tangent to view-space
-        samplePos = fragmentPosWorldSpace + samplePos * uRadiusBias.x;
-    
-        vec4 offset = vec4(samplePos, 1.0);
-        offset      = uProjectionMatrix * offset;    // from view to clip-space
-        offset.xyz /= offset.w;               // perspective divide
-        offset.xyz  = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0  
+        vec3 samplePos = position + TBN * uKernel[i];
+        vec2 sampleUV = uProjectionParams.xy * samplePos.xy / -samplePos.z + 0.5;
+        float sampleZ = getViewZ(texture(uTextureDepth, sampleUV).r);
 
-        float sampleDepth = getFragmentPositionOffset(offset.xy).z;
+        float rangeCheck = smoothstep(0.0, 1.0, uRadiusBias.x / abs(position.z - sampleZ));
+        occlusion += (sampleZ >= samplePos.z + uRadiusBias.y ? rangeCheck : 0.0);
+    }
 
-        float rangeCheck = smoothstep(0.0, 1.0, uRadiusBias.x / abs(fragmentPosWorldSpace.z - sampleDepth));
-        occlusion += (sampleDepth >= samplePos.z + uRadiusBias.y ? 1.0 : 0.0) * rangeCheck;
-    }  
-    occlusion = 1.0 - (occlusion / uKernelSize);
-
-	shade = occlusion;
+    shade = 1.0 - occlusion / float(kernelSize);
 }

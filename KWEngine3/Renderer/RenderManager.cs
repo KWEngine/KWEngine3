@@ -101,8 +101,9 @@ namespace KWEngine3.Renderer
             FramebufferQuad.Init();
             FramebufferDeferred = new FramebufferDeferred(fbSize.X, fbSize.Y);
             FramebufferLightingPass = new FramebufferLighting(fbSize.X, fbSize.Y);
-            FramebufferSSAO = new FramebufferSSAO(fbSize.X, fbSize.Y, false, LightType.Point);
-            FramebufferSSAOBlur = new FramebufferSSAOBlur(fbSize.X, fbSize.Y, false, LightType.Point);
+            // SSAO at half resolution (bilinearly upsampled in the lighting pass)
+            FramebufferSSAO = new FramebufferSSAO(Math.Max(1, fbSize.X / 2), Math.Max(1, fbSize.Y / 2), false, LightType.Point);
+            FramebufferSSAOBlur = new FramebufferSSAOBlur(Math.Max(1, fbSize.X / 2), Math.Max(1, fbSize.Y / 2), false, LightType.Point);
 
             // Bloom
             if (KWEngine.Window._renderQuality == RenderQualityLevel.High) // high only

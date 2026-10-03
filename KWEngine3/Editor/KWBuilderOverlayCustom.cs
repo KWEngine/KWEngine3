@@ -1288,7 +1288,7 @@ namespace KWEngine3.Editor
                 }
                 ImGui.PopItemWidth();
 
-                // Fog (ImGui uses System.Numerics, the engine OpenTK: values are only copied via temporary variables)
+                // Fog
                 World world = KWEngine.CurrentWorld;
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Fog:");
