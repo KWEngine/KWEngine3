@@ -58,6 +58,8 @@ namespace KWEngine3
         // quality related:
         internal RenderQualityLevel _renderQuality = RenderQualityLevel.Default;
         internal int AnisotropicFilteringLevel { get; set; } = 4;
+        internal RenderQualityLevel _renderQualityRequested = RenderQualityLevel.Default;
+        internal bool _renderQualityChangeRequested = false;
 
         // other:
         internal Matrix4 _viewProjectionMatrixHUD;
@@ -302,6 +304,7 @@ namespace KWEngine3
                 Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
             }
 
+            ApplyRenderQualityChange(); // in case SetRenderQuality() was called before the window was loaded
             RenderManager.InitializeFramebuffers();
             RenderManager.InitializeShaders();
             RenderManager.InitializeClearColor();
@@ -431,6 +434,8 @@ namespace KWEngine3
 
                 return;
             }
+
+            ApplyRenderQualityChange();
 
             if (_worldNew != null)
             {
@@ -1633,9 +1638,54 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Gibt die bei Programmstart gewählte Render-Qualität zurück
+        /// Gibt die aktuell verwendete Render-Qualität zurück
         /// </summary>
+        /// <remarks>Ein Wechsel per SetRenderQuality() wird erst zu Beginn des nächsten Frames übernommen</remarks>
         public RenderQualityLevel RenderQuality { get { return _renderQuality; } }
+
+        /// <summary>
+        /// Ändert die Render-Qualität zur Laufzeit
+        /// </summary>
+        /// <remarks>
+        /// Die neue Stufe wird zu Beginn des nächsten Frames übernommen. Dabei werden die Bloom-Framebuffer neu erstellt
+        /// und beim Wechsel von bzw. zu 'Low' auch die Shadow Maps aller Lichter der aktuellen Welt. 
+        /// Beim ersten Wechsel von bzw. zu 'Low' werden außerdem zusätzliche Shader kompiliert - dieser Frame kann daher spürbar länger dauern.
+        /// </remarks>
+        /// <param name="quality">Neue Qualitätsstufe</param>
+        public void SetRenderQuality(RenderQualityLevel quality)
+        {
+            _renderQualityRequested = quality;
+            _renderQualityChangeRequested = true;
+        }
+
+        internal void ApplyRenderQualityChange()
+        {
+            if (!_renderQualityChangeRequested)
+                return;
+            _renderQualityChangeRequested = false;
+            if (_renderQualityRequested == _renderQuality)
+                return;
+
+            bool wasLowQuality = _renderQuality == RenderQualityLevel.Low;
+            _renderQuality = _renderQualityRequested;
+
+            // textures that are already loaded keep their filtering otherwise
+            AnisotropicFilteringLevel = HelperTexture.GetAnisotropicFilteringLevel(_renderQuality);
+            HelperTexture.UpdateAnisotropicFilteringOfLoadedTextures(AnisotropicFilteringLevel);
+
+            // window not loaded yet: framebuffers and renderers will be created with the new level in OnLoad()
+            if (RenderManager.FramebufferLightingPass == null)
+                return;
+
+            RenderManager.InitializeBloomFramebuffers();
+            RenderManager.SelectQualityDependentRenderers();
+
+            // Low uses depth-only shadow maps, Default/High use moment shadow maps
+            if (wasLowQuality != (_renderQuality == RenderQualityLevel.Low) && KWEngine.CurrentWorld != null)
+            {
+                KWEngine.CurrentWorld.UpdateLightObjectsForRenderQuality(wasLowQuality);
+            }
+        }
 
         internal static MonitorHandle GetMonitorHandleForPointer(IntPtr ptr)
         {
@@ -1679,7 +1729,7 @@ namespace KWEngine3
                 RendererHUDText.SetGlobals();
                 RendererHUDText.Draw(KWEngine.CurrentWorld.LoadingScreen._text);
 
-                RenderManager.DoBloomPass();
+                RenderManager.DoBloomPass(true); // blending is still enabled here -> keep clearing the bloom targets
 
                 RenderManager.BindScreen(true, true);
                 RendererCopy.Bind();

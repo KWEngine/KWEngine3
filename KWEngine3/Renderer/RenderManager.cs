@@ -20,9 +20,14 @@ namespace KWEngine3.Renderer
         public static FramebufferSSAOBlur FramebufferSSAOBlur { get; set; }
         public static FramebufferBloom[] FramebuffersBloom { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
-        public const int LQPENALTY_W = 192;
-        public const int LQPENALTY_H = 112;
         public static ScreenGrid _screenGrid;
+
+        // Bloom chain: the same level structure for all render qualities, so the glow parameters look the same everywhere.
+        // Level k has the size (BLOOMWIDTH x BLOOMHEIGHT) >> k. High uses all 8 levels (960x540 -> 7x4).
+        // Default/Low skip the finest level and start at 480x270 (7 levels); the missing level is folded into the last upsample pass.
+        private static bool _bloomFullChain = true;
+        private static int _bloomLevelCount = 0;
+        private const float BLOOM_DOWNSAMPLE_ENERGY = 0.875f; // sum of the weights in the 9-tap downsample shader
 
         public static int LoadCompileAttachShader(Stream stream, ShaderType type, int program)
         {
@@ -105,25 +110,42 @@ namespace KWEngine3.Renderer
             FramebufferSSAO = new FramebufferSSAO(Math.Max(1, fbSize.X / 2), Math.Max(1, fbSize.Y / 2), false, LightType.Point);
             FramebufferSSAOBlur = new FramebufferSSAOBlur(Math.Max(1, fbSize.X / 2), Math.Max(1, fbSize.Y / 2), false, LightType.Point);
 
-            // Bloom
-            if (KWEngine.Window._renderQuality == RenderQualityLevel.High) // high only
-            {
-                for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
-                {
-                    FramebuffersBloom[i] = new FramebufferBloom(KWEngine.BLOOMWIDTH >> i, KWEngine.BLOOMHEIGHT >> i);
-                    FramebuffersBloomTemp[i] = new FramebufferBloom(KWEngine.BLOOMWIDTH >> i, KWEngine.BLOOMHEIGHT >> i);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS / 2; i++)
-                {
-                    Vector2i bloomSize = GetBloomSize(i);
-                    FramebuffersBloom[i] = new FramebufferBloom(bloomSize.X, bloomSize.Y);
-                    FramebuffersBloomTemp[i] = new FramebufferBloom(bloomSize.X, bloomSize.Y);
-                }
-            }
+            InitializeBloomFramebuffers();
+        }
 
+        // (re)creates the bloom chain for the current render quality (also called when the quality changes at runtime)
+        internal static void InitializeBloomFramebuffers()
+        {
+            DisposeBloomFramebuffers();
+
+            _bloomFullChain = KWEngine.Window._renderQuality == RenderQualityLevel.High;
+            int firstLevel = _bloomFullChain ? 0 : 1;
+            _bloomLevelCount = KWEngine.MAX_BLOOM_BUFFERS - firstLevel;
+            for (int i = 0; i < _bloomLevelCount; i++)
+            {
+                int w = Math.Max(1, KWEngine.BLOOMWIDTH >> (i + firstLevel));
+                int h = Math.Max(1, KWEngine.BLOOMHEIGHT >> (i + firstLevel));
+                FramebuffersBloom[i] = new FramebufferBloom(w, h);
+                FramebuffersBloomTemp[i] = new FramebufferBloom(w, h);
+            }
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        }
+
+        internal static void DisposeBloomFramebuffers()
+        {
+            for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
+            {
+                if (FramebuffersBloom[i] != null)
+                {
+                    FramebuffersBloom[i].Dispose();
+                    FramebuffersBloom[i] = null;
+                }
+                if (FramebuffersBloomTemp[i] != null)
+                {
+                    FramebuffersBloomTemp[i].Dispose();
+                    FramebuffersBloomTemp[i] = null;
+                }
+            }
         }
 
         public static void InitializeClearColor()
@@ -203,40 +225,103 @@ namespace KWEngine3.Renderer
             RendererFrustum.Init();
 
             // Renderers that are dependent on RenderQuality enum:
-            if (KWEngine.Window._renderQuality == RenderQualityLevel.Low)
+            SelectQualityDependentRenderers();
+        }
+
+        // One renderer set for Low and one for Default/High. A set is created on first use and then kept,
+        // so switching the render quality back and forth at runtime does not recompile any shaders.
+        private sealed class QualityRendererSet
+        {
+            public IRenderer LightingPass;
+            public IRenderer LightingPassMultiDraw;
+            public IRenderer Forward;
+            public IRenderer ForwardInstanced;
+            public IRenderer ForwardText;
+            public IRenderer ShadowMap;
+            public IRenderer ShadowMapCSM;
+            public IRenderer ShadowMapInstanced;
+            public IRenderer ShadowMapInstancedCSM;
+            public IRenderer ShadowMapCube;
+            public IRenderer ShadowMapCubeInstanced;
+            public IRenderer ShadowMapTerrain;
+            public IRenderer ShadowMapTerrainCSM;
+            public IRenderer ShadowMapTerrainCube;
+        }
+        private static QualityRendererSet _renderersLowQuality = null;
+        private static QualityRendererSet _renderersDefaultQuality = null;
+
+        private static QualityRendererSet CreateQualityRendererSet(bool lowQuality)
+        {
+            QualityRendererSet s = new QualityRendererSet();
+            if (lowQuality)
             {
-                IRendererLightingPass = new RendererLightingPassLQ(); IRendererLightingPass.Init();
-                IRendererLightingPassMultiDraw = new RendererLightingPassMultiDrawLQ(); IRendererLightingPassMultiDraw.Init();
-                IRendererForward = new RendererForwardLQ(); IRendererForward.Init();
-                IRendererForwardInstanced = new RendererForwardInstancedLQ(); IRendererForwardInstanced.Init();
-                IRendererForwardText = new RendererForwardTextLQ(); IRendererForwardText.Init();
-                IRendererShadowMap = new RendererShadowMapLQ(); IRendererShadowMap.Init();
-                IRendererShadowMapCSM = new RendererShadowMapCSMLQ(); IRendererShadowMapCSM.Init();
-                IRendererShadowMapInstanced = new RendererShadowMapInstancedLQ(); IRendererShadowMapInstanced.Init();
-                IRendererShadowMapInstancedCSM = new RendererShadowMapInstancedCSMLQ(); IRendererShadowMapInstancedCSM.Init();
-                IRendererShadowMapCube = new RendererShadowMapCubeLQ(); IRendererShadowMapCube.Init();
-                IRendererShadowMapCubeInstanced = new RendererShadowMapCubeInstancedLQ(); IRendererShadowMapCubeInstanced.Init();
-                IRendererShadowMapTerrain = new RendererShadowMapTerrainLQ(); IRendererShadowMapTerrain.Init();
-                IRendererShadowMapTerrainCSM = new RendererShadowMapTerrainCSMLQ(); IRendererShadowMapTerrainCSM.Init();
-                IRendererShadowMapTerrainCube = new RendererShadowMapTerrainCubeLQ(); IRendererShadowMapTerrainCube.Init();
+                s.LightingPass = new RendererLightingPassLQ(); s.LightingPass.Init();
+                s.LightingPassMultiDraw = new RendererLightingPassMultiDrawLQ(); s.LightingPassMultiDraw.Init();
+                s.Forward = new RendererForwardLQ(); s.Forward.Init();
+                s.ForwardInstanced = new RendererForwardInstancedLQ(); s.ForwardInstanced.Init();
+                s.ForwardText = new RendererForwardTextLQ(); s.ForwardText.Init();
+                s.ShadowMap = new RendererShadowMapLQ(); s.ShadowMap.Init();
+                s.ShadowMapCSM = new RendererShadowMapCSMLQ(); s.ShadowMapCSM.Init();
+                s.ShadowMapInstanced = new RendererShadowMapInstancedLQ(); s.ShadowMapInstanced.Init();
+                s.ShadowMapInstancedCSM = new RendererShadowMapInstancedCSMLQ(); s.ShadowMapInstancedCSM.Init();
+                s.ShadowMapCube = new RendererShadowMapCubeLQ(); s.ShadowMapCube.Init();
+                s.ShadowMapCubeInstanced = new RendererShadowMapCubeInstancedLQ(); s.ShadowMapCubeInstanced.Init();
+                s.ShadowMapTerrain = new RendererShadowMapTerrainLQ(); s.ShadowMapTerrain.Init();
+                s.ShadowMapTerrainCSM = new RendererShadowMapTerrainCSMLQ(); s.ShadowMapTerrainCSM.Init();
+                s.ShadowMapTerrainCube = new RendererShadowMapTerrainCubeLQ(); s.ShadowMapTerrainCube.Init();
             }
             else
             {
-                IRendererLightingPass = new RendererLightingPass(); IRendererLightingPass.Init();
-                IRendererLightingPassMultiDraw = new RendererLightingPassMultiDraw(); IRendererLightingPassMultiDraw.Init();
-                IRendererForward = new RendererForward(); IRendererForward.Init();
-                IRendererForwardInstanced = new RendererForwardInstanced(); IRendererForwardInstanced.Init();
-                IRendererForwardText = new RendererForwardText(); IRendererForwardText.Init();
-                IRendererShadowMap = new RendererShadowMap(); IRendererShadowMap.Init();
-                IRendererShadowMapCSM = new RendererShadowMapCSM(); IRendererShadowMapCSM.Init();
-                IRendererShadowMapInstanced = new RendererShadowMapInstanced(); IRendererShadowMapInstanced.Init();
-                IRendererShadowMapInstancedCSM = new RendererShadowMapInstancedCSM(); IRendererShadowMapInstancedCSM.Init();
-                IRendererShadowMapCube = new RendererShadowMapCube(); IRendererShadowMapCube.Init();
-                IRendererShadowMapCubeInstanced = new RendererShadowMapCubeInstanced(); IRendererShadowMapCubeInstanced.Init();
-                IRendererShadowMapTerrain = new RendererShadowMapTerrain(); IRendererShadowMapTerrain.Init();
-                IRendererShadowMapTerrainCSM = new RendererShadowMapTerrainCSM(); IRendererShadowMapTerrainCSM.Init();
-                IRendererShadowMapTerrainCube = new RendererShadowMapTerrainCube(); IRendererShadowMapTerrainCube.Init();
+                s.LightingPass = new RendererLightingPass(); s.LightingPass.Init();
+                s.LightingPassMultiDraw = new RendererLightingPassMultiDraw(); s.LightingPassMultiDraw.Init();
+                s.Forward = new RendererForward(); s.Forward.Init();
+                s.ForwardInstanced = new RendererForwardInstanced(); s.ForwardInstanced.Init();
+                s.ForwardText = new RendererForwardText(); s.ForwardText.Init();
+                s.ShadowMap = new RendererShadowMap(); s.ShadowMap.Init();
+                s.ShadowMapCSM = new RendererShadowMapCSM(); s.ShadowMapCSM.Init();
+                s.ShadowMapInstanced = new RendererShadowMapInstanced(); s.ShadowMapInstanced.Init();
+                s.ShadowMapInstancedCSM = new RendererShadowMapInstancedCSM(); s.ShadowMapInstancedCSM.Init();
+                s.ShadowMapCube = new RendererShadowMapCube(); s.ShadowMapCube.Init();
+                s.ShadowMapCubeInstanced = new RendererShadowMapCubeInstanced(); s.ShadowMapCubeInstanced.Init();
+                s.ShadowMapTerrain = new RendererShadowMapTerrain(); s.ShadowMapTerrain.Init();
+                s.ShadowMapTerrainCSM = new RendererShadowMapTerrainCSM(); s.ShadowMapTerrainCSM.Init();
+                s.ShadowMapTerrainCube = new RendererShadowMapTerrainCube(); s.ShadowMapTerrainCube.Init();
             }
+            GL.UseProgram(0);
+            return s;
+        }
+
+        // activates the renderer set that matches the current render quality (also called when the quality changes at runtime)
+        internal static void SelectQualityDependentRenderers()
+        {
+            QualityRendererSet s;
+            if (KWEngine.Window._renderQuality == RenderQualityLevel.Low)
+            {
+                if (_renderersLowQuality == null)
+                    _renderersLowQuality = CreateQualityRendererSet(true);
+                s = _renderersLowQuality;
+            }
+            else
+            {
+                if (_renderersDefaultQuality == null)
+                    _renderersDefaultQuality = CreateQualityRendererSet(false);
+                s = _renderersDefaultQuality;
+            }
+
+            IRendererLightingPass = s.LightingPass;
+            IRendererLightingPassMultiDraw = s.LightingPassMultiDraw;
+            IRendererForward = s.Forward;
+            IRendererForwardInstanced = s.ForwardInstanced;
+            IRendererForwardText = s.ForwardText;
+            IRendererShadowMap = s.ShadowMap;
+            IRendererShadowMapCSM = s.ShadowMapCSM;
+            IRendererShadowMapInstanced = s.ShadowMapInstanced;
+            IRendererShadowMapInstancedCSM = s.ShadowMapInstancedCSM;
+            IRendererShadowMapCube = s.ShadowMapCube;
+            IRendererShadowMapCubeInstanced = s.ShadowMapCubeInstanced;
+            IRendererShadowMapTerrain = s.ShadowMapTerrain;
+            IRendererShadowMapTerrainCSM = s.ShadowMapTerrainCSM;
+            IRendererShadowMapTerrainCube = s.ShadowMapTerrainCube;
         }
 
         public static IRenderer IRendererLightingPass;
@@ -320,79 +405,63 @@ namespace KWEngine3.Renderer
             }
         }
 
-        public static void DoBloomPass()
+        // clearTargets: only needed while blending is enabled (loading screen), because the downsample shader writes alpha < 1
+        public static void DoBloomPass(bool clearTargets = false)
         {
             GL.Disable(EnableCap.DepthTest);
+            GL.BindVertexArray(FramebufferQuad.GetVAOId());
+
+            // Every pass overwrites its whole target, so the targets do not need to be cleared.
+            // DOWNSAMPLE STEPS:
             RendererBloomDownsample.Bind();
-
-            if (KWEngine.Window._renderQuality == RenderQualityLevel.High) // high only
+            RendererBloomDownsample.SetGlobals();
+            for (int i = 0; i < _bloomLevelCount; i++)
             {
-                for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS; i++)
+                FramebufferBloom target = FramebuffersBloom[i];
+                GL.Viewport(0, 0, target.Width, target.Height);
+                target.Bind(clearTargets);
+                if (i == 0 && !_bloomFullChain)
                 {
-                    GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> i, KWEngine.BLOOMHEIGHT >> i);
-                    FramebuffersBloom[i].Bind(true);
+                    // half chain: 480x270 directly from the lighting pass, energy like two regular downsample steps
+                    RendererBloomDownsample.DrawBox(FramebufferLightingPass, target, BLOOM_DOWNSAMPLE_ENERGY * BLOOM_DOWNSAMPLE_ENERGY);
+                }
+                else
+                {
                     RendererBloomDownsample.Draw(i == 0 ? FramebufferLightingPass : FramebuffersBloom[i - 1]);
                 }
-
-                RendererBloomUpsample.Bind();
-                for (int i = KWEngine.MAX_BLOOM_BUFFERS - 1; i > 0; i--)
-                {
-                    GL.Viewport(0, 0, KWEngine.BLOOMWIDTH >> (i - 1), KWEngine.BLOOMHEIGHT >> (i - 1));
-                    FramebuffersBloomTemp[i - 1].Bind(true);
-                    RendererBloomUpsample.Draw(i == KWEngine.MAX_BLOOM_BUFFERS - 1 ? FramebuffersBloom[i] : FramebuffersBloomTemp[i], FramebuffersBloom[i - 1]);
-                }
             }
-            else
+
+            // UPSAMPLE STEPS:
+            // U(k) = A * tent(U(k + 1)) + B * tent(D(k)), with tap distance s = GlowRadius,
+            // A = 2 * GlowStyleFactor1 + s and B = 2 * GlowStyleFactor2 + 1 - s
+            float s = KWEngine._glowRadius;
+            float a = 2f * KWEngine._glowUpsampleF1 + s;
+            float b = 2f * KWEngine._glowUpsampleF2 + 1f - s;
+            RendererBloomUpsample.Bind();
+            RendererBloomUpsample.SetGlobals();
+            for (int i = _bloomLevelCount - 1; i > 0; i--)
             {
-                // DOWNSAMPLE STEPS:
-                for (int i = 0; i < KWEngine.MAX_BLOOM_BUFFERS / 2; i++)
+                FramebufferBloom target = FramebuffersBloomTemp[i - 1];
+                GL.Viewport(0, 0, target.Width, target.Height);
+                target.Bind(clearTargets);
+
+                float weightSmaller = a;
+                float weightBigger = b;
+                if (i == 1 && !_bloomFullChain)
                 {
-                    Vector2i bloomSize = GetBloomSize(i, true);
-                    GL.Viewport(0, 0, bloomSize.X, bloomSize.Y);
-                    FramebuffersBloom[i].Bind(true);
-                    RendererBloomDownsample.Draw(i == 0 ? FramebufferLightingPass : FramebuffersBloom[i - 1]);
+                    // half chain: fold the missing 960x540 level into the last pass
+                    // U(0) = A * U(1) + B * D(0) with D(0) ~ D(1) / 0.875 and U(1) = A * tent(U(2)) + B * tent(D(1))
+                    weightSmaller = a * a;
+                    weightBigger = a * b + b / BLOOM_DOWNSAMPLE_ENERGY;
                 }
-
-                RendererBloomUpsample.Bind();
-                for (int i = KWEngine.MAX_BLOOM_BUFFERS / 2 - 1; i > 0; i--)
-                {
-                    Vector2i bloomSize = GetBloomSize(i, false);
-                    GL.Viewport(0, 0, bloomSize.X, bloomSize.Y);
-                    FramebuffersBloomTemp[i - 1].Bind(true);
-                    if (i == KWEngine.MAX_BLOOM_BUFFERS / 2 - 1)
-                    {
-                        RendererBloomUpsample.Draw(FramebuffersBloom[i], FramebuffersBloom[i - 1]);
-                    }
-                    else
-                    {
-                        RendererBloomUpsample.Draw(FramebuffersBloomTemp[i], FramebuffersBloom[i - 1]);
-                    }
-
-
-                }
+                RendererBloomUpsample.Draw(i == _bloomLevelCount - 1 ? FramebuffersBloom[i] : FramebuffersBloomTemp[i], FramebuffersBloom[i - 1], s, weightSmaller, weightBigger);
             }
-        }
 
-        public static Vector2i GetBloomSize(int i = 0, bool downsample = true)
-        {
-            if (downsample)
-            {
-                Vector2i result = new Vector2i(
-                     (KWEngine.BLOOMWIDTH - LQPENALTY_W * (i + 1)) >> i,
-                     (KWEngine.BLOOMHEIGHT - LQPENALTY_H * (i + 1)) >> i
-                    );
-                //Console.WriteLine(result + " (down)");
-                return result;
-            }
-            else
-            {
-                Vector2i result = new Vector2i(
-                     (KWEngine.BLOOMWIDTH - LQPENALTY_W * (i - 0)) >> (i - 1),
-                     (KWEngine.BLOOMHEIGHT - LQPENALTY_H * (i - 0)) >> (i - 1)
-                    );
-                //Console.WriteLine(result + " (up)");
-                return result;
-            }
+            GL.BindVertexArray(0);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
         public static bool IsCurrentDebugMapACubeMap()

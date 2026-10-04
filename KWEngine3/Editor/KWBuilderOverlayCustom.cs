@@ -1115,6 +1115,9 @@ namespace KWEngine3.Editor
         private static readonly string[] _fogGridLabels = { "Density", "Height", "Falloff", "Patches", "Patch size", "Wavy top", "Wind (x, y, z)", "Wind speed" };
         private static System.Numerics.Vector3 _fogWindEdit = new(1f, 0f, 0f); // unnormalized wind vector as typed in the editor
 
+        // render quality combo: index = (int)RenderQualityLevel + 1 (Low = -1, Default = 0, High = 1)
+        private static readonly string[] _renderQualityNames = { "Low", "Default", "High" };
+
         private static void FogGridColumn(int column, float rowX, float columnWidth, float itemWidth)
         {
             if (column > 0)
@@ -1252,6 +1255,27 @@ namespace KWEngine3.Editor
                 ImGui.SliderFloat("Safety Zone", ref KWEngine._octreeSafetyZone, 0f, 10f);
                 ImGui.Separator();
                 */
+
+                ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Rendering:");
+                RenderQualityLevel renderQuality = KWEngine.Window._renderQualityChangeRequested ? KWEngine.Window._renderQualityRequested : KWEngine.Window._renderQuality;
+                int renderQualityIndex = (int)renderQuality + 1;
+                ImGui.SetNextItemWidth((int)(worldW * 0.15f));
+                if (ImGui.Combo("Render quality", ref renderQualityIndex, _renderQualityNames, _renderQualityNames.Length))
+                {
+                    KWEngine.Window.SetRenderQuality((RenderQualityLevel)(renderQualityIndex - 1));
+                }
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Applies to the whole window (like GLWindow.SetRenderQuality) and is not saved with the world.");
+                }
+                ImGui.SameLine();
+                ImGui.TextDisabled(renderQuality == RenderQualityLevel.High ? "Bloom: 960x540, 8 levels" : "Bloom: 480x270, 7 levels");
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("All quality levels use the same bloom structure, so the glow settings look the same.\nDefault/Low skip the finest level: cheaper, small glow sources get a slightly softer core.");
+                }
+                ImGui.Separator();
+
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Camera:");
                 ImGui.PushItemWidth((int)(worldW * 0.15f));
                 if (ImGui.SliderFloat("Camera FOV", ref fov, 20f, 180f))

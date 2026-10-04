@@ -12,7 +12,7 @@ namespace KWEngine3.Renderer
         public static int ProgramID { get; private set; } = -1;
         public static int UTextureSmaller { get; private set; } = -1;
         public static int UTextureBigger { get; private set; } = -1;
-        public static int UBloomRadius { get; private set; } = -1;
+        public static int UBloomParams { get; private set; } = -1;
 
         public static void Init()
         {
@@ -39,7 +39,7 @@ namespace KWEngine3.Renderer
                 GL.LinkProgram(ProgramID);
                 UTextureSmaller = GL.GetUniformLocation(ProgramID, "uTextureSmaller");
                 UTextureBigger = GL.GetUniformLocation(ProgramID, "uTextureBigger");
-                UBloomRadius = GL.GetUniformLocation(ProgramID, "uBloomRadius");
+                UBloomParams = GL.GetUniformLocation(ProgramID, "uBloomParams");
             }
         }
 
@@ -51,33 +51,20 @@ namespace KWEngine3.Renderer
 
         public static void SetGlobals()
         {
-            // ?
+            GL.Uniform1(UTextureSmaller, 0);
+            GL.Uniform1(UTextureBigger, 1);
         }
 
-        public static void Draw(Framebuffer fbSource1, Framebuffer fbSource2) // currently from lighting pass
+        // expects SetGlobals() to be called and the fullscreen quad VAO to be bound (see RenderManager.DoBloomPass)
+        // tapDistance <= 1 lets the shader use its exact 8-tap path (GlowRadius is limited to 0..1)
+        public static void Draw(Framebuffer fbSource1, Framebuffer fbSource2, float tapDistance, float weightSmaller, float weightBigger)
         {
-            bool hq = KWEngine.Window._renderQuality == RenderQualityLevel.High;
-
+            GL.Uniform3(UBloomParams, tapDistance, weightSmaller, weightBigger);
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, fbSource1.Attachments[0].ID);
-            GL.Uniform1(UTextureSmaller, 0);
-
-            //GL.Uniform3(UBloomRadius, new Vector3(KWEngine._glowRadius, hq ? KWEngine._glowUpsampleF1 * 2f : KWEngine._glowUpsampleF1 / 2f, KWEngine._glowUpsampleF2));
-            GL.Uniform3(UBloomRadius, new Vector3(
-                hq ? KWEngine._glowRadius * 1.00f : KWEngine._glowRadius * 1.67f, 
-                hq ? KWEngine._glowUpsampleF1 * 2.0f : KWEngine._glowUpsampleF1 * 2.0f, 
-                hq ? KWEngine._glowUpsampleF2 * 2.0f : KWEngine._glowUpsampleF2 * 2.0f)
-                );
-
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, fbSource2.Attachments[0].ID);
-            GL.Uniform1(UTextureBigger, 1);
-
-            GL.BindVertexArray(FramebufferQuad.GetVAOId());
             GL.DrawArrays(PrimitiveType.Triangles, 0, FramebufferQuad.GetVertexCount());
-            GL.BindVertexArray(0);
-
-            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
     }

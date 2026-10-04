@@ -730,6 +730,19 @@ namespace KWEngine3
             FillTileList();
         }
 
+        // called when the render quality switches between Low and Default/High at runtime
+        internal void UpdateLightObjectsForRenderQuality(bool wasLowQuality)
+        {
+            foreach (LightObject l in _lightObjects)
+            {
+                l.UpdateForRenderQuality(wasLowQuality);
+            }
+            foreach (LightObject l in _lightObjectsToBeAdded)
+            {
+                l.UpdateForRenderQuality(wasLowQuality);
+            }
+        }
+
         internal void AddRemoveLightObjects()
         {
             foreach (LightObject l in _lightObjectsToBeRemoved)

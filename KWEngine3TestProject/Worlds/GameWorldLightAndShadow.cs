@@ -5,7 +5,6 @@ using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldLightAndShadow;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Drawing;
 
 namespace KWEngine3TestProject.Worlds
 {
@@ -15,9 +14,32 @@ namespace KWEngine3TestProject.Worlds
         private float _sunDegrees = -45f;
         private LightObject _mouseLight;
         private Immovable _mouseLightSphere;
+        private RenderQualityLevel _rqLevel;
 
         public override void Act()
         {
+            if (Keyboard.IsKeyPressed(Keys.F4))
+            {
+                if (_rqLevel == RenderQualityLevel.Low)
+                {
+                    _rqLevel = RenderQualityLevel.Default;
+                    Console.WriteLine("Render quality now: default (was low)");
+                    Window.SetRenderQuality(_rqLevel);
+                }
+                else if (_rqLevel == RenderQualityLevel.Default)
+                {
+                    _rqLevel = RenderQualityLevel.High;
+                    Console.WriteLine("Render quality now: high (was default)");
+                    Window.SetRenderQuality(_rqLevel);
+                }
+                else if (_rqLevel == RenderQualityLevel.High)
+                {
+                    _rqLevel = RenderQualityLevel.Low;
+                    Console.WriteLine("Render quality now: low (was high)");
+                    Window.SetRenderQuality(_rqLevel);
+                }
+            }
+
             if (Keyboard.IsKeyDown(Keys.F1))
             {
                 Window.SetWorld(new GameWorldJumpAndRunPhysics());
@@ -51,6 +73,8 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            _rqLevel = Window.RenderQuality;
+
             // Load custom model from model folder as "Nightshade":
             KWEngine.LoadModel("Nightshade", @"./Models/WorldLightAndShadow/Nightshade.fbx");
             SetCameraFOV(45);

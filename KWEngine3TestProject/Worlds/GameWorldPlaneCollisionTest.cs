@@ -15,6 +15,7 @@ namespace KWEngine3TestProject.Worlds
     internal class GameWorldPlaneCollisionTest : WorldPerformance
     {
         private Player _player;
+        private RenderQualityLevel _rqLevel;
 
         public override void Act()
         {
@@ -44,6 +45,27 @@ namespace KWEngine3TestProject.Worlds
             if (Keyboard.IsKeyPressed(Keys.F3))
             {
                 KWEngine.SSAO_KernelSize = 64;
+            }
+            if (Keyboard.IsKeyPressed(Keys.F4))
+            {
+                if (_rqLevel == RenderQualityLevel.Low)
+                {
+                    _rqLevel = RenderQualityLevel.Default;
+                    Console.WriteLine("Render quality now: default (was low)");
+                    Window.SetRenderQuality(_rqLevel);
+                }
+                else if (_rqLevel == RenderQualityLevel.Default)
+                {
+                    _rqLevel = RenderQualityLevel.High;
+                    Console.WriteLine("Render quality now: high (was default)");
+                    Window.SetRenderQuality(_rqLevel);
+                }
+                else if (_rqLevel == RenderQualityLevel.High)
+                {
+                    _rqLevel = RenderQualityLevel.Low;
+                    Console.WriteLine("Render quality now: low (was high)");
+                    Window.SetRenderQuality(_rqLevel);
+                }
             }
 
             if (Keyboard.IsKeyPressed(Keys.F5))
@@ -85,6 +107,8 @@ namespace KWEngine3TestProject.Worlds
         public override void Prepare()
         {
             base.Prepare();
+
+            _rqLevel = Window.RenderQuality;
 
             KWEngine.EnableDebugHitboxes = HitboxDebugMode.Disabled;
             SetCameraPosition(0, 10, 10);

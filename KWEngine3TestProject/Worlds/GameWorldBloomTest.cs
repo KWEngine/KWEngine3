@@ -2,12 +2,13 @@
 using KWEngine3.GameObjects;
 using KWEngine3.Helper;
 using KWEngine3TestProject.Classes;
+using KWEngine3TestProject.Classes.WorldBloomTest;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3TestProject.Worlds
 {
-    internal class GameWorldBloomTest : World
+    internal class GameWorldBloomTest : WorldPerformance
     {
         private float _timestampLastExplosion = 0;
         private float _timestampLastParticle = 0;
@@ -17,15 +18,45 @@ namespace KWEngine3TestProject.Worlds
         private float glow1 = 0f;
         private float glow2 = 0f;
         private float glowr = 0f;
+        private RenderQualityLevel _rqLevel;
+        private HUDObjectTextToast _toast;
 
         public override void Act()
         {
-            List<Immovable> iss = GetGameObjectsByType<Immovable>();
+            base.Act();
 
-            if(Keyboard.IsKeyDown(Keys.Left))
+            List<Immovable> iss = GetGameObjectsByType<Immovable>();
+            _toast.Update();
+            if (Keyboard.IsKeyPressed(Keys.F4))
+            {
+                if (_rqLevel == RenderQualityLevel.Low)
+                {
+                    _rqLevel = RenderQualityLevel.Default;
+                    Console.WriteLine("Render quality now: default (was low)");
+                    Window.SetRenderQuality(_rqLevel);
+                    _toast.Show(_rqLevel);
+                }
+                else if (_rqLevel == RenderQualityLevel.Default)
+                {
+                    _rqLevel = RenderQualityLevel.High;
+                    Console.WriteLine("Render quality now: high (was default)");
+                    Window.SetRenderQuality(_rqLevel);
+                    _toast.Show(_rqLevel);
+                }
+                else if (_rqLevel == RenderQualityLevel.High)
+                {
+                    _rqLevel = RenderQualityLevel.Low;
+                    Console.WriteLine("Render quality now: low (was high)");
+                    Window.SetRenderQuality(_rqLevel);
+                    _toast.Show(_rqLevel);
+
+                }
+            }
+
+            if (Keyboard.IsKeyDown(Keys.Left))
             {
                 emissive = MathF.Round(emissive - 0.025f, 3);
-                foreach(Immovable m in iss)
+                foreach (Immovable m in iss)
                     m.SetColorEmissive(m.ColorEmissive.Xyz, emissive);
                 Console.WriteLine("emissive: " + emissive);
             }
@@ -83,13 +114,13 @@ namespace KWEngine3TestProject.Worlds
             }
 
             if (WorldTime - _timestampLastExplosion > 1.25f)
-           {
+            {
                 ExplosionObject e = new ExplosionObject(64, 0.5f, 5f, 1f, ExplosionType.Cube);
-                e.SetColorEmissive(2,2,2);
+                e.SetColorEmissive(2, 2, 2);
                 e.SetPosition(HelperRandom.GetRandomNumber(-12, -8), 8, 0);
                 AddExplosionObject(e);
                 _timestampLastExplosion = WorldTime;
-           }
+            }
 
             if (WorldTime - _timestampLastParticle > 5f)
             {
@@ -103,6 +134,16 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            _rqLevel = Window.RenderQuality;
+            _toast = new HUDObjectTextToast();
+            _toast.SetText("");
+            _toast.SetTextAlignment(TextAlignMode.Right);
+            _toast.SetPosition(Window.Width - 16, 16);
+            _toast.SetScale(16);
+            AddHUDObject(_toast);
+
+            base.Prepare();
+
             SetBackground2D(@"./Textures/greenmountains.dds");
             SetCameraFOV(90);
             SetCameraPosition(0, 0, 25);

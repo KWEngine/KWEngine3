@@ -2959,5 +2959,68 @@ namespace KWEngine3.Helper
                 }
             }
         }
+
+        internal static int GetAnisotropicFilteringLevel(RenderQualityLevel quality)
+        {
+            return quality == RenderQualityLevel.High ? 8 : quality == RenderQualityLevel.Default ? 4 : 1;
+        }
+
+        // Sets the anisotropic filtering level of all loaded mipmapped textures (models, world textures, engine textures).
+        // Needed when the render quality changes at runtime.
+        internal static void UpdateAnisotropicFilteringOfLoadedTextures(int level)
+        {
+            HashSet<int> done = new();
+            foreach (GeoModel m in KWEngine.Models.Values)
+            {
+                if (m.Textures == null)
+                    continue;
+                foreach (GeoTexture t in m.Textures.Values)
+                {
+                    UpdateAnisotropicFiltering(TextureTarget.Texture2D, t.OpenGLID, level, done);
+                }
+            }
+
+            if (KWEngine.CurrentWorld != null)
+            {
+                lock (KWEngine.CurrentWorld._customTextures)
+                {
+                    foreach (KWTexture t in KWEngine.CurrentWorld._customTextures.Values)
+                    {
+                        if (t.Target == TextureTarget.Texture2D || t.Target == TextureTarget.Texture2DArray)
+                            UpdateAnisotropicFiltering(t.Target, t.ID, level, done);
+                    }
+                }
+            }
+
+            int[] engineTextures = new int[] {
+                KWEngine.TextureDefault, KWEngine.TextureBlack, KWEngine.TextureWhite, KWEngine.TextureAlpha, KWEngine.TextureNormalEmpty,
+                KWEngine.TextureCheckerboard, KWEngine.TextureFlowFieldArrow, KWEngine.TextureFlowFieldCross,
+                KWEngine.TextureFoliageGrass1, KWEngine.TextureFoliageGrass2, KWEngine.TextureFoliageGrass3,
+                KWEngine.TextureFoliageGrassMinecraft, KWEngine.TextureFoliageFern, KWEngine.TextureFoliageGrassNormal
+            };
+            foreach (int id in engineTextures)
+            {
+                UpdateAnisotropicFiltering(TextureTarget.Texture2D, id, level, done);
+            }
+            UpdateAnisotropicFiltering(TextureTarget.Texture2DArray, KWEngine.TextureWhite3D, level, done);
+
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.BindTexture(TextureTarget.Texture2DArray, 0);
+        }
+
+        private static void UpdateAnisotropicFiltering(TextureTarget target, int id, int level, HashSet<int> done)
+        {
+            if (id <= 0 || !done.Add(id) || !GL.IsTexture(id))
+                return;
+
+            GL.BindTexture(target, id);
+            GL.GetTexParameter(target, GetTextureParameter.TextureMinFilter, out int minFilter);
+            // anisotropic filtering only matters for mipmapped textures (others, e.g. pixel art with nearest filtering, stay untouched)
+            if (minFilter == (int)TextureMinFilter.LinearMipmapLinear || minFilter == (int)TextureMinFilter.LinearMipmapNearest ||
+                minFilter == (int)TextureMinFilter.NearestMipmapLinear || minFilter == (int)TextureMinFilter.NearestMipmapNearest)
+            {
+                GL.TexParameter(target, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, level);
+            }
+        }
     }
 }

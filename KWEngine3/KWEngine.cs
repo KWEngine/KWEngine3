@@ -389,6 +389,7 @@ namespace KWEngine3
         /// <summary>
         /// Steuert den Stil des Glühens (Faktor 1, erlaubte Werte zwischen 0 und 1, Standard: 0.15)
         /// </summary>
+        /// <remarks>Verstärkt vor allem den weiten Schein und wirkt stark: 0.3 ergibt etwa die 2,5-fache, 0.5 etwa die 9-fache Glow-Menge des Standardwerts (bei allen Render-Qualitätsstufen gleich)</remarks>
         public static float GlowStyleFactor1 { get { return _glowUpsampleF1; } set { _glowUpsampleF1 = Math.Clamp(value, 0.001f, 1.0f); } }
         /// <summary>
         /// Steuert den Stil des Glühens (Faktor 2, erlaubte Werte zwischen 0 und 1, Standard: 0.70)
@@ -1265,7 +1266,7 @@ namespace KWEngine3
                 throw new Exception("[OpenGL] Fatal error: Your graphics device does not support at least " + twoPowerOf10 + " uniform vectors.");
             }
 
-            Window.AnisotropicFilteringLevel = Window._renderQuality == RenderQualityLevel.High ? 8 : Window._renderQuality == RenderQualityLevel.Default ? 4 : 1;
+            Window.AnisotropicFilteringLevel = HelperTexture.GetAnisotropicFilteringLevel(Window._renderQuality);
 
             int mipMaps;
 

@@ -207,10 +207,11 @@ namespace KWEngine3.GameObjects
 
             if (filename == null)
                 filename = "";
+            // note: height textures are also loaded for render quality 'Low' (parallax mapping is disabled there
+            // by the renderer), so they are available when the quality is changed at runtime
             if(type == TextureType.Height && KWEngine.Window._renderQuality < RenderQualityLevel.Default)
             {
-                KWEngine.LogWriteLine("[TerrainObject] Height texture not available at your current render profile");
-                return;
+                KWEngine.LogWriteLine("[TerrainObject] Parallax mapping is disabled on your current rendering profile");
             }
 
             _gModel.SetTexture(filename.Trim(), type, 0);

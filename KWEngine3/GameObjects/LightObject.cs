@@ -14,7 +14,9 @@ namespace KWEngine3.GameObjects
         internal LightObjectState _stateRender;
         internal FramebufferShadowMap _fbShadowMap = null;
         internal int _shadowMapSize;
-        internal float _shadowBias = 0.00002f;
+        internal const float SHADOWBIAS_DEFAULT = 0.00002f;
+        internal const float SHADOWBIAS_POINT_DEFAULTQUALITY = 0.0002f; // point lights with moment shadow maps (render quality Default/High)
+        internal float _shadowBias = SHADOWBIAS_DEFAULT;
         internal float _shadowOffset = 0.0001f;
         
         /// <summary>
@@ -62,7 +64,7 @@ namespace KWEngine3.GameObjects
             }
 
             if (lightType == LightType.Point && KWEngine.Window._renderQuality > RenderQualityLevel.Low)
-                _shadowBias = 0.0002f;
+                _shadowBias = SHADOWBIAS_POINT_DEFAULTQUALITY;
 
             _stateCurrent = new LightObjectState(this, lightType);
             _statePrevious = _stateCurrent;
@@ -322,6 +324,24 @@ namespace KWEngine3.GameObjects
                 }
                 
                 Framebuffer.UpdateGlobalShadowMapCounter(true);
+            }
+        }
+
+        // called when the render quality switches between Low and Default/High at runtime:
+        // the type of the shadow map and the default bias of point lights depend on it
+        internal void UpdateForRenderQuality(bool wasLowQuality)
+        {
+            if (Type == LightType.Point)
+            {
+                float biasBefore = wasLowQuality ? SHADOWBIAS_DEFAULT : SHADOWBIAS_POINT_DEFAULTQUALITY;
+                if (_shadowBias == biasBefore) // keep values that were set by the user
+                    _shadowBias = wasLowQuality ? SHADOWBIAS_POINT_DEFAULTQUALITY : SHADOWBIAS_DEFAULT;
+            }
+
+            if (_fbShadowMap != null)
+            {
+                DeleteShadowMap();
+                AttachShadowMap();
             }
         }
 

@@ -18,6 +18,8 @@
       <Field Name="_renderFrameRenderObjectsForward" Hidden="true" />
       <Field Name="_renderFrameStencilObjects" Hidden="true" />
       <Field Name="_renderQuality" Hidden="true" />
+      <Field Name="_renderQualityChangeRequested" Hidden="true" />
+      <Field Name="_renderQualityRequested" Hidden="true" />
       <Field Name="_stopwatch" Hidden="true" />
       <Field Name="_updatePostponedObjects" Hidden="true" />
       <Field Name="_updatePostponedObjectsAttachments" Hidden="true" />
@@ -25,6 +27,7 @@
       <Field Name="_viewProjectionMatrixHUD" Hidden="true" />
       <Field Name="_worldNew" Hidden="true" />
       <Property Name="AnisotropicFilteringLevel" Hidden="true" />
+      <Method Name="ApplyRenderQualityChange" Hidden="true" />
       <Field Name="DELTASFORMOVINGAVG" Hidden="true" />
       <Method Name="DisposeInternal" Hidden="true" />
       <Method Name="GatherWeightedMovingAvg" Hidden="true" />
@@ -61,7 +64,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>QD6EBAAAxUAEAQ6Q0BEBgEASkhoEBCQAaAEE2EWuogA=</HashCode>
+      <HashCode>RD6EBAAIxUAEAQ+Q0BkBgEASkhoEBCQAaAEE2EWuogA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -251,10 +254,11 @@
       <Method Name="PrepareLightObjectsForRenderPass" Hidden="true" />
       <Method Name="ProcessWorldEventQueue" Hidden="true" />
       <Method Name="ResetWorldDimensions" Hidden="true" />
+      <Method Name="UpdateLightObjectsForRenderQuality" Hidden="true" />
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>SW91OI6AJXZKfBXdztmitf1ibK9bL6YcVeGSH/keR/0=</HashCode>
+      <HashCode>SW91OI6AJXZKfBXdztmitf1ibK9bL6YcVeGSH/keZ/0=</HashCode>
       <FileName>World.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -346,11 +350,14 @@
       <Method Name="DeleteShadowMap" Hidden="true" />
       <Method Name="GetVolume" Hidden="true" />
       <Method Name="Init" Hidden="true" />
+      <Field Name="SHADOWBIAS_DEFAULT" Hidden="true" />
+      <Field Name="SHADOWBIAS_POINT_DEFAULTQUALITY" Hidden="true" />
+      <Method Name="UpdateForRenderQuality" Hidden="true" />
       <Method Name="UpdateFrustum" Hidden="true" />
       <Method Name="UpdateLookAtVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>CCAYAQAAAAQA4AAqAACAVSwAAgAQDgAAARgCgIAEAAI=</HashCode>
+      <HashCode>CCAZAQAAAAQC4AAqAACAVSwAAgAQDoAAARgCgIAEAAI=</HashCode>
       <FileName>GameObjects\LightObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -501,7 +508,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="18.75" Width="2.75" />
+    <Position X="0.5" Y="19" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -866,6 +873,7 @@
       <Method Name="DeleteTexture" Hidden="true" />
       <Field Name="dummyArray" Hidden="true" />
       <Method Name="FlipVertical" Hidden="true" />
+      <Method Name="GetAnisotropicFilteringLevel" Hidden="true" />
       <Method Name="GetAssimpTextureType" Hidden="true" />
       <Method Name="GetDefaultTexture" Hidden="true" />
       <Method Name="GetFBXTextureFilenamesAndData" Hidden="true" />
@@ -917,9 +925,11 @@
       <Method Name="SaveTextureToBitmap" Hidden="true" />
       <Method Name="SaveTextureToBitmap16" Hidden="true" />
       <Method Name="SaveTextureToBitmapR8" Hidden="true" />
+      <Method Name="UpdateAnisotropicFiltering" Hidden="true" />
+      <Method Name="UpdateAnisotropicFilteringOfLoadedTextures" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AWggAbCAhEGICQAAQ6QxCEUAAAAIkgwFpkFBLBJxkUA=</HashCode>
+      <HashCode>AWggAbCEhEGICQAAQ6QxCEUAAAAIkgwFpklBLBpxkUA=</HashCode>
       <FileName>Helper\HelperTexture.cs</FileName>
     </TypeIdentifier>
   </Class>
