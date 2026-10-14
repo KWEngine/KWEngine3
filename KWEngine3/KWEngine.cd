@@ -71,6 +71,7 @@
   <Class Name="KWEngine3.KWEngine">
     <Position X="0.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_fxaaEnabled" Hidden="true" />
       <Field Name="_geometryMemUsed" Hidden="true" />
       <Field Name="_glowRadius" Hidden="true" />
       <Field Name="_glowUpsampleF1" Hidden="true" />
@@ -158,7 +159,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DfoQRbBNA6SJgPGc/AruCZARVCgCgmoSjHn2SP2KEKk=</HashCode>
+      <HashCode>DfoQRbBNA+SJgPGc/AruCZARVCgCgmoSjHn2SP2KEKk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -238,6 +239,7 @@
       <Method Name="BuildAndAddDefaultGameObjectForEditor" Hidden="true" />
       <Method Name="BuildAndAddDefaultLightObjectForEditor" Hidden="true" />
       <Method Name="CalculateNDCs" Hidden="true" />
+      <Method Name="DetachFoliageFromTerrain" Hidden="true" />
       <Method Name="Dispose" Hidden="true" />
       <Method Name="Export" Hidden="true" />
       <Method Name="FillTileList" Hidden="true" />
@@ -372,7 +374,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.TerrainObject">
-    <Position X="12.5" Y="10.75" Width="2.75" />
+    <Position X="12.5" Y="11.25" Width="2.75" />
     <Members>
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_heightmap" Hidden="true" />
@@ -683,6 +685,7 @@
     <Position X="12.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_color" Hidden="true" />
+      <Field Name="_drawDistance" Hidden="true" />
       <Field Name="_dXZ" Hidden="true" />
       <Field Name="_instanceCount" Hidden="true" />
       <Field Name="_modelMatrix" Hidden="true" />
@@ -698,12 +701,13 @@
       <Field Name="_swayFactor" Hidden="true" />
       <Field Name="_terrainObject" Hidden="true" />
       <Field Name="_textureId" Hidden="true" />
+      <Field Name="DRAWDISTANCE_DEFAULT" Hidden="true" />
       <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Method Name="UpdateInstanceCountForPatchSize" Hidden="true" />
       <Method Name="UpdateModelMatrix" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QABAIAAwAAAIACQxAgAADCQKAEAAAkgIAQgIogBCbSQ=</HashCode>
+      <HashCode>QABAIAAwAAAIACQxAgAADKQKAEABAkgIAQgIogBDbSQ=</HashCode>
       <FileName>GameObjects\FoliageObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -789,7 +793,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="12.5" Y="17.5" Width="2.75" />
+    <Position X="12.5" Y="17.75" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />
@@ -863,8 +867,12 @@
   <Class Name="KWEngine3.Helper.HelperTexture">
     <Position X="24.5" Y="17.25" Width="2.75" />
     <Members>
+      <Field Name="ALPHA_MIPSCALE_COUNT" Hidden="true" />
+      <Field Name="ALPHA_MIPSCALE_MAX" Hidden="true" />
+      <Field Name="ALPHA_MIPSCALE_MIN" Hidden="true" />
       <Method Name="CheckFBXNestedList" Hidden="true" />
       <Method Name="CheckFBXNestedListNew" Hidden="true" />
+      <Method Name="ComputeAlphaCoverageMipScales" Hidden="true" />
       <Method Name="ConvertEmbeddedToTemporaryFile" Hidden="true" />
       <Method Name="CreateEmptyCubemapDepthTexture" Hidden="true" />
       <Method Name="CreateEmptyCubemapTexture" Hidden="true" />
@@ -929,13 +937,14 @@
       <Method Name="UpdateAnisotropicFilteringOfLoadedTextures" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AWggAbCEhEGICQAAQ6QxCEUAAAAIkgwFpklBLBpxkUA=</HashCode>
+      <HashCode>A2ggAbCEhEGICQAAQ6QxCEUAAAAIkg4FpklBLhpzkUA=</HashCode>
       <FileName>Helper\HelperTexture.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.FoliageObjectCustom">
-    <Position X="12.5" Y="6" Width="2.75" />
+    <Position X="12.5" Y="6.5" Width="2.75" />
     <Members>
+      <Field Name="_alphaMipScales" Hidden="true" />
       <Field Name="_camDistanceMax" Hidden="true" />
       <Field Name="_color" Hidden="true" />
       <Field Name="_instanceCount" Hidden="true" />
@@ -946,10 +955,13 @@
       <Field Name="_patchSizeMin" Hidden="true" />
       <Field Name="_posScaleArray1" Hidden="true" />
       <Field Name="_posScaleArray2" Hidden="true" />
+      <Field Name="_renderBoundsMax" Hidden="true" />
+      <Field Name="_renderBoundsMin" Hidden="true" />
       <Field Name="_roughness" Hidden="true" />
       <Field Name="_swayFactor" Hidden="true" />
       <Field Name="_terrainObject" Hidden="true" />
       <Field Name="_textureId" Hidden="true" />
+      <Field Name="ALPHA_CUTOFF" Hidden="true" />
       <Method Name="CreateArray" Hidden="true" />
       <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Method Name="SetInstanceCount" Hidden="true" />
@@ -957,7 +969,7 @@
       <Method Name="UpdateArrayAndPatchSize" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QARCIAAwAAAIAAQBAgAACAQIAGAAAkAEAAgJggBBYQU=</HashCode>
+      <HashCode>QARCIAAwAAAIAAQBAgAACIQIAGIAAkAEAAgJggBBYQU=</HashCode>
       <FileName>GameObjects\FoliageObjectCustom.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
