@@ -217,14 +217,11 @@ namespace KWEngine3
 
             if (_direction == ProjectionDirection.NegativeY)
             {
-                if(lookAtVector.Z <= 0)
+                // yaw angle from -Z towards +X (exact, so the map turns as fast as the camera);
+                // looking straight down (no horizontal part) keeps the last rotation
+                if (lookAtVector.X * lookAtVector.X + lookAtVector.Z * lookAtVector.Z > 1e-8f)
                 {
-                    float rotation = Vector3.Dot(Vector3.UnitX, lookAtVector) * (MathF.PI * 0.5f);
-                    _camPreRotation = Matrix4.CreateRotationZ(rotation);
-                }
-                else
-                {
-                    float rotation = MathF.PI + Vector3.Dot(-Vector3.UnitX, lookAtVector) * (MathF.PI * 0.5f);
+                    float rotation = MathF.Atan2(lookAtVector.X, -lookAtVector.Z);
                     _camPreRotation = Matrix4.CreateRotationZ(rotation);
                 }
             }
