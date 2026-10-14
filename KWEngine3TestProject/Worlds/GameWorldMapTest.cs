@@ -14,16 +14,16 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
-            if(HelperRandom.GetRandomNumber(0, 500) == 0)
+            if (HelperRandom.GetRandomNumber(0, 500) == 0)
             {
                 ExplosionObject ex = new ExplosionObject(256, 1.0f, 10f, 2f, ExplosionType.Sphere);
                 ex.SetColorEmissive(1, 1, 0);
                 ex.SetPosition(0, 10, 0);
                 AddExplosionObject(ex);
-                //StartCameraShake(2.5f, 2.5f, 2.5f, 1.0f, 100f, ShakeMode.Additive);
+                StartCameraShake(2.5f, 2.5f, 2.5f, 1.0f, 15f, ShakeMode.Additive); // yaw, pitch, roll in degrees; 15 direction changes per second
             }
 
-            if(Map.Enabled)
+            if (Map.Enabled)
             {
                 Map.UpdateCamera(new Vector3(_player.Position.X, _player.Position.Y + 10, _player.Position.Z));
                 Map.UpdateCameraRotation(_player.LookAtVectorXZ);
@@ -34,10 +34,10 @@ namespace KWEngine3TestProject.Worlds
                     Map.Add(walls[i], 0, new Vector3(1, 0, 1), Vector3.One, 0, 1, 0, "./Textures/fx_boom.png");
                 }
                 Map.Add(_t, -1f, Vector3.UnitZ, 0.5f);
-                
+
                 Map.AddAsRealModel(_player, 2, Vector3.One, Vector3.Zero, 0, 1, "./Textures/custom_cursor.png", 1, 1);
             }
-            
+
         }
 
         public override void Prepare()
@@ -47,7 +47,7 @@ namespace KWEngine3TestProject.Worlds
             KWEngine.MouseSensitivity = 0.05f;
             //KWEngine.DebugMode = DebugMode.SurfaceNormals;
             KWEngine.BuildTerrainModel("T", "./Textures/heightmap.png", 5);
-            
+
             /*
             HUDObjectImage testBack = new HUDObjectImage();
             testBack.SetZIndex(-5f);
@@ -134,7 +134,7 @@ namespace KWEngine3TestProject.Worlds
             wall1.IsCollisionObject = true;
             wall1.IsShadowCaster = true;
             AddGameObject(wall1);
-            
+
             Immovable wall2 = new Immovable();
             wall2.SetScale(4, 1, 4);
             wall2.SetPosition(10, 5, 0);
@@ -165,7 +165,7 @@ namespace KWEngine3TestProject.Worlds
             SetBackgroundSkybox("./Textures/skybox.png");
             SetBackgroundBrightnessMultiplier(4);
 
-            
+
             Map.SetCamera(_player.Position, ProjectionDirection.NegativeY, 50, 50, 1, 100);
             Map.SetViewport(Window.Width - 384 / 2, Window.Height - 384 / 2, 274, 274, true);
             Map.SetBackground("./Textures/spritesheet.png", 100, 100, 0.9f, 1f, 1f);

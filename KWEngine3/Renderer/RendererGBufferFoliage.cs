@@ -8,20 +8,6 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
-    // Renders FoliageObject and FoliageObjectCustom instances into the g-buffer.
-    //
-    // FoliageObject: the plant grid of a patch is split into cells of about CELL_SIZE x CELL_SIZE world units.
-    // Each cell is frustum culled on the CPU and drawn with one instanced draw call (near cells first).
-    // Level of detail (pixel width based): plants are never drawn thinner than MIN_PIXEL_WIDTH pixels, because
-    // sub-pixel blades flicker. A plant that would be k times too thin is drawn about k times wider and only
-    // about 1/k of the plants are kept (keep = 1/k), so the covered area stays the same.
-    // Inside a cell the instances are drawn in bit reversed order, so every prefix of the instance range is
-    // spread evenly over the cell. The rank of a plant in that order decides how long it is kept: the vertex
-    // shader shrinks it to zero once keep drops below its rank, and the CPU only draws the part of the instance
-    // range that can still be visible at the nearest point of the cell (so nothing pops). All plants also
-    // shrink to zero towards the draw distance.
-    //
-    // FoliageObjectCustom: alpha tested cards, culled per object and faded out towards the draw distance.
     internal static class RendererGBufferFoliage
     {
         // uniform locations of one of the two foliage programs
@@ -32,6 +18,7 @@ namespace KWEngine3.Renderer
             public int UModelMatrix = -1;
             public int UNormalMatrix = -1;
             public int UColorTintAndEmissive = -1;
+            public int UHue = -1;
             public int UTextureAlbedo = -1;
             public int UTextureNormal = -1;
             public int UTextureNoise = -1;
@@ -49,6 +36,7 @@ namespace KWEngine3.Renderer
             public int UCell = -1;
             public int UCellLength = -1;
             public int ULOD = -1;
+            public int UAlignToTerrain = -1;
             // FoliageObjectCustom only:
             public int UPosScaleUV1 = -1;
             public int UPosScaleUV2 = -1;
@@ -125,6 +113,7 @@ namespace KWEngine3.Renderer
             p.UModelMatrix = GL.GetUniformLocation(p.ProgramID, "uModelMatrix");
             p.UNormalMatrix = GL.GetUniformLocation(p.ProgramID, "uNormalMatrix");
             p.UColorTintAndEmissive = GL.GetUniformLocation(p.ProgramID, "uColorTintEmissive");
+            p.UHue = GL.GetUniformLocation(p.ProgramID, "uHue");
             p.UTextureAlbedo = GL.GetUniformLocation(p.ProgramID, "uTextureAlbedo");
             p.UTextureNormal = GL.GetUniformLocation(p.ProgramID, "uTextureNormal");
             p.UTextureNoise = GL.GetUniformLocation(p.ProgramID, "uNoiseMap");
@@ -141,6 +130,7 @@ namespace KWEngine3.Renderer
             p.UCell = GL.GetUniformLocation(p.ProgramID, "uCell");
             p.UCellLength = GL.GetUniformLocation(p.ProgramID, "uCellLength");
             p.ULOD = GL.GetUniformLocation(p.ProgramID, "uLOD");
+            p.UAlignToTerrain = GL.GetUniformLocation(p.ProgramID, "uAlignToTerrain");
             p.UPosScaleUV1 = GL.GetUniformLocation(p.ProgramID, "uPosScaleUV1");
             p.UPosScaleUV2 = GL.GetUniformLocation(p.ProgramID, "uPosScaleUV2");
             p.UFade = GL.GetUniformLocation(p.ProgramID, "uFade");
@@ -303,6 +293,7 @@ namespace KWEngine3.Renderer
             GL.UniformMatrix4(p.UModelMatrix, false, ref f._modelMatrix);
             GL.UniformMatrix4(p.UNormalMatrix, false, ref f._normalMatrix);
             GL.Uniform4(p.UColorTintAndEmissive, f._color);
+            GL.Uniform1(p.UHue, f._hue);
             GL.Uniform3(p.UPatchSizeTime, new Vector3(f._patchSize.X, f._patchSize.Y, KWEngine.CurrentWorld.WorldTime));
             GL.Uniform2(p.UNXNZ, f._nXZ);
             GL.Uniform4(p.UDXDZSwayRound, f._dXZ.X, f._dXZ.Y, f._swayFactor, f.IsSizeReducedAtCorners ? 0.05f : 1.0f);
@@ -320,7 +311,7 @@ namespace KWEngine3.Renderer
             GL.Uniform1(p.UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, f.Type == FoliageType.GrassMinecraft || f.Type == FoliageType.Fern ? KWEngine.TextureNormalEmpty : KWEngine.TextureFoliageGrassNormal);
+            GL.BindTexture(TextureTarget.Texture2D, f.Type == FoliageType.GrassMinecraft || f.Type == FoliageType.Fern || f.Type == FoliageType.GroundCover ? KWEngine.TextureNormalEmpty : KWEngine.TextureFoliageGrassNormal);
             GL.Uniform1(p.UTextureNormal, 1);
 
             GL.ActiveTexture(TextureUnit.Texture2);
@@ -347,6 +338,13 @@ namespace KWEngine3.Renderer
                 indexBuffer = m.VBOIndex;
                 indexCount = m.IndexCount;
             }
+            else if (f.Type == FoliageType.GroundCover)
+            {
+                GeoMesh m = KWEngine.KWFoliageGroundCover.MeshesArray[0];
+                vao = m.VAO;
+                indexBuffer = m.VBOIndex;
+                indexCount = m.IndexCount;
+            }
             else
             {
                 vao = KWFoliageGrass.VAO;
@@ -357,6 +355,7 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(vao);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer);
             GL.Uniform2(p.UCellLength, cellLength, cellLengthLog2);
+            GL.Uniform1(p.UAlignToTerrain, f.Type == FoliageType.GroundCover ? 1 : 0); // ground cover is tilted with the terrain
             for (int i = 0; i < cellCount; i++)
             {
                 FoliageCell c = _cells[i];
@@ -375,6 +374,7 @@ namespace KWEngine3.Renderer
 
             // Bind uniforms
             GL.Uniform4(p.UColorTintAndEmissive, f._color);
+            GL.Uniform1(p.UHue, f._hue);
             GL.Uniform3(p.UPatchSizeTime, new Vector3(0f, 0f, KWEngine.CurrentWorld.WorldTime));
             GL.Uniform2(p.UNoise, f._noise.Length / 2, f._noise); // TODO: check if /2 really cuts it here ;-)
             GL.Uniform2(p.URoughnessMetallic, f._roughness, 0.0f);
@@ -392,7 +392,7 @@ namespace KWEngine3.Renderer
 
             BindTerrain(p, f._terrainObject);
 
-            GeoMesh m = KWEngine.KWFoliageImposter.MeshesArray[0];
+            GeoMesh m = (f.ImposterType == FoliageImposterType.Cross ? KWEngine.KWFoliageImposterCross : KWEngine.KWFoliageImposter).MeshesArray[0];
             GL.BindVertexArray(m.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
             GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
@@ -419,10 +419,18 @@ namespace KWEngine3.Renderer
         }
 
         // Distance up to which a plant of nominal size (random size factor 1) is at least MIN_PIXEL_WIDTH wide on screen.
-        // Reference width per type: grass = upper part of the blade, fern = a leaf, minecraft grass = one quad.
+        // Reference width per type: grass = upper part of the blade, fern = a leaf, minecraft grass = one quad, ground cover = a leaflet.
         private static float GetMinWidthDistance(FoliageObject f, float pixelsPerUnit)
         {
-            float referenceWidth = f.Type == FoliageType.Fern ? 0.04f : (f.Type == FoliageType.GrassMinecraft ? 0.124f : KWFoliageGrass.XH * 2f);
+            float referenceWidth;
+            if (f.Type == FoliageType.Fern)
+                referenceWidth = 0.04f;
+            else if (f.Type == FoliageType.GrassMinecraft)
+                referenceWidth = 0.124f;
+            else if (f.Type == FoliageType.GroundCover)
+                referenceWidth = 0.06f;
+            else
+                referenceWidth = KWFoliageGrass.XH * 2f;
             return pixelsPerUnit * referenceWidth * Math.Min(f._scale.X, f._scale.Z) / MIN_PIXEL_WIDTH;
         }
 
@@ -433,8 +441,9 @@ namespace KWEngine3.Renderer
             originX = f._position.X - f._dXZ.X * (f._nXZ.X - 1) * 0.5f;
             originZ = f._position.Z - f._dXZ.Y * (f._nXZ.Y - 1) * 0.5f;
 
-            float plantRadius = f.Type == FoliageType.Fern ? 0.45f : (f.Type == FoliageType.GrassMinecraft ? 0.1f : 0.03f);
-            float plantHeight = 1.1f * f._scale.Y; // the random height factor in the vertex shader is about 1.06 at most
+            float plantRadius = f.Type == FoliageType.Fern ? 0.45f : (f.Type == FoliageType.GrassMinecraft ? 0.1f : (f.Type == FoliageType.GroundCover ? 0.4f : 0.03f));
+            // model height 1 (ground cover: 0.1), the random height factor in the vertex shader is about 1.06 at most
+            float plantHeight = (f.Type == FoliageType.GroundCover ? 0.12f : 1.1f) * f._scale.Y;
             float bend = plantHeight * MathF.Sin(f._swayFactor * MathHelper.PiOver2);
             float widenMax = Math.Clamp(f._drawDistance / (minWidthDistance * PLANT_SIZE_MIN), 1f, 1f / LOD_KEEP_MIN);
             margin = JITTER_MAX + plantRadius * widenMax * 1.1f * Math.Max(f._scale.X, f._scale.Z) + bend;

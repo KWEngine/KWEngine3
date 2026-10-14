@@ -25,6 +25,7 @@ namespace KWEngine3.Helper
         // COLOR
         public float[] Color { get; set; }
         public float[] ColorEmissive { get; set; }
+        public float[] Hue { get; set; } // degrees per mesh (missing in older files)
         public List<float> Metallic { get; set; }
         public List<float> Roughness { get; set; }
         public MetallicType MetallicType { get; set; }
@@ -61,10 +62,16 @@ namespace KWEngine3.Helper
             rg.ColorEmissive = new float[r._model.Material.Length * 4];
             for (int m = 0; m < r._model.Material.Length; m++)
             {
-                rg.ColorEmissive[m + 0] = r._model.Material[m].ColorEmissive.X;
-                rg.ColorEmissive[m + 1] = r._model.Material[m].ColorEmissive.Y;
-                rg.ColorEmissive[m + 2] = r._model.Material[m].ColorEmissive.Z;
-                rg.ColorEmissive[m + 3] = r._model.Material[m].ColorEmissive.W;
+                rg.ColorEmissive[m * 4 + 0] = r._model.Material[m].ColorEmissive.X;
+                rg.ColorEmissive[m * 4 + 1] = r._model.Material[m].ColorEmissive.Y;
+                rg.ColorEmissive[m * 4 + 2] = r._model.Material[m].ColorEmissive.Z;
+                rg.ColorEmissive[m * 4 + 3] = r._model.Material[m].ColorEmissive.W;
+            }
+
+            rg.Hue = new float[r._model.ModelOriginal.Meshes.Count];
+            for (int meshIndex = 0; meshIndex < rg.Hue.Length; meshIndex++)
+            {
+                rg.Hue[meshIndex] = r.GetHue(meshIndex);
             }
 
             rg.MetallicType = r._model._metallicType;

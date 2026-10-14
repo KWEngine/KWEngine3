@@ -48,6 +48,10 @@ namespace KWEngine3.GameObjects
             {
                 _textureId = KWEngine.TextureFoliageFern;
             }
+            else if(type == FoliageType.GroundCover)
+            {
+                _textureId = KWEngine.TextureFoliageGroundCover;
+            }
         }
 
         /// <summary>
@@ -142,6 +146,24 @@ namespace KWEngine3.GameObjects
         public void SetSwayFactor(float swayFactor)
         {
             _swayFactor = Math.Clamp(swayFactor, 0f, 1f);
+        }
+
+        /// <summary>
+        /// Setzt die Farbverschiebung (Hue) der Textur in Grad
+        /// </summary>
+        /// <param name="hue">Farbverschiebung (in Grad)</param>
+        public void SetHue(float hue)
+        {
+            _hue = MathHelper.DegreesToRadians(hue % 360f);
+        }
+
+        /// <summary>
+        /// Erfragt die aktuelle Farbverschiebung (Hue) in Grad
+        /// </summary>
+        /// <returns>Aktuelle Farbverschiebung (in Grad)</returns>
+        public float GetHue()
+        {
+            return MathHelper.RadiansToDegrees(_hue);
         }
 
         /// <summary>
@@ -266,6 +288,7 @@ namespace KWEngine3.GameObjects
 
         #region internals
         internal Vector4 _color = new(1f, 1f, 1f, 0f);
+        internal float _hue = 0f; // radians
         internal Vector3 _position = new();
         internal Vector3 _scale = Vector3.One;
         internal float _roughness = 1.0f;

@@ -16,6 +16,10 @@ namespace KWEngine3
     public abstract class World
     {
         #region Internals
+        internal static float Sanitize(float value, float min, float max)
+        {
+            return float.IsFinite(value) ? Math.Clamp(value, min, max) : min;
+        }
         internal float _textinputLostFocusTimout = 0f;
         internal LightObject _hasSun = null;
 
@@ -1907,33 +1911,33 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Startet ein zeitbegrenztes Schütteln der Kamera
+        /// Startet ein zeitbegrenztes Schütteln der Kamera (z.B. bei Explosionen oder Treffern)
         /// </summary>
-        /// <param name="shakeX">Stärke der Verschiebung relativ zur lokalen x-Achse der Kamera</param>
-        /// <param name="shakeY">Stärke der Verschiebung relativ zur lokalen y-Achse der Kamera</param>
-        /// <param name="shakeZ">Stärke der Verschiebung relativ zur lokalen z-Achse der Kamera</param>
-        /// <param name="duration">Dauer des Effekts (in Sekunden, Standard: 1f)</param>
-        /// <param name="speed">Geschwindigkeit des Effekts (Standard: 100f)</param>
-        /// <param name="mode">Modus, der festlegt, wie mit den neuen Werten umgegangen wird</param>
-        public void StartCameraShake(float shakeX, float shakeY, float shakeZ, float duration = 1f, float speed = 100f, ShakeMode mode = ShakeMode.Additive)
+        /// <remarks>
+        /// Die Kamera dreht sich dabei leicht um ihre eigene Position, die Kameraposition selbst bleibt unverändert.
+        /// Das Zittern betrifft nur die Darstellung: IsInsideScreenSpace, CameraPosition, CameraLookAtVector,
+        /// HelperVector.GetScreenCoordinatesFor() und die Mausposition in 3D bleiben davon unberührt.
+        /// Die Stärke klingt bis zum Ende der Dauer weich auf 0 ab.
+        /// </remarks>
+        /// <param name="yaw">Maximaler Ausschlag in Grad nach links/rechts (Drehung um die lokale y-Achse der Kamera, gültig: 0f bis 30f)</param>
+        /// <param name="pitch">Maximaler Ausschlag in Grad nach oben/unten (Drehung um die lokale x-Achse der Kamera, gültig: 0f bis 30f)</param>
+        /// <param name="roll">Maximale Neigung in Grad (Drehung um die Blickachse der Kamera, gültig: 0f bis 30f)</param>
+        /// <param name="duration">Dauer des Effekts in Sekunden (Standard: 1f)</param>
+        /// <param name="frequency">Geschwindigkeit des Zitterns als ungefähre Anzahl der Richtungswechsel pro Sekunde (Standard: 15f, gültig: 1f bis 60f)</param>
+        /// <param name="mode">Additive: Die Werte werden zur noch verbleibenden Stärke eines laufenden Zitterns addiert; Absolute: Ein laufendes Zittern wird ersetzt</param>
+        public void StartCameraShake(float yaw, float pitch, float roll, float duration = 1f, float frequency = 15f, ShakeMode mode = ShakeMode.Additive)
         {
-            shakeX = Math.Max(0f, shakeX);
-            shakeY = Math.Max(0f, shakeY);
-            shakeZ = Math.Max(0f, shakeZ);
-            _cameraGame._stateCurrent._shakeTimestamp = WorldTime;
-            if (mode == ShakeMode.Additive)
-            {
-                _cameraGame._stateCurrent._shakeOffset = new Vector3(
-                    Math.Max(_cameraGame._stateCurrent._shakeOffset.X, shakeX),
-                    Math.Max(_cameraGame._stateCurrent._shakeOffset.Y, shakeY),
-                    Math.Max(_cameraGame._stateCurrent._shakeOffset.Z, shakeZ));
-                _cameraGame._stateCurrent._shakeDuration = Math.Max(_cameraGame._stateCurrent._shakeDuration, duration);
-            }
-            else
-            {
-                _cameraGame._stateCurrent._shakeOffset = new Vector3(shakeX, shakeY, shakeZ);
-                _cameraGame._stateCurrent._shakeDuration = Math.Max(0f, duration);
-            }
+
+
+            Vector3 amplitude = new(
+                Sanitize(yaw, 0f, CameraShake.MAXANGLE),
+                Sanitize(pitch, 0f, CameraShake.MAXANGLE),
+                Sanitize(roll, 0f, CameraShake.MAXANGLE));
+            duration = Sanitize(duration, 0f, float.MaxValue);
+            frequency = Sanitize(frequency, CameraShake.MINFREQUENCY, CameraShake.MAXFREQUENCY);
+
+            _cameraGame._stateCurrent._shake.Start(amplitude, duration, frequency, mode == ShakeMode.Additive, WorldTime);
+            _cameraGame.UpdateFrustumRenderPass();
         }
 
         /// <summary>
@@ -2366,7 +2370,7 @@ namespace KWEngine3
         public float WorldTime { get { return KWEngine.WorldTime; } }
 
         /// <summary>
-        /// Setzt die vergangene Weltzeit zurück auf 0 Sekunden (ACHTUNG: Löscht alle vorhandenen Explosions- und Partikelobjekte sowie geplante Events in der Welt)
+        /// Setzt die vergangene Weltzeit zurück auf 0 Sekunden (ACHTUNG: Löscht alle vorhandenen Explosions- und Partikelobjekte sowie geplante Events in der Welt und beendet ein laufendes Kamerazittern)
         /// </summary>
         /// <param name="initialTime">optional: setzt die Weltzeit auf die angegebene Sekundenzahl</param>
         public void ResetWorldTime(float initialTime = 0f)
@@ -2374,6 +2378,8 @@ namespace KWEngine3
             _eventQueue.Clear();
             _particleAndExplosionObjects.Clear();
             KWEngine.WorldTime = Math.Max(0, initialTime);
+            _cameraGame._stateCurrent._shake.Stop(); // shake timestamps refer to the old world time
+            _cameraGame.UpdateFrustumRenderPass();
         }
 
         /// <summary>

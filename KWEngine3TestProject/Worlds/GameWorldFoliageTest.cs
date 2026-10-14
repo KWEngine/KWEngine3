@@ -50,7 +50,7 @@ namespace KWEngine3TestProject.Worlds
             AddFoliageObject(tf1);
             */
 
-            FoliageObject tf2 = new FoliageObject(FoliageType.GrassFresh, 200000);
+            FoliageObject tf2 = new FoliageObject(FoliageType.GroundCover, 10000);
             tf2.SetPosition(-22, 0, 0);
             tf2.SetPatchSize(20, 40);
             tf2.SetScale(1f, 0.75f, 1f);

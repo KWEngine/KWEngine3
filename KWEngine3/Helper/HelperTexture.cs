@@ -3066,7 +3066,7 @@ namespace KWEngine3.Helper
                 KWEngine.TextureDefault, KWEngine.TextureBlack, KWEngine.TextureWhite, KWEngine.TextureAlpha, KWEngine.TextureNormalEmpty,
                 KWEngine.TextureCheckerboard, KWEngine.TextureFlowFieldArrow, KWEngine.TextureFlowFieldCross,
                 KWEngine.TextureFoliageGrass1, KWEngine.TextureFoliageGrass2, KWEngine.TextureFoliageGrass3,
-                KWEngine.TextureFoliageGrassMinecraft, KWEngine.TextureFoliageFern, KWEngine.TextureFoliageGrassNormal
+                KWEngine.TextureFoliageGrassMinecraft, KWEngine.TextureFoliageFern, KWEngine.TextureFoliageGroundCover, KWEngine.TextureFoliageGrassNormal
             };
             foreach (int id in engineTextures)
             {

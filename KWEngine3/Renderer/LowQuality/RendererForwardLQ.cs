@@ -260,7 +260,7 @@ namespace KWEngine3.Renderer.LowQuality
         {
             if (isVSG)
             {
-                Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrixNoShake : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
+                Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrixVSG : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
                 GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
             }
             else

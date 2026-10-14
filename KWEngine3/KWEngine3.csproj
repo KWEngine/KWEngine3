@@ -8,9 +8,9 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2026-10-13)</Product>
+		<Product>KWEngine3 (updated: 2026-10-14)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.7.6</Version>
+		<Version>3.0.7.7</Version>
 		<AssemblyVersion>3.0.7.7</AssemblyVersion>
 		<FileVersion>3.0.7.7</FileVersion>
 		<ProductVersion>3.0.7.7</ProductVersion>
@@ -49,6 +49,8 @@
 		<None Remove="Assets\Models\kwcube6.mtl" />
 		<None Remove="Assets\Models\kwcube6.obj" />
 		<None Remove="Assets\Models\kwgrass_fern.obj" />
+		<None Remove="Assets\Models\kwgrass_groundcover.obj" />
+		<None Remove="Assets\Models\kwgrass_imposter_cross.obj" />
 		<None Remove="Assets\Models\kwgrass_minecraft.obj" />
 		<None Remove="Assets\Models\kwmapquadxy.obj" />
 		<None Remove="Assets\Models\kwmapquadxz.obj" />
@@ -77,6 +79,7 @@
 		<None Remove="Assets\Textures\fire03.dds" />
 		<None Remove="Assets\Textures\fire04.dds" />
 		<None Remove="Assets\Textures\foliage_fern.dds" />
+		<None Remove="Assets\Textures\foliage_groundcover.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_01.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_02.dds" />
 		<None Remove="Assets\Textures\foliage_grassblade_03.dds" />
@@ -229,6 +232,8 @@
 		<EmbeddedResource Include="Assets\Models\kwcube6.obj" />
 		<EmbeddedResource Include="Assets\Models\kwgrass_imposter.obj" />
 		<EmbeddedResource Include="Assets\Models\kwgrass_fern.obj" />
+		<EmbeddedResource Include="Assets\Models\kwgrass_groundcover.obj" />
+		<EmbeddedResource Include="Assets\Models\kwgrass_imposter_cross.obj" />
 		<EmbeddedResource Include="Assets\Models\kwgrass_minecraft.obj" />
 		<EmbeddedResource Include="Assets\Models\kwmapquadxy.obj" />
 		<EmbeddedResource Include="Assets\Models\kwmapquadxz.obj" />
@@ -251,6 +256,7 @@
 		<EmbeddedResource Include="Assets\Textures\default.dds" />
 		<EmbeddedResource Include="Assets\Textures\default.png" />
 		<EmbeddedResource Include="Assets\Textures\foliage_fern.dds" />
+		<EmbeddedResource Include="Assets\Textures\foliage_groundcover.dds" />
 		<EmbeddedResource Include="Assets\Textures\foliage_grassblade_01.dds">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

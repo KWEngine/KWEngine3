@@ -279,16 +279,16 @@
     }
 
     /// <summary>
-    /// Gibt an, ob die für das Kamerazittern festgelegten Werte zusätzlich zum ggf. bestehenden Zittern addiert werden oder die bisherigen Werte ersetzen.
+    /// Gibt an, wie ein neues Kamerazittern mit einem ggf. noch laufenden Zittern verrechnet wird (siehe World.StartCameraShake())
     /// </summary>
     public enum ShakeMode
     {
         /// <summary>
-        /// Addiert die Werte zu ggf. gerade aktiven Werten
+        /// Addiert die neuen Werte zur noch verbleibenden Stärke eines laufenden Zitterns (das Zittern endet mit dem späteren der beiden Enden)
         /// </summary>
         Additive = 0,
         /// <summary>
-        /// Ersetzt bisher ggf. festgelegte Werte
+        /// Ersetzt ein laufendes Zittern durch die neuen Werte (mit Dauer 0f wird ein laufendes Zittern sofort beendet)
         /// </summary>
         Absolute = 1
     }
@@ -552,7 +552,26 @@
         /// <summary>
         /// Strauch
         /// </summary>
-        Fern
+        Fern,
+        /// <summary>
+        /// Bodendecker (niedrige, kleeartige Pflanzen; für einen geschlossenen Teppich ca. 15 bis 20 Instanzen pro Quadratmeter)
+        /// </summary>
+        GroundCover
+    }
+
+    /// <summary>
+    /// Anordnung der Quads, auf denen die Textur eines FoliageObjectCustom dargestellt wird
+    /// </summary>
+    public enum FoliageImposterType
+    {
+        /// <summary>
+        /// Drei senkrechte Quads in unregelmäßigen Winkeln (Standard)
+        /// </summary>
+        ThreeQuads,
+        /// <summary>
+        /// Zwei senkrechte Quads, die sich im rechten Winkel kreuzen (X-Form, übliche Anordnung für Imposter-Texturen)
+        /// </summary>
+        Cross
     }
 
     /// <summary>

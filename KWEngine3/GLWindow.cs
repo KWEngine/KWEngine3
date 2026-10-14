@@ -1333,6 +1333,12 @@ namespace KWEngine3
                     KWEngine.CurrentWorld._cameraGame.BackupCameraState();
                     KWEngine.CurrentWorld._cameraEditor.BackupCameraState();
 
+                    // camera shake: shrink the culling reserve of the render pass while the shake decays (and drop it once the shake has ended)
+                    if (!KWEngine.EditModeActive && KWEngine.CurrentWorld._cameraGame._frustumRenderPassMode != EngineCamera.Camera.FrustumRenderPassMode.SameAsGameplay)
+                    {
+                        KWEngine.CurrentWorld._cameraGame.UpdateFrustumRenderPass();
+                    }
+
                     KWEngine.CurrentWorld._background._statePrevious = KWEngine.CurrentWorld._background._stateCurrent;
                     KWEngine.CurrentWorld._fadeStatePrevious = KWEngine.CurrentWorld._fadeStateCurrent;
 
@@ -1344,12 +1350,12 @@ namespace KWEngine3
                     foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
                     {
                         t._statePrevious = t._stateCurrent;
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
+                        KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(t);
                     }
 
                     foreach (FoliageBase f in KWEngine.CurrentWorld._foliageObjects)
                     {
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(f);
+                        KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(f);
                     }
 
                     foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
@@ -1399,7 +1405,7 @@ namespace KWEngine3
                             }
                             g.Act();
                             KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
-                            KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
+                            KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(g);
                         }
                     }
 
@@ -1407,7 +1413,7 @@ namespace KWEngine3
                     {
                         g.Act();
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
+                        KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(g);
                     }
 
                     foreach (GameObject g in _updatePostponedObjectsAttachments)
@@ -1415,7 +1421,7 @@ namespace KWEngine3
                         g.Act();
 
                         KWEngine.CurrentWorld.UpdateWorldDimensions(g._stateCurrent._center, g._stateCurrent._dimensions);
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(g);
+                        KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(g);
                     }
 
                     for (int i = KWEngine.CurrentWorld._particleAndExplosionObjects.Count - 1; i >= 0; i--)
@@ -1438,7 +1444,7 @@ namespace KWEngine3
                         {
                             t.Act();
                         }
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(t);
+                        KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(t);
                     }
 
                     foreach (RenderObject r in KWEngine.CurrentWorld._renderObjects)
@@ -1448,7 +1454,7 @@ namespace KWEngine3
                         {
                             r.Act();
                         }
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(r);
+                        KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(r);
                     }
 
                     bool hudobjectlostfocus = KWEngine.CurrentWorld.ProcessWorldEventQueue();
@@ -1480,7 +1486,7 @@ namespace KWEngine3
                             }
                             KWEngine.CurrentWorld._viewSpaceGameObject.Act();
                         }
-                        KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
+                        KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
 
                         foreach (GameObject attachment in KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._gameObjectsAttached.Values)
                         {
@@ -1497,7 +1503,7 @@ namespace KWEngine3
                                 }
                                 attachment.Act();
                             }
-                            KWEngine.CurrentWorld._cameraGame._frustum.UpdateScreenSpaceStatus(attachment);
+                            KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(attachment);
                         }
                     }
 

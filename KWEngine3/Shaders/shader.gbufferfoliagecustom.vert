@@ -36,8 +36,8 @@ float getHeightFromTexture(vec3 vertexPos)
         float uvX = clamp((vertexPos.x - uTerrainPosition.x + (uTerrainScale.x + 1.0) * 0.5) / (uTerrainScale.x + 1.0), 0.0, 1.0);
         float uvZ = clamp((vertexPos.z - uTerrainPosition.z + (uTerrainScale.z + 1.0) * 0.5) / (uTerrainScale.z + 1.0), 0.0, 1.0);
 
-        vec4 texColor = textureLod(uTerrainHeightMap, vec2(uvX, uvZ), 0.0);
-        height = ((texColor.r + texColor.g + texColor.b) / 3.0) * uTerrainScale.y + uTerrainPosition.y;
+        // red channel like the terrain shader (gray height maps are single channel textures)
+        height = textureLod(uTerrainHeightMap, vec2(uvX, uvZ), 0.0).r * uTerrainScale.y + uTerrainPosition.y;
     }
     return height;
 }

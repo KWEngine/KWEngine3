@@ -237,7 +237,14 @@ namespace KWEngine3.Model
                     Vector3 t = tanSum[i];
 
                     // Gram-Schmidt-Orthonormalisierung
-                    t = Vector3.Normalize(t - n * Vector3.Dot(n, t));
+                    t = t - n * Vector3.Dot(n, t);
+                    if (t.LengthSquared < 1e-12f)
+                    {
+                        // degenerate texture coordinates (e.g. a triangle whose uvs lie on a line): the tangent is undefined,
+                        // any direction perpendicular to the normal avoids NaN in the shaders (black pixels)
+                        t = Vector3.Cross(n, MathF.Abs(n.Y) < 0.99f ? Vector3.UnitY : Vector3.UnitX);
+                    }
+                    t = Vector3.Normalize(t);
 
                     // Handedness bestimmen
                     Vector3 bOrig = bitanSum[i];

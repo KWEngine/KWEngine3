@@ -164,7 +164,7 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Gibt an oder setzt den Faktor, der bei der Berechnung des Kameraschüttelns einer ViewSpaceGameObject-Instanz zugerechnet wird (Standard: 0.1f, gültiger Wertebereich liegt zwischen 0f und 1f)
+        /// Gibt an oder setzt, wie stark das Kamerazittern (siehe World.StartCameraShake()) auf eine ViewSpaceGameObject-Instanz wirkt (0f = gar nicht, 1f = so stark wie auf die übrige Welt; Standard: 0.1f)
         /// </summary>
         public static float ViewSpaceGameObjectShakeFactor
         {
@@ -1241,6 +1241,7 @@ namespace KWEngine3
         internal static int TextureFoliageGrass3 = -1;
         internal static int TextureFoliageGrassMinecraft = -1;
         internal static int TextureFoliageFern = -1;
+        internal static int TextureFoliageGroundCover = -1;
         internal static int TextureFoliageGrassNormal = -1;
 
         internal static float TimeElapsed = 0;
@@ -1302,6 +1303,7 @@ namespace KWEngine3
             TextureFoliageGrass3 = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_03.dds", out mipMaps);
             TextureFoliageGrassMinecraft = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_grassblade_minecraft.dds", out mipMaps);
             TextureFoliageFern = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_fern.dds", out mipMaps);
+            TextureFoliageGroundCover = HelperTexture.LoadTextureForModelInternalExecutingAssembly("foliage_groundcover.dds", out mipMaps);
             TextureFoliageGrassNormal = HelperTexture.LoadTextureInternal("foliage_grassblade_normal.png");
 
             TextureDepthEmpty = HelperTexture.CreateEmptyDepthTexture();
@@ -1325,7 +1327,9 @@ namespace KWEngine3
         internal static GeoMeshCollider KWSphereCollider;
         internal static GeoModel KWFoliageMinecraft;
         internal static GeoModel KWFoliageFern;
+        internal static GeoModel KWFoliageGroundCover;
         internal static GeoModel KWFoliageImposter;
+        internal static GeoModel KWFoliageImposterCross;
         internal static GeoModel KWMapItemXZ;
         internal static GeoModel KWMapItemXY;
 
@@ -1347,9 +1351,11 @@ namespace KWEngine3
             KWCapsule2 = SceneImporter.LoadColliderInternal("capsulehitbox2.obj", ColliderType.ConvexHull);
             KWFoliageMinecraft = SceneImporter.LoadModel("kwgrass_minecraft.obj", true, SceneImporter.AssemblyMode.Internal);
             KWFoliageFern = SceneImporter.LoadModel("kwgrass_fern.obj", true, SceneImporter.AssemblyMode.Internal);
+            KWFoliageGroundCover = SceneImporter.LoadModel("kwgrass_groundcover.obj", true, SceneImporter.AssemblyMode.Internal);
             KWMapItemXZ = SceneImporter.LoadModel("kwmapquadxz.obj", false, SceneImporter.AssemblyMode.Internal);
             KWMapItemXY = SceneImporter.LoadModel("kwmapquadxy.obj", false, SceneImporter.AssemblyMode.Internal);
             KWFoliageImposter = SceneImporter.LoadModel("kwgrass_imposter.obj", true, SceneImporter.AssemblyMode.Internal);
+            KWFoliageImposterCross = SceneImporter.LoadModel("kwgrass_imposter_cross.obj", true, SceneImporter.AssemblyMode.Internal);
 
             KWFoliageGrass.Init();
         }
@@ -1451,6 +1457,7 @@ namespace KWEngine3
                     _texMemUsed = MathF.Round(HelperGeneral.GetTextureStorageSize() / 1000000f, 2);
                     _geometryMemUsed = MathF.Round(HelperGeneral.GetGeometryStorageSize() / 1000000f, 2);
                     CurrentWorld._cameraEditor = CurrentWorld._cameraGame;
+                    CurrentWorld._cameraEditor._stateCurrent._shake.Stop(); // the editor camera never shakes
                     CurrentWorld._cameraEditor.UpdatePitchYaw(true);
                     CurrentWorld._cameraEditor.SetNearFarBound(0.1f, 10000f);
                     _stateCameraGameBeforeToggle = Window.CursorState;
@@ -1459,7 +1466,7 @@ namespace KWEngine3
                 else
                 {
                     Audio.Audio.ContinueAllSound();
-                    CurrentWorld._cameraGame._frustum.UpdateFrustum(CurrentWorld._cameraGame._stateCurrent.ProjectionMatrix, CurrentWorld._cameraGame._stateCurrent.ViewMatrix);
+                    CurrentWorld._cameraGame.UpdateFrustum();
                     Window.CursorState = _stateCameraGameBeforeToggle;
                     DeselectAll();
                 }

@@ -111,7 +111,9 @@
       <Field Name="KWCapsule2" Hidden="true" />
       <Field Name="KWDollar" Hidden="true" />
       <Field Name="KWFoliageFern" Hidden="true" />
+      <Field Name="KWFoliageGroundCover" Hidden="true" />
       <Field Name="KWFoliageImposter" Hidden="true" />
+      <Field Name="KWFoliageImposterCross" Hidden="true" />
       <Field Name="KWFoliageMinecraft" Hidden="true" />
       <Field Name="KWHeart" Hidden="true" />
       <Field Name="KWLightBulb" Hidden="true" />
@@ -151,6 +153,7 @@
       <Field Name="TextureFoliageGrass3" Hidden="true" />
       <Field Name="TextureFoliageGrassMinecraft" Hidden="true" />
       <Field Name="TextureFoliageGrassNormal" Hidden="true" />
+      <Field Name="TextureFoliageGroundCover" Hidden="true" />
       <Field Name="TextureNoise" Hidden="true" />
       <Field Name="TextureNormalEmpty" Hidden="true" />
       <Field Name="TextureWhite" Hidden="true" />
@@ -159,7 +162,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DfoQRbBNA+SJgPGc/AruCZARVCgCgmoSjHn2SP2KEKk=</HashCode>
+      <HashCode>DfoQVbBNA+SJgPGc/AruCZARVCgCgmoSjHn2SP2KEKk=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -256,6 +259,7 @@
       <Method Name="PrepareLightObjectsForRenderPass" Hidden="true" />
       <Method Name="ProcessWorldEventQueue" Hidden="true" />
       <Method Name="ResetWorldDimensions" Hidden="true" />
+      <Method Name="Sanitize" Hidden="true" />
       <Method Name="UpdateLightObjectsForRenderQuality" Hidden="true" />
       <Method Name="UpdateWorldDimensions" Hidden="true" />
     </Members>
@@ -374,7 +378,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.TerrainObject">
-    <Position X="12.5" Y="11.25" Width="2.75" />
+    <Position X="12.5" Y="12.25" Width="2.75" />
     <Members>
       <Field Name="_gModel" Hidden="true" />
       <Field Name="_heightmap" Hidden="true" />
@@ -687,6 +691,7 @@
       <Field Name="_color" Hidden="true" />
       <Field Name="_drawDistance" Hidden="true" />
       <Field Name="_dXZ" Hidden="true" />
+      <Field Name="_hue" Hidden="true" />
       <Field Name="_instanceCount" Hidden="true" />
       <Field Name="_modelMatrix" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -707,7 +712,7 @@
       <Method Name="UpdateModelMatrix" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QABAIAAwAAAIACQxAgAADKQKAEABAkgIAQgIogBDbSQ=</HashCode>
+      <HashCode>QABAIAAwAAAJACQxggAADKQKAEABAkgIAQgIogBDbSQ=</HashCode>
       <FileName>GameObjects\FoliageObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
@@ -793,7 +798,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldMap">
-    <Position X="12.5" Y="17.75" Width="2.75" />
+    <Position X="12.5" Y="18.75" Width="2.75" />
     <Members>
       <Field Name="_AABBProjectionList" Hidden="true" />
       <Field Name="_background" Hidden="true" />
@@ -942,11 +947,12 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.FoliageObjectCustom">
-    <Position X="12.5" Y="6.5" Width="2.75" />
+    <Position X="12.5" Y="6.75" Width="2.75" />
     <Members>
       <Field Name="_alphaMipScales" Hidden="true" />
       <Field Name="_camDistanceMax" Hidden="true" />
       <Field Name="_color" Hidden="true" />
+      <Field Name="_hue" Hidden="true" />
       <Field Name="_instanceCount" Hidden="true" />
       <Field Name="_isInWorld" Hidden="true" />
       <Field Name="_name" Hidden="true" />
@@ -969,7 +975,7 @@
       <Method Name="UpdateArrayAndPatchSize" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QARCIAAwAAAIAAQBAgAACIQIAGIAAkAEAAgJggBBYQU=</HashCode>
+      <HashCode>UAVCIAAwAAAJAAQBggAACIQIAGIAAkAEAAgJggBBYQU=</HashCode>
       <FileName>GameObjects\FoliageObjectCustom.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

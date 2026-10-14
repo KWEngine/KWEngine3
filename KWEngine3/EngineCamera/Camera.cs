@@ -17,11 +17,80 @@ namespace KWEngine3.EngineCamera
         internal CameraState _stateCurrent = new();
         internal CameraState _stateRender = new();
 
-        internal Frustum _frustum = new();
+        internal Frustum _frustum = new(); // gameplay (IsInsideScreenSpace): exact frustum of the simulation state, never includes the camera shake
+        internal Frustum _frustumRenderPass = new(); // render pass culling while the camera shakes: _frustum widened by the current shake envelope
+        internal FrustumRenderPassMode _frustumRenderPassMode = FrustumRenderPassMode.SameAsGameplay;
+
+        internal enum FrustumRenderPassMode
+        {
+            SameAsGameplay,  // no shake: render pass culling uses _frustum
+            Widened,         // shake: render pass culling uses _frustumRenderPass
+            NoCulling        // shake angle plus field of view close to 90 degrees: draw everything
+        }
+
+        /// <summary>
+        /// Frustum for IsInsideScreenSpaceForRenderPass (null = no culling)
+        /// </summary>
+        internal readonly Frustum FrustumRenderPass
+        {
+            get
+            {
+                if (_frustumRenderPassMode == FrustumRenderPassMode.Widened)
+                    return _frustumRenderPass;
+                else if (_frustumRenderPassMode == FrustumRenderPassMode.NoCulling)
+                    return null;
+                else
+                    return _frustum;
+            }
+        }
 
         internal void BackupCameraState()
         {
             _statePrevious = _stateCurrent;
+        }
+
+        internal void UpdateFrustum()
+        {
+            _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
+            UpdateFrustumRenderPass();
+        }
+
+        internal void UpdateFrustumRenderPass()
+        {
+            Vector3 envelope = _stateCurrent._shake.GetEnvelope(KWEngine.WorldTime);
+            if (envelope == Vector3.Zero)
+            {
+                _frustumRenderPassMode = FrustumRenderPassMode.SameAsGameplay;
+            }
+            else if (CameraShake.TryCreateCullingProjection(_stateCurrent.ProjectionMatrix, envelope, _zNear, _zFar, out Matrix4 cullingProjection))
+            {
+                _frustumRenderPass.UpdateFrustum(cullingProjection, _stateCurrent.ViewMatrix);
+                _frustumRenderPassMode = FrustumRenderPassMode.Widened;
+            }
+            else
+            {
+                _frustumRenderPassMode = FrustumRenderPassMode.NoCulling;
+            }
+        }
+
+        internal readonly void UpdateScreenSpaceStatus(EngineObject e)
+        {
+            _frustum.UpdateScreenSpaceStatus(e, FrustumRenderPass);
+        }
+
+        internal readonly void UpdateScreenSpaceStatus(TextObject t)
+        {
+            _frustum.UpdateScreenSpaceStatus(t, FrustumRenderPass);
+        }
+
+        internal readonly void UpdateScreenSpaceStatus(TerrainObject t)
+        {
+            _frustum.UpdateScreenSpaceStatus(t, FrustumRenderPass);
+        }
+
+        internal readonly void UpdateScreenSpaceStatus(FoliageBase f)
+        {
+            _frustum.UpdateScreenSpaceStatus(f, FrustumRenderPass);
         }
 
         public Camera()
@@ -43,7 +112,7 @@ namespace KWEngine3.EngineCamera
                 _stateCurrent._fov = KWEngine.Window.ClientRectangle.Size.Y;
             }
             _stateCurrent.UpdateViewProjectionMatrix(_zNear, _zFar);
-            _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
+            UpdateFrustum();
         }
 
         public void SetPosition(float x, float y, float z)
@@ -60,7 +129,7 @@ namespace KWEngine3.EngineCamera
             _stateCurrent._position = position;
             _stateCurrent.UpdateViewMatrixAndLookAtVector();
             _stateCurrent.UpdateViewProjectionMatrix(_zNear, _zFar);
-            _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
+            UpdateFrustum();
         }
 
         internal void UpdatePitchYaw(bool invert = false)
@@ -87,7 +156,7 @@ namespace KWEngine3.EngineCamera
 
             _stateCurrent.UpdateViewMatrixAndLookAtVector();
             _stateCurrent.UpdateViewProjectionMatrix(_zNear, _zFar);
-            _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
+            UpdateFrustum();
         }
 
         
@@ -152,7 +221,7 @@ namespace KWEngine3.EngineCamera
             _stateCurrent._target = target;
             _stateCurrent.UpdateViewMatrixAndLookAtVector();
             _stateCurrent.UpdateViewProjectionMatrix(_zNear, _zFar);
-            _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
+            UpdateFrustum();
         }
 
         internal void SetNearFarBound(float zNear, float zFar)
@@ -160,7 +229,7 @@ namespace KWEngine3.EngineCamera
             _zNear = MathHelper.Clamp(zNear, 0.01f, 1000f);
             _zFar = MathHelper.Clamp(zFar, _zNear, 100000f);
             _stateCurrent.UpdateViewProjectionMatrix(_zNear, _zFar);
-            _frustum.UpdateFrustum(_stateCurrent.ProjectionMatrix, _stateCurrent.ViewMatrix);
+            UpdateFrustum();
         }
 
         public void Move(float units)

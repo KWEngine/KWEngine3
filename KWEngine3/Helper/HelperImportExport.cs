@@ -335,6 +335,7 @@ namespace KWEngine3.Helper
             f.SetScale(sf.Scale[0], sf.Scale[1], sf.Scale[2]);
             f.SetSwayFactor(sf.SwayFactor);
             f.SetRoughness(sf.Roughness);
+            f.SetHue(sf.Hue);
             if (sf.DrawDistance > 0f) // older exports do not contain this value
                 f.SetCameraDrawDistance(sf.DrawDistance);
 
@@ -501,6 +502,13 @@ namespace KWEngine3.Helper
             {
                 g.SetColorEmissive(sg.ColorEmissive[m + 0], sg.ColorEmissive[m + 1], sg.ColorEmissive[m + 2], sg.ColorEmissive[m + 3], m / 4);
             }
+            if (sg.Hue != null) // missing in files exported before the hue was saved
+            {
+                for (int meshIndex = 0; meshIndex < sg.Hue.Length && meshIndex < g._model.ModelOriginal.Meshes.Count; meshIndex++)
+                {
+                    g.SetHue(sg.Hue[meshIndex], meshIndex);
+                }
+            }
             
             for(int i = 0; i < sg.Metallic.Count; i++)
             {
@@ -584,6 +592,13 @@ namespace KWEngine3.Helper
 
             r.SetColor(sr.Color[0], sr.Color[1], sr.Color[2]);
             r.SetColorEmissive(sr.ColorEmissive[0], sr.ColorEmissive[1], sr.ColorEmissive[2], sr.ColorEmissive[3]);
+            if (sr.Hue != null) // missing in files exported before the hue was saved
+            {
+                for (int meshIndex = 0; meshIndex < sr.Hue.Length && meshIndex < r._model.ModelOriginal.Meshes.Count; meshIndex++)
+                {
+                    r.SetHue(sr.Hue[meshIndex], meshIndex);
+                }
+            }
             for (int i = 0; i < sr.Metallic.Count; i++)
             {
                 r.SetMetallic(sr.Metallic[i], i);

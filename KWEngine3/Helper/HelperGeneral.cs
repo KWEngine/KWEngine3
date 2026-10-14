@@ -397,6 +397,7 @@ namespace KWEngine3.Helper
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFlowFieldArrow, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFlowFieldCross, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageFern, TextureTarget.Texture2D));
+            bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGroundCover, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrass1, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrass2, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrass3, TextureTarget.Texture2D));

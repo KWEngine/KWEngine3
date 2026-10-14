@@ -254,19 +254,17 @@ namespace KWEngine3.Helper
 
         public static void BlendCameraStates(ref Camera camGame, ref Camera camEditor, float alpha)
         {
-            camGame._stateRender._fov = camGame._statePrevious._fov * alpha + camGame._stateCurrent._fov * (1f - alpha);
+            camGame._stateRender._fov = camGame._statePrevious._fov * (1f - alpha) + camGame._stateCurrent._fov * alpha;
             camGame._stateRender._position = Vector3.Lerp(camGame._statePrevious._position, camGame._stateCurrent._position, alpha);
             camGame._stateRender._target = Vector3.Lerp(camGame._statePrevious._target, camGame._stateCurrent._target, alpha);
             camGame._stateRender._rotation = Quaternion.Slerp(camGame._statePrevious._rotation, camGame._stateCurrent._rotation, alpha);
-            camGame._stateRender._shakeOffset = camGame._stateCurrent._shakeOffset;
-            camGame._stateRender._shakeDuration = camGame._stateCurrent._shakeDuration;
-            camGame._stateRender._shakeTimestamp = camGame._stateCurrent._shakeTimestamp;
+            camGame._stateRender._shake = camGame._stateCurrent._shake;
 
             camGame._stateRender.UpdateViewMatrixAndLookAtVectorRenderPass();
             camGame._stateRender.UpdateViewProjectionMatrix(camGame._zNear, camGame._zFar, true);
             camGame._stateRender.UpdateViewProjectionMatrixInverse();
 
-            camEditor._stateRender._fov = camEditor._statePrevious._fov * alpha + camEditor._stateCurrent._fov * (1f - alpha);
+            camEditor._stateRender._fov = camEditor._statePrevious._fov * (1f - alpha) + camEditor._stateCurrent._fov * alpha;
             camEditor._stateRender._position = Vector3.Lerp(camEditor._statePrevious._position, camEditor._stateCurrent._position, alpha);
             camEditor._stateRender._target = Vector3.Lerp(camEditor._statePrevious._target, camEditor._stateCurrent._target, alpha);
             camEditor._stateRender._rotation = Quaternion.Slerp(camEditor._statePrevious._rotation, camEditor._stateCurrent._rotation, alpha);

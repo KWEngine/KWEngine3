@@ -64,7 +64,7 @@ namespace KWEngine3.Editor
             Matrix4 vp;
             if(KWEngine.Mode == EngineMode.Play)
             {
-                vp = KWEngine.CurrentWorld._cameraGame._stateCurrent.ViewProjectionMatrix;
+                vp = KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix; // same matrix as the rendered scene (interpolated, includes camera shake)
                 GL.Uniform3(UColor, 0.9f, 0.1f, 0.9f);
             }
             else

@@ -22,11 +22,13 @@ uniform ivec4 uCell;       // x = first column, y = first row, z = columns, w = 
 uniform ivec2 uCellLength; // x = edge length of the cell in plants (power of two), y = log2 of the edge length
 uniform vec3 uLOD;        // x = distance up to which a plant of nominal size is at least the minimum pixel width wide,
                           // y = draw distance, z = width of the fade band before the draw distance
+uniform int uAlignToTerrain; // 1 = the plant is tilted with the terrain surface (ground cover)
 
 out vec2 vTexture;
 out vec3 vColor;
 out mat3 vTBN;
 out float vNormalBend;
+out vec3 vNormalBendTarget;
 
 #define M_PIHALF (3.141592 / 2.0)
 #define M_PI 3.141592
@@ -84,10 +86,30 @@ float getHeightFromTexture(vec3 vertexPos)
         float uvX = clamp((vertexPos.x - uTerrainPosition.x + (uTerrainScale.x + 1.0) * 0.5) / (uTerrainScale.x + 1.0), 0.0, 1.0);
         float uvZ = clamp((vertexPos.z - uTerrainPosition.z + (uTerrainScale.z + 1.0) * 0.5) / (uTerrainScale.z + 1.0), 0.0, 1.0);
 
-        vec4 texColor = textureLod(uTerrainHeightMap, vec2(uvX, uvZ), 0.0);
-        height = ((texColor.r + texColor.g + texColor.b) / 3.0) * uTerrainScale.y + uTerrainPosition.y;
+        // red channel like the terrain shader (gray height maps are single channel textures)
+        height = textureLod(uTerrainHeightMap, vec2(uvX, uvZ), 0.0).r * uTerrainScale.y + uTerrainPosition.y;
     }
     return height;
+}
+
+// terrain gradient (dh/dx, dh/dz), central differences over one height map texel
+vec2 getTerrainSlope(vec3 p)
+{
+    vec2 texel = vec2(uTerrainScale.x + 1.0, uTerrainScale.z + 1.0) / vec2(textureSize(uTerrainHeightMap, 0));
+    float dx = getHeightFromTexture(p + vec3(texel.x, 0.0, 0.0)) - getHeightFromTexture(p - vec3(texel.x, 0.0, 0.0));
+    float dz = getHeightFromTexture(p + vec3(0.0, 0.0, texel.y)) - getHeightFromTexture(p - vec3(0.0, 0.0, texel.y));
+    return vec2(dx, dz) / (2.0 * texel);
+}
+
+// rotation that turns the up vector into n (n normalized, n.y > 0)
+mat3 alignUpTo(vec3 n)
+{
+    float k = 1.0 / (1.0 + n.y);
+    return mat3(
+        1.0 - n.x * n.x * k, -n.x, -n.x * n.z * k,
+        n.x, n.y, n.z,
+        -n.x * n.z * k, -n.z, 1.0 - n.z * n.z * k
+    );
 }
 
 void main()
@@ -109,6 +131,7 @@ void main()
         vColor = vec3(0.0);
         vTBN = mat3(1.0);
         vNormalBend = 0.0;
+        vNormalBendTarget = vec3(0.0, 1.0, 0.0);
         return;
     }
     int ix = uCell.x + lx;
@@ -148,7 +171,8 @@ void main()
     float heightFactor = sqrt(clamp(radial, 0.0, 1.0));
 
     vec3 basePosition = uModelMatrix[3].xyz + center + offsetXZ;
-    basePosition.y += getHeightFromTexture(basePosition);
+    float baseTerrainHeight = getHeightFromTexture(basePosition);
+    basePosition.y += baseTerrainHeight;
     float cameraDistance = distance(uCameraPosition, basePosition);
 
     float keep = clamp(uLOD.x * heightFactor2 / max(cameraDistance, 0.0001), LOD_KEEP_MIN, 1.0);
@@ -164,15 +188,30 @@ void main()
 
     vec3 localPosition = vec3(aPosition.x * widen, aPosition.y, aPosition.z * widen);
     vec3 positionRandomized = (uModelMatrix * mat4(rotMat) * sMatrix * vec4(localPosition, 1.0)).xyz;
-    vec4 totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
-
-    float heightFromTerrain = getHeightFromTexture(totalLocalPos.xyz);
-    totalLocalPos.y += heightFromTerrain;
+    vec3 up = vec3(0.0, 1.0, 0.0);
+    mat3 terrainAlign = mat3(1.0);
+    vec4 totalLocalPos;
+    if(uAlignToTerrain != 0 && uTerrainScale.x != 0.0)
+    {
+        // plant tilted to the terrain normal at its base, then moved by the difference between the terrain
+        // and its tangent plane (so the edges of the patch follow a curved surface as well)
+        vec2 slope = getTerrainSlope(basePosition);
+        up = normalize(vec3(-slope.x, 1.0, -slope.y));
+        terrainAlign = alignUpTo(up);
+        vec3 p = basePosition + terrainAlign * (positionRandomized - uModelMatrix[3].xyz);
+        p.y += getHeightFromTexture(p) - (baseTerrainHeight + dot(slope, p.xz - basePosition.xz));
+        totalLocalPos = vec4(p, 1.0);
+    }
+    else
+    {
+        totalLocalPos = vec4(positionRandomized + center + offsetXZ, 1.0);
+        totalLocalPos.y += getHeightFromTexture(totalLocalPos.xyz);
+    }
 
     mat4 normalRotation = uNormalMatrix * mat4(rotMat);
-    vec3 totalNormal = (normalRotation * vec4(aNormal, 0.0)).xyz;
-    vec3 totalTangent = (normalRotation * vec4(aTangent, 0.0)).xyz;
-    vec3 totalBiTangent = (normalRotation * vec4(aBiTangent, 0.0)).xyz;
+    vec3 totalNormal = terrainAlign * (normalRotation * vec4(aNormal, 0.0)).xyz;
+    vec3 totalTangent = terrainAlign * (normalRotation * vec4(aTangent, 0.0)).xyz;
+    vec3 totalBiTangent = terrainAlign * (normalRotation * vec4(aBiTangent, 0.0)).xyz;
 
     gl_Position = uViewProjectionMatrix * totalLocalPos;
 
@@ -180,4 +219,5 @@ void main()
     vTBN = mat3(normalize(totalTangent), normalize(totalBiTangent), normalize(totalNormal));
     vColor = min((pow(1.0 - aPosition.y, 3.0) * (-1.0) + 1.6) * vec3(1.0), vec3(1.0));
     vNormalBend = mix(NORMALBEND_NEAR, NORMALBEND_FAR, smoothstep(0.0, uLOD.y, cameraDistance));
+    vNormalBendTarget = up;
 }

@@ -17,6 +17,7 @@ uniform vec4 uColorTintEmissive;
 uniform sampler2D uTextureAlbedo;
 uniform int uLightConfig;
 uniform vec2 uRoughnessMetallic;
+uniform float uHue; // radians
 
 // id 65535 marks foliage in the g-buffer (the lighting pass uses its own shading model for it)
 const uint FOLIAGE_ID = 65535u;
@@ -27,6 +28,13 @@ const int ALPHA_MIPSCALE_COUNT = 16;
 // The CPU computes one alpha scale per mip level that keeps the coverage of the base level
 // (HelperTexture.ComputeAlphaCoverageMipScales).
 uniform float uAlphaMipScales[ALPHA_MIPSCALE_COUNT];
+
+vec3 hueShift(vec3 color, float hue)
+{
+    const vec3 k = vec3(0.57735, 0.57735, 0.57735);
+    float cosAngle = cos(hue);
+    return vec3(color * cosAngle + cross(k, color) * sin(hue) + k * dot(k, color) * (1.0 - cosAngle));
+}
 
 vec2 encodeNormalToRG16F(vec3 n)
 {
@@ -57,7 +65,8 @@ void main()
     if(alpha < ALPHA_CUTOFF)
         discard;
 
-    albedo = vColor * colorFromTexture.rgb * uColorTintEmissive.rgb;
+    vec3 colorRGB = uHue != 0.0 ? hueShift(colorFromTexture.rgb, uHue) : colorFromTexture.rgb;
+    albedo = vColor * colorRGB * uColorTintEmissive.rgb;
     emissive = uColorTintEmissive.rgb * uColorTintEmissive.w * 0.5;
 
     // rounded fake normal around the imposter center (bush-like shading)

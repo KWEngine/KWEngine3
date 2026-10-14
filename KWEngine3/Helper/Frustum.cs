@@ -17,31 +17,36 @@ namespace KWEngine3.Helper
         {
 
         }
-        internal void UpdateScreenSpaceStatus(TextObject t)
+        // IsInsideScreenSpace (gameplay) is always tested against this frustum. IsInsideScreenSpaceForRenderPass
+        // is tested against renderPass: this frustum, a widened one while the camera shakes, or null (= no culling).
+        internal void UpdateScreenSpaceStatus(TextObject t, Frustum renderPass)
         {
             t.IsInsideScreenSpace = SphereVsFrustum(t._stateCurrent._position, t._stateCurrent._width);
-            t.IsInsideScreenSpaceForRenderPass = SphereVsFrustum(t._stateCurrent._position, t._stateCurrent._width * 1.25f);
+            t.IsInsideScreenSpaceForRenderPass = renderPass == null || renderPass.SphereVsFrustum(t._stateCurrent._position, t._stateCurrent._width * 1.25f);
         }
-        internal void UpdateScreenSpaceStatus(EngineObject e)
+        internal void UpdateScreenSpaceStatus(EngineObject e, Frustum renderPass)
         {
             if (e is GameObject)
             {
                 e.IsInsideScreenSpace = VolumeVsFrustum(e.Center, e._stateCurrent._dimensions.X / 2f, e._stateCurrent._dimensions.Y / 2f, e._stateCurrent._dimensions.Z / 2f);
-                e.IsInsideScreenSpaceForRenderPass = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast * 1.25f);
+                e.IsInsideScreenSpaceForRenderPass = renderPass == null || renderPass.SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast * 1.25f);
             }
             else if(e is RenderObject)
             {
                 e.IsInsideScreenSpace = SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast / 2f);
-                e.IsInsideScreenSpaceForRenderPass = e.IsInsideScreenSpace;
+                if (renderPass == this)
+                    e.IsInsideScreenSpaceForRenderPass = e.IsInsideScreenSpace;
+                else
+                    e.IsInsideScreenSpaceForRenderPass = renderPass == null || renderPass.SphereVsFrustum(e.Center, e._stateCurrent._dimensions.LengthFast / 2f);
             }
         }
-        internal void UpdateScreenSpaceStatus(TerrainObject t)
+        internal void UpdateScreenSpaceStatus(TerrainObject t, Frustum renderPass)
         {
             t.IsInsideScreenSpace = VolumeVsFrustum(t._stateCurrent._center, t._stateCurrent._dimensions.X / 2, t._stateCurrent._dimensions.Y / 2, t._stateCurrent._dimensions.Z / 2);
-            t.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(t._stateCurrent._center, t._stateCurrent._dimensions.X * 1.25f / 2, t._stateCurrent._dimensions.Y * 1.25f / 2, t._stateCurrent._dimensions.Z * 1.25f / 2);
+            t.IsInsideScreenSpaceForRenderPass = renderPass == null || renderPass.VolumeVsFrustum(t._stateCurrent._center, t._stateCurrent._dimensions.X * 1.25f / 2, t._stateCurrent._dimensions.Y * 1.25f / 2, t._stateCurrent._dimensions.Z * 1.25f / 2);
         }
 
-        internal void UpdateScreenSpaceStatus(FoliageBase fb)
+        internal void UpdateScreenSpaceStatus(FoliageBase fb, Frustum renderPass)
         {
             if (fb is FoliageObject)
             {
@@ -49,13 +54,13 @@ namespace KWEngine3.Helper
                 if (f._terrainObject != null)
                 {
                     f.IsInsideScreenSpace = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f, f._patchSize.Y * 0.5f);
-                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f * 1.25f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f * 1.25f, f._patchSize.Y * 0.5f * 1.25f);
+                    f.IsInsideScreenSpaceForRenderPass = renderPass == null || renderPass.VolumeVsFrustum(new Vector3(f._position.X, f._terrainObject._stateCurrent._center.Y, f._position.Z), f._patchSize.X * 0.5f * 1.25f, f._terrainObject._stateCurrent._dimensions.Y * 0.5f * 1.25f, f._patchSize.Y * 0.5f * 1.25f);
                 }
                 else
                 {
                     // VolumeVsFrustum() expects half extents
                     f.IsInsideScreenSpace = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 0.5f, f._scale.Y * 0.5f, f._patchSize.Y * 0.5f);
-                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 0.5f * 1.25f, f._scale.Y * 0.5f * 1.25f, f._patchSize.Y * 0.5f * 1.25f);
+                    f.IsInsideScreenSpaceForRenderPass = renderPass == null || renderPass.VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 0.5f * 1.25f, f._scale.Y * 0.5f * 1.25f, f._patchSize.Y * 0.5f * 1.25f);
                 }
             }
             else
@@ -73,7 +78,7 @@ namespace KWEngine3.Helper
                         (f._terrainObject.Height - f._terrainObject._stateCurrent._position.Y) * 0.5f,
                         (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f);
 
-                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(
+                    f.IsInsideScreenSpaceForRenderPass = renderPass == null || renderPass.VolumeVsFrustum(
                         new Vector3(xCenter, tCenter, zCenter),
                         (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f * 1.25f,
                         (f._terrainObject.Height - f._terrainObject._stateCurrent._position.Y) * 0.5f * 1.25f,
@@ -94,7 +99,7 @@ namespace KWEngine3.Helper
                         (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f
                         );
 
-                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(
+                    f.IsInsideScreenSpaceForRenderPass = renderPass == null || renderPass.VolumeVsFrustum(
                         new Vector3(xCenter, yCenter, zCenter),
                         (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f * 1.25f,
                         (f._patchSizeMax.Y - f._patchSizeMin.Y) * 0.5f * 1.25f,

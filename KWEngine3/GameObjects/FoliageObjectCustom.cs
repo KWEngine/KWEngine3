@@ -54,6 +54,20 @@ namespace KWEngine3.GameObjects
         public string Name { get { return _name; } set { _name = value == null ? "(no name)" : value; } }
 
         /// <summary>
+        /// Gibt die Anordnung der Quads an, auf denen die Textur dargestellt wird (Standard: FoliageImposterType.ThreeQuads)
+        /// </summary>
+        public FoliageImposterType ImposterType { get; private set; } = FoliageImposterType.ThreeQuads;
+
+        /// <summary>
+        /// Legt fest, auf welcher Anordnung von Quads die Textur dargestellt wird
+        /// </summary>
+        /// <param name="type">ThreeQuads (drei Quads in unregelmäßigen Winkeln, Standard) oder Cross (zwei sich rechtwinklig kreuzende Quads)</param>
+        public void SetImposterType(FoliageImposterType type)
+        {
+            ImposterType = type;
+        }
+
+        /// <summary>
         /// Gibt die Tönung und Leuchtkraft des Bodengewächses an
         /// </summary>
         public Vector4 Color { get { return _color; } }
@@ -85,6 +99,24 @@ namespace KWEngine3.GameObjects
         public void SetSwayFactor(float swayFactor)
         {
             _swayFactor = Math.Clamp(swayFactor, 0f, 1f);
+        }
+
+        /// <summary>
+        /// Setzt die Farbverschiebung (Hue) der Textur in Grad
+        /// </summary>
+        /// <param name="hue">Farbverschiebung (in Grad)</param>
+        public void SetHue(float hue)
+        {
+            _hue = MathHelper.DegreesToRadians(hue % 360f);
+        }
+
+        /// <summary>
+        /// Erfragt die aktuelle Farbverschiebung (Hue) in Grad
+        /// </summary>
+        /// <returns>Aktuelle Farbverschiebung (in Grad)</returns>
+        public float GetHue()
+        {
+            return MathHelper.RadiansToDegrees(_hue);
         }
 
         /// <summary>
@@ -234,6 +266,7 @@ namespace KWEngine3.GameObjects
 
         #region internals
         internal Vector4 _color = new(1f, 1f, 1f, 0f);
+        internal float _hue = 0f; // radians
         internal float _roughness = 1.0f;
         internal Vector3 _patchSizeMax = Vector3.Zero;
         internal Vector3 _patchSizeMin = Vector3.Zero;

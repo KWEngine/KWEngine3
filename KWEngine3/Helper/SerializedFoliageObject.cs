@@ -22,6 +22,7 @@ namespace KWEngine3.Helper
         // COLOR
         public float[] Color { get; set; }
         public float Roughness { get; set; }
+        public float Hue { get; set; } // degrees (missing in older files = 0)
         public int InstanceCount { get; set; }
         public float SwayFactor { get; set; }
         public float DrawDistance { get; set; }
@@ -42,6 +43,7 @@ namespace KWEngine3.Helper
             sfobject.Position = new float[] { f._position.X, f._position.Y, f._position.Z };
             sfobject.Scale = new float[] { f._scale.X, f._scale.Y, f._scale.Z };
             sfobject.Color = new float[] { f._color.X, f._color.Y, f._color.Z, f._color.W};
+            sfobject.Hue = f.GetHue();
 
 
             // Instancing
