@@ -19,8 +19,6 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
-            base.Act();
-
             FlowField f = GetFlowField();
             if (f != null)
             {
@@ -106,8 +104,6 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
-            base.Prepare();
-
             _rqLevel = Window.RenderQuality;
 
             KWEngine.EnableDebugHitboxes = HitboxDebugMode.Disabled;

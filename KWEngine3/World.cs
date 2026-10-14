@@ -225,13 +225,7 @@ namespace KWEngine3
                 t._myWorld = null;
 
                 _terrainObjects.Remove(t);
-                foreach (FoliageObject f in _foliageObjects)
-                {
-                    if (f._terrainObject == t)
-                    {
-                        f.DetachFromTerrain();
-                    }
-                }
+                DetachFoliageFromTerrain(t);
             }
             _terrainObjectsToBeRemoved.Clear();
 
@@ -319,6 +313,18 @@ namespace KWEngine3
                 t.CreateBuffers();
             }
             _textObjectsToBeAdded.Clear();
+        }
+
+        // the foliage list holds FoliageObject and FoliageObjectCustom instances, both can be attached to a terrain
+        internal void DetachFoliageFromTerrain(TerrainObject t)
+        {
+            foreach (FoliageBase fb in _foliageObjects)
+            {
+                if (fb is FoliageObject f && f._terrainObject == t)
+                    f.DetachFromTerrain();
+                else if (fb is FoliageObjectCustom fc && fc._terrainObject == t)
+                    fc.DetachFromTerrain();
+            }
         }
 
         internal void AddRemoveFoliageObjects()
@@ -1813,13 +1819,7 @@ namespace KWEngine3
             if (IsPrepared == false)
             {
                 _terrainObjects.Remove(t);
-                foreach (FoliageObject f in _foliageObjects)
-                {
-                    if (f._terrainObject == t)
-                    {
-                        f.DetachFromTerrain();
-                    }
-                }
+                DetachFoliageFromTerrain(t);
             }
             else
             {

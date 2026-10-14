@@ -30,7 +30,9 @@ namespace KWEngine3.Editor
             { MouseButton.Middle, new KWMouseButtonState() },
             };
         private static readonly string[] SSAO_KernelSizes = { "16", "32", "64" };
-        private static bool _isSkybox = false;
+        // background type combo of the world settings: 0 = 2D, 1 = skybox (cube map), 2 = skybox (equirectangular)
+        private static readonly string[] _backgroundTypeNames = { "2D", "Skybox", "Equirectangular" };
+        private static int _backgroundTypeIndex = 0;
         private static bool _showArmatureWindow = false;
         private static double _lastUpdateCycleTime = 0;
         private static double _lastRenderCallsTime = 0;
@@ -537,55 +539,20 @@ namespace KWEngine3.Editor
                     float uvY = SelectedGameObject._stateCurrent._uvTransform.Y;
                     System.Numerics.Vector2 uvTransform = new(uvX, uvY);
 
-                    if (ImGui.InputText("Albedo", ref albedoFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
-                    {
-                        if (FileNameEmpty(albedoFilename))
-                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Albedo);
-                        else if (File.Exists(albedoFilename))
-                            SelectedGameObject.SetTexture(albedoFilename.Trim(), TextureType.Albedo);
-                    }
+                    GameObject g = SelectedGameObject; // the file dialog applies its result later, maybe after the selection changed
+                    InputTextFile("Albedo", albedoFilename, "Albedo texture", f => ApplyTextureToGameObject(g, f, TextureType.Albedo, 0));
 
-                    if (ImGui.InputText("Normal", ref normalFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                    {
-                        if (FileNameEmpty(normalFilename))
-                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Normal);
-                        else if (File.Exists(normalFilename))
-                            SelectedGameObject.SetTexture(normalFilename.Trim(), TextureType.Normal);
-                    }
+                    InputTextFile("Normal", normalFilename, "Normal map", f => ApplyTextureToGameObject(g, f, TextureType.Normal, 0));
 
-                    if (ImGui.InputText("Emissive", ref emissiveFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                    {
-                        if (FileNameEmpty(emissiveFilename))
-                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Emissive);
-                        else if (File.Exists(emissiveFilename))
-                            SelectedGameObject.SetTexture(emissiveFilename.Trim(), TextureType.Emissive);
-                    }
+                    InputTextFile("Emissive", emissiveFilename, "Emissive texture", f => ApplyTextureToGameObject(g, f, TextureType.Emissive, 0));
 
-                    if (ImGui.InputText("Metallic", ref metallicFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                    {
-                        if (FileNameEmpty(metallicFilename))
-                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Metallic);
-                        else if (File.Exists(metallicFilename))
-                            SelectedGameObject.SetTexture(metallicFilename.Trim(), TextureType.Metallic);
-                    }
+                    InputTextFile("Metallic", metallicFilename, "Metallic texture", f => ApplyTextureToGameObject(g, f, TextureType.Metallic, 0));
 
-                    if (ImGui.InputText("Roughness", ref roughnessFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                    {
-                        if (FileNameEmpty(roughnessFilename))
-                            SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Roughness);
-                        else if (File.Exists(roughnessFilename))
-                            SelectedGameObject.SetTexture(roughnessFilename.Trim(), TextureType.Roughness);
-                    }
+                    InputTextFile("Roughness", roughnessFilename, "Roughness texture", f => ApplyTextureToGameObject(g, f, TextureType.Roughness, 0));
 
                     if (KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
                     {
-                        if (ImGui.InputText("Height ", ref heightFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                        {
-                            if (FileNameEmpty(heightFilename))
-                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Height);
-                            else if (File.Exists(heightFilename))
-                                SelectedGameObject.SetTexture(heightFilename.Trim(), TextureType.Height);
-                        }
+                        InputTextFile("Height ", heightFilename, "Height map", f => ApplyTextureToGameObject(g, f, TextureType.Height, 0));
                     }
 
                     if (SelectedGameObject._model.Material[0].TextureAlbedo.IsTextureSet)
@@ -686,10 +653,12 @@ namespace KWEngine3.Editor
                     string[] emissive_t = new string[SelectedGameObject._model.Material.Length];
 
                     ImGui.PushItemWidth((int)(WindowRightWidth * 0.33f));
+                    GameObject g = SelectedGameObject; // the file dialog applies its result later, maybe after the selection changed
                     for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
                         if (SelectedGameObject._model.Material[i].ColorAlbedo.W <= 0)
                             continue;
+                        int materialId = i; // copy for the file dialog callbacks (the loop variable changes)
 
                         if (i > 0)
                             ImGui.Separator();
@@ -702,43 +671,13 @@ namespace KWEngine3.Editor
 
 
 
-                        if (ImGui.InputText("Albedo " + i, ref albedo_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
-                        {
-                            if (FileNameEmpty(albedo_t[i]))
-                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Albedo, i);
-                            else if (File.Exists(albedo_t[i]))
-                                SelectedGameObject.SetTexture(albedo_t[i].Trim(), TextureType.Albedo, i);
-
-
-                        }
+                        InputTextFile("Albedo " + i, albedo_t[i], "Albedo texture", f => ApplyTextureToGameObject(g, f, TextureType.Albedo, materialId));
                         ImGui.SameLine();
-                        if (ImGui.InputText("Normal " + i, ref normal_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
-                        {
-                            if (FileNameEmpty(normal_t[i]))
-                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Normal, i);
-                            else if (File.Exists(normal_t[i]))
-                                SelectedGameObject.SetTexture(normal_t[i].Trim(), TextureType.Normal, i);
+                        InputTextFile("Normal " + i, normal_t[i], "Normal map", f => ApplyTextureToGameObject(g, f, TextureType.Normal, materialId));
 
-                        }
-
-                        if (ImGui.InputText("Roughn." + i, ref roughness_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
-                        {
-                            if (FileNameEmpty(roughness_t[i]))
-                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Roughness, i);
-                            else if (File.Exists(roughness_t[i]))
-                                SelectedGameObject.SetTexture(roughness_t[i].Trim(), TextureType.Roughness, i);
-
-
-                        }
+                        InputTextFile("Roughn." + i, roughness_t[i], "Roughness texture", f => ApplyTextureToGameObject(g, f, TextureType.Roughness, materialId));
                         ImGui.SameLine();
-                        if (ImGui.InputText("Metal  " + i, ref metallic_t[i], 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
-                        {
-                            if (FileNameEmpty(metallic_t[i]))
-                                SelectedGameObject._model.UnsetTextureForPrimitive(TextureType.Metallic, i);
-                            else if (File.Exists(metallic_t[i]))
-                                SelectedGameObject.SetTexture(metallic_t[i].Trim(), TextureType.Metallic, i);
-
-                        }
+                        InputTextFile("Metal  " + i, metallic_t[i], "Metallic texture", f => ApplyTextureToGameObject(g, f, TextureType.Metallic, materialId));
 
                     }
                     ImGui.PopItemWidth();
@@ -977,59 +916,24 @@ namespace KWEngine3.Editor
                 string metallicFilename = SelectedTerrainObject._gModel.Material[0].TextureMetallic.IsTextureSet ? SelectedTerrainObject._gModel.Material[0].TextureMetallic.Filename : "";
                 string heightFilename = SelectedTerrainObject._gModel.Material[0].TextureHeight.IsTextureSet ? SelectedTerrainObject._gModel.Material[0].TextureHeight.Filename : "";
 
+                TerrainObject terrain = SelectedTerrainObject; // the file dialog applies its result later, maybe after the selection changed
                 float uvX = SelectedTerrainObject._stateCurrent._uvTransform.X;
                 float uvY = SelectedTerrainObject._stateCurrent._uvTransform.Y;
                 System.Numerics.Vector2 uvTransform = new(uvX, uvY);
 
-                if (ImGui.InputText("Albedo", ref albedoFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.NoUndoRedo))
-                {
-                    if (FileNameEmpty(albedoFilename))
-                        SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Albedo);
-                    else if (File.Exists(albedoFilename))
-                        SelectedTerrainObject.SetTexture(albedoFilename.Trim(), TextureType.Albedo);
-                }
+                InputTextFile("Albedo", albedoFilename, "Terrain albedo texture", f => ApplyTextureToTerrainObject(terrain, f, TextureType.Albedo));
 
-                if (ImGui.InputText("Normal", ref normalFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                {
-                    if (FileNameEmpty(normalFilename))
-                        SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Normal);
-                    else if (File.Exists(normalFilename))
-                        SelectedTerrainObject.SetTexture(normalFilename.Trim(), TextureType.Normal);
-                }
+                InputTextFile("Normal", normalFilename, "Terrain normal map", f => ApplyTextureToTerrainObject(terrain, f, TextureType.Normal));
 
-                if (ImGui.InputText("Emissive", ref emissiveFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                {
-                    if (FileNameEmpty(emissiveFilename))
-                        SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Emissive);
-                    else if (File.Exists(emissiveFilename))
-                        SelectedTerrainObject.SetTexture(emissiveFilename.Trim(), TextureType.Emissive);
-                }
+                InputTextFile("Emissive", emissiveFilename, "Terrain emissive texture", f => ApplyTextureToTerrainObject(terrain, f, TextureType.Emissive));
 
-                if (ImGui.InputText("Metallic", ref metallicFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                {
-                    if (FileNameEmpty(metallicFilename))
-                        SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Metallic);
-                    else if (File.Exists(metallicFilename))
-                        SelectedTerrainObject.SetTexture(metallicFilename.Trim(), TextureType.Metallic);
-                }
+                InputTextFile("Metallic", metallicFilename, "Terrain metallic texture", f => ApplyTextureToTerrainObject(terrain, f, TextureType.Metallic));
 
-                if (ImGui.InputText("Roughness", ref roughnessFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                {
-                    if (FileNameEmpty(roughnessFilename))
-                        SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Roughness);
-                    else if (File.Exists(roughnessFilename))
-                        SelectedTerrainObject.SetTexture(roughnessFilename.Trim(), TextureType.Roughness);
-                }
+                InputTextFile("Roughness", roughnessFilename, "Terrain roughness texture", f => ApplyTextureToTerrainObject(terrain, f, TextureType.Roughness));
 
                 if (KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
                 {
-                    if (ImGui.InputText("Height ", ref heightFilename, 256, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll | ImGuiInputTextFlags.NoUndoRedo))
-                    {
-                        if (FileNameEmpty(heightFilename))
-                            SelectedTerrainObject._gModel.UnsetTextureForPrimitive(TextureType.Height);
-                        else if (File.Exists(heightFilename))
-                            SelectedTerrainObject.SetTexture(heightFilename.Trim(), TextureType.Height);
-                    }
+                    InputTextFile("Height ", heightFilename, "Terrain height map", f => ApplyTextureToTerrainObject(terrain, f, TextureType.Height));
                 }
 
                 if (SelectedTerrainObject._gModel.Material[0].TextureAlbedo.IsTextureSet)
@@ -1082,6 +986,103 @@ namespace KWEngine3.Editor
         internal static bool FileNameEmpty(string filename)
         {
             return filename == null || filename.Length == 0;
+        }
+
+        // Read-only text field for a file name: a click opens the file dialog (KWEditorFileDialog).
+        // The dialog calls onFileSelected with the chosen file, or with an empty string for "No file".
+        private static void InputTextFile(string label, string filename, string dialogTitle, Action<string> onFileSelected)
+        {
+            string text = filename ?? "";
+            ImGui.InputText(label, ref text, 256, ImGuiInputTextFlags.ReadOnly);
+            if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+            {
+                KWEditorFileDialog.OpenImageFile(dialogTitle, onFileSelected);
+            }
+            else if (ImGui.IsItemHovered())
+            {
+                ImGui.SetTooltip("Click to choose a file.");
+            }
+        }
+
+        private static void ApplyTextureToGameObject(GameObject g, string filename, TextureType type, int materialId)
+        {
+            if (g == null)
+                return;
+            try
+            {
+                if (FileNameEmpty(filename))
+                    g._model.UnsetTextureForPrimitive(type, materialId);
+                else if (File.Exists(filename.Trim()))
+                    g.SetTexture(filename.Trim(), type, materialId);
+                else
+                    KWEngine.LogWriteLine("[Editor] File not found: " + filename);
+            }
+            catch (Exception ex)
+            {
+                KWEngine.LogWriteLine("[Editor] Could not load texture " + filename + ": " + ex.Message);
+            }
+        }
+
+        private static void ApplyTextureToTerrainObject(TerrainObject t, string filename, TextureType type)
+        {
+            if (t == null)
+                return;
+            try
+            {
+                if (FileNameEmpty(filename))
+                    t._gModel.UnsetTextureForPrimitive(type);
+                else if (File.Exists(filename.Trim()))
+                    t.SetTexture(filename.Trim(), type);
+                else
+                    KWEngine.LogWriteLine("[Editor] File not found: " + filename);
+            }
+            catch (Exception ex)
+            {
+                KWEngine.LogWriteLine("[Editor] Could not load texture " + filename + ": " + ex.Message);
+            }
+        }
+
+        // the combo follows the background of the world (it keeps the last choice while no background is set)
+        private static void SyncBackgroundTypeIndex()
+        {
+            WorldBackground background = KWEngine.CurrentWorld._background;
+            if (background.Type == BackgroundType.Standard)
+                _backgroundTypeIndex = 0;
+            else if (background.Type == BackgroundType.Skybox)
+                _backgroundTypeIndex = background.SkyBoxType == SkyboxType.Equirectangular ? 2 : 1;
+        }
+
+        // like World.SetBackground2D() / World.SetBackgroundSkybox(), an empty file name removes the background
+        private static void ApplyBackground(int typeIndex, string filename)
+        {
+            World w = KWEngine.CurrentWorld;
+            filename = filename == null ? "" : filename.Trim();
+            if (filename.Length == 0)
+            {
+                w.SetBackground2D("");
+                return;
+            }
+            if (!File.Exists(filename))
+            {
+                KWEngine.LogWriteLine("[Editor] File not found: " + filename);
+                return;
+            }
+
+            float rotationY = w._background._skyboxRotationY;
+            try
+            {
+                // Remove the current background first: textures are cached by file name, so loading the same file
+                // as another background type would otherwise reuse the texture of the wrong type (2D <-> cube map).
+                w._background.Unset();
+                if (typeIndex == 0)
+                    w.SetBackground2D(filename);
+                else
+                    w.SetBackgroundSkybox(filename, rotationY, typeIndex == 2 ? SkyboxType.Equirectangular : SkyboxType.CubeMap);
+            }
+            catch (Exception ex)
+            {
+                KWEngine.LogWriteLine("[Editor] Could not load background " + filename + ": " + ex.Message);
+            }
         }
 
         internal static EditorAddObjectType _addMenuActive = EditorAddObjectType.None;
@@ -1221,26 +1222,18 @@ namespace KWEngine3.Editor
                 ImGui.LabelText(KWEngine.CurrentWorld._gameObjects.Count.ToString() + " / " + KWEngine.CurrentWorld._lightObjects.Count.ToString(), "GameObject/LightObject instances:");
                 ImGui.Separator();
                 ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Background:");
-                ImGui.Checkbox("Skybox", ref _isSkybox);
-                ImGui.SameLine();
-                if (ImGui.InputText("Texture", ref bgTexture, 128, ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.AutoSelectAll))
+                SyncBackgroundTypeIndex();
+                ImGui.SetNextItemWidth(Math.Max(150f, worldW * 0.2f));
+                if (ImGui.Combo("Type##background", ref _backgroundTypeIndex, _backgroundTypeNames, _backgroundTypeNames.Length))
                 {
-                    if (bgTexture == null || !File.Exists(bgTexture))
+                    if (!FileNameEmpty(bgTexture))
                     {
-                        bgTexture = "";
-                    }
-                    else
-                    {
-                        if (_isSkybox)
-                        {
-                            KWEngine.CurrentWorld.SetBackgroundSkybox(bgTexture);
-                        }
-                        else
-                        {
-                            KWEngine.CurrentWorld.SetBackground2D(bgTexture);
-                        }
+                        ApplyBackground(_backgroundTypeIndex, bgTexture); // load the current file again as the new type
                     }
                 }
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(Math.Max(100f, ImGui.GetContentRegionAvail().X - ImGui.CalcTextSize("Texture").X - ImGui.GetStyle().ItemInnerSpacing.X));
+                InputTextFile("Texture", bgTexture, "Background texture", f => ApplyBackground(_backgroundTypeIndex, f));
                 if (ImGui.ColorEdit3("Color ambient", ref colorAmbientNew, ImGuiColorEditFlags.Float))
                 {
                     KWEngine.CurrentWorld.SetColorAmbient(colorAmbientNew.X, colorAmbientNew.Y, colorAmbientNew.Z);
@@ -1273,6 +1266,12 @@ namespace KWEngine3.Editor
                 if (ImGui.IsItemHovered())
                 {
                     ImGui.SetTooltip("All quality levels use the same bloom structure, so the glow settings look the same.\nDefault/Low skip the finest level: cheaper, small glow sources get a slightly softer core.");
+                }
+                ImGui.SameLine();
+                ImGui.Checkbox("FXAA", ref KWEngine._fxaaEnabled);
+                if (ImGui.IsItemHovered())
+                {
+                    ImGui.SetTooltip("Edge smoothing (like KWEngine.FXAA_Enabled). Applies to the whole window and is not saved with the world.");
                 }
                 ImGui.Separator();
 
@@ -1750,6 +1749,7 @@ namespace KWEngine3.Editor
 
             DrawObjectDetails();
             DrawObjectDebugValues();
+            KWEditorFileDialog.Draw(); // modal file dialog, if one was opened by a file text field
 
             HandleKeyboardNavigation();
         }

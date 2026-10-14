@@ -90,7 +90,8 @@ namespace KWEngine3.Helper
             }
             else if(sw.BackgroundSkyBox.Length != 0)
             {
-                w.SetBackgroundSkybox(sw.BackgroundSkyBox, sw.BackgroundSkyboxRotation);
+                SkyboxType skyboxType = sw.BackgroundSkyboxType == nameof(SkyboxType.Equirectangular) ? SkyboxType.Equirectangular : SkyboxType.CubeMap;
+                w.SetBackgroundSkybox(sw.BackgroundSkyBox, sw.BackgroundSkyboxRotation, skyboxType);
                 w.SetBackgroundSkyboxFOV(sw.BackgroundSkyBoxFOV);
             }
             w.SetBackgroundFillColor(sw.BackgroundFillColor[0], sw.BackgroundFillColor[1], sw.BackgroundFillColor[2]);
@@ -334,6 +335,8 @@ namespace KWEngine3.Helper
             f.SetScale(sf.Scale[0], sf.Scale[1], sf.Scale[2]);
             f.SetSwayFactor(sf.SwayFactor);
             f.SetRoughness(sf.Roughness);
+            if (sf.DrawDistance > 0f) // older exports do not contain this value
+                f.SetCameraDrawDistance(sf.DrawDistance);
 
             if(sf.AttachedToID > 0)
             {

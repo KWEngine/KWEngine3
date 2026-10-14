@@ -190,7 +190,15 @@
         /// <summary>
         /// Nebel (Fullscreen-Pass nach dem Lighting-Pass)
         /// </summary>
-        Fog = 7
+        Fog = 7,
+        /// <summary>
+        /// Bodengewächse (FoliageObject- und FoliageObjectCustom-Instanzen im Deferred rendering pass; nicht in Deferred enthalten)
+        /// </summary>
+        Foliage = 8,
+        /// <summary>
+        /// Kantenglättung (FXAA)
+        /// </summary>
+        AntiAliasing = 9
     }
 
     /// <summary>

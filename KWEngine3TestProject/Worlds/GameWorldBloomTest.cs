@@ -23,8 +23,6 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Act()
         {
-            base.Act();
-
             List<Immovable> iss = GetGameObjectsByType<Immovable>();
             _toast.Update();
             if (Keyboard.IsKeyPressed(Keys.F4))
@@ -141,8 +139,6 @@ namespace KWEngine3TestProject.Worlds
             _toast.SetPosition(Window.Width - 16, 16);
             _toast.SetScale(16);
             AddHUDObject(_toast);
-
-            base.Prepare();
 
             SetBackground2D(@"./Textures/greenmountains.dds");
             SetCameraFOV(90);

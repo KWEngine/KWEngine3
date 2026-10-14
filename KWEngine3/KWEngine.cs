@@ -289,6 +289,11 @@ namespace KWEngine3
         public static bool SSAO_Enabled { get { return _ssaoEnabled; } set { _ssaoEnabled = value; } }
 
         /// <summary>
+        /// Aktiviert oder deaktiviert die Kantenglättung per FXAA (Standard: false)
+        /// </summary>
+        public static bool FXAA_Enabled { get { return _fxaaEnabled; } set { _fxaaEnabled = value; } }
+
+        /// <summary>
         /// Weite des SSAO-Effekts (Standard: 0.125f, Bereich: 0.01f bis 1.0f)
         /// </summary>
         public static float SSAO_Radius { get { return _ssaoRadius; } set { _ssaoRadius = Math.Clamp(value, 0.01f, 1.0f); } }
@@ -1429,6 +1434,7 @@ namespace KWEngine3
         internal static float _ssaoRadius = 0.125f;
         internal static float _ssaoBias = 0.00128f;
         internal static bool _ssaoEnabled = false;
+        internal static bool _fxaaEnabled = false;
         internal static uint _ssaoKernelSize = 16;
 
         internal static CursorState _stateCameraGameBeforeToggle = CursorState.Normal;

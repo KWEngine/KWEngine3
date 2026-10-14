@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2026-10-04)</Product>
+		<Product>KWEngine3 (updated: 2026-10-13)</Product>
 		<PackageId>KWEngine3</PackageId>
 		<Version>3.0.7.6</Version>
-		<AssemblyVersion>3.0.7.6</AssemblyVersion>
-		<FileVersion>3.0.7.6</FileVersion>
-		<ProductVersion>3.0.7.6</ProductVersion>
+		<AssemblyVersion>3.0.7.7</AssemblyVersion>
+		<FileVersion>3.0.7.7</FileVersion>
+		<ProductVersion>3.0.7.7</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -109,7 +109,6 @@
 		<None Remove="Shaders\shader.bloom.vert" />
 		<None Remove="Shaders\shader.copy.frag" />
 		<None Remove="Shaders\shader.fog.frag" />
-		<None Remove="Shaders\Include\fog.glsl" />
 		<None Remove="Shaders\shader.copy.vert" />
 		<None Remove="Shaders\shader.debug.frag" />
 		<None Remove="Shaders\shader.debug.vert" />
@@ -137,6 +136,9 @@
 		<None Remove="Shaders\shader.gbuffer.vert" />
 		<None Remove="Shaders\shader.gbufferfoliage.frag" />
 		<None Remove="Shaders\shader.gbufferfoliage.vert" />
+		<None Remove="Shaders\shader.gbufferfoliagecustom.frag" />
+		<None Remove="Shaders\shader.gbufferfoliagecustom.vert" />
+		<None Remove="Shaders\shader.fxaa.frag" />
 		<None Remove="Shaders\shader.gbufferinstanced.frag" />
 		<None Remove="Shaders\shader.gbufferinstanced.vert" />
 		<None Remove="Shaders\shader.grid.frag" />
@@ -457,7 +459,9 @@
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.fog.frag" />
-		<EmbeddedResource Include="Shaders\Include\fog.glsl" />
+		<EmbeddedResource Include="Shaders\shader.gbufferfoliagecustom.frag" />
+		<EmbeddedResource Include="Shaders\shader.gbufferfoliagecustom.vert" />
+		<EmbeddedResource Include="Shaders\shader.fxaa.frag" />
 		<EmbeddedResource Include="Shaders\shader.copy.frag">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>

@@ -19,6 +19,7 @@ namespace KWEngine3.Helper
         public float ColorBackgroundBoost { get; set; }
         public string BackgroundSkyBox { get; set; }
         public float BackgroundSkyboxRotation { get; set; }
+        public string BackgroundSkyboxType { get; set; } // "CubeMap" or "Equirectangular" (missing in older files = CubeMap)
         public string Background2D { get; set; }
         public float[] Background2DRepeat { get; set; }
         public float[] Background2DOffset { get; set; }
@@ -43,9 +44,6 @@ namespace KWEngine3.Helper
 
         public static SerializedWorld GenerateWorldExportFor(World w)
         {
-            // Prerequisites:
-            Quaternion.ToEulerAngles(HelperRotation.ExtractRotationRobust(w._background._rotation), out Vector3 r);
-
             SerializedWorld wj = new SerializedWorld();
             wj.Type = w.GetType().FullName;
 
@@ -59,7 +57,8 @@ namespace KWEngine3.Helper
             wj.ColorBackgroundBoost = w._background._brightnessMultiplier;
             wj.BackgroundSkyBox = w._background.Type == BackgroundType.Skybox ? w._background._filename : "";
             wj.BackgroundSkyBoxFOV = w._background.Type == BackgroundType.Skybox ? w._background._fov : 90;
-            wj.BackgroundSkyboxRotation = w._background.Type == BackgroundType.Skybox ? MathHelper.RadiansToDegrees(r.Y) : 0f;
+            wj.BackgroundSkyboxRotation = w._background.Type == BackgroundType.Skybox ? w._background._skyboxRotationY : 0f;
+            wj.BackgroundSkyboxType = w._background.Type == BackgroundType.Skybox ? w._background.SkyBoxType.ToString() : "";
             wj.BackgroundFillColor = new float[] { w._backgroundFillColor.X, w._backgroundFillColor.Y, w._backgroundFillColor.Z };
 
             wj.Background2D = w._background.Type == BackgroundType.Standard ? w._background._filename : "";
@@ -130,9 +129,11 @@ namespace KWEngine3.Helper
         public static List<SerializedFoliageObject> GenerateFoliageObjects(World w)
         {
             List<SerializedFoliageObject> foliageObjects = new List<SerializedFoliageObject>();
-            foreach (FoliageObject f in w._foliageObjects)
+            foreach (FoliageBase fb in w._foliageObjects)
             {
-                foliageObjects.Add(SerializedFoliageObject.GenerateSerializedFoliageObject(f, w));
+                // FoliageObjectCustom instances are not exported (the list contains both types)
+                if (fb is FoliageObject f)
+                    foliageObjects.Add(SerializedFoliageObject.GenerateSerializedFoliageObject(f, w));
             }
             return foliageObjects;
         }

@@ -8,289 +8,497 @@ using System.Reflection;
 
 namespace KWEngine3.Renderer
 {
+    // Renders FoliageObject and FoliageObjectCustom instances into the g-buffer.
+    //
+    // FoliageObject: the plant grid of a patch is split into cells of about CELL_SIZE x CELL_SIZE world units.
+    // Each cell is frustum culled on the CPU and drawn with one instanced draw call (near cells first).
+    // Level of detail (pixel width based): plants are never drawn thinner than MIN_PIXEL_WIDTH pixels, because
+    // sub-pixel blades flicker. A plant that would be k times too thin is drawn about k times wider and only
+    // about 1/k of the plants are kept (keep = 1/k), so the covered area stays the same.
+    // Inside a cell the instances are drawn in bit reversed order, so every prefix of the instance range is
+    // spread evenly over the cell. The rank of a plant in that order decides how long it is kept: the vertex
+    // shader shrinks it to zero once keep drops below its rank, and the CPU only draws the part of the instance
+    // range that can still be visible at the nearest point of the cell (so nothing pops). All plants also
+    // shrink to zero towards the draw distance.
+    //
+    // FoliageObjectCustom: alpha tested cards, culled per object and faded out towards the draw distance.
     internal static class RendererGBufferFoliage
     {
-        public static int ProgramID { get; private set; } = -1;
-        public static int UViewProjectionMatrix { get; private set; } = -1;
-        public static int UModelMatrix { get; private set; } = -1;
-        public static int UNormalMatrix { get; private set; } = -1;
-        public static int UColorTintAndEmissive { get; private set; } = -1;
-        public static int UColorMaterial { get; private set; } = -1;
-        public static int UTextureNormal { get; private set; } = -1;
-        public static int UTextureNoise { get; private set; } = -1;
-        public static int UTextureAlbedo { get; private set; } = -1;
-        public static int UPatchSizeTime { get; private set; } = -1;
-        public static int UNXNZ { get; private set; } = -1;
-        public static int UDXDZSwayRound { get; private set; } = -1;
-        public static int UNoise { get; private set; } = -1;
-        public static int UTerrainPosition { get; private set; } = -1;
-        public static int UTerrainScale { get; private set; } = -1;
-        public static int UTerrainHeightMap { get; private set; } = -1;
-        public static int ULightConfig { get; private set; } = -1;
-        public static int URoughnessMetallic { get; private set; } = -1;
-        public static int UBlockIndex { get; private set; } = -1;
-        public static int UMode { get; private set; } = -1;
-        public static int UPosScaleUV1 { get; private set; } = -1;
-        public static int UPosScaleUV2 { get; private set; } = -1;
-        public static int UCamPosition { get; private set; } = -1;
+        // uniform locations of one of the two foliage programs
+        private sealed class FoliageProgram
+        {
+            public int ProgramID = -1;
+            public int UViewProjectionMatrix = -1;
+            public int UModelMatrix = -1;
+            public int UNormalMatrix = -1;
+            public int UColorTintAndEmissive = -1;
+            public int UTextureAlbedo = -1;
+            public int UTextureNormal = -1;
+            public int UTextureNoise = -1;
+            public int UPatchSizeTime = -1;
+            public int UNXNZ = -1;
+            public int UDXDZSwayRound = -1;
+            public int UNoise = -1;
+            public int UTerrainPosition = -1;
+            public int UTerrainScale = -1;
+            public int UTerrainHeightMap = -1;
+            public int ULightConfig = -1;
+            public int URoughnessMetallic = -1;
+            public int UCameraPosition = -1;
+            // FoliageObject only:
+            public int UCell = -1;
+            public int UCellLength = -1;
+            public int ULOD = -1;
+            // FoliageObjectCustom only:
+            public int UPosScaleUV1 = -1;
+            public int UPosScaleUV2 = -1;
+            public int UFade = -1;
+            public int UAlphaMipScales = -1;
+        }
+
+        // one draw call of a FoliageObject: a rectangular block of its plant grid
+        private struct FoliageCell
+        {
+            public int StartX;
+            public int StartZ;
+            public int Columns;       // edge cells are cut off by the patch border
+            public int Rows;
+            public int InstanceCount; // first part of the bit reversed instance range that can still be visible
+        }
+
+        private static readonly FoliageProgram _programGrid = new FoliageProgram();   // FoliageObject (opaque, no discard)
+        private static readonly FoliageProgram _programCustom = new FoliageProgram(); // FoliageObjectCustom (alpha tested cards)
+
+        public static int ProgramID { get { return _programGrid.ProgramID; } }
+
+        private const float CELL_SIZE = 8f;           // approximate edge length of a cell in world units
+        private const int CELLS_PER_AXIS_MAX = 32;
+        // Plants are widened (and thinned out) below this width on screen, measured at the reference width of a plant
+        // (grass: upper part of the blade). Higher values flicker less and draw fewer instances, but blades look coarser
+        // in the distance. Measured with 1280x720 (flicker vs. a 3x3 supersampled reference): 1.25 hardly helps, 2 is a
+        // good compromise, 3 is close to the reference at mid distance.
+        private const float MIN_PIXEL_WIDTH = 2.0f;
+        private const float LOD_KEEP_MIN = 1f / 16f;  // must match LOD_KEEP_MIN in shader.gbufferfoliage.vert
+        private const float LOD_KEEP_FADE = 0.3f;     // must match LOD_KEEP_FADE in shader.gbufferfoliage.vert
+        private const float PLANT_SIZE_MIN = 0.47f;   // range of the random size factor of a plant (heightFactor2 in the vertex shader)
+        private const float PLANT_SIZE_MAX = 1.06f;
+        private const float LOD_FADE_BAND = 0.15f;    // plants shrink to zero within this fraction of the draw distance before it
+        private const float JITTER_MAX = 1f;          // max. random offset of a plant from its grid position (noise * random in the vertex shader)
+        private const float CUSTOM_FADE_BAND = 0.15f;
+
+        private static readonly Frustum _frustum = new Frustum();
+        private static readonly FoliageCell[] _cells = new FoliageCell[CELLS_PER_AXIS_MAX * CELLS_PER_AXIS_MAX];
+        private static readonly float[] _cellDistances = new float[CELLS_PER_AXIS_MAX * CELLS_PER_AXIS_MAX];
+        private static FoliageObject[] _visibleObjects = new FoliageObject[16];
+        private static float[] _visibleObjectDistances = new float[16];
 
         public static void Init()
         {
-            if (ProgramID < 0)
+            if (_programGrid.ProgramID < 0)
             {
-                ProgramID = GL.CreateProgram();
-
-                string resourceNameVertexShader = "KWEngine3.Shaders.shader.gbufferfoliage.vert";
-                string resourceNameFragmentShader = "KWEngine3.Shaders.shader.gbufferfoliage.frag";
-
-                int vertexShader;
-                int fragmentShader;
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
-                {
-                    vertexShader = RenderManager.LoadCompileAttachShader(s, ShaderType.VertexShader, ProgramID);
-                }
-
-                using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
-                {
-                    fragmentShader = RenderManager.LoadCompileAttachShader(s, ShaderType.FragmentShader, ProgramID);
-                }
-
-                GL.LinkProgram(ProgramID);
-                RenderManager.CheckShaderStatus(ProgramID, vertexShader, fragmentShader);
-
-                UMode = GL.GetUniformLocation(ProgramID, "uMode");
-
-                //UBlockIndex = GL.GetUniformBlockIndex(ProgramID, "uInstanceBlock");
-                //GL.UniformBlockBinding(ProgramID, UBlockIndex, 0);
-
-                UColorTintAndEmissive = GL.GetUniformLocation(ProgramID, "uColorTintEmissive");
-
-                UModelMatrix = GL.GetUniformLocation(ProgramID, "uModelMatrix");
-                UNormalMatrix = GL.GetUniformLocation(ProgramID, "uNormalMatrix");
-                UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
-
-                UTextureAlbedo = GL.GetUniformLocation(ProgramID, "uTextureAlbedo");
-                UTextureNormal = GL.GetUniformLocation(ProgramID, "uTextureNormal");
-                
-                UPatchSizeTime = GL.GetUniformLocation(ProgramID, "uPatchSizeTime");
-                //UInstanceCount = GL.GetUniformLocation(ProgramID, "uInstanceCount");
-                UNXNZ = GL.GetUniformLocation(ProgramID, "uNXNZ");
-                UDXDZSwayRound = GL.GetUniformLocation(ProgramID, "uDXDZSwayRound");
-                UCamPosition = GL.GetUniformLocation(ProgramID, "uCameraPosition");
-
-                UNoise = GL.GetUniformLocation(ProgramID, "uNoise");
-                ULightConfig = GL.GetUniformLocation(ProgramID, "uLightConfig");
-                UTerrainPosition = GL.GetUniformLocation(ProgramID, "uTerrainPosition");
-                UTerrainScale = GL.GetUniformLocation(ProgramID, "uTerrainScale");
-                UTerrainHeightMap = GL.GetUniformLocation(ProgramID, "uTerrainHeightMap");
-
-                UTextureNoise = GL.GetUniformLocation(ProgramID, "uNoiseMap");
-
-                URoughnessMetallic = GL.GetUniformLocation(ProgramID, "uRoughnessMetallic");
-
-                UPosScaleUV1 = GL.GetUniformLocation(ProgramID, "uPosScaleUV1");
-                UPosScaleUV2 = GL.GetUniformLocation(ProgramID, "uPosScaleUV2");
+                CreateProgram(_programGrid, "KWEngine3.Shaders.shader.gbufferfoliage.vert", "KWEngine3.Shaders.shader.gbufferfoliage.frag");
+                CreateProgram(_programCustom, "KWEngine3.Shaders.shader.gbufferfoliagecustom.vert", "KWEngine3.Shaders.shader.gbufferfoliagecustom.frag");
             }
+        }
+
+        private static void CreateProgram(FoliageProgram p, string resourceNameVertexShader, string resourceNameFragmentShader)
+        {
+            p.ProgramID = GL.CreateProgram();
+
+            int vertexShader;
+            int fragmentShader;
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            using (Stream s = assembly.GetManifestResourceStream(resourceNameVertexShader))
+            {
+                vertexShader = RenderManager.LoadCompileAttachShader(s, ShaderType.VertexShader, p.ProgramID);
+            }
+
+            using (Stream s = assembly.GetManifestResourceStream(resourceNameFragmentShader))
+            {
+                fragmentShader = RenderManager.LoadCompileAttachShader(s, ShaderType.FragmentShader, p.ProgramID);
+            }
+
+            GL.LinkProgram(p.ProgramID);
+            RenderManager.CheckShaderStatus(p.ProgramID, vertexShader, fragmentShader);
+
+            p.UViewProjectionMatrix = GL.GetUniformLocation(p.ProgramID, "uViewProjectionMatrix");
+            p.UModelMatrix = GL.GetUniformLocation(p.ProgramID, "uModelMatrix");
+            p.UNormalMatrix = GL.GetUniformLocation(p.ProgramID, "uNormalMatrix");
+            p.UColorTintAndEmissive = GL.GetUniformLocation(p.ProgramID, "uColorTintEmissive");
+            p.UTextureAlbedo = GL.GetUniformLocation(p.ProgramID, "uTextureAlbedo");
+            p.UTextureNormal = GL.GetUniformLocation(p.ProgramID, "uTextureNormal");
+            p.UTextureNoise = GL.GetUniformLocation(p.ProgramID, "uNoiseMap");
+            p.UPatchSizeTime = GL.GetUniformLocation(p.ProgramID, "uPatchSizeTime");
+            p.UNXNZ = GL.GetUniformLocation(p.ProgramID, "uNXNZ");
+            p.UDXDZSwayRound = GL.GetUniformLocation(p.ProgramID, "uDXDZSwayRound");
+            p.UNoise = GL.GetUniformLocation(p.ProgramID, "uNoise");
+            p.UTerrainPosition = GL.GetUniformLocation(p.ProgramID, "uTerrainPosition");
+            p.UTerrainScale = GL.GetUniformLocation(p.ProgramID, "uTerrainScale");
+            p.UTerrainHeightMap = GL.GetUniformLocation(p.ProgramID, "uTerrainHeightMap");
+            p.ULightConfig = GL.GetUniformLocation(p.ProgramID, "uLightConfig");
+            p.URoughnessMetallic = GL.GetUniformLocation(p.ProgramID, "uRoughnessMetallic");
+            p.UCameraPosition = GL.GetUniformLocation(p.ProgramID, "uCameraPosition");
+            p.UCell = GL.GetUniformLocation(p.ProgramID, "uCell");
+            p.UCellLength = GL.GetUniformLocation(p.ProgramID, "uCellLength");
+            p.ULOD = GL.GetUniformLocation(p.ProgramID, "uLOD");
+            p.UPosScaleUV1 = GL.GetUniformLocation(p.ProgramID, "uPosScaleUV1");
+            p.UPosScaleUV2 = GL.GetUniformLocation(p.ProgramID, "uPosScaleUV2");
+            p.UFade = GL.GetUniformLocation(p.ProgramID, "uFade");
+            p.UAlphaMipScales = GL.GetUniformLocation(p.ProgramID, "uAlphaMipScales");
         }
 
         public static void Bind()
         {
-            GL.UseProgram(ProgramID);
-        }
-
-        public static void SetGlobals()
-        {
-            Matrix4 vp = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrix : KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrix;
-            GL.UniformMatrix4(UViewProjectionMatrix, false, ref vp);
-            GL.Uniform3(UCamPosition, KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position);
+            GL.UseProgram(_programGrid.ProgramID);
         }
 
         public static void RenderScene()
         {
-            if (KWEngine.CurrentWorld != null)
+            World w = KWEngine.CurrentWorld;
+            if (w == null || w._foliageObjects.Count == 0)
+                return;
+
+            // culling uses the interpolated camera state that is rendered in this frame
+            // (the frustum of the camera object itself belongs to the current simulation state)
+            Vector3 cameraPosition;
+            Matrix4 viewProjection;
+            float projectionScaleY; // M22 of the projection matrix = 1 / tan(fovY / 2)
+            if (KWEngine.Mode == EngineMode.Play)
             {
-                SetGlobals();
-                for(int i = 0; i < KWEngine.CurrentWorld._foliageObjects.Count; i++)
+                cameraPosition = w._cameraGame._stateRender._position;
+                viewProjection = w._cameraGame._stateRender.ViewProjectionMatrix;
+                projectionScaleY = w._cameraGame._stateRender.ProjectionMatrix.M22;
+                _frustum.UpdateFrustum(w._cameraGame._stateRender.ProjectionMatrix, w._cameraGame._stateRender.ViewMatrix);
+            }
+            else
+            {
+                cameraPosition = w._cameraEditor._stateRender._position;
+                viewProjection = w._cameraEditor._stateRender.ViewProjectionMatrix;
+                projectionScaleY = w._cameraEditor._stateRender.ProjectionMatrix.M22;
+                _frustum.UpdateFrustum(w._cameraEditor._stateRender.ProjectionMatrix, w._cameraEditor._stateRender.ViewMatrix);
+            }
+            // pixels per world unit at a distance of 1 (g-buffer resolution)
+            float pixelsPerUnit = projectionScaleY * RenderManager.FramebufferDeferred.Height * 0.5f;
+
+            // FoliageObject instances, nearest patch first:
+            int visibleCount = 0;
+            foreach (FoliageBase fb in w._foliageObjects)
+            {
+                if (fb is FoliageObject f && f._nXZ.X > 0 && f._nXZ.Y > 0)
                 {
-                    if (KWEngine.CurrentWorld._foliageObjects[i] is FoliageObject)
+                    GetGridBounds(f, GetMinWidthDistance(f, pixelsPerUnit), out float originX, out float originZ, out float margin, out float minY, out float maxY);
+                    Vector3 boundsMin = new Vector3(originX - margin, minY, originZ - margin);
+                    Vector3 boundsMax = new Vector3(originX + f._dXZ.X * (f._nXZ.X - 1) + margin, maxY, originZ + f._dXZ.Y * (f._nXZ.Y - 1) + margin);
+                    float distance = DistanceToBox(cameraPosition, boundsMin, boundsMax);
+                    if (distance >= f._drawDistance || !IsBoxInFrustum(boundsMin, boundsMax))
+                        continue;
+
+                    if (visibleCount == _visibleObjects.Length)
                     {
-                        FoliageObject f = KWEngine.CurrentWorld._foliageObjects[i] as FoliageObject;
-                        if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpaceForRenderPass)
-                        {
-                            continue;
-                        }
-                        else
-                            Draw(f);
+                        Array.Resize(ref _visibleObjects, visibleCount * 2);
+                        Array.Resize(ref _visibleObjectDistances, visibleCount * 2);
                     }
-                    else
-                    {
-                        FoliageObjectCustom f = KWEngine.CurrentWorld._foliageObjects[i] as FoliageObjectCustom;
-                        if (KWEngine.Mode != EngineMode.Edit && !f.IsInsideScreenSpaceForRenderPass)
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            Vector3 cntr = (f._patchSizeMax - f._patchSizeMin) * 0.5f;
-                            Vector3 camPos = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position;
-                            Vector3 delta = cntr - camPos;
-                            float camDistSq = Vector3.Dot(delta, delta);
-                            if(camDistSq < f._camDistanceMax)
-                                Draw(f);
-                        }
-                    }
+                    _visibleObjects[visibleCount] = f;
+                    _visibleObjectDistances[visibleCount] = distance;
+                    visibleCount++;
                 }
             }
+
+            if (visibleCount > 0)
+            {
+                Array.Sort(_visibleObjectDistances, _visibleObjects, 0, visibleCount);
+                GL.UseProgram(_programGrid.ProgramID);
+                SetGlobals(_programGrid, ref viewProjection, cameraPosition);
+                for (int i = 0; i < visibleCount; i++)
+                {
+                    DrawGrid(_visibleObjects[i], cameraPosition, pixelsPerUnit);
+                    _visibleObjects[i] = null; // do not keep removed objects alive
+                }
+            }
+
+            // FoliageObjectCustom instances:
+            bool customProgramBound = false;
+            foreach (FoliageBase fb in w._foliageObjects)
+            {
+                if (fb is FoliageObjectCustom fc && fc._instanceCount > 0)
+                {
+                    float drawDistance = MathF.Sqrt(fc._camDistanceMax);
+                    GetCustomBounds(fc, out Vector3 boundsMin, out Vector3 boundsMax);
+                    if (DistanceToBox(cameraPosition, boundsMin, boundsMax) >= drawDistance || !IsBoxInFrustum(boundsMin, boundsMax))
+                        continue;
+
+                    if (!customProgramBound)
+                    {
+                        GL.UseProgram(_programCustom.ProgramID);
+                        SetGlobals(_programCustom, ref viewProjection, cameraPosition);
+                        GL.Disable(EnableCap.CullFace); // cards are visible from both sides
+                        customProgramBound = true;
+                    }
+                    DrawCustom(fc, drawDistance);
+                }
+            }
+            if (customProgramBound)
+                GL.Enable(EnableCap.CullFace);
+
+            GL.BindVertexArray(0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
-        public static void Draw(FoliageObjectCustom f)
+        private static void SetGlobals(FoliageProgram p, ref Matrix4 viewProjection, Vector3 cameraPosition)
         {
-            GL.Disable(EnableCap.CullFace);
+            GL.UniformMatrix4(p.UViewProjectionMatrix, false, ref viewProjection);
+            GL.Uniform3(p.UCameraPosition, cameraPosition);
+        }
 
-            GL.Uniform4(UPosScaleUV1, f._instanceCount, f._posScaleArray1);
-            GL.Uniform4(UPosScaleUV2, f._instanceCount, f._posScaleArray2);
+        private static void DrawGrid(FoliageObject f, Vector3 cameraPosition, float pixelsPerUnit)
+        {
+            int nx = f._nXZ.X;
+            int nz = f._nXZ.Y;
+            float dx = f._dXZ.X;
+            float dz = f._dXZ.Y;
+            float minWidthDistance = GetMinWidthDistance(f, pixelsPerUnit);
+            GetGridBounds(f, minWidthDistance, out float originX, out float originZ, out float margin, out float minY, out float maxY);
 
-            GL.UniformMatrix4(UModelMatrix, false, ref KWEngine.Matrix4DummyIdentity);
-            GL.UniformMatrix4(UNormalMatrix, false, ref KWEngine.Matrix4DummyIdentity);
+            float drawDistance = f._drawDistance;
+            float fadeBand = drawDistance * LOD_FADE_BAND;
+
+            // collect the visible cells:
+            int cellLength = GetCellLength(nx, nz, dx, dz, out int cellLengthLog2);
+            int cellInstances = cellLength * cellLength;
+            int cellCount = 0;
+            for (int sz = 0; sz < nz; sz += cellLength)
+            {
+                int ez = Math.Min(sz + cellLength, nz);
+                for (int sx = 0; sx < nx; sx += cellLength)
+                {
+                    int ex = Math.Min(sx + cellLength, nx);
+                    Vector3 cellMin = new Vector3(originX + dx * sx - margin, minY, originZ + dz * sz - margin);
+                    Vector3 cellMax = new Vector3(originX + dx * (ex - 1) + margin, maxY, originZ + dz * (ez - 1) + margin);
+                    float distance = DistanceToBox(cameraPosition, cellMin, cellMax);
+                    if (distance >= drawDistance || !IsBoxInFrustum(cellMin, cellMax))
+                        continue;
+
+                    // keep is largest at the nearest point of the cell (and for the largest plants). Plants whose rank in
+                    // the cell is beyond keepMax * (1 + LOD_KEEP_FADE) have shrunk to zero everywhere in the cell.
+                    float keepMax = distance > 0f ? Math.Clamp(minWidthDistance * PLANT_SIZE_MAX / distance, LOD_KEEP_MIN, 1f) : 1f;
+                    float visibleFraction = Math.Min(keepMax * (1f + LOD_KEEP_FADE), 1f);
+                    FoliageCell c;
+                    c.StartX = sx;
+                    c.StartZ = sz;
+                    c.Columns = ex - sx;
+                    c.Rows = ez - sz;
+                    c.InstanceCount = Math.Clamp((int)MathF.Ceiling(visibleFraction * cellInstances), 1, cellInstances);
+                    _cells[cellCount] = c;
+                    _cellDistances[cellCount] = distance;
+                    cellCount++;
+                }
+            }
+            if (cellCount == 0)
+                return;
+            Array.Sort(_cellDistances, _cells, 0, cellCount);
+
+            FoliageProgram p = _programGrid;
 
             // Bind uniforms
-            GL.Uniform1(UMode, 1);
-            GL.Uniform4(UColorTintAndEmissive, f._color);
-            GL.Uniform3(UPatchSizeTime, new Vector3(0f, 0f, KWEngine.CurrentWorld.WorldTime));
-            //GL.Uniform1(UInstanceCount, (float)f._instanceCount);
-            GL.Uniform2(UNXNZ, 0, 0);
-            GL.Uniform4(UDXDZSwayRound, 0f, 0f, f._swayFactor, 1.0f);
-            GL.Uniform2(UNoise, f._noise.Length / 2, f._noise); // TODO: check if /2 really cuts it here ;-)
-
-            GL.Uniform2(URoughnessMetallic, f._roughness, 0.0f);
+            GL.UniformMatrix4(p.UModelMatrix, false, ref f._modelMatrix);
+            GL.UniformMatrix4(p.UNormalMatrix, false, ref f._normalMatrix);
+            GL.Uniform4(p.UColorTintAndEmissive, f._color);
+            GL.Uniform3(p.UPatchSizeTime, new Vector3(f._patchSize.X, f._patchSize.Y, KWEngine.CurrentWorld.WorldTime));
+            GL.Uniform2(p.UNXNZ, f._nXZ);
+            GL.Uniform4(p.UDXDZSwayRound, f._dXZ.X, f._dXZ.Y, f._swayFactor, f.IsSizeReducedAtCorners ? 0.05f : 1.0f);
+            GL.Uniform2(p.UNoise, f._noise.Length / 2, f._noise);
+            GL.Uniform2(p.URoughnessMetallic, f._roughness, 0.0f);
+            GL.Uniform3(p.ULOD, minWidthDistance, drawDistance, fadeBand);
 
             int val = f.IsShadowReceiver ? 1 : -1;
             val *= f.IsAffectedByLight ? 1 : 10;
-            GL.Uniform1(ULightConfig, val);
+            GL.Uniform1(p.ULightConfig, val);
 
             // Bind textures
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, f._textureId != -1 ? f._textureId : KWEngine.TextureWhite);
-            GL.Uniform1(UTextureAlbedo, 0);
+            GL.Uniform1(p.UTextureAlbedo, 0);
 
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNormalEmpty);
-            GL.Uniform1(UTextureNormal, 1);
+            GL.BindTexture(TextureTarget.Texture2D, f.Type == FoliageType.GrassMinecraft || f.Type == FoliageType.Fern ? KWEngine.TextureNormalEmpty : KWEngine.TextureFoliageGrassNormal);
+            GL.Uniform1(p.UTextureNormal, 1);
 
             GL.ActiveTexture(TextureUnit.Texture2);
             GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNoise);
-            GL.Uniform1(UTextureNoise, 2);
+            GL.Uniform1(p.UTextureNoise, 2);
 
-            if (f._terrainObject != null && f._terrainObject.ID != 0)
+            BindTerrain(p, f._terrainObject);
+
+            // Draw calls (one per visible cell)
+            int vao;
+            int indexBuffer;
+            int indexCount;
+            if (f.Type == FoliageType.GrassMinecraft)
             {
-                GeoTerrain t = f._terrainObject._gModel.ModelOriginal.MeshesArray[0].Terrain;
-                GL.Uniform3(UTerrainScale, (float)t.GetWidth(), (float)t.GetHeight(), (float)t.GetDepth());
-                GL.Uniform3(UTerrainPosition, f._terrainObject._stateRender._position);
-                GL.ActiveTexture(TextureUnit.Texture3);
-                GL.BindTexture(TextureTarget.Texture2D, t._texHeight);
-                GL.Uniform1(UTerrainHeightMap, 3);
+                GeoMesh m = KWEngine.KWFoliageMinecraft.MeshesArray[0];
+                vao = m.VAO;
+                indexBuffer = m.VBOIndex;
+                indexCount = m.IndexCount;
+            }
+            else if (f.Type == FoliageType.Fern)
+            {
+                GeoMesh m = KWEngine.KWFoliageFern.MeshesArray[0];
+                vao = m.VAO;
+                indexBuffer = m.VBOIndex;
+                indexCount = m.IndexCount;
             }
             else
             {
-                GL.Uniform3(UTerrainScale, 0f, 0f, 0f);
-                GL.Uniform3(UTerrainPosition, 0f, 0f, 0f);
-                GL.ActiveTexture(TextureUnit.Texture3);
-                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
-                GL.Uniform1(UTerrainHeightMap, 3);
+                vao = KWFoliageGrass.VAO;
+                indexBuffer = KWFoliageGrass.EBO;
+                indexCount = KWFoliageGrass.IndexCount;
             }
+
+            GL.BindVertexArray(vao);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer);
+            GL.Uniform2(p.UCellLength, cellLength, cellLengthLog2);
+            for (int i = 0; i < cellCount; i++)
+            {
+                FoliageCell c = _cells[i];
+                GL.Uniform4(p.UCell, c.StartX, c.StartZ, c.Columns, c.Rows);
+                GL.DrawElementsInstanced(PrimitiveType.Triangles, indexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, c.InstanceCount);
+            }
+            GL.BindVertexArray(0);
+        }
+
+        private static void DrawCustom(FoliageObjectCustom f, float drawDistance)
+        {
+            FoliageProgram p = _programCustom;
+
+            GL.Uniform4(p.UPosScaleUV1, f._instanceCount, f._posScaleArray1);
+            GL.Uniform4(p.UPosScaleUV2, f._instanceCount, f._posScaleArray2);
+
+            // Bind uniforms
+            GL.Uniform4(p.UColorTintAndEmissive, f._color);
+            GL.Uniform3(p.UPatchSizeTime, new Vector3(0f, 0f, KWEngine.CurrentWorld.WorldTime));
+            GL.Uniform2(p.UNoise, f._noise.Length / 2, f._noise); // TODO: check if /2 really cuts it here ;-)
+            GL.Uniform2(p.URoughnessMetallic, f._roughness, 0.0f);
+            GL.Uniform2(p.UFade, drawDistance * (1f - CUSTOM_FADE_BAND), drawDistance);
+            GL.Uniform1(p.UAlphaMipScales, f._alphaMipScales.Length, f._alphaMipScales);
+
+            int val = f.IsShadowReceiver ? 1 : -1;
+            val *= f.IsAffectedByLight ? 1 : 10;
+            GL.Uniform1(p.ULightConfig, val);
+
+            // Bind textures
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, f._textureId != -1 ? f._textureId : KWEngine.TextureWhite);
+            GL.Uniform1(p.UTextureAlbedo, 0);
+
+            BindTerrain(p, f._terrainObject);
 
             GeoMesh m = KWEngine.KWFoliageImposter.MeshesArray[0];
             GL.BindVertexArray(m.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
             GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
-            //HelperGeneral.CheckGLErrors();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
             GL.BindVertexArray(0);
-
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            GL.Enable(EnableCap.CullFace);
         }
 
-        public static void Draw(FoliageObject f)
+        private static void BindTerrain(FoliageProgram p, TerrainObject terrain)
         {
-            // Bind uniforms
-            GL.Uniform1(UMode, 0);
-            GL.UniformMatrix4(UModelMatrix, false, ref f._modelMatrix);
-            GL.UniformMatrix4(UNormalMatrix, false, ref f._normalMatrix);
-            GL.Uniform4(UColorTintAndEmissive, f._color);
-            GL.Uniform3(UPatchSizeTime, new Vector3(f._patchSize.X, f._patchSize.Y, KWEngine.CurrentWorld.WorldTime));
-            //GL.Uniform1(UInstanceCount, (float)f._instanceCount);
-            GL.Uniform2(UNXNZ, f._nXZ);
-            GL.Uniform4(UDXDZSwayRound, f._dXZ.X, f._dXZ.Y, f._swayFactor, f.IsSizeReducedAtCorners ? 0.05f : 1.0f);
-            GL.Uniform2(UNoise, f._noise.Length / 2, f._noise); // TODO: check if /2 really cuts it here ;-)
+            GL.ActiveTexture(TextureUnit.Texture3);
+            if (terrain != null && terrain.ID != 0)
+            {
+                GeoTerrain t = terrain._gModel.ModelOriginal.MeshesArray[0].Terrain;
+                GL.Uniform3(p.UTerrainScale, (float)t.GetWidth(), (float)t.GetHeight(), (float)t.GetDepth());
+                GL.Uniform3(p.UTerrainPosition, terrain._stateRender._position);
+                GL.BindTexture(TextureTarget.Texture2D, t._texHeight);
+            }
+            else
+            {
+                GL.Uniform3(p.UTerrainScale, 0f, 0f, 0f);
+                GL.Uniform3(p.UTerrainPosition, 0f, 0f, 0f);
+                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
+            }
+            GL.Uniform1(p.UTerrainHeightMap, 3);
+        }
 
-            GL.Uniform2(URoughnessMetallic, f._roughness, 0.0f);
+        // Distance up to which a plant of nominal size (random size factor 1) is at least MIN_PIXEL_WIDTH wide on screen.
+        // Reference width per type: grass = upper part of the blade, fern = a leaf, minecraft grass = one quad.
+        private static float GetMinWidthDistance(FoliageObject f, float pixelsPerUnit)
+        {
+            float referenceWidth = f.Type == FoliageType.Fern ? 0.04f : (f.Type == FoliageType.GrassMinecraft ? 0.124f : KWFoliageGrass.XH * 2f);
+            return pixelsPerUnit * referenceWidth * Math.Min(f._scale.X, f._scale.Z) / MIN_PIXEL_WIDTH;
+        }
 
-            int val = f.IsShadowReceiver ? 1 : -1;
-            val *= f.IsAffectedByLight ? 1 : 10;
-            GL.Uniform1(ULightConfig, val);
+        // Grid origin (position of plant 0/0 before its random offset) and the vertical range of a patch.
+        // margin = how far a plant can reach beyond its grid position (random offset, width incl. lod widening, bending in the wind).
+        private static void GetGridBounds(FoliageObject f, float minWidthDistance, out float originX, out float originZ, out float margin, out float minY, out float maxY)
+        {
+            originX = f._position.X - f._dXZ.X * (f._nXZ.X - 1) * 0.5f;
+            originZ = f._position.Z - f._dXZ.Y * (f._nXZ.Y - 1) * 0.5f;
 
-            // Bind textures
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, f._textureId != -1 ? f._textureId : KWEngine.TextureWhite);
-            GL.Uniform1(UTextureAlbedo, 0);
+            float plantRadius = f.Type == FoliageType.Fern ? 0.45f : (f.Type == FoliageType.GrassMinecraft ? 0.1f : 0.03f);
+            float plantHeight = 1.1f * f._scale.Y; // the random height factor in the vertex shader is about 1.06 at most
+            float bend = plantHeight * MathF.Sin(f._swayFactor * MathHelper.PiOver2);
+            float widenMax = Math.Clamp(f._drawDistance / (minWidthDistance * PLANT_SIZE_MIN), 1f, 1f / LOD_KEEP_MIN);
+            margin = JITTER_MAX + plantRadius * widenMax * 1.1f * Math.Max(f._scale.X, f._scale.Z) + bend;
 
-            GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, f.Type == FoliageType.GrassMinecraft || f.Type == FoliageType.Fern ? KWEngine.TextureNormalEmpty : KWEngine.TextureFoliageGrassNormal);
-            GL.Uniform1(UTextureNormal, 1);
-
-            GL.ActiveTexture(TextureUnit.Texture2);
-            GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureNoise);
-            GL.Uniform1(UTextureNoise, 2);
-
+            minY = f._position.Y - 0.05f * f._scale.Y;
+            maxY = f._position.Y + plantHeight;
             if (f._terrainObject != null && f._terrainObject.ID != 0)
             {
-                GeoTerrain m = f._terrainObject._gModel.ModelOriginal.MeshesArray[0].Terrain;
-                GL.Uniform3(UTerrainScale, (float)m.GetWidth(), (float)m.GetHeight(), (float)m.GetDepth());
-                GL.Uniform3(UTerrainPosition, f._terrainObject._stateRender._position);
-                GL.ActiveTexture(TextureUnit.Texture3);
-                GL.BindTexture(TextureTarget.Texture2D, m._texHeight);
-                GL.Uniform1(UTerrainHeightMap, 3);
+                GeoTerrain t = f._terrainObject._gModel.ModelOriginal.MeshesArray[0].Terrain;
+                float terrainY = f._terrainObject._stateRender._position.Y;
+                minY += terrainY;
+                maxY += terrainY + (float)t.GetHeight();
             }
-            else
-            {
-                GL.Uniform3(UTerrainScale, 0f, 0f, 0f);
-                GL.Uniform3(UTerrainPosition, 0f, 0f, 0f);
-                GL.ActiveTexture(TextureUnit.Texture3);
-                GL.BindTexture(TextureTarget.Texture2D, KWEngine.TextureBlack);
-                GL.Uniform1(UTerrainHeightMap, 3);
-            }
+        }
 
-            // Draw calls...
-            if(f.Type == FoliageType.GrassMinecraft)
+        private static void GetCustomBounds(FoliageObjectCustom f, out Vector3 boundsMin, out Vector3 boundsMax)
+        {
+            boundsMin = f._renderBoundsMin;
+            boundsMax = f._renderBoundsMax;
+            if (f._terrainObject != null && f._terrainObject.ID != 0)
             {
-                GeoMesh m = KWEngine.KWFoliageMinecraft.MeshesArray[0];
-                GL.BindVertexArray(m.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
-                GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                GL.BindVertexArray(0);
+                GeoTerrain t = f._terrainObject._gModel.ModelOriginal.MeshesArray[0].Terrain;
+                float terrainY = f._terrainObject._stateRender._position.Y;
+                boundsMin.Y += terrainY;
+                boundsMax.Y += terrainY + (float)t.GetHeight();
             }
-            else if(f.Type == FoliageType.Fern)
-            {
-                GeoMesh m = KWEngine.KWFoliageFern.MeshesArray[0];
-                GL.BindVertexArray(m.VAO);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
-                GL.DrawElementsInstanced(PrimitiveType.Triangles, m.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, f._instanceCount);
-                GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-                GL.BindVertexArray(0);
-            }
-            else
-            {
-                GL.BindVertexArray(KWFoliageGrass.VAO);
-                GL.DrawArraysInstanced(PrimitiveType.Triangles, 0, KWFoliageGrass._vertices.Length / 3, f._instanceCount);
-                GL.BindVertexArray(0);
-            }
-            
+        }
 
-            GL.BindTexture(TextureTarget.Texture2D, 0);
+        // Edge length of the square cells in plants: a power of two (needed for the bit reversed instance order),
+        // close to CELL_SIZE world units, not larger than the patch (edge cells waste instances outside of it)
+        // and large enough for at most CELLS_PER_AXIS_MAX cells per axis.
+        private static int GetCellLength(int nx, int nz, float dx, float dz, out int log2Length)
+        {
+            float target = CELL_SIZE / Math.Max(Math.Max(dx, dz), 0.0001f);
+            int length = 4;
+            while (length * 2 <= target * 1.4142f)
+                length <<= 1;
+
+            int patchLimit = 4;
+            while (patchLimit * 2 <= Math.Min(nx, nz))
+                patchLimit <<= 1;
+            length = Math.Min(length, patchLimit);
+
+            while ((Math.Max(nx, nz) + length - 1) / length > CELLS_PER_AXIS_MAX)
+                length <<= 1;
+
+            log2Length = 0;
+            while ((1 << log2Length) < length)
+                log2Length++;
+            return length;
+        }
+
+        private static float DistanceToBox(Vector3 p, Vector3 boxMin, Vector3 boxMax)
+        {
+            float dx = Math.Max(Math.Max(boxMin.X - p.X, 0f), p.X - boxMax.X);
+            float dy = Math.Max(Math.Max(boxMin.Y - p.Y, 0f), p.Y - boxMax.Y);
+            float dz = Math.Max(Math.Max(boxMin.Z - p.Z, 0f), p.Z - boxMax.Z);
+            return MathF.Sqrt(dx * dx + dy * dy + dz * dz);
+        }
+
+        private static bool IsBoxInFrustum(Vector3 boxMin, Vector3 boxMax)
+        {
+            Vector3 halfSize = (boxMax - boxMin) * 0.5f;
+            return _frustum.VolumeVsFrustum(boxMin + halfSize, halfSize.X, halfSize.Y, halfSize.Z);
         }
     }
 }

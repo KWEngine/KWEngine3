@@ -8,7 +8,6 @@ using KWEngine3.ShadowMapping;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace KWEngine3.Renderer
 {
@@ -18,6 +17,7 @@ namespace KWEngine3.Renderer
         public static FramebufferLighting FramebufferLightingPass { get; set; }
         public static FramebufferSSAO FramebufferSSAO { get; set; }
         public static FramebufferSSAOBlur FramebufferSSAOBlur { get; set; }
+        public static FramebufferFXAA FramebufferFXAA { get; set; }
         public static FramebufferBloom[] FramebuffersBloom { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static FramebufferBloom[] FramebuffersBloomTemp { get; set; } = new FramebufferBloom[KWEngine.MAX_BLOOM_BUFFERS];
         public static ScreenGrid _screenGrid;
@@ -34,47 +34,12 @@ namespace KWEngine3.Renderer
             int address = GL.CreateShader(type);
             using (StreamReader sr = new StreamReader(stream))
             {
-                GL.ShaderSource(address, ResolveShaderIncludes(sr.ReadToEnd()));
+                GL.ShaderSource(address, sr.ReadToEnd());
             }
             GL.CompileShader(address);
             GL.AttachShader(program, address);
             return address;
         }
-
-        private const string SHADER_INCLUDE_RESOURCEPREFIX = "KWEngine3.Shaders.Include.";
-        private const int SHADER_INCLUDE_MAXDEPTH = 8;
-        private static readonly Regex _shaderIncludeRegex = new Regex(@"^[ \t]*#include[ \t]+""([^""]+)""[ \t]*(?://[^\r\n]*)?\r?$", RegexOptions.Multiline | RegexOptions.Compiled);
-
-        internal static string ResolveShaderIncludes(string source, int depth = 0)
-        {
-            if (!source.Contains("#include"))
-                return source;
-
-            if (depth >= SHADER_INCLUDE_MAXDEPTH)
-            {
-                KWEngine.LogWriteLine("[Shader] #include: maximum depth reached (circular include?)");
-                return source;
-            }
-
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            return _shaderIncludeRegex.Replace(source, match =>
-            {
-                string includeName = match.Groups[1].Value;
-                using (Stream s = assembly.GetManifestResourceStream(SHADER_INCLUDE_RESOURCEPREFIX + includeName))
-                {
-                    if (s == null)
-                    {
-                        KWEngine.LogWriteLine("[Shader] #include: resource '" + includeName + "' not found");
-                        return "// #include \"" + includeName + "\" not found";
-                    }
-                    using (StreamReader sr = new StreamReader(s))
-                    {
-                        return ResolveShaderIncludes(sr.ReadToEnd(), depth + 1);
-                    }
-                }
-            });
-        }
-
 
         public static void UpdateFramebufferClearColor(Vector3 newFillColor)
         {
@@ -109,8 +74,25 @@ namespace KWEngine3.Renderer
             // SSAO at half resolution (bilinearly upsampled in the lighting pass)
             FramebufferSSAO = new FramebufferSSAO(Math.Max(1, fbSize.X / 2), Math.Max(1, fbSize.Y / 2), false, LightType.Point);
             FramebufferSSAOBlur = new FramebufferSSAOBlur(Math.Max(1, fbSize.X / 2), Math.Max(1, fbSize.Y / 2), false, LightType.Point);
+            FramebufferFXAA = new FramebufferFXAA(fbSize.X, fbSize.Y);
 
             InitializeBloomFramebuffers();
+        }
+
+        // The FXAA pass reads the color attachment of the lighting pass and writes into FramebufferFXAA.
+        // Instead of copying the result back, the two color textures swap places: the lighting pass framebuffer
+        // then holds the anti-aliased image (HUD, bloom and the final copy keep using FramebufferLightingPass).
+        internal static void SwapLightingPassColorWithFXAATarget()
+        {
+            FramebufferTexture sceneTexture = FramebufferLightingPass.Attachments[0];
+            FramebufferTexture fxaaTexture = FramebufferFXAA.Attachments[0];
+            FramebufferLightingPass.Attachments[0] = fxaaTexture;
+            FramebufferFXAA.Attachments[0] = sceneTexture;
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferLightingPass.ID);
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, fxaaTexture.ID, 0);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferFXAA.ID);
+            GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, sceneTexture.ID, 0);
         }
 
         // (re)creates the bloom chain for the current render quality (also called when the quality changes at runtime)
@@ -195,6 +177,7 @@ namespace KWEngine3.Renderer
 
 
             RendererCopy.Init();
+            RendererFXAA.Init();
             RendererFog.Init();
             RendererBackgroundSkybox.Init();
             RendererBackgroundStandard.Init();

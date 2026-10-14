@@ -12,14 +12,15 @@ using System.Threading.Tasks;
 
 namespace KWEngine3TestProject.Worlds
 {
-    internal class GameWorldFoliageTest : World
+    internal class GameWorldFoliageTest : WorldPerformance
     {
         public override void Act()
         {
-            if(Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.R))
+
+            if (Keyboard.IsKeyPressed(OpenTK.Windowing.GraphicsLibraryFramework.Keys.R))
             {
                 TerrainObject t = GetTerrainObjectByName("TestTerrain");
-                if(t != null)
+                if (t != null)
                 {
                     RemoveTerrainObject(t);
                 }
@@ -28,6 +29,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+
             KWEngine.MouseSensitivity = 0.075f;
             KWEngine.BuildTerrainModel("T1", "./Textures/heightmap.png", 3);
             TerrainObject t = new TerrainObject("T1");
@@ -35,7 +37,7 @@ namespace KWEngine3TestProject.Worlds
             t.SetPosition(0, 0, 0);
             t.SetTexture("./Textures/grass_albedo.png");
             AddTerrainObject(t);
-            
+
             /*
             FoliageObject tf1 = new FoliageObject(FoliageType.Fern, 2000);
             tf1.SetPosition(0, 0, 0);
@@ -47,22 +49,22 @@ namespace KWEngine3TestProject.Worlds
             tf1.IsSizeReducedAtCorners = true;
             AddFoliageObject(tf1);
             */
-            
-            FoliageObject tf2 = new FoliageObject(FoliageType.GrassFresh, 50000);
+
+            FoliageObject tf2 = new FoliageObject(FoliageType.GrassFresh, 200000);
             tf2.SetPosition(-22, 0, 0);
             tf2.SetPatchSize(20, 40);
-            tf2.SetScale(3f, 0.75f, 3f);
+            tf2.SetScale(1f, 0.75f, 1f);
             tf2.SetSwayFactor(0.1f);
             tf2.SetColor(0.5f, 0.5f, 0.5f);
             tf2.AttachToTerrain(t);
             tf2.IsShadowReceiver = true;
             tf2.IsSizeReducedAtCorners = true;
             AddFoliageObject(tf2);
-            
+
 
 
             FoliageObjectCustom tf3 = new FoliageObjectCustom(256);
-            for(int i = 0; i < 256; i++)
+            for (int i = 0; i < 256; i++)
             {
                 tf3.SetPosition(i, HelperRandom.GetRandomNumber(-5f, 5f), -0.25f, HelperRandom.GetRandomNumber(-5f, 5f));
             }
@@ -73,6 +75,7 @@ namespace KWEngine3TestProject.Worlds
             tf3.SetTexture("./Textures/bush01_albedo.png");
             tf3.AttachToTerrain(t);
             tf3.SetColor(1, 1, 1, 0.0f);
+            tf3.SetCameraDrawDistance(100f);
             AddFoliageObject(tf3);
 
             PlayerFoliageTest player = new PlayerFoliageTest();
@@ -124,8 +127,10 @@ namespace KWEngine3TestProject.Worlds
             */
             SetColorAmbient(0.5f, 0.5f, 0.5f);
             SetBackgroundBrightnessMultiplier(2);
-            
+
             SetBackgroundSkybox("./Textures/skybox.dds");
+
+            KWEngine.FXAA_Enabled = false;
         }
     }
 }

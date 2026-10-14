@@ -17,15 +17,37 @@ namespace KWEngine3
         internal HUDObjectText _performanceForward;
         internal HUDObjectText _performanceLighting;
         internal HUDObjectText _performanceFog;
+        internal HUDObjectText _performanceFoliage;
+        internal HUDObjectText _performanceAntiAliasing;
         internal HUDObjectText _performanceCPU;
         internal HUDObjectText _performanceFPS;
         internal List<int> fps = new();
         private float _lastTextUpdate = -1f;
 
         /// <summary>
-        /// Erweitert die Act()-Methode um das Aktualisieren der gemessenen Performance-Werte und stellt diese Werte dar
+        /// Die Performance-Werte werden von der Engine automatisch aktualisiert, der Aufruf von base.Act() ist nicht mehr nötig
         /// </summary>
         public override void Act()
+        {
+        }
+
+        /// <summary>
+        /// Die Performance-Anzeige wird von der Engine automatisch vorbereitet, der Aufruf von base.Prepare() ist nicht mehr nötig
+        /// </summary>
+        public override void Prepare()
+        {
+        }
+
+        // Called by the engine before Prepare() of the subclass. Not virtual: Prepare() is overridden by the subclass,
+        // so a call of Prepare() would always run the subclass version.
+        internal void PreparePerformance()
+        {
+            KWEngine.DebugPerformanceEnabled = true;
+            InitHUDElements();
+        }
+
+        // called by the engine before Act() of the subclass (see PreparePerformance)
+        internal void ActPerformance()
         {
             if (KWEngine.DebugPerformanceEnabled)
             {
@@ -43,6 +65,8 @@ namespace KWEngine3
                 _performanceShadowMapping.SetText("Shadows: " + KWEngine.GetRenderTime(RenderType.ShadowMapping) + "ms");
                 _performanceSSAO.SetText("SSAO:    " + KWEngine.GetRenderTime(RenderType.SSAO) + "ms");
                 _performanceFog.SetText("Fog:     " + KWEngine.GetRenderTime(RenderType.Fog) + "ms");
+                _performanceFoliage.SetText("Foliage: " + KWEngine.GetRenderTime(RenderType.Foliage) + "ms");
+                _performanceAntiAliasing.SetText("FXAA:    " + KWEngine.GetRenderTime(RenderType.AntiAliasing) + "ms");
 
                 _performanceForward.SetText("Forward: " + KWEngine.GetRenderTime(RenderType.Forward) + "ms");
                 _performanceHUD.SetText("HUD:     " + KWEngine.GetRenderTime(RenderType.HUD) + "ms");
@@ -120,21 +144,26 @@ namespace KWEngine3
             _performanceFog.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceFog);
 
+            _performanceFoliage = new HUDObjectText("0");
+            _performanceFoliage.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceFoliage.ForceMonospace = true;
+            _performanceFoliage.SetScale(32);
+            _performanceFoliage.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
+            AddHUDObject(_performanceFoliage);
+
+            _performanceAntiAliasing = new HUDObjectText("0");
+            _performanceAntiAliasing.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceAntiAliasing.ForceMonospace = true;
+            _performanceAntiAliasing.SetScale(32);
+            _performanceAntiAliasing.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
+            AddHUDObject(_performanceAntiAliasing);
+
             _performanceFPS = new HUDObjectText("FPS:     0");
-            _performanceFPS.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceFPS.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
             _performanceFPS.ForceMonospace = true;
             _performanceFPS.SetScale(32);
             _performanceFPS.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceFPS);
-        }
-
-        /// <summary>
-        /// Erweitert die Prepare()-Methode um das Vorbereiten der Darstellung von Performance-Werten
-        /// </summary>
-        public override void Prepare()
-        {
-            KWEngine.DebugPerformanceEnabled = true;
-            InitHUDElements();
         }
     }
 }

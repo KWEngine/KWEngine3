@@ -12,6 +12,8 @@ namespace KWEngine3.Assets
         public static float[] _uvs;
 
         public static int VAO;
+        public static int EBO;
+        public static int IndexCount;
 
         internal const float XL = 0.025f;
         internal const float XM = 0.01875f;
@@ -154,7 +156,7 @@ namespace KWEngine3.Assets
                 
                 0.5f, YM * 1,  // 8
                 1.0f, YM * 1,  // 2
-                0.5f, YL * 1,  // 9
+                0.5f, YH * 1,  // 9
                 
                 0.5f, YH * 1,  // 9
                 0.0f, YM * 1,  // 2
@@ -296,13 +298,18 @@ namespace KWEngine3.Assets
 
             _tangents = GenerateTangentsFromNormals(out _bitangents);
 
+            // The arrays above form a triangle list (45 corners). Identical corners are merged so that the
+            // blade can be drawn indexed: the GPU then reuses transformed vertices (24 instead of 45 per blade).
+            BuildIndexedVertexData(out float[] vertices, out float[] uvs, out float[] normals, out float[] tangents, out float[] bitangents, out uint[] indices);
+            IndexCount = indices.Length;
+
             VAO = GL.GenVertexArray();
             GL.BindVertexArray(VAO);
 
             // position
             int vbo_vertices = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_vertices);
-            GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * 4, _vertices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * 4, vertices, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -310,7 +317,7 @@ namespace KWEngine3.Assets
             // uvs
             int vbo_texture = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_texture);
-            GL.BufferData(BufferTarget.ArrayBuffer, _uvs.Length * 4, _uvs, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, uvs.Length * 4, uvs, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(1);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -318,7 +325,7 @@ namespace KWEngine3.Assets
             // normals
             int vbo_normal = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_normal);
-            GL.BufferData(BufferTarget.ArrayBuffer, _normals.Length * 4, _normals, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, normals.Length * 4, normals, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(2);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -326,7 +333,7 @@ namespace KWEngine3.Assets
             // tangents
             int vbo_tangent = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_tangent);
-            GL.BufferData(BufferTarget.ArrayBuffer, _tangents.Length * 4, _tangents, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, tangents.Length * 4, tangents, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(3);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
@@ -334,12 +341,74 @@ namespace KWEngine3.Assets
             // bitangents
             int vbo_bitangent = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vbo_bitangent);
-            GL.BufferData(BufferTarget.ArrayBuffer, _bitangents.Length * 4, _bitangents, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, bitangents.Length * 4, bitangents, BufferUsageHint.StaticDraw);
             GL.VertexAttribPointer(4, 3, VertexAttribPointerType.Float, false, 0, 0);
             GL.EnableVertexAttribArray(4);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
+            // indices (element buffer binding is stored in the VAO)
+            EBO = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, EBO);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+
             GL.BindVertexArray(0);
+        }
+
+        private static void BuildIndexedVertexData(out float[] vertices, out float[] uvs, out float[] normals, out float[] tangents, out float[] bitangents, out uint[] indices)
+        {
+            int cornerCount = _vertices.Length / 3;
+            List<int> uniqueCorners = new List<int>();
+            indices = new uint[cornerCount];
+            for (int c = 0; c < cornerCount; c++)
+            {
+                int index = -1;
+                for (int u = 0; u < uniqueCorners.Count; u++)
+                {
+                    if (CornersAreEqual(c, uniqueCorners[u]))
+                    {
+                        index = u;
+                        break;
+                    }
+                }
+                if (index < 0)
+                {
+                    index = uniqueCorners.Count;
+                    uniqueCorners.Add(c);
+                }
+                indices[c] = (uint)index;
+            }
+
+            vertices = new float[uniqueCorners.Count * 3];
+            uvs = new float[uniqueCorners.Count * 2];
+            normals = new float[uniqueCorners.Count * 3];
+            tangents = new float[uniqueCorners.Count * 3];
+            bitangents = new float[uniqueCorners.Count * 3];
+            for (int u = 0; u < uniqueCorners.Count; u++)
+            {
+                int c = uniqueCorners[u];
+                Array.Copy(_vertices, c * 3, vertices, u * 3, 3);
+                Array.Copy(_uvs, c * 2, uvs, u * 2, 2);
+                Array.Copy(_normals, c * 3, normals, u * 3, 3);
+                Array.Copy(_tangents, c * 3, tangents, u * 3, 3);
+                Array.Copy(_bitangents, c * 3, bitangents, u * 3, 3);
+            }
+        }
+
+        private static bool CornersAreEqual(int a, int b)
+        {
+            const float EPSILON = 0.0001f;
+            for (int k = 0; k < 3; k++)
+            {
+                if (Math.Abs(_vertices[a * 3 + k] - _vertices[b * 3 + k]) > EPSILON
+                    || Math.Abs(_normals[a * 3 + k] - _normals[b * 3 + k]) > EPSILON
+                    || Math.Abs(_tangents[a * 3 + k] - _tangents[b * 3 + k]) > EPSILON
+                    || Math.Abs(_bitangents[a * 3 + k] - _bitangents[b * 3 + k]) > EPSILON)
+                {
+                    return false;
+                }
+            }
+            return Math.Abs(_uvs[a * 2 + 0] - _uvs[b * 2 + 0]) <= EPSILON
+                && Math.Abs(_uvs[a * 2 + 1] - _uvs[b * 2 + 1]) <= EPSILON;
         }
 
         internal static float[] GenerateTangentsFromNormals(out float[] bitangents)

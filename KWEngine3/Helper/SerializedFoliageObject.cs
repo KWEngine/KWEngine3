@@ -24,6 +24,7 @@ namespace KWEngine3.Helper
         public float Roughness { get; set; }
         public int InstanceCount { get; set; }
         public float SwayFactor { get; set; }
+        public float DrawDistance { get; set; }
 
         public static SerializedFoliageObject GenerateSerializedFoliageObject(FoliageObject f, World w)
         {
@@ -35,6 +36,7 @@ namespace KWEngine3.Helper
             sfobject.FoliageType = f.Type;
             sfobject.Roughness = f._roughness;
             sfobject.SwayFactor = f._swayFactor;
+            sfobject.DrawDistance = f._drawDistance;
             sfobject.PatchSize = new float[] { f._patchSize.X, f._patchSize.Y };
 
             sfobject.Position = new float[] { f._position.X, f._position.Y, f._position.Z };

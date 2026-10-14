@@ -2625,6 +2625,76 @@ namespace KWEngine3.Helper
             return 1 + (int)Math.Floor(Math.Log(Math.Max(width, height), 2));
         }
 
+        internal const int ALPHA_MIPSCALE_COUNT = 16; // must match ALPHA_MIPSCALE_COUNT in shader.gbufferfoliagecustom.frag
+        private const float ALPHA_MIPSCALE_MIN = 0.25f;
+        private const float ALPHA_MIPSCALE_MAX = 4.0f;
+
+        // Box filtered mip maps change the alpha coverage of a texture, so alpha tested foliage cards
+        // thin out (or clump together) with distance. This computes one alpha scale factor per mip level
+        // that keeps the coverage of the base level for the given alpha cutoff (read back once per texture).
+        // The texture itself is not modified, because it may be shared with other objects.
+        internal static float[] ComputeAlphaCoverageMipScales(int textureId, float alphaCutoff)
+        {
+            float[] scales = new float[ALPHA_MIPSCALE_COUNT];
+            for (int i = 0; i < scales.Length; i++)
+                scales[i] = 1f;
+
+            if (textureId <= 0)
+                return scales;
+
+            GL.BindTexture(TextureTarget.Texture2D, textureId);
+            GL.GetTexParameter(TextureTarget.Texture2D, GetTextureParameter.TextureMaxLevel, out int maxLevel);
+
+            int cutoffByte = (int)Math.Round(alphaCutoff * 255f);
+            int[] histogram = new int[256];
+            byte[] pixels = null;
+            float baseCoverage = 0f;
+            for (int level = 0; level < ALPHA_MIPSCALE_COUNT && level <= maxLevel; level++)
+            {
+                GL.GetTexLevelParameter(TextureTarget.Texture2D, level, GetTextureParameter.TextureWidth, out int width);
+                GL.GetTexLevelParameter(TextureTarget.Texture2D, level, GetTextureParameter.TextureHeight, out int height);
+                if (width <= 0 || height <= 0)
+                    break;
+
+                int pixelCount = width * height;
+                if (pixels == null || pixels.Length < pixelCount * 4)
+                    pixels = new byte[pixelCount * 4];
+                GL.GetTexImage(TextureTarget.Texture2D, level, PixelFormat.Rgba, PixelType.UnsignedByte, pixels);
+
+                Array.Clear(histogram);
+                for (int p = 3; p < pixelCount * 4; p += 4)
+                    histogram[pixels[p]]++;
+
+                if (level == 0)
+                {
+                    int covered = 0;
+                    for (int a = cutoffByte; a < 256; a++)
+                        covered += histogram[a];
+                    baseCoverage = covered / (float)pixelCount;
+                    if (baseCoverage <= 0f || baseCoverage >= 1f)
+                        break; // nothing is cut away (or everything): no correction needed
+                    continue;
+                }
+
+                // find the alpha value above which the base coverage is reached on this level
+                int targetCount = (int)Math.Ceiling(baseCoverage * pixelCount);
+                int accumulated = 0;
+                int threshold = 255;
+                for (int a = 255; a >= 0; a--)
+                {
+                    accumulated += histogram[a];
+                    if (accumulated >= targetCount)
+                    {
+                        threshold = a;
+                        break;
+                    }
+                }
+                scales[level] = Math.Clamp(alphaCutoff / Math.Max(threshold / 255f, 1f / 255f), ALPHA_MIPSCALE_MIN, ALPHA_MIPSCALE_MAX);
+            }
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            return scales;
+        }
+
         internal static bool GetTextureDimensions(int oglTextureId, out int width, out int height)
         {
             if(oglTextureId <= 0)

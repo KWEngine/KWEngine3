@@ -110,6 +110,8 @@ namespace KWEngine3.Helper
             InitQueries(RenderType.HUD);
             InitQueries(RenderType.PostProcessing);
             InitQueries(RenderType.Fog);
+            InitQueries(RenderType.Foliage);
+            InitQueries(RenderType.AntiAliasing);
 
             _renderTimesDict[RenderType.Deferred] = new List<long>();
             _renderTimesDict[RenderType.Lighting] = new List<long>();
@@ -119,6 +121,8 @@ namespace KWEngine3.Helper
             _renderTimesDict[RenderType.HUD] = new List<long>();
             _renderTimesDict[RenderType.PostProcessing] = new List<long>();
             _renderTimesDict[RenderType.Fog] = new List<long>();
+            _renderTimesDict[RenderType.Foliage] = new List<long>();
+            _renderTimesDict[RenderType.AntiAliasing] = new List<long>();
 
             _renderTimesAvgDict[RenderType.Deferred] = 0;
             _renderTimesAvgDict[RenderType.Lighting] = 0;
@@ -128,6 +132,8 @@ namespace KWEngine3.Helper
             _renderTimesAvgDict[RenderType.HUD] = 0;
             _renderTimesAvgDict[RenderType.PostProcessing] = 0;
             _renderTimesAvgDict[RenderType.Fog] = 0;
+            _renderTimesAvgDict[RenderType.Foliage] = 0;
+            _renderTimesAvgDict[RenderType.AntiAliasing] = 0;
 
             InitDebugRegistry();
         }

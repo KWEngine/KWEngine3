@@ -22,6 +22,7 @@ namespace KWEngine3
         public float _brightnessMultiplier = 1f;
         public string _filename = "";
         public SkyboxType SkyBoxType { get; set; } = SkyboxType.CubeMap;
+        internal float _skyboxRotationY = 0f; // rotation in degrees as passed to SetSkybox() (export, editor)
 
         public void SetFOV(float fov)
         {
@@ -58,6 +59,7 @@ namespace KWEngine3
                     _rotationReflection = Matrix3.CreateRotationY(MathHelper.DegreesToRadians(rotation - 135));
                 }
                 _skyboxId = texId;
+                _skyboxRotationY = rotation;
                 DeleteStandard();
                 Type = BackgroundType.Skybox;
                 _filename = filename;
@@ -132,6 +134,7 @@ namespace KWEngine3
             Type = BackgroundType.None;
             ResetScaleOffsetClip();
             _rotation = Matrix3.Identity;
+            _skyboxRotationY = 0f;
         }
 
         public void ResetScaleOffsetClip()

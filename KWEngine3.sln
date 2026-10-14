@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32929.385
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KWEngine3", "KWEngine3\KWEngine3.csproj", "{410416E5-1366-4E85-A52C-28F9403C4C09}"
 EndProject
@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KWEngine3TestProject", "KWE
 	ProjectSection(ProjectDependencies) = postProject
 		{410416E5-1366-4E85-A52C-28F9403C4C09} = {410416E5-1366-4E85-A52C-28F9403C4C09}
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B4DF354-F75D-4B5C-8555-225CC6D01E7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

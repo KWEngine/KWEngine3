@@ -53,8 +53,9 @@ namespace KWEngine3.Helper
                 }
                 else
                 {
-                    f.IsInsideScreenSpace = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X, f._scale.Y, f._patchSize.Y);
-                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 1.25f, f._scale.Y * 1.25f, f._patchSize.Y * 1.25f);
+                    // VolumeVsFrustum() expects half extents
+                    f.IsInsideScreenSpace = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 0.5f, f._scale.Y * 0.5f, f._patchSize.Y * 0.5f);
+                    f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(f._position + new Vector3(0, f._scale.Y * 0.5f, 0), f._patchSize.X * 0.5f * 1.25f, f._scale.Y * 0.5f * 1.25f, f._patchSize.Y * 0.5f * 1.25f);
                 }
             }
             else
@@ -65,17 +66,18 @@ namespace KWEngine3.Helper
                     float tCenter = f._terrainObject._stateCurrent._center.Y;
                     float xCenter = f._patchSizeMin.X + (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f;
                     float zCenter = f._patchSizeMin.Z + (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f;
+                    // VolumeVsFrustum() expects half extents
                     f.IsInsideScreenSpace = VolumeVsFrustum(
                         new Vector3(xCenter, tCenter, zCenter),
-                        f._patchSizeMax.X - f._patchSizeMin.X,
-                        f._terrainObject.Height - f._terrainObject._stateCurrent._position.Y,
-                        f._patchSizeMax.Z - f._patchSizeMin.Z);
+                        (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f,
+                        (f._terrainObject.Height - f._terrainObject._stateCurrent._position.Y) * 0.5f,
+                        (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f);
 
                     f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(
                         new Vector3(xCenter, tCenter, zCenter),
-                        (f._patchSizeMax.X - f._patchSizeMin.X) * 1.25f,
-                        (f._terrainObject.Height - f._terrainObject._stateCurrent._position.Y) * 1.25f,
-                        (f._patchSizeMax.Z - f._patchSizeMin.Z) * 1.25f
+                        (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f * 1.25f,
+                        (f._terrainObject.Height - f._terrainObject._stateCurrent._position.Y) * 0.5f * 1.25f,
+                        (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f * 1.25f
                         );
 
                 }
@@ -84,18 +86,19 @@ namespace KWEngine3.Helper
                     float xCenter = f._patchSizeMin.X + (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f;
                     float yCenter = f._patchSizeMin.Y + (f._patchSizeMax.Y - f._patchSizeMin.Y) * 0.5f;
                     float zCenter = f._patchSizeMin.Z + (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f;
+                    // VolumeVsFrustum() expects half extents
                     f.IsInsideScreenSpace = VolumeVsFrustum(
                         new Vector3(xCenter, yCenter, zCenter),
-                        f._patchSizeMax.X - f._patchSizeMin.X,
-                        f._patchSizeMax.Y - f._patchSizeMin.Y,
-                        f._patchSizeMax.Z - f._patchSizeMin.Z
+                        (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f,
+                        (f._patchSizeMax.Y - f._patchSizeMin.Y) * 0.5f,
+                        (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f
                         );
 
                     f.IsInsideScreenSpaceForRenderPass = VolumeVsFrustum(
                         new Vector3(xCenter, yCenter, zCenter),
-                        (f._patchSizeMax.X - f._patchSizeMin.X) * 1.25f,
-                        (f._patchSizeMax.Y - f._patchSizeMin.Y) * 1.25f,
-                        (f._patchSizeMax.Z - f._patchSizeMin.Z) * 1.25f
+                        (f._patchSizeMax.X - f._patchSizeMin.X) * 0.5f * 1.25f,
+                        (f._patchSizeMax.Y - f._patchSizeMin.Y) * 0.5f * 1.25f,
+                        (f._patchSizeMax.Z - f._patchSizeMin.Z) * 0.5f * 1.25f
                         );
                 }
             }

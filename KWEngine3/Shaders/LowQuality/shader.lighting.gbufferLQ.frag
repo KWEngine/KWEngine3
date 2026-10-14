@@ -1,5 +1,4 @@
 ﻿#version 400 core
-
 in vec2 vTexture;
 flat in int vInstanceID;
 
@@ -40,6 +39,23 @@ layout (std140) uniform uBlockIndex3
 const float PI = 3.141593;
 const float PI2 = 0.5 / PI;
 const float ninetydegrees = 1.5708;
+
+
+// Shading model for foliage in the lighting pass (g-buffer id 65535).
+const uint FOLIAGE_ID = 65535u;
+const float FOLIAGE_WRAP = 0.5;          // 0 = plain lambert, 1 = fully wrapped
+const float FOLIAGE_TRANSMISSION = 0.6;  // strength of back light shining through the leaves
+const float FOLIAGE_TRANSMISSION_POWER = 4.0;
+
+// Returns the outgoing radiance of one light for a foliage pixel (replaces the default lambert + ggx term).
+vec3 getFoliageLightContribution(vec3 N, vec3 V, vec3 L, vec3 albedo, vec3 kD, vec3 specular, vec3 radiance, float shadowFactor)
+{
+    float NdotL = max(dot(N, L), 0.0);
+    float NdotLWrapped = clamp((dot(N, L) + FOLIAGE_WRAP) / (1.0 + FOLIAGE_WRAP), 0.0, 1.0);
+    float transmission = pow(max(dot(V, -L), 0.0), FOLIAGE_TRANSMISSION_POWER) * FOLIAGE_TRANSMISSION;
+    vec3 diffuse = (kD * NdotLWrapped + transmission) * albedo / 3.141593;
+    return (diffuse + specular * NdotL) * radiance * shadowFactor;
+}
 
 /*
 Default             = 0 =>  0.04, 0.04, 0.04
@@ -305,6 +321,7 @@ void main()
     else
     {
         vec3 Lo = vec3(0.0);
+        bool isFoliage = id == FOLIAGE_ID;
         for(int li = 0; li < lightIndicesCount; li++)
         {
             // instancing mode:
@@ -396,7 +413,10 @@ void main()
                 }
             }
             
-            Lo += (kD * albedo / PI + specular) * radiance * NdotL * darkeningCurrentLight;
+            if(isFoliage)
+                Lo += getFoliageLightContribution(N, V, L, albedo, kD, specular, radiance, darkeningCurrentLight);
+            else
+                Lo += (kD * albedo / PI + specular) * radiance * NdotL * darkeningCurrentLight;
         }
         vec3 reflectionColor = getReflectionColor(V, N, pbr.y, fragPosition);// y = roughness
         vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, pbr.y); // y = roughness

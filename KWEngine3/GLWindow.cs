@@ -489,20 +489,22 @@ namespace KWEngine3
                     RendererGBufferInstanced.RenderScene(_renderFrameRenderObjectsForward);
                 }
 
-                if (KWEngine.CurrentWorld._foliageObjects.Count > 0)
-                {
-                    RendererGBufferFoliage.Bind();
-                    RendererGBufferFoliage.RenderScene();
-                }
-
                 if (KWEngine.CurrentWorld._particleAndExplosionObjects.Count > 0)
                 {
                     RendererExplosion.Bind();
                     RendererExplosion.SetGlobals();
                     RendererExplosion.RenderExplosions(KWEngine.CurrentWorld._particleAndExplosionObjects);
                 }
-                #endregion
                 HelperDebug.StopTimeQuery(RenderType.Deferred);
+
+                // Render foliage to G-Buffer (last, so that it is rejected early behind everything else; own timer query):
+                HelperDebug.StartTimeQuery(RenderType.Foliage);
+                if (KWEngine.CurrentWorld._foliageObjects.Count > 0)
+                {
+                    RendererGBufferFoliage.RenderScene();
+                }
+                HelperDebug.StopTimeQuery(RenderType.Foliage);
+                #endregion
 
                 if (KWEngine.Mode == EngineMode.Edit)
                 {
@@ -735,8 +737,23 @@ namespace KWEngine3
                 }
 
                 HelperDebug.StopTimeQuery(RenderType.Forward);
+                #endregion
+
+                // Anti-aliasing (FXAA) of the lit scene, before HUD objects
+                HelperDebug.StartTimeQuery(RenderType.AntiAliasing);
+                if (KWEngine._fxaaEnabled)
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                    GL.Disable(EnableCap.Blend);
+                    RenderManager.FramebufferFXAA.Bind(false);
+                    RendererFXAA.Bind();
+                    RendererFXAA.Draw(RenderManager.FramebufferLightingPass);
+                    RenderManager.SwapLightingPassColorWithFXAATarget(); // leaves FramebufferFXAA bound
+                    RenderManager.FramebufferLightingPass.Bind(false);
+                    GL.Enable(EnableCap.DepthTest);
+                }
+                HelperDebug.StopTimeQuery(RenderType.AntiAliasing);
             }
-            #endregion
 
             if (KWEngine.DebugMode == DebugMode.TerrainCollisionModel && KWEngine.CurrentWorld._terrainObjects.Count > 0)
             {
@@ -1132,6 +1149,10 @@ namespace KWEngine3
             KWEngine.CurrentWorld.SetBackgroundFillColor(0f, 0f, 0f);
 
             KWEngine.CurrentWorld.LoadingScreen = new LoadingScreen();
+            if (KWEngine.CurrentWorld is WorldPerformance worldPerformance)
+            {
+                worldPerformance.PreparePerformance();
+            }
             KWEngine.CurrentWorld.Prepare();
             KWEngine.CurrentWorld.LoadingScreen.Dispose();
             KWEngine.CurrentWorld.LoadingScreen = null;
@@ -1438,6 +1459,10 @@ namespace KWEngine3
 
                     if (!KWEngine.EditModeActive)
                     {
+                        if (KWEngine.CurrentWorld is WorldPerformance worldPerformance)
+                        {
+                            worldPerformance.ActPerformance();
+                        }
                         KWEngine.CurrentWorld.Act();
                     }
 

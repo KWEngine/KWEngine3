@@ -15,7 +15,7 @@ namespace KWEngine3.GameObjects
         /// <param name="instanceCount">Anzahl der Instanzen (Werte zwischen 1 und 256)</param>
         public FoliageObjectCustom(int instanceCount)
         {
-            if(instanceCount < 1 || instanceCount > 256)
+            if (instanceCount < 1 || instanceCount > 256)
             {
                 KWEngine.LogWriteLine("[FoliageObject] Invalid instance count detected");
             }
@@ -45,6 +45,7 @@ namespace KWEngine3.GameObjects
                     KWEngine.CurrentWorld._customTextures.Add(filename, new KWTexture(_textureId, TextureTarget.Texture2D));
                 }
             }
+            _alphaMipScales = HelperTexture.ComputeAlphaCoverageMipScales(_textureId, ALPHA_CUTOFF);
         }
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace KWEngine3.GameObjects
         /// Gibt die Anzahl der für das Gewächs gerenderten Instanzen zurück
         /// </summary>
         public int FoliageCount { get { return _instanceCount; } }
-        
+
         /// <summary>
         /// Gibt an, ob Schatten auf das Objekt geworfen werden können (Standard: true)
         /// </summary>
@@ -183,7 +184,7 @@ namespace KWEngine3.GameObjects
         /// <param name="scale">Skalierung der drei Achsen (muss positiv sein)</param>
         public void SetScale(int instanceIndex, Vector3 scale)
         {
-            if(_isInWorld != null)
+            if (_isInWorld != null)
             {
                 KWEngine.LogWriteLine("[FoliageObject] Instance may not change position, scale or texture settings after being added to the world");
                 return;
@@ -205,7 +206,7 @@ namespace KWEngine3.GameObjects
         /// <param name="t">Terrain-Objekt, an dem sich das Gewächs orientieren soll</param>
         public void AttachToTerrain(TerrainObject t)
         {
-            if(t != null && t.ID > 0)
+            if (t != null && t.ID > 0)
             {
                 _terrainObject = t;
             }
@@ -221,8 +222,9 @@ namespace KWEngine3.GameObjects
 
 
         /// <summary>
-        /// Gibt an, wie weit die Entfernung der Kamera zum Mittelpunkt des Objekts sein darf bevor das Objekt nicht mehr gezeichnet wird (Standardwert: 20 Einheiten)
+        /// Gibt an, bis zu welcher Entfernung zur Kamera die Gewächsteile gezeichnet werden (Standardwert: 50 Einheiten)
         /// </summary>
+        /// <remarks>Kurz vor Erreichen dieser Entfernung werden die Gewächsteile sanft ausgeblendet</remarks>
         /// <param name="distance">Renderdistanz (positive Werte ab 1.0f)</param>
         public void SetCameraDrawDistance(float distance)
         {
@@ -239,12 +241,16 @@ namespace KWEngine3.GameObjects
         internal string _name = "(no name)";
         internal int _textureId = -1;
         internal float _swayFactor = 0.05f;
-        internal float _camDistanceMax = 20 * 20;
+        internal float _camDistanceMax = 50 * 50;
         internal TerrainObject _terrainObject = null;
         internal float[] _posScaleArray1;
         internal float[] _posScaleArray2;
         internal float[] _noise = new float[2];
         internal World _isInWorld = null;
+        internal Vector3 _renderBoundsMin = Vector3.Zero; // includes card width, height and bending (used for culling in the render pass)
+        internal Vector3 _renderBoundsMax = Vector3.Zero;
+        internal float[] _alphaMipScales = HelperTexture.ComputeAlphaCoverageMipScales(-1, ALPHA_CUTOFF);
+        internal const float ALPHA_CUTOFF = 0.6f; // must match ALPHA_CUTOFF in shader.gbufferfoliagecustom.frag
         internal bool IsInsideScreenSpaceForRenderPass { get; set; } = true;
 
         /// <summary>
@@ -255,13 +261,13 @@ namespace KWEngine3.GameObjects
 
         internal void Update()
         {
-            UpdateArrayAndPatchSize();   
+            UpdateArrayAndPatchSize();
         }
 
         internal void SetInstanceCount(int instanceCount)
         {
             _instanceCount = instanceCount;
-            
+
             CreateArray();
             Update();
         }
@@ -274,21 +280,33 @@ namespace KWEngine3.GameObjects
             float xmax = float.MinValue;
             float ymax = float.MinValue;
             float zmax = float.MinValue;
+            Vector3 renderMin = new Vector3(float.MaxValue);
+            Vector3 renderMax = new Vector3(float.MinValue);
             for (int i = 0; i < _posScaleArray1.Length; i += 4)
             {
-                if (_posScaleArray1[i + 0] - _posScaleArray1[i + 3] * 0.5f < xmin)
-                    xmin = _posScaleArray1[i + 0] - _posScaleArray1[i + 3] * 0.5f;
-                if (_posScaleArray1[i + 1] - _posScaleArray2[i + 0] * 0.5f < ymin)
-                    ymin = _posScaleArray1[i + 1] - _posScaleArray2[i + 0] * 0.5f;
-                if (_posScaleArray1[i + 2] - _posScaleArray2[i + 1] * 0.5f < zmin)
-                    zmin = _posScaleArray1[i + 2] - _posScaleArray2[i + 1] * 0.5f;
+                float px = _posScaleArray1[i + 0];
+                float py = _posScaleArray1[i + 1];
+                float pz = _posScaleArray1[i + 2];
+                float sx = _posScaleArray1[i + 3];
+                float sy = _posScaleArray2[i + 0];
+                float sz = _posScaleArray2[i + 1];
 
-                if (_posScaleArray1[i + 0] - _posScaleArray1[i + 3] * 0.5f > xmax)
-                    xmax = _posScaleArray1[i + 0] + _posScaleArray1[i + 3] * 0.5f;
-                if (_posScaleArray1[i + 1] - _posScaleArray2[i + 0] * 0.5f > ymax)
-                    ymax = _posScaleArray1[i + 1] + _posScaleArray2[i + 0] * 0.5f;
-                if (_posScaleArray1[i + 2] - _posScaleArray2[i + 1] * 0.5f > zmax)
-                    zmax = _posScaleArray1[i + 2] + _posScaleArray2[i + 1] * 0.5f;
+                xmin = Math.Min(xmin, px - sx * 0.5f);
+                ymin = Math.Min(ymin, py - sy * 0.5f);
+                zmin = Math.Min(zmin, pz - sz * 0.5f);
+                xmax = Math.Max(xmax, px + sx * 0.5f);
+                ymax = Math.Max(ymax, py + sy * 0.5f);
+                zmax = Math.Max(zmax, pz + sz * 0.5f);
+
+                // imposter card: radius ~0.55 * scale, height 1 * scale, bent back by up to 0.33 * height (see shader)
+                float reachX = sx * 0.6f + sy * 0.35f;
+                float reachZ = sz * 0.6f + sy * 0.35f;
+                renderMin.X = Math.Min(renderMin.X, px - reachX);
+                renderMin.Y = Math.Min(renderMin.Y, py);
+                renderMin.Z = Math.Min(renderMin.Z, pz - reachZ);
+                renderMax.X = Math.Max(renderMax.X, px + reachX);
+                renderMax.Y = Math.Max(renderMax.Y, py + sy * 1.05f);
+                renderMax.Z = Math.Max(renderMax.Z, pz + reachZ);
             }
 
             _patchSizeMin.X = xmin;
@@ -298,6 +316,9 @@ namespace KWEngine3.GameObjects
             _patchSizeMax.X = xmax;
             _patchSizeMax.Y = ymax;
             _patchSizeMax.Z = zmax;
+
+            _renderBoundsMin = renderMin;
+            _renderBoundsMax = renderMax;
         }
 
         internal void CreateArray()

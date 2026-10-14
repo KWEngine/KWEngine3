@@ -107,6 +107,25 @@ namespace KWEngine3.GameObjects
         public bool IsSizeReducedAtCorners { get; set; } = true;
 
         /// <summary>
+        /// Gibt an, bis zu welcher Entfernung zur Kamera das Gewächs gezeichnet wird (Standard: 60 Einheiten)
+        /// </summary>
+        public float CameraDrawDistance { get { return _drawDistance; } }
+
+        /// <summary>
+        /// Setzt die Entfernung zur Kamera, bis zu der das Gewächs gezeichnet wird (Standard: 60 Einheiten)
+        /// </summary>
+        /// <remarks>
+        /// Sobald die Gewächsteile auf dem Bildschirm schmaler als etwa zwei Pixel würden, werden sie breiter gezeichnet und
+        /// im gleichen Maß ausgedünnt (das verhindert Flimmern). Kurz vor Erreichen der Grenze wird das Gewächs sanft ausgeblendet.
+        /// Kleinere Werte sparen besonders auf schwacher Hardware viel Rechenzeit.
+        /// </remarks>
+        /// <param name="distance">Renderdistanz (Werte zwischen 1 und 8096)</param>
+        public void SetCameraDrawDistance(float distance)
+        {
+            _drawDistance = MathHelper.Clamp(distance, 1f, 8096f);
+        }
+
+        /// <summary>
         /// Setzt die (ungefähre) Anzahl an benötigten Instanzen für das Gewächs
         /// </summary>
         /// <param name="instanceCount">Anzahl der gewünschten Instanzen</param>
@@ -262,6 +281,8 @@ namespace KWEngine3.GameObjects
         internal int _textureId = -1;
         internal float _swayFactor = 0.05f;
         internal TerrainObject _terrainObject = null;
+        internal float _drawDistance = DRAWDISTANCE_DEFAULT;
+        internal const float DRAWDISTANCE_DEFAULT = 60f;
         
 
         internal void UpdateModelMatrix()
