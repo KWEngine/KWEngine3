@@ -85,23 +85,17 @@ namespace KWEngine3.Helper
                 }
             }
 
-            axisList.Sort(
-                (x, y) =>
-                {
-                    if (_sweepTestAxisIndex == 0)
-                    {
-                        return x._left < y._left ? -1 : 1;
-                    }
-                    else if (_sweepTestAxisIndex == 1)
-                    {
-                        return x._low < y._low ? -1 : 1;
-                    }
-                    else
-                    {
-                        return x._back < y._back ? -1 : 1;
-                    }
-                }
-            );
+            // Sort by a snapshot of the values: the main thread may move hitboxes while this thread sorts,
+            // and a comparison that changes during sorting (or never returns 0) is not allowed for List.Sort().
+            GameObjectHitbox[] sortedHitboxes = axisList.ToArray();
+            float[] sortKeys = new float[sortedHitboxes.Length];
+            for (int i = 0; i < sortedHitboxes.Length; i++)
+            {
+                sortKeys[i] = _sweepTestAxisIndex == 0 ? sortedHitboxes[i]._left : _sweepTestAxisIndex == 1 ? sortedHitboxes[i]._low : sortedHitboxes[i]._back;
+            }
+            Array.Sort(sortKeys, sortedHitboxes);
+            axisList.Clear();
+            axisList.AddRange(sortedHitboxes);
 
             // Look for triangles:
             lock (OwnersDictTerrainSector)

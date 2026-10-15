@@ -427,11 +427,14 @@
       <Method Name="ConvertRayToWorldSpaceAfterAABBTest" Hidden="true" />
       <Method Name="FramebufferPicking" Hidden="true" />
       <Method Name="GetArmatureTransformForDefaultAnimation" Hidden="true" />
+      <Method Name="GetHeightAboveTerrain" Hidden="true" />
       <Method Name="GetHeightUnderneathUntranslatedPosition" Hidden="true" />
       <Method Name="GetNormalFromFourPoints" Hidden="true" />
       <Method Name="GetRayIntersectionPointOnGameObject" Hidden="true" />
       <Method Name="IsBetweenOrdered" Hidden="true" />
+      <Method Name="IsBoxBehindRayOrigin" Hidden="true" />
       <Method Name="IsInFrontOfPlane" Hidden="true" />
+      <Method Name="IsInFrontOfRayOrigin" Hidden="true" />
       <Method Name="IsMouseCursorOnGameObject" Hidden="true" />
       <Method Name="IsPointOnLine" Hidden="true" />
       <Method Name="IsPointOnTrianglePlane" Hidden="true" />
@@ -460,7 +463,7 @@
       <Method Name="TestIntersectionWithTerrainFace" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DQCQAhQAAbWigKUAsEQAWEKEQQSgBLhGALGDAJ4LZJg=</HashCode>
+      <HashCode>DQCQAhQAAbWigKUAsEQAWEaESQSgBLhGALHDAJ4LZJg=</HashCode>
       <FileName>Helper\HelperIntersection.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -504,12 +507,13 @@
       <Method Name="ConvertVector3DToOpenTK" Hidden="true" />
       <Method Name="EmissiveMax" Hidden="true" />
       <Method Name="EmissiveMin" Hidden="true" />
+      <Method Name="GetRotationToMatchSurfaceNormalForHeading" Hidden="true" />
       <Method Name="LookRotation" Hidden="true" />
       <Field Name="QIdentity" Hidden="true" />
       <Field Name="VectorZero" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>EAEAUABAAAQAAAEGFiAAAGADABCiAAgAAACAEAEAAEA=</HashCode>
+      <HashCode>EAEAUABAAAQAAAEGFiAAAGADABCiAAgIAACAEAEAAEA=</HashCode>
       <FileName>Helper\HelperVector.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -655,7 +659,7 @@
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QzNDJ1oOGJ6gUIRuwgqBoUYBACTJyxgJIImMnkBYRVU=</HashCode>
+      <HashCode>QzNDJ1ouGJ6gUIRuwgqBoUYBACTJyxgJIImMnkBYRVU=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>

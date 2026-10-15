@@ -188,21 +188,41 @@ namespace KWEngine3.Helper
         /// Berechnet die Rotation (als Quaternion), auf die ein GameObject gesetzt werden müsste, um entsprechend der aktuellen Ausrichtung 
         /// auf dem durch den Ebenenvektor (surface normal) definierten Boden gerade zu stehen
         /// </summary>
+        /// <remarks>Die Blickrichtung (von oben betrachtet) bleibt erhalten. Ist der Ebenenvektor ungültig (Länge 0), wird WorldUp verwendet.</remarks>
         /// <param name="lav">Aktueller Look-At-Vektor</param>
-        /// <param name="surfaceNormal">Ebenenvektor (muss normalisiert sein!)</param>
+        /// <param name="surfaceNormal">Ebenenvektor</param>
         /// <returns>Neue zur Ebene passende Rotation (als Quaternion)</returns>
         public static Quaternion GetRotationToMatchSurfaceNormal(Vector3 lav, Vector3 surfaceNormal)
         {
-            Vector3 playerRight = Vector3.Cross(-lav, KWEngine.WorldUp);
-            Vector3 cross = Vector3.NormalizeFast(Vector3.Cross(playerRight, surfaceNormal));
-            if(Vector3.Dot(lav, cross) < 0)
+            Vector3 headingXZ = new Vector3(lav.X, 0f, lav.Z);
+            headingXZ = headingXZ.LengthSquared > 1e-8f ? Vector3.Normalize(headingXZ) : Vector3.UnitZ;
+            return GetRotationToMatchSurfaceNormalForHeading(headingXZ, surfaceNormal);
+        }
+
+        // headingXZ: normalized direction on the XZ plane that the object should keep (seen from above)
+        internal static Quaternion GetRotationToMatchSurfaceNormalForHeading(Vector3 headingXZ, Vector3 surfaceNormal)
+        {
+            // NaN or zero normals would destroy the rotation, so fall back to "upright"
+            float normalLengthSq = surfaceNormal.LengthSquared;
+            surfaceNormal = normalLengthSq > 1e-8f && float.IsFinite(normalLengthSq) ? surfaceNormal / MathF.Sqrt(normalLengthSq) : KWEngine.WorldUp;
+
+            // forward = line where the surface meets the vertical plane through the heading,
+            // so the heading stays the same when seen from above
+            Vector3 right = Vector3.Cross(KWEngine.WorldUp, headingXZ);
+            Vector3 forward = Vector3.Cross(right, surfaceNormal);
+            if (forward.LengthSquared < 1e-8f)
             {
-                return LookRotation(-cross, surfaceNormal);
+                // surface is vertical and faces sideways: use the heading projected onto the surface instead
+                forward = headingXZ - surfaceNormal * Vector3.Dot(headingXZ, surfaceNormal);
+                if (forward.LengthSquared < 1e-8f)
+                    forward = Vector3.Cross(surfaceNormal, Vector3.UnitX);
             }
-            else
+            forward.Normalize();
+            if (Vector3.Dot(forward, headingXZ) < 0f)
             {
-                return LookRotation(cross, surfaceNormal);
+                forward = -forward;
             }
+            return Quaternion.Normalize(LookRotation(forward, surfaceNormal));
         }
         
         /// <summary>
@@ -503,8 +523,9 @@ namespace KWEngine3.Helper
         internal static Quaternion QIdentity = Quaternion.Identity;
         internal static Quaternion LookRotation(Vector3 forward, Vector3 up)
         {
-            Vector3 vector = Vector3.NormalizeFast(forward);
-            Vector3 vector2 = Vector3.NormalizeFast(Vector3.Cross(up, vector));
+            // exact normalization: NormalizeFast leaves the basis slightly skewed
+            Vector3 vector = Vector3.Normalize(forward);
+            Vector3 vector2 = Vector3.Normalize(Vector3.Cross(up, vector));
             Vector3 vector3 = Vector3.Cross(vector, vector2);
             var m00 = vector2.X;
             var m01 = vector2.Y;

@@ -99,14 +99,19 @@ namespace KWEngine3.GameObjects
             float minZ = float.MaxValue;
             float maxZ = float.MinValue;
 
+            // extents in mesh space (used for the OBB size below)
+            Vector3 localMin = new Vector3(float.MaxValue);
+            Vector3 localMax = new Vector3(float.MinValue);
+
+            // TransformNormal() would invert the matrix again for every normal
+            for (int i = 0; i < _normals.Length; i++)
+            {
+                Vector3.TransformNormalInverse(in _mesh.Normals[i], in _modelMatrixFinalInv, out _normals[i]);
+                _normals[i].Normalize();
+            }
+
             for (int i = 0; i < _vertices.Length; i++)
             {
-                if (i < _normals.Length)
-                {
-                    Vector3.TransformNormal(_mesh.Normals[i], _modelMatrixFinal, out _normals[i]);
-                    _normals[i].Normalize();
-                }
-
                 Vector3 localVertex = _mesh.Vertices[i];
                 if (Math.Abs(expansionFactor) > 0.0001f)
                 {
@@ -119,6 +124,9 @@ namespace KWEngine3.GameObjects
                         localVertex.Z += horizontalDirectionN.Y * expansionFactor;
                     }
                 }
+
+                localMin = Vector3.ComponentMin(localMin, localVertex);
+                localMax = Vector3.ComponentMax(localMax, localVertex);
 
                 Vector3.TransformPosition(localVertex, _modelMatrixFinal, out _vertices[i]);
 
@@ -156,7 +164,7 @@ namespace KWEngine3.GameObjects
             float xWidth = maxX - minX;
             float yWidth = maxY - minY;
             float zWidth = maxZ - minZ;
-            
+
             _low = minY;
             _high = maxY;
             _left = minX;
@@ -177,11 +185,12 @@ namespace KWEngine3.GameObjects
             _dimensionsAABB.Y = yWidth;
             _dimensionsAABB.Z = zWidth;
 
-            _dimensionsOBB = new Vector3(
-                (_vertices[indexLeftRightMostVertex.Y] - _vertices[indexLeftRightMostVertex.X]).LengthFast,
-                (_vertices[indexBottomTopMostVertex.Y] - _vertices[indexBottomTopMostVertex.X]).LengthFast,
-                (_vertices[indexBackFrontMostVertex.Y] - _vertices[indexBackFrontMostVertex.X]).LengthFast
-                );
+            // OBB size: mesh-space extents along each local axis, transformed into world space
+            Vector3 localSize = localMax - localMin;
+            Vector3.TransformVector(new Vector3(localSize.X, 0f, 0f), in _modelMatrixFinal, out Vector3 obbAxisX);
+            Vector3.TransformVector(new Vector3(0f, localSize.Y, 0f), in _modelMatrixFinal, out Vector3 obbAxisY);
+            Vector3.TransformVector(new Vector3(0f, 0f, localSize.Z), in _modelMatrixFinal, out Vector3 obbAxisZ);
+            _dimensionsOBB = new Vector3(obbAxisX.Length, obbAxisY.Length, obbAxisZ.Length);
         }
 
         public bool IsExtended
@@ -208,7 +217,7 @@ namespace KWEngine3.GameObjects
         internal void GetVerticesFromFace(int faceIndex, ref Span<Vector3> vertices, out Vector3 normal)
         {
             GeoMeshFace face = _mesh.Faces[faceIndex];
-            for(int i  = 0; i < face.VertexCount; i++)
+            for (int i = 0; i < face.VertexCount; i++)
             {
                 vertices[i] = _vertices[face.Vertices[i]];
             }

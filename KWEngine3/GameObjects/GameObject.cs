@@ -475,6 +475,7 @@ namespace KWEngine3.GameObjects
 
                             if (distance < distanceMin)
                             {
+                                distanceMin = distance;
                                 resultSet.DistanceMin = distance;
                                 resultSet.SurfaceNormalNearest = normal;
                                 resultSet.IntersectionPointNearest = contactPoint;
@@ -493,7 +494,8 @@ namespace KWEngine3.GameObjects
                                 {
                                     float distance = (untranslatedPosition - offset - contactPoint).Y;
 
-                                    contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
+                                    // back to world space (same offset that was subtracted above, including the terrain height)
+                                    contactPoint += new Vector3(to._hitboxes[0]._center.X, to._stateCurrent._position.Y, to._hitboxes[0]._center.Z);
                                     distanceAvg += distance;
                                     interAvg += contactPoint;
                                     normalAvg += tris.Normal;
@@ -503,6 +505,7 @@ namespace KWEngine3.GameObjects
 
                                     if (distance < distanceMin)
                                     {
+                                        distanceMin = distance;
                                         resultSet.DistanceMin = distance;
                                         resultSet.SurfaceNormalNearest = tris.Normal;
                                         resultSet.IntersectionPointNearest = contactPoint;
@@ -513,9 +516,13 @@ namespace KWEngine3.GameObjects
                     }
                 }
             }
-            resultSet.DistanceAvg = distanceAvg / resultSet.IntersectionPoints.Count;        
-            resultSet.SurfaceNormalAvg = Vector3.NormalizeFast(normalAvg / resultSet.IntersectionPoints.Count);
-            resultSet.IntersectionPointAvg = interAvg / resultSet.IntersectionPoints.Count;
+            int hitCount = resultSet.IntersectionPoints.Count;
+            if (hitCount > 0)
+            {
+                resultSet.DistanceAvg = distanceAvg / hitCount;
+                resultSet.SurfaceNormalAvg = Vector3.Normalize(normalAvg / hitCount);
+                resultSet.IntersectionPointAvg = interAvg / hitCount;
+            }
 
             return resultSet;
         }
@@ -1559,21 +1566,24 @@ namespace KWEngine3.GameObjects
                         }
                     }
                 }
-                // Calculate metrics:
-                grp.SurfaceNormalAvg = normalAvg / hits;
-                grp.SurfaceNormalNearest = normalNearest;
-                grp.IntersectionPointAvg = positionAvg / hits;
-                grp.IntersectionPointNearest = positionNearest;
-                grp.DistanceAvg = distanceSum / hits;
-                grp.DistanceMin = distanceMin;
-                grp.ObjectNearest = gNearest;
-                grp.ObjectNearestHitboxName = hitboxname;
-
-                if(centerInfoFound == false)
+                // Calculate metrics (only if a ray hit something, otherwise the averages would be NaN):
+                if (hits > 0)
                 {
-                    grp.DistanceToCenter = grp.DistanceAvg;
-                    grp.IntersectionPointCenter = grp.IntersectionPointAvg;
-                    grp.SurfaceNormalCenter = grp.SurfaceNormalAvg;
+                    grp.SurfaceNormalAvg = Vector3.Normalize(normalAvg / hits);
+                    grp.SurfaceNormalNearest = normalNearest;
+                    grp.IntersectionPointAvg = positionAvg / hits;
+                    grp.IntersectionPointNearest = positionNearest;
+                    grp.DistanceAvg = distanceSum / hits;
+                    grp.DistanceMin = distanceMin;
+                    grp.ObjectNearest = gNearest;
+                    grp.ObjectNearestHitboxName = hitboxname;
+
+                    if (centerInfoFound == false)
+                    {
+                        grp.DistanceToCenter = grp.DistanceAvg;
+                        grp.IntersectionPointCenter = grp.IntersectionPointAvg;
+                        grp.SurfaceNormalCenter = grp.SurfaceNormalAvg;
+                    }
                 }
             }
             selectedFaces.Clear(); // do not keep hitboxes alive
@@ -1638,6 +1648,8 @@ namespace KWEngine3.GameObjects
                     if (result == true)
                     {
                         HelperIntersection.ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref hb._modelMatrixFinal, ref rayOrigin, out Vector3 intersectionPoint, out float distanceWorldspace);
+                        // Hits behind the ray origin are accepted on purpose (e.g. the feet are already below the floor:
+                        // the ray starts inside the box and the floor's surface lies behind the origin).
                         if (distanceWorldspace >= 0)
                         {
                             RayIntersection gd = new()

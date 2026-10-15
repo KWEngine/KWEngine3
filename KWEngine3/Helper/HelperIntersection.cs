@@ -145,12 +145,13 @@ namespace KWEngine3.Helper
                                 {
                                     float distance = (untranslatedPosition - contactPoint).Y;
 
-                                    contactPoint += new Vector3(to._stateCurrent._center.X, 0, to._stateCurrent._center.Z);
+                                    // back to world space (same offset that was subtracted above, including the terrain height)
+                                    contactPoint += new Vector3(to._hitboxes[0]._center.X, to._stateCurrent._position.Y, to._hitboxes[0]._center.Z);
 
                                     intersectionResult.Object = to;
                                     intersectionResult.Distance = distance;
                                     intersectionResult.IntersectionPoint = contactPoint;
-                                    intersectionResult.SurfaceNormal = Vector3.UnitY;
+                                    intersectionResult.SurfaceNormal = tris.Normal;
                                     return intersectionResult;
                                 }
                             }
@@ -526,26 +527,27 @@ namespace KWEngine3.Helper
         }
 
         /// <summary>
-        /// Berechnet den ungefähren Schnittpunkt des Mauszeigers mit einem Terrain-Objekt.
+        /// Berechnet den Schnittpunkt des Mauszeigers mit dem nächstgelegenen Terrain-Objekt.
         /// </summary>
         /// <remarks>Terrain-Instanz MUSS dafür als Kollisionsobjekt markiert sein!</remarks>
         /// <param name="intersectionPoint">Ausgabe des Schnittpunkts (wenn der Mauszeiger über einem Terrain-Objekt liegt - sonst (0|0|0))</param>
         /// <returns>true, wenn der Mauszeiger über einem Terrain-Objekt liegt</returns>
         public static bool GetMouseIntersectionPointOnAnyTerrain(out Vector3 intersectionPoint)
         {
+            Vector3 rayOrigin = KWEngine.CurrentWorld._cameraGame._stateCurrent._position;
+            Vector3 rayDirection = GetMouseRay();
+            float distanceMin = float.MaxValue;
+            intersectionPoint = Vector3.Zero;
+
             foreach (TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
             {
-                if (to.IsCollisionObject)
+                if (to.IsCollisionObject && RayTerrainIntersection(to, rayOrigin, rayDirection, out Vector3 contactPoint, out float distance) && distance < distanceMin)
                 {
-                    Vector3 miPointLow = GetMouseIntersectionPointOnPlane(Plane.XZ, to._stateCurrent._center.Y);
-                    if (RayTerrainIntersection(to, miPointLow + new Vector3(0, to._hitboxes[0]._center.Y + to._hitboxes[0]._dimensions.Y, 0), -Vector3.UnitY, out intersectionPoint))
-                    {
-                        return true;
-                    }
+                    distanceMin = distance;
+                    intersectionPoint = contactPoint;
                 }
             }
-            intersectionPoint = Vector3.Zero;
-            return false;
+            return distanceMin < float.MaxValue;
         }
 
         /// <summary>
@@ -687,10 +689,10 @@ namespace KWEngine3.Helper
             int minIndex = -1;
             for (int i = 0; i < list.Length; i++)
             {
-                bool rayHitGameObject = IsMouseCursorOnGameObject(list[i], rayOrigin, rayDirection, true);
+                // compare the distances to the actual hit points (not to the object centers)
+                bool rayHitGameObject = IsMouseCursorOnGameObject(list[i], rayOrigin, rayDirection, true, out float currentDistance);
                 if (rayHitGameObject)
                 {
-                    float currentDistance = (rayOrigin - list[i].Center).LengthSquared;
                     if (currentDistance < minDistance)
                     {
                         minDistance = currentDistance;
@@ -776,7 +778,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g) && Vector3.Dot(direction, g.Center - origin) >= 0)
+                if (g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g) && !IsBoxBehindRayOrigin(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions))
                 {
                     foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
@@ -828,7 +830,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g.IsInsideScreenSpace && g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g) && Vector3.Dot(direction, g.Center - origin) >= 0)
+                if (g.IsInsideScreenSpace && g != caller && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g) && !IsBoxBehindRayOrigin(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions))
                 {
                     foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
                     {
@@ -886,7 +888,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (g == caller || Vector3.Dot(dirOrg, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (g == caller || IsBoxBehindRayOrigin(origin, dirOrg, g._stateCurrent._center, g._stateCurrent._dimensions) || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                     continue;
 
                 bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
@@ -937,7 +939,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (!g.IsInsideScreenSpace || g == caller || Vector3.Dot(dirOrg, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (!g.IsInsideScreenSpace || g == caller || IsBoxBehindRayOrigin(origin, dirOrg, g._stateCurrent._center, g._stateCurrent._dimensions) || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                     continue;
 
                 bool result = RayAABBIntersection(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions, out float currentDistance);
@@ -982,7 +984,7 @@ namespace KWEngine3.Helper
 
             foreach (GameObject g in KWEngine.CurrentWorld._gameObjects)
             {
-                if (caller == g || Vector3.Dot(direction, g.Center - origin) < 0 || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
+                if (caller == g || IsBoxBehindRayOrigin(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions) || !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                     continue;
 
                 bool result = RaytraceObject(g, origin, direction, out Vector3 intersectionPoint, out Vector3 normal, out string hitboxname);
@@ -1034,7 +1036,7 @@ namespace KWEngine3.Helper
             {
                 if (!g.IsInsideScreenSpace || 
                     caller == g ||
-                    Vector3.Dot(direction, g.Center - origin) < 0 ||
+                    IsBoxBehindRayOrigin(origin, direction, g._stateCurrent._center, g._stateCurrent._dimensions) ||
                     !HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, g))
                 {
                     continue;
@@ -1187,8 +1189,9 @@ namespace KWEngine3.Helper
             Span<Vector3> vertexBuffer = stackalloc Vector3[MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
             intersectionPoint = Vector3.Zero;
             faceNormal = Vector3.Zero;
+            float distanceMinSq = float.MaxValue;
             for (int j = 0; j < hb._mesh.Faces.Length; j++)
-            { 
+            {
                 //if (hb.IsExtended)
                 //{
                     int faceVertexCount = hb._mesh.Faces[j].VertexCount;
@@ -1197,11 +1200,17 @@ namespace KWEngine3.Helper
                     {
                         bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
                         //bool hit = RayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3, out Vector3 currentContact);
+                        // keep the nearest hit (plane colliders may have several faces in a row);
+                        // hits behind the ray origin count on purpose (e.g. feet already below the floor)
                         if (hit)
                         {
-                            faceNormal = currentFace.Normal;
-                            intersectionPoint = currentContact;
-                            return true;
+                            float distanceSq = (currentContact - rayOrigin).LengthSquared;
+                            if (distanceSq < distanceMinSq)
+                            {
+                                distanceMinSq = distanceSq;
+                                faceNormal = currentFace.Normal;
+                                intersectionPoint = currentContact;
+                            }
                         }
                     }
                     //hb.GetVerticesForTriangleFace(j, out Vector3 v1, out Vector3 v2, out Vector3 v3, out Vector3 currentFaceNormal);
@@ -1234,7 +1243,7 @@ namespace KWEngine3.Helper
                 }
                 */
             }
-            return false;
+            return distanceMinSq < float.MaxValue;
         }
 
         /// <summary>
@@ -1351,7 +1360,7 @@ namespace KWEngine3.Helper
             }
             if(resultSum > 0)
             {
-                distance = minDistance;
+                distance = MathF.Sqrt(minDistance); // minDistance is squared
                 return true;
             }
             else
@@ -1401,6 +1410,7 @@ namespace KWEngine3.Helper
         /// <returns>true, wenn der Strahl das GameObject trifft</returns>
         public static bool RaytraceObjectFast(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, out float distance)
         {
+            float distanceMin = float.MaxValue;
             foreach (GameObjectHitbox hb in g._colliderModel._hitboxes)
             {
                 ConvertRayToMeshSpaceForAABBTest(ref rayOrigin, ref rayDirection, ref hb._modelMatrixFinalInv, out Vector3 originTransformed, out Vector3 directionTransformed);
@@ -1409,12 +1419,17 @@ namespace KWEngine3.Helper
                 bool result = RayAABBIntersection(originTransformed, directionTransformedInv, hb._mesh.Center, new Vector3(hb._mesh.width, hb._mesh.height, hb._mesh.depth), out float currentDistance);
                 if (result == true)
                 {
-                    distance = currentDistance;
-                    return result;
+                    // currentDistance is measured in mesh space, convert it to world units (0 = ray starts inside the box)
+                    float distanceWorldspace = 0f;
+                    if (currentDistance > 0f)
+                    {
+                        ConvertRayToWorldSpaceAfterAABBTest(ref originTransformed, ref directionTransformed, currentDistance, ref hb._modelMatrixFinal, ref rayOrigin, out _, out distanceWorldspace);
+                    }
+                    distanceMin = MathF.Min(distanceMin, distanceWorldspace);
                 }
             }
-            distance = 0f;
-            return false;
+            distance = distanceMin < float.MaxValue ? distanceMin : 0f;
+            return distanceMin < float.MaxValue;
         }
 
         /// <summary>
@@ -1578,7 +1593,7 @@ namespace KWEngine3.Helper
                     if (currentHitbox.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace currentFace))
                     {
                         bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
-                        if (hit)
+                        if (hit && IsInFrontOfRayOrigin(rayOrigin, rayDirection, currentContact))
                         {
                             return true;
                         }
@@ -1633,41 +1648,11 @@ namespace KWEngine3.Helper
                 )
             {
                 GeoTerrain t = to._gModel.ModelOriginal.MeshesArray[0].Terrain;
+                float result = t.SampleHeightBilinear(ray.X + to.Width / 2f - 0.5f, ray.Z + to.Depth / 2f - 0.5f, out float slopeX, out float slopeZ);
 
-                float rayXOffset = ray.X + to.Width / 2f;
-                float rayZOffset = ray.Z + to.Depth / 2f;
-                float pxX = rayXOffset - 0.5f; 
-                float pxZ = rayZOffset - 0.5f;
-
-                float weightX = 1f - pxX % 1f;
-                float weightZ = 1f - pxZ % 1f;
-                float weightXOther = 1f - weightX;
-                float weightZOther = 1f - weightZ;
-
-                int pxX0 = (int)(pxX + 0.0f);
-                int pxX1 = MathHelper.Clamp(pxX0 + 1, 0, to.Width - 1);
-
-                int pxZ0 = (int)(pxZ + 0.0f);
-                int pxZ1 = MathHelper.Clamp(pxZ0 + 1, 0, to.Depth - 1);
-
-                float i00 = t._pixelHeights[pxX0, pxZ0];
-                float i01 = t._pixelHeights[pxX0, pxZ1];
-                float i10 = t._pixelHeights[pxX1, pxZ0];
-                float i11 = t._pixelHeights[pxX1, pxZ1];
-
-                Vector3 v00 = new Vector3(pxX0, i00 * to.Height, pxZ0);
-                Vector3 v01 = new Vector3(pxX0, i01 * to.Height, pxZ1);
-                Vector3 v10 = new Vector3(pxX1, i10 * to.Height, pxZ0);
-                Vector3 v11 = new Vector3(pxX1, i11 * to.Height, pxZ1);
-
-                // bilinear interpolation:
-                float result =                 
-                    i00 * weightX * weightZ +
-                    i01 * weightX * weightZOther +
-                    i10 * weightXOther * weightZ +
-                    i11 * weightXOther * weightZOther;
-                
-                normal = GetNormalFromFourPoints(v00, v01, v10, v11);
+                // Exact normal of the bilinear surface at this point (one texel = one world unit)
+                // instead of one fixed normal per cell.
+                normal = Vector3.Normalize(new Vector3(-slopeX * to.Height, 1f, -slopeZ * to.Height));
                 height = result * to.Height + to._stateCurrent._position.Y;
                 return true;
             }
@@ -1728,9 +1713,10 @@ namespace KWEngine3.Helper
             return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
         }
 
-        internal static bool IsMouseCursorOnGameObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, bool includeNonCollisionObjects)
+        internal static bool IsMouseCursorOnGameObject(GameObject g, Vector3 rayOrigin, Vector3 rayDirection, bool includeNonCollisionObjects, out float distance)
         {
             Span<Vector3> vertexBuffer = stackalloc Vector3[MAX_STACK_FACE_VERTICES]; // one buffer for all faces (stackalloc inside a loop grows the stack per iteration)
+            distance = float.MaxValue;
             if (g == null || (includeNonCollisionObjects == false && !g.IsCollisionObject))
             {
                 return false;
@@ -1740,9 +1726,8 @@ namespace KWEngine3.Helper
             {
                 GameObjectHitbox currentHitbox = g._colliderModel._hitboxes[i];
 
-                // test if object is far behind camera:
-                Vector3 camToObject = Vector3.NormalizeFast(currentHitbox._center - rayOrigin);
-                if (Vector3.Dot(camToObject, rayDirection) < 0)
+                // skip hitboxes that lie completely behind the camera:
+                if (IsBoxBehindRayOrigin(rayOrigin, rayDirection, currentHitbox._center, currentHitbox._dimensionsAABB))
                     continue;
 
                 for (int j = 0; j < currentHitbox._mesh.Faces.Length; j++)
@@ -1752,14 +1737,14 @@ namespace KWEngine3.Helper
                     if (currentHitbox.GetVerticesFromFaceAndCheckAngle(j, rayDirection, ref faceVertices, out HitboxFace currentFace))
                     {
                         bool hit = RayNGonIntersection(rayOrigin, rayDirection, currentFace.Normal, ref faceVertices, out Vector3 currentContact);
-                        if (hit)
+                        if (hit && IsInFrontOfRayOrigin(rayOrigin, rayDirection, currentContact))
                         {
-                            return true;
+                            distance = MathF.Min(distance, (currentContact - rayOrigin).Length);
                         }
                     }
                 }
             }
-            return false;
+            return distance < float.MaxValue;
         }
 
         private static readonly byte[] pixelColor = new byte[3];
@@ -2020,34 +2005,78 @@ namespace KWEngine3.Helper
             }
         }
 
-        internal static bool RayTerrainIntersection(TerrainObject t, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 contactPoint)
+        // Intersection of any ray with the terrain surface: walk along the ray in small steps
+        // until it dips below the surface, then find the exact spot by bisection.
+        internal static bool RayTerrainIntersection(TerrainObject terrain, Vector3 rayOrigin, Vector3 rayDirection, out Vector3 contactPoint, out float distance)
         {
             contactPoint = Vector3.Zero;
-            GeoModel model = t._gModel.ModelOriginal;
-            Vector3 untranslatedPosition = rayOrigin - new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
+            distance = 0f;
 
-            if (model.MeshesArray[0].Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
+            GeoTerrain geoTerrain = terrain._gModel.ModelOriginal.MeshesArray[0].Terrain;
+            Vector3 offset = new Vector3(terrain._hitboxes[0]._center.X, terrain._stateCurrent._position.Y, terrain._hitboxes[0]._center.Z);
+            Vector3 boxMin = offset + new Vector3(-terrain.Width * 0.5f, 0f, -terrain.Depth * 0.5f);
+            Vector3 boxMax = offset + new Vector3(terrain.Width * 0.5f, terrain.Height, terrain.Depth * 0.5f);
+
+            // only the part of the ray inside the terrain's bounding box needs to be checked
+            float tEnter = 0f;
+            float tExit = float.MaxValue;
+            for (int axis = 0; axis < 3; axis++)
             {
-                GeoTerrainTriangle tris = s.GetTriangle(untranslatedPosition);
-                if(tris != null)
+                float o = rayOrigin[axis];
+                float d = rayDirection[axis];
+                if (MathF.Abs(d) < 1e-8f)
                 {
-                    bool hit = RayTriangleIntersection(untranslatedPosition, rayDirection, tris.Vertices[0], tris.Vertices[1], tris.Vertices[2], out contactPoint);
-                    if (hit)
-                    {
-                        contactPoint += new Vector3(t._stateCurrent._center.X, 0, t._stateCurrent._center.Z);
-                        return true;
-                    }
-                    else
-                    {
+                    if (o < boxMin[axis] || o > boxMax[axis])
                         return false;
-                    }
+                }
+                else
+                {
+                    float t0 = (boxMin[axis] - o) / d;
+                    float t1 = (boxMax[axis] - o) / d;
+                    if (t0 > t1)
+                        (t0, t1) = (t1, t0);
+                    tEnter = MathF.Max(tEnter, t0);
+                    tExit = MathF.Min(tExit, t1);
+                    if (tEnter > tExit)
+                        return false;
                 }
             }
-            else
-            {
+
+            // ray must start above the surface (rays entering from below or through the sides are ignored)
+            float tAbove = tEnter;
+            if (GetHeightAboveTerrain(geoTerrain, terrain, offset, rayOrigin + rayDirection * tAbove) < 0f)
                 return false;
+
+            const float STEP = 0.25f; // a quarter of a heightmap texel
+            int steps = Math.Max(1, (int)MathF.Ceiling((tExit - tEnter) / STEP));
+            for (int i = 1; i <= steps; i++)
+            {
+                float tBelow = MathF.Min(tEnter + i * STEP, tExit);
+                if (GetHeightAboveTerrain(geoTerrain, terrain, offset, rayOrigin + rayDirection * tBelow) <= 0f)
+                {
+                    for (int j = 0; j < 16; j++)
+                    {
+                        float tMid = (tAbove + tBelow) * 0.5f;
+                        if (GetHeightAboveTerrain(geoTerrain, terrain, offset, rayOrigin + rayDirection * tMid) > 0f)
+                            tAbove = tMid;
+                        else
+                            tBelow = tMid;
+                    }
+                    contactPoint = rayOrigin + rayDirection * tBelow;
+                    distance = (contactPoint - rayOrigin).Length;
+                    return true;
+                }
+                tAbove = tBelow;
             }
             return false;
+        }
+
+        // Vertical distance of a world position to the terrain surface (negative = below the surface).
+        private static float GetHeightAboveTerrain(GeoTerrain geoTerrain, TerrainObject terrain, Vector3 offset, Vector3 position)
+        {
+            Vector3 local = position - offset;
+            float h = geoTerrain.SampleHeightBilinear(local.X + terrain.Width * 0.5f - 0.5f, local.Z + terrain.Depth * 0.5f - 0.5f, out _, out _);
+            return local.Y - h * terrain.Height;
         }
 
         internal static bool RayTerrainIntersection(TerrainObject t, Vector3 rayOrigin, out Vector3 contactPoint, out Vector3 surfaceNormal)
@@ -2545,6 +2574,21 @@ namespace KWEngine3.Helper
             return true;
         }
 
+        // RayNGonIntersection() tests an endless line. Mouse picking uses this check to ignore
+        // hits behind the camera (the other ray methods accept them on purpose).
+        internal static bool IsInFrontOfRayOrigin(Vector3 rayStart, Vector3 rayDirection, Vector3 point)
+        {
+            return Vector3.Dot(point - rayStart, rayDirection) >= 0f;
+        }
+
+        // true if the whole box (center, size) lies behind the ray's start
+        internal static bool IsBoxBehindRayOrigin(Vector3 rayStart, Vector3 rayDirection, Vector3 boxCenter, Vector3 boxSize)
+        {
+            float centerAlongRay = Vector3.Dot(boxCenter - rayStart, rayDirection);
+            float halfSizeAlongRay = (MathF.Abs(rayDirection.X) * boxSize.X + MathF.Abs(rayDirection.Y) * boxSize.Y + MathF.Abs(rayDirection.Z) * boxSize.Z) * 0.5f;
+            return centerAlongRay + halfSizeAlongRay < 0f;
+        }
+
         internal static bool RayNGonIntersection(Vector3 rayStart, Vector3 rayDirection, Vector3 normal, Vector3[] vertices, out Vector3 contactPoint)
         {
             bool planeWasHit = LinePlaneIntersection(out contactPoint, rayDirection, rayStart, normal, vertices[0]);
@@ -2704,7 +2748,7 @@ namespace KWEngine3.Helper
                                 {
                                     RayIntersection gd = new RayIntersection()
                                     {
-                                        Distance = Math.Max(0, currentDistance),
+                                        Distance = currentDistance > 0 ? distanceWorldspace : 0f, // currentDistance is in mesh space; <= 0 means the ray starts inside the box
                                         Object = g,
                                         IntersectionPoint = intersectionPoint
                                     };

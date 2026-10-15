@@ -287,7 +287,7 @@ namespace KWEngine3.GameObjects
             {
                 _stateCurrent._opacity = o;
             }
-            else if(materialId < _model.Material.Length)
+            else if (materialId < _model.Material.Length)
             {
                 _model.Material[materialId].SetOpacity(o);
             }
@@ -311,7 +311,7 @@ namespace KWEngine3.GameObjects
 
                 for (int i = 0; i < _model.Material.Length; i++)
                 {
-                    if(_model.Material[i].Name != null && _model.Material[i].Name == materialName)
+                    if (_model.Material[i].Name != null && _model.Material[i].Name == materialName)
                     {
                         _model.Material[i].SetOpacity(o);
                     }
@@ -359,7 +359,7 @@ namespace KWEngine3.GameObjects
                         break;
                 }
 
-                if(meshFound == false)
+                if (meshFound == false)
                 {
                     KWEngine.LogWriteLine("[EngineObject] Cannot find mesh/material in object - opacity unchanged");
                 }
@@ -446,7 +446,7 @@ namespace KWEngine3.GameObjects
         /// <param name="intensity">Helligkeit (zwischen 0 und 10)</param>
         public void SetColorEmissive(Vector3 color, float intensity)
         {
-            for(int i = 0; i < _model.Material.Length; i++)
+            for (int i = 0; i < _model.Material.Length; i++)
             {
                 _model.Material[i].ColorEmissive = new Vector4(
                 MathHelper.Clamp(color.X, 0, 1),
@@ -473,7 +473,7 @@ namespace KWEngine3.GameObjects
         /// <param name="meshId">Nullbasierter Index des Modell-Mesh</param>
         public void SetColorEmissive(Vector3 color, float intensity, int meshId)
         {
-            if(meshId < 0 || meshId >= this._model.Material.Length)
+            if (meshId < 0 || meshId >= this._model.Material.Length)
             {
                 KWEngine.LogWriteLine("[EngineObject] Invalid mesh id - setting emissive values for the whole object instead");
                 SetColorEmissive(color, intensity);
@@ -550,7 +550,7 @@ namespace KWEngine3.GameObjects
         /// <param name="scale">Skalierungsfaktor (Standardwert: 0.0f, Wertebereich: 0.0f bis 1.0f)</param>
         public void SetParallaxOcclusionMappingScale(float scale)
         {
-            if(KWEngine.Window._renderQuality < RenderQualityLevel.Default)
+            if (KWEngine.Window._renderQuality < RenderQualityLevel.Default)
             {
                 KWEngine.LogWriteLine("[GameObject] Parallax Mapping is disabled on your current rendering profile");
             }
@@ -723,7 +723,9 @@ namespace KWEngine3.GameObjects
         {
             Vector3 lavXZ = LookAtVector;
             lavXZ.Y = 0;
-            Vector3.NormalizeFast(lavXZ);
+            if (lavXZ.LengthSquared < 1e-8f) // looking straight up or down: no horizontal direction
+                return;
+            lavXZ.NormalizeFast();
             MoveOffset(lavXZ * units);
         }
 
@@ -743,7 +745,7 @@ namespace KWEngine3.GameObjects
         /// <param name="units">Bewegungseinheiten</param>
         public void MoveAlongVector(Vector3 v, float units)
         {
-            if(float.IsNaN(v.X) || float.IsNaN(v.Y) || float.IsNaN(v.Z))
+            if (float.IsNaN(v.X) || float.IsNaN(v.Y) || float.IsNaN(v.Z))
             {
                 return;
             }
@@ -963,7 +965,7 @@ namespace KWEngine3.GameObjects
                 lookat = new(Matrix4.LookAt(target, Center, KWEngine.WorldUp));
             }
 
-            
+
             lookat = Matrix3.Transpose(lookat);
             Quaternion q = Quaternion.FromMatrix(lookat);
             q.Invert();
@@ -1072,11 +1074,44 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Rotation passend zum übergebenen Ebenenvektor (surface normal), um z.B. das Objekt zu kippen, wenn es auf einer Schräge steht.
         /// </summary>
-        /// <remarks>Hinweis: Kann bei KWQuad-Modellen zu fehlerhaften Rotationen führen. Hier muss ggf. manuell mit AddRotation...() nachgebessert werden.</remarks>
+        /// <remarks>Die Blickrichtung (von oben betrachtet) bleibt erhalten. Hinweis: Kann bei KWQuad-Modellen zu fehlerhaften Rotationen führen. Hier muss ggf. manuell mit AddRotation...() nachgebessert werden.</remarks>
         /// <param name="surfaceNormal">Ebenenvektor</param>
         public void SetRotationToMatchSurfaceNormal(Vector3 surfaceNormal)
         {
-            SetRotation(HelperVector.GetRotationToMatchSurfaceNormal(LookAtVector, surfaceNormal));
+            SetRotationToMatchSurfaceNormal(surfaceNormal, 1f);
+        }
+
+        /// <summary>
+        /// Dreht die Instanz schrittweise in Richtung des übergebenen Ebenenvektors (surface normal), um z.B. ein Fahrzeug weich an eine Schräge anzupassen.
+        /// </summary>
+        /// <remarks>Die Blickrichtung (von oben betrachtet) bleibt erhalten. Wird die Methode in jedem Frame mit einem kleinen Faktor (z.B. 0.2f) aufgerufen, werden Sprünge in der Neigung geglättet.</remarks>
+        /// <param name="surfaceNormal">Ebenenvektor</param>
+        /// <param name="blendFactor">Anteil der Drehung, der sofort ausgeführt wird (0 = keine Änderung, 1 = sofort vollständig ausrichten)</param>
+        public void SetRotationToMatchSurfaceNormal(Vector3 surfaceNormal, float blendFactor)
+        {
+            if (!(blendFactor > 0f)) // also catches NaN
+                return;
+
+            Quaternion target = HelperVector.GetRotationToMatchSurfaceNormalForHeading(GetHeadingXZ(), surfaceNormal);
+            if (blendFactor < 1f)
+            {
+                target = Quaternion.Slerp(Quaternion.Normalize(_stateCurrent._rotation), target, blendFactor);
+            }
+            SetRotation(target);
+        }
+
+        // Direction the object faces, seen from above. If it looks straight up or down,
+        // its local up axis (or down axis) points to where the front was.
+        private Vector3 GetHeadingXZ()
+        {
+            Vector3 lav = LookAtVector;
+            Vector3 heading = new Vector3(lav.X, 0f, lav.Z);
+            if (heading.LengthSquared < 1e-6f)
+            {
+                Vector3 up = LookAtVectorLocalUp * (lav.Y > 0f ? -1f : 1f);
+                heading = new Vector3(up.X, 0f, up.Z);
+            }
+            return heading.LengthSquared > 1e-8f ? Vector3.Normalize(heading) : Vector3.UnitZ;
         }
 
         /// <summary>
@@ -1118,7 +1153,7 @@ namespace KWEngine3.GameObjects
         public void SetAnimationID(string name, bool caseSensitive = false)
         {
             int id = HelperGeneral.FindAnimationIDFor(_model.ModelOriginal, name, caseSensitive);
-            if(id >= 0)
+            if (id >= 0)
             {
                 SetAnimationID(id);
             }
@@ -1489,7 +1524,7 @@ namespace KWEngine3.GameObjects
         internal abstract void InitHitboxes();
 
         internal abstract void UpdateModelMatrixAndHitboxes();
-        
+
 
         #endregion
     }

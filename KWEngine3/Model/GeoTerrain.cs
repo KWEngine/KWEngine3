@@ -202,42 +202,35 @@ namespace KWEngine3.Model
 
         internal float GetHeightForVertex(float x, float z)
         {
-            Vector3 ray = new Vector3(x, this.mHeight + 1, z);
-
-            float rayXOffset = ray.X + this.mWidth / 2f;
-            float rayZOffset = ray.Z + this.mDepth / 2f;
-            float pxX = rayXOffset - 0.5f;
-            float pxZ = rayZOffset - 0.5f;
-
-            float weightX = 1f - pxX % 1f;
-            float weightZ = 1f - pxZ % 1f;
-            float weightXOther = 1f - weightX;
-            float weightZOther = 1f - weightZ;
-
-            int pxX0 = (int)(pxX + 0.0f);
-            int pxX1 = MathHelper.Clamp(pxX0 + 1, 0, this.mWidth - 1);
-
-            int pxZ0 = (int)(pxZ + 0.0f);
-            int pxZ1 = MathHelper.Clamp(pxZ0 + 1, 0, this.mDepth - 1);
-
-            float i00 = this._pixelHeights[pxX0, pxZ0];
-            float i01 = this._pixelHeights[pxX0, pxZ1];
-            float i10 = this._pixelHeights[pxX1, pxZ0];
-            float i11 = this._pixelHeights[pxX1, pxZ1];
-
-            Vector3 v00 = new Vector3(pxX0, i00 * this.mHeight, pxZ0);
-            Vector3 v01 = new Vector3(pxX0, i01 * this.mHeight, pxZ1);
-            Vector3 v10 = new Vector3(pxX1, i10 * this.mHeight, pxZ0);
-            Vector3 v11 = new Vector3(pxX1, i11 * this.mHeight, pxZ1);
-
-            // bilinear interpolation:
-            float result =
-                i00 * weightX * weightZ +
-                i01 * weightX * weightZOther +
-                i10 * weightXOther * weightZ +
-                i11 * weightXOther * weightZOther;
-
+            float result = SampleHeightBilinear(x + this.mWidth / 2f - 0.5f, z + this.mDepth / 2f - 0.5f, out _, out _);
             return result * this.mHeight;
+        }
+
+        // Bilinear height (0..1) at a texel position (texel centers are whole numbers) and its slope per texel.
+        // Positions outside the map are clamped to the border, like the GPU does with ClampToEdge.
+        internal float SampleHeightBilinear(float pxX, float pxZ, out float slopeX, out float slopeZ)
+        {
+            pxX = MathHelper.Clamp(pxX, 0f, this.mWidth - 1);
+            pxZ = MathHelper.Clamp(pxZ, 0f, this.mDepth - 1);
+
+            int x0 = (int)pxX;
+            int z0 = (int)pxZ;
+            int x1 = Math.Min(x0 + 1, this.mWidth - 1);
+            int z1 = Math.Min(z0 + 1, this.mDepth - 1);
+            float fx = pxX - x0;
+            float fz = pxZ - z0;
+
+            float i00 = this._pixelHeights[x0, z0];
+            float i10 = this._pixelHeights[x1, z0];
+            float i01 = this._pixelHeights[x0, z1];
+            float i11 = this._pixelHeights[x1, z1];
+
+            float heightZ0 = i00 + (i10 - i00) * fx;
+            float heightZ1 = i01 + (i11 - i01) * fx;
+
+            slopeX = (i10 - i00) * (1f - fz) + (i11 - i01) * fz;
+            slopeZ = heightZ1 - heightZ0;
+            return heightZ0 + (heightZ1 - heightZ0) * fz;
         }
     }
 }
