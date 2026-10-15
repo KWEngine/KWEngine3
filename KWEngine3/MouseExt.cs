@@ -106,6 +106,7 @@ namespace KWEngine3
         /// <summary>
         /// Gibt die Mausbewegung als Delta-Wert für beide Achsen zurück (leicht geglättete Strecke seit dem letzten Simulationsschritt, entspricht MouseMovement)
         /// </summary>
+        /// <remarks>KWEngine.MouseSensitivity ist nicht eingerechnet und muss bei Bedarf selbst multipliziert werden.</remarks>
         /// <returns>Delta-Wert der Mauszeigerbewegung (seit dem letzten Simulationsschritt)</returns>
         public Vector2 GetDelta()
         {
