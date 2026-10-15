@@ -1930,67 +1930,70 @@ namespace KWEngine3.Helper
             return clippedVertex;
         }
 
-        internal static List<Vector3> ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, TerrainObject terrain, ref Vector3 offset, out Vector3 cpAvg)
+        // Shared buffers for ClipOBBAgainstTriangle() (main thread only, like _planeVertices).
+        internal static Vector3[] _terrainClipPoints = new Vector3[128];
+        private static bool[] _terrainClipBelow = new bool[64];
+
+        // Contact points of a hitbox with the plane of a terrain triangle: the hitbox vertices below the plane
+        // plus the points where the lines between neighbouring vertices (in vertex list order) cross the plane.
+        // Writes them to _terrainClipPoints (each point once) and returns their number.
+        internal static int ClipOBBAgainstTriangle(GameObjectHitbox hb, GeoTerrainTriangle triangle, ref Vector3 offset)
         {
-            List<Vector3> collisionVolumeVertices = new List<Vector3>();
-            List<Vector3> callerVertices = new List<Vector3>(hb._vertices);
-            List<Vector3> contactPoints = new List<Vector3>();
-            cpAvg = Vector3.Zero;
+            Vector3[] vertices = hb._vertices;
+            int vertexCount = vertices.Length;
+            if (_terrainClipBelow.Length < vertexCount)
+                _terrainClipBelow = new bool[vertexCount];
+            if (_terrainClipPoints.Length < vertexCount * 2)
+                _terrainClipPoints = new Vector3[vertexCount * 2];
 
-            for (int colliderFaceIndex = 0; colliderFaceIndex < 1; colliderFaceIndex++)
+            Vector3 planeVertex = triangle.Vertices[0] + offset;
+            Vector3 planeNormal = triangle.Normal;
+            for (int i = 0; i < vertexCount; i++)
             {
-                Vector3 colliderClippingFaceVertex = triangle.Vertices[0] + offset;
-                Vector3 colliderClippingFaceNormal = triangle.Normal;
-                for (int callerVertexIndex = 0; callerVertexIndex < callerVertices.Count; callerVertexIndex++)
+                _terrainClipBelow[i] = !IsInFrontOfPlane(ref vertices[i], ref planeNormal, ref planeVertex);
+            }
+
+            int pointCount = 0;
+            for (int i = 0; i < vertexCount; i++)
+            {
+                int next = (i + 1) % vertexCount;
+                Vector3 vertex1 = vertices[i];
+                Vector3 vertex2 = vertices[next];
+                if (_terrainClipBelow[i])
                 {
-                    Vector3 callerVertex1 = callerVertices[callerVertexIndex];
-                    Vector3 callerVertex2 = callerVertices[(callerVertexIndex + 1) % callerVertices.Count];
-                    Vector3 lineDirection = Vector3.NormalizeFast(callerVertex2 - callerVertex1);
-
-                    bool callerVertex1InsideRegion = !HelperIntersection.IsInFrontOfPlane(ref callerVertex1, ref colliderClippingFaceNormal, ref colliderClippingFaceVertex);
-                    bool callerVertex2InsideRegion = !HelperIntersection.IsInFrontOfPlane(ref callerVertex2, ref colliderClippingFaceNormal, ref colliderClippingFaceVertex);
-
-                    if (callerVertex1InsideRegion)
+                    if (_terrainClipBelow[next])
                     {
-                        if (callerVertex2InsideRegion)
-                        {
-                            if (!collisionVolumeVertices.Contains(callerVertex2))
-                                collisionVolumeVertices.Add(callerVertex2);
-                        }
-                        else
-                        {
-                            Vector3? clippedVertex = ClipLineToPlane(ref callerVertex2, ref lineDirection, ref colliderClippingFaceVertex, ref colliderClippingFaceNormal);
-                            if (clippedVertex != null && !collisionVolumeVertices.Contains(clippedVertex.Value))
-                                collisionVolumeVertices.Add(clippedVertex.Value);
-                        }
+                        pointCount = AddTerrainClipPoint(vertex2, pointCount);
                     }
                     else
                     {
-                        if (callerVertex2InsideRegion)
-                        {
-                            Vector3? clippedVertex = ClipLineToPlane(ref callerVertex1, ref lineDirection, ref colliderClippingFaceVertex, ref colliderClippingFaceNormal);
-                            if (clippedVertex != null && !collisionVolumeVertices.Contains(clippedVertex.Value))
-                                collisionVolumeVertices.Add(clippedVertex.Value);
-                            if (!collisionVolumeVertices.Contains(callerVertex2))
-                                collisionVolumeVertices.Add(callerVertex2);
-                        }
+                        Vector3 lineDirection = Vector3.NormalizeFast(vertex2 - vertex1);
+                        Vector3? clippedVertex = ClipLineToPlane(ref vertex2, ref lineDirection, ref planeVertex, ref planeNormal);
+                        if (clippedVertex != null)
+                            pointCount = AddTerrainClipPoint(clippedVertex.Value, pointCount);
                     }
                 }
-
-                callerVertices.Clear();
-                callerVertices.AddRange(collisionVolumeVertices);
-                collisionVolumeVertices.Clear();
+                else if (_terrainClipBelow[next])
+                {
+                    Vector3 lineDirection = Vector3.NormalizeFast(vertex2 - vertex1);
+                    Vector3? clippedVertex = ClipLineToPlane(ref vertex1, ref lineDirection, ref planeVertex, ref planeNormal);
+                    if (clippedVertex != null)
+                        pointCount = AddTerrainClipPoint(clippedVertex.Value, pointCount);
+                    pointCount = AddTerrainClipPoint(vertex2, pointCount);
+                }
             }
-            foreach(Vector3 cv in callerVertices)
+            return pointCount;
+        }
+
+        private static int AddTerrainClipPoint(Vector3 point, int pointCount)
+        {
+            for (int i = 0; i < pointCount; i++)
             {
-                cpAvg += cv;
-                contactPoints.Add(cv);
+                if (_terrainClipPoints[i].Equals(point))
+                    return pointCount;
             }
-            if(callerVertices.Count > 0)
-                cpAvg /= callerVertices.Count;
-
-            contactPoints.AddRange(callerVertices);
-            return contactPoints;
+            _terrainClipPoints[pointCount] = point;
+            return pointCount + 1;
         }
 
         internal static bool TestIntersectionTerrainBelowForRay(Vector3 rayStart, TerrainObject collider, out Vector3 contactPoint, out Vector3 surfaceNormal)

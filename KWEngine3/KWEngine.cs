@@ -70,8 +70,9 @@ namespace KWEngine3
         public static KeyboardExt Keyboard { get { return GLWindow._keyboard; } }
 
         /// <summary>
-        /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
+        /// Gibt die (leicht geglättete) Strecke an, die der Mauszeiger seit dem letzten Simulationsschritt zurückgelegt hat
         /// </summary>
+        /// <remarks>Für die Verwendung in Act() gedacht. Die Summe über alle Simulationsschritte entspricht der tatsächlichen Mausbewegung, die Empfindlichkeit ist daher unabhängig von der Bildrate.</remarks>
         public static Vector2 MouseMovement
         {
             get

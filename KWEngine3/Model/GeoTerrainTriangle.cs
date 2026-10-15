@@ -16,6 +16,12 @@ namespace KWEngine3.Model
         internal Vector3 Center;
         internal Vector3 Normal;
 
+        // x/z bounds in terrain space (cheap pre-test before the collision tests)
+        internal float MinX;
+        internal float MaxX;
+        internal float MinZ;
+        internal float MaxZ;
+
         const float EPSILON = 1e-5f;
 
         internal static Vector3 CalculateSurfaceNormal(Vector3 v1, Vector3 v2, Vector3 v3)
@@ -43,6 +49,10 @@ namespace KWEngine3.Model
             Vertices = new Vector3[3];
             Vertices[0] = v1; Vertices[1] = v2; Vertices[2] = v3;
             Center = new Vector3((v1.X + v2.X + v3.X) / 3f, (v1.Y + v2.Y + v3.Y) / 3f, (v1.Z + v2.Z + v3.Z) / 3f);
+            MinX = MathF.Min(v1.X, MathF.Min(v2.X, v3.X));
+            MaxX = MathF.Max(v1.X, MathF.Max(v2.X, v3.X));
+            MinZ = MathF.Min(v1.Z, MathF.Min(v2.Z, v3.Z));
+            MaxZ = MathF.Max(v1.Z, MathF.Max(v2.Z, v3.Z));
 
             Normal = CalculateSurfaceNormal(v1, v2, v3);
         }

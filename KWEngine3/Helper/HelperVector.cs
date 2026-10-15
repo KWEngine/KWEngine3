@@ -224,6 +224,39 @@ namespace KWEngine3.Helper
             }
             return Quaternion.Normalize(LookRotation(forward, surfaceNormal));
         }
+
+        // Least-squares plane y = a*x + b*z + c through the points (e.g. ground below the wheels of a vehicle);
+        // returns its upward normal, or WorldUp if there are fewer than 3 points or they lie on one line (seen from above).
+        internal static Vector3 FitSurfaceNormal(ReadOnlySpan<Vector3> points)
+        {
+            if (points.Length < 3)
+                return KWEngine.WorldUp;
+
+            Vector3 centroid = Vector3.Zero;
+            foreach (Vector3 p in points)
+                centroid += p;
+            centroid /= points.Length;
+
+            float sxx = 0f, sxz = 0f, szz = 0f, sxy = 0f, szy = 0f;
+            foreach (Vector3 p in points)
+            {
+                Vector3 d = p - centroid;
+                sxx += d.X * d.X;
+                sxz += d.X * d.Z;
+                szz += d.Z * d.Z;
+                sxy += d.X * d.Y;
+                szy += d.Z * d.Y;
+            }
+
+            float det = sxx * szz - sxz * sxz;
+            float scale = sxx + szz;
+            if (!(det > 1e-6f * scale * scale)) // points lie on one line (seen from above)
+                return KWEngine.WorldUp;
+
+            float slopeX = (sxy * szz - szy * sxz) / det;
+            float slopeZ = (szy * sxx - sxy * sxz) / det;
+            return Vector3.Normalize(new Vector3(-slopeX, 1f, -slopeZ));
+        }
         
         /// <summary>
         /// Berechnet den Vektor, der für den gegebenen Look-At-Vektor (LAV) "oben" darstellt (senkrecht zum LAV)

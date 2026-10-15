@@ -147,8 +147,12 @@ namespace KWEngine3.Helper
                                         {
                                             foreach (TerrainSectorCoarse sectorCoarse in sectorUltra.SectorsCoarse)
                                             {
+                                                // coarse sectors are stored in terrain space like the other sector levels
                                                 if (HelperIntersection.CheckAABBCollision(
-                                                    sectorCoarse.Left, sectorCoarse.Right, sectorCoarse.Back, sectorCoarse.Front,
+                                                    sectorCoarse.Left  + t._stateCurrent._position.X,
+                                                    sectorCoarse.Right + t._stateCurrent._position.X,
+                                                    sectorCoarse.Back  + t._stateCurrent._position.Z,
+                                                    sectorCoarse.Front + t._stateCurrent._position.Z,
                                                     hbleftT, hbRightT, hbBackT, hbFrontT)
                                                     )
                                                 {

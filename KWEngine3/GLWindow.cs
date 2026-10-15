@@ -30,12 +30,12 @@ namespace KWEngine3
         // input related:
         internal static KeyboardExt _keyboard = new();
         internal static MouseExt _mouse = new();
-        internal const int DELTASFORMOVINGAVG = 4;
-        internal const int MOUSEDELTAMAXSAMPLECOUNT = 128;
+        internal const float MOUSEMOVEMENTSCALE = 0.48f;         // = 2 * 240 / 1000: keeps the sensitivity the former smoothed value had at 60 fps
+        internal const float MOUSEMOVEMENTSHAREPERSTEP = 0.5f;   // each simulation step takes half of the pending movement (light smoothing)
         internal Vector2 _mouseDeltaToUse = Vector2.Zero;
+        internal Vector2 _mouseMovementPending = Vector2.Zero;   // pixels not yet handed out to simulation steps
         internal int _mouseScrollPosition = 0;
         internal int _mouseScrollDelta = 0;
-        internal List<Vector2> _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
 
         // render frame reusable lists (avoid per-frame allocations):
         internal readonly List<LightObject> _renderFramePointLights = new();
@@ -51,7 +51,7 @@ namespace KWEngine3
 
         internal void ResetMouseDeltas()
         {
-            _mouseDeltas = new(MOUSEDELTAMAXSAMPLECOUNT);
+            _mouseMovementPending = Vector2.Zero;
             _mouseDeltaToUse = Vector2.Zero;
         }
 
@@ -68,32 +68,25 @@ namespace KWEngine3
         internal KWBuilderOverlay Overlay { get; set; }
         internal Stopwatch _stopwatch = new();
 
-        internal Vector2 GatherWeightedMovingAvg(Vector2 mouseDelta, float dt_ms)
+        // Collects the mouse movement of one render frame (in pixels). It is handed out to the
+        // following simulation steps, so the total stays the same no matter how many steps
+        // run per frame (this keeps the sensitivity independent of the frame rate).
+        internal void CollectMouseMovement(Vector2 mouseDelta)
         {
-            if (KWEngine.CurrentWorld._mouseCursorJustGrabbed)
-                return Vector2.Zero;
+            // movement right after grabbing or moving the cursor by code is just the jump of the cursor
+            if (KWEngine.CurrentWorld._mouseCursorJustGrabbed || KWEngine.CurrentWorld._startingFrameActive)
+                return;
 
-            _mouseDeltas.Add(mouseDelta * (1f / dt_ms));
-            while (_mouseDeltas.Count > MOUSEDELTAMAXSAMPLECOUNT)
-            {
-                _mouseDeltas.RemoveAt(0);
-            }
-            int samplesToLookAt = Math.Clamp((int)Math.Ceiling((1f / dt_ms) * 10f), 1, MOUSEDELTAMAXSAMPLECOUNT - 1);
-            float sampleWeightStep = 1.0f / Math.Max(samplesToLookAt - 1, 1);
-            int thresholdForNextWeightStep = Math.Max(samplesToLookAt / DELTASFORMOVINGAVG, DELTASFORMOVINGAVG);
-            float currentSampleWeight = sampleWeightStep;
-            Vector2 movingAvg = Vector2.Zero;
+            _mouseMovementPending += mouseDelta;
+        }
 
-            for (int i = Math.Max(0, _mouseDeltas.Count - 1 - samplesToLookAt), j = 1; i < _mouseDeltas.Count; i++, j++)
-            {
-                movingAvg += _mouseDeltas[i] * currentSampleWeight;
-                if (j == thresholdForNextWeightStep)
-                {
-                    currentSampleWeight += sampleWeightStep;
-                    j = 1;
-                }
-            }
-            return movingAvg;
+        // Mouse movement for one simulation step: a fixed share of the pending movement.
+        // Nothing gets lost: the sum over all steps equals the real movement.
+        internal Vector2 TakeMouseMovementForSimulationStep()
+        {
+            Vector2 step = _mouseMovementPending.LengthSquared < 0.0001f ? _mouseMovementPending : _mouseMovementPending * MOUSEMOVEMENTSHAREPERSTEP;
+            _mouseMovementPending -= step;
+            return step * MOUSEMOVEMENTSCALE;
         }
 
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
@@ -267,8 +260,9 @@ namespace KWEngine3
         public MouseExt Mouse { get { return GLWindow._mouse; } }
 
         /// <summary>
-        /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
+        /// Gibt die (leicht geglättete) Strecke an, die der Mauszeiger seit dem letzten Simulationsschritt zurückgelegt hat
         /// </summary>
+        /// <remarks>Für die Verwendung in Act() gedacht. Die Summe über alle Simulationsschritte entspricht der tatsächlichen Mausbewegung, die Empfindlichkeit ist daher unabhängig von der Bildrate.</remarks>
         public Vector2 MouseMovement
         {
             get
@@ -444,7 +438,7 @@ namespace KWEngine3
             }
 
             UpdateDeltaTime(e.Time);
-            _mouseDeltaToUse = GatherWeightedMovingAvg(MouseState.Delta, (float)(e.Time * 1000.0));
+            CollectMouseMovement(MouseState.Delta);
 
             if (KWEngine.CurrentWorld._mouseCursorJustGrabbed)
                 KWEngine.CurrentWorld._mouseCursorJustGrabbed = false;
@@ -1311,6 +1305,7 @@ namespace KWEngine3
                     GLFW.GetCursorPos(this.WindowPtr, out var xPos, out var yPos);
                     Mouse._mousePositionFromGLFW = new Vector2((float)xPos, (float)yPos);
                 }
+                _mouseDeltaToUse = TakeMouseMovementForSimulationStep();
 
                 _frame++;
 

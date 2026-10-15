@@ -1102,7 +1102,7 @@ namespace KWEngine3.GameObjects
 
         // Direction the object faces, seen from above. If it looks straight up or down,
         // its local up axis (or down axis) points to where the front was.
-        private Vector3 GetHeadingXZ()
+        internal Vector3 GetHeadingXZ()
         {
             Vector3 lav = LookAtVector;
             Vector3 heading = new Vector3(lav.X, 0f, lav.Z);

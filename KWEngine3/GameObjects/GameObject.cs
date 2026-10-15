@@ -22,7 +22,8 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt die Kosten dieser Instanz auf einem (optionalen) Flowfield an (1 = kein Hindernis, 255 = unüberwindbares Hindernis; Standardwert: 1)
         /// </summary>
-        public byte FlowFieldCost {
+        public byte FlowFieldCost
+        {
             get
             {
                 return _flowfieldcost;
@@ -40,9 +41,9 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt an, ob das Objekt ein Kollisionen erzeugen und überprüfen kann
         /// </summary>
-        public bool IsCollisionObject 
-        { 
-            get 
+        public bool IsCollisionObject
+        {
+            get
             {
                 return _isCollisionObject;
             }
@@ -256,7 +257,7 @@ namespace KWEngine3.GameObjects
         public GameObject(string modelname)
         {
             bool modelSetSuccessfully = SetModel(modelname);
-            if(!modelSetSuccessfully)
+            if (!modelSetSuccessfully)
             {
                 KWEngine.LogWriteLine("[GameObject] Cannot set " + (modelname == null ? "" : modelname.Trim()));
             }
@@ -300,11 +301,11 @@ namespace KWEngine3.GameObjects
         /// <param name="mode">Bestimmt, auf welchen Fixpunkt des Objekts sich die Positionsangaben beziehen sollen</param>
         public void SetPosition(float x, float y, float z, PositionMode mode = PositionMode.Position)
         {
-            if(mode == PositionMode.Position)
+            if (mode == PositionMode.Position)
             {
                 base.SetPosition(x, y, z);
             }
-            else if(mode == PositionMode.CenterOfHitbox)
+            else if (mode == PositionMode.CenterOfHitbox)
             {
                 Vector3 delta = this.Position - this.Center;
                 base.SetPosition(x + delta.X, y + delta.Y, z + delta.Z);
@@ -431,11 +432,11 @@ namespace KWEngine3.GameObjects
 
             foreach (TerrainObject to in KWEngine.CurrentWorld._terrainObjects)
             {
-                if(!to.IsCollisionObject)
+                if (!to.IsCollisionObject)
                 {
                     continue;
                 }
-                else if(!HelperIntersection.CheckAABBCollision(
+                else if (!HelperIntersection.CheckAABBCollision(
                     AABBLeft,
                     AABBRight,
                     AABBBack,
@@ -462,7 +463,7 @@ namespace KWEngine3.GameObjects
                             out float height,
                             out Vector3 normal
                             );
-                        if(result)
+                        if (result)
                         {
                             Vector3 contactPoint = new(ray.X, height, ray.Z);
                             float distance = ray.Y - offset.Y - height;
@@ -482,7 +483,7 @@ namespace KWEngine3.GameObjects
                             }
                         }
                     }
-                    else 
+                    else
                     {
                         if (to._gModel.ModelOriginal.MeshesArray[0].Terrain.GetSectorForUntranslatedPosition(untranslatedPosition, out Sector s))
                         {
@@ -526,6 +527,94 @@ namespace KWEngine3.GameObjects
 
             return resultSet;
         }
+
+        /// <summary>
+        /// Richtet die Instanz (z.B. ein Fahrzeug) am Boden unter den vier unteren Ecken ihrer Hitbox aus und setzt sie so auf den Boden, dass keine Ecke im Boden steckt
+        /// </summary>
+        /// <remarks>
+        /// Für genauere Ergebnisse (z.B. Reifenpositionen) die Überladung mit eigenen Kontaktpunkten verwenden.
+        /// Als Boden zählen Terrain-Objekte und Kollisionsobjekte der angegebenen Klassen (ohne Angabe: alle Kollisionsobjekte). Damit Kollisionsobjekte gefunden werden, muss die Instanz selbst ein Kollisionsobjekt sein.
+        /// Liegt der Boden mehr als maxStepHeight über oder unter der Instanz (z.B. während eines Sprungs oder vor einer Wand), wird nichts verändert.
+        /// </remarks>
+        /// <param name="blendFactor">Anteil der Drehung, der sofort ausgeführt wird (0 = keine Änderung, 1 = sofort vollständig ausrichten, z.B. 0.2f zum Glätten)</param>
+        /// <param name="maxStepHeight">Größter Höhenunterschied, der pro Aufruf nach oben oder unten ausgeglichen wird (Standard: 0.5f)</param>
+        /// <param name="typelist">Klassen der Objekte, die als Boden gelten (ohne Angabe: alle Kollisionsobjekte)</param>
+        /// <returns>true, wenn die Instanz ausgerichtet und auf den Boden gesetzt wurde</returns>
+        public bool AlignToGround(float blendFactor = 1f, float maxStepHeight = 0.5f, params Type[] typelist)
+        {
+            // bottom corners of the hitbox, relative to Position in the object's local axes
+            Quaternion rotationInv = Quaternion.Invert(Quaternion.Normalize(_stateCurrent._rotation));
+            Vector3 centerLocal = Vector3.Transform(Center - Position, rotationInv);
+            _alignContactPoints[0] = centerLocal + new Vector3(-_obbRadii.X, -_obbRadii.Y, +_obbRadii.Z);
+            _alignContactPoints[1] = centerLocal + new Vector3(+_obbRadii.X, -_obbRadii.Y, +_obbRadii.Z);
+            _alignContactPoints[2] = centerLocal + new Vector3(-_obbRadii.X, -_obbRadii.Y, -_obbRadii.Z);
+            _alignContactPoints[3] = centerLocal + new Vector3(+_obbRadii.X, -_obbRadii.Y, -_obbRadii.Z);
+            return AlignToGround(_alignContactPoints, blendFactor, maxStepHeight, typelist);
+        }
+
+        /// <summary>
+        /// Richtet die Instanz (z.B. ein Fahrzeug) am Boden unter den angegebenen Kontaktpunkten aus und setzt sie so auf den Boden, dass kein Kontaktpunkt im Boden steckt
+        /// </summary>
+        /// <remarks>
+        /// Die Neigung entspricht der Ebene, die am besten zu den Bodenpunkten unter den Kontaktpunkten passt (Blickrichtung von oben bleibt erhalten).
+        /// Danach wird die Instanz senkrecht so verschoben, dass der tiefste Kontaktpunkt genau auf dem Boden liegt und kein anderer darin steckt (auf unebenem Boden schweben einzelne Kontaktpunkte daher leicht).
+        /// Als Boden zählen Terrain-Objekte und Kollisionsobjekte der angegebenen Klassen (ohne Angabe: alle Kollisionsobjekte). Damit Kollisionsobjekte gefunden werden, muss die Instanz selbst ein Kollisionsobjekt sein.
+        /// Liegt der Boden mehr als maxStepHeight über oder unter den Kontaktpunkten (z.B. während eines Sprungs oder vor einer Wand), wird nichts verändert.
+        /// </remarks>
+        /// <param name="contactPoints">Mindestens drei Kontaktpunkte (z.B. Unterkanten der Reifen) als Array oder Liste, relativ zur Position der Instanz, in Welteinheiten und entlang ihrer lokalen Achsen (x = rechts, y = oben, z = vorn). Es handelt sich nicht um Ergebnisse von Strahlentests: Den Boden unter den Kontaktpunkten misst die Methode selbst.</param>
+        /// <param name="blendFactor">Anteil der Drehung, der sofort ausgeführt wird (0 = keine Änderung, 1 = sofort vollständig ausrichten, z.B. 0.2f zum Glätten)</param>
+        /// <param name="maxStepHeight">Größter Höhenunterschied, der pro Aufruf nach oben oder unten ausgeglichen wird (Standard: 0.5f)</param>
+        /// <param name="typelist">Klassen der Objekte, die als Boden gelten (ohne Angabe: alle Kollisionsobjekte)</param>
+        /// <returns>true, wenn die Instanz ausgerichtet und auf den Boden gesetzt wurde</returns>
+        public bool AlignToGround(IReadOnlyList<Vector3> contactPoints, float blendFactor = 1f, float maxStepHeight = 0.5f, params Type[] typelist)
+        {
+            if (contactPoints == null || contactPoints.Count < 3 || !(blendFactor > 0f))
+                return false;
+            if (typelist == null || typelist.Length == 0)
+                typelist = _alignDefaultTypes;
+            blendFactor = MathF.Min(blendFactor, 1f);
+            maxStepHeight = MathF.Max(maxStepHeight, 0f);
+
+            int count = contactPoints.Count;
+            Span<Vector3> groundPoints = count <= 16 ? stackalloc Vector3[count] : new Vector3[count];
+            Vector3 position = Position;
+            Quaternion rotation = Quaternion.Normalize(_stateCurrent._rotation);
+
+            // 1) ground below each contact point with the current rotation
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 contactWorld = position + Vector3.Transform(contactPoints[i], rotation);
+                if (!GetGroundHeightBelow(contactWorld, maxStepHeight, typelist, out float groundHeight))
+                    return false;
+                groundPoints[i] = new Vector3(contactWorld.X, groundHeight, contactWorld.Z);
+            }
+
+            // 2) tilt: plane that fits the ground points best
+            Vector3 normal = HelperVector.FitSurfaceNormal(groundPoints);
+            Quaternion target = HelperVector.GetRotationToMatchSurfaceNormalForHeading(GetHeadingXZ(), normal);
+            if (blendFactor < 1f)
+            {
+                target = Quaternion.Normalize(Quaternion.Slerp(rotation, target, blendFactor));
+            }
+
+            // 3) height: the contact points move a little when tilting, so measure the ground again
+            //    and lift (or lower) until the deepest contact point lies exactly on the ground
+            float lift = float.MinValue;
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 contactWorld = position + Vector3.Transform(contactPoints[i], target);
+                float groundHeight = GetGroundHeightBelow(contactWorld, maxStepHeight, typelist, out float h) ? h : groundPoints[i].Y;
+                lift = MathF.Max(lift, groundHeight - contactWorld.Y);
+            }
+            if (MathF.Abs(lift) > maxStepHeight)
+                return false; // in the air or in front of a wall
+
+            SetRotation(target);
+            SetPositionY(position.Y + lift);
+            return true;
+        }
+
+
 
         /// <summary>
         /// Prüft, ob das Objekt gerade mit anderen Objekten kollidiert und gibt die erstbeste Kollision zurück
@@ -584,7 +673,7 @@ namespace KWEngine3.GameObjects
                     }
                 }
             }
-            
+
             return null;
         }
 
@@ -693,7 +782,7 @@ namespace KWEngine3.GameObjects
                 {
                     continue;
                 }
-                
+
                 foreach (GameObjectHitbox hbcaller in _colliderModel._hitboxes)
                 {
                     if (hbother._colliderType == ColliderType.PlaneCollider)
@@ -839,8 +928,9 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public static MouseExt Mouse { get { return GLWindow._mouse; } }
         /// <summary>
-        /// Gibt die Strecke an, die der Mauszeiger seit der letzten Überprüfung zurückgelegt hat
+        /// Gibt die (leicht geglättete) Strecke an, die der Mauszeiger seit dem letzten Simulationsschritt zurückgelegt hat
         /// </summary>
+        /// <remarks>Für die Verwendung in Act() gedacht. Die Summe über alle Simulationsschritte entspricht der tatsächlichen Mausbewegung, die Empfindlichkeit ist daher unabhängig von der Bildrate.</remarks>
         public Vector2 MouseMovement
         {
             get
@@ -1020,8 +1110,8 @@ namespace KWEngine3.GameObjects
 
                 Vector3.Dot(axis, deltaGO, out float e);
                 Vector3.Dot(rayDirection, axis, out float f);
-                float t1 = (e + aabb[0][i]) / f; 
-                float t2 = (e + aabb[1][i]) / f; 
+                float t1 = (e + aabb[0][i]) / f;
+                float t2 = (e + aabb[1][i]) / f;
                 if (t1 > t2)
                 {
                     float w = t1;
@@ -1066,9 +1156,9 @@ namespace KWEngine3.GameObjects
             }
             else
             {
-                if(modelToBeAttached == null)
+                if (modelToBeAttached == null)
                     KWEngine.LogWriteLine("[GameObject] Unknown model - cannot use attachment feature");
-                else if(_model.ModelOriginal.BoneNames.IndexOf(boneName) < 0)
+                else if (_model.ModelOriginal.BoneNames.IndexOf(boneName) < 0)
                     KWEngine.LogWriteLine("[GameObject] Unknown bone name - cannot use attachment feature");
             }
         }
@@ -1169,7 +1259,7 @@ namespace KWEngine3.GameObjects
         /// <returns>1, wenn das aufrufende Objekt näher an der Kamera ist, sonst -1</returns>
         public int CompareTo(GameObject other)
         {
-            if(_colorHighlightMode != HighlightMode.Disabled)
+            if (_colorHighlightMode != HighlightMode.Disabled)
             {
                 return 1;
             }
@@ -1303,7 +1393,7 @@ namespace KWEngine3.GameObjects
                         toBeRemoved.Add(ghbInCollider);
                     }
                 }
-                foreach(GameObjectHitbox ghb in toBeRemoved)
+                foreach (GameObjectHitbox ghb in toBeRemoved)
                 {
                     CurrentWorld._gameObjectHitboxes.Remove(ghb);
                 }
@@ -1321,8 +1411,8 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Gibt Auskunft über den Prozentwert der aktuell gewählten Animation (Werte zwischen 0f und 1f)
         /// </summary>
-        public float AnimationPercentage 
-        { 
+        public float AnimationPercentage
+        {
             get
             {
                 return _stateCurrent.AnimationPercentageDefault;
@@ -1356,7 +1446,7 @@ namespace KWEngine3.GameObjects
         /// <returns>Nach Entfernung aufsteigend sortierte Liste der Messergebnisse</returns>
         public List<RayIntersectionExt> RaytraceObjectsNearby(Vector3 rayOrigin, Vector3 rayDirectionNormalized, params Type[] typelist)
         {
-            if(typelist.Length == 0)
+            if (typelist.Length == 0)
             {
                 KWEngine.LogWriteLine("[GameObject] WARNING: No list of types given for ray testing, assuming type 'GameObject'");
                 typelist = new Type[] { typeof(GameObject) };
@@ -1367,7 +1457,7 @@ namespace KWEngine3.GameObjects
             {
                 if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
                 {
-                    if(rayDirectionNormalized == -Vector3.UnitY && !HelperIntersection.IsPointInsideRectangle(rayOrigin, hb._center, hb._dimensionsAABB.X, hb._dimensionsAABB.Z))
+                    if (rayDirectionNormalized == -Vector3.UnitY && !HelperIntersection.IsPointInsideRectangle(rayOrigin, hb._center, hb._dimensionsAABB.X, hb._dimensionsAABB.Z))
                     {
                         continue;
                     }
@@ -1424,7 +1514,7 @@ namespace KWEngine3.GameObjects
             Vector3 position = Center;
             Vector3 rayDirection;
             Vector3 offset;
-            if(rayMode == RayMode.FourRaysZ || rayMode == RayMode.SingleZ)
+            if (rayMode == RayMode.FourRaysZ || rayMode == RayMode.SingleZ)
             {
                 rayDirection = -LookAtVector;
                 offset = rayDirection * (_obbRadii.Z * 1f);
@@ -1441,7 +1531,7 @@ namespace KWEngine3.GameObjects
                 KWEngine.LogWriteLine("[GameObject] WARNING: No list of types given for ray testing, assuming type 'GameObject'");
                 typelist = new Type[] { typeof(GameObject) };
             }
-            
+
             List<HitboxFace> selectedFaces = _raySelectedFaces; // reused (engine API runs on the main thread)
             selectedFaces.Clear();
             Span<Vector3> vertexBuffer = stackalloc Vector3[HelperIntersection.MAX_STACK_FACE_VERTICES];
@@ -1484,13 +1574,13 @@ namespace KWEngine3.GameObjects
                     rayOrigins = _rayOrigins1;
                     rayOrigins[0] = new Vector3(position);
                 }
-                else if(rayMode == RayMode.TwoRays2DPlatformerY)
+                else if (rayMode == RayMode.TwoRays2DPlatformerY)
                 {
                     rayOrigins = _rayOrigins2;
                     rayOrigins[0] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor);
                     rayOrigins[1] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor);
                 }
-                else if(rayMode == RayMode.FourRaysZ)
+                else if (rayMode == RayMode.FourRaysZ)
                 {
                     rayOrigins = _rayOrigins4;
                     rayOrigins[0] = new Vector3(position + LookAtVectorLocalUp * _obbRadii.Y * sizeFactor); // top
@@ -1498,7 +1588,7 @@ namespace KWEngine3.GameObjects
                     rayOrigins[2] = new Vector3(position - LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // left
                     rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor); // right
                 }
-                else if(rayMode == RayMode.FiveRaysY)
+                else if (rayMode == RayMode.FiveRaysY)
                 {
                     centerIsRay = true;
                     rayOrigins = _rayOrigins5;
@@ -1518,7 +1608,7 @@ namespace KWEngine3.GameObjects
                     rayOrigins[3] = new Vector3(position + LookAtVectorLocalRight * _obbRadii.X * sizeFactor + LookAtVector * _obbRadii.Z * sizeFactor); // right front
                 }
 
-                
+
                 int hits = 0;
                 bool centerInfoFound = false;
                 foreach (HitboxFace face in selectedFaces)
@@ -1526,7 +1616,7 @@ namespace KWEngine3.GameObjects
                     int faceVertexCount = face.Owner._mesh.Faces[face.FaceIndex].VertexCount;
                     Span<Vector3> faceVertices = faceVertexCount <= vertexBuffer.Length ? vertexBuffer.Slice(0, faceVertexCount) : new Vector3[faceVertexCount];
                     face.Owner.GetVerticesFromFace(face.FaceIndex, ref faceVertices, out _);
-                    for(int i = 0; i < rayOrigins.Length; i++)
+                    for (int i = 0; i < rayOrigins.Length; i++)
                     {
                         bool hit = HelperIntersection.RayNGonIntersection(rayOrigins[i], rayDirection, face.Normal, ref faceVertices, out Vector3 currentContact);
                         if (hit)
@@ -1535,7 +1625,7 @@ namespace KWEngine3.GameObjects
                             float dotDelta = Vector3.Dot(-delta, rayDirection);
                             float currentDistance = (delta).LengthFast * (dotDelta >= 0 ? 1f : -1f);
 
-                            
+
 
                             if (currentDistance <= maxDistance && currentDistance >= minDistance)
                             {
@@ -1728,7 +1818,7 @@ namespace KWEngine3.GameObjects
                 lock (KWEngine.CurrentWorld._gameObjectHitboxes)
                 {
                     int indexInWorldList = KWEngine.CurrentWorld._gameObjectHitboxes.IndexOf(h);
-                    if(indexInWorldList >= 0)
+                    if (indexInWorldList >= 0)
                     {
                         KWEngine.CurrentWorld._gameObjectHitboxes.RemoveAt(indexInWorldList);
                     }
@@ -1755,7 +1845,7 @@ namespace KWEngine3.GameObjects
             bool modelFound = KWEngine.Models.TryGetValue(modelname, out GeoModel model);
             if (modelFound)
             {
-                if(model.HasTransparencyTexture && HasTransparencyTexture == false)
+                if (model.HasTransparencyTexture && HasTransparencyTexture == false)
                 {
                     HasTransparencyTexture = model.HasTransparencyTexture;
                 }
@@ -1817,6 +1907,35 @@ namespace KWEngine3.GameObjects
         internal Quaternion _rotationOffsetForAttachment = Quaternion.Identity;
         internal Vector3 _rotationOffsetForAttachmentEuler = Vector3.Zero;
 
+        // Highest ground at the XZ position of the point: terrain, or a collision object
+        // whose surface is at most maxStepHeight above the point.
+        internal bool GetGroundHeightBelow(Vector3 point, float maxStepHeight, Type[] typelist, out float height)
+        {
+            height = float.MinValue;
+            foreach (TerrainObject t in KWEngine.CurrentWorld._terrainObjects)
+            {
+                if (!t.IsCollisionObject)
+                    continue;
+                Vector3 untranslated = new Vector3(point.X - t._hitboxes[0]._center.X, 0f, point.Z - t._hitboxes[0]._center.Z);
+                if (HelperIntersection.GetHeightUnderneathUntranslatedPosition(untranslated, t, out float terrainHeight, out _) && terrainHeight > height)
+                    height = terrainHeight;
+            }
+
+            float top = point.Y + maxStepHeight;
+            Vector3 rayOrigin = new Vector3(point.X, top, point.Z);
+            foreach (GameObjectHitbox hb in _collisionCandidates)
+            {
+                // cheap position check first, the type check (reflection) only for hitboxes below the point
+                if (hb.Owner == this || hb.Owner.ID <= 0 || !HelperIntersection.IsPointInsideRectangle(rayOrigin, hb._center, hb._dimensionsAABB.X, hb._dimensionsAABB.Z))
+                    continue;
+                if (!HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
+                    continue;
+                // the ray test also reports surfaces above the origin, so only accept those below it
+                if (HelperIntersection.RaytraceHitbox(hb, rayOrigin, -Vector3.UnitY, out Vector3 contact, out _) && contact.Y <= top && contact.Y > height)
+                    height = contact.Y;
+            }
+            return height > float.MinValue;
+        }
         internal bool IsRayModeY(RayMode mode)
         {
             return mode == RayMode.SingleY || mode == RayMode.TwoRays2DPlatformerY || mode == RayMode.FourRaysY || mode == RayMode.FiveRaysY;
@@ -1825,10 +1944,10 @@ namespace KWEngine3.GameObjects
 
         internal string GetBoneNameForAttachedGameObject(GameObject g)
         {
-            foreach(GeoNode node in _gameObjectsAttached.Keys)
+            foreach (GeoNode node in _gameObjectsAttached.Keys)
             {
                 GameObject attachedObject = _gameObjectsAttached[node];
-                if(attachedObject == g)
+                if (attachedObject == g)
                 {
                     return node.Name;
                 }
@@ -1836,19 +1955,19 @@ namespace KWEngine3.GameObjects
             return null;
         }
 
-        
+
         internal override void InitHitboxes()
         {
             if (this.ID > 0)
             {
                 RemoveHitboxesFromWorldHitboxList();
             }
-            if(_colliderModel == null)
+            if (_colliderModel == null)
             {
                 _colliderModel = new ColliderModel();
             }
             _colliderModel._hitboxes.Clear();
-            if(_modelNameInDB == "KWSphere")
+            if (_modelNameInDB == "KWSphere")
             {
                 foreach (GeoMeshHitbox gmh in KWEngine.KWSphereCollider.MeshHitboxes)
                 {
@@ -1862,7 +1981,7 @@ namespace KWEngine3.GameObjects
                     _colliderModel._hitboxes.Add(new GameObjectHitbox(this, gmh));
                 }
             }
-            
+
             if (this.ID > 0)
             {
                 UpdateWorldHitboxList();
@@ -1873,7 +1992,7 @@ namespace KWEngine3.GameObjects
         internal void RemoveHitboxesFromWorldHitboxList()
         {
             if (_colliderModel != null)
-            { 
+            {
                 lock (CurrentWorld._gameObjectHitboxes)
                 {
                     foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
@@ -1892,7 +2011,7 @@ namespace KWEngine3.GameObjects
                 {
                     foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
                     {
-                        if(!KWEngine.CurrentWorld._gameObjectHitboxes.Contains(hb))
+                        if (!KWEngine.CurrentWorld._gameObjectHitboxes.Contains(hb))
                             KWEngine.CurrentWorld._gameObjectHitboxes.Add(hb);
                     }
                 }
@@ -1916,7 +2035,7 @@ namespace KWEngine3.GameObjects
             _attachBoneNodes.Clear();
             //_attachBoneNodesOffsets.Clear();
 
-            foreach(GameObject attachment in _gameObjectsAttached.Values)
+            foreach (GameObject attachment in _gameObjectsAttached.Values)
             {
                 DetachGameObjectFromBone(attachment);
             }
@@ -1943,7 +2062,7 @@ namespace KWEngine3.GameObjects
             foreach (GameObjectHitbox hb in _colliderModel._hitboxes)
             {
                 hb.Update(ref _stateCurrent._center, _stateCurrent._expansionFactorXZ);
-                
+
                 if (hb._left < dimMin.X) dimMin.X = hb._left;
                 if (hb._low < dimMin.Y) dimMin.Y = hb._low;
                 if (hb._back < dimMin.Z) dimMin.Z = hb._back;
@@ -1993,16 +2112,22 @@ namespace KWEngine3.GameObjects
         /// <returns>Angaben zur Auflösung der Kollision oder: null, wenn keine Kollision gefunden werden konnte</returns>
         public IntersectionTerrain GetIntersectionWithTerrain()
         {
+            // Contact points must lie inside a terrain triangle (seen from above) and inside the hitbox,
+            // so sectors and triangles that do not overlap the hitbox in x/z are skipped before the expensive tests.
+            // The small margin covers rounding errors.
+            const float margin = 0.01f;
+
             IntersectionTerrain it = null;
-            List<Vector3> allContactPoints = new();
+            List<Vector3> allContactPoints = _terrainContactPointsAll;
+            allContactPoints.Clear();
             float maxMTVY = 0;
             foreach (TerrainSector ts in this._collisionCandidatesTerrain)
             {
-                if(!HelperIntersection.CheckAABBCollision(
-                    this.AABBLeft, 
-                    this.AABBRight, 
-                    this.AABBBack, 
-                    this.AABBFront, 
+                if (!HelperIntersection.CheckAABBCollision(
+                    this.AABBLeft,
+                    this.AABBRight,
+                    this.AABBBack,
+                    this.AABBFront,
                     ts.Terrain._hitboxes[0]._left,
                     ts.Terrain._hitboxes[0]._right,
                     ts.Terrain._hitboxes[0]._back,
@@ -2012,31 +2137,54 @@ namespace KWEngine3.GameObjects
                     continue;
                 }
 
+                Vector3 terrainPosition = ts.Terrain._stateCurrent._position;
+                if (!HelperIntersection.CheckAABBCollision(
+                    this.AABBLeft - margin,
+                    this.AABBRight + margin,
+                    this.AABBBack - margin,
+                    this.AABBFront + margin,
+                    ts.Left + terrainPosition.X,
+                    ts.Right + terrainPosition.X,
+                    ts.Back + terrainPosition.Z,
+                    ts.Front + terrainPosition.Z
+                    ))
+                {
+                    continue;
+                }
+
                 foreach (GeoTerrainTriangle tri in ts.Triangles)
                 {
+                    float triLeft = tri.MinX + terrainPosition.X;
+                    float triRight = tri.MaxX + terrainPosition.X;
+                    float triBack = tri.MinZ + terrainPosition.Z;
+                    float triFront = tri.MaxZ + terrainPosition.Z;
+                    if (triRight < this.AABBLeft - margin || triLeft > this.AABBRight + margin || triFront < this.AABBBack - margin || triBack > this.AABBFront + margin)
+                        continue;
+
+                    Vector3 triVertex0 = tri.Vertices[0] + terrainPosition;
+                    Vector3 triVertex1 = tri.Vertices[1] + terrainPosition;
+                    Vector3 triVertex2 = tri.Vertices[2] + terrainPosition;
                     float dotMax = 0;
 
                     foreach (GameObjectHitbox hb in this._colliderModel._hitboxes)
                     {
-                        if (HelperIntersection.TestIntersectionWithTerrainFace(hb, tri, ref ts.Terrain._stateCurrent._position))
+                        if (triRight < hb._left - margin || triLeft > hb._right + margin || triFront < hb._back - margin || triBack > hb._front + margin)
+                            continue;
+
+                        if (HelperIntersection.TestIntersectionWithTerrainFace(hb, tri, ref terrainPosition))
                         {
-                            List<Vector3> contactPoints = HelperIntersection.ClipOBBAgainstTriangle(hb, tri, ts.Terrain, ref ts.Terrain._stateCurrent._position, out Vector3 volumePosCenter);
-                            
-                            for (int i = 0; i < contactPoints.Count; i++)
+                            int pointCount = HelperIntersection.ClipOBBAgainstTriangle(hb, tri, ref terrainPosition);
+                            for (int i = 0; i < pointCount; i++)
                             {
-                                Vector3 contactPoint = contactPoints[i];
-                                
+                                Vector3 contactPoint = HelperIntersection._terrainClipPoints[i];
 
                                 // filter: only use points that are right on the triangle face
-                                if (GeoTerrainTriangle.IsPointInTriangle(contactPoint, 
-                                    tri.Vertices[0] + ts.Terrain._stateCurrent._position, 
-                                    tri.Vertices[1] + ts.Terrain._stateCurrent._position, 
-                                    tri.Vertices[2] + ts.Terrain._stateCurrent._position))
+                                if (GeoTerrainTriangle.IsPointInTriangle(contactPoint, triVertex0, triVertex1, triVertex2))
                                 {
                                     allContactPoints.Add(contactPoint);
 
                                     // look for the point that is farthest from the triangle surface:
-                                    float dot = Vector3.Dot(contactPoint - (tri.Vertices[0] + ts.Terrain._stateCurrent._position), -tri.Normal);
+                                    float dot = Vector3.Dot(contactPoint - triVertex0, -tri.Normal);
                                     if (dot >= dotMax)
                                     {
                                         dotMax = dot;
@@ -2045,7 +2193,7 @@ namespace KWEngine3.GameObjects
                                             KWEngine.WorldUp,
                                             contactPoint - KWEngine.WorldUp,
                                             tri.Normal,
-                                            tri.Vertices[0] + ts.Terrain._stateCurrent._position
+                                            triVertex0
                                             ))
                                         {
                                             float deltaY = pointOnTriangle.Y - contactPoint.Y;
@@ -2070,9 +2218,9 @@ namespace KWEngine3.GameObjects
                 // END OF TRIANGLE LOOP
             }
             // END OF TERRAIN LOOP
-            if(it != null)
+            if (it != null)
             {
-                it.ContactPoints = allContactPoints;
+                it.ContactPoints = new List<Vector3>(allContactPoints);
             }
             return it;
         }
@@ -2082,10 +2230,13 @@ namespace KWEngine3.GameObjects
         internal Vector3 _obbRadii = new Vector3(0.5f);
 
         internal static readonly List<HitboxFace> _raySelectedFaces = new();
+        internal static readonly List<Vector3> _terrainContactPointsAll = new();
         internal static Vector3[] _rayOrigins1 = new Vector3[1];
         internal static Vector3[] _rayOrigins2 = new Vector3[2];
         internal static Vector3[] _rayOrigins4 = new Vector3[4];
         internal static Vector3[] _rayOrigins5 = new Vector3[5];
+        internal static readonly Vector3[] _alignContactPoints = new Vector3[4];
+        internal static readonly Type[] _alignDefaultTypes = new Type[] { typeof(GameObject) };
 
         internal Vector4 _colorHighlight = new Vector4(1f, 1f, 1f, 1f);
         internal HighlightMode _colorHighlightMode = HighlightMode.Disabled;

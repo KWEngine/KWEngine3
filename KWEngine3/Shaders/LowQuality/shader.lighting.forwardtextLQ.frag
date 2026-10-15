@@ -479,20 +479,18 @@ vec3 fogVolumeDepth(int i, vec3 cameraPosition, vec3 rayDir, float dist)
     return vec3(tau * factor, outer);
 }
 
-// fog between camera and world position: xyz = in-scattered fog color, w = remaining transmittance
-vec4 fogIntegrate(vec3 cameraPosition, vec3 worldPosition)
+// fog along the view ray (0..dist): xyz = in-scattered fog color, w = remaining transmittance
+// the global fog is taken from its own ray (globalDir, 0..globalDist with globalDist <= dist) - the view ray itself
+// for all surfaces, only background pixels use a different one. Fog volumes always follow the view ray.
+vec4 fogIntegrateRay(vec3 cameraPosition, vec3 rayDir, float dist, vec3 globalDir, float globalDist)
 {
     int volumeCount = int(uFogVolumeInfo.x + 0.5);
     if (uFogColorDensity.w <= 0.0 && volumeCount == 0)
         return vec4(0.0, 0.0, 0.0, 1.0);
 
-    vec3 cameraToFragment = worldPosition - cameraPosition;
-    float dist = length(cameraToFragment);
-    vec3 rayDir = cameraToFragment / max(dist, 0.0001);
-
     float baseHeight;
     vec3 noiseFactors;
-    fogGlobalSetup(cameraPosition, rayDir, dist, worldPosition, baseHeight, noiseFactors);
+    fogGlobalSetup(cameraPosition, globalDir, globalDist, cameraPosition + globalDir * globalDist, baseHeight, noiseFactors);
 
     // volumes hit by the ray (optical depth spread evenly over the segment)
     vec2 hitSegment[FOG_MAX_VOLUMES];
@@ -528,7 +526,7 @@ vec4 fogIntegrate(vec3 cameraPosition, vec3 worldPosition)
         vec4 medium = vec4(0.0); // xyz = color weighted by optical depth, w = optical depth
         if (uFogColorDensity.w > 0.0)
         {
-            float tauGlobal = fogGlobalDepth(cameraPosition, rayDir, t, tNext, dist, baseHeight, noiseFactors);
+            float tauGlobal = fogGlobalDepth(cameraPosition, globalDir, t, tNext, globalDist, baseHeight, noiseFactors);
             medium += vec4(uFogColorDensity.xyz * tauGlobal, tauGlobal);
         }
         float tCenter = 0.5 * (t + tNext);
@@ -552,6 +550,44 @@ vec4 fogIntegrate(vec3 cameraPosition, vec3 worldPosition)
             break;
     }
     return vec4(inscatter, transmittance);
+}
+
+// fog between camera and world position: xyz = in-scattered fog color, w = remaining transmittance
+vec4 fogIntegrate(vec3 cameraPosition, vec3 worldPosition)
+{
+    vec3 cameraToFragment = worldPosition - cameraPosition;
+    float dist = length(cameraToFragment);
+    vec3 rayDir = cameraToFragment / max(dist, 0.0001);
+    return fogIntegrateRay(cameraPosition, rayDir, dist, rayDir, dist);
+}
+
+// fog in front of the background (nothing rendered there, farPosition lies on the far plane)
+vec4 fogIntegrateBackground(vec3 cameraPosition, vec3 farPosition)
+{
+    vec3 cameraToFar = farPosition - cameraPosition;
+    float dist = length(cameraToFar);
+    vec3 rayDir = cameraToFar / max(dist, 0.0001);
+    vec3 globalDir = rayDir;
+    float globalDist = dist;
+    if (rayDir.y < 0.0 && uFogColorDensity.w > 0.0)
+    {
+        // Below the horizon a ray to the far plane runs into denser and denser height fog, so the distant fog
+        // would look like a flat disc with a hard edge at the horizon. Instead the background gets the stronger of:
+        // a) a ground that continues the scene at the base height (at least a little below the camera)
+        // b) the fog of the sky at the same angle above the horizon
+        // Both match the sky at the horizon, so there is no edge.
+        float falloff = uFogHeightFalloff.y;
+        float groundHeight = min(uFogHeightFalloff.x, cameraPosition.y - (falloff > 1.0 ? 1.0 / falloff : 1.0));
+        float groundDist = min((cameraPosition.y - groundHeight) / -rayDir.y, dist);
+        vec3 skyDir = vec3(rayDir.x, -rayDir.y, rayDir.z);
+        float tauGround = fogOpticalDepthHeight(cameraPosition, rayDir, groundDist, uFogColorDensity.w, uFogHeightFalloff.x, falloff);
+        float tauSky = fogOpticalDepthHeight(cameraPosition, skyDir, dist, uFogColorDensity.w, uFogHeightFalloff.x, falloff);
+        if (tauSky > tauGround)
+            globalDir = skyDir;
+        else
+            globalDist = groundDist;
+    }
+    return fogIntegrateRay(cameraPosition, rayDir, dist, globalDir, globalDist);
 }
 
 // return value: 0 = clear sight, 1 = completely fogged
