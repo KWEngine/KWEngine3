@@ -16,7 +16,6 @@ namespace KWEngine3.Renderer
         public static int UViewProjectionMatrix { get; private set; } = -1;
         public static int UNumber { get; private set; } = -1;
         public static int USpreadSizeLength { get; private set; } = -1;
-        public static int UDirection { get; private set; } = -1;
         public static int UPosition { get; private set; } = -1;
         public static int USeed { get; private set; } = -1;
         public static int UAlgorithm { get; private set; } = -1;
@@ -65,7 +64,6 @@ namespace KWEngine3.Renderer
                 UTowardsIndex = GL.GetUniformLocation(ProgramID, "uTowardsIndex");
                 UColor = GL.GetUniformLocation(ProgramID, "uColor");
                 UDirectionMatrix = GL.GetUniformLocation(ProgramID, "uDirectionMatrix");
-                UDirection = GL.GetUniformLocation(ProgramID, "uDirection");
             }
         }
 
@@ -100,13 +98,16 @@ namespace KWEngine3.Renderer
 
             GL.Uniform3(UColorEmissive, e.ColorEmissive);
             GL.Uniform1(UNumber, (float)e._amount);
-            GL.Uniform3(USpreadSizeLength, e._spread, e._particleSize, e._directionLength);
+            float directionLength = e._direction.Length;
+            if (directionLength < 0.0001f)
+                directionLength = 0f;
+            Matrix4 directionMatrix = GetDirectionMatrix(e._direction, directionLength);
+            GL.Uniform3(USpreadSizeLength, e._spread, e._particleSize, directionLength);
             GL.Uniform3(UPosition, e.Position);
             GL.Uniform1(UTime, e._secondsAlive / e._duration);
             GL.Uniform1(UAlgorithm, (int)e._algorithm);
             GL.Uniform3(UColor, e.Color);
-            GL.Uniform3(UDirection, e._direction);
-            GL.UniformMatrix4(UDirectionMatrix, false, ref e._directionMatrix);
+            GL.UniformMatrix4(UDirectionMatrix, false, ref directionMatrix);
 
             if (type < 100)
                 GL.Uniform1(UTowardsIndex, 0);
@@ -125,5 +126,22 @@ namespace KWEngine3.Renderer
             GL.BindVertexArray(0);
         }
 
+
+        // rotation that turns the y axis into the given direction (identity if there is no direction)
+        private static Matrix4 GetDirectionMatrix(Vector3 direction, float length)
+        {
+            if (length == 0f)
+                return Matrix4.Identity;
+
+            Vector3 target = direction / length;
+            float dot = target.Y;
+            if (dot > 0.99999f)
+                return Matrix4.Identity;
+            if (dot < -0.99999f)
+                return Matrix4.CreateRotationX(MathHelper.Pi);
+
+            Vector3 rotationAxis = Vector3.Normalize(Vector3.Cross(Vector3.UnitY, target));
+            return Matrix4.CreateFromAxisAngle(rotationAxis, MathF.Acos(dot));
+        }
     }
 }

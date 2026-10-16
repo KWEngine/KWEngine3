@@ -194,7 +194,7 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Richtung der Explosion
         /// </summary>
-        /// <remarks>Wirkt nicht für alle Explosionsalgorithmen gleich</remarks>
+        /// <remarks>Die Wirkung hängt vom Animationsalgorithmus ab (siehe ExplosionAnimation); der Nullvektor (Standardwert) bedeutet: keine Richtung</remarks>
         /// <param name="x">x-Komponente des relativen Richtungsvektors</param>
         /// <param name="y">y-Komponente des relativen Richtungsvektors</param>
         /// <param name="z">z-Komponente des relativen Richtungsvektors</param>
@@ -206,29 +206,11 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt die Richtung der Explosion
         /// </summary>
-        /// <remarks>Wirkt nicht für alle Explosionsalgorithmen gleich</remarks>
+        /// <remarks>Die Wirkung hängt vom Animationsalgorithmus ab (siehe ExplosionAnimation); der Nullvektor (Standardwert) bedeutet: keine Richtung</remarks>
         /// <param name="direction">relativer Richtungsvektor</param>
         public void SetDirection(Vector3 direction)
         {
-            Vector3 target = Vector3.NormalizeFast(direction);
-            Vector3 defaultUp = Vector3.UnitY;
-
-            float dot = Vector3.Dot(defaultUp, target);
-            if (dot > 0.99f)
-            {
-                _directionMatrix = Matrix4.Identity;
-            }
-            else if (dot < -0.99f)
-            {
-                _directionMatrix = Matrix4.CreateRotationX(MathHelper.Pi);
-            }
-            else
-            {
-                Vector3 rotationAxis = Vector3.NormalizeFast(Vector3.Cross(defaultUp, target));
-                _directionMatrix = Matrix4.CreateFromAxisAngle(rotationAxis, MathF.Acos(dot));
-            }
-            _direction = target;
-            _directionLength = direction.LengthFast;
+            _direction = direction;
         }
 
 
@@ -239,9 +221,7 @@ namespace KWEngine3.GameObjects
         internal float _starttime = -1;
         internal float _secondsAlive = 0;
         internal float _particleSize = 0.5f;
-        internal Matrix4 _directionMatrix = Matrix4.Identity;
-        internal float _directionLength = 1.0f;
-        internal Vector3 _direction = Vector3.One;
+        internal Vector3 _direction = Vector3.Zero;
         internal float _seed = 0f;
         internal ExplosionAnimation _algorithm = 0;
         internal ExplosionType _type = ExplosionType.Cube;

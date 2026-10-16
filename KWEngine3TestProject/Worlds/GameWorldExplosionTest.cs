@@ -4,21 +4,52 @@ using KWEngine3TestProject.Classes;
 using KWEngine3TestProject.Classes.WorldExplosionTest;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Globalization;
 
 namespace KWEngine3TestProject.Worlds
 {
     internal class GameWorldExplosionTest : World
     {
         private float _timestamp = 0f;
+        private ExplosionAnimation _algorithm = ExplosionAnimation.Spread;
+        private int _typeIndex = 0;
+        private readonly ExplosionType[] _types = { ExplosionType.Cube, ExplosionType.CubeRingY, ExplosionType.CubeRingZ };
+        private int _directionIndex = 0;
+        private readonly Vector3[] _directions = { Vector3.Zero, new Vector3(0, 1, 0), new Vector3(0, 3, 0), new Vector3(3, 3, 3), new Vector3(-2, 0.5f, 0), new Vector3(0, -3, 0), new Vector3(1, -3, 0) };
+        private HUDObjectText _info;
+
         public override void Act()
         {
+            // arrow keys: left/right = algorithm, up/down = explosion type, tab = direction
+            ExplosionAnimation[] algorithms = Enum.GetValues<ExplosionAnimation>();
+            int algorithmIndex = Array.IndexOf(algorithms, _algorithm);
+            int typeIndex = _typeIndex;
+            if (Keyboard.IsKeyPressed(Keys.Right))
+                algorithmIndex = (algorithmIndex + 1) % algorithms.Length;
+            if (Keyboard.IsKeyPressed(Keys.Left))
+                algorithmIndex = (algorithmIndex + algorithms.Length - 1) % algorithms.Length;
+            if (Keyboard.IsKeyPressed(Keys.Up))
+                typeIndex = (typeIndex + 1) % _types.Length;
+            if (Keyboard.IsKeyPressed(Keys.Down))
+                typeIndex = (typeIndex + _types.Length - 1) % _types.Length;
+            int directionIndex = _directionIndex;
+            if (Keyboard.IsKeyPressed(Keys.Tab))
+                directionIndex = (directionIndex + 1) % _directions.Length;
+            if (algorithms[algorithmIndex] != _algorithm || typeIndex != _typeIndex || directionIndex != _directionIndex)
+            {
+                _algorithm = algorithms[algorithmIndex];
+                _typeIndex = typeIndex;
+                _directionIndex = directionIndex;
+                UpdateInfo();
+            }
+
             if (WorldTime - _timestamp > 1.5f)
             {
                 _timestamp = WorldTime;
-                ExplosionObject ex = new ExplosionObject(128, 0.2f, 2f, 1.5f, ExplosionType.Cube);
+                ExplosionObject ex = new ExplosionObject(128, 0.2f, 2f, 1.5f, _types[_typeIndex]);
                 ex.SetPosition(0, 3, 0);
-                ex.SetAlgorithm(ExplosionAnimation.Spread);
-                ex.SetDirection(3, 3, 3);
+                ex.SetAlgorithm(_algorithm);
+                ex.SetDirection(_directions[_directionIndex]);
                 ex.SetColor(1f, 1f, 1f);
                 ex.SetColorEmissive(0.5f, 0.5f, 0.5f);
                 AddExplosionObject(ex);
@@ -66,8 +97,21 @@ namespace KWEngine3TestProject.Worlds
 
             SetCameraToFirstPersonGameObject(p);
 
+            _info = new HUDObjectText();
+            _info.SetPosition(16, 32);
+            _info.SetScale(20);
+            AddHUDObject(_info);
+            UpdateInfo();
+
             MouseCursorGrab();
 
+        }
+
+        private void UpdateInfo()
+        {
+            Vector3 d = _directions[_directionIndex];
+            string direction = d == Vector3.Zero ? "keine" : string.Format(CultureInfo.InvariantCulture, "({0}, {1}, {2})", d.X, d.Y, d.Z);
+            _info.SetText("Algorithmus (links/rechts): " + _algorithm + " | Typ (hoch/runter): " + _types[_typeIndex] + " | Richtung (Tab): " + direction);
         }
     }
 }

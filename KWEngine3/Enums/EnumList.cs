@@ -629,26 +629,41 @@
     public enum ExplosionAnimation
     {
         /// <summary>
-        /// Standard-Animationsalgorithmus (Partikel fliegen in randomisierte Richtungen)
+        /// Standard-Animationsalgorithmus (Partikel fliegen gleichmäßig verteilt in zufällige Richtungen); mit SetDirection() fliegen sie in einen Kegel um die Richtung (Länge 1 = Halbkugel, längerer Vektor = engerer Kegel)
         /// </summary>
         Spread = 0,
         /// <summary>
-        /// Partikel wandern in die durch SetDirection() vorgegebene Richtung
+        /// Partikel wandern in die durch SetDirection() vorgegebene Richtung; die Länge des Richtungsvektors bestimmt die Strecke
         /// </summary>
         WindUp = 1,
         /// <summary>
-        /// Partikel wirbeln entlang der durch SetDirection() vorgegebenen Richtung
+        /// Partikel wirbeln entlang der durch SetDirection() vorgegebenen Richtung; die Länge des Richtungsvektors bestimmt die Strecke
         /// </summary>
         WhirlwindUp = 2,
         /// <summary>
-        /// Partikel fliegen entlang der durch SetDirection() vorgegebenen Richtung 
+        /// Partikel fliegen entlang der durch SetDirection() vorgegebenen Richtung; die Länge des Richtungsvektors bestimmt die Strecke
         /// </summary>
         Exhaust = 3,
         /// <summary>
-        /// Partikel simulieren einen Funkenflug entlang der durch SetDirection() vorgegebenen Richtung
+        /// Partikel simulieren einen Funkenflug, der durch die Schwerkraft absinkt; mit SetDirection() fliegen die Funken zusätzlich in die Richtung (Länge des Richtungsvektors = Strecke)
         /// </summary>
-        Spark = 4
-
+        Spark = 4,
+        /// <summary>
+        /// Partikel werden wirbelnd in die Mitte gesogen (Implosion); der Explosionsradius bestimmt, wie weit außen die Partikel starten. Ohne Richtung stieben sie am Ende kurz auseinander, mit SetDirection() wird die gesammelte Kugel in die Richtung abgefeuert (Länge des Richtungsvektors = Flugstrecke)
+        /// </summary>
+        Implode = 5,
+        /// <summary>
+        /// Partikel zerplatzen wie eine Feuerwerkskugel (bzw. ein Ring), die langsam absinkt; mit SetDirection() steigt vorher eine Rakete in die Richtung auf (Länge des Richtungsvektors = Steighöhe)
+        /// </summary>
+        Firework = 6,
+        /// <summary>
+        /// Partikel werden fortlaufend entlang der durch SetDirection() vorgegebenen Richtung ausgestoßen und fallen in Bögen wieder herunter (Fontäne); die Länge des Richtungsvektors bestimmt die Höhe, der Explosionsradius die seitliche Weite (ohne Richtung: senkrecht nach oben, Höhe = Explosionsradius)
+        /// </summary>
+        Fountain = 7,
+        /// <summary>
+        /// Partikel trudeln von einer waagerechten Fläche um den Explosionsmittelpunkt herab, z. B. als Geld-, Herz- oder Konfettiregen; der Explosionsradius bestimmt die Größe der Fläche, SetDirection() die Fallrichtung und -strecke (ohne Richtung: senkrecht nach unten, Strecke = Explosionsradius); bei Ring-Explosionen starten die Partikel auf einem Kreis
+        /// </summary>
+        Rain = 8
     }
 
     /// <summary>

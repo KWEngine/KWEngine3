@@ -59,7 +59,7 @@
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <NestedTypes>
-      <Enum Name="KWEngine3.GLWindow.DisposeStatus" Collapsed="true">
+      <Enum Name="KWEngine3.GLWindow.DisposeStatus">
         <TypeIdentifier>
           <NewMemberFileName>GLWindow.cs</NewMemberFileName>
         </TypeIdentifier>
@@ -1013,8 +1013,6 @@
       <Field Name="_color" Hidden="true" />
       <Field Name="_colorEmissive" Hidden="true" />
       <Field Name="_direction" Hidden="true" />
-      <Field Name="_directionLength" Hidden="true" />
-      <Field Name="_directionMatrix" Hidden="true" />
       <Field Name="_duration" Hidden="true" />
       <Field Name="_model" Hidden="true" />
       <Field Name="_particleSize" Hidden="true" />
@@ -1027,7 +1025,7 @@
       <Field Name="MAX_PARTICLES" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEBgAACAAQAIAAQEApQAAAgAAAAAAgAAAAjIggDRIEA=</HashCode>
+      <HashCode>AABgAACAAQAIAAQEApQAAAgAAAAAAgAAAAjIggDQIEA=</HashCode>
       <FileName>GameObjects\ExplosionObject.cs</FileName>
     </TypeIdentifier>
   </Class>
