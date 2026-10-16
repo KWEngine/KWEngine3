@@ -23,6 +23,7 @@ namespace KWEngine3TestProject.Worlds
 
         public override void Prepare()
         {
+            KWEngine.MouseSensitivity = 0.025f;
             KWEngine.DebugOverlayMode = DebugOverlayMode.MembersOnly;
             SetupLoadingScreen();
 
@@ -73,12 +74,18 @@ namespace KWEngine3TestProject.Worlds
             AddLightObject(sun);
 
             SetColorAmbient(0.25f, 0.25f, 0.25f);
+            SetBackgroundSkybox("./Textures/skybox.png", 0f, SkyboxType.CubeMap);
+            SetBackgroundBrightnessMultiplier(2.5f);
 
             if (!Camera.CAM_DISABLE)
                 MouseCursorGrab();
 
             SetCameraPosition(0, 50, -2);
             SetCameraTarget(0, 0, -2);
+
+            SetFogDensity(0.01f);
+            SetFogHeight(2f, 0.125f);
+
         }
 
         public Player GetPlayer()

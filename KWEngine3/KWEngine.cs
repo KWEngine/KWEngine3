@@ -55,8 +55,12 @@ namespace KWEngine3
         public static GBufferLightingMode GBufferLighting { get; set; } = GBufferLightingMode.Default;
 
         /// <summary>
-        /// Empfindlichkeit des Mauszeigers im First-Person-Modus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)
+        /// Empfindlichkeit der Maus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)
         /// </summary>
+        /// <remarks>
+        /// Wird automatisch in MouseMovement und Mouse.GetDelta() eingerechnet und muss daher nicht selbst multipliziert werden. 
+        /// Wirkt außerdem auf die Kamerasteuerung im Editor.
+        /// </remarks>
         public static float MouseSensitivity { get; set; } = 0.05f;
 
         /// <summary>
@@ -70,14 +74,17 @@ namespace KWEngine3
         public static KeyboardExt Keyboard { get { return GLWindow._keyboard; } }
 
         /// <summary>
-        /// Gibt die (leicht geglättete) Strecke an, die der Mauszeiger seit dem letzten Simulationsschritt zurückgelegt hat
+        /// Gibt die (leicht geglättete) Mausbewegung seit dem letzten Simulationsschritt an (bereits mit KWEngine.MouseSensitivity multipliziert)
         /// </summary>
-        /// <remarks>Für die Verwendung in Act() gedacht. KWEngine.MouseSensitivity ist nicht eingerechnet und muss bei Bedarf selbst multipliziert werden.</remarks>
+        /// <remarks>
+        /// Für die Verwendung in Act() gedacht. 
+        /// KWEngine.MouseSensitivity ist bereits eingerechnet und sollte nicht noch einmal multipliziert werden (negative Werte invertieren nur die y-Achse).
+        /// </remarks>
         public static Vector2 MouseMovement
         {
             get
             {
-                return Window._mouseDeltaToUse;
+                return Window.GetMouseMovementWithSensitivity();
             }
         }
 

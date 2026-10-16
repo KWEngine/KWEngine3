@@ -8,7 +8,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace KWEngine3TestProject.Worlds
 {
-    public class GameWorldLightAndShadow : World
+    public class GameWorldLightAndShadow : WorldPerformance
     {
         private LightObject _sun;
         private float _sunDegrees = -45f;

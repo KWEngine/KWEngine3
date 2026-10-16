@@ -827,14 +827,17 @@ namespace KWEngine3
         public bool IsPrepared { get; internal set; } = false;
 
         /// <summary>
-        /// Gibt die (leicht geglättete) Strecke an, die der Mauszeiger seit dem letzten Simulationsschritt zurückgelegt hat
+        /// Gibt die (leicht geglättete) Mausbewegung seit dem letzten Simulationsschritt an
         /// </summary>
-        /// <remarks>Für die Verwendung in Act() gedacht. KWEngine.MouseSensitivity ist nicht eingerechnet und muss bei Bedarf selbst multipliziert werden.</remarks>
+        /// <remarks>
+        /// Für die Verwendung in Act() gedacht.
+        /// KWEngine.MouseSensitivity ist bereits eingerechnet und darf nicht noch einmal multipliziert werden (negative Werte invertieren nur die y-Achse).
+        /// </remarks>
         public Vector2 MouseMovement
         {
             get
             {
-                return KWEngine.Window._mouseDeltaToUse;
+                return KWEngine.Window.GetMouseMovementWithSensitivity();
             }
         }
 
@@ -2028,18 +2031,20 @@ namespace KWEngine3
         {
             if (_mouseCursorJustGrabbed)
                 return;
-            _cameraGame.YawAndPitch(new Vector2(KWEngine.Window._mouseDeltaToUse.X * Math.Abs(KWEngine.MouseSensitivity), KWEngine.Window._mouseDeltaToUse.Y * KWEngine.MouseSensitivity));
-            //_cameraGame.YawAndPitch(new Vector2(KWEngine.Window.MouseState.Delta.X * Math.Abs(KWEngine.MouseSensitivity), KWEngine.Window.MouseState.Delta.Y * KWEngine.MouseSensitivity));
+            _cameraGame.YawAndPitch(KWEngine.Window.GetMouseMovementWithSensitivity());
         }
 
         /// <summary>
-        /// Rotiert die Kamera gemäß des gegebenen Bewegungsdeltas
+        /// Rotiert die Kamera um die angegebenen Winkel (in Grad)
         /// </summary>
-        /// <remarks>Das Delta wird intern mit KWEngine.MouseSensitivity multipliziert und darf daher nicht bereits damit verrechnet sein. Ein negativer Wert für KWEngine.MouseSensitivity invertiert (wie bei AddCameraRotationFromMouseDelta()) nur die y-Achse.</remarks>
-        /// <param name="yawPitch">Bewegung in x-/y-Richtung (Delta, ohne Berücksichtigung von KWEngine.MouseSensitivity)</param>
+        /// <remarks>
+        /// Die Werte werden unverändert übernommen (KWEngine.MouseSensitivity wird hier nicht angewendet). 
+        /// MouseMovement kann direkt übergeben werden, da dort die Empfindlichkeit bereits eingerechnet ist.
+        /// </remarks>
+        /// <param name="yawPitch">Drehung um die y-Achse (x-Wert) und Neigung nach oben/unten (y-Wert) in Grad</param>
         public void AddCameraRotation(Vector2 yawPitch)
         {
-            _cameraGame.YawAndPitch(new Vector2(yawPitch.X * Math.Abs(KWEngine.MouseSensitivity), yawPitch.Y * KWEngine.MouseSensitivity));
+            _cameraGame.YawAndPitch(yawPitch);
         }
 
         /// <summary>

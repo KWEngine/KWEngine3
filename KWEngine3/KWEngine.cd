@@ -31,6 +31,7 @@
       <Method Name="CollectMouseMovement" Hidden="true" />
       <Method Name="DisposeInternal" Hidden="true" />
       <Method Name="GetMonitorHandleForPointer" Hidden="true" />
+      <Method Name="GetMouseMovementWithSensitivity" Hidden="true" />
       <Method Name="GetWindowFramebufferSize" Hidden="true" />
       <Field Name="lastCycleCount" Hidden="true" />
       <Field Name="MOUSEMOVEMENTSCALE" Hidden="true" />
@@ -65,7 +66,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>RD6EAAAIxUAEAQeQ0BkBhEASkxoEBCQIKAEEmEWuogA=</HashCode>
+      <HashCode>RD6EAAAIxUAEAQeQ0BkBhEASkxoEBCQMKAEEmEWuogA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -655,6 +656,7 @@
       <Method Name="AddRotationYFromEditor" Hidden="true" />
       <Method Name="AddRotationZFromEditor" Hidden="true" />
       <Method Name="CheckPositionAndCenter" Hidden="true" />
+      <Method Name="GetHeadingXZ" Hidden="true" />
       <Property Name="HasArmatureAndAnimations" Hidden="true" />
       <Property Name="HasEmissiveTexture" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />

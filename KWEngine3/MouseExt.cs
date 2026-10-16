@@ -77,7 +77,7 @@ namespace KWEngine3
 
                         }
                         else
-                        { 
+                        {
                             return t.FrameConsumed == GLWindow._frame;
                         }
                     }
@@ -104,13 +104,15 @@ namespace KWEngine3
         }
 
         /// <summary>
-        /// Gibt die Mausbewegung als Delta-Wert für beide Achsen zurück (leicht geglättete Strecke seit dem letzten Simulationsschritt, entspricht MouseMovement)
+        /// Gibt die Mausbewegung als Delta-Wert für beide Achsen zurück (leicht geglättet, seit dem letzten Simulationsschritt, entspricht MouseMovement)
         /// </summary>
-        /// <remarks>KWEngine.MouseSensitivity ist nicht eingerechnet und muss bei Bedarf selbst multipliziert werden.</remarks>
+        /// <remarks>
+        /// KWEngine.MouseSensitivity ist bereits eingerechnet und sollte nicht noch einmal multipliziert werden (negative Werte invertieren nur die y-Achse).
+        /// </remarks>
         /// <returns>Delta-Wert der Mauszeigerbewegung (seit dem letzten Simulationsschritt)</returns>
         public Vector2 GetDelta()
         {
-            return KWEngine.Window._mouseDeltaToUse;
+            return KWEngine.Window.GetMouseMovementWithSensitivity();
         }
     }
 }

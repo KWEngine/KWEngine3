@@ -64,10 +64,10 @@ namespace KWEngine3TestProject.Classes.WorldThirdPersonView
 
             // Wenn sich die Spielfigur mitdrehen soll, muss hier
             // die Mausbewegung auch zur Player-Rotation addiert werden!
-            this.AddRotationY(-MouseMovement.X * KWEngine.MouseSensitivity);
+            this.AddRotationY(-MouseMovement.X);
 
             // Diese Methode berechnet die neue Kameraposition:
-            UpdateCameraPosition(MouseMovement * KWEngine.MouseSensitivity);
+            UpdateCameraPosition(MouseMovement);
 
             bool running = false;
             int move = 0;

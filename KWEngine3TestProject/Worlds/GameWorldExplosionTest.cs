@@ -12,7 +12,7 @@ namespace KWEngine3TestProject.Worlds
         private float _timestamp = 0f;
         public override void Act()
         {
-            if(WorldTime - _timestamp > 1.5f)
+            if (WorldTime - _timestamp > 1.5f)
             {
                 _timestamp = WorldTime;
                 ExplosionObject ex = new ExplosionObject(128, 0.2f, 2f, 1.5f, ExplosionType.Cube);

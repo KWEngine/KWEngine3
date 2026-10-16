@@ -30,8 +30,8 @@ namespace KWEngine3TestProject.Classes.WorldPlaneCollisionTest
 
         public override void Act()
         {
-            AddRotationY(-MouseMovement.X * KWEngine.MouseSensitivity);
-            UpdateCameraPosition(MouseMovement * KWEngine.MouseSensitivity);
+            AddRotationY(-MouseMovement.X);
+            UpdateCameraPosition(MouseMovement);
 
             Vector3 movementVector = Vector3.Zero;
             if (Keyboard.IsKeyDown(Keys.D))

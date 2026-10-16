@@ -928,14 +928,17 @@ namespace KWEngine3.GameObjects
         /// </summary>
         public static MouseExt Mouse { get { return GLWindow._mouse; } }
         /// <summary>
-        /// Gibt die (leicht geglättete) Strecke an, die der Mauszeiger seit dem letzten Simulationsschritt zurückgelegt hat
+        /// Gibt die (leicht geglättete) Mausbewegung seit dem letzten Simulationsschritt an.
         /// </summary>
-        /// <remarks>Für die Verwendung in Act() gedacht. Die Summe über alle Simulationsschritte entspricht der tatsächlichen Mausbewegung, die Empfindlichkeit ist daher unabhängig von der Bildrate. KWEngine.MouseSensitivity ist nicht eingerechnet und muss bei Bedarf selbst multipliziert werden.</remarks>
+        /// <remarks>
+        /// Für die Verwendung in Act() gedacht. 
+        /// KWEngine.MouseSensitivity ist bereits eingerechnet und darf nicht noch einmal multipliziert werden (negative Werte invertieren nur die y-Achse).
+        /// </remarks>
         public Vector2 MouseMovement
         {
             get
             {
-                return KWEngine.Window._mouseDeltaToUse;
+                return KWEngine.Window.GetMouseMovementWithSensitivity();
             }
         }
 

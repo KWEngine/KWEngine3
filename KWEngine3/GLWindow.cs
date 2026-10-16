@@ -89,6 +89,13 @@ namespace KWEngine3
             return step * MOUSEMOVEMENTSCALE;
         }
 
+        // Mouse movement of the current simulation step with KWEngine.MouseSensitivity applied.
+        // A negative sensitivity only inverts the y axis.
+        internal Vector2 GetMouseMovementWithSensitivity()
+        {
+            return new Vector2(_mouseDeltaToUse.X * MathF.Abs(KWEngine.MouseSensitivity), _mouseDeltaToUse.Y * KWEngine.MouseSensitivity);
+        }
+
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             HelperGeneral.DecideBuildType();
@@ -260,14 +267,14 @@ namespace KWEngine3
         public MouseExt Mouse { get { return GLWindow._mouse; } }
 
         /// <summary>
-        /// Gibt die (leicht geglättete) Strecke an, die der Mauszeiger seit dem letzten Simulationsschritt zurückgelegt hat
+        /// Gibt die (leicht geglättete) Mausbewegung seit dem letzten Simulationsschritt an (bereits mit KWEngine.MouseSensitivity multipliziert)
         /// </summary>
-        /// <remarks>Für die Verwendung in Act() gedacht. KWEngine.MouseSensitivity ist nicht eingerechnet und muss bei Bedarf selbst multipliziert werden.</remarks>
+        /// <remarks>Für die Verwendung in Act() gedacht. Die Summe über alle Simulationsschritte entspricht der tatsächlichen Mausbewegung, die Empfindlichkeit ist daher unabhängig von der Bildrate. KWEngine.MouseSensitivity ist bereits eingerechnet und darf nicht noch einmal multipliziert werden (negative Werte invertieren nur die y-Achse).</remarks>
         public Vector2 MouseMovement
         {
             get
             {
-                return KWEngine.Window._mouseDeltaToUse;
+                return KWEngine.Window.GetMouseMovementWithSensitivity();
             }
         }
 
