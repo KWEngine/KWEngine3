@@ -648,20 +648,9 @@ namespace KWEngine3
                 HelperDebug.StartTimeQuery(RenderType.Lighting);
                 GL.Enable(EnableCap.DepthTest);
                 RenderManager.FramebufferLightingPass.BindAndClearColor();
-
-                // if uniformoffsetmultiplier does not equal 1, we are on macOS and need to use the multi-draw shader
-                if (KWEngine.GBufferLighting == GBufferLightingMode.Default && KWEngine._uniformOffsetMultiplier == 1)
-                {
-                    RenderManager.IRendererLightingPass.Bind();
-                    RenderManager.IRendererLightingPass.SetGlobals();
-                    RenderManager.IRendererLightingPass.Draw(RenderManager.FramebufferDeferred);
-                }
-                else
-                {
-                    RenderManager.IRendererLightingPassMultiDraw.Bind();
-                    RenderManager.IRendererLightingPassMultiDraw.SetGlobals();
-                    RenderManager.IRendererLightingPassMultiDraw.Draw(RenderManager.FramebufferDeferred);
-                }
+                RenderManager.IRendererLightingPassMultiDraw.Bind();
+                RenderManager.IRendererLightingPassMultiDraw.SetGlobals();
+                RenderManager.IRendererLightingPassMultiDraw.Draw(RenderManager.FramebufferDeferred);
 
                 HelperDebug.StopTimeQuery(RenderType.Lighting);
                 SetGLViewportToClientSize();

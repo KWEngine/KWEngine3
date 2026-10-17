@@ -8,12 +8,12 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Title>KWEngine3</Title>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<Product>KWEngine3 (updated: 2026-10-16)</Product>
+		<Product>KWEngine3 (updated: 2026-10-17)</Product>
 		<PackageId>KWEngine3</PackageId>
-		<Version>3.0.7.8</Version>
-		<AssemblyVersion>3.0.7.8</AssemblyVersion>
-		<FileVersion>3.0.7.8</FileVersion>
-		<ProductVersion>3.0.7.8</ProductVersion>
+		<Version>3.0.7.9</Version>
+		<AssemblyVersion>3.0.7.9</AssemblyVersion>
+		<FileVersion>3.0.7.9</FileVersion>
+		<ProductVersion>3.0.7.9</ProductVersion>
 		<NeutralLanguage>de</NeutralLanguage>
 	</PropertyGroup>
 
@@ -155,8 +155,6 @@
 		<None Remove="Shaders\shader.lighting.forward.vert" />
 		<None Remove="Shaders\shader.lighting.forwardinstanced.frag" />
 		<None Remove="Shaders\shader.lighting.forwardinstanced.vert" />
-		<None Remove="Shaders\shader.lighting.gbuffer.frag" />
-		<None Remove="Shaders\shader.lighting.gbuffer.vert" />
 		<None Remove="Shaders\shader.msm16.blur.frag" />
 		<None Remove="Shaders\shader.msm16.blur.vert" />
 		<None Remove="Shaders\shader.msm16.cube.frag" />
@@ -300,8 +298,6 @@
 		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardinstancedLQ.vert" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardtextLQ.frag" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.forwardtextLQ.vert" />
-		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.gbufferLQ.frag" />
-		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.gbufferLQ.vert" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.gbuffer_multiLQ.frag" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.lighting.gbuffer_multiLQ.vert" />
 		<EmbeddedResource Include="Shaders\LowQuality\shader.msm16.cubeLQ.frag" />
@@ -441,12 +437,6 @@
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.lighting.forward.frag">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer.frag">
-			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
-		</EmbeddedResource>
-		<EmbeddedResource Include="Shaders\shader.lighting.gbuffer.vert">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</EmbeddedResource>
 		<EmbeddedResource Include="Shaders\shader.editor.light.geom">

@@ -137,9 +137,6 @@ namespace KWEngine3.Renderer
 
         // uniform buffer binding points (always bind to these, never to a block index: block indices are assigned by the driver)
         internal const int UBO_BINDINGPOINT_INSTANCES = 0;   // uInstanceBlock (all instanced renderers)
-        internal const int UBO_BINDINGPOINT_LIGHTING1 = 0;   // uBlockIndex1 (lighting pass)
-        internal const int UBO_BINDINGPOINT_LIGHTING2 = 1;   // uBlockIndex2 (lighting pass)
-        internal const int UBO_BINDINGPOINT_LIGHTING3 = 2;   // uBlockIndex3 (lighting pass)
 
         public static void UnbindUBOFromShader(int program, int bindingPoint, int ubo)
         {
@@ -215,7 +212,6 @@ namespace KWEngine3.Renderer
         // so switching the render quality back and forth at runtime does not recompile any shaders.
         private sealed class QualityRendererSet
         {
-            public IRenderer LightingPass;
             public IRenderer LightingPassMultiDraw;
             public IRenderer Forward;
             public IRenderer ForwardInstanced;
@@ -238,7 +234,6 @@ namespace KWEngine3.Renderer
             QualityRendererSet s = new QualityRendererSet();
             if (lowQuality)
             {
-                s.LightingPass = new RendererLightingPassLQ(); s.LightingPass.Init();
                 s.LightingPassMultiDraw = new RendererLightingPassMultiDrawLQ(); s.LightingPassMultiDraw.Init();
                 s.Forward = new RendererForwardLQ(); s.Forward.Init();
                 s.ForwardInstanced = new RendererForwardInstancedLQ(); s.ForwardInstanced.Init();
@@ -255,7 +250,6 @@ namespace KWEngine3.Renderer
             }
             else
             {
-                s.LightingPass = new RendererLightingPass(); s.LightingPass.Init();
                 s.LightingPassMultiDraw = new RendererLightingPassMultiDraw(); s.LightingPassMultiDraw.Init();
                 s.Forward = new RendererForward(); s.Forward.Init();
                 s.ForwardInstanced = new RendererForwardInstanced(); s.ForwardInstanced.Init();
@@ -291,7 +285,6 @@ namespace KWEngine3.Renderer
                 s = _renderersDefaultQuality;
             }
 
-            IRendererLightingPass = s.LightingPass;
             IRendererLightingPassMultiDraw = s.LightingPassMultiDraw;
             IRendererForward = s.Forward;
             IRendererForwardInstanced = s.ForwardInstanced;
@@ -307,7 +300,6 @@ namespace KWEngine3.Renderer
             IRendererShadowMapTerrainCube = s.ShadowMapTerrainCube;
         }
 
-        public static IRenderer IRendererLightingPass;
         public static IRenderer IRendererLightingPassMultiDraw;
         public static IRenderer IRendererForward;
         public static IRenderer IRendererForwardInstanced;

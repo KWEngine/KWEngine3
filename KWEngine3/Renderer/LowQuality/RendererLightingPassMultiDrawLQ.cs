@@ -36,75 +36,10 @@ namespace KWEngine3.Renderer.LowQuality
         public int UTextureDepth { get; private set; } = -1;
         public int UViewProjectionMatrixInverted { get; private set; } = -1;
 
-        
-        public int ULightIndicesCounts { get; private set; } = -1;
-        public int UBlockIndex1 { get; private set; } = -1;
-        public int UBlockIndex2 { get; private set; } = -1;
-        public int UBlockIndex3 { get; private set; } = -1;
-
-        public int UBO { get; private set; } = -1;
-        public int UBO2 { get; private set; } = -1;
-        public int UBO3 { get; private set; } = -1;
-
-        
-        public float[] _uboData;
-        public float[] _uboData2;
-        public int[] _uboData3;
-        public int[] _indexCounts;
-
         public void UnbindUBO(int ubo)
         {
             
         }
-
-        internal void InitUBOs()
-        {
-            if (_uboData == null)
-            {
-                _uboData = new float[RenderManager._screenGrid._tiles.Length * 4];
-                _uboData2 = new float[RenderManager._screenGrid._tiles.Length * 4];
-                _uboData3 = new int[50 * RenderManager._screenGrid._tiles.Length];
-            }
-
-            float resDivider = Math.Max(RenderManager._screenGrid._width, RenderManager._screenGrid._height);
-            UBO = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.UniformBuffer, UBO);
-            for (int i = 0, j = 0; i < RenderManager._screenGrid._tiles.Length; i++, j += 4)
-            {
-                ScreenGridTile tile = RenderManager._screenGrid._tiles[i];
-                _uboData[j + 0] = tile._ndcRight - tile._ndcLeft;
-                _uboData[j + 1] = tile._ndcTop - tile._ndcBottom;
-                _uboData[j + 2] = tile._ndcCenter.X;
-                _uboData[j + 3] = tile._ndcCenter.Y;
-            }
-            GL.BufferData(BufferTarget.UniformBuffer, _uboData.Length * sizeof(float), _uboData, BufferUsageHint.StaticDraw);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-
-            UBO2 = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.UniformBuffer, UBO2);
-            for (int i = 0, j = 0; i < RenderManager._screenGrid._tiles.Length; i++, j += 4)
-            {
-                ScreenGridTile tile = RenderManager._screenGrid._tiles[i];
-                float uvL = tile._ndcLeft * 0.5f + 0.5f;
-                float uvR = tile._ndcRight * 0.5f + 0.5f;
-                float uvT = tile._ndcTop * 0.5f + 0.5f;
-                float uvB = tile._ndcBottom * 0.5f + 0.5f;
-                _uboData2[j + 0] = uvL;
-                _uboData2[j + 1] = uvR;
-                _uboData2[j + 2] = uvT;
-                _uboData2[j + 3] = uvB;
-            }
-            GL.BufferData(BufferTarget.UniformBuffer, _uboData2.Length * sizeof(float), _uboData2, BufferUsageHint.StaticDraw);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-
-            UBO3 = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.UniformBuffer, UBO3);
-            GL.BufferData(BufferTarget.UniformBuffer, _uboData3.Length * sizeof(int), _uboData3, BufferUsageHint.DynamicDraw);
-            GL.BindBuffer(BufferTarget.UniformBuffer, 0);
-
-            _indexCounts = new int[RenderManager._screenGrid._tiles.Length];
-        }
-        
 
         public void Init()
         {

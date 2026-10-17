@@ -49,12 +49,6 @@ namespace KWEngine3
         public static int AudioBuffersPerChannel { get; set; } = 3;
 
         /// <summary>
-        /// Gibt an, wie der Beleuchtungsschritt in der Engine ablaufen soll
-        /// </summary>
-        /// <remarks>Kann die Performance auf schwachen GPUs verbessern, muss aber vor Erstellung des Fensters gesetzt werden</remarks>
-        public static GBufferLightingMode GBufferLighting { get; set; } = GBufferLightingMode.Default;
-
-        /// <summary>
         /// Empfindlichkeit der Maus (Standard: 0.05f, negative Werte für die Invertierung der y-Achse)
         /// </summary>
         /// <remarks>

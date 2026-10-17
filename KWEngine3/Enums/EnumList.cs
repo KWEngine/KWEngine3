@@ -140,21 +140,6 @@
     }
 
     /// <summary>
-    /// Gibt an, wie der Beleuchtungsschritt in der Engine ablaufen soll
-    /// </summary>
-    public enum GBufferLightingMode
-    {
-        /// <summary>
-        /// Standard: Instanziiertes GBuffer-Grid
-        /// </summary>
-        Default,
-        /// <summary>
-        /// Das GBuffer-Grid wird in separaten Draw-Calls gezeichnet
-        /// </summary>
-        SeparateDrawCalls
-    }
-
-    /// <summary>
     /// Art des Draw Calls (für das Debugging)
     /// </summary>
     public enum RenderType
