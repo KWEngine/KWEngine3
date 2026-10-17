@@ -321,7 +321,44 @@ namespace KWEngine3
             KWBuilderOverlay.InitFrameTimeQueue();
 
             IsVisible = true;
+            UpdateMacOSWindowLevel(IsFocused);
         }
+
+        /// <summary>
+        /// Wird ausgeführt, wenn das Fenster den Fokus erhält oder verliert
+        /// </summary>
+        /// <param name="e">Parameter</param>
+        protected override void OnFocusedChanged(FocusedChangedEventArgs e)
+        {
+            base.OnFocusedChanged(e);
+            UpdateMacOSWindowLevel(e.IsFocused);
+        }
+
+        // macOS keeps a borderless window below the menu bar and the dock. While the window has the focus,
+        // it is lifted above them (as GLFW does for fullscreen windows); without focus it goes back to the
+        // normal level so that other apps can be brought to the front.
+        private unsafe void UpdateMacOSWindowLevel(bool focused)
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || WindowBorder != WindowBorder.Hidden || WindowState == WindowState.Fullscreen)
+            {
+                return;
+            }
+
+            IntPtr nsWindow = GLFW.GetCocoaWindow(WindowPtr);
+            if (nsWindow != IntPtr.Zero)
+            {
+                objc_msgSend_setLevel(nsWindow, sel_registerName("setLevel:"), focused ? NSMAINMENUWINDOWLEVEL + 1 : NSNORMALWINDOWLEVEL);
+            }
+        }
+
+        private const long NSNORMALWINDOWLEVEL = 0;
+        private const long NSMAINMENUWINDOWLEVEL = 24;
+
+        [DllImport("/usr/lib/libobjc.A.dylib")]
+        private static extern IntPtr sel_registerName(string name);
+
+        [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_msgSend")]
+        private static extern void objc_msgSend_setLevel(IntPtr receiver, IntPtr selector, long level);
 
         /// <summary>
         /// Wird ausgeführt, kurz bevor sich das Fenster schließt

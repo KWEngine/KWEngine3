@@ -207,6 +207,16 @@ namespace KWEngine3.Editor
                 ImGui.Render();
             }
 
+            // with display scaling (macOS) the framebuffer has more pixels than the window has points
+            Vector2i clientSize = wnd.ClientSize;
+            Vector2i framebufferSize = wnd.FramebufferSize;
+            if (clientSize.X > 0 && clientSize.Y > 0)
+            {
+                _windowWidth = framebufferSize.X;
+                _windowHeight = framebufferSize.Y;
+                _scaleFactor = new System.Numerics.Vector2(framebufferSize.X / (float)clientSize.X, framebufferSize.Y / (float)clientSize.Y);
+            }
+
             SetPerFrameImGuiData(deltaSeconds);
             UpdateImGuiInput(wnd);
 

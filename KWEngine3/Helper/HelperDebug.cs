@@ -183,7 +183,7 @@ namespace KWEngine3.Helper
                 if (issued[oldest])
                 {
                     GL.GetQueryObject(_renderTimesIDDict[type][oldest], GetQueryObjectParam.QueryResult, out long drawcalltime);
-                    _renderTimesDict[type].Add(drawcalltime);
+                    _renderTimesDict[type].Add(Math.Max(0, drawcalltime)); // Apple GPUs may report negative times for passes that start inside a render pass
                     issued[oldest] = false;
                 }
             }
