@@ -9,9 +9,9 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/KWEngine3TestProject/bin/Debug/net6.0/KWEngine3TestProject.dll",
+      "program": "${workspaceFolder}/KWEngine3TestProject/bin/Debug/net8.0/KWEngine3TestProject.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/KWEngine3TestProject/bin/Debug/net6.0",
+      "cwd": "${workspaceFolder}/KWEngine3TestProject/bin/Debug/net8.0",
       "stopAtEntry": false,
       "console": "internalConsole"
     }
