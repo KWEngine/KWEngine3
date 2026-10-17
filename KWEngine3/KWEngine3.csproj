@@ -514,7 +514,7 @@
 
 
 
-	<Target Name="CopyAfterBuild" AfterTargets="Build">
+	<Target Name="CopyAfterBuild" AfterTargets="Build" Condition="'$(NUGET_PATH)' != ''">
 
 		<PropertyGroup>
 			<TargetDirectory>$(NUGET_PATH)</TargetDirectory>
