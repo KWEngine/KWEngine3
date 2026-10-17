@@ -103,11 +103,11 @@ namespace KWEngine3.Helper
 
         internal static int LeaveOnlyDigits(string input)
         {
-            if (string.IsNullOrEmpty(input)) 
+            if (string.IsNullOrEmpty(input))
                 return -1;
             string cleaned = rxNonDigits.Replace(input, "");
 
-            if (cleaned.Length == 0) 
+            if (cleaned.Length == 0)
                 return -1;
 
             return Convert.ToInt32(cleaned);
@@ -145,7 +145,7 @@ namespace KWEngine3.Helper
 
         internal static int GetUVIndex(Assimp.Material material, TextureType ttype)
         {
-            switch(ttype)
+            switch (ttype)
             {
                 case TextureType.Albedo: return material.TextureDiffuse.UVIndex;
                 case TextureType.Normal: return material.TextureNormal.UVIndex;
@@ -156,10 +156,10 @@ namespace KWEngine3.Helper
                 default: return material.TextureDiffuse.UVIndex;
             }
         }
-       
+
         internal static int GetTextureSlotIndex(Assimp.Material material, TextureType ttype, bool isBumpInsteadOfNormalMap = false)
         {
-            if(isBumpInsteadOfNormalMap && material.HasTextureHeight)
+            if (isBumpInsteadOfNormalMap && material.HasTextureHeight)
             {
                 return material.TextureHeight.TextureIndex;
             }
@@ -192,11 +192,11 @@ namespace KWEngine3.Helper
 
         internal static Assimp.TextureType GetAssimpTextureType(TextureType ttype, bool isBumpInsteadOfNormal = false)
         {
-            if(isBumpInsteadOfNormal)
+            if (isBumpInsteadOfNormal)
             {
                 return Assimp.TextureType.Height;
             }
-            switch(ttype)
+            switch (ttype)
             {
                 case TextureType.Albedo: return Assimp.TextureType.Diffuse;
                 case TextureType.Normal: return Assimp.TextureType.Normals;
@@ -211,7 +211,7 @@ namespace KWEngine3.Helper
         internal static bool IsFBXASCII(byte[] data)
         {
             string fileinfo = "";
-            for(int i = 0; i < 20; i++)
+            for (int i = 0; i < 20; i++)
             {
                 fileinfo += (char)data[i];
             }
@@ -277,23 +277,23 @@ namespace KWEngine3.Helper
                                 {
                                     if (property.Type == "L" && property.ID == materialId)
                                     {
-                                        foreach(FBXNode innerChild in geometryObjectDetail.Children)
+                                        foreach (FBXNode innerChild in geometryObjectDetail.Children)
                                         {
-                                            foreach(FBXNode innerSibling in innerChild.Siblings)
+                                            foreach (FBXNode innerSibling in innerChild.Siblings)
                                             {
-                                                if(innerSibling.Name == "Properties70" && innerSibling.Children.Count > 0)
+                                                if (innerSibling.Name == "Properties70" && innerSibling.Children.Count > 0)
                                                 {
                                                     FBXNode propertyNode = innerSibling.Children[0];
-                                                    foreach(FBXNode propertyNodeSibling in propertyNode.Siblings)
+                                                    foreach (FBXNode propertyNodeSibling in propertyNode.Siblings)
                                                     {
-                                                        foreach(FBXProperty propertyNodeSiblingProp in propertyNodeSibling.Properties)
+                                                        foreach (FBXProperty propertyNodeSiblingProp in propertyNodeSibling.Properties)
                                                         {
-                                                            if(propertyNodeSiblingProp.Name == "ReflectionFactor")
+                                                            if (propertyNodeSiblingProp.Name == "ReflectionFactor")
                                                             {
                                                                 m = propertyNodeSibling.Properties.Last().FValue;
                                                                 mFound = true;
                                                             }
-                                                            if(propertyNodeSiblingProp.Name == "SpecularFactor")
+                                                            if (propertyNodeSiblingProp.Name == "SpecularFactor")
                                                             {
                                                                 r = 1f - propertyNodeSibling.Properties.Last().FValue;
                                                                 rFound = true;
@@ -347,15 +347,15 @@ namespace KWEngine3.Helper
                                         break;
                                     }
                                 }
-                                if(found)
+                                if (found)
                                 {
                                     long maybeId = geometryObjectDetail.Properties[0].ID;
                                     if (maybeId == textureId)
                                     {
                                         textureIdApproved = true;
-                                        foreach(FBXNode sibling in geometryObjectDetail.Children[0].Siblings)
+                                        foreach (FBXNode sibling in geometryObjectDetail.Children[0].Siblings)
                                         {
-                                            if(sibling.Name == "FileName" || sibling.Name == "RelativeFilename")
+                                            if (sibling.Name == "FileName" || sibling.Name == "RelativeFilename")
                                             {
                                                 metallicFilename = sibling.Properties[0].Name;
                                                 int index = metallicFilename.IndexOf(replaceSymbol);
@@ -376,9 +376,9 @@ namespace KWEngine3.Helper
                                 {
                                     FBXNode firstChild = geometryObjectDetail.Children[0];
                                     bool sourceFound = false;
-                                    foreach(FBXNode firstChildChild in firstChild.Siblings)
+                                    foreach (FBXNode firstChildChild in firstChild.Siblings)
                                     {
-                                        if(firstChildChild.Name == "RelativeFilename")
+                                        if (firstChildChild.Name == "RelativeFilename")
                                         {
                                             if (firstChildChild.Properties[0].Name.Contains(metallicFilename))
                                             {
@@ -387,7 +387,7 @@ namespace KWEngine3.Helper
                                             }
                                         }
                                     }
-                                    if(sourceFound)
+                                    if (sourceFound)
                                     {
                                         foreach (FBXNode firstChildChild in firstChild.Siblings)
                                         {
@@ -400,7 +400,7 @@ namespace KWEngine3.Helper
                                         }
                                     }
                                 }
-                                
+
                             }
                         }
                         if (textureIdApproved) break;
@@ -512,26 +512,26 @@ namespace KWEngine3.Helper
             metallicData = null;
             metallicFilename = "";
 
-            foreach(FBXNode sibling in root.Siblings)
+            foreach (FBXNode sibling in root.Siblings)
             {
-                if(sibling.Name == "Connections")
+                if (sibling.Name == "Connections")
                 {
                     FBXNode connList = sibling.Children[0];
-                    foreach(FBXNode connListSibling in connList.Siblings)
+                    foreach (FBXNode connListSibling in connList.Siblings)
                     {
-                        if(connListSibling.Name == "C")
+                        if (connListSibling.Name == "C")
                         {
                             long id = connListSibling.Properties[2].ID;
-                            if(id ==  materialId)
+                            if (id == materialId)
                             {
-                                if(GetMetallicRoughnessValues(materialId, root, out float tRoughness, out float tMetallic))
+                                if (GetMetallicRoughnessValues(materialId, root, out float tRoughness, out float tMetallic))
                                 {
                                     roughness = tRoughness;
                                     metallic = tMetallic;
                                 }
 
                                 long textureId = connListSibling.Properties[1].ID;
-                                if(GetTextureMetallic(textureId, root, out string mFilename, out byte[] mData))
+                                if (GetTextureMetallic(textureId, root, out string mFilename, out byte[] mData))
                                 {
                                     metallicFilename = mFilename;
                                     metallicData = mData;
@@ -572,7 +572,7 @@ namespace KWEngine3.Helper
                     {
                         root = ReadFBXNodeStructure(filedata, 27);
                     }
-                    
+
                     long materialIdFromFBX = GetMaterialIdFor(materialName, root);
                     if (materialIdFromFBX > 0)
                     {
@@ -666,7 +666,7 @@ namespace KWEngine3.Helper
                             }
                         }
                     }
-                    
+
                 }
             }
             return tex;
@@ -942,7 +942,7 @@ namespace KWEngine3.Helper
         internal static FBXNode ReadFBXNodeStructureOld(byte[] data, uint startIndex, FBXNode parent = null, int nestingLevel = 0, int nestingLevelEndOffset = 0, bool isSiblingsRead = false)
         {
             string TABS = "";
-            for(int i = 0; i < nestingLevel; i++)
+            for (int i = 0; i < nestingLevel; i++)
             {
                 TABS += "\t";
             }
@@ -970,7 +970,7 @@ namespace KWEngine3.Helper
             idx += 1;
             string name = "";
             int start = idx;
-            for(int i = idx; i < start + namelen; i++)
+            for (int i = idx; i < start + namelen; i++)
             {
                 name += (char)data[i];
                 idx++;
@@ -991,13 +991,13 @@ namespace KWEngine3.Helper
                     short val = BitConverter.ToInt16(data, idx);
                     idx += 2;
                 }
-                else if(propertyTypeCode == 'C')
+                else if (propertyTypeCode == 'C')
                 {
                     // bool in byte (lsbit = 1/0)
                     byte val = data[idx];
                     idx += 1;
                 }
-                else if( propertyTypeCode == 'I')
+                else if (propertyTypeCode == 'I')
                 {
                     // int
                     int val = BitConverter.ToInt32(data, idx);
@@ -1017,14 +1017,14 @@ namespace KWEngine3.Helper
                     prop.FValue = Convert.ToSingle(val);
                     idx += 8;
                 }
-                else if(propertyTypeCode == 'L')
+                else if (propertyTypeCode == 'L')
                 {
                     //long (signed)
                     long val = BitConverter.ToInt64(data, idx);
                     prop.ID = val;
                     idx += 8;
                 }
-                else if(propertyTypeCode == 'f')
+                else if (propertyTypeCode == 'f')
                 {
                     uint arrayLength = BitConverter.ToUInt32(data, idx);
 
@@ -1033,8 +1033,8 @@ namespace KWEngine3.Helper
 
                     idx += 4;
                     uint compressedLength = BitConverter.ToUInt32(data, idx);
-                    
-                    if(encoding > 0)
+
+                    if (encoding > 0)
                     {
                         idx += (int)compressedLength;
                     }
@@ -1119,13 +1119,13 @@ namespace KWEngine3.Helper
                         idx += (int)arrayLength * 1;
                     }
                 }
-                else if(propertyTypeCode == 'S')
+                else if (propertyTypeCode == 'S')
                 {
                     uint length = BitConverter.ToUInt32(data, idx);
 
                     idx += 4;
                     string s = "";
-                    for(int j = idx; j < idx + (int)length; j++)
+                    for (int j = idx; j < idx + (int)length; j++)
                     {
                         s += (char)data[j];
                     }
@@ -1150,7 +1150,7 @@ namespace KWEngine3.Helper
             {
                 n.Children.Add(ReadFBXNodeStructureOld(data, (uint)idx, n, nestingLevel + 1, (int)n.EndOffset));
             }
-            
+
 
             idx = (int)n.EndOffset;
 
@@ -1174,31 +1174,31 @@ namespace KWEngine3.Helper
             string roughnessTexture = "";
             string metallicTexture = "";
 
-            if(model.AssemblyMode == SceneImporter.AssemblyMode.Internal)
+            if (model.AssemblyMode == SceneImporter.AssemblyMode.Internal)
                 return new GeoTexture();
 
             string filetype = GetFileEnding(model.Filename);
-                
+
             if (filetype == "fbx")
             {
                 try
                 {
                     return GetFBXTextureFilenamesAndData(model.Filename, material.Name, ttype, ref model, out roughnessVal, out metallicVal);
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     KWEngine.LogWriteLine("[Import] Error reading PBR textures in model " + model.Filename);
                     return new GeoTexture();
                 }
             }
-            else if(filetype == "obj")
+            else if (filetype == "obj")
             {
                 string[] lines = File.ReadAllLines(model.Filename);
-                if(lines != null && lines.Length > 0)
+                if (lines != null && lines.Length > 0)
                 {
-                    foreach(string line in lines)
+                    foreach (string line in lines)
                     {
-                        if(line.StartsWith("mtllib"))
+                        if (line.StartsWith("mtllib"))
                         {
                             string matfilename = line.Replace("mtllib ", "").Trim();
                             string[] mtlLines = null;
@@ -1208,16 +1208,16 @@ namespace KWEngine3.Helper
                                 int mtOffset = 0;
                                 int mtEnd = -1;
                                 bool mtFound = false;
-                                foreach(string mtline in mtlLines)
+                                foreach (string mtline in mtlLines)
                                 {
-                                    if(mtline == "newmtl " + material.Name)
+                                    if (mtline == "newmtl " + material.Name)
                                     {
                                         mtFound = true;
                                         break;
                                     }
                                     mtOffset++;
                                 }
-                                if(mtFound)
+                                if (mtFound)
                                 {
                                     mtEnd = mtlLines.Length - 1;
                                     for (int i = mtOffset + 1; i < mtlLines.Length; i++)
@@ -1229,9 +1229,9 @@ namespace KWEngine3.Helper
                                         }
                                     }
 
-                                    if(mtEnd > mtOffset + 1)
+                                    if (mtEnd > mtOffset + 1)
                                     {
-                                        for(int i = mtOffset + 1; i < mtEnd; i++)
+                                        for (int i = mtOffset + 1; i < mtEnd; i++)
                                         {
                                             if (mtlLines[i].StartsWith("Pr "))
                                             {
@@ -1254,7 +1254,7 @@ namespace KWEngine3.Helper
                                         }
                                     }
 
-                                    if(ttype == TextureType.Roughness && roughnessTexture.Length > 0)
+                                    if (ttype == TextureType.Roughness && roughnessTexture.Length > 0)
                                     {
                                         GeoTexture tex = new GeoTexture();
                                         tex.UVTransform = new Vector4(1, 1, 0, 0);
@@ -1289,7 +1289,7 @@ namespace KWEngine3.Helper
                                         }
                                         return tex;
                                     }
-                                    else if(ttype == TextureType.Metallic && metallicTexture.Length > 0)
+                                    else if (ttype == TextureType.Metallic && metallicTexture.Length > 0)
                                     {
                                         GeoTexture tex = new GeoTexture();
                                         tex.UVTransform = new Vector4(1, 1, 0, 0);
@@ -1326,7 +1326,7 @@ namespace KWEngine3.Helper
                                     }
                                 }
                             }
-                            catch(Exception)
+                            catch (Exception)
                             {
                                 KWEngine.LogWriteLine("[Import] Error reading PBR textures in model " + model.Filename);
                                 return new GeoTexture();
@@ -1362,19 +1362,19 @@ namespace KWEngine3.Helper
                     {
                         tex.IsEmbedded = true;
                     }
-                    else if(tFilename.Contains("*"))
+                    else if (tFilename.Contains("*"))
                     {
                         //embedded
                         int index = LeaveOnlyDigits(tFilename);
                         if (scene.Textures.Count > index)
                         {
                             Assimp.EmbeddedTexture embedded = scene.Textures[index];
-                            if(embedded.HasCompressedData)
+                            if (embedded.HasCompressedData)
                             {
                                 tFilename = model.Name + "_" + material.Name + "_" + GetTextureTypeString(tex.Type) + "-EMBEDDED_" + texSlot.TextureIndex + "_" + index + "." + embedded.CompressedFormatHint;
                                 tex.IsEmbedded = true;
                                 tex.Filename = tFilename;
-                                if(!ConvertEmbeddedToTemporaryFile(embedded.CompressedData, tFilename, model.Path))
+                                if (!ConvertEmbeddedToTemporaryFile(embedded.CompressedData, tFilename, model.Path))
                                 {
                                     KWEngine.LogWriteLine("[Import] Temporary image file " + tFilename + " could not be written to disk");
                                     tFilename = "";
@@ -1458,7 +1458,7 @@ namespace KWEngine3.Helper
 
         internal static GeoTexture ProcessTextureForMaterial(TextureType textureType, Assimp.Material material, Assimp.Scene scene, ref GeoModel model, bool isSpecularAsRoughness, out float roughnessVal, out float metallicVal)
         {
-            if(isSpecularAsRoughness == false && (textureType == TextureType.Roughness || textureType == TextureType.Metallic))
+            if (isSpecularAsRoughness == false && (textureType == TextureType.Roughness || textureType == TextureType.Metallic))
             {
                 return ProcessTextureForAssimpPBRMaterial(material, textureType, ref model, out roughnessVal, out metallicVal);
             }
@@ -1696,7 +1696,7 @@ namespace KWEngine3.Helper
             int texID = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, texID);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32, 1, 1, 0, 
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32, 1, 1, 0,
                 OpenTK.Graphics.OpenGL4.PixelFormat.DepthComponent, PixelType.Float, new float[] { 1, 1 });
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
@@ -1717,7 +1717,7 @@ namespace KWEngine3.Helper
                 texID = -1;
                 throw new Exception("Unsupported compressed texture format: only DXT1, DXT3 and DXT5 are supported.");
             }
-                
+
             return texID;
         }
 
@@ -1748,7 +1748,7 @@ namespace KWEngine3.Helper
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-                    GL.CompressedTexImage2D(TextureTarget.Texture2D, 0, dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT1 ?  InternalFormat.CompressedRgbaS3tcDxt1Ext : dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT3 ? InternalFormat.CompressedRgbaS3tcDxt3Ext : InternalFormat.CompressedRgbaS3tcDxt5Ext, dds.BitmapImage.Width, dds.BitmapImage.Height, 0, dds.Data.Length, dds.Data);
+                    GL.CompressedTexImage2D(TextureTarget.Texture2D, 0, dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT1 ? InternalFormat.CompressedRgbaS3tcDxt1Ext : dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT3 ? InternalFormat.CompressedRgbaS3tcDxt3Ext : InternalFormat.CompressedRgbaS3tcDxt5Ext, dds.BitmapImage.Width, dds.BitmapImage.Height, 0, dds.Data.Length, dds.Data);
                     GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                     GL.BindTexture(TextureTarget.Texture2D, 0);
                 }
@@ -1772,7 +1772,7 @@ namespace KWEngine3.Helper
             bool error = false;
             using (Stream s = assembly.GetManifestResourceStream(resourceName))
             {
-                using(HelperDDS dds = new HelperDDS(s))
+                using (HelperDDS dds = new HelperDDS(s))
                 {
                     if (dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT1 || dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT3 || dds.DDSPixelFormat == HelperDDS.PixelFormat.DXT5)
                     {
@@ -1892,7 +1892,7 @@ namespace KWEngine3.Helper
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapCount - 2));
                     GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
                 }
-                
+
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 
@@ -2021,7 +2021,7 @@ namespace KWEngine3.Helper
             {
                 return -1;
             }
-            if(filename.EndsWith("dds"))
+            if (filename.EndsWith("dds"))
             {
                 return LoadTextureCompressedWithMipMaps(filename);
             }
@@ -2029,13 +2029,13 @@ namespace KWEngine3.Helper
             int texID;
             try
             {
-                SKBitmap image = SKBitmap.Decode(filename);
+                SKBitmap image = DecodeImage(filename);
                 if (image == null)
                 {
                     KWEngine.LogWriteLine("[Texture] File " + (filename == null ? "" : filename.Trim()) + " invalid");
                     return -1;
                 }
-                texID =  GL.GenTexture();
+                texID = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, texID);
 
                 byte[] data = image.Bytes;
@@ -2044,17 +2044,17 @@ namespace KWEngine3.Helper
                     GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
                      PixelFormat.Rgba, PixelType.UnsignedByte, data);
                 }
-                else if(image.ColorType == SKColorType.Gray8)
+                else if (image.ColorType == SKColorType.Gray8)
                 {
                     GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8, image.Width, image.Height, 0,
                      PixelFormat.Red, PixelType.UnsignedByte, data);
                 }
-                else if(image.ColorType == SKColorType.Rgb888x)
+                else if (image.ColorType == SKColorType.Rgb888x)
                 {
                     GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, image.Width, image.Height, 0,
                      PixelFormat.Rgb, PixelType.UnsignedByte, data);
                 }
-                else if(image.ColorType == SKColorType.Bgra8888)
+                else if (image.ColorType == SKColorType.Bgra8888)
                 {
                     GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0,
                      PixelFormat.Bgra, PixelType.UnsignedByte, data);
@@ -2081,7 +2081,7 @@ namespace KWEngine3.Helper
                 {
                     mipMapCount = 0;
                 }
-                
+
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, Math.Max(0, mipMapCount - 2));
                 mipMaps = Math.Max(0, mipMapCount - 2);
@@ -2118,7 +2118,7 @@ namespace KWEngine3.Helper
                     }
                     texID = GL.GenTexture();
                     GL.BindTexture(TextureTarget.Texture2D, texID);
-                    
+
                     byte[] data = image.Bytes;
                     if (image.ColorType == SKColorType.Rgba8888)
                     {
@@ -2145,7 +2145,7 @@ namespace KWEngine3.Helper
                         KWEngine.LogWriteLine("[Texture] GLB Texture source invalid");
                         return -1;
                     }
-                    
+
                     GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)OpenTK.Graphics.OpenGL.ExtTextureFilterAnisotropic.TextureMaxAnisotropyExt, KWEngine.Window.AnisotropicFilteringLevel);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
                     GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
@@ -2304,7 +2304,7 @@ namespace KWEngine3.Helper
                 return -1;
             }
             int texID;
-            if(filename.ToLower().EndsWith(".dds"))
+            if (filename.ToLower().EndsWith(".dds"))
             {
                 HelperDDS2.TryLoadDDS(filename, false, out texID, out int width, out int height, true);
                 mipMapLevels = 0;
@@ -2312,17 +2312,17 @@ namespace KWEngine3.Helper
             }
             try
             {
-                SKBitmap image = SKBitmap.Decode(filename);
+                SKBitmap image = DecodeImage(filename);
                 if (image == null)
                 {
-                    
+
                     throw new Exception("File " + filename + " is not a valid image file.");
                 }
                 texID = GL.GenTexture();
                 GL.BindTexture(TextureTarget.Texture2D, texID);
                 GL.TexImage2D(TextureTarget.Texture2D, 0, GetPixelInternalFormatForSKColorType(image.ColorType), image.Width, image.Height, 0,
                     GetPixelFormatForSKColorType(image.ColorType), PixelType.UnsignedByte, image.Bytes);
-               
+
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
                 GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
@@ -2357,7 +2357,7 @@ namespace KWEngine3.Helper
             height = 0;
             if (filename.ToLower().EndsWith(".dds"))
             {
-                if(!HelperDDS2.TryLoadDDS(filename, false, out texID, out width, out height, true))
+                if (!HelperDDS2.TryLoadDDS(filename, false, out texID, out width, out height, true))
                 {
                     width = 0;
                     height = 0;
@@ -2464,7 +2464,7 @@ namespace KWEngine3.Helper
             {
                 using (Stream s = File.Open(filename, FileMode.Open))
                 {
-                    if(filename.ToLower().EndsWith(".dds"))
+                    if (filename.ToLower().EndsWith(".dds"))
                     {
                         HelperDDS2.TryLoadDDSCubeMap(s, false, out int textureId, out mipMapLevels);
                         return textureId;
@@ -2487,7 +2487,7 @@ namespace KWEngine3.Helper
                     //front
                     using (SKCanvas cInner = new SKCanvas(image_front))
                     {
-                        cInner.DrawBitmap(image,  new SKRect(2 * width_onequarter, height_onethird, 2 * width_onequarter + width_onequarter, height_onethird + height_onethird), new SKRect(0, 0, width_onequarter, height_onethird));
+                        cInner.DrawBitmap(image, new SKRect(2 * width_onequarter, height_onethird, 2 * width_onequarter + width_onequarter, height_onethird + height_onethird), new SKRect(0, 0, width_onequarter, height_onethird));
                         cInner.Flush();
                     }
                     // back
@@ -2586,9 +2586,179 @@ namespace KWEngine3.Helper
         }
 
 
+        // Decodes an image file for a texture. Animated GIFs become one sprite sheet with all frames
+        // (row by row from top left to bottom right).
+        internal static SKBitmap DecodeImage(string filename)
+        {
+            using (SKCodec codec = SKCodec.Create(filename))
+            {
+                if (codec == null)
+                {
+                    return null;
+                }
+
+                SKImageInfo info = codec.Info;
+                if (KWEngine.TEXTURE_DECODE_UNMULTIPLIED_ALPHA == false && info.AlphaType == SKAlphaType.Unpremul)
+                {
+                    info.AlphaType = SKAlphaType.Premul; // same as SKBitmap.Decode()
+                }
+
+                if (IsAnimatedGif(codec))
+                {
+                    if (GetSpriteSheetLayout(codec.FrameCount, info.Width, info.Height, KWEngine.GIF_SPRITESHEET_PADDING, out int columns, out int rows))
+                    {
+                        return DecodeGifSpriteSheet(codec, info, columns, rows, KWEngine.GIF_SPRITESHEET_PADDING);
+                    }
+                    KWEngine.LogWriteLine("[Texture] GIF file " + filename + " is too large for a sprite sheet (max. " + KWEngine.GIF_SPRITESHEET_MAXSIZE + " pixels), using first frame only");
+                }
+                return SKBitmap.Decode(codec, info);
+            }
+        }
+
+        // Returns the sprite sheet layout of an animated GIF file (1 frame, 1 column and 1 row for all other files).
+        internal static bool GetGifSpriteSheetLayout(string filename, out int frameCount, out int columns, out int rows)
+        {
+            frameCount = 1;
+            columns = 1;
+            rows = 1;
+            if (filename == null || !filename.ToLower().EndsWith(".gif"))
+            {
+                return false;
+            }
+
+            using (SKCodec codec = SKCodec.Create(filename))
+            {
+                if (codec == null || !IsAnimatedGif(codec) || !GetSpriteSheetLayout(codec.FrameCount, codec.Info.Width, codec.Info.Height, KWEngine.GIF_SPRITESHEET_PADDING, out int c, out int r))
+                {
+                    return false;
+                }
+                frameCount = codec.FrameCount;
+                columns = c;
+                rows = r;
+                return true;
+            }
+        }
+
+        private static bool IsAnimatedGif(SKCodec codec)
+        {
+            return codec.EncodedFormat == SKEncodedImageFormat.Gif && codec.FrameCount > 1;
+        }
+
+        private static bool GetSpriteSheetLayout(int frameCount, int frameWidth, int frameHeight, int padding, out int columns, out int rows)
+        {
+            int cellWidth = frameWidth + 2 * padding;
+            int cellHeight = frameHeight + 2 * padding;
+            int bestSize = int.MaxValue;
+            columns = 1;
+            rows = frameCount;
+            for (int c = 1; c <= frameCount; c++)
+            {
+                int r = (frameCount + c - 1) / c;
+                int size = Math.Max(c * cellWidth, r * cellHeight);
+                if (size < bestSize)
+                {
+                    bestSize = size;
+                    columns = c;
+                    rows = r;
+                }
+            }
+            return bestSize <= KWEngine.GIF_SPRITESHEET_MAXSIZE;
+        }
+
+        private static unsafe SKBitmap DecodeGifSpriteSheet(SKCodec codec, SKImageInfo frameInfo, int columns, int rows, int padding)
+        {
+            int bytesPerPixel = frameInfo.BytesPerPixel;
+            int cellWidth = frameInfo.Width + 2 * padding;
+            int cellHeight = frameInfo.Height + 2 * padding;
+            int sheetWidth = columns * cellWidth;
+            byte[] sheet = new byte[sheetWidth * rows * cellHeight * bytesPerPixel];
+            byte[] frame = new byte[frameInfo.Width * frameInfo.Height * bytesPerPixel];
+            SKCodecFrameInfo[] frameInfos = codec.FrameInfo;
+
+            for (int i = 0; i < frameInfos.Length; i++)
+            {
+                // a frame that builds upon an earlier frame needs the pixels of that frame as starting point
+                int requiredFrame = frameInfos[i].RequiredFrame;
+                if (requiredFrame >= 0)
+                {
+                    CopyFrame(sheet, sheetWidth, requiredFrame % columns * cellWidth + padding, requiredFrame / columns * cellHeight + padding, frame, frameInfo.Width, frameInfo.Height, bytesPerPixel, true);
+                }
+                else
+                {
+                    Array.Clear(frame);
+                }
+
+                SKCodecResult result;
+                fixed (byte* framePointer = frame)
+                {
+                    result = codec.GetPixels(frameInfo, (IntPtr)framePointer, new SKCodecOptions(i, requiredFrame));
+                }
+                if (result != SKCodecResult.Success && result != SKCodecResult.IncompleteInput)
+                {
+                    return null;
+                }
+
+                int x = i % columns * cellWidth + padding;
+                int y = i / columns * cellHeight + padding;
+                CopyFrame(sheet, sheetWidth, x, y, frame, frameInfo.Width, frameInfo.Height, bytesPerPixel, false);
+                if (padding > 0)
+                {
+                    ExtrudeFrameBorder(sheet, sheetWidth, x, y, frameInfo.Width, frameInfo.Height, padding, bytesPerPixel);
+                }
+            }
+
+            SKBitmap bitmap = new SKBitmap(new SKImageInfo(sheetWidth, rows * cellHeight, frameInfo.ColorType, frameInfo.AlphaType));
+            fixed (byte* sheetPointer = sheet)
+            {
+                System.Buffer.MemoryCopy(sheetPointer, (void*)bitmap.GetPixels(), sheet.Length, sheet.Length);
+            }
+            return bitmap;
+        }
+
+        private static void CopyFrame(byte[] sheet, int sheetWidth, int x, int y, byte[] frame, int frameWidth, int frameHeight, int bytesPerPixel, bool sheetToFrame)
+        {
+            int rowLength = frameWidth * bytesPerPixel;
+            for (int row = 0; row < frameHeight; row++)
+            {
+                int sheetIndex = ((y + row) * sheetWidth + x) * bytesPerPixel;
+                int frameIndex = row * rowLength;
+                if (sheetToFrame)
+                {
+                    System.Buffer.BlockCopy(sheet, sheetIndex, frame, frameIndex, rowLength);
+                }
+                else
+                {
+                    System.Buffer.BlockCopy(frame, frameIndex, sheet, sheetIndex, rowLength);
+                }
+            }
+        }
+
+        private static void ExtrudeFrameBorder(byte[] sheet, int sheetWidth, int x, int y, int frameWidth, int frameHeight, int padding, int bytesPerPixel)
+        {
+            for (int row = y; row < y + frameHeight; row++)
+            {
+                int left = (row * sheetWidth + x) * bytesPerPixel;
+                int right = (row * sheetWidth + x + frameWidth - 1) * bytesPerPixel;
+                for (int p = 1; p <= padding; p++)
+                {
+                    System.Buffer.BlockCopy(sheet, left, sheet, left - p * bytesPerPixel, bytesPerPixel);
+                    System.Buffer.BlockCopy(sheet, right, sheet, right + p * bytesPerPixel, bytesPerPixel);
+                }
+            }
+
+            int rowLength = (frameWidth + 2 * padding) * bytesPerPixel;
+            int top = (y * sheetWidth + x - padding) * bytesPerPixel;
+            int bottom = ((y + frameHeight - 1) * sheetWidth + x - padding) * bytesPerPixel;
+            for (int p = 1; p <= padding; p++)
+            {
+                System.Buffer.BlockCopy(sheet, top, sheet, top - p * sheetWidth * bytesPerPixel, rowLength);
+                System.Buffer.BlockCopy(sheet, bottom, sheet, bottom + p * sheetWidth * bytesPerPixel, rowLength);
+            }
+        }
+
         internal static PixelInternalFormat GetPixelInternalFormatForSKColorType(SKColorType type)
         {
-            switch(type)
+            switch (type)
             {
                 case SKColorType.Bgra8888:
                     return PixelInternalFormat.Rgba8;
@@ -2697,7 +2867,7 @@ namespace KWEngine3.Helper
 
         internal static bool GetTextureDimensions(int oglTextureId, out int width, out int height)
         {
-            if(oglTextureId <= 0)
+            if (oglTextureId <= 0)
             {
                 width = 0;
                 height = 0;
@@ -2724,7 +2894,7 @@ namespace KWEngine3.Helper
 
         internal static void DeleteTexture(int texId)
         {
-            if(texId >= 0)
+            if (texId >= 0)
             {
                 GL.DeleteTextures(1, new int[] { texId });
             }
@@ -2875,7 +3045,7 @@ namespace KWEngine3.Helper
             }
             return texID;
         }
-    #endregion
+        #endregion
 
         /// <summary>
         /// Rundet eine Ganzzahl auf, so dass sie der nächsthöheren Zweierpotenz entspricht
@@ -2986,7 +3156,7 @@ namespace KWEngine3.Helper
                 else
                 {
                     int texId = HelperTexture.LoadTextureForModelExternal(filename, out int mipMaps, generateMipmaps);
-                    if(texId < 0)
+                    if (texId < 0)
                     {
                         KWEngine.LogWriteLine("[Texture] '" + filename + "' is not a valid texture");
                     }
@@ -3021,7 +3191,7 @@ namespace KWEngine3.Helper
                 dummyArray[0] = KWEngine.CurrentWorld._customTextures[filename].ID;
                 if (dummyArray[0] > 0)
                 {
-                    lock(KWEngine.CurrentWorld._customTextures)
+                    lock (KWEngine.CurrentWorld._customTextures)
                     {
                         GL.DeleteTextures(1, dummyArray);
                         KWEngine.CurrentWorld._customTextures.Remove(filename);

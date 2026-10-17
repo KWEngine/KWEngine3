@@ -1430,6 +1430,9 @@ namespace KWEngine3
         internal static float _glowUpsampleF2 = 0.70f;
         internal const int BLOOMWIDTH = 960;
         internal const int BLOOMHEIGHT = 540;
+        internal const int GIF_SPRITESHEET_MAXSIZE = 8192;            // max. width and height of a sprite sheet made from an animated GIF
+        internal const int GIF_SPRITESHEET_PADDING = 0;               // test switch: extra border (in pixels) around each sprite sheet frame, 0 = off
+        internal const bool TEXTURE_DECODE_UNMULTIPLIED_ALPHA = false;   // test switch: decode texture files with straight alpha instead of premultiplied alpha
 
         internal static void DeselectAll()
         {

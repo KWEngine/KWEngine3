@@ -105,6 +105,8 @@
       <Method Name="DisableKeyFramesResetAll" Hidden="true" />
       <Field Name="FontDictionary" Hidden="true" />
       <Method Name="GetModel" Hidden="true" />
+      <Field Name="GIF_SPRITESHEET_MAXSIZE" Hidden="true" />
+      <Field Name="GIF_SPRITESHEET_PADDING" Hidden="true" />
       <Field Name="Identity" Hidden="true" />
       <Method Name="InitializeFontsAndDefaultTextures" Hidden="true" />
       <Method Name="InitializeModels" Hidden="true" />
@@ -139,6 +141,7 @@
       <Field Name="SIMULATIONMAXACCUMULATOR" Hidden="true" />
       <Field Name="SIMULATIONNIBBLESIZE" Hidden="true" />
       <Field Name="TERRAIN_PATCH_SIZE" Hidden="true" />
+      <Field Name="TEXTURE_DECODE_UNMULTIPLIED_ALPHA" Hidden="true" />
       <Field Name="TextureAlpha" Hidden="true" />
       <Field Name="TextureBlack" Hidden="true" />
       <Field Name="TextureCheckerboard" Hidden="true" />
@@ -164,7 +167,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DfoQVbBNA+SJgPGc/AruCZARVCgCgmoSjHn2SP2KEKk=</HashCode>
+      <HashCode>DfoQVbBNA+WJgPGc/AruCZARVCgCgmoSjHn2SP2KEKs=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -582,7 +585,7 @@
       <Method Name="SetTextureForMap" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QABAAAoQCAAABAQAAEIAIAACACAAQAAAAAEAAwAAAAU=</HashCode>
+      <HashCode>QAFAAEsQCAAABAQAAEIAIAACACAAQAAAAAEAAwAAAAU=</HashCode>
       <FileName>GameObjects\HUDObjectImage.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -894,30 +897,37 @@
       <Method Name="CheckFBXNestedListNew" Hidden="true" />
       <Method Name="ComputeAlphaCoverageMipScales" Hidden="true" />
       <Method Name="ConvertEmbeddedToTemporaryFile" Hidden="true" />
+      <Method Name="CopyFrame" Hidden="true" />
       <Method Name="CreateEmptyCubemapDepthTexture" Hidden="true" />
       <Method Name="CreateEmptyCubemapTexture" Hidden="true" />
       <Method Name="CreateEmptyDepthTexture" Hidden="true" />
+      <Method Name="DecodeGifSpriteSheet" Hidden="true" />
+      <Method Name="DecodeImage" Hidden="true" />
       <Method Name="DeleteTemporaryFile" Hidden="true" />
       <Method Name="DeleteTexture" Hidden="true" />
       <Field Name="dummyArray" Hidden="true" />
+      <Method Name="ExtrudeFrameBorder" Hidden="true" />
       <Method Name="FlipVertical" Hidden="true" />
       <Method Name="GetAnisotropicFilteringLevel" Hidden="true" />
       <Method Name="GetAssimpTextureType" Hidden="true" />
       <Method Name="GetDefaultTexture" Hidden="true" />
       <Method Name="GetFBXTextureFilenamesAndData" Hidden="true" />
       <Method Name="GetFileEnding" Hidden="true" />
+      <Method Name="GetGifSpriteSheetLayout" Hidden="true" />
       <Method Name="GetMaterialIdFor" Hidden="true" />
       <Method Name="GetMaxMipMapLevels" Hidden="true" />
       <Method Name="GetMetallicRoughnessForMaterialID" Hidden="true" />
       <Method Name="GetMetallicRoughnessValues" Hidden="true" />
       <Method Name="GetPixelFormatForSKColorType" Hidden="true" />
       <Method Name="GetPixelInternalFormatForSKColorType" Hidden="true" />
+      <Method Name="GetSpriteSheetLayout" Hidden="true" />
       <Method Name="GetTextureDimensions" Hidden="true" />
       <Method Name="GetTextureMetallic" Hidden="true" />
       <Method Name="GetTextureRoughness" Hidden="true" />
       <Method Name="GetTextureSlotIndex" Hidden="true" />
       <Method Name="GetTextureTypeString" Hidden="true" />
       <Method Name="GetUVIndex" Hidden="true" />
+      <Method Name="IsAnimatedGif" Hidden="true" />
       <Method Name="IsFBXASCII" Hidden="true" />
       <Method Name="LeaveOnlyDigits" Hidden="true" />
       <Method Name="LoadBitmapForWindowIcon" Hidden="true" />
@@ -957,7 +967,7 @@
       <Method Name="UpdateAnisotropicFilteringOfLoadedTextures" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>A2ggAbCEhEGICQAAQ6QxCEUAAAAIkg4FpklBLhpzkUA=</HashCode>
+      <HashCode>A2ggAbCEhEGICQAAS6QxCEUABAAIkg4FrklBPhpzkUA=</HashCode>
       <FileName>Helper\HelperTexture.cs</FileName>
     </TypeIdentifier>
   </Class>

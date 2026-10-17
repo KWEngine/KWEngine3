@@ -60,6 +60,22 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Gibt die Anzahl der Einzelbilder an, wenn die Textur aus einer animierten GIF-Datei stammt (sonst 1)
+        /// </summary>
+        /// <remarks>Animierte GIF-Dateien werden als Spritesheet geladen: Die Einzelbilder liegen zeilenweise von links oben nach rechts unten in der Textur.</remarks>
+        public int SpriteSheetFrameCount { get; internal set; } = 1;
+
+        /// <summary>
+        /// Gibt die Anzahl der Spalten des Spritesheets an, wenn die Textur aus einer animierten GIF-Datei stammt (sonst 1)
+        /// </summary>
+        public int SpriteSheetColumns { get; internal set; } = 1;
+
+        /// <summary>
+        /// Gibt die Anzahl der Zeilen des Spritesheets an, wenn die Textur aus einer animierten GIF-Datei stammt (sonst 1)
+        /// </summary>
+        public int SpriteSheetRows { get; internal set; } = 1;
+
+        /// <summary>
         /// Gibt den aktuellen Texturwiederholungsfaktor an
         /// </summary>
         public Vector2 TextureRepeat
@@ -212,9 +228,13 @@ namespace KWEngine3.GameObjects
         /// <summary>
         /// Setzt das anzuzeigende Bild (als Textur) und skaliert das Objekt auf die Originalgröße dieses Bildes
         /// </summary>
+        /// <remarks>Animierte GIF-Dateien werden als Spritesheet mit allen Einzelbildern geladen (siehe SpriteSheetColumns und SpriteSheetRows)</remarks>
         /// <param name="filename">Name der Bilddatei</param>
         public void SetTexture(string filename)
         {
+            SpriteSheetFrameCount = 1;
+            SpriteSheetColumns = 1;
+            SpriteSheetRows = 1;
             if (filename == null)
             {
                 KWEngine.LogWriteLine("[HUDObject] Texture file not found");
@@ -247,6 +267,10 @@ namespace KWEngine3.GameObjects
                     SetScale(width, height);
                     _textureDimsOriginal.X = width;
                     _textureDimsOriginal.Y = height;
+                    HelperTexture.GetGifSpriteSheetLayout(filename, out int frameCount, out int columns, out int rows);
+                    SpriteSheetFrameCount = frameCount;
+                    SpriteSheetColumns = columns;
+                    SpriteSheetRows = rows;
                 }
                 else
                 {
