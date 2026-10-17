@@ -90,7 +90,17 @@ namespace KWEngine3.Renderer
             foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjects())
             {
                 if(g.IsShadowCaster && g._stateRender._opacity > 0 && g.IsAffectedByLight)
-                    Draw(g);
+                {
+                    if (l._frustumShadowMap.IsBoxInFrustum(
+                            l.Position,
+                            l._stateRender._lookAtVector,
+                            l._stateRender._nearFarFOVType.Y,
+                            g.Center,
+                            new Vector3(g.AABBLeft, g.AABBLow, g.AABBBack),
+                            new Vector3(g.AABBRight, g.AABBHigh, g.AABBFront),
+                            g._stateRender._dimensions.LengthFast))
+                        Draw(g);
+                }
             }
 
             if(KWEngine.CurrentWorld.IsViewSpaceGameObjectAttached && KWEngine.CurrentWorld._viewSpaceGameObject.DepthTestingEnabled)

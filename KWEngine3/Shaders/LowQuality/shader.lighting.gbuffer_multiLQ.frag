@@ -355,6 +355,18 @@ void main()
             float attenuation = currentLightClr.w * (currentLightType < 0 ? 1.0 : cos(ninetydegrees / currentLightFar * theDistanceClamped));
             vec3 radiance     = currentLightClr.xyz * attenuation * differenceLightDirectionAndFragmentDirection; 
 
+            // skip lights that do not reach this pixel (out of range, outside of the spot cone or switched off)
+            if(attenuation * differenceLightDirectionAndFragmentDirection <= 0.0)
+            {
+                continue;
+            }
+
+            // skip lights that only hit the back side of the surface (foliage still needs them for its transmission)
+            float NdotL = max(dot(N, L), 0.0);
+            if(NdotL <= 0.0 && !isFoliage)
+            {
+                continue;
+            }
 
             // cook-torrance brdf
             float NDF = DistributionGGX(N, H, pbr.y); //y = roughness
@@ -370,9 +382,6 @@ void main()
             float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
             vec3 specular     = numerator / denominator;  
 
-            // add to outgoing radiance Lo
-            float NdotL = max(dot(N, L), 0.0);                
-
             // shadow map check:
             float darkeningCurrentLight = 1.0;
             if(shadowCaster > 0)
@@ -387,10 +396,14 @@ void main()
                     
                     vec2 shadowVisibility = getShadowMapVisiblity(projCoordsForTextureLookup, projCoordsForTextureLookup2);
 
-                    vec4 b = texture(uShadowMap[shadowMapIndex - 1], vec3(shadowVisibility.y > 0 ? projCoordsForTextureLookup2.xy : projCoordsForTextureLookup.xy, shadowVisibility.y));
-                    float fragmentDepthLinearized = shadowVisibility.y > 0 ? projCoordsForTextureLookup2.z : projCoordsForTextureLookup.z;
-                    darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
-                    darkeningCurrentLight = mix(darkeningCurrentLight, 1.0, shadowVisibility.x);
+                    // outside of the shadow range the result is always 1.0, so the shadow map is only read inside of it
+                    if(shadowVisibility.x < 1.0)
+                    {
+                        vec4 b = texture(uShadowMap[shadowMapIndex - 1], vec3(shadowVisibility.y > 0 ? projCoordsForTextureLookup2.xy : projCoordsForTextureLookup.xy, shadowVisibility.y));
+                        float fragmentDepthLinearized = shadowVisibility.y > 0 ? projCoordsForTextureLookup2.z : projCoordsForTextureLookup.z;
+                        darkeningCurrentLight = calculateShadow(b, fragmentDepthLinearized, currentLightBias, currentLightHardness);
+                        darkeningCurrentLight = mix(darkeningCurrentLight, 1.0, shadowVisibility.x);
+                    }
                 }
                 else if(shadowMapIndex < 0) // point light
                 {

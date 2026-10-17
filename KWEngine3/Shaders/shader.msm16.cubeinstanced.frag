@@ -28,6 +28,4 @@ void main()
 	vec4 b_unbiased = vec4(z, zSq, z * zSq, zSq * zSq);
 	map = quantizationMatrix2 * b_unbiased;
 	map.x += offsetZero;
-
-    gl_FragDepth = lightDistance / uNearFar.y;
 }  
