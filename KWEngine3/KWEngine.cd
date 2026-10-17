@@ -36,7 +36,11 @@
       <Field Name="lastCycleCount" Hidden="true" />
       <Field Name="MOUSEMOVEMENTSCALE" Hidden="true" />
       <Field Name="MOUSEMOVEMENTSHAREPERSTEP" Hidden="true" />
+      <Field Name="NSMAINMENUWINDOWLEVEL" Hidden="true" />
+      <Field Name="NSNORMALWINDOWLEVEL" Hidden="true" />
+      <Method Name="objc_msgSend_setLevel" Hidden="true" />
       <Method Name="OnClosing" Hidden="true" />
+      <Method Name="OnFocusedChanged" Hidden="true" />
       <Method Name="OnLoad" Hidden="true" />
       <Method Name="OnMouseDown" Hidden="true" />
       <Method Name="OnMouseMove" Hidden="true" />
@@ -50,12 +54,14 @@
       <Method Name="RenderLoadingScreen" Hidden="true" />
       <Method Name="RenderOverlay" Hidden="true" />
       <Method Name="ResetMouseDeltas" Hidden="true" />
+      <Method Name="sel_registerName" Hidden="true" />
       <Method Name="SetGLViewportToClientSize" Hidden="true" />
       <Method Name="SetGLViewportToScaledClientSize" Hidden="true" />
       <Method Name="SetWorldInternal" Hidden="true" />
       <Method Name="TakeMouseMovementForSimulationStep" Hidden="true" />
       <Method Name="UpdateCurrentWorldAndObjects" Hidden="true" />
       <Method Name="UpdateDeltaTime" Hidden="true" />
+      <Method Name="UpdateMacOSWindowLevel" Hidden="true" />
       <Method Name="UpdateScene" Hidden="true" />
     </Members>
     <NestedTypes>
@@ -66,7 +72,7 @@
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>RD6EAAAIxUAEAQeQ0BkBhEASkxoEBCQMKAEEmEWuogA=</HashCode>
+      <HashCode>RD6EAQAIxWAEAReQ0BkBhEASkxoEBCQMKAEEmEWuqgA=</HashCode>
       <FileName>GLWindow.cs</FileName>
     </TypeIdentifier>
   </Class>
