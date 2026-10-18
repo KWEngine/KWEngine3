@@ -14,6 +14,7 @@ namespace KWEngine3.Renderer
         public static int UTextureDepth { get; private set; } = -1;
         public static int UViewProjectionMatrixInverted { get; private set; } = -1;
         public static int UCameraPos { get; private set; } = -1;
+        public static int UFogBackgroundScale { get; private set; } = -1;
 
         // Binding for ubo uBlockFog: (0-2: Lighting/Instancing, 10: HUD Text)
         public const int UBO_BINDINGPOINT = 11;
@@ -63,6 +64,7 @@ namespace KWEngine3.Renderer
                 UTextureDepth = GL.GetUniformLocation(ProgramID, "uTextureDepth");
                 UViewProjectionMatrixInverted = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrixInverted");
                 UCameraPos = GL.GetUniformLocation(ProgramID, "uCameraPos");
+                UFogBackgroundScale = GL.GetUniformLocation(ProgramID, "uFogBackgroundScale");
 
                 UBO = GL.GenBuffer();
                 GL.BindBuffer(BufferTarget.UniformBuffer, UBO);
@@ -201,6 +203,7 @@ namespace KWEngine3.Renderer
         {
             Matrix4 vpInv;
             Vector3 cameraPosition;
+            float backgroundScale = 1f;
             if (KWEngine.Mode == EngineMode.Play)
             {
                 vpInv = KWEngine.CurrentWorld._cameraGame._stateRender.ViewProjectionMatrixInverse;
@@ -210,9 +213,12 @@ namespace KWEngine3.Renderer
             {
                 vpInv = KWEngine.CurrentWorld._cameraEditor._stateRender.ViewProjectionMatrixInverse;
                 cameraPosition = KWEngine.CurrentWorld._cameraEditor._stateRender._position;
+                // the editor camera sees much farther than the game camera:
+                backgroundScale = KWEngine.CurrentWorld._cameraGame._zFar / KWEngine.CurrentWorld._cameraEditor._zFar;
             }
             GL.UniformMatrix4(UViewProjectionMatrixInverted, false, ref vpInv);
             GL.Uniform3(UCameraPos, cameraPosition);
+            GL.Uniform1(UFogBackgroundScale, backgroundScale);
         }
 
         public static void Draw(Framebuffer fbSource) // fbSource = G-Buffer (FramebufferDeferred)

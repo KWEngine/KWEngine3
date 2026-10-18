@@ -96,6 +96,26 @@ namespace KWEngine3
             return new Vector2(_mouseDeltaToUse.X * MathF.Abs(KWEngine.MouseSensitivity), _mouseDeltaToUse.Y * KWEngine.MouseSensitivity);
         }
 
+        static GLWindow()
+        {
+            // Linux' Wayland window manager does not let programs move the window or set its icon.
+            // GLFW reports this as an error and OpenTK's default handler throws an exception,
+            // which crashes the program on Linux.
+            // A static constructor runs even before the first window gets created and fixes this.
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                GLFWProvider.SetErrorCallback(OnGlfwErrorLinux);
+            }
+        }
+
+        private static void OnGlfwErrorLinux(OpenTK.Windowing.GraphicsLibraryFramework.ErrorCode errorCode, string description)
+        {
+            if (errorCode == OpenTK.Windowing.GraphicsLibraryFramework.ErrorCode.FeatureUnavailable)
+                return;
+
+            Console.Error.WriteLine("GLFW error " + errorCode + ": " + description);
+        }
+
         internal GLWindow(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings) : base(gameWindowSettings, nativeWindowSettings)
         {
             HelperGeneral.DecideBuildType();

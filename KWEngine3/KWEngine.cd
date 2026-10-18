@@ -41,6 +41,7 @@
       <Method Name="objc_msgSend_setLevel" Hidden="true" />
       <Method Name="OnClosing" Hidden="true" />
       <Method Name="OnFocusedChanged" Hidden="true" />
+      <Method Name="OnGlfwErrorLinux" Hidden="true" />
       <Method Name="OnLoad" Hidden="true" />
       <Method Name="OnMouseDown" Hidden="true" />
       <Method Name="OnMouseMove" Hidden="true" />

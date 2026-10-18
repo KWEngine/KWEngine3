@@ -9,6 +9,7 @@ layout(location = 1) out vec4 bloom; // bloom:  bloom * (1 - a): brighter object
 uniform sampler2D uTextureDepth;              // depth buffer
 uniform mat4 uViewProjectionMatrixInverted;
 uniform vec3 uCameraPos;
+uniform float uFogBackgroundScale;           // far distance of the game camera / far distance of the current camera (1 in play mode)
 
 float fogDensityAtHeight(float y, float baseDensity, float baseHeight, float falloff)
 {
@@ -435,7 +436,10 @@ void main()
     if (depth < 1.0)
         fog = fogIntegrate(uCameraPos, worldPosition);
     else
-        fog = fogIntegrateBackground(uCameraPos, worldPosition);
+    {
+        // the background lies at the render distance of the game camera, also in the editor (whose far plane is much farther)
+        fog = fogIntegrateBackground(uCameraPos, uCameraPos + (worldPosition - uCameraPos) * uFogBackgroundScale);
+    }
     float a = 1.0 - fog.w;
 
     // blending: fog.xyz + scene * transmittance

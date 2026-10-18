@@ -1339,7 +1339,7 @@ namespace KWEngine3.Editor
                 }
                 if (ImGui.IsItemHovered())
                 {
-                    ImGui.SetTooltip("0 = no fog. Visibility drops to about 5 percent after 3 / density world units."); // no percent sign: tooltip text is a format string
+                    ImGui.SetTooltip("0 = no fog. Visibility drops to about 5 percent after 3 / density world units.");
                 }
                 FogGridColumn(1, fogRowX, fogColumnW, fogSliderW);
                 float fogHeight = world._fogHeight;
@@ -1349,7 +1349,7 @@ namespace KWEngine3.Editor
                 }
                 FogGridColumn(2, fogRowX, fogColumnW, fogSliderW);
                 float fogFalloff = world._fogHeightFalloff;
-                if (ImGui.SliderFloat("Falloff##fog", ref fogFalloff, 0f, 10f, "%.2f"))
+                if (ImGui.SliderFloat("Falloff##fog", ref fogFalloff, 0f, 10f, "%.2f", ImGuiSliderFlags.Logarithmic))
                 {
                     world.SetFogHeight(world._fogHeight, fogFalloff);
                 }
