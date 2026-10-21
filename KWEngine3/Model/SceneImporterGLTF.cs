@@ -92,7 +92,7 @@ namespace KWEngine3.Model
             GenerateNodeHierarchy(scene, ref returnModel);
             FindRootBone(scene.Scenes[0], ref scene, ref returnModel);
             bool result = ProcessBones(scene, ref returnModel);
-            if(result)
+            if (result)
                 result = ProcessMeshes(scene, ref returnModel);
             ProcessAnimations(scene, ref returnModel);
 
@@ -765,11 +765,11 @@ namespace KWEngine3.Model
 
         private static int GetGlbOffset(string path, ref GeoMeshCollider collider)
         {
-            if(!path.ToLower().EndsWith(".glb"))
+            if (!path.ToLower().EndsWith(".glb"))
             {
                 return 0;
             }
-            if(collider.GlbOffset >= 0)
+            if (collider.GlbOffset >= 0)
             {
                 return collider.GlbOffset;
             }
@@ -1061,7 +1061,7 @@ namespace KWEngine3.Model
             {
                 int bufferId = scene.BufferViews[bufferViewId].Buffer;
                 glTFLoader.Schema.Buffer buff = scene.Buffers[bufferId];
-                if(buff.Uri != null && buff.Uri.StartsWith("data:application/octet-stream;base64"))
+                if (buff.Uri != null && buff.Uri.StartsWith("data:application/octet-stream;base64"))
                 {
                     int commapos = buff.Uri.IndexOf(',');
                     if (commapos >= 0)
@@ -1082,7 +1082,7 @@ namespace KWEngine3.Model
                     return null;
                 }
             }
-            
+
             else
             {
                 KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
@@ -1245,7 +1245,7 @@ namespace KWEngine3.Model
                 int lastVertexIndex = verticesArray.Count - 1;
                 int lastVertexIndex2 = verticesArray.Count * 4 - 1;
                 GeoVertex vertexLast = verticesArray[lastVertexIndex];
-                int tmpWeightsSetLast = FillGeoVertexWithBoneIdsAndWeights(bonesData[lastVertexIndex2 -4], bonesData[lastVertexIndex2 - 3], bonesData[lastVertexIndex2 - 2], bonesData[lastVertexIndex2 - 1], weightsData[lastVertexIndex2 - 4], weightsData[lastVertexIndex2 - 3], weightsData[lastVertexIndex2 - 2], weightsData[lastVertexIndex2 - 1], ref vertexLast, out List<int> bIds);
+                int tmpWeightsSetLast = FillGeoVertexWithBoneIdsAndWeights(bonesData[lastVertexIndex2 - 4], bonesData[lastVertexIndex2 - 3], bonesData[lastVertexIndex2 - 2], bonesData[lastVertexIndex2 - 1], weightsData[lastVertexIndex2 - 4], weightsData[lastVertexIndex2 - 3], weightsData[lastVertexIndex2 - 2], weightsData[lastVertexIndex2 - 1], ref vertexLast, out List<int> bIds);
                 if (tmpWeightsSetLast > numberOfWeightsActuallySet)
                 {
                     numberOfWeightsActuallySet = tmpWeightsSetLast;
@@ -1255,7 +1255,7 @@ namespace KWEngine3.Model
                     if (!uniqueBoneIds.Contains(bId))
                         uniqueBoneIds.Add(bId);
                 }
-                
+
             }
             return verticesArray.ToArray();
         }
@@ -1272,7 +1272,7 @@ namespace KWEngine3.Model
             List<Vector3> verticesArray = new();
 
             int vertexIndex = mprim.Attributes["POSITION"];
-            
+
             Accessor indexAccessor = scene.Accessors[vertexIndex];
             byte[] data = GetByteDataFromAccessor(scene, indexAccessor, ref collider);
 
@@ -1827,7 +1827,7 @@ namespace KWEngine3.Model
                 meshHitBox.Name = mesh.Name;
                 meshHitBox.Transform = currentNodeTransform;
                 meshHitBox.TransformInverse = Matrix4.Invert(currentNodeTransform);
-                if(!currentNodeName.ToLower().Contains("_nohitbox"))
+                if (!currentNodeName.ToLower().Contains("_nohitbox"))
                     model.MeshCollider.MeshHitboxes.Add(meshHitBox);
             }
             return true;
@@ -2092,7 +2092,7 @@ namespace KWEngine3.Model
         {
             GeoMeshCollider collider = new GeoMeshCollider();
             filename = HelperGeneral.EqualizePathDividers(filename);
-            if(!File.Exists(filename))
+            if (!File.Exists(filename))
             {
                 KWEngine.LogWriteLine("[Import] Cannot find collider model " + filename);
                 return collider;
@@ -2117,7 +2117,7 @@ namespace KWEngine3.Model
             collider.GlbOffset = GetGlbOffset(filename, ref collider);
 
             GenerateNodeHierarchy(wholeScene, ref collider);
-            foreach(GeoNode child in collider.Root.Children)
+            foreach (GeoNode child in collider.Root.Children)
             {
                 GenerateMeshHitboxes(wholeScene, child, ref collider, colliderType);
             }
@@ -2130,13 +2130,14 @@ namespace KWEngine3.Model
             if (n != null)
             {
                 GeoMeshHitbox hb = GenerateMeshHitboxForNode(wholeScene, n, ref collider, colliderType);
-                if(hb != null)
+                if (hb != null)
                 {
+                    hb.Name = n.Name;
                     hb.Transform = geoNode.Transform;
                     hb.TransformInverse = Matrix4.Invert(hb.Transform);
                     collider.MeshHitboxes.Add(hb);
                 }
-                foreach(GeoNode child in geoNode.Children)
+                foreach (GeoNode child in geoNode.Children)
                 {
                     GenerateMeshHitboxes(wholeScene, child, ref collider, colliderType);
                 }
@@ -2165,8 +2166,8 @@ namespace KWEngine3.Model
             List<Vector3> uniqueNormals = new();
             List<Vector3> allVertices = new();
             List<uint> allIndices = new();
-            
-            if(gltfNode.Mesh.HasValue)
+
+            if (gltfNode.Mesh.HasValue)
             {
                 Mesh mesh = scene.Meshes[gltfNode.Mesh.Value];
                 float minX = float.MaxValue;
@@ -2177,7 +2178,7 @@ namespace KWEngine3.Model
                 float maxZ = float.MinValue;
                 foreach (MeshPrimitive mp in mesh.Primitives)
                 {
-                    if(mp.Indices.HasValue && mp.Mode == MeshPrimitive.ModeEnum.TRIANGLES)
+                    if (mp.Indices.HasValue && mp.Mode == MeshPrimitive.ModeEnum.TRIANGLES)
                     {
                         allIndices.AddRange(GetIndicesForMeshPrimitive(scene, mp, ref collider));
                         List<Vector3> verticesOfPrimitive = GetVertexDataForMeshPrimitive(scene, mp, ref collider, gltfNode, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, ref uniqueVertices);
@@ -2202,7 +2203,7 @@ namespace KWEngine3.Model
                     }
                 }
                 // Generate faces and their normals:
-                for(int i  = 0; i < allIndices.Count; i += 3)
+                for (int i = 0; i < allIndices.Count; i += 3)
                 {
                     int index1 = uniqueVertices.IndexOf(allVertices[(int)allIndices[i + 0]]);
                     int index2 = uniqueVertices.IndexOf(allVertices[(int)allIndices[i + 1]]);
@@ -2219,7 +2220,7 @@ namespace KWEngine3.Model
 
                     Vector3 normal = Vector3.Normalize(Vector3.Cross(c - b, a - b));
                     int normalIndex = -1;
-                    if(!uniqueNormals.Contains(normal))
+                    if (!uniqueNormals.Contains(normal))
                     {
                         uniqueNormals.Add(normal);
                         normalIndex = uniqueNormals.Count - 1;
@@ -2227,7 +2228,7 @@ namespace KWEngine3.Model
                     else
                     {
                         normalIndex = uniqueNormals.IndexOf(normal);
-                        if(normalIndex < 0)
+                        if (normalIndex < 0)
                         {
                             KWEngine.LogWriteLine("[Import] GLTF file " + collider.FileName + " gives invalid normal data");
                             return null;
@@ -2252,9 +2253,9 @@ namespace KWEngine3.Model
 
         private static void FindGLTFNodeForGeoNode(Gltf gltf, GeoNode node, out Node output)
         {
-            foreach(Node n in gltf.Nodes)
+            foreach (Node n in gltf.Nodes)
             {
-                if(n.Name == node.Name)
+                if (n.Name == node.Name)
                 {
                     output = n;
                     return;
