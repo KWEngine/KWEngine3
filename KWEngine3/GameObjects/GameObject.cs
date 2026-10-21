@@ -191,7 +191,7 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
-        /// Setzt ein benutzerdefiniertes Collider-Modell für die GameObject-Instanz (muss zuvor via KWEngine.LoadModelCollider() importiert worden sein)
+        /// Setzt ein benutzerdefiniertes Collider-Modell für die GameObject-Instanz (muss zuvor via KWEngine.LoadCollider() importiert worden sein)
         /// </summary>
         /// <param name="colliderModelName">Name des Collider-Modells</param>
         public void SetColliderModel(string colliderModelName)
