@@ -7,7 +7,6 @@ namespace KWEngine3.Helper
     internal static class HelperDebug
     {
         internal static readonly Dictionary<Type, List<MemberInfo>> TypesWithDebugAttribute = new();
-        // timer queries as a ring over QUERY_FRAMES frames: a result is read QUERY_FRAMES - 1 frames later, so the CPU never waits for the GPU
         internal const int QUERY_FRAMES = 4;
         internal static Dictionary<RenderType, int[]> _renderTimesIDDict = new();
         internal static Dictionary<RenderType, bool[]> _renderTimesIssuedDict = new();
@@ -15,8 +14,18 @@ namespace KWEngine3.Helper
         internal static Dictionary<RenderType, List<long>> _renderTimesDict = new();
         internal static Dictionary<RenderType, double> _renderTimesAvgDict = new();
         internal static float _glQueryTimestampLastReset = 0;
-        internal static List<float> _cpuTimes = new();
-        internal static float _cpuTimeAvg = 0f;
+
+        internal static double _updateTimeLast = 0.0;
+        internal static double _renderTimeLast = 0.0;
+        internal static int _updateStepsLast = 0;
+        internal static float _updateTimeAvg = 0f;   // averages of the last second
+        internal static float _renderTimeAvg = 0f;
+        internal static float _stepTimeAvg = 0f;     // per simulation step, independent of the frame rate
+        private static double _updateTimeSum = 0.0;
+        private static double _renderTimeSum = 0.0;
+        private static int _updateFrames = 0;
+        private static int _updateSteps = 0;
+        private static int _renderFrames = 0;
         internal static BindingFlags _bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
         internal static bool HasDebugFields(GameObject g)
@@ -32,14 +41,14 @@ namespace KWEngine3.Helper
         internal static void InitDebugRegistry()
         {
             IEnumerable<Type> allTypes = Assembly.GetEntryAssembly().GetTypes().Where(t => typeof(GameObject).IsAssignableFrom(t) || typeof(World).IsAssignableFrom(t));
-            
+
             foreach (Type type in allTypes)
             {
                 List<MemberInfo> mInfo = new();
                 List<FieldInfo> fieldsWithAttribute = GetFieldsInHierarchy(type, _bindingFlags)
                     .Where(f => f.IsDefined(typeof(KWDebugAttribute), true))
                     .ToList();
-                foreach(FieldInfo f in fieldsWithAttribute)
+                foreach (FieldInfo f in fieldsWithAttribute)
                 {
                     mInfo.Add(f);
                 }
@@ -148,7 +157,7 @@ namespace KWEngine3.Helper
 
         internal static void ClearTimeDicts()
         {
-            if(KWEngine.DebugPerformanceEnabled)
+            if (KWEngine.DebugPerformanceEnabled)
             {
                 foreach (var kvpair in _renderTimesDict)
                 {
@@ -158,14 +167,43 @@ namespace KWEngine3.Helper
                 {
                     _renderTimesAvgDict[kvpair.Key] = 0;
                 }
-                _cpuTimes.Clear();
-                _cpuTimeAvg = 0f;
             }
+            ResetCpuTimes();
+            _updateTimeAvg = 0f;
+            _renderTimeAvg = 0f;
+            _stepTimeAvg = 0f;
+        }
+
+        // called once per frame after the simulation steps
+        internal static void AddUpdateTime(double ms, int steps)
+        {
+            _updateTimeLast = ms;
+            _updateStepsLast = steps;
+            _updateTimeSum += ms;
+            _updateSteps += steps;
+            _updateFrames++;
+        }
+
+        // called once per frame after rendering (without the editor overlay)
+        internal static void AddRenderTime(double ms)
+        {
+            _renderTimeLast = ms;
+            _renderTimeSum += ms;
+            _renderFrames++;
+        }
+
+        private static void ResetCpuTimes()
+        {
+            _updateTimeSum = 0.0;
+            _renderTimeSum = 0.0;
+            _updateFrames = 0;
+            _updateSteps = 0;
+            _renderFrames = 0;
         }
 
         internal static void StartTimeQuery(RenderType type)
         {
-            if(KWEngine.DebugPerformanceEnabled)
+            if (KWEngine.DebugPerformanceEnabled)
                 GL.BeginQuery(QueryTarget.TimeElapsed, _renderTimesIDDict[type][_queryFrame]);
         }
 
@@ -192,16 +230,25 @@ namespace KWEngine3.Helper
         internal static void UpdateTimesAVG()
         {
             _queryFrame = (_queryFrame + 1) % QUERY_FRAMES;
-            if (KWEngine.DebugPerformanceEnabled && KWEngine.ApplicationTime - _glQueryTimestampLastReset > 1)
+            if (KWEngine.ApplicationTime - _glQueryTimestampLastReset > 1)
             {
                 _glQueryTimestampLastReset = KWEngine.ApplicationTime;
-                foreach(var kvpair in _renderTimesDict)
+
+                // cpu times are always measured (the editor shows them as well)
+                _updateTimeAvg = _updateFrames > 0 ? (float)(_updateTimeSum / _updateFrames) : 0f;
+                _renderTimeAvg = _renderFrames > 0 ? (float)(_renderTimeSum / _renderFrames) : 0f;
+                _stepTimeAvg = _updateSteps > 0 ? (float)(_updateTimeSum / _updateSteps) : 0f;
+                ResetCpuTimes();
+
+                if (KWEngine.DebugPerformanceEnabled)
                 {
-                    List<long> times = kvpair.Value;
-                    _renderTimesAvgDict[kvpair.Key] = times.Count > 0 ? times.Average() : 0.0; // no samples yet in the first frames
-                    times.Clear();
+                    foreach (var kvpair in _renderTimesDict)
+                    {
+                        List<long> times = kvpair.Value;
+                        _renderTimesAvgDict[kvpair.Key] = times.Count > 0 ? times.Average() : 0.0; // no samples yet in the first frames
+                        times.Clear();
+                    }
                 }
-                _cpuTimeAvg = _cpuTimes.Count > 0 ? _cpuTimes.Average() : 0f;
             }
         }
     }

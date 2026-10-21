@@ -34,8 +34,7 @@ namespace KWEngine3.Editor
         private static readonly string[] _backgroundTypeNames = { "2D", "Skybox", "Equirectangular" };
         private static int _backgroundTypeIndex = 0;
         private static bool _showArmatureWindow = false;
-        private static double _lastUpdateCycleTime = 0;
-        private static double _lastRenderCallsTime = 0;
+        private const int PERFORMANCE_PANEL_HEIGHT = 224;
 
         public static bool IsButtonActive(MouseButton btn)
         {
@@ -48,16 +47,6 @@ namespace KWEngine3.Editor
             {
                 AddFrameTime(0f);
             }
-        }
-
-        public static void UpdateLastRenderCallsTime(double time)
-        {
-            _lastRenderCallsTime = time;
-        }
-
-        public static void UpdateLastUpdateTime(double time)
-        {
-            _lastUpdateCycleTime = time;
         }
 
         public static void AddFrameTime(float t)
@@ -1651,21 +1640,23 @@ namespace KWEngine3.Editor
             ImGui.EndChild();
 
             // Frame times
-            ImGui.BeginChild("PERFORMANCE", new System.Numerics.Vector2(leftInner, 176), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
+            ImGui.BeginChild("PERFORMANCE", new System.Numerics.Vector2(leftInner, PERFORMANCE_PANEL_HEIGHT), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
             ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Performance analysis:");
             float[] ftimes = _frameTimes.ToArray();
             ImGui.PlotLines("Frame times", ref ftimes[0], _frameTimes.Count, 0, "", 1f, 100f);
             ImGui.LabelText(KWEngine.LastFrameTime.ToString("000.##") + " ms", "Last render cycle time:");
             ImGui.LabelText(_fpsValue.ToString("D5") + " fps", "Average fps:");
             //ImGui.LabelText(KWEngine.LastSimulationUpdateCycleCount.ToString(), "Last update cycle count:");
-            ImGui.LabelText(_lastUpdateCycleTime.ToString("000.##") + " ms", "Last update cycle time:");
-            //ImGui.LabelText(_lastRenderCallsTime.ToString("000.##") + " ms", "Last render calls time:");
+            // cpu times: averages of the last second (same values as in WorldPerformance)
+            ImGui.LabelText(HelperDebug._updateTimeAvg.ToString("0.000") + " ms", "Update (CPU):");
+            ImGui.LabelText(HelperDebug._renderTimeAvg.ToString("0.000") + " ms", "Render (CPU):");
+            ImGui.LabelText(HelperDebug._stepTimeAvg.ToString("0.000") + " ms", "Per simulation step:");
             ImGui.LabelText(KWEngine._texMemUsed.ToString("00000") + " MB", "Texture memory:");
             ImGui.LabelText(KWEngine._geometryMemUsed.ToString("00000") + " MB", "Geometry memory:");
             ImGui.EndChild();
 
             // Object list:
-            int y = KWEngine.Window.ClientSize.Y - 96 - 176 - 96;
+            int y = KWEngine.Window.ClientSize.Y - 96 - PERFORMANCE_PANEL_HEIGHT - 96;
             ImGui.BeginChild("OBJECTTREE", new System.Numerics.Vector2(leftInner, y), true, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
             if (ImGui.TreeNodeEx("GameObject instances", ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.CollapsingHeader | ImGuiTreeNodeFlags.DefaultOpen))
             {

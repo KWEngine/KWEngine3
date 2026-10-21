@@ -1574,7 +1574,6 @@ namespace KWEngine3
                     KWEngine.LogWriteLine("[GameObject] Object " + g.Name + " already in world.");
                 }
 
-                HelperSweepAndPrune.SweepAndPrune();
                 return;
             }
 
@@ -1631,7 +1630,6 @@ namespace KWEngine3
 
                 HelperGameObjectAttachment.CleanAttachments(g);
 
-                HelperSweepAndPrune.SweepAndPrune();
                 return;
             }
 

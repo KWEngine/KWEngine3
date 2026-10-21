@@ -271,7 +271,7 @@ namespace KWEngine3.Helper
             List<Intersection> intersections = new List<Intersection>();
             foreach(GameObjectHitbox hbCaller in caller._colliderModel._hitboxes)
             {
-                foreach(GameObjectHitbox hbOther in caller._collisionCandidates)
+                foreach(GameObjectHitbox hbOther in caller.GetCandidatesForOffset(offset))
                 {
                     Intersection i = TestIntersection(hbCaller, hbOther, offset);
                     if(i != null)
@@ -432,12 +432,7 @@ namespace KWEngine3.Helper
         /// <returns>Anzahl potenzieller Kollisionskandidaten</returns>
         public static int GetCollisionCandidateCountFor(GameObject g)
         {
-            int c = 0;
-            lock (g._collisionCandidates)
-            {
-                c = g._collisionCandidates.Count;
-            }
-            return c;
+            return HelperSweepAndPrune.GetCandidates(g).Count;
         }
 
         /// <summary>
@@ -449,12 +444,9 @@ namespace KWEngine3.Helper
         public static string GetCollisionCandidateNamesFor(GameObject g)
         {
             string result = "";
-            lock (g._collisionCandidates)
+            foreach (GameObjectHitbox hb in HelperSweepAndPrune.GetCandidates(g))
             {
-                foreach (GameObjectHitbox hb in g._collisionCandidates)
-                {
-                    result += hb.Owner.Name + ", ";
-                }
+                result += hb.Owner.Name + ", ";
             }
 
             return result.Substring(0, Math.Max(0, result.Length - 2));

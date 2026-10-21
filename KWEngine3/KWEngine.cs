@@ -159,7 +159,7 @@ namespace KWEngine3
         {
             if (DebugPerformanceEnabled)
             {
-                return (float)Math.Round(HelperDebug._cpuTimeAvg, 3);
+                return (float)Math.Round(HelperDebug._updateTimeAvg, 3);
             }
             else
                 return 0f;

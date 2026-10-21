@@ -19,7 +19,9 @@ namespace KWEngine3
         internal HUDObjectText _performanceFog;
         internal HUDObjectText _performanceFoliage;
         internal HUDObjectText _performanceAntiAliasing;
-        internal HUDObjectText _performanceCPU;
+        internal HUDObjectText _performanceCPU;         // cpu: simulation steps of a frame
+        internal HUDObjectText _performanceCPURender;   // cpu: preparing and submitting a frame
+        internal HUDObjectText _performanceCPUStep;     // cpu: one simulation step
         internal HUDObjectText _performanceFPS;
         internal List<int> fps = new();
         private float _lastTextUpdate = -1f;
@@ -72,7 +74,9 @@ namespace KWEngine3
                 _performanceHUD.SetText("HUD:     " + KWEngine.GetRenderTime(RenderType.HUD) + "ms");
                 _performancePostProcessing.SetText("PostP.:  " + KWEngine.GetRenderTime(RenderType.PostProcessing) + "ms");
 
-                _performanceCPU.SetText("CPU:     " + KWEngine.GetCPUTime() + "ms");
+                _performanceCPU.SetText("CPU Upd: " + KWEngine.GetCPUTime() + "ms");
+                _performanceCPURender.SetText("CPU Rnd: " + Math.Round(HelperDebug._renderTimeAvg, 3) + "ms");
+                _performanceCPUStep.SetText("CPU Step:" + Math.Round(HelperDebug._stepTimeAvg, 3) + "ms");
 
                 if (fps.Count == 240)
                     _performanceFPS.SetText("FPS:     " + Math.Round(fps.Average(), 0));
@@ -131,35 +135,49 @@ namespace KWEngine3
             AddHUDObject(_performanceForward);
 
             _performanceCPU = new HUDObjectText("0");
-            _performanceCPU.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceCPU.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
             _performanceCPU.ForceMonospace = true;
             _performanceCPU.SetScale(32);
             _performanceCPU.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceCPU);
 
             _performanceFog = new HUDObjectText("0");
-            _performanceFog.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceFog.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
             _performanceFog.ForceMonospace = true;
             _performanceFog.SetScale(32);
             _performanceFog.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceFog);
 
             _performanceFoliage = new HUDObjectText("0");
-            _performanceFoliage.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceFoliage.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
             _performanceFoliage.ForceMonospace = true;
             _performanceFoliage.SetScale(32);
             _performanceFoliage.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceFoliage);
 
             _performanceAntiAliasing = new HUDObjectText("0");
-            _performanceAntiAliasing.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceAntiAliasing.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
             _performanceAntiAliasing.ForceMonospace = true;
             _performanceAntiAliasing.SetScale(32);
             _performanceAntiAliasing.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
             AddHUDObject(_performanceAntiAliasing);
 
+            _performanceCPURender = new HUDObjectText("0");
+            _performanceCPURender.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceCPURender.ForceMonospace = true;
+            _performanceCPURender.SetScale(32);
+            _performanceCPURender.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
+            AddHUDObject(_performanceCPURender);
+
+            _performanceCPUStep = new HUDObjectText("0");
+            _performanceCPUStep.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceCPUStep.ForceMonospace = true;
+            _performanceCPUStep.SetScale(32);
+            _performanceCPUStep.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);
+            AddHUDObject(_performanceCPUStep);
+
             _performanceFPS = new HUDObjectText("FPS:     0");
-            _performanceFPS.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
+            _performanceFPS.SetPosition(16, 16 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32 + 32);
             _performanceFPS.ForceMonospace = true;
             _performanceFPS.SetScale(32);
             _performanceFPS.SetColorOutline(0.25f, 0.25f, 0.25f, 0.8f);

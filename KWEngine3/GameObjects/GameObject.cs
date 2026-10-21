@@ -165,7 +165,6 @@ namespace KWEngine3.GameObjects
                     }
                 }
                 UpdateModelMatrixAndHitboxes();
-                HelperSweepAndPrune.SweepAndPrune();
             }
         }
 
@@ -233,7 +232,6 @@ namespace KWEngine3.GameObjects
                     _colliderModel._hitboxes.Add(ghbNew);
                 }
                 UpdateModelMatrixAndHitboxes();
-                HelperSweepAndPrune.SweepAndPrune();
             }
         }
 
@@ -642,7 +640,7 @@ namespace KWEngine3.GameObjects
             else if (ID <= 0)
                 return null;
 
-            foreach (GameObjectHitbox hbother in _collisionCandidates)
+            foreach (GameObjectHitbox hbother in HelperSweepAndPrune.GetCandidates(this))
             {
                 if ((hbother.Owner is T) && hbother.Owner.ID > 0)
                 {
@@ -727,7 +725,7 @@ namespace KWEngine3.GameObjects
             else if (ID <= 0)
                 return intersections;
 
-            foreach (GameObjectHitbox hbother in _collisionCandidates)
+            foreach (GameObjectHitbox hbother in GetCandidatesForOffset(offset))
             {
                 if (!HelperGeneral.IsObjectClassOrSubclassOfTypes(types, hbother.Owner) || hbother.Owner.ID <= 0)
                 {
@@ -776,7 +774,7 @@ namespace KWEngine3.GameObjects
             else if (ID <= 0)
                 return intersections;
 
-            foreach (GameObjectHitbox hbother in _collisionCandidates)
+            foreach (GameObjectHitbox hbother in HelperSweepAndPrune.GetCandidates(this))
             {
                 if (!HelperGeneral.IsObjectClassOrSubclassOfTypes(types, hbother.Owner) || hbother.Owner.ID <= 0)
                 {
@@ -820,7 +818,7 @@ namespace KWEngine3.GameObjects
             else if (ID <= 0)
                 return intersections;
 
-            foreach (GameObjectHitbox hbother in _collisionCandidates)
+            foreach (GameObjectHitbox hbother in GetCandidatesForOffset(offset))
             {
                 if ((hbother.Owner is T) == false || hbother.Owner.ID <= 0)
                 {
@@ -1456,7 +1454,7 @@ namespace KWEngine3.GameObjects
             }
             List<RayIntersectionExt> list = new();
 
-            foreach (GameObjectHitbox hb in _collisionCandidates)
+            foreach (GameObjectHitbox hb in HelperSweepAndPrune.QueryNearby(this, _sapNearby))
             {
                 if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
                 {
@@ -1539,7 +1537,7 @@ namespace KWEngine3.GameObjects
             selectedFaces.Clear();
             Span<Vector3> vertexBuffer = stackalloc Vector3[HelperIntersection.MAX_STACK_FACE_VERTICES];
             bool facesFound = false;
-            foreach (GameObjectHitbox hb in _collisionCandidates)
+            foreach (GameObjectHitbox hb in HelperSweepAndPrune.QueryNearby(this, _sapNearby))
             {
                 if (hb.Owner.ID > 0 && HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
                 {
@@ -1726,7 +1724,7 @@ namespace KWEngine3.GameObjects
 
             List<RayIntersection> list = new();
 
-            foreach (GameObjectHitbox hb in _collisionCandidates)
+            foreach (GameObjectHitbox hb in HelperSweepAndPrune.QueryNearby(this, _sapNearby))
             {
                 if (HelperGeneral.IsObjectClassOrSubclassOfTypes(typelist, hb.Owner))
                 {
@@ -1926,7 +1924,7 @@ namespace KWEngine3.GameObjects
 
             float top = point.Y + maxStepHeight;
             Vector3 rayOrigin = new Vector3(point.X, top, point.Z);
-            foreach (GameObjectHitbox hb in _collisionCandidates)
+            foreach (GameObjectHitbox hb in HelperSweepAndPrune.QueryNearby(this, _sapNearby))
             {
                 // cheap position check first, the type check (reflection) only for hitboxes below the point
                 if (hb.Owner == this || hb.Owner.ID <= 0 || !HelperIntersection.IsPointInsideRectangle(rayOrigin, hb._center, hb._dimensionsAABB.X, hb._dimensionsAABB.Z))
@@ -2095,8 +2093,16 @@ namespace KWEngine3.GameObjects
             _obbRadii = obbRadii;
         }
 
-        internal List<GameObjectHitbox> _collisionCandidates = new();
-        internal List<TerrainSector> _collisionCandidatesTerrain = new();
+        internal List<GameObjectHitbox> _collisionCandidates = new();   // filled by HelperSweepAndPrune.GetCandidates()
+        internal List<GameObjectHitbox> _sapNearby = new();
+        internal List<GameObjectHitbox> _sapShifted = new();
+
+        // without offset: the normal candidates, otherwise the shifted area is queried
+        internal List<GameObjectHitbox> GetCandidatesForOffset(Vector3 offset)
+        {
+            return offset == Vector3.Zero ? HelperSweepAndPrune.GetCandidates(this) : HelperSweepAndPrune.QueryShifted(this, offset, _sapShifted);
+        }
+        internal List<TerrainSector> _collisionCandidatesTerrain = new();   // filled by HelperSweepAndPrune.GetCandidatesTerrain()
 
         internal void SetScaleRotationAndTranslation(Vector3 s, Quaternion r, Vector3 t)
         {
@@ -2124,7 +2130,7 @@ namespace KWEngine3.GameObjects
             List<Vector3> allContactPoints = _terrainContactPointsAll;
             allContactPoints.Clear();
             float maxMTVY = 0;
-            foreach (TerrainSector ts in this._collisionCandidatesTerrain)
+            foreach (TerrainSector ts in HelperSweepAndPrune.GetCandidatesTerrain(this))
             {
                 if (!HelperIntersection.CheckAABBCollision(
                     this.AABBLeft,

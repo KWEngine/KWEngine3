@@ -33,6 +33,18 @@ namespace KWEngine3.GameObjects
         internal bool _isCapsule = false;
         internal ColliderType _colliderType = ColliderType.ConvexHull;
 
+        // sweep & prune:
+        internal bool _sapInList = false;          // true if in list of sweep and prune algorithm
+        internal bool _sapLong = false;            // true if in list for extra long hitboxes
+        internal Vector3 _sapMin, _sapMax;         // hull: AABB + border
+        internal Vector3 _sapCenter;               // center of box
+        internal float _sapMargin = 0f;            // hull margin of box
+        internal int _sapStrip0, _sapStrip1;       // in inside stripes  (from -> to)
+        internal int _sapSince = 0;                // step # of when this hull was set
+        internal int _sapSeen = 0;                 // step # of when this was last seen in world
+        internal int _sapLastMove = 0;             // step # of when it was last moved
+        internal long _sapStamp = 0;               // to prevent clones in list
+
         internal Vector2i indexLeftRightMostVertex = new Vector2i(0);
         internal Vector2i indexBackFrontMostVertex = new Vector2i(0);
         internal Vector2i indexBottomTopMostVertex = new Vector2i(0);
@@ -191,6 +203,10 @@ namespace KWEngine3.GameObjects
             Vector3.TransformVector(new Vector3(0f, localSize.Y, 0f), in _modelMatrixFinal, out Vector3 obbAxisY);
             Vector3.TransformVector(new Vector3(0f, 0f, localSize.Z), in _modelMatrixFinal, out Vector3 obbAxisZ);
             _dimensionsOBB = new Vector3(obbAxisX.Length, obbAxisY.Length, obbAxisZ.Length);
+
+            // sweep and prune: if the hitbox left its hull, it is sorted in again right away
+            if (_sapInList)
+                HelperSweepAndPrune.NoteMoved(this);
         }
 
         public bool IsExtended

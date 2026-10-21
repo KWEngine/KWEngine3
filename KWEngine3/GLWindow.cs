@@ -991,14 +991,13 @@ namespace KWEngine3
             // unbind last render program:
             GL.UseProgram(0);
 
+            // cpu time for preparing and submitting this frame (the stopwatch was restarted in UpdateScene(), editor overlay not included)
+            HelperDebug.AddRenderTime(_stopwatch.ElapsedTicks / (double)Stopwatch.Frequency * 1000.0);
             HelperDebug.UpdateTimesAVG();
             if (HelperGeneral.IsDebugBuild)
             {
                 KWBuilderOverlay.AddFrameTime(KWEngine.LastFrameTime);
                 RenderOverlay((float)e.Time);
-
-                double elapsedTimeForCallsInMS = _stopwatch.ElapsedTicks / (double)Stopwatch.Frequency * 1000.0;
-                KWBuilderOverlay.UpdateLastRenderCallsTime(elapsedTimeForCallsInMS);
             }
 
             // bring image to monitor screen:
@@ -1140,7 +1139,7 @@ namespace KWEngine3
             {
                 GL.DeleteQueries(queries.Length, queries);
             }
-            HelperSweepAndPrune.StopThread();
+            HelperSweepAndPrune.Reset();
             HelperFlowField.StopThread();
 
             if (KWEngine.CurrentWorld != null)
@@ -1182,7 +1181,7 @@ namespace KWEngine3
 
             if (KWEngine.CurrentWorld != null)
             {
-                HelperSweepAndPrune.StopThread();
+                HelperSweepAndPrune.Reset();
                 HelperFlowField.StopThread();
                 KWEngine.CurrentWorld.Dispose();
             }
@@ -1208,7 +1207,7 @@ namespace KWEngine3
             _mouseDeltaToUse = Vector2.Zero;
             _frame = 0;
             HelperGeneral.FlushAndFinish();
-            HelperSweepAndPrune.StartThread();
+            HelperSweepAndPrune.Reset();
             HelperFlowField.StartThread();
             _worldNew = null;
 
@@ -1247,10 +1246,7 @@ namespace KWEngine3
             if (KWEngine.CurrentWorld._startingFrameActive == false)
             {
                 n = UpdateCurrentWorldAndObjects(out double elapsedTimeForCall);
-                if (!KWEngine.EditModeActive)
-                    KWBuilderOverlay.UpdateLastUpdateTime(elapsedTimeForCall);
-                if (KWEngine.DebugPerformanceEnabled)
-                    HelperDebug._cpuTimes.Add((float)elapsedTimeForCall);
+                HelperDebug.AddUpdateTime(elapsedTimeForCall, n);
             }
             cycleCount = n;
 
@@ -1376,6 +1372,12 @@ namespace KWEngine3
                     KWEngine.CurrentWorld.AddRemoveHUDObjects();
                     KWEngine.CurrentWorld.AddRemoveTextObjects();
 
+                    if (!KWEngine.EditModeActive)
+                    {
+                        // sweep and prune: add new hitboxes, remove old ones
+                        HelperSweepAndPrune.Update(KWEngine.CurrentWorld);
+                    }
+
                     n++;
 
                     KWEngine.CurrentWorld._cameraGame.BackupCameraState();
@@ -1411,27 +1413,6 @@ namespace KWEngine3
                         g._statePrevious = g._stateCurrent;
                         if (!KWEngine.EditModeActive)
                         {
-                            lock (HelperSweepAndPrune.OwnersDict)
-                            {
-                                bool gHasList = HelperSweepAndPrune.OwnersDict.TryGetValue(g, out List<GameObjectHitbox> collisions);
-                                g._collisionCandidates.Clear();
-                                if (gHasList)
-                                {
-                                    g._collisionCandidates.AddRange(collisions);
-                                }
-                            }
-
-                            lock (HelperSweepAndPrune.OwnersDictTerrainSector)
-                            {
-                                g._collisionCandidatesTerrain.Clear();
-
-                                bool gHasList = HelperSweepAndPrune.OwnersDictTerrainSector.TryGetValue(g, out List<TerrainSector> collisions);
-                                if (gHasList)
-                                {
-                                    g._collisionCandidatesTerrain.AddRange(collisions);
-                                }
-                            }
-
                             if (g.UpdateLast)
                             {
                                 _updatePostponedObjects.Add(g);
@@ -1525,13 +1506,6 @@ namespace KWEngine3
                         KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._statePrevious = KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._stateCurrent;
                         if (!KWEngine.EditModeActive)
                         {
-                            lock (HelperSweepAndPrune.OwnersDict)
-                            {
-                                bool hasCCs = HelperSweepAndPrune.OwnersDict.TryGetValue(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject, out List<GameObjectHitbox> hitBoxes);
-                                KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.Clear();
-                                if (hasCCs)
-                                    KWEngine.CurrentWorld._viewSpaceGameObject._gameObject._collisionCandidates.AddRange(hitBoxes);
-                            }
                             KWEngine.CurrentWorld._viewSpaceGameObject.Act();
                         }
                         KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(KWEngine.CurrentWorld._viewSpaceGameObject._gameObject);
@@ -1540,15 +1514,6 @@ namespace KWEngine3
                         {
                             if (!KWEngine.EditModeActive)
                             {
-                                lock (HelperSweepAndPrune.OwnersDict)
-                                {
-                                    bool hasCCs = HelperSweepAndPrune.OwnersDict.TryGetValue(attachment, out List<GameObjectHitbox> hitBoxes);
-                                    attachment._collisionCandidates.Clear();
-                                    if (hasCCs)
-                                    {
-                                        attachment._collisionCandidates.AddRange(hitBoxes);
-                                    }
-                                }
                                 attachment.Act();
                             }
                             KWEngine.CurrentWorld._cameraGame.UpdateScreenSpaceStatus(attachment);
