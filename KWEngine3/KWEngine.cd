@@ -315,10 +315,13 @@
       <Field Name="_raySelectedFaces" Hidden="true" />
       <Field Name="_rotationOffsetForAttachment" Hidden="true" />
       <Field Name="_rotationOffsetForAttachmentEuler" Hidden="true" />
+      <Field Name="_sapNearby" Hidden="true" />
+      <Field Name="_sapShifted" Hidden="true" />
       <Field Name="_scaleOffsetForAttachment" Hidden="true" />
       <Field Name="_terrainContactPointsAll" Hidden="true" />
       <Method Name="ApplyHitboxScaleToHitbox" Hidden="true" />
       <Method Name="GetBoneNameForAttachedGameObject" Hidden="true" />
+      <Method Name="GetCandidatesForOffset" Hidden="true" />
       <Method Name="GetGroundHeightBelow" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Property Name="IsAttachedToGameObject" Hidden="true" />
@@ -331,7 +334,7 @@
       <Method Name="UpdateWorldHitboxList" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>jAiAGAJGGIwqwiWEwIAOMAJGJVYyA0EJwkCHBA0CUIE=</HashCode>
+      <HashCode>jAiAGAJGGIw6wiWEwIAOMAJGJVYyA0EJwkCHBA0CcIE=</HashCode>
       <FileName>GameObjects\GameObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />
