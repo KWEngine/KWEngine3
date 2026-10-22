@@ -224,6 +224,7 @@ namespace KWEngine3.Helper
 
             UpdateBoneTransforms(r);
             UpdateModelMatricesForRenderPass(r);
+            r.UpdateInstancesForRenderPass();
         }
 
 

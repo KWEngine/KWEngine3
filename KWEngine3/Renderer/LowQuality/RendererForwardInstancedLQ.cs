@@ -260,7 +260,9 @@ namespace KWEngine3.Renderer.LowQuality
             if (r._stateRender._opacity == 0)
                 return;
 
-            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_INSTANCES, r._ubo);
+            // objects that are not drawn in the g-buffer need all of their meshes here and keep their instance order
+            bool drawAllMeshes = r.IsDepthTesting == false;
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, RenderManager.UBO_BINDINGPOINT_INSTANCES, drawAllMeshes ? r._ubo : r.GetUBOSortedForForwardPass());
 
             GL.Uniform4(UColorTint, new Vector4(r._stateRender._colorTint, r._stateRender._opacity));
             GL.Uniform1(UMetallicType, (int)r._model._metallicType);
@@ -269,8 +271,6 @@ namespace KWEngine3.Renderer.LowQuality
             val *= r.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);
 
-            // objects that are not drawn in the g-buffer need all of their meshes here
-            bool drawAllMeshes = r.IsDepthTesting == false;
             GeoMesh[] meshes = r._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {

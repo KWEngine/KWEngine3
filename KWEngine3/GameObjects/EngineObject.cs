@@ -115,6 +115,46 @@ namespace KWEngine3.GameObjects
             return HasTransparencyTexture && _stateCurrent._opacity > 0f && (material.TextureAlbedo.IsTextureSet || material.TextureTranparency.IsTextureSet);
         }
 
+        private static int[] _forwardMeshOrder = new int[16];
+        private static float[] _forwardMeshDistances = new float[16];
+
+        // Returns the indices of the meshes that the forward pass has to draw, in drawing order.
+        // Transparent meshes are sorted back to front by the distance of their centers to the camera.
+        // If all meshes are drawn (no depth test, view space object), the mesh order stays the same.
+        internal int[] GetForwardMeshOrder(bool drawAllMeshes, out int count)
+        {
+            GeoMesh[] meshes = _model.ModelOriginal.MeshesArray;
+            if (_forwardMeshOrder.Length < meshes.Length)
+            {
+                _forwardMeshOrder = new int[meshes.Length];
+                _forwardMeshDistances = new float[meshes.Length];
+            }
+
+            count = 0;
+            for (int i = 0; i < meshes.Length; i++)
+            {
+                if (_model.Material[i].ColorAlbedo.W <= 0)
+                    continue;
+                if (!drawAllMeshes && !IsMeshTransparent(i))
+                    continue;
+                _forwardMeshOrder[count++] = i;
+            }
+
+            if (!drawAllMeshes && count > 1)
+            {
+                Vector3 camPos = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position;
+                for (int k = 0; k < count; k++)
+                {
+                    int i = _forwardMeshOrder[k];
+                    Vector3 center = Vector3.TransformPosition(meshes[i].CenterLocal, _stateRender._modelMatrices[i]);
+                    // negative value, so that the mesh with the largest distance comes first after sorting
+                    _forwardMeshDistances[k] = -(center - camPos).LengthSquared;
+                }
+                Array.Sort(_forwardMeshDistances, _forwardMeshOrder, 0, count);
+            }
+            return _forwardMeshOrder;
+        }
+
         /// <summary>
         /// Gibt an, ob das Objekt gerade vollständig unsichtbar ist
         /// </summary>

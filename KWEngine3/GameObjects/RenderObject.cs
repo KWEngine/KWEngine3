@@ -53,7 +53,7 @@ namespace KWEngine3.GameObjects
         /// <param name="mode">Legt fest, ob jede zusätzliche Instanz absolut oder relativ zur Hauptinstanz positioniert wird (Standard: absolut)</param>
         public void SetAdditionalInstanceCount(int instanceCount, InstanceMode mode = InstanceMode.Absolute)
         {
-            if(instanceCount > KWEngine.MAXADDITIONALINSTANCECOUNT)
+            if (instanceCount > KWEngine.MAXADDITIONALINSTANCECOUNT)
             {
                 KWEngine.LogWriteLine("[RenderObject] Max. additional instance count per object is " + KWEngine.MAXADDITIONALINSTANCECOUNT);
             }
@@ -218,11 +218,33 @@ namespace KWEngine3.GameObjects
         internal Vector3[] _instanceScales;
         internal Quaternion[] _instanceRotations;
 
+        // copy of the matrices in the instance ubo (same slots), used to build the sorted ubo for the forward pass.
+        // [only valid after WriteAllDataToUBO()]
+        internal Matrix4[] _instanceUBOMatrices;
+        internal bool _instanceUBOMatricesValid = false;
+        internal int _instanceUBOVersion = 0;
+
+        // second ubo with the instances sorted back to front, only used by the forward pass.
+        // The original ubo keeps its order, because WriteDataToUBOForInstance() writes to slot i.
+        internal int _uboSorted = -1;
+        private int[] _sortedOrder;
+        private int[] _sortedOrderUploaded;
+        private float[] _sortedDistances;
+        private int _sortedVersionUploaded = -1;
+
+        // Base matrix (and its inverse) that the additional instances in the ubo were written with.
+        // The instanced shaders always multiply with the model matrix of the base instance, so the ubo holds
+        // Inverse(base) * instance (absolute mode) or Inverse(base) * instance * base (relative mode).
+        internal Matrix4 _uboBaseMatrix = Matrix4.Identity;
+        internal Matrix4 _uboBaseMatrixInverse = Matrix4.Identity;
+
         internal void InitInstancesData()
         {
             _instancePositions = new Vector3[InstanceCount];
             _instanceScales = new Vector3[InstanceCount];
             _instanceRotations = new Quaternion[InstanceCount];
+            _instanceUBOMatrices = new Matrix4[InstanceCount];
+            _instanceUBOMatricesValid = false;
 
             _uboTempData = new float[BYTESPERINSTANCE / 4];
 
@@ -249,12 +271,14 @@ namespace KWEngine3.GameObjects
 
         internal void InitUBO(bool deletePreviousUBO)
         {
-            if(_ubo > 0 && deletePreviousUBO)
+            if (_ubo > 0 && deletePreviousUBO)
             {
                 this.DeleteUBO();
             }
 
             _ubo = GL.GenBuffer();
+            _uboBaseMatrix = _stateCurrent._modelMatrix;
+            _uboBaseMatrixInverse = _stateCurrent._modelMatrixInverse;
             WriteAllDataToUBO();
         }
 
@@ -267,18 +291,18 @@ namespace KWEngine3.GameObjects
                 Matrix4 tmp;
                 if (i == 0)
                 {
-                    // _stateCurrent._modelMatrix is already up to date at this point
-                    // (base class setters call UpdateModelMatrixAndHitboxes() before this method runs),
-                    // so recomputing it here would be redundant. In Absolute mode, _modelMatrixInverse * _modelMatrix
-                    // is mathematically Identity, so the multiplication can be skipped entirely.
-                    tmp = Mode == InstanceMode.Absolute ? Matrix4.Identity : _stateCurrent._modelMatrix;
+                    tmp = Matrix4.Identity;
                 }
                 else
                 {
                     tmp = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
                     if (Mode == InstanceMode.Absolute)
-                        tmp = _stateCurrent._modelMatrixInverse * tmp;
+                        tmp = _uboBaseMatrixInverse * tmp;
+                    else
+                        tmp = _uboBaseMatrixInverse * tmp * _uboBaseMatrix; // relative: instance lives in the coordinate system of the base instance
                 }
+                _instanceUBOMatrices[i] = tmp;
+                _instanceUBOVersion++;
 
                 // MODEL MATRIX
                 _uboTempData[00] = tmp.M11;
@@ -319,19 +343,19 @@ namespace KWEngine3.GameObjects
                 Matrix4 tmp;
                 if (i == 0)
                 {
-                    // _stateCurrent._modelMatrix is already up to date at this point,
-                    // so recomputing it here would be redundant. In Absolute mode, _modelMatrixInverse * _modelMatrix
-                    // is mathematically Identity, so the multiplication can be skipped entirely.
-                    tmp = Mode == InstanceMode.Absolute ? Matrix4.Identity : _stateCurrent._modelMatrix;
+                    tmp = Matrix4.Identity;
                 }
                 else
                 {
                     tmp = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
                     if (Mode == InstanceMode.Absolute)
-                        tmp = _stateCurrent._modelMatrixInverse * tmp;
+                        tmp = _uboBaseMatrixInverse * tmp;
+                    else
+                        tmp = _uboBaseMatrixInverse * tmp * _uboBaseMatrix; // relative: instance lives in the coordinate system of the base instance
                 }
 
                 int offset = i * floatsPerInstance;
+                _instanceUBOMatrices[i] = tmp;
 
                 // MODEL MATRIX
                 _uboTempData[offset + 00] = tmp.M11;
@@ -360,6 +384,26 @@ namespace KWEngine3.GameObjects
             GL.BindBuffer(BufferTarget.UniformBuffer, _ubo);
             GL.BufferData(BufferTarget.UniformBuffer, totalFloats * 4, _uboTempData, BufferUsageHint.DynamicDraw);
             GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+            _instanceUBOVersion++;
+            _instanceUBOMatricesValid = true;
+        }
+
+        // Rewrites the additional instances if the base matrix used for rendering changed (absolute mode: they keep their
+        // own position, relative mode: they follow the base instance). Called once per frame after the render state was blended.
+        internal void UpdateInstancesForRenderPass()
+        {
+            if (InstanceCount <= 1 || _ubo <= 0 || !IsInCurrentWorld)
+                return;
+
+            // base at rest: use the exact simulation matrix (the blended render matrix may differ in the last bits every frame)
+            bool baseAtRest = _statePrevious._modelMatrix == _stateCurrent._modelMatrix;
+            Matrix4 baseMatrix = baseAtRest ? _stateCurrent._modelMatrix : _stateRender._modelMatrix;
+            if (baseMatrix == _uboBaseMatrix)
+                return;
+
+            _uboBaseMatrix = baseMatrix;
+            _uboBaseMatrixInverse = baseAtRest ? _stateCurrent._modelMatrixInverse : Matrix4.Invert(baseMatrix);
+            WriteAllDataToUBO();
         }
 
         internal void DeleteUBO()
@@ -372,8 +416,95 @@ namespace KWEngine3.GameObjects
                 GL.DeleteBuffer(_ubo);
                 _ubo = -1;
             }
+            if (_uboSorted > 0)
+            {
+                RenderManager.UnbindUBOFromAllInstanceShaders(_uboSorted);
+
+                GL.DeleteBuffer(_uboSorted);
+                _uboSorted = -1;
+                _sortedVersionUploaded = -1;
+            }
         }
-        
+
+        // Returns the ubo for the forward pass. With more than one instance, the instances are sorted back to front
+        // by the distance of the model center to the camera.
+        internal int GetUBOSortedForForwardPass()
+        {
+            if (InstanceCount <= 1 || _ubo <= 0 || !_instanceUBOMatricesValid)
+                return _ubo;
+
+            if (_sortedOrder == null || _sortedOrder.Length != InstanceCount)
+            {
+                _sortedOrder = new int[InstanceCount];
+                _sortedOrderUploaded = new int[InstanceCount];
+                _sortedDistances = new float[InstanceCount];
+                _sortedVersionUploaded = -1;
+            }
+
+            Vector3 camPos = KWEngine.Mode == EngineMode.Play ? KWEngine.CurrentWorld._cameraGame._stateRender._position : KWEngine.CurrentWorld._cameraEditor._stateRender._position;
+            // same order of transformations as in the instanced vertex shaders: instance matrix * model matrix * position
+            Vector3 centerBase = Vector3.TransformPosition(_model.Center.Xyz, _stateRender._modelMatrix);
+            for (int k = 0; k < InstanceCount; k++)
+            {
+                Vector3 center = Vector3.TransformPosition(centerBase, _instanceUBOMatrices[k]);
+                _sortedOrder[k] = k;
+                // negative value, so that the instance with the largest distance comes first after sorting
+                _sortedDistances[k] = -(center - camPos).LengthSquared;
+            }
+            Array.Sort(_sortedDistances, _sortedOrder, 0, InstanceCount);
+
+            bool upload = _uboSorted <= 0 || _sortedVersionUploaded != _instanceUBOVersion;
+            for (int k = 0; !upload && k < InstanceCount; k++)
+            {
+                if (_sortedOrder[k] != _sortedOrderUploaded[k])
+                    upload = true;
+            }
+
+            if (upload)
+            {
+                int floatsPerInstance = BYTESPERINSTANCE / 4;
+                int totalFloats = InstanceCount * floatsPerInstance;
+                if (_uboTempData == null || _uboTempData.Length < totalFloats)
+                {
+                    _uboTempData = new float[totalFloats];
+                }
+
+                for (int k = 0; k < InstanceCount; k++)
+                {
+                    Matrix4 m = _instanceUBOMatrices[_sortedOrder[k]];
+                    int offset = k * floatsPerInstance;
+                    _uboTempData[offset + 00] = m.M11;
+                    _uboTempData[offset + 01] = m.M12;
+                    _uboTempData[offset + 02] = m.M13;
+                    _uboTempData[offset + 03] = m.M14;
+                    _uboTempData[offset + 04] = m.M21;
+                    _uboTempData[offset + 05] = m.M22;
+                    _uboTempData[offset + 06] = m.M23;
+                    _uboTempData[offset + 07] = m.M24;
+                    _uboTempData[offset + 08] = m.M31;
+                    _uboTempData[offset + 09] = m.M32;
+                    _uboTempData[offset + 10] = m.M33;
+                    _uboTempData[offset + 11] = m.M34;
+                    _uboTempData[offset + 12] = m.M41;
+                    _uboTempData[offset + 13] = m.M42;
+                    _uboTempData[offset + 14] = m.M43;
+                    _uboTempData[offset + 15] = m.M44;
+                }
+
+                if (_uboSorted <= 0)
+                {
+                    _uboSorted = GL.GenBuffer();
+                }
+                GL.BindBuffer(BufferTarget.UniformBuffer, _uboSorted);
+                GL.BufferData(BufferTarget.UniformBuffer, totalFloats * 4, _uboTempData, BufferUsageHint.DynamicDraw);
+                GL.BindBuffer(BufferTarget.UniformBuffer, 0);
+
+                Array.Copy(_sortedOrder, _sortedOrderUploaded, InstanceCount);
+                _sortedVersionUploaded = _instanceUBOVersion;
+            }
+            return _uboSorted;
+        }
+
         internal bool IsConfigured { get { return InstanceCount >= 0; } }
 
         internal override void InitHitboxes()
@@ -422,61 +553,22 @@ namespace KWEngine3.GameObjects
             if (_model.ModelOriginal.MeshCollider.MeshHitboxes != null && _model.ModelOriginal.MeshCollider.MeshHitboxes.Count > 0)
             {
                 // if so, iterate through them and check their boundaries
-                foreach(GeoMeshHitbox hb in _model.ModelOriginal.MeshCollider.MeshHitboxes)
+                foreach (GeoMeshHitbox hb in _model.ModelOriginal.MeshCollider.MeshHitboxes)
                 {
-                    Vector4 currentMin = Vector4.TransformRow(new Vector4(hb.minX, hb.minY, hb.minZ, 1.0f), _stateCurrent._modelMatrix);
-                    Vector4 currentMax = Vector4.TransformRow(new Vector4(hb.maxX, hb.maxY, hb.maxZ, 1.0f), _stateCurrent._modelMatrix);
-                    if (currentMin.X < min.X) min.X = currentMin.X;
-                    if (currentMin.Y < min.Y) min.Y = currentMin.Y;
-                    if (currentMin.Z < min.Z) min.Z = currentMin.Z;
-                    if (currentMax.X > max.X) max.X = currentMax.X;
-                    if (currentMax.Y > max.Y) max.Y = currentMax.Y;
-                    if (currentMax.Z > max.Z) max.Z = currentMax.Z;
+                    ExtendMinMaxByTransformedBox(new Vector3(hb.minX, hb.minY, hb.minZ), new Vector3(hb.maxX, hb.maxY, hb.maxZ), ref _stateCurrent._modelMatrix, ref min, ref max);
                 }
             }
             else
             {
-                KWEngine.LogWriteLine("[RenderObject] WARNING: using slow volume determination for " + this.Name);
-
-                // otherwise, scan through all the vertices of the vbo and determine the dimensions (slow!)
-                foreach (GeoMesh mesh in _model.ModelOriginal.MeshesArray)
+                // no hitboxes: use the bounds of all meshes, determined once by EngineObjectModel when the model was set
+                // (same vbo data as before, so the vbo does not have to be read back from the gpu on every update)
+                Vector3 boxMin = _model.DimensionsMin.Xyz;
+                Vector3 boxMax = _model.DimensionsMax.Xyz;
+                if (boxMin.X > boxMax.X)
                 {
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VBOPosition);
-                    GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int sizeInBytes);
-                    if(sizeInBytes > 0)
-                    {
-                        float[] buffer = new float[sizeInBytes / sizeof(float)];
-                        GL.GetBufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, sizeInBytes, buffer);
-
-                        Vector3 currentMin = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
-                        Vector3 currentMax = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-                        for (int i = 0; i < buffer.Length; i += 3)
-                        {
-                            if (buffer[i + 0] < min.X) currentMin.X = buffer[i + 0];
-                            if (buffer[i + 1] < min.Y) currentMin.Y = buffer[i + 1];
-                            if (buffer[i + 2] < min.Z) currentMin.Z = buffer[i + 2];
-
-                            if (buffer[i + 0] > max.X) currentMax.X = buffer[i + 0];
-                            if (buffer[i + 1] > max.Y) currentMax.Y = buffer[i + 1];
-                            if (buffer[i + 2] > max.Z) currentMax.Z = buffer[i + 2];
-                        }
-                        currentMin = Vector4.TransformRow(new Vector4(currentMin, 1.0f), _stateCurrent._modelMatrix).Xyz;
-                        currentMax = Vector4.TransformRow(new Vector4(currentMax, 1.0f), _stateCurrent._modelMatrix).Xyz;
-
-                        if (currentMin.X < min.X) min.X = currentMin.X;
-                        if (currentMin.Y < min.Y) min.Y = currentMin.Y;
-                        if (currentMin.Z < min.Z) min.Z = currentMin.Z;
-                        if (currentMax.X > max.X) max.X = currentMax.X;
-                        if (currentMax.Y > max.Y) max.Y = currentMax.Y;
-                        if (currentMax.Z > max.Z) max.Z = currentMax.Z;
-                    }
-                    else
-                    {
-                        // maybe: make default size? but should never happen anyway...
-                        KWEngine.LogWriteLine("[RenderObject] Cannot determine volume for frustum culling for " + this.Name + " (" + mesh.Name + ")");
-                    }
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+                    KWEngine.LogWriteLine("[RenderObject] Cannot determine volume for frustum culling for " + this.Name);
                 }
+                ExtendMinMaxByTransformedBox(boxMin, boxMax, ref _stateCurrent._modelMatrix, ref min, ref max);
             }
         }
 
@@ -488,7 +580,7 @@ namespace KWEngine3.GameObjects
                 // if so, iterate through them and check their boundaries
                 Vector4 meshMin = new Vector4(float.MaxValue, float.MaxValue, float.MaxValue, 1);
                 Vector4 meshMax = new Vector4(float.MinValue, float.MinValue, float.MinValue, 1);
-                
+
                 foreach (GeoMeshHitbox hb in _model.ModelOriginal.MeshCollider.MeshHitboxes)
                 {
                     if (meshMin.X > hb.minX) meshMin.X = hb.minX;
@@ -501,69 +593,46 @@ namespace KWEngine3.GameObjects
                     if (meshMax.Z < hb.maxZ) meshMax.Z = hb.maxZ;
                 }
 
-                for(int i = 1; i < InstanceCount; i++)
+                for (int i = 1; i < InstanceCount; i++)
                 {
-                    Matrix4 iModel = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instancePositions[i]);
-                    Vector3 currentMin = Vector4.TransformRow(meshMin, iModel).Xyz;
-                    Vector3 currentMax = Vector4.TransformRow(meshMax, iModel).Xyz;
-
-                    if (currentMin.X < min.X) min.X = currentMin.X;
-                    if (currentMin.Y < min.Y) min.Y = currentMin.Y;
-                    if (currentMin.Z < min.Z) min.Z = currentMin.Z;
-                    if (currentMax.X > max.X) max.X = currentMax.X;
-                    if (currentMax.Y > max.Y) max.Y = currentMax.Y;
-                    if (currentMax.Z > max.Z) max.Z = currentMax.Z;
+                    if (_instanceScales[i] == Vector3.Zero)
+                        continue; // instance has not been set yet
+                    Matrix4 iModel = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
+                    if (Mode == InstanceMode.Relative)
+                        iModel = iModel * _stateCurrent._modelMatrix;
+                    ExtendMinMaxByTransformedBox(meshMin.Xyz, meshMax.Xyz, ref iModel, ref min, ref max);
                 }
             }
             else
             {
-                // otherwise, scan through all the vertices of the vbo and determine the dimensions (slow!)
-                KWEngine.LogWriteLine("[RenderObject] WARNING: using slow volume determination for " + this.Name);
-
-                Vector4 meshMin = new Vector4(float.MaxValue, float.MaxValue, float.MaxValue, 1);
-                Vector4 meshMax = new Vector4(float.MinValue, float.MinValue, float.MinValue, 1);
-
-                foreach (GeoMesh mesh in _model.ModelOriginal.MeshesArray)
-                {
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, mesh.VBOPosition);
-                    GL.GetBufferParameter(BufferTarget.ArrayBuffer, BufferParameterName.BufferSize, out int sizeInBytes);
-                    if (sizeInBytes > 0)
-                    {
-                        float[] buffer = new float[sizeInBytes / sizeof(float)];
-                        GL.GetBufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, sizeInBytes, buffer);
-
-                        for (int i = 0; i < buffer.Length; i += 3)
-                        {
-                            if (buffer[i + 0] < min.X) meshMin.X = buffer[i + 0];
-                            if (buffer[i + 1] < min.Y) meshMin.Y = buffer[i + 1];
-                            if (buffer[i + 2] < min.Z) meshMin.Z = buffer[i + 2];
-
-                            if (buffer[i + 0] > max.X) meshMax.X = buffer[i + 0];
-                            if (buffer[i + 1] > max.Y) meshMax.Y = buffer[i + 1];
-                            if (buffer[i + 2] > max.Z) meshMax.Z = buffer[i + 2];
-                        }
-                    }
-                    else
-                    {
-                        // maybe: make default size? but should never happen anyway...
-                        KWEngine.LogWriteLine("[RenderObject] Cannot determine volume for frustum culling for " + this.Name + " (" + mesh.Name + ")");
-                    }
-                    GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-                }
+                // no hitboxes: use the bounds of all meshes, determined once by EngineObjectModel when the model was set
+                Vector4 meshMin = _model.DimensionsMin;
+                Vector4 meshMax = _model.DimensionsMax;
 
                 for (int i = 1; i < InstanceCount; i++)
                 {
-                    Matrix4 iModel = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instancePositions[i]);
-                    Vector3 currentMin = Vector4.TransformRow(meshMin, iModel).Xyz;
-                    Vector3 currentMax = Vector4.TransformRow(meshMax, iModel).Xyz;
-
-                    if (currentMin.X < min.X) min.X = currentMin.X;
-                    if (currentMin.Y < min.Y) min.Y = currentMin.Y;
-                    if (currentMin.Z < min.Z) min.Z = currentMin.Z;
-                    if (currentMax.X > max.X) max.X = currentMax.X;
-                    if (currentMax.Y > max.Y) max.Y = currentMax.Y;
-                    if (currentMax.Z > max.Z) max.Z = currentMax.Z;
+                    if (_instanceScales[i] == Vector3.Zero)
+                        continue; // instance has not been set yet
+                    Matrix4 iModel = HelperMatrix.CreateModelMatrix(ref _instanceScales[i], ref _instanceRotations[i], ref _instancePositions[i]);
+                    if (Mode == InstanceMode.Relative)
+                        iModel = iModel * _stateCurrent._modelMatrix;
+                    ExtendMinMaxByTransformedBox(meshMin.Xyz, meshMax.Xyz, ref iModel, ref min, ref max);
                 }
+            }
+        }
+
+        // extends min/max by the 8 corners of the box (boxMin, boxMax) after transforming them with m
+        private static void ExtendMinMaxByTransformedBox(Vector3 boxMin, Vector3 boxMax, ref Matrix4 m, ref Vector3 min, ref Vector3 max)
+        {
+            if (boxMin.X > boxMax.X || boxMin.Y > boxMax.Y || boxMin.Z > boxMax.Z)
+                return; // no valid box
+
+            for (int c = 0; c < 8; c++)
+            {
+                Vector3 corner = new Vector3((c & 1) == 0 ? boxMin.X : boxMax.X, (c & 2) == 0 ? boxMin.Y : boxMax.Y, (c & 4) == 0 ? boxMin.Z : boxMax.Z);
+                Vector3 p = Vector3.TransformPosition(corner, m);
+                min = Vector3.ComponentMin(min, p);
+                max = Vector3.ComponentMax(max, p);
             }
         }
         #endregion

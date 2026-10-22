@@ -38,6 +38,7 @@ namespace KWEngine3.Model
         public string NameOrg { get; internal set; }
 
         internal Matrix4 Transform;
+        internal Vector3 CenterLocal; // center of the mesh bounds in its own coordinate system (set during import)
         public GeoVertex[] Vertices { get; internal set; }
         public OpenTK.Graphics.OpenGL4.PrimitiveType Primitive;
         public int IndexCount

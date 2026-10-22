@@ -1139,6 +1139,8 @@ namespace KWEngine3.Model
                 geoMesh.Primitive = OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles;
                 geoMesh.VAOGenerateAndBind();
 
+                Vector3 meshMin = new Vector3(float.MaxValue);
+                Vector3 meshMax = new Vector3(float.MinValue);
                 for (int i = 0; i < mesh.VertexCount; i++)
                 {
                     Vector3D vertex = mesh.Vertices[i];
@@ -1157,12 +1159,17 @@ namespace KWEngine3.Model
 
                     GeoVertex geoVertex = new GeoVertex(i, vertex.X, vertex.Y, vertex.Z);
                     Vector3 gv3 = new Vector3(vertex.X, vertex.Y, vertex.Z);
+                    // bounds of this mesh only (minX/maxX etc. may cover several meshes of one node)
+                    meshMin = Vector3.ComponentMin(meshMin, gv3);
+                    meshMax = Vector3.ComponentMax(meshMax, gv3);
                     if (currentNodeName.ToLower().Contains("_fullhitbox") && !uniqueVerticesForWholeMesh.Contains(gv3))
                     {
                         uniqueVerticesForWholeMesh.Add(gv3);
                     }
                     geoMesh.Vertices[i] = geoVertex;
                 }
+                if (mesh.VertexCount > 0)
+                    geoMesh.CenterLocal = (meshMin + meshMax) * 0.5f;
                 uint[] indices = mesh.GetUnsignedIndices();
                 if(indices == null)
                 {

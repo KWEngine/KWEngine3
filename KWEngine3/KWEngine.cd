@@ -650,6 +650,8 @@
     <Position X="6.5" Y="0.5" Width="2.75" />
     <Members>
       <Field Name="_colliderModel" Hidden="true" />
+      <Field Name="_forwardMeshDistances" Hidden="true" />
+      <Field Name="_forwardMeshOrder" Hidden="true" />
       <Field Name="_hues" Hidden="true" />
       <Field Name="_importedID" Hidden="true" />
       <Field Name="_isAffectedByLight" Hidden="true" />
@@ -669,6 +671,7 @@
       <Method Name="AddRotationYFromEditor" Hidden="true" />
       <Method Name="AddRotationZFromEditor" Hidden="true" />
       <Method Name="CheckPositionAndCenter" Hidden="true" />
+      <Method Name="GetForwardMeshOrder" Hidden="true" />
       <Method Name="GetHeadingXZ" Hidden="true" />
       <Property Name="HasArmatureAndAnimations" Hidden="true" />
       <Property Name="HasEmissiveTexture" Hidden="true" />
@@ -678,12 +681,13 @@
       <Method Name="InitStates" Hidden="true" />
       <Property Name="IsInsideScreenSpaceForRenderPass" Hidden="true" />
       <Property Name="IsInsideScreenSpaceForShadowMap" Hidden="true" />
+      <Method Name="IsMeshTransparent" Hidden="true" />
       <Method Name="SetTextureOffsetForMaterial" Hidden="true" />
       <Method Name="SetTextureRepeatForMaterial" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QzNDJ1ouGJ6gUIRuwgqBoUYBACTJyxgJIImMnkBYRVU=</HashCode>
+      <HashCode>QzNDJ1ouGJ7gUIRuwgqBoUYBACTJyxgJIImMnkBYR1U=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -693,22 +697,35 @@
       <Field Name="_instancePositions" Hidden="true" />
       <Field Name="_instanceRotations" Hidden="true" />
       <Field Name="_instanceScales" Hidden="true" />
+      <Field Name="_instanceUBOMatrices" Hidden="true" />
+      <Field Name="_instanceUBOMatricesValid" Hidden="true" />
+      <Field Name="_instanceUBOVersion" Hidden="true" />
+      <Field Name="_sortedDistances" Hidden="true" />
+      <Field Name="_sortedOrder" Hidden="true" />
+      <Field Name="_sortedOrderUploaded" Hidden="true" />
+      <Field Name="_sortedVersionUploaded" Hidden="true" />
       <Field Name="_ubo" Hidden="true" />
+      <Field Name="_uboBaseMatrix" Hidden="true" />
+      <Field Name="_uboBaseMatrixInverse" Hidden="true" />
+      <Field Name="_uboSorted" Hidden="true" />
       <Field Name="_uboTempData" Hidden="true" />
       <Field Name="BYTESPERINSTANCE" Hidden="true" />
       <Method Name="DeleteUBO" Hidden="true" />
+      <Method Name="ExtendMinMaxByTransformedBox" Hidden="true" />
       <Method Name="GetMinMaxForBaseInstance" Hidden="true" />
       <Method Name="GetMinMaxForInstances" Hidden="true" />
+      <Method Name="GetUBOSortedForForwardPass" Hidden="true" />
       <Method Name="InitHitboxes" Hidden="true" />
       <Method Name="InitInstancesData" Hidden="true" />
       <Method Name="InitUBO" Hidden="true" />
       <Property Name="IsConfigured" Hidden="true" />
+      <Method Name="UpdateInstancesForRenderPass" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
       <Method Name="WriteAllDataToUBO" Hidden="true" />
       <Method Name="WriteDataToUBOForInstance" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AADAAAAACICAAATAABAABIAAgAgCQwgBAIAACkAgCAA=</HashCode>
+      <HashCode>BEDAAAAACYGAIATAQBIABIAAwAkCQygBAIgASkAgCAA=</HashCode>
       <FileName>GameObjects\RenderObject.cs</FileName>
     </TypeIdentifier>
     <Lollipop Position="0.2" />

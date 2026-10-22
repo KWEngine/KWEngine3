@@ -287,15 +287,13 @@ namespace KWEngine3.Renderer.LowQuality
             // objects that are not drawn in the g-buffer need all of their meshes here
             bool drawAllMeshes = isVSG || g.IsDepthTesting == false;
             GeoMesh[] meshes = g._model.ModelOriginal.MeshesArray;
-            for (int i = 0; i < meshes.Length; i++)
+            int[] meshOrder = g.GetForwardMeshOrder(drawAllMeshes, out int meshOrderCount);
+            for (int k = 0; k < meshOrderCount; k++)
             {
+                int i = meshOrder[k];
                 GeoMesh mesh = meshes[i];
 
                 GeoMaterial material = g._model.Material[i];
-                if (material.ColorAlbedo.W <= 0)
-                    continue;
-                if (!drawAllMeshes && !g.IsMeshTransparent(i))
-                    continue;
 
                 GL.Uniform4(UColorEmissive, material.ColorEmissive);
 

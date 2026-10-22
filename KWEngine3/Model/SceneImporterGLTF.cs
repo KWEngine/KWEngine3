@@ -1718,6 +1718,8 @@ namespace KWEngine3.Model
                     }
 
                     geoMesh.Vertices = GetVertexDataForMeshPrimitive(scene, mprim, ref model, currentNode, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, out List<Vector3> uniqueVertices, out List<int> boneIds);
+                    if (xmin <= xmax && ymin <= ymax && zmin <= zmax)
+                        geoMesh.CenterLocal = new Vector3((xmin + xmax) * 0.5f, (ymin + ymax) * 0.5f, (zmin + zmax) * 0.5f);
 
                     float[] normals = GetNormalDataForMeshPrimitive(scene, mprim, ref model, currentNode, out List<Vector3> uniqueNormals);
 
