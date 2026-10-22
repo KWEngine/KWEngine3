@@ -331,6 +331,7 @@ namespace KWEngine3
             RenderManager.InitializeClearColor();
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.TextureCubeMapSeamless);
             GL.CullFace(TriangleFace.Back);
             GL.DepthFunc(DepthFunction.Less);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);

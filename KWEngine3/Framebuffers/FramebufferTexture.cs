@@ -68,8 +68,9 @@ namespace KWEngine3.Framebuffers
 
         public FramebufferTexture(int size, int attachmentNumber, bool cubeMap, bool isDepthTexture, bool isCSM)
         {
-            uint wrapmode = (uint)TextureWrapMode.ClampToBorder;
-            float[] borderColor = new float[] { 1, 1, 1, 1 };
+            // cube map moments are filtered linearly and seamlessly across the faces (the wrap mode only matters if seamless filtering is off)
+            uint wrapmode = cubeMap && !isDepthTexture ? (uint)TextureWrapMode.ClampToEdge : (uint)TextureWrapMode.ClampToBorder;
+            float[] borderColor = (float[])FramebufferShadowMap.MOMENTS_EMPTY.Clone();
             _target = cubeMap ? TextureTarget.TextureCubeMapArray : TextureTarget.Texture2DArray;
             ID = GL.GenTexture();
             Bind();
@@ -87,10 +88,18 @@ namespace KWEngine3.Framebuffers
                     isDepthTexture ? PixelType.Float : PixelType.UnsignedShort,
                     IntPtr.Zero);
                 
-                GL.TexParameterI(_target, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
-                GL.TexParameterI(_target, TextureParameterName.TextureCompareFunc, new int[] { (int)DepthFunction.Lequal });
-                GL.TexParameter(_target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
-                GL.TexParameter(_target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
+                if (isDepthTexture)
+                {
+                    GL.TexParameterI(_target, TextureParameterName.TextureCompareMode, new int[] { (int)TextureCompareMode.CompareRefToTexture });
+                    GL.TexParameterI(_target, TextureParameterName.TextureCompareFunc, new int[] { (int)DepthFunction.Lequal });
+                    GL.TexParameter(_target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Nearest);
+                    GL.TexParameter(_target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Nearest);
+                }
+                else
+                {
+                    GL.TexParameter(_target, TextureParameterName.TextureMinFilter, (float)TextureMinFilter.Linear);
+                    GL.TexParameter(_target, TextureParameterName.TextureMagFilter, (float)TextureMagFilter.Linear);
+                }
             }
             else
             {

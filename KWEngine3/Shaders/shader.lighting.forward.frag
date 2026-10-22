@@ -169,7 +169,8 @@ vec3 getReflectionColor(vec3 fragmentToCamera, vec3 N, float roughness, vec3 fra
 
 float calculateShadow(vec4 bQuantized, float fragmentDepth, float alpha, float hardness)
 {
-    if(bQuantized == vec4(1.0, 1.0, 1.0, 1.0))
+    // empty texel (nothing rendered there) is always lit: old clear value (1,1,1,1) or quantized moments of depth 1.0
+    if(bQuantized.x >= 0.9999 && bQuantized.y >= 0.997)
         return 1.0;
 
 	bQuantized.x -= offsetZero;
@@ -205,11 +206,53 @@ float calculateShadow(vec4 bQuantized, float fragmentDepth, float alpha, float h
 	return 1.0 - clamp(shadowValue, 0.0, 1.0);
 }
 
+// returns the two axes of the cube face that the direction d points to, scaled to the size of one texel on that face
+void getCubeFaceTexelAxes(vec3 d, float faceSize, out vec3 axisU, out vec3 axisV)
+{
+    vec3 a = abs(d);
+    float majorAxis;
+    if(a.x >= a.y && a.x >= a.z)
+    {
+        majorAxis = a.x;
+        axisU = vec3(0.0, 1.0, 0.0);
+        axisV = vec3(0.0, 0.0, 1.0);
+    }
+    else if(a.y >= a.z)
+    {
+        majorAxis = a.y;
+        axisU = vec3(1.0, 0.0, 0.0);
+        axisV = vec3(0.0, 0.0, 1.0);
+    }
+    else
+    {
+        majorAxis = a.z;
+        axisU = vec3(1.0, 0.0, 0.0);
+        axisV = vec3(0.0, 1.0, 0.0);
+    }
+    float texelSize = 2.0 * majorAxis / faceSize;
+    axisU *= texelSize;
+    axisV *= texelSize;
+}
+
 float calculateShadowCube(int index, vec3 lightPos, vec3 fragPos, vec2 lightNearFar, float bias, float hardness)
 {
 	vec3 lightToFrag = fragPos - lightPos;
 	float currentDepth = length(lightToFrag);
 	float fragmentDepthLinearized = (currentDepth - lightNearFar.x) / (lightNearFar.y - lightNearFar.x);
+    if(uUseTextureReflectionQuality.w > 0)
+    {
+        // high quality: 5 samples one texel apart on the cube face, the moments are averaged and solved only once
+        vec3 axisU;
+        vec3 axisV;
+        getCubeFaceTexelAxes(lightToFrag, float(textureSize(uShadowMapCube[index], 0).x), axisU, axisV);
+        vec4 sampledMomentsSum = vec4(0.0);
+        for(int i = 0; i < 5; i++)
+        {
+            vec3 sampleDirection = lightToFrag + axisU * fragOffsets[i].x + axisV * fragOffsets[i].y;
+            sampledMomentsSum += textureLod(uShadowMapCube[index], vec4(sampleDirection, 0.0), 0.0) * fragOffsetsWeights[i];
+        }
+        return calculateShadow(sampledMomentsSum, fragmentDepthLinearized, bias, hardness);
+    }
     vec4 sampledDepthMSM = texture(uShadowMapCube[index], vec4(lightToFrag, 0.0));
 	return calculateShadow(sampledDepthMSM, fragmentDepthLinearized, bias, hardness);
 }  

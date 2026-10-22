@@ -4,13 +4,15 @@ namespace KWEngine3.Framebuffers
 {
     internal class FramebufferShadowMap : Framebuffer
     {
+        internal static readonly float[] MOMENTS_EMPTY = new float[] { 1.0f, 0.99755993f, 0.89343751f, 0.0f };
+
         public override void Clear(bool keepDepth = false)
         {
             for (int i = 0; i < ClearColorValues.Count; i++)
             {
                 GL.ClearBuffer(ClearBuffer.Color, i, ClearColorValues[i]);
             }
-            if(keepDepth == false)
+            if (keepDepth == false)
                 GL.Clear(ClearBufferMask.DepthBufferBit);
         }
 
@@ -27,12 +29,12 @@ namespace KWEngine3.Framebuffers
             if (_lightType == LightType.Point)
                 SizeInBytes *= 6;
 
-            Bind(false); 
-            ClearColorValues.Add(0, new float[] { 1, 1, 1, 1 });
+            Bind(false);
+            ClearColorValues.Add(0, (float[])MOMENTS_EMPTY.Clone());
 
             Attachments.Add(new FramebufferTexture(width, 0, _lightType == LightType.Point, false, _shadowType == SunShadowType.CascadedShadowMap));
             Attachments.Add(new FramebufferTexture(width, 1, _lightType == LightType.Point, true, _shadowType == SunShadowType.CascadedShadowMap));
-           
+
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
             GL.ReadBuffer(ReadBufferMode.None);
 

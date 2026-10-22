@@ -782,7 +782,7 @@ namespace KWEngine3.Editor
                     {
                         if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                         {
-                            if (ImGui.SliderFloat("FOV", ref fovNew, 10, SelectedLightObject._shadowMapSize, "%.0f"))
+                            if (ImGui.SliderFloat("FOV", ref fovNew, 10, SelectedLightObject._shadowMapSize, "%.0f", ImGuiSliderFlags.Logarithmic))
                             {
                                 SelectedLightObject.SetFOV(fovNew);
                             }
@@ -800,7 +800,7 @@ namespace KWEngine3.Editor
                 {
                     if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                     {
-                        if (ImGui.SliderFloat("Near boundary", ref nearNew, 0.1f, 10f, "%.1f"))
+                        if (ImGui.SliderFloat("Near boundary", ref nearNew, 0.1f, 50f, "%.1f", ImGuiSliderFlags.Logarithmic))
                             updateNearFar = true;
                     }
 
@@ -813,12 +813,12 @@ namespace KWEngine3.Editor
 
                 if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                 {
-                    ImGui.SliderFloat("Shadow bias", ref SelectedLightObject._shadowBias, 0.0f, 0.0001f, "%.6f");
+                    ImGui.SliderFloat("Shadow bias", ref SelectedLightObject._shadowBias, 0.0f, 0.001f, "%.6f", ImGuiSliderFlags.Logarithmic);
                 }
                 if (SelectedLightObject.ShadowQualityLevel != ShadowQuality.NoShadow)
                 {
                     if (KWEngine.Window._renderQuality > RenderQualityLevel.Low)
-                        ImGui.SliderFloat("Shadow offset", ref SelectedLightObject._shadowOffset, 0.0f, 0.05f, "%.4f");
+                        ImGui.SliderFloat("Shadow offset", ref SelectedLightObject._shadowOffset, 0.0f, 0.1f, "%.4f", ImGuiSliderFlags.Logarithmic);
                 }
             }
             else if (SelectedTerrainObject != null)

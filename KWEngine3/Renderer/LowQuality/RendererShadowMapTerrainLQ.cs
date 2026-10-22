@@ -23,7 +23,7 @@ namespace KWEngine3.Renderer.LowQuality
 
         public void UnbindUBO(int ubo)
         {
-            
+
         }
 
         public void Init()
@@ -67,6 +67,7 @@ namespace KWEngine3.Renderer.LowQuality
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UNearFarSun = GL.GetUniformLocation(ProgramID, "uNearFarSun");
                 UTerrainData = GL.GetUniformLocation(ProgramID, "uTerrainData");
+                UTextureHeightMap = GL.GetUniformLocation(ProgramID, "uTextureHeightMap");
                 UCamPosition = GL.GetUniformLocation(ProgramID, "uCamPosition");
                 UCamDirection = GL.GetUniformLocation(ProgramID, "uCamDirection");
                 UTerrainThreshold = GL.GetUniformLocation(ProgramID, "uTerrainThreshold");
@@ -95,9 +96,9 @@ namespace KWEngine3.Renderer.LowQuality
                     if (t.IsShadowCaster)
                     {
                         if (l._frustumShadowMap.IsBoxInFrustum(
-                            l.Position, 
-                            l._stateRender._lookAtVector, 
-                            l._stateRender._nearFarFOVType.Y, 
+                            l.Position,
+                            l._stateRender._lookAtVector,
+                            l._stateRender._nearFarFOVType.Y,
                             t._hitboxes[0]._center + new Vector3(0, t.Height * 0.5f, 0),
                             new Vector3(t._hitboxes[0]._center.X - t.Width / 2f, t._hitboxes[0]._center.Y, t._hitboxes[0]._center.Z - t.Depth / 2f),
                             new Vector3(t._hitboxes[0]._center.X + t.Width / 2f, t._hitboxes[0]._center.Y + t.Height, t._hitboxes[0]._center.Z + t.Depth / 2f),

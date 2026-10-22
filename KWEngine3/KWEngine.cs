@@ -1261,9 +1261,10 @@ namespace KWEngine3
             int maxUniformVertexVectors = GL.GetInteger(GetPName.MaxVertexUniformVectors);
             int maxUniformFragmentVectors = GL.GetInteger(GetPName.MaxFragmentUniformVectors);
 
-            if (maxUBOBlockSize < twoPowerOf14)
+            int minUBOBlockSize = (MAXADDITIONALINSTANCECOUNT + 1) * 64; // uInstanceBlock: one mat4 (64 bytes) per instance
+            if (maxUBOBlockSize < minUBOBlockSize)
             {
-                throw new Exception("[OpenGL] Fatal error: Your graphics device does not support uniform buffers with at least " + twoPowerOf14 + " bytes of memory.");
+                throw new Exception("[OpenGL] Fatal error: Your graphics device does not support uniform buffers with at least " + minUBOBlockSize + " bytes of memory.");
             }
             if (maxTextureSize < twoPowerOf14)
             {

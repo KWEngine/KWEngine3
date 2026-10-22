@@ -66,6 +66,7 @@ namespace KWEngine3.Renderer
                 UViewProjectionMatrix = GL.GetUniformLocation(ProgramID, "uViewProjectionMatrix");
                 UNearFarSun = GL.GetUniformLocation(ProgramID, "uNearFarSun");
                 UTerrainData = GL.GetUniformLocation(ProgramID, "uTerrainData");
+                UTextureHeightMap = GL.GetUniformLocation(ProgramID, "uTextureHeightMap");
                 UCamPosition = GL.GetUniformLocation(ProgramID, "uCamPosition");
                 UCamDirection = GL.GetUniformLocation(ProgramID, "uCamDirection");
                 UTerrainThreshold = GL.GetUniformLocation(ProgramID, "uTerrainThreshold");

@@ -43,7 +43,8 @@ float median(vec3 rgb)
 
 float calculateShadow(vec4 bQuantized, float fragmentDepth, float alpha, float hardness)
 {
-    if(bQuantized == vec4(1.0, 1.0, 1.0, 1.0))
+    // empty texel (nothing rendered there) is always lit: old clear value (1,1,1,1) or quantized moments of depth 1.0
+    if(bQuantized.x >= 0.9999 && bQuantized.y >= 0.997)
         return 1.0;
 
 	bQuantized.x -= offsetZero;

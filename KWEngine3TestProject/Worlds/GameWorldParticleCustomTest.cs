@@ -20,16 +20,9 @@ namespace KWEngine3TestProject.Worlds
 
             if (WorldTime - _t > 1.5f)
             {
-                SpritesheetQuad q = new SpritesheetQuad(
-                    "F:\\OneDrive - Eugen-Reintjes-Schule\\Modelspack_Release3\\Textures\\Spritesheets\\VisualEffects\\explosion_09_8x8.dds",
-                    8,
-                    8);
-                q.SetSpriteSheetLooping(false);
-                q.SetSpriteSheetEmissiveLevel(0.5f);
-                q.SetSpriteSheetSpeed(SpritesheetQuad.Speed.FPS060);
-                q.SetScale(4);
-                q.SetPosition(0, 2f, 0);
-                AddRenderObject(q);
+                ParticleObject q = new ParticleObject(4, "F:\\OneDrive - Eugen-Reintjes-Schule\\Modelspack_Release3\\Textures\\Spritesheets\\VisualEffects\\explosion_09_8x8.dds", 8, 8, false, ParticleObjectSpeed.FPS060, ParticleObjectAnchor.Center);
+                q.SetColorIntensity(0.5f);
+                AddParticleObject(q);
                 _t = WorldTime;
             }
 
