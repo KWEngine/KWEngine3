@@ -613,6 +613,8 @@ namespace KWEngine3.Model
             // Cache hit: reuse already-processed material (avoids repeated FBX file reads + parse).
             if (!isInvisible && materialCache != null && materialCache.TryGetValue(mesh.MaterialIndex, out GeoMaterial cachedMaterial))
             {
+                // the cached material was created for another mesh, so store the name of this mesh
+                cachedMaterial.AttachedToMesh = mesh.Name;
                 geoMesh.Material = cachedMaterial;
                 return;
             }

@@ -242,10 +242,6 @@ namespace KWEngine3.Renderer
                 {
                     if (KWEngine.Mode == EngineMode.Edit || (!g.SkipRender && g.IsInsideScreenSpaceForRenderPass))
                     {
-                        if (g._colorHighlightMode != HighlightMode.Disabled && g._colorHighlight.W > 0f)
-                        {
-                            stencilObjects.Add(g);
-                        }
                         Draw(g, g.IsAttachedToViewSpaceGameObject);
                     }
                 }
@@ -291,6 +287,8 @@ namespace KWEngine3.Renderer
             GL.Uniform1(UShadowCaster, val);
             GL.Uniform1(UFogDisabled, isVSG ? 1 : 0); // ViewSpaceGameObject is not affected by fog
 
+            // objects that are not drawn in the g-buffer need all of their meshes here
+            bool drawAllMeshes = isVSG || g.IsDepthTesting == false;
             GeoMesh[] meshes = g._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
@@ -298,6 +296,8 @@ namespace KWEngine3.Renderer
 
                 GeoMaterial material = g._model.Material[i];
                 if (material.ColorAlbedo.W <= 0)
+                    continue;
+                if (!drawAllMeshes && !g.IsMeshTransparent(i))
                     continue;
 
                 GL.Uniform4(UColorEmissive, material.ColorEmissive);

@@ -101,6 +101,20 @@ namespace KWEngine3.GameObjects
             }
         }
 
+        // true, if the mesh has to be drawn in the forward pass instead of the g-buffer.
+        // Uses the same rules as IsTransparent, but for a single mesh only.
+        internal bool IsMeshTransparent(int meshIndex)
+        {
+            if (_stateCurrent._opacity < 1f && _stateCurrent._opacity > 0f)
+                return true;
+
+            GeoMaterial material = _model.Material[meshIndex];
+            if (material.ColorAlbedo.W < 1f && material.ColorAlbedo.W > 0f)
+                return true;
+
+            return HasTransparencyTexture && _stateCurrent._opacity > 0f && (material.TextureAlbedo.IsTextureSet || material.TextureTranparency.IsTextureSet);
+        }
+
         /// <summary>
         /// Gibt an, ob das Objekt gerade vollständig unsichtbar ist
         /// </summary>
@@ -348,7 +362,7 @@ namespace KWEngine3.GameObjects
                     }
                     else
                     {
-                        if (_model.Material[i].AttachedToMesh.ToLower().Contains(meshName.ToLower()) || _model.Material[i].Name.ToLower().Contains(meshName.ToLower()))
+                        if ((_model.Material[i].AttachedToMesh != null && _model.Material[i].AttachedToMesh.ToLower().Contains(meshName.ToLower())) || (_model.Material[i].Name != null && _model.Material[i].Name.ToLower().Contains(meshName.ToLower())))
                         {
                             _model.Material[i].SetOpacity(o);
                             meshFound = true;

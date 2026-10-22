@@ -117,10 +117,15 @@ namespace KWEngine3.Renderer
                 {
                     stencilObjects.Add(g);
                 }
-                if (g.IsTransparent || g.IsDepthTesting == false || g.IsAttachedToViewSpaceGameObject)
+                if (g.IsDepthTesting == false || g.IsAttachedToViewSpaceGameObject)
                 {
                     forwardObjects.Add(g);
                     continue;
+                }
+                if (g.IsTransparent)
+                {
+                    // the transparent meshes are drawn later in the forward pass, others are drawn here:
+                    forwardObjects.Add(g);
                 }
                 Draw(g);
             }
@@ -149,6 +154,8 @@ namespace KWEngine3.Renderer
                 GeoMaterial material = g._model.Material[i];
 
                 if (material.ColorAlbedo.W == 0)
+                    continue;
+                if (g.IsMeshTransparent(i))
                     continue;
 
                 GL.Uniform4(UColorTint, new Vector4(g._stateRender._colorTint, g._hues[i]));

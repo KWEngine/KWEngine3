@@ -443,6 +443,8 @@ namespace KWEngine3.Model
                             || (geoMesh != null && geoMesh.Name.ToLower().Contains("_invisible"));
             if (!isInvisible && materialCache != null && materialCache.TryGetValue(materialId, out GeoMaterial cached))
             {
+                // the cached material was created for another mesh, so store the name of this mesh
+                cached.AttachedToMesh = mesh.Name;
                 geoMesh.Material = cached;
                 return;
             }

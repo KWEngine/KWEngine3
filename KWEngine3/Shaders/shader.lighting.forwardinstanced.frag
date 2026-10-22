@@ -273,7 +273,7 @@ vec4 getAlbedo()
     if(uUseTexturesAlbedoNormalEmissive.x > 0)
     {
         vec4 tmp = texture(uTextureAlbedo, vTexture2);
-        albedo = vec4(hueShift(tmp.xyz, uMetallicRoughness.z), tmp.w) * uColorTint;
+        albedo = vec4(hueShift(tmp.xyz, uMetallicRoughness.z), tmp.w * uColorMaterial.w) * uColorTint;
     }
     else
     {

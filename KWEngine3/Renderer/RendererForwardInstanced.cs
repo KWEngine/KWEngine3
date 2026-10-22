@@ -273,12 +273,16 @@ namespace KWEngine3.Renderer
             val *= r.IsAffectedByLight ? 1 : 10;
             GL.Uniform1(UShadowCaster, val);
 
+            // objects that are not drawn in the g-buffer need all of their meshes here
+            bool drawAllMeshes = r.IsDepthTesting == false;
             GeoMesh[] meshes = r._model.ModelOriginal.MeshesArray;
             for (int i = 0; i < meshes.Length; i++)
             {
                 GeoMesh mesh = meshes[i];
                 GeoMaterial material = r._model.Material[i];
                 if (material.ColorAlbedo.W <= 0)
+                    continue;
+                if (!drawAllMeshes && !r.IsMeshTransparent(i))
                     continue;
 
                 GL.Uniform4(UColorEmissive, material.ColorEmissive);

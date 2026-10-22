@@ -113,10 +113,14 @@ namespace KWEngine3.Renderer
                     if (KWEngine.Mode != EngineMode.Edit && (r.SkipRender || r._stateRender._opacity <= 0f || !r.IsInsideScreenSpaceForRenderPass))
                         continue;
 
-                    if (r.IsTransparent || r.IsDepthTesting == false)
+                    if (r.IsDepthTesting == false)
                     {
                         forwardObjects.Add(r);
                         continue;
+                    }
+                    if (r.IsTransparent)
+                    {
+                        forwardObjects.Add(r);
                     }
 
                     Draw(r);
@@ -145,6 +149,8 @@ namespace KWEngine3.Renderer
                 GeoMaterial material = r._model.Material[i];
 
                 if (material.ColorAlbedo.W == 0)
+                    continue;
+                if (r.IsMeshTransparent(i))
                     continue;
 
                 GL.Uniform4(UColorTint, new Vector4(r._stateRender._colorTint, r._hues[i]));
