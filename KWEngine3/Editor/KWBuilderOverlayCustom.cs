@@ -766,7 +766,7 @@ namespace KWEngine3.Editor
                 {
                     SelectedLightObject.SetColor(colorNew.X, colorNew.Y, colorNew.Z, colorIntensityNew);
                 }
-                if (ImGui.SliderFloat("Light intensity", ref colorIntensityNew, 0f, 100f))
+                if (ImGui.SliderFloat("Light intensity", ref colorIntensityNew, 0f, 100f, "%.1f", ImGuiSliderFlags.Logarithmic))
                 {
                     SelectedLightObject.SetColor(colorNew.X, colorNew.Y, colorNew.Z, colorIntensityNew);
                 }
@@ -804,7 +804,7 @@ namespace KWEngine3.Editor
                             updateNearFar = true;
                     }
 
-                    if (ImGui.SliderFloat("Far  boundary", ref farNew, 1f, 500f, "%.0f"))
+                    if (ImGui.SliderFloat("Far  boundary", ref farNew, 1f, 500f, "%.1f", ImGuiSliderFlags.Logarithmic))
                         updateNearFar = true;
                 }
 

@@ -1,0 +1,308 @@
+{
+  "CamPosition": [
+    0,
+    2,
+    10
+  ],
+  "CamTarget": [
+    0,
+    2,
+    0
+  ],
+  "CamFOV": 90,
+  "Type": "KWEngine3TestProject.Worlds.GameWorldRoomKitTest",
+  "ColorAmbient": [
+    0.75,
+    0.75,
+    0.75
+  ],
+  "ColorBackgroundBoost": 1,
+  "BackgroundSkyBox": "",
+  "BackgroundSkyboxRotation": 0,
+  "BackgroundSkyboxType": "",
+  "Background2D": "",
+  "Background2DRepeat": [
+    1,
+    1
+  ],
+  "Background2DOffset": [
+    0,
+    0
+  ],
+  "Background2DClip": [
+    1,
+    1
+  ],
+  "BackgroundFillColor": [
+    0,
+    0,
+    0
+  ],
+  "BackgroundSkyBoxFOV": 90,
+  "GameObjects": [
+    {
+      "IsShadowCaster": false,
+      "IsCollisionObject": true,
+      "CustomColliderName": "CorridorEnd_HB",
+      "CustomColliderFile": "./Models/RoomKit/Corridor_End_Hitboxes.glb",
+      "CustomColliderType": 0,
+      "BlendTextureStates": true,
+      "ID": 1,
+      "Name": "(no name)",
+      "Type": "KWEngine3TestProject.Classes.Immovable",
+      "ModelName": "CorridorEnd",
+      "ModelPath": "./Models/RoomKit/Corridor_End.glb",
+      "UpdateLast": false,
+      "IsDepthTesting": true,
+      "IsAffectedByLight": true,
+      "Opacity": 1,
+      "Position": [
+        0,
+        0,
+        0
+      ],
+      "Rotation": [
+        0,
+        1,
+        0,
+        -4.371139E-08
+      ],
+      "Scale": [
+        1,
+        1,
+        1
+      ],
+      "PositionOffset": null,
+      "RotationOffset": null,
+      "ScaleOffset": null,
+      "AttachedToID": 0,
+      "AttachedToParentBone": null,
+      "ScaleHitbox": [
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      ],
+      "Color": [
+        1,
+        1,
+        1
+      ],
+      "ColorEmissive": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0.93,
+        0.82,
+        1
+      ],
+      "Hue": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "Metallic": [
+        0.3,
+        0,
+        0,
+        0.7,
+        0
+      ],
+      "Roughness": [
+        0.55,
+        0.7,
+        0.8,
+        0.35,
+        0.3
+      ],
+      "MetallicType": 0,
+      "TextureOffset": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "TextureRepeat": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "TextureAlbedo": [
+        "./Textures/Dirt_01_512.png",
+        "./Textures/Brick_01_512.png",
+        null,
+        null,
+        null
+      ],
+      "TextureNormal": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "TextureRoughness": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "TextureMetallic": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "TextureEmissive": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "TextureRoughnessInMetallic": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "TextureTransform": [
+        1,
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "RenderObjects": [],
+  "LightObjects": [],
+  "TerrainObjects": [],
+  "HUDObjects": [],
+  "TextObjects": [],
+  "FoliageObjects": [],
+  "ViewSpaceGameObject": null,
+  "Fog": {
+    "Color": [
+      0.75,
+      0.8,
+      0.85
+    ],
+    "Density": 0,
+    "Height": 0,
+    "HeightFalloff": 0,
+    "NoiseStrength": 0,
+    "NoiseSize": 20,
+    "NoiseHeight": 0,
+    "WindDirection": [
+      1,
+      0,
+      0
+    ],
+    "WindSpeed": 0
+  },
+  "FogVolumes": []
+}
