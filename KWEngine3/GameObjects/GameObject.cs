@@ -1354,7 +1354,9 @@ namespace KWEngine3.GameObjects
                 GameObjectHitbox old = _colliderModel._hitboxes[hitboxIndex];
                 CurrentWorld._gameObjectHitboxes.Remove(old);
                 _colliderModel._hitboxes[hitboxIndex] = capsule;
-                CurrentWorld._gameObjectHitboxes.Add(capsule);
+                // objects that are not in a world yet get their hitboxes registered by World.AddGameObject()
+                if (this.ID > 0)
+                    UpdateWorldHitboxList();
             }
 
             SetScale(s);
@@ -1404,7 +1406,9 @@ namespace KWEngine3.GameObjects
                     this._colliderModel._hitboxes.Add(new GameObjectHitbox(this, KWEngine.KWCapsule.MeshHitboxes[0], offset, center, frontbottomleft, backtopright));
                 else
                     this._colliderModel._hitboxes.Add(new GameObjectHitbox(this, KWEngine.KWCapsule2.MeshHitboxes[0], offset, center, frontbottomleft, backtopright));
-                CurrentWorld._gameObjectHitboxes.Add(this._colliderModel._hitboxes[0]);
+                // objects that are not in a world yet get their hitboxes registered by World.AddGameObject()
+                if (this.ID > 0)
+                    UpdateWorldHitboxList();
                 UpdateModelMatrixAndHitboxes();
             }
         }

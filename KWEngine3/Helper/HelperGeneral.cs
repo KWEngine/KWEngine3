@@ -23,7 +23,7 @@ namespace KWEngine3.Helper
     {
         internal static bool ListContainsSector(List<Sector> sectors, Sector s)
         {
-            foreach(Sector sec in sectors)
+            foreach (Sector sec in sectors)
             {
                 if (sec.Left == s.Left && sec.Right == s.Right && sec.Back == s.Back && sec.Front == s.Front)
                     return true;
@@ -35,7 +35,7 @@ namespace KWEngine3.Helper
         {
             foreach (GeoTerrainTriangle tFromList in triangles)
             {
-                if(t.Vertices[0] == tFromList.Vertices[0] && t.Vertices[1] == tFromList.Vertices[1] && t.Vertices[2] == tFromList.Vertices[2])
+                if (t.Vertices[0] == tFromList.Vertices[0] && t.Vertices[1] == tFromList.Vertices[1] && t.Vertices[2] == tFromList.Vertices[2])
                     return true;
             }
             return false;
@@ -90,11 +90,11 @@ namespace KWEngine3.Helper
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 byte[] colorData = HelperIconWindows.GetSmallIconAsByteArray(out int width, out int height);
-                if(colorData != null && colorData.Length > 0)
+                if (colorData != null && colorData.Length > 0)
                 {
                     using (SKBitmap bitmap = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Unpremul))
                     {
-                        for(int i = colorData.Length - 1, x = 0, y = 0; i > 0; i-=4)
+                        for (int i = colorData.Length - 1, x = 0, y = 0; i > 0; i -= 4)
                         {
                             byte a = colorData[i - 0];
                             byte b = colorData[i - 1];
@@ -102,7 +102,7 @@ namespace KWEngine3.Helper
                             byte r = colorData[i - 3];
 
                             bitmap.SetPixel(width - 1 - x++, y, new SKColor(r, g, b, a));
-                            if(x > 0 && x % width == 0)
+                            if (x > 0 && x % width == 0)
                             {
                                 y++;
                                 x = 0;
@@ -124,7 +124,7 @@ namespace KWEngine3.Helper
 
             foreach (Keys key in _allKeys)
             {
-                if((key == Keys.Enter || key == Keys.KeyPadEnter) && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                if ((key == Keys.Enter || key == Keys.KeyPadEnter) && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = Keys.Enter;
                 }
@@ -132,27 +132,27 @@ namespace KWEngine3.Helper
                 {
                     specialKey = Keys.Escape;
                 }
-                else if(key == Keys.Backspace && KWEngine.Window.KeyboardState.IsKeyPressed(key)) // backspace
+                else if (key == Keys.Backspace && KWEngine.Window.KeyboardState.IsKeyPressed(key)) // backspace
                 {
                     specialKey = key;
                 }
-                else if(key == Keys.Delete && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                else if (key == Keys.Delete && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = key;
                 }
-                else if(key == Keys.Home && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                else if (key == Keys.Home && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = key;
                 }
-                else if(key == Keys.End && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                else if (key == Keys.End && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = key;
                 }
-                else if(key == Keys.Left && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                else if (key == Keys.Left && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = key;
                 }
-                else if(key == Keys.Right && KWEngine.Window.KeyboardState.IsKeyPressed(key))
+                else if (key == Keys.Right && KWEngine.Window.KeyboardState.IsKeyPressed(key))
                 {
                     specialKey = key;
                 }
@@ -322,11 +322,11 @@ namespace KWEngine3.Helper
         {
             int currentSizeInBytes = 0;
 
-            if(m.TextureAlbedo.IsTextureSet)
+            if (m.TextureAlbedo.IsTextureSet)
             {
                 currentSizeInBytes += GetTextureSizeInBytes(new KWTexture(m.TextureAlbedo.OpenGLID, TextureTarget.Texture2D));
             }
-            if(m.TextureEmissive.IsTextureSet)
+            if (m.TextureEmissive.IsTextureSet)
             {
                 currentSizeInBytes += GetTextureSizeInBytes(new KWTexture(m.TextureEmissive.OpenGLID, TextureTarget.Texture2D));
             }
@@ -356,9 +356,9 @@ namespace KWEngine3.Helper
             bytes += RenderManager.FramebufferSSAO.SizeInBytes;
             bytes += RenderManager.FramebufferSSAOBlur.SizeInBytes;
             bytes += RenderManager.FramebufferFXAA.SizeInBytes;
-            foreach(FramebufferBloom fbb in RenderManager.FramebuffersBloom)
+            foreach (FramebufferBloom fbb in RenderManager.FramebuffersBloom)
             {
-                if(fbb != null)
+                if (fbb != null)
                     bytes += fbb.SizeInBytes;
             }
             foreach (FramebufferBloom fbb in RenderManager.FramebuffersBloomTemp)
@@ -366,10 +366,10 @@ namespace KWEngine3.Helper
                 if (fbb != null)
                     bytes += fbb.SizeInBytes;
             }
-            
-            foreach(LightObject l in KWEngine.CurrentWorld._lightObjects)
+
+            foreach (LightObject l in KWEngine.CurrentWorld._lightObjects)
             {
-                if(l._fbShadowMap != null)
+                if (l._fbShadowMap != null)
                     bytes += l._fbShadowMap.SizeInBytes;
             }
 
@@ -380,7 +380,7 @@ namespace KWEngine3.Helper
             }
 
             // Model textures:
-            foreach(KeyValuePair<string, GeoModel> entry in KWEngine.Models)
+            foreach (KeyValuePair<string, GeoModel> entry in KWEngine.Models)
             {
                 if (entry.Value.AssemblyMode == SceneImporter.AssemblyMode.File)
                 {
@@ -405,9 +405,9 @@ namespace KWEngine3.Helper
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureFoliageGrassNormal, TextureTarget.Texture2D));
             bytes += GetTextureSizeInBytes(new KWTexture(KWEngine.TextureNoise, TextureTarget.Texture2D));
 
-            foreach(KWFont id in KWEngine.FontDictionary.Values)
+            foreach (KWFont id in KWEngine.FontDictionary.Values)
             {
-                if(id != null)
+                if (id != null)
                     bytes += (int)(GetTextureSizeInBytes(new KWTexture(id.Texture, TextureTarget.Texture2D)) * 1.333333f);
             }
 
@@ -443,7 +443,7 @@ namespace KWEngine3.Helper
 
         internal static int GetBufferSizeOfVBO(int id, BufferTarget type)
         {
-            if(id <= 0)
+            if (id <= 0)
             {
                 return 0;
             }
@@ -505,7 +505,7 @@ namespace KWEngine3.Helper
         internal static bool IsObjectClassOrSubclassOfTypes(Type[] typelist, GameObject g)
         {
             Type gt = g.GetType();
-            foreach(Type t in typelist)
+            foreach (Type t in typelist)
             {
                 if (t == gt || gt.IsSubclassOf(t))
                     return true;
@@ -517,6 +517,206 @@ namespace KWEngine3.Helper
         {
             Type gt = typeof(GameObject);
             return t == gt || t.IsSubclassOf(gt);
+        }
+
+        /// <summary>
+        /// Erstellt eine exakte Kopie des angegebenen GameObjects
+        /// </summary>
+        /// <remarks>Die Kopie ist dann lediglich im Arbeitsspeicher - noch nicht in der Welt. Sie muss der Welt manuell mit AddGameObject() hinzugefügt werden.</remarks>
+        /// <param name="src">Quellobjekt</param>
+        /// <returns>Kopie der GameObject-Instanz</returns>
+        public static GameObject CopyGameObject(GameObject src)
+        {
+            Type t = src.GetType();
+            if (t.GetConstructor(Type.EmptyTypes) == null)
+            {
+                KWEngine.LogWriteLine("[GameObject] Cannot copy '" + src.Name + "': class " + t.Name + " has no parameterless constructor");
+                return null;
+            }
+
+            GameObject g = (GameObject)Activator.CreateInstance(t);
+
+            // Start from the model defaults. SetModel() rebuilds the hitboxes but keeps the name of a
+            // custom collider the constructor may have set, so ResetColliderModel() clears it first.
+            g.ResetColliderModel();
+            g.SetModel(src._modelNameInDB);
+            string colliderName = src._colliderModel._customColliderName;
+            if (colliderName != null && colliderName.Length > 0)
+            {
+                g.SetColliderModel(colliderName);
+            }
+
+            g.Name = src.Name;
+            g.IsCollisionObject = src.IsCollisionObject;
+            g.IsShadowCaster = src.IsShadowCaster;
+            g.IsAffectedByLight = src.IsAffectedByLight;
+            g.IsDepthTesting = src.IsDepthTesting;
+            g.BlendTextureStates = src.BlendTextureStates;
+            g.DisableBackfaceCulling = src.DisableBackfaceCulling;
+            g.HasTransparencyTexture = src.HasTransparencyTexture;
+            g.SkipRender = src.SkipRender;
+            g.UpdateLast = src.UpdateLast;
+            g.ShowHitboxes = src.ShowHitboxes;
+            g.FlowFieldCost = src.FlowFieldCost;
+
+            // Capsules are measured at rotation 0, scale 1 and position 0. Their offset is not
+            // stored, so it is recovered from the capsule's translation relative to that center.
+            List<GameObjectHitbox> srcHitboxes = src._colliderModel._hitboxes;
+            if (srcHitboxes.Exists(hb => hb._isCapsule))
+            {
+                g.SetRotation(Quaternion.Identity);
+                g.SetScale(1f);
+                g.SetHitboxScale(1f);
+                g.SetPosition(0f, 0f, 0f);
+                Vector3 center = g.Center;
+                for (int i = 0; i < srcHitboxes.Count; i++)
+                {
+                    if (srcHitboxes[i]._isCapsule == false)
+                        continue;
+
+                    Vector3 offset = srcHitboxes[i]._capsulePreTransform.ExtractTranslation() - center;
+                    CapsuleHitboxType type = srcHitboxes[i]._mesh == KWEngine.KWCapsule2.MeshHitboxes[0] ? CapsuleHitboxType.Sloped : CapsuleHitboxType.Default;
+                    if (srcHitboxes.Count == 1)
+                        g.SetHitboxToCapsule(offset, type);
+                    else if (i < g._colliderModel._hitboxes.Count)
+                        g.SetHitboxToCapsule(i, offset, type);
+                }
+            }
+
+            g.SetPosition(src.Position.X, src.Position.Y, src.Position.Z);
+            g.SetScale(src.Scale.X, src.Scale.Y, src.Scale.Z);
+            g.SetRotation(src.Rotation);
+            g.SetExpansionFactorXZ(src.ExpansionFactorXZ);
+            for (int i = 0; i < srcHitboxes.Count && i < g._colliderModel._hitboxes.Count; i++)
+            {
+                Matrix4 m = srcHitboxes[i]._scaleHitboxMat;
+                g.SetHitboxScale(i, m.M11, m.M22, m.M33, m.M41, m.M42, m.M43);
+            }
+
+            g.SetOpacity(src._stateCurrent._opacity);
+            g.SetColor(src.Color.X, src.Color.Y, src.Color.Z);
+            g.SetColorHighlight(src.ColorHighlight.X, src.ColorHighlight.Y, src.ColorHighlight.Z, src.ColorHighlight.W);
+            g.SetColorHighlightMode(src._colorHighlightMode);
+            g.SetMetallicType(src._model._metallicType);
+            for (int i = 0; i < src._hues.Length; i++)
+            {
+                g.SetHue(src.GetHue(i), i);
+            }
+            foreach (KeyValuePair<int, Vector3> preRotation in src._stateCurrent._rotationPre)
+            {
+                HelperRotation.SetMeshPreRotationYZX(g, preRotation.Key, preRotation.Value.X, preRotation.Value.Y, preRotation.Value.Z);
+            }
+
+            // Per mesh, only values that differ from the copy's model defaults are set,
+            // because the setters clamp and would otherwise change untouched model values.
+            for (int i = 0; i < src._model.Material.Length; i++)
+            {
+                GeoMaterial ms = src._model.Material[i];
+                GeoMaterial md = g._model.Material[i];
+                if (ms.ColorAlbedo.Xyz != md.ColorAlbedo.Xyz)
+                    g.SetColor(ms.ColorAlbedo.X, ms.ColorAlbedo.Y, ms.ColorAlbedo.Z, i);
+                if (ms.ColorAlbedo.W != md.ColorAlbedo.W)
+                    g.SetOpacity(ms.ColorAlbedo.W, i);
+                if (ms.ColorEmissive != md.ColorEmissive)
+                    g.SetColorEmissive(ms.ColorEmissive.Xyz, ms.ColorEmissive.W, i);
+                if (ms.Metallic != md.Metallic)
+                    g.SetMetallic(ms.Metallic, i);
+                if (ms.Roughness != md.Roughness)
+                    g.SetRoughness(ms.Roughness, i);
+
+                foreach (TextureType type in Enum.GetValues<TextureType>())
+                {
+                    GeoTexture texSrc = GetTextureOfType(ms, type);
+                    GeoTexture texDst = GetTextureOfType(md, type);
+                    if (texSrc.IsTextureSet && texSrc.OpenGLID != texDst.OpenGLID)
+                        g.SetTexture(texSrc.Filename, type, i);
+                    else if (texSrc.IsTextureSet == false && texDst.IsTextureSet)
+                        g._model.UnsetTextureForPrimitive(type, i);
+                }
+                g._model.Material[i].TextureRoughnessInMetallic = ms.TextureRoughnessInMetallic;
+
+                // must come after SetTexture(), because a new albedo texture resets the offset:
+                if (ms.TextureAlbedo.IsTextureSet)
+                {
+                    g.SetTextureRepeat(ms.TextureAlbedo.UVTransform.X, ms.TextureAlbedo.UVTransform.Y, i);
+                    g.SetTextureOffset(ms.TextureAlbedo.UVTransform.Z, ms.TextureAlbedo.UVTransform.W, i);
+                }
+            }
+            g.SetTextureRepeat(src.TextureRepeat.X, src.TextureRepeat.Y);
+            g.SetTextureOffset(src.TextureOffset.X, src.TextureOffset.Y);
+            g.SetTextureClip(-src._stateCurrent._uvClip.X, -src._stateCurrent._uvClip.Y);
+            if (src._pomScale > 0f)
+            {
+                g.SetParallaxOcclusionMappingScale(src._pomScale * 10f);
+            }
+
+            if (src.HasArmatureAndAnimations)
+            {
+                for (int i = 0; i < EngineObjectState.MAX_ANIMATION_LAYERS; i++)
+                {
+                    AnimationLayer layer = src._stateCurrent.GetAnimationLayer(i);
+                    string presetName = null;
+                    if (layer.BoneMask != null && src._model.ModelOriginal.BonePresets != null)
+                    {
+                        foreach (KeyValuePair<string, HashSet<string>> preset in src._model.ModelOriginal.BonePresets)
+                        {
+                            if (preset.Value == layer.BoneMask)
+                                presetName = preset.Key;
+                        }
+                    }
+                    g.SetAnimationID(layer.AnimationID, i, layer.Weight, presetName);
+                    g.SetAnimationPercentage(layer.Percentage, i);
+                }
+            }
+
+            return g;
+        }
+
+        internal static GeoTexture GetTextureOfType(GeoMaterial m, TextureType type)
+        {
+            switch (type)
+            {
+                case TextureType.Albedo: return m.TextureAlbedo;
+                case TextureType.Normal: return m.TextureNormal;
+                case TextureType.Metallic: return m.TextureMetallic;
+                case TextureType.Roughness: return m.TextureRoughness;
+                case TextureType.Emissive: return m.TextureEmissive;
+                case TextureType.Transparency: return m.TextureTranparency;
+                default: return m.TextureHeight;
+            }
+        }
+
+        /// <summary>
+        /// Erstellt eine exakte Kopie des angegebenen LightObjects
+        /// </summary>
+        /// <remarks>Die Kopie ist dann lediglich im Arbeitsspeicher - noch nicht in der Welt. Sie muss der Welt manuell mit AddLightObject() hinzugefügt werden. Pro Welt ist nur ein Sonnenlicht erlaubt. Sind bereits alle Schattenplätze belegt, wirft die Kopie keinen Schatten.</remarks>
+        /// <param name="src">Quellobjekt</param>
+        /// <returns>Kopie der LightObject-Instanz</returns>
+        public static LightObject CopyLightObject(LightObject src)
+        {
+            LightObject l =
+                src.Type == LightType.Sun ? new LightObjectSun(src.ShadowQualityLevel, src.ShadowType) :
+                src.Type == LightType.Point ? new LightObjectPoint(src.ShadowQualityLevel) :
+                new LightObjectDirectional(src.ShadowQualityLevel);
+            if (src is LightObjectSun srcSun)
+            {
+                (l as LightObjectSun).SetCSMFactor(srcSun._csmFactor);
+            }
+
+            l.Name = src.Name;
+            l.SetShadowBias(src._shadowBias);
+            l.SetShadowOffset(src._shadowOffset);
+            l.SetPosition(src.Position);
+            l.SetTarget(src.Target);
+            l.SetNearFar(src._stateCurrent._nearFarFOVType.X, src._stateCurrent._nearFarFOVType.Y);
+            // SetFOV() clamps a sun's value to its shadow map size, so it is only called for changed values:
+            if (src._stateCurrent._nearFarFOVType.Z != l._stateCurrent._nearFarFOVType.Z)
+            {
+                l.SetFOV(src._stateCurrent._nearFarFOVType.Z);
+            }
+            l.SetColor(src.Color);
+
+            return l;
         }
 
         /// <summary>
@@ -532,7 +732,7 @@ namespace KWEngine3.Helper
         public static bool IsModelFile(string file)
         {
             string ext = file.Substring(file.LastIndexOf('.') + 1).ToLower();
-            switch(ext)
+            switch (ext)
             {
                 case "gltf":
                     return true;
@@ -580,10 +780,10 @@ namespace KWEngine3.Helper
         /// <param name="modelName">Name des Modells</param>
         public static void PrintMeshNames(string modelName)
         {
-            if(KWEngine.Models.TryGetValue(modelName, out GeoModel model))
+            if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
             {
                 KWEngine.LogWriteLine("[Helper] Printing mesh names for model '" + modelName + "':");
-                foreach(GeoMesh mesh in model.Meshes.Values)
+                foreach (GeoMesh mesh in model.Meshes.Values)
                 {
                     KWEngine.LogWriteLine("  -> " + mesh.NameOrg);
                 }
@@ -603,7 +803,7 @@ namespace KWEngine3.Helper
             if (KWEngine.Models.TryGetValue(modelName, out GeoModel model))
             {
                 KWEngine.LogWriteLine("[Helper] Printing material names for model '" + modelName + "':");
-                for(int i = 0; i < model.Meshes.Values.Count; i++)
+                for (int i = 0; i < model.Meshes.Values.Count; i++)
                 {
                     string mat = model.Meshes.Values.ElementAt(i).Material.Name;
                     string msh = model.Meshes.Values.ElementAt(i).NameOrg;
@@ -624,7 +824,7 @@ namespace KWEngine3.Helper
             IntPtr ptPoit = Marshal.AllocHGlobal(length);
             Marshal.Copy(data, start, ptPoit, length);
 
-            
+
             Vector3 x = (Vector3)Marshal.PtrToStructure(ptPoit, typeof(Vector3));
             Marshal.FreeHGlobal(ptPoit);
 
@@ -701,11 +901,11 @@ namespace KWEngine3.Helper
             {
                 GL.ClearColor(0f, 0f, 0f, 1f);
             }
-            else if(mode == ClearColorMode.OneZeroZeroZero)
+            else if (mode == ClearColorMode.OneZeroZeroZero)
             {
                 GL.ClearColor(1f, 0f, 0f, 0f);
             }
-            else if(mode == ClearColorMode.AllZero)
+            else if (mode == ClearColorMode.AllZero)
             {
                 GL.ClearColor(0f, 0f, 0f, 0f);
             }
@@ -713,7 +913,7 @@ namespace KWEngine3.Helper
             {
                 GL.ClearColor(1f, 1f, 1f, 1f);
             }
-            else if(mode == ClearColorMode.OneOneOneZero)
+            else if (mode == ClearColorMode.OneOneOneZero)
             {
                 GL.ClearColor(1f, 1f, 1f, 0f);
             }
@@ -890,5 +1090,5 @@ namespace KWEngine3.Helper
         */
         #endregion
     }
-   
+
 }

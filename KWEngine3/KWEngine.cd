@@ -490,7 +490,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperRandom">
-    <Position X="24.5" Y="19.25" Width="2.75" />
+    <Position X="24.5" Y="19.5" Width="2.75" />
     <Members>
       <Field Name="generator" Hidden="true" />
       <Field Name="pnoise" Hidden="true" />
@@ -823,6 +823,7 @@
       <Method Name="GetGeometryStorageSize" Hidden="true" />
       <Method Name="GetMeshGeometrySizeInBytes" Hidden="true" />
       <Method Name="GetStringForCurrentlyPressedKeys" Hidden="true" />
+      <Method Name="GetTextureOfType" Hidden="true" />
       <Method Name="GetTextureSizeInBytes" Hidden="true" />
       <Method Name="GetTextureStorageSize" Hidden="true" />
       <Method Name="IsObjectClassOfType" Hidden="true" />
@@ -838,7 +839,7 @@
       <Method Name="UnProject" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AQAAARABAIAIAAAAAA1SISFgggAEIAgBCkCIAgQAUAk=</HashCode>
+      <HashCode>AQAAIRABAIAIAAAAAA1SISFgkgAEIAgBCkCIAgQAUIk=</HashCode>
       <FileName>Helper\HelperGeneral.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -915,7 +916,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperTexture">
-    <Position X="24.5" Y="17.25" Width="2.75" />
+    <Position X="24.5" Y="17.5" Width="2.75" />
     <Members>
       <Field Name="ALPHA_MIPSCALE_COUNT" Hidden="true" />
       <Field Name="ALPHA_MIPSCALE_MAX" Hidden="true" />

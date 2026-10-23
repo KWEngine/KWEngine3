@@ -1733,12 +1733,12 @@ namespace KWEngine3.Model
                     {
                         if (uvs != null && normals != null && indices != null)
                         {
-                            KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Adding them.");
                             tangents = GenerateTangentsFrom(geoMesh.Vertices, normals, uvs, indices);
                         }
                         else
                         {
-                            KWEngine.LogWriteLine("[Import] " + model.Name + " has no tangents. Normal maps will not work.");
+                            KWEngine.LogWriteLine("[Import] Could not rebuild tangent vectors for model '" + model.Name + "'. Normal maps won't work.");
+
                         }
                     }
 

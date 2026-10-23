@@ -24,6 +24,8 @@ namespace KWEngine3.Editor
         private static int _fpsCounter = 0;
         private static int _fpsValue = 0;
         private static float _lastKeyboardTimeInSeconds = 0;
+        private static GameObject _copiedGameObject = null;
+        private static LightObject _copiedLightObject = null;
         private static readonly Dictionary<MouseButton, KWMouseButtonState> _mouseButtonsActive = new() {
             { MouseButton.Left, new KWMouseButtonState() },
             { MouseButton.Right, new KWMouseButtonState() },
@@ -1779,6 +1781,52 @@ namespace KWEngine3.Editor
                 if (KWEngine.Window.KeyboardState.IsKeyDown(Keys.E) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q))
                 {
                     KWEngine.CurrentWorld._cameraEditor.MoveUpDown(step * rate * (KWEngine.Window.KeyboardState.IsKeyDown(Keys.Q) ? -1 : 1));
+                }
+
+                bool copyPasteModifier = KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftControl) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightControl)
+                    || (OperatingSystem.IsMacOS() && (KWEngine.Window.KeyboardState.IsKeyDown(Keys.LeftSuper) || KWEngine.Window.KeyboardState.IsKeyDown(Keys.RightSuper)));
+                if (copyPasteModifier)
+                {
+                    if (KWEngine.Window.KeyboardState.IsKeyPressed(Keys.C))
+                    {
+                        if (SelectedGameObject != null)
+                        {
+                            _copiedGameObject = SelectedGameObject;
+                            _copiedLightObject = null;
+                        }
+                        else if (SelectedLightObject != null)
+                        {
+                            _copiedGameObject = null;
+                            _copiedLightObject = null;
+                            if (SelectedLightObject.Type == LightType.Sun)
+                                KWEngine.LogWriteLine("[Editor] Cannot copy sun light: only 1 sunlight allowed per world");
+                            else
+                                _copiedLightObject = SelectedLightObject;
+                        }
+                    }
+                    else if (KWEngine.Window.KeyboardState.IsKeyPressed(Keys.V))
+                    {
+                        if (_copiedGameObject != null && _copiedGameObject._myWorld == KWEngine.CurrentWorld)
+                        {
+                            GameObject copy = HelperGeneral.CopyGameObject(_copiedGameObject);
+                            if (copy != null)
+                            {
+                                KWEngine.CurrentWorld.AddGameObject(copy);
+                                DeselectAll();
+                                SelectedGameObject = copy;
+                            }
+                        }
+                        else if (_copiedLightObject != null && KWEngine.CurrentWorld._lightObjects.Contains(_copiedLightObject))
+                        {
+                            LightObject copy = HelperGeneral.CopyLightObject(_copiedLightObject);
+                            KWEngine.CurrentWorld.AddLightObject(copy);
+                            if (copy.ID > 0) // not added if the light limit is reached
+                            {
+                                DeselectAll();
+                                SelectedLightObject = copy;
+                            }
+                        }
+                    }
                 }
 
                 if (KWEngine.CurrentWorld.ApplicationTime - _lastKeyboardTimeInSeconds >= KEYBOARDCOOLDOWN)

@@ -19,6 +19,8 @@ namespace KWEngine3.Editor
         public static int UId { get; private set; } = -1;
         public static int UCamLAV { get; private set; } = -1;
 
+        internal static readonly Vector3 SELECTIONCOLOR = new Vector3(0.25f, 0.5f, 1f);
+
         public static void Init()
         {
             if (ProgramID < 0)
@@ -69,11 +71,19 @@ namespace KWEngine3.Editor
             GeoMesh m = KWEngine.KWLightBulb.MeshesArray[0];
             GL.BindVertexArray(m.VAO);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, m.VBOIndex);
-            
+
+            float pulse = 0.5f + 0.5f * MathF.Sin(KWEngine.ApplicationTime * 12f);
+
             foreach (LightObject l in lights)
             {
                 GL.Uniform1(UId, l.ID);
-                GL.Uniform4(UColorTint, l.Color);
+                Vector4 tint = l.Color;
+                if (l == KWBuilderOverlay.SelectedLightObject)
+                {
+                    Vector3 bulbColor = l.Color.Xyz * (l.Color.W * 0.5f);
+                    tint = new Vector4(Vector3.Lerp(bulbColor, SELECTIONCOLOR, pulse), 2f);
+                }
+                GL.Uniform4(UColorTint, tint);
                 GL.Uniform3(UCamLAV, l._stateCurrent._lookAtVector);
                 float s = (l._stateRender._position - KWEngine.CurrentWorld._cameraEditor._stateRender._position).LengthFast / 30f;
                 Matrix4 mm = Matrix4.CreateScale(s) * Matrix4.CreateTranslation(l._stateRender._position);
