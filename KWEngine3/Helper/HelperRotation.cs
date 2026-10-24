@@ -1,7 +1,5 @@
-﻿using OpenTK.Mathematics;
-using KWEngine3;
-using KWEngine3.Helper;
-using KWEngine3.GameObjects;
+﻿using KWEngine3.GameObjects;
+using OpenTK.Mathematics;
 
 namespace KWEngine3.Helper
 {
@@ -10,128 +8,6 @@ namespace KWEngine3.Helper
     /// </summary>
     public static class HelperRotation
     {
-        private static Matrix4 translationPointMatrix = Matrix4.Identity;
-        private static Matrix4 rotationMatrix = Matrix4.Identity;
-        private static Matrix4 translationMatrix = Matrix4.Identity;
-        private static Matrix4 tempMatrix = Matrix4.Identity;
-        private static Matrix4 spinMatrix = Matrix4.Identity;
-        private static Vector3 finalTranslationPoint = Vector3.Zero;
-        private static Vector3 zeroVector = Vector3.Zero;
-
-
-        internal static Quaternion ExtractRotationRobust(Matrix3 matrix)
-        {
-            Vector3 r0 = matrix.Row0;
-            Vector3 r1 = matrix.Row1;
-            Vector3 r2 = matrix.Row2;
-
-            r0.NormalizeFast();
-            r1.NormalizeFast();
-            r2.NormalizeFast();
-
-            float trace = r0.X + r1.Y + r2.Z;
-            Quaternion q = new Quaternion();
-
-            if (trace > 0.0f)
-            {
-                float s = (float)Math.Sqrt(trace + 1.0f) * 2.0f; // s = 4 * q.W
-                q.W = 0.25f * s;
-                q.X = (r1.Z - r2.Y) / s;
-                q.Y = (r2.X - r0.Z) / s;
-                q.Z = (r0.Y - r1.X) / s;
-            }
-            else if ((r0.X > r1.Y) && (r0.X > r2.Z))
-            {
-                float s = (float)Math.Sqrt(1.0f + r0.X - r1.Y - r2.Z) * 2.0f; // s = 4 * q.X
-                q.W = (r1.Z - r2.Y) / s;
-                q.X = 0.25f * s;
-                q.Y = (r0.Y + r1.X) / s;
-                q.Z = (r2.X + r0.Z) / s;
-            }
-            else if (r1.Y > r2.Z)
-            {
-                float s = (float)Math.Sqrt(1.0f + r1.Y - r0.X - r2.Z) * 2.0f; // s = 4 * q.Y
-                q.W = (r2.X - r0.Z) / s;
-                q.X = (r0.Y + r1.X) / s;
-                q.Y = 0.25f * s;
-                q.Z = (r1.Z + r2.Y) / s;
-            }
-            else
-            {
-                float s = (float)Math.Sqrt(1.0f + r2.Z - r0.X - r1.Y) * 2.0f; // s = 4 * q.Z
-                q.W = (r0.Y - r1.X) / s;
-                q.X = (r2.X + r0.Z) / s;
-                q.Y = (r1.Z + r2.Y) / s;
-                q.Z = 0.25f * s;
-            }
-
-            q.Normalize();
-            return q;
-        }
-
-        internal static Quaternion ExtractRotationRobust(Matrix4 matrix)
-        {
-            Vector3 r0 = new Vector3(matrix.M11, matrix.M12, matrix.M13);
-            Vector3 r1 = new Vector3(matrix.M21, matrix.M22, matrix.M23);
-            Vector3 r2 = new Vector3(matrix.M31, matrix.M32, matrix.M33);
-
-            r0.NormalizeFast();
-            r1.NormalizeFast();
-            r2.NormalizeFast();
-
-            float trace = r0.X + r1.Y + r2.Z;
-            Quaternion q = new Quaternion();
-
-            if (trace > 0.0f)
-            {
-                float s = (float)Math.Sqrt(trace + 1.0f) * 2.0f; // s = 4 * q.W
-                q.W = 0.25f * s;
-                q.X = (r1.Z - r2.Y) / s;
-                q.Y = (r2.X - r0.Z) / s;
-                q.Z = (r0.Y - r1.X) / s;
-            }
-            else if ((r0.X > r1.Y) && (r0.X > r2.Z))
-            {
-                float s = (float)Math.Sqrt(1.0f + r0.X - r1.Y - r2.Z) * 2.0f; // s = 4 * q.X
-                q.W = (r1.Z - r2.Y) / s;
-                q.X = 0.25f * s;
-                q.Y = (r0.Y + r1.X) / s;
-                q.Z = (r2.X + r0.Z) / s;
-            }
-            else if (r1.Y > r2.Z)
-            {
-                float s = (float)Math.Sqrt(1.0f + r1.Y - r0.X - r2.Z) * 2.0f; // s = 4 * q.Y
-                q.W = (r2.X - r0.Z) / s;
-                q.X = (r0.Y + r1.X) / s;
-                q.Y = 0.25f * s;
-                q.Z = (r1.Z + r2.Y) / s;
-            }
-            else
-            {
-                float s = (float)Math.Sqrt(1.0f + r2.Z - r0.X - r1.Y) * 2.0f; // s = 4 * q.Z
-                q.W = (r0.Y - r1.X) / s;
-                q.X = (r2.X + r0.Z) / s;
-                q.Y = (r1.Z + r2.Y) / s;
-                q.Z = 0.25f * s;
-            }
-
-            q.Normalize();
-            return q;
-        }
-
-        /// <summary>
-        /// Berechnet das Skalarprodukt zweier Quaternionen.
-        /// Wird intern verwendet, um festzustellen ob zwei Quaternionen in derselben Halbkugel liegen
-        /// (positives Ergebnis = gleiche Halbkugel, negatives Ergebnis = entgegengesetzte Halbkugel).
-        /// </summary>
-        /// <param name="a">Erster Quaternion</param>
-        /// <param name="b">Zweiter Quaternion</param>
-        /// <returns>Skalarprodukt</returns>
-        internal static float Dot(Quaternion a, Quaternion b)
-        {
-            return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
-        }
-
         /// <summary>
         /// Setzt die Vorab-Rotation eines Objekts für ein bestimmten Objektteil (Mesh) auf die angegebenen Gradzahlen (funktioniert nur für Objekte ohne Animationen)
         /// </summary>
@@ -171,7 +47,7 @@ namespace KWEngine3.Helper
         {
             if (g != null && meshId >= 0 && g._model.ModelOriginal.Meshes.Count > meshId)
             {
-                if(g._stateCurrent._rotationPre.ContainsKey(meshId))
+                if (g._stateCurrent._rotationPre.ContainsKey(meshId))
                 {
                     Vector3 current = g._stateCurrent._rotationPre[meshId];
                     current += new Vector3(degrees, 0, 0);
@@ -405,7 +281,7 @@ namespace KWEngine3.Helper
             Vector3 rotatedVector2 = HelperVector.RotateVectorByQuaternion(rotatedVector1, pitch);
             return pivot + rotatedVector2 * distance;
         }
-        
+
         /// <summary>
         /// Berechnet die Position eines Punkts, der um einen angegeben Punkt entlang einer Achse rotiert wird
         /// </summary>
@@ -434,7 +310,7 @@ namespace KWEngine3.Helper
                 Matrix4.CreateRotationZ(radians, out rotationMatrix);
                 Matrix4.CreateTranslation(0, distance, 0, out translationMatrix);
             }
-            else if(axis == Axis.Camera)
+            else if (axis == Axis.Camera)
             {
                 Vector3 camLookAt = KWEngine.CurrentWorld._cameraGame._stateCurrent.LookAtVector;
                 rotationMatrix = HelperMatrix.CreateRotationMatrixForAxisAngle(ref camLookAt, ref radians);
@@ -448,8 +324,8 @@ namespace KWEngine3.Helper
 
             return finalTranslationPoint;
         }
-        
-        
+
+
         /// <summary>
         /// Berechnet die Position eines Punkts, der um einen angegeben Punkt entlang einer Achse rotiert wird
         /// </summary>
@@ -466,14 +342,14 @@ namespace KWEngine3.Helper
             rotationMatrix = HelperMatrix.CreateRotationMatrixForAxisAngle(ref axis, ref radians);
             Vector3 cross = Vector3.NormalizeFast(Vector3.Cross(axis, KWEngine.WorldUp));
             Matrix4.CreateTranslation(-cross.X * distance, -cross.Y * distance, -cross.Z * distance, out translationMatrix);
-            
+
             Matrix4.Mult(translationMatrix, rotationMatrix, out tempMatrix);
             Matrix4.Mult(tempMatrix, translationPointMatrix, out spinMatrix);
             Vector3.TransformPosition(zeroVector, spinMatrix, out finalTranslationPoint);
 
             return finalTranslationPoint;
         }
-        
+
 
         /// <summary>
         /// Erfragt die Rotation, die nötig wäre, damit eine Quelle zu einem Ziel guckt
@@ -491,7 +367,7 @@ namespace KWEngine3.Helper
             return Quaternion.FromMatrix(lookAt);
         }
 
-       
+
 
         /// <summary>
         /// Berechnet ein Quaternion aus den übergebenen Achsenrotationen (in Grad).
@@ -521,10 +397,154 @@ namespace KWEngine3.Helper
             return HelperVector.GetRotationToMatchSurfaceNormal(lav, surfaceNormal);
         }
 
+        /// <summary>
+        /// Berechnet die minimale Winkeldifferenz zwischen zwei Rotationszuständen entlang der Y-Achse in Grad
+        /// </summary>
+        public static float GetYRotationDifference(Quaternion q1, Quaternion q2)
+        {
+            float yaw1 = ExtractYaw(q1);
+            float yaw2 = ExtractYaw(q2);
+            float diff = yaw2 - yaw1;
+
+            return MathHelper.RadiansToDegrees(MathF.Atan2(MathF.Sin(diff), MathF.Cos(diff)));
+        }
+
+
         #region internals
         internal static float CalculateRadiansFromDegrees(float degrees)
         {
             return MathHelper.DegreesToRadians(degrees);
+        }
+        internal static float ExtractYaw(Quaternion q)
+        {
+            // OpenTK nutzt die Komponenten X, Y, Z, W
+            // Standard-Formel für Yaw (Rotation um Y) in einem Y-Up System:
+            float siny_cosp = 2.0f * (q.W * q.Y + q.X * q.Z);
+            float cosy_cosp = 1.0f - 2.0f * (q.Y * q.Y + q.Z * q.Z);
+
+            return MathF.Atan2(siny_cosp, cosy_cosp);
+        }
+
+        internal static Matrix4 translationPointMatrix = Matrix4.Identity;
+        internal static Matrix4 rotationMatrix = Matrix4.Identity;
+        internal static Matrix4 translationMatrix = Matrix4.Identity;
+        internal static Matrix4 tempMatrix = Matrix4.Identity;
+        internal static Matrix4 spinMatrix = Matrix4.Identity;
+        internal static Vector3 finalTranslationPoint = Vector3.Zero;
+        internal static Vector3 zeroVector = Vector3.Zero;
+
+
+        internal static Quaternion ExtractRotationRobust(Matrix3 matrix)
+        {
+            Vector3 r0 = matrix.Row0;
+            Vector3 r1 = matrix.Row1;
+            Vector3 r2 = matrix.Row2;
+
+            r0.NormalizeFast();
+            r1.NormalizeFast();
+            r2.NormalizeFast();
+
+            float trace = r0.X + r1.Y + r2.Z;
+            Quaternion q = new Quaternion();
+
+            if (trace > 0.0f)
+            {
+                float s = (float)Math.Sqrt(trace + 1.0f) * 2.0f; // s = 4 * q.W
+                q.W = 0.25f * s;
+                q.X = (r1.Z - r2.Y) / s;
+                q.Y = (r2.X - r0.Z) / s;
+                q.Z = (r0.Y - r1.X) / s;
+            }
+            else if ((r0.X > r1.Y) && (r0.X > r2.Z))
+            {
+                float s = (float)Math.Sqrt(1.0f + r0.X - r1.Y - r2.Z) * 2.0f; // s = 4 * q.X
+                q.W = (r1.Z - r2.Y) / s;
+                q.X = 0.25f * s;
+                q.Y = (r0.Y + r1.X) / s;
+                q.Z = (r2.X + r0.Z) / s;
+            }
+            else if (r1.Y > r2.Z)
+            {
+                float s = (float)Math.Sqrt(1.0f + r1.Y - r0.X - r2.Z) * 2.0f; // s = 4 * q.Y
+                q.W = (r2.X - r0.Z) / s;
+                q.X = (r0.Y + r1.X) / s;
+                q.Y = 0.25f * s;
+                q.Z = (r1.Z + r2.Y) / s;
+            }
+            else
+            {
+                float s = (float)Math.Sqrt(1.0f + r2.Z - r0.X - r1.Y) * 2.0f; // s = 4 * q.Z
+                q.W = (r0.Y - r1.X) / s;
+                q.X = (r2.X + r0.Z) / s;
+                q.Y = (r1.Z + r2.Y) / s;
+                q.Z = 0.25f * s;
+            }
+
+            q.Normalize();
+            return q;
+        }
+
+        internal static Quaternion ExtractRotationRobust(Matrix4 matrix)
+        {
+            Vector3 r0 = new Vector3(matrix.M11, matrix.M12, matrix.M13);
+            Vector3 r1 = new Vector3(matrix.M21, matrix.M22, matrix.M23);
+            Vector3 r2 = new Vector3(matrix.M31, matrix.M32, matrix.M33);
+
+            r0.NormalizeFast();
+            r1.NormalizeFast();
+            r2.NormalizeFast();
+
+            float trace = r0.X + r1.Y + r2.Z;
+            Quaternion q = new Quaternion();
+
+            if (trace > 0.0f)
+            {
+                float s = (float)Math.Sqrt(trace + 1.0f) * 2.0f; // s = 4 * q.W
+                q.W = 0.25f * s;
+                q.X = (r1.Z - r2.Y) / s;
+                q.Y = (r2.X - r0.Z) / s;
+                q.Z = (r0.Y - r1.X) / s;
+            }
+            else if ((r0.X > r1.Y) && (r0.X > r2.Z))
+            {
+                float s = (float)Math.Sqrt(1.0f + r0.X - r1.Y - r2.Z) * 2.0f; // s = 4 * q.X
+                q.W = (r1.Z - r2.Y) / s;
+                q.X = 0.25f * s;
+                q.Y = (r0.Y + r1.X) / s;
+                q.Z = (r2.X + r0.Z) / s;
+            }
+            else if (r1.Y > r2.Z)
+            {
+                float s = (float)Math.Sqrt(1.0f + r1.Y - r0.X - r2.Z) * 2.0f; // s = 4 * q.Y
+                q.W = (r2.X - r0.Z) / s;
+                q.X = (r0.Y + r1.X) / s;
+                q.Y = 0.25f * s;
+                q.Z = (r1.Z + r2.Y) / s;
+            }
+            else
+            {
+                float s = (float)Math.Sqrt(1.0f + r2.Z - r0.X - r1.Y) * 2.0f; // s = 4 * q.Z
+                q.W = (r0.Y - r1.X) / s;
+                q.X = (r2.X + r0.Z) / s;
+                q.Y = (r1.Z + r2.Y) / s;
+                q.Z = 0.25f * s;
+            }
+
+            q.Normalize();
+            return q;
+        }
+
+        /// <summary>
+        /// Berechnet das Skalarprodukt zweier Quaternionen.
+        /// Wird intern verwendet, um festzustellen ob zwei Quaternionen in derselben Halbkugel liegen
+        /// (positives Ergebnis = gleiche Halbkugel, negatives Ergebnis = entgegengesetzte Halbkugel).
+        /// </summary>
+        /// <param name="a">Erster Quaternion</param>
+        /// <param name="b">Zweiter Quaternion</param>
+        /// <returns>Skalarprodukt</returns>
+        internal static float Dot(Quaternion a, Quaternion b)
+        {
+            return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
         }
 
         internal static float CalculateDegreesFromRadians(float radiant)

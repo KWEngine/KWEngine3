@@ -20,6 +20,8 @@ namespace KWEngine3.Model
             {
                 Gltf scene = Interface.LoadModel(filename);
                 GeoModel dummy = new GeoModel();
+                dummy.Filename = filename;
+                SetModelPaths(ref dummy, filename); // the buffers are read relative to the file
                 ProcessAnimations(scene, ref dummy);
                 if (dummy.Animations != null && dummy.Animations.Count > 0)
                 {
@@ -29,6 +31,10 @@ namespace KWEngine3.Model
             catch (Exception)
             {
 
+            }
+            finally
+            {
+                ClearImportCache();
             }
             return animations;
         }
@@ -67,37 +73,47 @@ namespace KWEngine3.Model
             GeoModel returnModel = new GeoModel();
             returnModel.Filename = filename;
             returnModel.Name = StripPathFromFile(filename);
-
-            string p = HelperGeneral.EqualizePathDividers(Assembly.GetExecutingAssembly().Location);
-            string pA = HelperGeneral.EqualizePathDividers(new DirectoryInfo(StripFileNameFromPath(p)).FullName);
-            if (!Path.IsPathRooted(filename))
-            {
-                returnModel.PathAbsolute = HelperGeneral.EqualizePathDividers(Path.Combine(pA, filename));
-            }
-            else
-            {
-                returnModel.PathAbsolute = filename;
-            }
-
-            bool success = File.Exists(returnModel.PathAbsolute);
-
-            returnModel.GLBOffset = GetGlbOffset(returnModel.PathAbsolute, ref returnModel);
-            returnModel.AssemblyMode = AssemblyMode.File;
-            returnModel.CalculatePath();
+            SetModelPaths(ref returnModel, filename);
             returnModel.Meshes = new();
             returnModel.TransformGlobalInverse = Matrix4.Identity;
             returnModel.Textures = new Dictionary<string, GeoTexture>();
             returnModel.IsValid = false;
 
-            GenerateNodeHierarchy(scene, ref returnModel);
-            FindRootBone(scene.Scenes[0], ref scene, ref returnModel);
-            bool result = ProcessBones(scene, ref returnModel);
-            if (result)
-                result = ProcessMeshes(scene, ref returnModel);
-            ProcessAnimations(scene, ref returnModel);
+            bool result;
+            try
+            {
+                GenerateNodeHierarchy(scene, ref returnModel);
+                FindRootBone(scene.Scenes[0], ref scene, ref returnModel);
+                result = ProcessBones(scene, ref returnModel);
+                if (result)
+                    result = ProcessMeshes(scene, ref returnModel);
+                ProcessAnimations(scene, ref returnModel);
+            }
+            finally
+            {
+                ClearImportCache();
+            }
 
             returnModel.IsValid = result;
             return returnModel;
+        }
+
+        private static void SetModelPaths(ref GeoModel model, string filename)
+        {
+            string p = HelperGeneral.EqualizePathDividers(Assembly.GetExecutingAssembly().Location);
+            string pA = HelperGeneral.EqualizePathDividers(new DirectoryInfo(StripFileNameFromPath(p)).FullName);
+            if (!Path.IsPathRooted(filename))
+            {
+                model.PathAbsolute = HelperGeneral.EqualizePathDividers(Path.Combine(pA, filename));
+            }
+            else
+            {
+                model.PathAbsolute = filename;
+            }
+
+            model.GLBOffset = GetGlbOffset(model.PathAbsolute, ref model);
+            model.AssemblyMode = AssemblyMode.File;
+            model.CalculatePath();
         }
 
         /*
@@ -262,14 +278,20 @@ namespace KWEngine3.Model
             Accessor a = scene.Accessors[accessorId];
             if (a.Type == Accessor.TypeEnum.MAT4)
             {
-                Matrix4[] matrices = GetInverseBindMatricesFromAccessor(a, scene, ref model);
-                // find the index of the given boneNode in the joints list
-                for (int i = 0; i < scene.Skins[0].Joints.Length; i++)
+                GltfImportCache cache = GetImportCache(scene);
+                if (cache.InverseBindMatrices == null)
                 {
-                    if (scene.Nodes[scene.Skins[0].Joints[i]].Name == boneNode.Name)
+                    cache.InverseBindMatrices = GetInverseBindMatricesFromAccessor(a, scene, ref model);
+                    cache.JointIndexByName = new Dictionary<string, int>();
+                    for (int i = 0; i < scene.Skins[0].Joints.Length; i++)
                     {
-                        return matrices[i];
+                        // first joint with that name wins (like the former linear search)
+                        cache.JointIndexByName.TryAdd(GetJointKey(scene.Nodes[scene.Skins[0].Joints[i]].Name), i);
                     }
+                }
+                if (cache.JointIndexByName.TryGetValue(GetJointKey(boneNode.Name), out int jointIndex))
+                {
+                    return cache.InverseBindMatrices[jointIndex];
                 }
                 return Matrix4.Identity;
             }
@@ -775,26 +797,7 @@ namespace KWEngine3.Model
             {
                 return collider.GlbOffset;
             }
-            else
-            {
-                int glbOffset = 0;
-                using (FileStream stream = File.Open(path, FileMode.Open, FileAccess.Read))
-                {
-                    byte[] data = new byte[4];
-                    for (int i = 0; i < stream.Length - 4; i++)
-                    {
-                        stream.Position = i;
-                        stream.Read(data, 0, 4);
-
-                        if (data[3] == 0x00 && data[2] == 0x4E && data[1] == 0x49 && data[0] == 0x42)
-                        {
-                            glbOffset = i + 4;
-                            break;
-                        }
-                    }
-                }
-                return glbOffset;
-            }
+            return ReadGlbBinaryChunkOffset(path);
         }
 
         private static int GetGlbOffset(string pathAbsolute, ref GeoModel model)
@@ -803,26 +806,155 @@ namespace KWEngine3.Model
             {
                 return model.GLBOffset;
             }
+            if (!pathAbsolute.ToLower().EndsWith(".glb"))
+            {
+                return 0;
+            }
+            return ReadGlbBinaryChunkOffset(pathAbsolute);
+        }
+
+        // GLB layout: 12 byte header, JSON chunk (8 byte chunk header + data), BIN chunk (8 byte chunk header + data).
+        // Returns the file position of the BIN chunk data (0 if there is none).
+        private static int ReadGlbBinaryChunkOffset(string path)
+        {
+            const uint GLB_MAGIC = 0x46546C67;      // "glTF"
+            const uint CHUNK_TYPE_BIN = 0x004E4942; // "BIN\0"
+            using (FileStream stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (BinaryReader reader = new BinaryReader(stream))
+            {
+                if (stream.Length < 20 || reader.ReadUInt32() != GLB_MAGIC)
+                {
+                    return 0;
+                }
+                stream.Position = 12;
+                long jsonChunkLength = reader.ReadUInt32();
+                long binChunkHeader = 20 + jsonChunkLength;
+                if (binChunkHeader + 8 > stream.Length)
+                {
+                    return 0;
+                }
+                stream.Position = binChunkHeader + 4;
+                if (reader.ReadUInt32() != CHUNK_TYPE_BIN)
+                {
+                    return 0;
+                }
+                return (int)(binChunkHeader + 8);
+            }
+        }
+
+        // Data of one file import: every buffer is loaded (or base64-decoded) only once.
+        private sealed class GltfImportCache
+        {
+            public Gltf Scene;
+            public byte[][] Buffers;
+            public Matrix4[] InverseBindMatrices;
+            public Dictionary<string, int> JointIndexByName;
+        }
+
+        private static GltfImportCache _importCache = null;
+
+        private static GltfImportCache GetImportCache(Gltf scene)
+        {
+            if (_importCache == null || _importCache.Scene != scene)
+            {
+                _importCache = new GltfImportCache()
+                {
+                    Scene = scene,
+                    Buffers = new byte[scene.Buffers != null ? scene.Buffers.Length : 0][]
+                };
+            }
+            return _importCache;
+        }
+
+        private static void ClearImportCache()
+        {
+            _importCache = null;
+        }
+
+        private static string GetJointKey(string nodeName)
+        {
+            return nodeName ?? "\0"; // dictionary keys must not be null
+        }
+
+        private static bool IsBase64BufferUri(string uri)
+        {
+            return uri != null && uri.StartsWith("data:application/octet-stream;base64");
+        }
+
+        private static byte[] GetBufferData(Gltf scene, int bufferIndex, string filePath, string directory, int glbOffset)
+        {
+            GltfImportCache cache = GetImportCache(scene);
+            if (cache.Buffers[bufferIndex] != null)
+            {
+                return cache.Buffers[bufferIndex];
+            }
+
+            byte[] data;
+            glTFLoader.Schema.Buffer buffer = scene.Buffers[bufferIndex];
+            if (buffer.Uri == null)
+            {
+                if (!filePath.ToLower().EndsWith(".glb"))
+                {
+                    KWEngine.LogWriteLine("[Import] GLTF buffer without uri found");
+                    return null;
+                }
+                // binary chunk of the glb file itself
+                using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    long length = Math.Max(0, Math.Min(buffer.ByteLength, stream.Length - glbOffset));
+                    data = new byte[length];
+                    stream.Position = glbOffset;
+                    stream.ReadExactly(data, 0, data.Length);
+                }
+            }
+            else if (IsBase64BufferUri(buffer.Uri))
+            {
+                int commapos = buffer.Uri.IndexOf(',');
+                if (commapos < 0)
+                {
+                    KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
+                    return null;
+                }
+                data = Convert.FromBase64String(buffer.Uri.Substring(commapos + 1));
+            }
             else
             {
-                int glbOffset = 0;
-                using (FileStream stream = File.Open(pathAbsolute, FileMode.Open, FileAccess.Read))
-                {
-                    byte[] data = new byte[4];
-                    for (int i = 0; i < stream.Length - 4; i++)
-                    {
-                        stream.Position = i;
-                        stream.Read(data, 0, 4);
-
-                        if (data[3] == 0x00 && data[2] == 0x4E && data[1] == 0x49 && data[0] == 0x42)
-                        {
-                            glbOffset = i + 4;
-                            break;
-                        }
-                    }
-                }
-                return glbOffset;
+                data = File.ReadAllBytes(directory + Path.AltDirectorySeparatorChar + buffer.Uri);
             }
+            cache.Buffers[bufferIndex] = data;
+            return data;
+        }
+
+        private static int GetComponentCount(Accessor a)
+        {
+            switch (a.Type)
+            {
+                case Accessor.TypeEnum.SCALAR: return 1;
+                case Accessor.TypeEnum.VEC2: return 2;
+                case Accessor.TypeEnum.VEC3: return 3;
+                case Accessor.TypeEnum.VEC4: return 4;
+                case Accessor.TypeEnum.MAT2: return 4;
+                case Accessor.TypeEnum.MAT3: return 9;
+                case Accessor.TypeEnum.MAT4: return 16;
+                default: return 1;
+            }
+        }
+
+        // Copies only the bytes that belong to the accessor (several accessors may share one buffer view).
+        private static byte[] CopyAccessorData(byte[] buffer, BufferView bufferView, Accessor a)
+        {
+            if (buffer == null)
+                return null;
+
+            int start = bufferView.ByteOffset + a.ByteOffset;
+            int length = a.Count * GetComponentCount(a) * GetBytesPerData(a);
+            int maxLength = Math.Min(bufferView.ByteLength - a.ByteOffset, buffer.Length - start);
+            if (length > maxLength)
+                length = Math.Max(0, maxLength);
+
+            byte[] data = new byte[length];
+            Array.Copy(buffer, start, data, 0, length);
+            return data;
         }
 
         private static byte[] GetTextureDataFromAccessor(Gltf scene, glTFLoader.Schema.Image i, ref GeoModel model, out string filename)
@@ -837,44 +969,23 @@ namespace KWEngine3.Model
             if (i.BufferView != null)
             {
                 BufferView bvTexture = scene.BufferViews[(int)i.BufferView];
-                int bufferViewStride = bvTexture.ByteStride == null ? 0 : (int)bvTexture.ByteStride;
-                int bufferViewLength = bvTexture.ByteLength;
-                int bufferViewOffset = bvTexture.ByteOffset;
-                data = new byte[bufferViewLength];
-                if (model.PathAbsolute.ToLower().EndsWith(".glb"))
+                if (bvTexture.ByteStride != null)
                 {
-                    int glbOffset = GetGlbOffset(model.PathAbsolute, ref model);
-                    using (FileStream stream = File.Open(model.PathAbsolute, FileMode.Open, FileAccess.Read))
-                    {
-                        stream.Position = glbOffset + bufferViewOffset;
-                        if (bufferViewStride == 0)
-                        {
-                            stream.Read(data, 0, bufferViewLength);
-                        }
-                        else
-                        {
-                            KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                            return null;
-                        }
-
-                    }
+                    KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
+                    return null;
                 }
-                else
+                bool isGlb = model.PathAbsolute.ToLower().EndsWith(".glb");
+                if (!isGlb && !IsBase64BufferUri(scene.Buffers[bvTexture.Buffer].Uri))
                 {
-                    if (i.BufferView >= 0 || (i.Uri != null && i.Uri.StartsWith("data:application/octet-stream;base64")))
-                    {
-                        data = GetDataFromBase64Stream(scene, i, i.Uri);
-                    }
-                    else
-                    {
-                        using (FileStream stream = File.Open(model.Path + Path.AltDirectorySeparatorChar + i.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        {
-                            stream.Position = bufferViewOffset;
-                            stream.Read(data, 0, bufferViewLength);
-                        }
-                        filename = i.Uri;
-                    }
+                    KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
+                    return null;
                 }
+                byte[] buffer = GetBufferData(scene, bvTexture.Buffer, model.PathAbsolute, model.Path, GetGlbOffset(model.PathAbsolute, ref model));
+                if (buffer == null)
+                    return null;
+                int length = Math.Max(0, Math.Min(bvTexture.ByteLength, buffer.Length - bvTexture.ByteOffset));
+                data = new byte[length];
+                Array.Copy(buffer, bvTexture.ByteOffset, data, 0, length);
             }
             else
             {
@@ -894,65 +1005,14 @@ namespace KWEngine3.Model
             if (a == null)
                 return null;
 
-            int accessorOffset = a.ByteOffset;
-            int accessorCount = a.Count;
-            int bufferViewId = (int)a.BufferView;
-
-            BufferView bufferView = scene.BufferViews[bufferViewId];
-            int bufferViewStride = bufferView.ByteStride == null ? 0 : (int)bufferView.ByteStride;
-            int bufferViewLength = bufferView.ByteLength;
-            int bufferViewOffset = bufferView.ByteOffset;
-            byte[] data = new byte[bufferViewLength];
-            if (model.PathAbsolute.ToLower().EndsWith(".glb"))
+            BufferView bufferView = scene.BufferViews[(int)a.BufferView];
+            if (bufferView.ByteStride != null)
             {
-
-                using (FileStream stream = File.Open(model.PathAbsolute, FileMode.Open, FileAccess.Read))
-                {
-
-                    stream.Position = model.GLBOffset + accessorOffset + bufferViewOffset;
-                    if (bufferViewStride == 0)
-                    {
-                        stream.Read(data, 0, bufferViewLength);
-                    }
-                    else
-                    {
-                        KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                        return null;
-                    }
-                }
+                KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
+                return null;
             }
-            else
-            {
-                glTFLoader.Schema.Buffer buffer = scene.Buffers[bufferView.Buffer];
-                if (buffer.Uri.StartsWith("data:application/octet-stream;base64"))
-                {
-                    if (bufferViewStride == 0)
-                        data = GetDataFromBase64Stream(a, bufferViewLength, accessorOffset + bufferViewOffset, buffer.Uri);
-                    else
-                    {
-                        KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                        return null;
-                    }
-                }
-                else
-                {
-
-                    using (FileStream stream = File.Open(model.Path + Path.AltDirectorySeparatorChar + buffer.Uri, FileMode.Open, FileAccess.Read))
-                    {
-                        stream.Position = accessorOffset + bufferViewOffset;
-                        if (bufferViewStride == 0)
-                        {
-                            stream.Read(data, 0, bufferViewLength);
-                        }
-                        else
-                        {
-                            KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                            return null;
-                        }
-                    }
-                }
-            }
-            return data;
+            byte[] buffer = GetBufferData(scene, bufferView.Buffer, model.PathAbsolute, model.Path, model.GLBOffset);
+            return CopyAccessorData(buffer, bufferView, a);
         }
 
         private static byte[] GetByteDataFromAccessor(Gltf scene, Accessor a, ref GeoMeshCollider collider)
@@ -960,139 +1020,15 @@ namespace KWEngine3.Model
             if (a == null)
                 return null;
 
-            int accessorOffset = a.ByteOffset;
-            int accessorCount = a.Count;
-            int bufferViewId = (int)a.BufferView;
-
-            BufferView bufferView = scene.BufferViews[bufferViewId];
-            int bufferViewStride = bufferView.ByteStride == null ? 0 : (int)bufferView.ByteStride;
-            int bufferViewLength = bufferView.ByteLength;
-            int bufferViewOffset = bufferView.ByteOffset;
-            byte[] data = new byte[bufferViewLength];
-            if (collider.FileName.ToLower().EndsWith(".glb"))
+            BufferView bufferView = scene.BufferViews[(int)a.BufferView];
+            if (bufferView.ByteStride != null)
             {
-
-                using (FileStream stream = File.Open(collider.FileName, FileMode.Open, FileAccess.Read))
-                {
-
-                    stream.Position = collider.GlbOffset + accessorOffset + bufferViewOffset;
-                    if (bufferViewStride == 0)
-                    {
-                        stream.Read(data, 0, bufferViewLength);
-                    }
-                    else
-                    {
-                        KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                        return null;
-                    }
-                }
-            }
-            else
-            {
-                glTFLoader.Schema.Buffer buffer = scene.Buffers[bufferView.Buffer];
-                if (buffer.Uri.StartsWith("data:application/octet-stream;base64"))
-                {
-                    if (bufferViewStride == 0)
-                        data = GetDataFromBase64Stream(a, bufferViewLength, accessorOffset + bufferViewOffset, buffer.Uri);
-                    else
-                    {
-                        KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                        return null;
-                    }
-                }
-                else
-                {
-                    string tmpName = SceneImporter.StripFileNameFromPath(collider.FileName);
-                    using (FileStream stream = File.Open(tmpName + Path.AltDirectorySeparatorChar + buffer.Uri, FileMode.Open, FileAccess.Read))
-                    {
-                        stream.Position = accessorOffset + bufferViewOffset;
-                        if (bufferViewStride == 0)
-                        {
-                            stream.Read(data, 0, bufferViewLength);
-                        }
-                        else
-                        {
-                            KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                            return null;
-                        }
-                    }
-                }
-            }
-            return data;
-        }
-
-        private static byte[] GetDataFromBase64Stream(Accessor accessor, int bytesToCopy, int offset, string uri)
-        {
-            int commapos = uri.IndexOf(',');
-            byte[] data = null;
-            if (commapos >= 0)
-            {
-                byte[] chunk = Convert.FromBase64String(uri.Substring(commapos + 1));
-                data = new byte[bytesToCopy];
-                Array.Copy(chunk, offset, data, 0, data.Length);
-            }
-            else
-            {
-                KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
+                KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
                 return null;
             }
-            return data;
+            byte[] buffer = GetBufferData(scene, bufferView.Buffer, collider.FileName, SceneImporter.StripFileNameFromPath(collider.FileName), collider.GlbOffset);
+            return CopyAccessorData(buffer, bufferView, a);
         }
-
-        private static byte[] GetDataFromBase64Stream(Gltf scene, glTFLoader.Schema.Image accessor, string uri)
-        {
-            byte[] chunk = null;
-            byte[] data = null;
-            int bufferViewId = bufferViewId = accessor.BufferView != null ? (int)accessor.BufferView : -1;
-            if (uri != null && bufferViewId >= 0)
-            {
-                int commapos = uri.IndexOf(',');
-                if (commapos >= 0)
-                {
-                    chunk = Convert.FromBase64String(uri.Substring(commapos + 1));
-                    data = new byte[scene.BufferViews[bufferViewId].ByteLength];
-                    Array.Copy(chunk, scene.BufferViews[bufferViewId].ByteOffset, data, 0, data.Length);
-                }
-                else
-                {
-                    KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
-                    return null;
-                }
-            }
-            else if (uri == null && bufferViewId >= 0)
-            {
-                int bufferId = scene.BufferViews[bufferViewId].Buffer;
-                glTFLoader.Schema.Buffer buff = scene.Buffers[bufferId];
-                if (buff.Uri != null && buff.Uri.StartsWith("data:application/octet-stream;base64"))
-                {
-                    int commapos = buff.Uri.IndexOf(',');
-                    if (commapos >= 0)
-                    {
-                        chunk = Convert.FromBase64String(buff.Uri.Substring(commapos + 1));
-                        data = new byte[scene.BufferViews[bufferViewId].ByteLength];
-                        Array.Copy(chunk, scene.BufferViews[bufferViewId].ByteOffset, data, 0, data.Length);
-                    }
-                    else
-                    {
-                        KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
-                        return null;
-                    }
-                }
-                else
-                {
-                    KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
-                    return null;
-                }
-            }
-
-            else
-            {
-                KWEngine.LogWriteLine("[Import] GLTF base64 stream invalid");
-                return null;
-            }
-            return data;
-        }
-
 
         private static GeoVertex[] GetVertexDataForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoModel model, Node node, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, out List<Vector3> uniqueVertices, out List<int> uniqueBoneIds)
         {
@@ -1133,6 +1069,8 @@ namespace KWEngine3.Model
                 weightsData = new float[dataWeights.Length / bytesPerDataWeights];
             }
             List<GeoVertex> verticesArray = new List<GeoVertex>();
+            bool isFullHitbox = IsFullHitboxNode(node);
+            HashSet<Vector3> uniqueVertexSet = isFullHitbox ? new HashSet<Vector3>() : null;
             for (int i = 0, j = 0, cswitch = 0; i < data.Length; i += bytesPerData)
             {
                 if (bytesPerData == 1)
@@ -1173,21 +1111,9 @@ namespace KWEngine3.Model
                         Vector3 tmpVertex = new Vector3(verticesData[j - 2], verticesData[j - 1], verticesData[j]);
                         verticesArray.Add(new GeoVertex(j, tmpVertex.X, tmpVertex.Y, tmpVertex.Z)); // moved from down below (testing)
 
-                        if (node.Name.ToLower().Contains("_fullhitbox"))
+                        if (isFullHitbox && uniqueVertexSet.Add(tmpVertex))
                         {
-                            bool add = true;
-                            for (int k = 0; k < uniqueVertices.Count; k++)
-                            {
-                                if (uniqueVertices[k].X == tmpVertex.X && uniqueVertices[k].Y == tmpVertex.Y && uniqueVertices[k].Z == tmpVertex.Z)
-                                {
-                                    add = false;
-                                    break;
-                                }
-                            }
-                            if (add)
-                            {
-                                uniqueVertices.Add(tmpVertex);
-                            }
+                            uniqueVertices.Add(tmpVertex);
                         }
                         //verticesArray.Add(new GeoVertex(j, tmpVertex.X, tmpVertex.Y, tmpVertex.Z));
                     }
@@ -1262,7 +1188,7 @@ namespace KWEngine3.Model
             return verticesArray.ToArray();
         }
 
-        private static List<Vector3> GetVertexDataForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoMeshCollider collider, Node node, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, ref List<Vector3> uniqueVertices)
+        private static List<Vector3> GetVertexDataForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoMeshCollider collider, Node node, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, ref List<Vector3> uniqueVertices, Dictionary<Vector3, int> uniqueVertexIndices)
         {
             xmin = float.MaxValue;
             xmax = float.MinValue;
@@ -1321,16 +1247,7 @@ namespace KWEngine3.Model
                         Vector3 tmpVertex = new Vector3(verticesData[j - 2], verticesData[j - 1], verticesData[j]);
                         verticesArray.Add(tmpVertex);
 
-                        bool add = true;
-                        for (int k = 0; k < uniqueVertices.Count; k++)
-                        {
-                            if (uniqueVertices[k].X == tmpVertex.X && uniqueVertices[k].Y == tmpVertex.Y && uniqueVertices[k].Z == tmpVertex.Z)
-                            {
-                                add = false;
-                                break;
-                            }
-                        }
-                        if (add)
+                        if (uniqueVertexIndices.TryAdd(tmpVertex, uniqueVertices.Count))
                         {
                             uniqueVertices.Add(tmpVertex);
                         }
@@ -1398,21 +1315,13 @@ namespace KWEngine3.Model
                 }
             }
 
-            if (node.Name.ToLower().Contains("_fullhitbox"))
+            if (IsFullHitboxNode(node))
             {
+                HashSet<Vector3> normalSet = new HashSet<Vector3>();
                 for (int i = 0; i < normalData.Length; i += 3)
                 {
                     Vector3 n = new Vector3(normalData[i], normalData[i + 1], normalData[i + 2]);
-                    bool add = true;
-                    for (int j = 0; j < normalDataUnique.Count; j++)
-                    {
-                        if (normalDataUnique[j].X == n.X && normalDataUnique[j].Y == n.Y && normalDataUnique[j].Z == n.Z)
-                        {
-                            add = false;
-                            break;
-                        }
-                    }
-                    if (add)
+                    if (normalSet.Add(n))
                     {
                         normalDataUnique.Add(n);
                     }
@@ -1490,137 +1399,24 @@ namespace KWEngine3.Model
 
         private static List<uint> GetIndicesForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoMeshCollider collider)
         {
-            int indicesIndex = (int)mprim.Indices;
-            Accessor indexAccessor = scene.Accessors[indicesIndex];
-
-            int accessorOffset = indexAccessor.ByteOffset;
-            int accessorCount = indexAccessor.Count;
-            int bufferViewId = (int)indexAccessor.BufferView;
-
-            BufferView bufferViewIndices = scene.BufferViews[bufferViewId];
-            int bufferViewStride = bufferViewIndices.ByteStride == null ? 0 : (int)bufferViewIndices.ByteStride;
-            int bufferViewLength = bufferViewIndices.ByteLength;
-            int bufferViewOffset = bufferViewIndices.ByteOffset;
-            glTFLoader.Schema.Buffer indicesBuffer = scene.Buffers[bufferViewIndices.Buffer];
-            byte[] data = new byte[bufferViewLength];
-            if (collider.FileName.ToLower().EndsWith(".glb"))
-            {
-                using (FileStream stream = File.Open(collider.FileName, FileMode.Open, FileAccess.Read))
-                {
-                    stream.Position = collider.GlbOffset + accessorOffset + bufferViewOffset;
-                    if (bufferViewStride == 0)
-                    {
-                        stream.Read(data, 0, bufferViewLength);
-                    }
-                    else
-                    {
-                        KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                        return null;
-                    }
-                }
-            }
-            else
-            {
-                if (indicesBuffer.Uri != null)
-                {
-                    if (indicesBuffer.Uri.StartsWith("data:application/octet-stream;base64"))
-                    {
-                        data = GetDataFromBase64Stream(indexAccessor, bufferViewIndices.ByteLength, accessorOffset + bufferViewOffset, indicesBuffer.Uri);
-                    }
-                    else
-                    {
-                        // TODO: CAUTION!
-                        string tmpName = SceneImporter.StripFileNameFromPath(collider.FileName);
-                        using (FileStream file = File.Open(tmpName + Path.AltDirectorySeparatorChar + indicesBuffer.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        {
-                            file.Position = accessorOffset + bufferViewOffset;
-                            file.Read(data, 0, bufferViewLength);
-                        }
-                    }
-                }
-                else
-                {
-                    KWEngine.LogWriteLine("[Import] GLTF vertex indices invalid");
-                    return null;
-                }
-            }
-
-            int bytesPerData = GetBytesPerData(indexAccessor);
-            uint[] indicesData = new uint[data.Length / bytesPerData];
-            for (int i = 0, j = 0; i < data.Length; i += bytesPerData)
-            {
-                if (bytesPerData == 1)
-                {
-                    indicesData[j++] = data[i];
-                }
-                else if (bytesPerData == 2)
-                {
-                    indicesData[j++] = BitConverter.ToUInt16(data, i);
-                }
-                else
-                {
-                    indicesData[j++] = BitConverter.ToUInt32(data, i);
-                }
-            }
-            return indicesData.ToList();
+            Accessor indexAccessor = scene.Accessors[(int)mprim.Indices];
+            byte[] data = GetByteDataFromAccessor(scene, indexAccessor, ref collider);
+            if (data == null)
+                return null;
+            return ConvertIndexData(data, GetBytesPerData(indexAccessor)).ToList();
         }
 
         private static uint[] GetIndicesForMeshPrimitive(Gltf scene, MeshPrimitive mprim, ref GeoModel model)
         {
-            int indicesIndex = (int)mprim.Indices;
-            Accessor indexAccessor = scene.Accessors[indicesIndex];
+            Accessor indexAccessor = scene.Accessors[(int)mprim.Indices];
+            byte[] data = GetByteDataFromAccessor(scene, indexAccessor, ref model);
+            if (data == null)
+                return null;
+            return ConvertIndexData(data, GetBytesPerData(indexAccessor));
+        }
 
-            int accessorOffset = indexAccessor.ByteOffset;
-            int accessorCount = indexAccessor.Count;
-            int bufferViewId = (int)indexAccessor.BufferView;
-
-            BufferView bufferViewIndices = scene.BufferViews[bufferViewId];
-            int bufferViewStride = bufferViewIndices.ByteStride == null ? 0 : (int)bufferViewIndices.ByteStride;
-            int bufferViewLength = bufferViewIndices.ByteLength;
-            int bufferViewOffset = bufferViewIndices.ByteOffset;
-            glTFLoader.Schema.Buffer indicesBuffer = scene.Buffers[bufferViewIndices.Buffer];
-            byte[] data = new byte[bufferViewLength];
-            if (model.PathAbsolute.ToLower().EndsWith(".glb"))
-            {
-                using (FileStream stream = File.Open(model.PathAbsolute, FileMode.Open, FileAccess.Read))
-                {
-                    stream.Position = model.GLBOffset + accessorOffset + bufferViewOffset;
-                    if (bufferViewStride == 0)
-                    {
-                        stream.Read(data, 0, bufferViewLength);
-                    }
-                    else
-                    {
-                        KWEngine.LogWriteLine("[Import] GLTF stride attribute not supported");
-                        return null;
-                    }
-                }
-            }
-            else
-            {
-                if (indicesBuffer.Uri != null)
-                {
-                    if (indicesBuffer.Uri.StartsWith("data:application/octet-stream;base64"))
-                    {
-                        data = GetDataFromBase64Stream(indexAccessor, bufferViewIndices.ByteLength, accessorOffset + bufferViewOffset, indicesBuffer.Uri);
-                    }
-                    else
-                    {
-                        using (FileStream file = File.Open(model.Path + Path.AltDirectorySeparatorChar + indicesBuffer.Uri, FileMode.Open, FileAccess.Read, FileShare.Read))
-                        {
-                            file.Position = accessorOffset + bufferViewOffset;
-                            file.Read(data, 0, bufferViewLength);
-                        }
-                    }
-                }
-                else
-                {
-                    KWEngine.LogWriteLine("[Import] GLTF vertex indices invalid");
-                    return null;
-                }
-            }
-
-            int bytesPerData = GetBytesPerData(indexAccessor);
+        private static uint[] ConvertIndexData(byte[] data, int bytesPerData)
+        {
             uint[] indicesData = new uint[data.Length / bytesPerData];
             for (int i = 0, j = 0; i < data.Length; i += bytesPerData)
             {
@@ -1682,17 +1478,19 @@ namespace KWEngine3.Model
                 Matrix4 parentTransform = Matrix4.Identity;
                 bool transformFound = false;
                 string nodeName = "";
-                while (transformFound != true)
+                foreach (Node node in scene.Nodes)
                 {
-                    foreach (Node node in scene.Nodes)
+                    transformFound = FindTransformForMesh(scene, node, mesh, ref nodeTransform, out nodeName, out Node targetNode, ref parentTransform);
+                    if (transformFound)
                     {
-                        transformFound = FindTransformForMesh(scene, node, mesh, ref nodeTransform, out nodeName, out Node targetNode, ref parentTransform);
-                        if (transformFound)
-                        {
-                            currentNode = targetNode;
-                            break;
-                        }
+                        currentNode = targetNode;
+                        break;
                     }
+                }
+                if (!transformFound)
+                {
+                    KWEngine.LogWriteLine("[Import] Mesh '" + mesh.Name + "' in model " + model.Name + " is not used by any node - skipped");
+                    continue;
                 }
 
                 minX = float.MaxValue;
@@ -1705,6 +1503,8 @@ namespace KWEngine3.Model
 
                 List<Vector3> uniqueVerticesForWholeMesh = new List<Vector3>();
                 List<Vector3> uniqueNormalsForWholeMesh = new List<Vector3>();
+                Dictionary<Vector3, int> uniqueVertexIndicesForWholeMesh = new Dictionary<Vector3, int>();
+                HashSet<Vector3> uniqueNormalSetForWholeMesh = new HashSet<Vector3>();
                 List<GeoMeshFaceHelper> facesForWholeMesh = new List<GeoMeshFaceHelper>();
 
                 for (int m2 = 0; m2 < mesh.Primitives.Length; m2++)
@@ -1791,14 +1591,14 @@ namespace KWEngine3.Model
 
                         foreach (Vector3 normal in uniqueNormals)
                         {
-                            if (!uniqueNormalsForWholeMesh.Contains(normal))
+                            if (uniqueNormalSetForWholeMesh.Add(normal))
                             {
                                 uniqueNormalsForWholeMesh.Add(normal);
                             }
                         }
                         foreach (Vector3 vertex in uniqueVertices)
                         {
-                            if (!uniqueVerticesForWholeMesh.Contains(vertex))
+                            if (uniqueVertexIndicesForWholeMesh.TryAdd(vertex, uniqueVerticesForWholeMesh.Count))
                             {
                                 uniqueVerticesForWholeMesh.Add(vertex);
                             }
@@ -1814,7 +1614,7 @@ namespace KWEngine3.Model
                     List<Vector3> faceNormals = new List<Vector3>();
                     foreach (GeoMeshFaceHelper face in facesForWholeMesh)
                     {
-                        GeoHelper.FindIndexOfVertexInList(ref face.Vertices[0], ref face.Vertices[1], ref face.Vertices[2], uniqueVerticesForWholeMesh, uniqueNormalsForWholeMesh, out int indexVertex1, out int indexVertex2, out int indexVertex3, out int indexNormal);
+                        FindIndicesForFace(ref face.Vertices[0], ref face.Vertices[1], ref face.Vertices[2], uniqueVertexIndicesForWholeMesh, uniqueNormalsForWholeMesh, out int indexVertex1, out int indexVertex2, out int indexVertex3, out int indexNormal);
                         Vector3 normal = uniqueNormalsForWholeMesh[indexNormal];
                         //if (!faceNormals.Contains(normal))
                         {
@@ -1851,6 +1651,36 @@ namespace KWEngine3.Model
                 faces.Add(tmpFace);
             }
             return faces;
+        }
+
+        private static bool IsFullHitboxNode(Node node)
+        {
+            return node != null && node.Name != null && node.Name.ToLower().Contains("_fullhitbox");
+        }
+
+        // Same result as GeoHelper.FindIndexOfVertexInList(), but the vertex indices come from a dictionary instead of a linear search.
+        private static void FindIndicesForFace(ref Vector3 v1, ref Vector3 v2, ref Vector3 v3, Dictionary<Vector3, int> vertexIndices, List<Vector3> normalsForWholeMesh, out int iv1, out int iv2, out int iv3, out int in1)
+        {
+            iv1 = vertexIndices.TryGetValue(v1, out int index1) ? index1 : -1;
+            iv2 = vertexIndices.TryGetValue(v2, out int index2) ? index2 : -1;
+            iv3 = vertexIndices.TryGetValue(v3, out int index3) ? index3 : -1;
+            in1 = -1;
+
+            Vector3 n = Vector3.Normalize(Vector3.Cross(v2 - v1, v3 - v1));
+            for (int i = 0; i < normalsForWholeMesh.Count; i++)
+            {
+                float dot = Vector3.Dot(n, normalsForWholeMesh[i]);
+                if (dot >= (1 - GeoHelper.ERROR_MARGIN) && dot <= 1 + GeoHelper.ERROR_MARGIN)
+                {
+                    in1 = i;
+                    break;
+                }
+            }
+
+            if (in1 < 0 || iv1 < 0 || iv2 < 0 || iv3 < 0)
+            {
+                throw new Exception("Could not find appropriate face normal index in hitbox' normal array.");
+            }
         }
 
         private static void ProcessMeshBones(Gltf scene, Node n, ref GeoModel model, ref GeoMesh geoMesh, List<int> uniqueBoneIds)
@@ -2120,10 +1950,17 @@ namespace KWEngine3.Model
             collider.Name = StripPathFromFile(filename);
             collider.GlbOffset = GetGlbOffset(filename, ref collider);
 
-            GenerateNodeHierarchy(wholeScene, ref collider);
-            foreach (GeoNode child in collider.Root.Children)
+            try
             {
-                GenerateMeshHitboxes(wholeScene, child, ref collider, colliderType);
+                GenerateNodeHierarchy(wholeScene, ref collider);
+                foreach (GeoNode child in collider.Root.Children)
+                {
+                    GenerateMeshHitboxes(wholeScene, child, ref collider, colliderType);
+                }
+            }
+            finally
+            {
+                ClearImportCache();
             }
             return collider;
         }
@@ -2170,6 +2007,8 @@ namespace KWEngine3.Model
             List<Vector3> uniqueNormals = new();
             List<Vector3> allVertices = new();
             List<uint> allIndices = new();
+            Dictionary<Vector3, int> uniqueVertexIndices = new();
+            Dictionary<Vector3, int> uniqueNormalIndices = new();
 
             if (gltfNode.Mesh.HasValue)
             {
@@ -2184,8 +2023,16 @@ namespace KWEngine3.Model
                 {
                     if (mp.Indices.HasValue && mp.Mode == MeshPrimitive.ModeEnum.TRIANGLES)
                     {
-                        allIndices.AddRange(GetIndicesForMeshPrimitive(scene, mp, ref collider));
-                        List<Vector3> verticesOfPrimitive = GetVertexDataForMeshPrimitive(scene, mp, ref collider, gltfNode, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, ref uniqueVertices);
+                        List<uint> indicesOfPrimitive = GetIndicesForMeshPrimitive(scene, mp, ref collider);
+                        if (indicesOfPrimitive == null)
+                            return null;
+                        // indices of each primitive start at 0, but allVertices holds the vertices of all primitives
+                        uint vertexOffset = (uint)allVertices.Count;
+                        foreach (uint index in indicesOfPrimitive)
+                        {
+                            allIndices.Add(index + vertexOffset);
+                        }
+                        List<Vector3> verticesOfPrimitive = GetVertexDataForMeshPrimitive(scene, mp, ref collider, gltfNode, out float xmin, out float xmax, out float ymin, out float ymax, out float zmin, out float zmax, ref uniqueVertices, uniqueVertexIndices);
                         if (xmin < minX)
                             minX = xmin;
                         if (ymin < minY)
@@ -2209,9 +2056,9 @@ namespace KWEngine3.Model
                 // Generate faces and their normals:
                 for (int i = 0; i < allIndices.Count; i += 3)
                 {
-                    int index1 = uniqueVertices.IndexOf(allVertices[(int)allIndices[i + 0]]);
-                    int index2 = uniqueVertices.IndexOf(allVertices[(int)allIndices[i + 1]]);
-                    int index3 = uniqueVertices.IndexOf(allVertices[(int)allIndices[i + 2]]);
+                    int index1 = uniqueVertexIndices.TryGetValue(allVertices[(int)allIndices[i + 0]], out int tmpIndex1) ? tmpIndex1 : -1;
+                    int index2 = uniqueVertexIndices.TryGetValue(allVertices[(int)allIndices[i + 1]], out int tmpIndex2) ? tmpIndex2 : -1;
+                    int index3 = uniqueVertexIndices.TryGetValue(allVertices[(int)allIndices[i + 2]], out int tmpIndex3) ? tmpIndex3 : -1;
                     if (index1 < 0 || index2 < 0 || index3 < 0)
                     {
                         KWEngine.LogWriteLine("[Import] GLTF file " + collider.FileName + " has invalid vertex data");
@@ -2223,20 +2070,11 @@ namespace KWEngine3.Model
                     Vector3 c = uniqueVertices[index3];
 
                     Vector3 normal = Vector3.Normalize(Vector3.Cross(c - b, a - b));
-                    int normalIndex = -1;
-                    if (!uniqueNormals.Contains(normal))
+                    if (!uniqueNormalIndices.TryGetValue(normal, out int normalIndex))
                     {
+                        normalIndex = uniqueNormals.Count;
+                        uniqueNormalIndices.Add(normal, normalIndex);
                         uniqueNormals.Add(normal);
-                        normalIndex = uniqueNormals.Count - 1;
-                    }
-                    else
-                    {
-                        normalIndex = uniqueNormals.IndexOf(normal);
-                        if (normalIndex < 0)
-                        {
-                            KWEngine.LogWriteLine("[Import] GLTF file " + collider.FileName + " gives invalid normal data");
-                            return null;
-                        }
                     }
 
 

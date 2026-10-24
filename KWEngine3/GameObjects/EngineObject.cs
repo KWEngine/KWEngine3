@@ -598,6 +598,52 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Setzt die Textur des Objekts
+        /// </summary>
+        /// <param name="filename">Dateiname der Textur (inkl. relativem Pfad)</param>
+        /// <param name="type">Art der Textur</param>
+        /// <param name="materialName">Name des zu ändernden Materials</param>
+        /// <param name="matchNameExactly">gibt an, ob der Materialname exakt übereinstimmen muss (Standard: true)</param>
+        public void SetTexture(string filename, TextureType type, string materialName, bool matchNameExactly = true)
+        {
+            filename = HelperGeneral.EqualizePathDividers(filename);
+            int materialId = -1;
+            if (materialName == null || materialName == string.Empty)
+            {
+                KWEngine.LogWriteLine("[EngineObject] Material name could not be found. Aborted.");
+                return;
+            }
+
+            for (int i = 0; i < _model.Material.Length; i++)
+            {
+                if (matchNameExactly)
+                {
+                    if (_model.Material[i].AttachedToMesh == materialName || _model.Material[i].Name == materialName)
+                    {
+                        materialId = i;
+                    }
+                }
+                else
+                {
+                    if ((_model.Material[i].AttachedToMesh != null && _model.Material[i].AttachedToMesh.ToLower().Contains(materialName.ToLower())) || (_model.Material[i].Name != null && _model.Material[i].Name.ToLower().Contains(materialName.ToLower())))
+                    {
+                        materialId = i;
+                    }
+                }
+
+                if (materialId >= 0)
+                {
+                    _model.SetTexture(filename.Trim(), type, materialId);
+                    break;
+                }
+            }
+            if (materialId < 0)
+            {
+                KWEngine.LogWriteLine("[EngineObject] Material name could not be found. Aborted.");
+            }
+        }
+
+        /// <summary>
         /// Setzt die Skalierung für das Parallax-Occlusion-Mapping (falls eine Height-Textur für das Objekt verwendet wird)
         /// </summary>
         /// <remarks>RenderQuality muss auf 'Default' oder höher eingestellt sein, damit dieser Effekt eintritt</remarks>
@@ -606,7 +652,7 @@ namespace KWEngine3.GameObjects
         {
             if (KWEngine.Window._renderQuality < RenderQualityLevel.Default)
             {
-                KWEngine.LogWriteLine("[GameObject] Parallax Mapping is disabled on your current rendering profile");
+                KWEngine.LogWriteLine("[EngineObject] Parallax Mapping is disabled on your current rendering profile");
             }
             _pomScale = MathHelper.Clamp(scale, 0f, 1.0f) * 0.1f;
         }

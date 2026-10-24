@@ -104,6 +104,7 @@ namespace KWEngine3.Model
                     MipMaps = mipmaps
                 };
                 TextureRoughnessInMetallic = false;
+                TextureRoughnessIsSpecular = false; // a texture set later is always a roughness map, never an imported specular map
             }
             else if (type == TextureType.Normal)
             {

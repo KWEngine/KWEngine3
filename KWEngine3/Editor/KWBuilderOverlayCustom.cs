@@ -230,7 +230,7 @@ namespace KWEngine3.Editor
                             ImGui.Spacing();
                         }
                     }
-                    ImGui.Indent(0f);
+                    ImGui.Unindent(16f);
                 }
 
             }
@@ -449,7 +449,7 @@ namespace KWEngine3.Editor
                     {
                         SelectedGameObject.SetHitboxScale(hbScale.X, hbScale.Y, hbScale.Z, hbOffset.X, hbOffset.Y, hbOffset.Z);
                     }
-                    ImGui.Unindent();
+                    ImGui.Unindent(16f);
 
                     ImGui.PopStyleColor(6);
                 }
@@ -692,7 +692,13 @@ namespace KWEngine3.Editor
 
                     ImGui.PopItemWidth();
                 }
-                else if (SelectedGameObject.HasArmatureAndAnimations)
+                else
+                {
+                    // imported model (not KWCube, KWSphere, KWQuad, KWQuad2D or KWPlatform)
+                    DrawMaterialTexturesForImportedModel();
+                }
+
+                if (SelectedGameObject.HasArmatureAndAnimations)
                 {
                     string[] animations = new string[SelectedGameObject._model.ModelOriginal.Animations.Count + 1];
                     int selectedId = SelectedGameObject._stateCurrent.AnimationIDDefault + 1;
@@ -979,8 +985,112 @@ namespace KWEngine3.Editor
             return filename == null || filename.Length == 0;
         }
 
-        // Read-only text field for a file name: a click opens the file dialog (KWEditorFileDialog).
-        // The dialog calls onFileSelected with the chosen file, or with an empty string for "No file".
+        private const string INTERNAL_TEXTURE = "internal texture";
+        private static int _importedMaterialIndex = 0;
+        private static int _importedMaterialObjectId = -1;
+        private static readonly Dictionary<string, bool> _textureFileExistsCache = new();
+
+        private static void DrawMaterialTexturesForImportedModel()
+        {
+            GameObject g = SelectedGameObject; // the file dialog applies its result later, maybe after the selection changed
+            KWEngine3.Model.GeoMaterial[] materials = g._model.Material;
+            if (materials == null || materials.Length == 0)
+                return;
+
+            if (_importedMaterialObjectId != g.ID || _importedMaterialIndex < 0 || _importedMaterialIndex >= materials.Length)
+            {
+                _importedMaterialObjectId = g.ID;
+                _importedMaterialIndex = 0;
+            }
+
+            string[] materialNames = new string[materials.Length];
+            for (int i = 0; i < materials.Length; i++)
+            {
+                string name = string.IsNullOrWhiteSpace(materials[i].Name) ? "(unnamed)" : materials[i].Name;
+                materialNames[i] = "#" + i + ": " + name;
+            }
+
+            ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "Material textures:");
+            ImGui.Combo("Material", ref _importedMaterialIndex, materialNames, materialNames.Length);
+
+            int materialId = _importedMaterialIndex; // copy for the file dialog callbacks
+            KWEngine3.Model.GeoMaterial m = materials[materialId];
+            string modelPath = g._model.ModelOriginal.Path;
+
+            if (ImGui.BeginTable("##importedMaterialTextures", 2, ImGuiTableFlags.SizingStretchSame))
+            {
+                // negative width: field fills the cell, minus room for the longest label
+                float itemWidth = -(ImGui.CalcTextSize("Emissive").X + ImGui.GetStyle().ItemInnerSpacing.X);
+
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(itemWidth);
+                InputTextFile("Albedo", GetTextureNameForImportedModel(m.TextureAlbedo, modelPath), "Albedo texture", f => ApplyTextureToGameObject(g, f, TextureType.Albedo, materialId));
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(itemWidth);
+                InputTextFile("Normal", GetTextureNameForImportedModel(m.TextureNormal, modelPath), "Normal map", f => ApplyTextureToGameObject(g, f, TextureType.Normal, materialId));
+
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(itemWidth);
+                InputTextFile("Emissive", GetTextureNameForImportedModel(m.TextureEmissive, modelPath), "Emissive texture", f => ApplyTextureToGameObject(g, f, TextureType.Emissive, materialId));
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(itemWidth);
+                InputTextFile("Metallic", GetTextureNameForImportedModel(m.TextureMetallic, modelPath), "Metallic texture", f => ApplyTextureToGameObject(g, f, TextureType.Metallic, materialId));
+
+                ImGui.TableNextColumn();
+                ImGui.SetNextItemWidth(itemWidth);
+                InputTextFile("Roughn.", GetTextureNameForImportedModel(m.TextureRoughness, modelPath), "Roughness texture", f => ApplyTextureToGameObject(g, f, TextureType.Roughness, materialId));
+                if (KWEngine.Window._renderQuality >= RenderQualityLevel.Default)
+                {
+                    ImGui.TableNextColumn();
+                    ImGui.SetNextItemWidth(itemWidth);
+                    InputTextFile("Height", GetTextureNameForImportedModel(m.TextureHeight, modelPath), "Height map", f => ApplyTextureToGameObject(g, f, TextureType.Height, materialId));
+                }
+                ImGui.EndTable();
+            }
+            ImGui.Separator();
+        }
+
+        private static string GetTextureNameForImportedModel(KWEngine3.Model.GeoTexture tex, string modelPath)
+        {
+            if (!tex.IsTextureSet || tex.IsKWEngineTexture)
+                return "";
+            if (tex.IsEmbedded || FileNameEmpty(tex.Filename) || !TextureFileExistsOnDisk(tex.Filename, modelPath))
+                return INTERNAL_TEXTURE;
+            return tex.Filename;
+        }
+
+        private static bool TextureFileExistsOnDisk(string filename, string modelPath)
+        {
+            string key = (modelPath ?? "") + "|" + filename;
+            if (_textureFileExistsCache.TryGetValue(key, out bool exists))
+                return exists;
+
+            exists = false;
+            try
+            {
+                if (File.Exists(filename))
+                {
+                    exists = true;
+                }
+                else if (!FileNameEmpty(modelPath))
+                {
+                    string modelDir = KWEngine3.Model.SceneImporter.StripFileNameFromPath(modelPath);
+                    if (Directory.Exists(modelDir))
+                    {
+                        string fileOnly = Path.GetFileName(HelperGeneral.EqualizePathDividers(filename));
+                        exists = File.Exists(Path.Combine(modelDir, filename))
+                            || (!FileNameEmpty(fileOnly) && Directory.EnumerateFiles(modelDir, fileOnly, SearchOption.AllDirectories).Any());
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                exists = false;
+            }
+            _textureFileExistsCache[key] = exists;
+            return exists;
+        }
+
         private static void InputTextFile(string label, string filename, string dialogTitle, Action<string> onFileSelected)
         {
             string text = filename ?? "";
@@ -1734,7 +1844,7 @@ namespace KWEngine3.Editor
                     DeselectAll();
                     SelectedVSG = vsg;
                 }
-                ImGui.Indent(0);
+                ImGui.Unindent((leftInner - vsgBtnW) / 2);
                 ImGui.PopStyleColor();
             }
 
