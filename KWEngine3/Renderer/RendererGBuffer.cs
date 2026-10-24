@@ -187,7 +187,7 @@ namespace KWEngine3.Renderer
                     material.TextureAlbedo.UVTransform.W + g._stateRender._uvTransform.W
                     );
                 GL.Uniform4(UTextureTransform, uvTrans);
-                GL.Uniform2(UTextureClip, g._stateRender._uvClip);
+                GL.Uniform4(UTextureClip, g._stateRender._uvClip.X, g._stateRender._uvClip.Y, material.TextureAlbedo.UVRotation.X, material.TextureAlbedo.UVRotation.Y);
 
                 GL.Uniform3(UColorMaterial, material.ColorAlbedo.Xyz);
 

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="KWEngine3.GLWindow">
-    <Position X="0.5" Y="12.75" Width="2.75" />
+    <Position X="0.5" Y="13" Width="2.75" />
     <Members>
       <Field Name="_disposed" Hidden="true" />
       <Field Name="_frame" Hidden="true" />
@@ -80,6 +80,7 @@
   <Class Name="KWEngine3.KWEngine">
     <Position X="0.5" Y="0.5" Width="2.75" />
     <Members>
+      <Field Name="_editModeIgnoredTypes" Hidden="true" />
       <Field Name="_fxaaEnabled" Hidden="true" />
       <Field Name="_geometryMemUsed" Hidden="true" />
       <Field Name="_glowRadius" Hidden="true" />
@@ -118,6 +119,7 @@
       <Method Name="InitializeFontsAndDefaultTextures" Hidden="true" />
       <Method Name="InitializeModels" Hidden="true" />
       <Method Name="InitializeParticles" Hidden="true" />
+      <Method Name="IsIgnoredInEditMode" Hidden="true" />
       <Field Name="KWCapsule" Hidden="true" />
       <Field Name="KWCapsule2" Hidden="true" />
       <Field Name="KWDollar" Hidden="true" />
@@ -174,7 +176,7 @@
       <Method Name="ToggleEditMode" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>DfoQVbBNA+WJgPGc/AruCZARVCgCgmoSjHn2SP2KEKs=</HashCode>
+      <HashCode>DfowVbBNA+2JgPGc/AruCdARVCgCgmoSjHn2SP2KEKs=</HashCode>
       <FileName>KWEngine.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -357,7 +359,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.GameObjects.LightObject">
-    <Position X="6.5" Y="18.5" Width="2.75" />
+    <Position X="6.5" Y="18.75" Width="2.75" />
     <Members>
       <Field Name="_behindCamera" Hidden="true" />
       <Field Name="_fbShadowMap" Hidden="true" />
@@ -542,7 +544,7 @@
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.WorldEvent">
-    <Position X="0.5" Y="19" Width="2.75" />
+    <Position X="0.5" Y="19.25" Width="2.75" />
     <Members>
       <Property Name="Owner" Hidden="true" />
     </Members>
@@ -685,10 +687,11 @@
       <Method Name="IsMeshTransparent" Hidden="true" />
       <Method Name="SetTextureOffsetForMaterial" Hidden="true" />
       <Method Name="SetTextureRepeatForMaterial" Hidden="true" />
+      <Method Name="SetTextureRotationForMaterial" Hidden="true" />
       <Method Name="UpdateModelMatrixAndHitboxes" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>QzNDJ1ouGJ7gUIRuwgqBoUYBACTJyxgJIImMnkBYR1U=</HashCode>
+      <HashCode>QzNDJ1ouGJ7gUIRuwgrBoUYBCCTJyxgJIImMnkBYR1U=</HashCode>
       <FileName>GameObjects\EngineObject.cs</FileName>
     </TypeIdentifier>
   </Class>

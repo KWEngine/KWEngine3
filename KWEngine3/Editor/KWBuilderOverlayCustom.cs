@@ -556,11 +556,13 @@ namespace KWEngine3.Editor
                                 SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
                             }
                             ImGui.PopItemWidth();
+                            ImGui.SameLine();
+                            DrawTextureRotationField(SelectedGameObject, "Rot", -1, (int)(WindowRightWidth * 0.10f));
 
                             float pomscale = SelectedGameObject._pomScale * 10f;
 
                             ImGui.SameLine();
-                            ImGui.PushItemWidth((int)(WindowRightWidth * 0.32f));
+                            ImGui.PushItemWidth((int)(WindowRightWidth * 0.22f));
                             if (ImGui.SliderFloat("Height", ref pomscale, 0f, 1f, "%.2f", ImGuiSliderFlags.Logarithmic | ImGuiSliderFlags.AlwaysClamp))
                             {
                                 SelectedGameObject.SetParallaxOcclusionMappingScale(pomscale);
@@ -569,10 +571,13 @@ namespace KWEngine3.Editor
                         }
                         else
                         {
+                            ImGui.SetNextItemWidth((int)(WindowRightWidth * 0.40f));
                             if (ImGui.InputFloat2("Texture repeat", ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
                             {
                                 SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y);
                             }
+                            ImGui.SameLine();
+                            DrawTextureRotationField(SelectedGameObject, "Rot", -1, (int)(WindowRightWidth * 0.12f));
                         }
                     }
                 }
@@ -676,17 +681,32 @@ namespace KWEngine3.Editor
                     // Texture transform:
                     ImGui.TextColored(new System.Numerics.Vector4(0, 1, 1, 1), "UV transform:");
                     ImGui.PushItemWidth((int)(WindowRightWidth * 0.21f));
+                    bool firstInRow = true;
                     for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
                     {
                         if (SelectedGameObject._model.Material[i].TextureAlbedo.IsTextureSet)
                         {
+                            if (!firstInRow)
+                                ImGui.SameLine();
+                            firstInRow = false;
                             System.Numerics.Vector2 uvTransform = new(SelectedGameObject._model.Material[i].TextureAlbedo.UVTransform.X, SelectedGameObject._model.Material[i].TextureAlbedo.UVTransform.Y);
                             if (ImGui.InputFloat2("XY #" + i, ref uvTransform, "%.2f", ImGuiInputTextFlags.NoUndoRedo))
                             {
                                 SelectedGameObject.SetTextureRepeat(uvTransform.X, uvTransform.Y, i);
                             }
                         }
-                        ImGui.SameLine();
+                    }
+                    // second row: rotation per material, aligned below the repeat fields
+                    firstInRow = true;
+                    for (int i = 0; i < SelectedGameObject._model.Material.Length; i++)
+                    {
+                        if (SelectedGameObject._model.Material[i].TextureAlbedo.IsTextureSet)
+                        {
+                            if (!firstInRow)
+                                ImGui.SameLine();
+                            firstInRow = false;
+                            DrawTextureRotationField(SelectedGameObject, "Rot#" + i, i, (int)(WindowRightWidth * 0.21f));
+                        }
                     }
 
 
@@ -1045,9 +1065,24 @@ namespace KWEngine3.Editor
                     ImGui.SetNextItemWidth(itemWidth);
                     InputTextFile("Height", GetTextureNameForImportedModel(m.TextureHeight, modelPath), "Height map", f => ApplyTextureToGameObject(g, f, TextureType.Height, materialId));
                 }
+                ImGui.TableNextColumn();
+                DrawTextureRotationField(g, "Rotation", materialId, itemWidth);
                 ImGui.EndTable();
             }
             ImGui.Separator();
+        }
+
+        // Small drag field for the texture rotation in degrees (materialId -1 = all materials).
+        private static void DrawTextureRotationField(GameObject g, string label, int materialId, float width)
+        {
+            float deg = g.GetTextureRotation(materialId < 0 ? 0 : materialId);
+            ImGui.SetNextItemWidth(width);
+            if (ImGui.DragFloat(label, ref deg, 0.5f, -180f, 180f, "%.1f", ImGuiSliderFlags.AlwaysClamp))
+            {
+                g.SetTextureRotation(deg, materialId);
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Texture rotation in degrees (drag or double-click to type)");
         }
 
         private static string GetTextureNameForImportedModel(KWEngine3.Model.GeoTexture tex, string modelPath)
@@ -1774,6 +1809,9 @@ namespace KWEngine3.Editor
             {
                 foreach (GameObject g in KWEngine.CurrentWorld.GetGameObjectsSortedByType())
                 {
+                    if (KWEngine.IsIgnoredInEditMode(g))
+                        continue;
+
                     if (g == SelectedGameObject)
                     {
                         ImGui.PushStyleColor(ImGuiCol.Button, new System.Numerics.Vector4(0.25f, 0.5f, 1f, 0.5f));

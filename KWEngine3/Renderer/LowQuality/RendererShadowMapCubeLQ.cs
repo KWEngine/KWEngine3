@@ -138,8 +138,8 @@ namespace KWEngine3.Renderer.LowQuality
 
                 GL.UniformMatrix4(UModelMatrix, false, ref g._stateRender._modelMatrices[i]);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * g._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y, material.ColorAlbedo.W * g._stateRender._opacity));
+                GL.Uniform4(UTextureClip, g._stateRender._uvClip.X, g._stateRender._uvClip.Y, material.TextureAlbedo.UVRotation.X, material.TextureAlbedo.UVRotation.Y);
                 GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * g._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * g._stateRender._uvTransform.W));
-                GL.Uniform2(UTextureClip, g._stateRender._uvClip);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureAlbedo, 0);
@@ -178,8 +178,8 @@ namespace KWEngine3.Renderer.LowQuality
 
                 GL.UniformMatrix4(UModelMatrix, false, ref vsgo._gameObject._stateRender._modelMatrices[i]);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * vsgo._gameObject._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * vsgo._gameObject._stateRender._uvTransform.Y, material.ColorAlbedo.W * vsgo._gameObject._stateRender._opacity));
+                GL.Uniform4(UTextureClip, vsgo._gameObject._stateRender._uvClip.X, vsgo._gameObject._stateRender._uvClip.Y, material.TextureAlbedo.UVRotation.X, material.TextureAlbedo.UVRotation.Y);
                 GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * vsgo._gameObject._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * vsgo._gameObject._stateRender._uvTransform.W));
-                GL.Uniform2(UTextureClip, vsgo._gameObject._stateRender._uvClip);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureAlbedo, 0);
@@ -206,6 +206,7 @@ namespace KWEngine3.Renderer.LowQuality
 
                 GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X, material.TextureAlbedo.UVTransform.Y, material.ColorAlbedo.W));
+                GL.Uniform4(UTextureClip, Vector4.Zero);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureAlbedo, 0);

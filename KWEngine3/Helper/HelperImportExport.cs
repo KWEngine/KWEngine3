@@ -543,6 +543,11 @@ namespace KWEngine3.Helper
                 g.SetTextureRepeat(repeat[0], repeat[1], i);
                 g.SetTextureOffset(offset[0], offset[1], i);
             }
+            if (sg.TextureRotation != null) // missing in files exported before the rotation was saved
+            {
+                for (int i = 0; i < sg.TextureRotation.Count && i < g._model.Material.Length; i++)
+                    g.SetTextureRotation(sg.TextureRotation[i], i);
+            }
 
             for(int i = 0; i < sg.TextureRoughnessInMetallic.Length; i++)
             {
@@ -631,6 +636,11 @@ namespace KWEngine3.Helper
                 float[] offset = sr.TextureOffset[i];
                 r.SetTextureRepeat(repeat[0], repeat[1], i);
                 r.SetTextureOffset(offset[0], offset[1], i);
+            }
+            if (sr.TextureRotation != null) // missing in files exported before the rotation was saved
+            {
+                for (int i = 0; i < sr.TextureRotation.Count && i < r._model.Material.Length; i++)
+                    r.SetTextureRotation(sr.TextureRotation[i], i);
             }
 
             for (int i = 0; i < sr.TextureRoughnessInMetallic.Length; i++)

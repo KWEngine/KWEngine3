@@ -641,6 +641,7 @@ namespace KWEngine3.Helper
                     g.SetTextureRepeat(ms.TextureAlbedo.UVTransform.X, ms.TextureAlbedo.UVTransform.Y, i);
                     g.SetTextureOffset(ms.TextureAlbedo.UVTransform.Z, ms.TextureAlbedo.UVTransform.W, i);
                 }
+                g._model.Material[i].TextureAlbedo.UVRotation = ms.TextureAlbedo.UVRotation;
             }
             g.SetTextureRepeat(src.TextureRepeat.X, src.TextureRepeat.Y);
             g.SetTextureOffset(src.TextureOffset.X, src.TextureOffset.Y);

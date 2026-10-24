@@ -690,6 +690,80 @@ namespace KWEngine3.GameObjects
         }
 
         /// <summary>
+        /// Dreht die Textur eines Materials um den angegebenen Winkel (Drehpunkt ist die Mitte des durch SetTextureRepeat() und SetTextureOffset() gewählten Texturteils)
+        /// </summary>
+        /// <remarks>Ist der zweite Parameter -1, wird die Drehung für alle Materialien des Objekts gesetzt (Standard)</remarks>
+        /// <param name="deg">Drehwinkel in Grad (Standard: 0)</param>
+        /// <param name="materialId">Nullbasierter Index des zu ändernden Meshs/Materials (Standard: -1 = alle Materialien)</param>
+        public void SetTextureRotation(float deg, int materialId = -1)
+        {
+            if (materialId < 0)
+            {
+                for (int i = 0; i < _model.Material.Length; i++)
+                    SetTextureRotationForMaterial(deg, i);
+            }
+            else if (materialId < _model.Material.Length)
+            {
+                SetTextureRotationForMaterial(deg, materialId);
+            }
+            else
+            {
+                KWEngine.LogWriteLine("[EngineObject] SetTextureRotation() call ignored due to invalid parameter values");
+            }
+        }
+
+        /// <summary>
+        /// Dreht die Textur eines Materials um den angegebenen Winkel (Drehpunkt ist die Mitte des durch SetTextureRepeat() und SetTextureOffset() gewählten Texturteils)
+        /// </summary>
+        /// <param name="deg">Drehwinkel in Grad (Standard: 0)</param>
+        /// <param name="materialName">Name des zu ändernden Materials</param>
+        /// <param name="matchNameExactly">gibt an, ob der Materialname exakt übereinstimmen muss (Standard: true)</param>
+        public void SetTextureRotation(float deg, string materialName, bool matchNameExactly = true)
+        {
+            if (materialName == null || materialName.Trim().Length == 0)
+            {
+                KWEngine.LogWriteLine("[EngineObject] Material name could not be found. Aborted.");
+                return;
+            }
+
+            for (int i = 0; i < _model.Material.Length; i++)
+            {
+                bool match;
+                if (matchNameExactly)
+                {
+                    match = _model.Material[i].AttachedToMesh == materialName || _model.Material[i].Name == materialName;
+                }
+                else
+                {
+                    match = (_model.Material[i].AttachedToMesh != null && _model.Material[i].AttachedToMesh.ToLower().Contains(materialName.ToLower())) || (_model.Material[i].Name != null && _model.Material[i].Name.ToLower().Contains(materialName.ToLower()));
+                }
+
+                if (match)
+                {
+                    SetTextureRotationForMaterial(deg, i);
+                    return;
+                }
+            }
+            KWEngine.LogWriteLine("[EngineObject] Material name could not be found. Aborted.");
+        }
+
+        /// <summary>
+        /// Erfragt den aktuellen Drehwinkel der Textur für den angegebenen Index
+        /// </summary>
+        /// <param name="meshIndex">Nullbasierter Index</param>
+        /// <returns>Drehwinkel in Grad (Wertebereich: -180 bis 180)</returns>
+        public float GetTextureRotation(int meshIndex)
+        {
+            if (meshIndex >= 0 && meshIndex < _model.Material.Length)
+            {
+                Vector2 r = _model.Material[meshIndex].TextureAlbedo.UVRotation;
+                return MathHelper.RadiansToDegrees(MathF.Atan2(r.Y, r.X + 1f));
+            }
+            KWEngine.LogWriteLine("[EngineObject] Texture rotation: invalid index");
+            return 0f;
+        }
+
+        /// <summary>
         /// Setzt die Texturwiederholung auf dem Objekt (Standard: 1)
         /// </summary>
         /// <param name="x">x</param>
@@ -1519,6 +1593,13 @@ namespace KWEngine3.GameObjects
                 if (_model.Material.Length <= materialIndex)
                     KWEngine.LogWriteLine("[EngineObject] Texture repeat: invalid material");
             }
+        }
+
+        internal void SetTextureRotationForMaterial(float deg, int materialIndex)
+        {
+            // stored as (cos - 1, sin) so that an unset value means no rotation
+            float rad = MathHelper.DegreesToRadians(deg);
+            _model.Material[materialIndex].TextureAlbedo.UVRotation = new Vector2(MathF.Cos(rad) - 1f, MathF.Sin(rad));
         }
 
         internal void SetTextureOffsetForMaterial(float x, float y, int materialIndex)

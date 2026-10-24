@@ -280,6 +280,46 @@ namespace KWEngine3
         /// </summary>
         public static bool EditModeActive { get { return Mode == EngineMode.Edit; } }
 
+        internal static readonly HashSet<Type> _editModeIgnoredTypes = new();
+
+        /// <summary>
+        /// Blendet alle GameObject-Instanzen der angegebenen Klasse (und ihrer Unterklassen) in der Objektliste des Edit-Modus aus
+        /// </summary>
+        /// <remarks>Die Instanzen bleiben in der Welt erhalten und werden weiterhin gezeichnet; sie tauchen nur nicht mehr in der Liste im linken Editorbereich auf</remarks>
+        /// <param name="t">Klasse, die ausgeblendet werden soll (z.B. typeof(Bullet))</param>
+        public static void EditModeAddIgnoredType(Type t)
+        {
+            if (t == null || !typeof(GameObject).IsAssignableFrom(t))
+            {
+                LogWriteLine("[KWEngine] EditModeAddIgnoredType() call ignored: type must be a GameObject class");
+                return;
+            }
+            _editModeIgnoredTypes.Add(t);
+        }
+
+        /// <summary>
+        /// Zeigt die GameObject-Instanzen der angegebenen Klasse wieder in der Objektliste des Edit-Modus an
+        /// </summary>
+        /// <param name="t">Klasse, die zuvor per EditModeAddIgnoredType() ausgeblendet wurde</param>
+        public static void EditModeRemoveIgnoredType(Type t)
+        {
+            if (t != null)
+                _editModeIgnoredTypes.Remove(t);
+        }
+
+        // True if g's class (or one of its base classes) was hidden via EditModeAddIgnoredType().
+        internal static bool IsIgnoredInEditMode(GameObject g)
+        {
+            if (_editModeIgnoredTypes.Count == 0)
+                return false;
+            for (Type t = g.GetType(); t != null && t != typeof(GameObject); t = t.BaseType)
+            {
+                if (_editModeIgnoredTypes.Contains(t))
+                    return true;
+            }
+            return _editModeIgnoredTypes.Contains(typeof(GameObject));
+        }
+
         /// <summary>
         /// Zusätzliches Padding für die Kollisionsvorhersage (Standard: 2.0f)
         /// </summary>

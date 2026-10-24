@@ -10,7 +10,7 @@ uniform mat4 uModelMatrix;
 uniform mat4 uBoneTransforms[128];
 uniform vec3 uTextureTransformOpacity;
 uniform vec2 uTextureOffset;
-uniform vec2 uTextureClip;
+uniform vec4 uTextureClip; // xy = clip, zw = (cos - 1, sin) of uv rotation
 
 layout (std140) uniform uInstanceBlock
 {
@@ -52,7 +52,9 @@ void main()
 	vTexture = vec2(uTextureTransformOpacity.x < 0.0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransformOpacity.y < 0.0 ? 1.0 - aTexture.y : aTexture.y) * abs(uTextureTransformOpacity.xy) + uTextureOffset;
 	vec2 uvCenter = uTextureOffset * abs(uTextureTransformOpacity.xy) + abs(uTextureTransformOpacity.xy) * 0.5;
 	vec2 delta = vTexture - uvCenter;
-	vTexture = vTexture + delta * uTextureClip;
+	delta = delta * (1.0 + uTextureClip.xy);
+	vec2 uvRot = vec2(uTextureClip.z + 1.0, uTextureClip.w);
+	vTexture = uvCenter + vec2(delta.x * uvRot.x - delta.y * uvRot.y, delta.x * uvRot.y + delta.y * uvRot.x);
 
 	gl_Position = instanceModelMatrix[gl_InstanceID] * uModelMatrix * totalLocalPos;
 }

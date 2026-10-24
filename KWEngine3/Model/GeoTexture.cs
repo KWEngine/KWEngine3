@@ -9,6 +9,7 @@ namespace KWEngine3.Model
         public int OpenGLID;
         public int UVMapIndex;
         public Vector4 UVTransform;
+        public Vector2 UVRotation; // (cos - 1, sin), zero = no rotation
         public TextureType Type;
         public int Width;
         public int Height;
@@ -24,6 +25,7 @@ namespace KWEngine3.Model
             OpenGLID = -1;
             UVMapIndex = 0;
             UVTransform = new Vector4(1, 1, 0, 0);
+            UVRotation = Vector2.Zero;
             Type = TextureType.Albedo;
             Width = 0;
             Height = 0;

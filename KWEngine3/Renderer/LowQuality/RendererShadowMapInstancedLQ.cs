@@ -134,8 +134,8 @@ namespace KWEngine3.Renderer.LowQuality
 
                 GL.UniformMatrix4(UModelMatrix, false, ref r._stateRender._modelMatrices[i]);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X * r._stateRender._uvTransform.X, material.TextureAlbedo.UVTransform.Y * r._stateRender._uvTransform.Y, material.ColorAlbedo.W * r._stateRender._opacity));
+                GL.Uniform4(UTextureClip, r._stateRender._uvClip.X, r._stateRender._uvClip.Y, material.TextureAlbedo.UVRotation.X, material.TextureAlbedo.UVRotation.Y);
                 GL.Uniform2(UTextureOffset, new Vector2(material.TextureAlbedo.UVTransform.Z * r._stateRender._uvTransform.Z, material.TextureAlbedo.UVTransform.W * r._stateRender._uvTransform.W));
-                GL.Uniform2(UTextureClip, r._stateRender._uvClip);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureAlbedo, 0);
@@ -163,6 +163,7 @@ namespace KWEngine3.Renderer.LowQuality
 
                 GL.UniformMatrix4(UModelMatrix, false, ref t._stateRender._modelMatrix);
                 GL.Uniform3(UTextureTransformOpacity, new Vector3(material.TextureAlbedo.UVTransform.X, material.TextureAlbedo.UVTransform.Y, material.ColorAlbedo.W));
+                GL.Uniform4(UTextureClip, Vector4.Zero);
                 GL.ActiveTexture(TextureUnit.Texture0);
                 GL.BindTexture(TextureTarget.Texture2D, material.TextureAlbedo.IsTextureSet ? material.TextureAlbedo.OpenGLID : KWEngine.TextureWhite);
                 GL.Uniform1(UTextureAlbedo, 0);

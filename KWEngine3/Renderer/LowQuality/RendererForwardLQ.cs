@@ -322,7 +322,7 @@ namespace KWEngine3.Renderer.LowQuality
                 material.TextureAlbedo.UVTransform.Y * g._stateRender._uvTransform.Y,
                 material.TextureAlbedo.UVTransform.Z + g._stateRender._uvTransform.Z,
                 material.TextureAlbedo.UVTransform.W + g._stateRender._uvTransform.W));
-                GL.Uniform2(UTextureClip, g._stateRender._uvClip);
+                GL.Uniform4(UTextureClip, g._stateRender._uvClip.X, g._stateRender._uvClip.Y, material.TextureAlbedo.UVRotation.X, material.TextureAlbedo.UVRotation.Y);
 
                 Vector3i useTexturesAlbedoNormalEmissive = new Vector3i(
                     material.TextureAlbedo.IsTextureSet ? 1 : 0,

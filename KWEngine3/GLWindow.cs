@@ -1116,9 +1116,12 @@ namespace KWEngine3
         {
             bool shadowMapDebugMode = (int)KWEngine.DebugMode >= 7 && (int)KWEngine.DebugMode <= 9;
             base.OnMouseWheel(e);
-            if (KWEngine.Mode == EngineMode.Edit &&
-                !KWBuilderOverlay.IsCursorOnAnyControl() &&
-                shadowMapDebugMode == false)
+            if (KWEngine.Mode == EngineMode.Edit && KWBuilderOverlay.IsCursorOnAnyControl())
+            {
+                // cursor is over an editor panel: let ImGui scroll it instead of moving the camera
+                Overlay.MouseScroll(e.Offset);
+            }
+            else if (KWEngine.Mode == EngineMode.Edit && shadowMapDebugMode == false)
             {
                 float step = 2f;
                 if (KWBuilderOverlay.SelectedVSG != null)
@@ -1130,7 +1133,6 @@ namespace KWEngine3
                     step = MathF.Max(0f, (KWBuilderOverlay.SelectedGameObject.Center - KWEngine.CurrentWorld._cameraEditor._stateCurrent._position).LengthFast / 10);
                 }
                 KWEngine.CurrentWorld._cameraEditor.Move(e.OffsetY * step);
-                Overlay.MouseScroll(e.Offset);
             }
         }
 

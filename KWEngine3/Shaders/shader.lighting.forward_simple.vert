@@ -8,7 +8,7 @@ layout(location = 6) in	vec3 aBoneWeights;
 uniform mat4 uViewProjectionMatrix;
 uniform mat4 uModelMatrix;
 uniform vec4 uTextureTransform;
-uniform vec2 uTextureClip;
+uniform vec4 uTextureClip; // xy = clip, zw = (cos - 1, sin) of uv rotation
 uniform vec2 uUseAnimationsExpansionFactor;
 uniform mat4 uBoneTransforms[128];
 
@@ -49,5 +49,7 @@ void main()
 	vTexture = (vec2(uTextureTransform.x < 0 ? 1.0 - aTexture.x : aTexture.x, uTextureTransform.y < 0 ? 1.0 - aTexture.y : aTexture.y) + uTextureTransform.zw) * abs(uTextureTransform.xy);
 	vec2 uvCenter = uTextureTransform.zw * abs(uTextureTransform.xy) + abs(uTextureTransform.xy) * 0.5;
 	vec2 delta = vTexture - uvCenter;
-	vTexture = vTexture + delta * uTextureClip;
+	delta = delta * (1.0 + uTextureClip.xy);
+	vec2 uvRot = vec2(uTextureClip.z + 1.0, uTextureClip.w);
+	vTexture = uvCenter + vec2(delta.x * uvRot.x - delta.y * uvRot.y, delta.x * uvRot.y + delta.y * uvRot.x);
 }

@@ -1,6 +1,7 @@
 ﻿using KWEngine3.GameObjects;
 using KWEngine3.Model;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace KWEngine3.Helper
 {
@@ -31,6 +32,7 @@ namespace KWEngine3.Helper
         public MetallicType MetallicType { get; set; }
         public List<float[]> TextureOffset { get; set; }
         public List<float[]> TextureRepeat { get; set; }
+        public List<float> TextureRotation { get; set; } // degrees per material (missing in older files)
         public string[] TextureAlbedo { get; set; }
         public string[] TextureNormal { get; set; }
         public string[] TextureRoughness { get; set; }
@@ -79,6 +81,7 @@ namespace KWEngine3.Helper
             // Export/import repeat for all materials...
             rg.TextureOffset = new List<float[]>();
             rg.TextureRepeat = new List<float[]>();
+            rg.TextureRotation = new List<float>();
             rg.Metallic = new List<float>();
             rg.Roughness = new List<float>();
             rg.TextureAlbedo = new string[r._model.Material.Length];
@@ -92,6 +95,7 @@ namespace KWEngine3.Helper
             foreach (GeoMaterial mat in r._model.Material)
             {
                 rg.TextureRepeat.Add(new float[] { mat.TextureAlbedo.UVTransform.X, mat.TextureAlbedo.UVTransform.Y });
+                rg.TextureRotation.Add(MathHelper.RadiansToDegrees(MathF.Atan2(mat.TextureAlbedo.UVRotation.Y, mat.TextureAlbedo.UVRotation.X + 1f)));
                 rg.TextureOffset.Add(new float[] { mat.TextureAlbedo.UVTransform.Z, mat.TextureAlbedo.UVTransform.W });
                 rg.Metallic.Add(mat.Metallic);
                 rg.Roughness.Add(mat.Roughness);
