@@ -507,6 +507,7 @@
       <Method Name="CalculateRadiansFromDegrees" Hidden="true" />
       <Method Name="Dot" Hidden="true" />
       <Method Name="ExtractRotationRobust" Hidden="true" />
+      <Method Name="ExtractYaw" Hidden="true" />
       <Field Name="finalTranslationPoint" Hidden="true" />
       <Method Name="GetRotationTowardsCamera" Hidden="true" />
       <Field Name="rotationMatrix" Hidden="true" />
@@ -517,12 +518,12 @@
       <Field Name="zeroVector" Hidden="true" />
     </Members>
     <TypeIdentifier>
-      <HashCode>AEEAAQgAIAAgAAAAEAEAAQFLCIDAAg0AAAAASAACggA=</HashCode>
+      <HashCode>AEEABQgAIAAgAAAAEAEAAQFLCIDAAg0AAAQASAACggA=</HashCode>
       <FileName>Helper\HelperRotation.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="KWEngine3.Helper.HelperVector">
-    <Position X="21.5" Y="12.75" Width="2.75" />
+    <Position X="21.5" Y="13" Width="2.75" />
     <Members>
       <Field Name="AABBProjectionList" Hidden="true" />
       <Method Name="ConvertVector2DToOpenTK" Hidden="true" />
